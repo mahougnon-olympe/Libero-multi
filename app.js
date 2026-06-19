@@ -268,14 +268,36 @@ const $ = id => document.getElementById(id);
 const socket = io(window.BACKEND_URL, { transports: ['websocket', 'polling'] });
 
 // ── Navigation ───────────────────────────────────────────────────────────────
+let _newsTimer = null;
+function _scheduleNewsCollapse() {
+  if (window.innerWidth > 600) return;
+  clearTimeout(_newsTimer);
+  _newsTimer = setTimeout(() => {
+    const nc = document.getElementById('news-card');
+    if (nc) nc.classList.add('collapsed');
+  }, 10000);
+}
+
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById('screen-' + name);
   if (el) el.classList.add('active');
   const nc = document.getElementById('news-card');
   if (nc) nc.style.display = name === 'landing' ? '' : 'none';
+  if (name === 'landing') { _scheduleNewsCollapse(); }
+  else { clearTimeout(_newsTimer); }
   if (window._tutoOnScreen) window._tutoOnScreen(name);
 }
+
+document.getElementById('news-card')?.addEventListener('click', () => {
+  if (window.innerWidth > 600) return;
+  const nc = document.getElementById('news-card');
+  if (!nc) return;
+  if (nc.classList.contains('collapsed')) {
+    nc.classList.remove('collapsed');
+    _scheduleNewsCollapse();
+  }
+});
 
 // ── Trivia : constantes ───────────────────────────────────────────────────────
 const TRIVIA_COLORS = ['#2563eb','#dc2626','#16a34a','#9333ea','#ea580c','#0891b2'];
