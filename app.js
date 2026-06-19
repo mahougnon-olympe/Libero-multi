@@ -70,6 +70,7 @@ const DICT = {
     err4Letters:'Entre un code à 4 lettres.',
     soloLoading:'⏳ Chargement…',
     globalLbTitle:'Classement Global', globalLbEmpty:'Aucune partie jouée.', globalLbPts:'pts',
+    globalLbMore:'Voir plus', globalLbLess:'Voir moins',
     themeDay:'☀️ Thème jour', themeNight:'🌙 Thème nuit', themeToggle:'Basculer le thème',
     mixLabel:n => `🎲 Mix (${n} thèmes)`,
     colLabel:n => `Jouer colonne ${n}`,
@@ -138,6 +139,7 @@ const DICT = {
     err4Letters:'Enter a 4-letter code.',
     soloLoading:'⏳ Loading…',
     globalLbTitle:'Global Leaderboard', globalLbEmpty:'No games played yet.', globalLbPts:'pts',
+    globalLbMore:'See more', globalLbLess:'See less',
     themeDay:'☀️ Day theme', themeNight:'🌙 Night theme', themeToggle:'Toggle theme',
     mixLabel:n => `🎲 Mix (${n} themes)`,
     colLabel:n => `Play column ${n}`,
@@ -888,22 +890,39 @@ function clearChat() {
 }
 
 // ── Classement Global (landing) ───────────────────────────────────────────────
+let _glbExpanded = false;
+let _glbData     = [];
+
 function renderGlobalLeaderboard(data) {
   const list = $('global-lb-list');
   if (!list) return;
-  if (!data || data.length === 0) {
+  _glbData = data || [];
+  if (_glbData.length === 0) {
     list.innerHTML = `<p class="lb-empty">${t().globalLbEmpty}</p>`;
     return;
   }
+  _paintGlobalLb();
+}
+
+function _paintGlobalLb() {
+  const list = $('global-lb-list');
+  if (!list) return;
   const medals  = ['🥇', '🥈', '🥉'];
   const classes = ['gold', 'silver', 'bronze'];
-  list.innerHTML = data.slice(0, 5).map((entry, i) => `
+  const visible = _glbExpanded ? _glbData : _glbData.slice(0, 3);
+  const rows = visible.map((entry, i) => `
     <div class="global-lb-row">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
       <span class="lb-name">${entry.name}</span>
       <span class="global-lb-score">${entry.globalScore} ${t().globalLbPts}</span>
     </div>
   `).join('');
+  const moreBtn = _glbData.length > 3
+    ? `<button class="lb-more-btn" id="btn-lb-more">${_glbExpanded ? t().globalLbLess : t().globalLbMore}</button>`
+    : '';
+  list.innerHTML = rows + moreBtn;
+  const btn = $('btn-lb-more');
+  if (btn) btn.addEventListener('click', () => { _glbExpanded = !_glbExpanded; _paintGlobalLb(); });
 }
 
 // ── Classement ────────────────────────────────────────────────────────────────

@@ -810,6 +810,22 @@ h1 {
 .global-lb-snake {
   font-size: .7rem; margin-left: 2px; opacity: .8;
 }
+.lb-more-btn {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 4px 0;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  opacity: .8;
+  transition: opacity .15s;
+}
+.lb-more-btn:hover { opacity: 1; }
 
 /* ── Bouton retour ── */
 .btn-back {
