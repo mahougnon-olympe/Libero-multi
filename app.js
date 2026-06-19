@@ -269,8 +269,10 @@ const socket = io(window.BACKEND_URL, { transports: ['websocket', 'polling'] });
 
 // ── Navigation ───────────────────────────────────────────────────────────────
 let _newsTimer = null;
+let _newsAutoDisabled = false;
 function _scheduleNewsCollapse() {
   if (window.innerWidth > 600) return;
+  if (_newsAutoDisabled) return;
   clearTimeout(_newsTimer);
   _newsTimer = setTimeout(() => {
     const nc = document.getElementById('news-card');
@@ -293,10 +295,9 @@ document.getElementById('news-card')?.addEventListener('click', () => {
   if (window.innerWidth > 600) return;
   const nc = document.getElementById('news-card');
   if (!nc) return;
-  if (nc.classList.contains('collapsed')) {
-    nc.classList.remove('collapsed');
-    _scheduleNewsCollapse();
-  }
+  _newsAutoDisabled = true;
+  clearTimeout(_newsTimer);
+  nc.classList.toggle('collapsed');
 });
 
 // ── Trivia : constantes ───────────────────────────────────────────────────────
