@@ -25,7 +25,7 @@ const DICT = {
     botLabel:'🤖 Jouer seul contre le robot :',
     botEasy:'😊 Facile', botMedium:'🎯 Moyen', botHard:'💀 Difficile',
     btnCreate:'Créer une partie multijoueur',
-    namePh:'Ton pseudo (optionnel)', codePh:'Code à 4 lettres',
+    namePh:'Ton pseudo (obligatoire)', codePh:'Code à 4 lettres', errNoName:'Entre un pseudo pour continuer.',
     btnJoin:'Rejoindre', dividerJoin:'ou rejoindre', lbTitle:'Classement',
     lbEmpty:'Aucune partie jouée pour l\'instant.',
     lbW:'V', lbL:'D', lbD:'N',
@@ -52,7 +52,7 @@ const DICT = {
     diffLabels:{ easy:'Facile', medium:'Moyen', hard:'Difficile' },
     triviaHomeTitle:'🧠 Culture Générale',
     triviaHomeSubtitle:'Choisis un ou plusieurs thèmes et joue !',
-    triviaNamePh:'Ton pseudo (optionnel)',
+    triviaNamePh:'Ton pseudo (obligatoire)',
     triviaThemesLabel:'Thèmes (sélection multiple) :',
     btnSolo:'▶ Solo', btnCreateTrivia:'+ Créer un salon',
     triviaCodePh:'Code à 4 lettres', btnJoinTrivia:'Rejoindre',
@@ -91,7 +91,7 @@ const DICT = {
     botLabel:'🤖 Play solo against the bot:',
     botEasy:'😊 Easy', botMedium:'🎯 Medium', botHard:'💀 Hard',
     btnCreate:'Create a multiplayer game',
-    namePh:'Your username (optional)', codePh:'4-letter code',
+    namePh:'Your username (required)', codePh:'4-letter code', errNoName:'Enter a username to continue.',
     btnJoin:'Join', dividerJoin:'or join', lbTitle:'Leaderboard',
     lbEmpty:'No games played yet.',
     lbW:'W', lbL:'L', lbD:'D',
@@ -118,7 +118,7 @@ const DICT = {
     diffLabels:{ easy:'Easy', medium:'Medium', hard:'Hard' },
     triviaHomeTitle:'🧠 General Knowledge',
     triviaHomeSubtitle:'Choose one or more themes and play!',
-    triviaNamePh:'Your username (optional)',
+    triviaNamePh:'Your username (required)',
     triviaThemesLabel:'Themes (multiple selection):',
     btnSolo:'▶ Solo', btnCreateTrivia:'+ Create a room',
     triviaCodePh:'4-letter code', btnJoinTrivia:'Join',
@@ -305,7 +305,7 @@ $('input-name').value = localStorage.getItem('playerName') || '';
 $('input-name').addEventListener('input', e => {
   localStorage.setItem('playerName', e.target.value.trim());
 });
-function getPlayerName() { return ($('input-name').value.trim()) || getOrCreateAnonName(); }
+function getPlayerName() { return $('input-name').value.trim(); }
 
 // ── Sélecteur de jeu (accueil) ───────────────────────────────────────────────
 document.querySelectorAll('.game-btn').forEach(btn => {
@@ -319,12 +319,14 @@ document.querySelectorAll('.game-btn').forEach(btn => {
 // ── Accueil ──────────────────────────────────────────────────────────────────
 document.querySelectorAll('.bot-btn').forEach(btn => {
   btn.addEventListener('click', () => {
+    if (!getPlayerName()) { showError(t().errNoName); return; }
     clearError();
     socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), vsBot: true, botDifficulty: btn.dataset.diff });
   });
 });
 
 $('btn-create').addEventListener('click', () => {
+  if (!getPlayerName()) { showError(t().errNoName); return; }
   clearError();
   socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName() });
 });
@@ -334,6 +336,7 @@ $('input-code').addEventListener('keydown', e => { if (e.key === 'Enter') joinRo
 $('input-code').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase(); });
 
 function joinRoom() {
+  if (!getPlayerName()) { showError(t().errNoName); return; }
   const code = $('input-code').value.trim().toUpperCase();
   if (code.length !== 4) { showError(t().err4Letters); return; }
   clearError();
@@ -895,7 +898,7 @@ function shuffle(arr) {
   return a;
 }
 
-function getTriviaName() { return ($('input-trivia-name').value.trim()) || getOrCreateAnonName(); }
+function getTriviaName() { return $('input-trivia-name').value.trim(); }
 
 function getCategoryLabel(ids) {
   const cats = t().triviaCats;
@@ -960,7 +963,8 @@ $('input-trivia-name').addEventListener('input', e => {
 $('btn-back-trivia-home').addEventListener('click', () => { clearTriviaError(); showScreen('landing'); });
 
 $('btn-solo-trivia').addEventListener('click', () => {
-  if (!selectedTriviaCategories.length) { showTriviaError(t().errNoTheme); return; }
+  if (!getTriviaName())                  { showTriviaError(t().errNoName);  return; }
+  if (!selectedTriviaCategories.length)  { showTriviaError(t().errNoTheme); return; }
   clearTriviaError();
   $('btn-solo-trivia').disabled = true;
   $('btn-solo-trivia').textContent = t().soloLoading;
@@ -968,7 +972,8 @@ $('btn-solo-trivia').addEventListener('click', () => {
 });
 
 $('btn-create-trivia').addEventListener('click', () => {
-  if (!selectedTriviaCategories.length) { showTriviaError(t().errNoTheme); return; }
+  if (!getTriviaName())                  { showTriviaError(t().errNoName);  return; }
+  if (!selectedTriviaCategories.length)  { showTriviaError(t().errNoTheme); return; }
   clearTriviaError();
   socket.emit('create-trivia-room', { categories: selectedTriviaCategories, name: getTriviaName(), lang: currentLang });
 });
@@ -978,6 +983,7 @@ $('input-trivia-code').addEventListener('keydown', e => { if (e.key === 'Enter')
 $('input-trivia-code').addEventListener('input',   e => { e.target.value = e.target.value.toUpperCase(); });
 
 function joinTriviaRoom() {
+  if (!getTriviaName()) { showTriviaError(t().errNoName); return; }
   const code = $('input-trivia-code').value.trim().toUpperCase();
   if (code.length !== 4) { showTriviaError(t().err4Letters); return; }
   clearTriviaError();
@@ -1111,7 +1117,7 @@ $('btn-quit-trivia').addEventListener('click', goToTriviaHome);
 // ── Trivia solo : logique locale ──────────────────────────────────────────────
 function soloNextQuestion() {
   if (triviaCurrentQ >= triviaQuestions.length) {
-    const name = getTriviaName() || 'Anonyme';
+    const name = getTriviaName();
     const scores = [{ name, score: triviaScore, colorIndex: 0 }];
     $('tg-q-num').textContent = '';
     $('tg-timer').textContent = '–';
