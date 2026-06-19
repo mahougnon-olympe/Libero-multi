@@ -599,12 +599,14 @@ io.on('connection', (socket) => {
   });
 
   // ── Trivia : créer un salon ──────────────────────────────────────────────
-  socket.on('create-trivia-room', ({ categories, name = '', lang = 'fr', difficulty = '' } = {}) => {
+  socket.on('create-trivia-room', ({ categories, name = '', lang = 'fr', difficulty = '', amount } = {}) => {
     const cats = [].concat(categories || []).map(c => parseInt(c)).filter(c => TRIVIA_CATEGORIES[c]);
     if (cats.length === 0) return;
     const playerName = String(name).trim().slice(0, 20) || 'Anonyme';
     const roomLang = ['fr', 'en'].includes(lang) ? lang : 'fr';
     const roomDiff = ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : '';
+    const rawN = parseInt(amount) || TRIVIA_Q_COUNT;
+    const totalQ = Math.round(Math.min(40, Math.max(10, rawN)) / 5) * 5;
     const code = generateCode();
     const players = new Map();
     players.set(socket.id, { name: playerName, colorIndex: 0, score: 0 });
@@ -616,7 +618,7 @@ io.on('connection', (socket) => {
       lang: roomLang, difficulty: roomDiff,
       players, questions: null, currentQ: -1,
       status: 'waiting', answersThisRound: new Map(),
-      timer: null, revealTimer: null, totalQ: TRIVIA_Q_COUNT,
+      timer: null, revealTimer: null, totalQ,
     });
     triviaRoomCode = code;
     socket.join(code);
@@ -686,7 +688,8 @@ io.on('connection', (socket) => {
     const cats = [].concat(categories).map(c => parseInt(c)).filter(c => TRIVIA_CATEGORIES[c]);
     if (!cats.length) { socket.emit('trivia-solo-error'); return; }
     const l = ['fr', 'en'].includes(lang) ? lang : 'fr';
-    const n = Math.min(20, Math.max(1, parseInt(amount) || 10));
+    const rawN = parseInt(amount) || 10;
+    const n = Math.round(Math.min(40, Math.max(10, rawN)) / 5) * 5;
     const d = ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : '';
     try {
       const qs = cats.length === 1
