@@ -1962,11 +1962,22 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
       if (el) { el.classList.add('tuto-highlight'); highlighted = el; }
     }
 
-    // Si l'étape cible la News, forcer la carte visible pendant toute la durée
+    // Repositionne la bulle près de la cible si elle est hors du centre
+    wrap.style.bottom = '';
+    wrap.style.top    = '';
+    wrap.style.left   = '';
+    wrap.style.transform = '';
     if (step.target === '#news-card') {
       clearTimeout(_newsTimer);
       const nc = document.getElementById('news-card');
-      if (nc) nc.classList.remove('collapsed');
+      if (nc) {
+        nc.classList.remove('collapsed');
+        const rect = nc.getBoundingClientRect();
+        wrap.style.bottom    = 'auto';
+        wrap.style.top       = (rect.bottom + 12) + 'px';
+        wrap.style.left      = Math.max(8, rect.left) + 'px';
+        wrap.style.transform = 'none';
+      }
     }
 
     clearTimeout(autoTimer);
@@ -1979,6 +1990,10 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     clearHighlight();
     wrap.classList.add('hidden');
     wrap.classList.remove('visible');
+    wrap.style.bottom = '';
+    wrap.style.top    = '';
+    wrap.style.left   = '';
+    wrap.style.transform = '';
     current = null;
   }
 
