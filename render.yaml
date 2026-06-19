@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: libero-multi-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: ADMIN_KEY
+        sync: false   # à renseigner manuellement dans le dashboard Render
+      - key: PORT
+        value: 10000   # Render utilise le port 10000 par défaut

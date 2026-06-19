@@ -1,0 +1,9 @@
+# Dépendances
+backend/node_modules/
+
+# Variables d'environnement (ne jamais commiter)
+.env
+backend/.env
+
+# Données runtime (générées par le serveur)
+backend/data.json
