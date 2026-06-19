@@ -1,9 +1,8 @@
 require('dotenv').config();
-const express    = require('express');
-const http       = require('http');
-const fs         = require('fs');
-const path       = require('path');
-const { Server } = require('socket.io');
+const express      = require('express');
+const http         = require('http');
+const { Server }   = require('socket.io');
+const { MongoClient } = require('mongodb');
 const connect4   = require('./game');
 const tictactoe  = require('./game-tictactoe');
 const chessGame  = require('./game-chess');
@@ -28,68 +27,55 @@ const triviaRooms     = new Map();
 const triviaLeaderboard = new Map();
 const comments        = [];
 
-// ── Persistance ────────────────────────────────────────────────────────────
-const DATA_FILE   = path.join(__dirname, 'data.json');
-const BACKUP_FILE = path.join(require('os').homedir(), '.libero_backup.json');
-let saveTimer = null;
+// ── Persistance MongoDB ────────────────────────────────────────────────────
+let mongoClient = null;
+let db          = null;
 
-function parseData(raw) {
-  const json = JSON.parse(raw);
-  if (json.leaderboard)       json.leaderboard.forEach(([k, v])       => leaderboard.set(k, v));
-  if (json.triviaLeaderboard) json.triviaLeaderboard.forEach(([k, v]) => triviaLeaderboard.set(k, v));
-  if (Array.isArray(json.comments)) comments.push(...json.comments);
-}
-
-function loadData() {
-  // Essaie le fichier principal, sinon le miroir de sauvegarde
-  for (const file of [DATA_FILE, BACKUP_FILE]) {
-    try {
-      const raw = fs.readFileSync(file, 'utf8');
-      parseData(raw);
-      console.log(`Classements chargés depuis ${path.basename(file)}`);
-      return;
-    } catch { /* essaie le suivant */ }
+async function connectDB() {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    console.warn('⚠️  MONGODB_URI non définie — scores non persistants entre les redémarrages.');
+    return;
   }
+  mongoClient = new MongoClient(uri);
+  await mongoClient.connect();
+  db = mongoClient.db('libero');
+  console.log('✅ MongoDB connecté.');
 }
 
-function buildPayload() {
-  return JSON.stringify({
-    leaderboard:       [...leaderboard.entries()],
-    triviaLeaderboard: [...triviaLeaderboard.entries()],
-    comments,
-    savedAt: new Date().toISOString(),
-  }, null, 2);
+async function loadData() {
+  if (!db) return;
+  const [lbDocs, tlbDocs, cmtDocs] = await Promise.all([
+    db.collection('leaderboard').find().toArray(),
+    db.collection('trivia_leaderboard').find().toArray(),
+    db.collection('comments').find().sort({ date: 1 }).toArray(),
+  ]);
+  lbDocs.forEach(d  => leaderboard.set(d._id, { wins: d.wins, losses: d.losses, draws: d.draws }));
+  tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { points: d.points, games: d.games }));
+  cmtDocs.forEach(d => comments.push({ pseudo: d.pseudo, message: d.message, date: d.date }));
+  console.log(`📦 Chargé: ${lbDocs.length} joueurs classiques, ${tlbDocs.length} joueurs quiz, ${cmtDocs.length} commentaires.`);
 }
 
-function saveDataSync() {
-  const data = buildPayload();
-  try { fs.writeFileSync(DATA_FILE,   data); } catch (e) { console.error('Erreur sauvegarde principale :', e); }
-  try { fs.writeFileSync(BACKUP_FILE, data); } catch (e) { console.error('Erreur sauvegarde miroir :', e); }
+function dbUpsertLeaderboard(name, entry) {
+  if (!db) return;
+  db.collection('leaderboard')
+    .updateOne({ _id: name }, { $set: entry }, { upsert: true })
+    .catch(e => console.error('Erreur sauvegarde classement:', e));
 }
 
-function saveData() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    const data = buildPayload();
-    fs.writeFile(DATA_FILE,   data, err => { if (err) console.error('Erreur sauvegarde principale :', err); });
-    fs.writeFile(BACKUP_FILE, data, err => { if (err) console.error('Erreur sauvegarde miroir :', err); });
-  }, 1000);
+function dbUpsertTriviaLeaderboard(name, entry) {
+  if (!db) return;
+  db.collection('trivia_leaderboard')
+    .updateOne({ _id: name }, { $set: entry }, { upsert: true })
+    .catch(e => console.error('Erreur sauvegarde classement quiz:', e));
 }
 
-// Sauvegarde synchrone à l'arrêt propre du serveur
-function onShutdown(signal) {
-  console.log(`\n${signal} reçu — sauvegarde des classements…`);
-  saveDataSync();
-  console.log('Sauvegarde OK. Arrêt.');
-  process.exit(0);
+function dbInsertComment(comment) {
+  if (!db) return;
+  db.collection('comments')
+    .insertOne(comment)
+    .catch(e => console.error('Erreur sauvegarde commentaire:', e));
 }
-process.on('SIGTERM', () => onShutdown('SIGTERM'));
-process.on('SIGINT',  () => onShutdown('SIGINT'));
-
-// Auto-save périodique toutes les 2 minutes
-setInterval(saveDataSync, 2 * 60 * 1000);
-
-loadData();
 
 const CODE_CHARS   = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const RECONNECT_MS        = 30_000;
@@ -135,7 +121,7 @@ function updateLeaderboard(name, result) {
   if (result === 'loss') e.losses++;
   if (result === 'draw') e.draws++;
   leaderboard.set(name, e);
-  saveData();
+  dbUpsertLeaderboard(name, e);
 }
 
 function getLeaderboardData() {
@@ -153,7 +139,7 @@ function updateTriviaLeaderboard(name, points) {
   e.points += Math.max(0, parseInt(points) || 0);
   e.games++;
   triviaLeaderboard.set(name, e);
-  saveData();
+  dbUpsertTriviaLeaderboard(name, e);
 }
 
 function getTriviaLeaderboardData() {
@@ -862,12 +848,13 @@ app.post('/api/comment', (req, res) => {
   times.push(now);
   commentRateMap.set(ip, times);
 
-  comments.push({
+  const comment = {
     pseudo:  pseudo?.trim() || 'Anonyme',
     message: message.trim(),
     date:    new Date().toISOString(),
-  });
-  saveData();
+  };
+  comments.push(comment);
+  dbInsertComment(comment);
 
   console.log(`[💬] ${pseudo?.trim() || 'Anonyme'} : ${message.trim().slice(0, 80)}`);
   res.json({ ok: true });
@@ -881,19 +868,28 @@ app.get('/admin/comments', (req, res) => {
   res.json(comments.slice().reverse()); // plus récent en premier
 });
 
-app.get('/admin/reset', (req, res) => {
+app.get('/admin/reset', async (req, res) => {
   const adminKey = process.env.ADMIN_KEY;
   if (!adminKey || req.query.key !== adminKey) {
     return res.status(401).json({ error: 'Clé invalide.' });
   }
   leaderboard.clear();
   triviaLeaderboard.clear();
-  saveData();
+  if (db) {
+    await Promise.all([
+      db.collection('leaderboard').deleteMany({}),
+      db.collection('trivia_leaderboard').deleteMany({}),
+    ]);
+  }
   io.emit('leaderboard-update', []);
   io.emit('trivia-leaderboard-update', []);
   io.emit('global-leaderboard-update', []);
   res.json({ ok: true, message: 'Classements réinitialisés.' });
 });
 
-const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));
+(async () => {
+  await connectDB();
+  await loadData();
+  const PORT = process.env.PORT || 3001;
+  server.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));
+})();
