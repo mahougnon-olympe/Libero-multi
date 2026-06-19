@@ -303,7 +303,10 @@ function getOrCreateAnonName() {
 
 $('input-name').value = localStorage.getItem('playerName') || '';
 $('input-name').addEventListener('input', e => {
-  localStorage.setItem('playerName', e.target.value.trim());
+  const v = e.target.value;
+  localStorage.setItem('playerName', v.trim());
+  const other = $('input-trivia-name');
+  if (other) other.value = v;
 });
 function getPlayerName() { return $('input-name').value.trim(); }
 
@@ -956,7 +959,10 @@ function buildTriviaThemes() {
 // Pseudo trivia sync avec classique
 $('input-trivia-name').value = localStorage.getItem('playerName') || '';
 $('input-trivia-name').addEventListener('input', e => {
-  localStorage.setItem('playerName', e.target.value.trim());
+  const v = e.target.value;
+  localStorage.setItem('playerName', v.trim());
+  const other = $('input-name');
+  if (other) other.value = v;
 });
 
 // Boutons trivia home
@@ -1591,12 +1597,20 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     overlay.classList.remove('hidden');
     feedback.className = 'comment-feedback hidden';
     feedback.textContent = '';
+    pseudo.value = localStorage.getItem('playerName') || '';
   }
   function closeModal() { overlay.classList.add('hidden'); }
 
   $('btn-comment').addEventListener('click', openModal);
   $('btn-comment-close').addEventListener('click', closeModal);
   overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+
+  pseudo.addEventListener('input', e => {
+    const v = e.target.value;
+    localStorage.setItem('playerName', v.trim());
+    const n = $('input-name');       if (n) n.value = v;
+    const tn = $('input-trivia-name'); if (tn) tn.value = v;
+  });
 
   message.addEventListener('input', () => {
     charsEl.textContent = `${message.value.length} / 1000`;
