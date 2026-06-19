@@ -750,9 +750,11 @@ h1 {
 /* ── Landing ── */
 #screen-landing {
   background: radial-gradient(ellipse at 50% 5%, rgba(99,102,241,.2) 0%, transparent 65%);
-  justify-content: center;
+  justify-content: flex-start;
+  padding-top: 80px;
   gap: 16px;
 }
+#screen-landing .global-lb-card { margin-top: auto; }
 .landing-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
