@@ -275,7 +275,7 @@ function _scheduleNewsCollapse() {
   _newsTimer = setTimeout(() => {
     const nc = document.getElementById('news-card');
     if (nc) nc.classList.add('collapsed');
-  }, 10000);
+  }, 5000);
 }
 
 function showScreen(name) {
