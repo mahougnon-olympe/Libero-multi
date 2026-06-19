@@ -158,7 +158,7 @@ function applyLang() {
   document.documentElement.lang = currentLang;
   document.title = d.siteTitle;
   const bl = $('btn-lang');
-  if (bl) bl.textContent = currentLang === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR';
+  if (bl) bl.textContent = currentLang === 'fr' ? '🇫🇷 FR' : '🇬🇧 EN';
 
   // Landing
   const lt = $('landing-title');   if (lt) lt.textContent = d.siteTitle;
