@@ -659,14 +659,14 @@ h1 {
 
 .btn-theme-float {
   position: fixed;
-  bottom: 20px; right: 200px;
+  top: 16px; right: 16px;
   width: 44px; height: 44px;
   border-radius: 50%; border: none;
   background: var(--board); color: #fff;
   font-size: 1.2rem;
   cursor: pointer;
   box-shadow: 0 0 20px rgba(99,102,241,.5);
-  z-index: 50;
+  z-index: 51;
   transition: transform .15s, box-shadow .15s;
 }
 .btn-theme-float:hover  { box-shadow: 0 0 28px rgba(99,102,241,.8); }
@@ -992,7 +992,7 @@ html.light #screen-landing         { background: radial-gradient(ellipse at 50% 
 /* ── Indicateur thème (apparaît 3 s lors du changement) ── */
 #theme-clock {
   position: fixed;
-  top: 16px; right: 16px;
+  top: 68px; right: 16px;
   padding: 5px 10px;
   border-radius: 20px;
   background: var(--card);

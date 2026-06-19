@@ -1717,7 +1717,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     {
       id: 'landing_btns',
       screen: 'landing',
-      text: '⚙️ Trois boutons sont toujours disponibles en bas à droite :<br>🌐 <strong>Langue</strong> — bascule l\'interface FR / EN<br>🐍 <strong>Serpent</strong> — active ou désactive le curseur animé<br>❓ <strong>Aide</strong> — consulte le guide complet à tout moment',
+      text: '⚙️ Des boutons permanents sont disponibles :<br>▶ <strong>En haut à droite</strong> : ☀️/🌙 <strong>Thème</strong> — bascule entre le mode jour et nuit<br>▶ <strong>En bas à droite</strong> : 🌐 <strong>Langue</strong> (FR/EN) · 🐍 <strong>Serpent</strong> (curseur animé) · ❓ <strong>Aide</strong>',
       target: null,
     },
 
