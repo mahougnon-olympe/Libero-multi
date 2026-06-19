@@ -163,6 +163,19 @@ function getTriviaLeaderboardData() {
     .slice(0, 10);
 }
 
+function getGlobalLeaderboardData() {
+  const names = new Set([...leaderboard.keys(), ...triviaLeaderboard.keys()]);
+  return [...names]
+    .map(name => {
+      const c  = leaderboard.get(name)       || { wins: 0 };
+      const tr = triviaLeaderboard.get(name) || { points: 0 };
+      return { name, globalScore: c.wins * 10 + tr.points };
+    })
+    .filter(e => e.globalScore > 0)
+    .sort((a, b) => b.globalScore - a.globalScore)
+    .slice(0, 10);
+}
+
 // ── Trivia room helpers ────────────────────────────────────────────────────
 
 function getTriviaRoomState(room) {
@@ -259,6 +272,7 @@ function finishTriviaGame(code) {
     updateTriviaLeaderboard(s.name, s.score);
   }
   io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
+  io.emit('global-leaderboard-update', getGlobalLeaderboardData());
 
   io.to(code).emit('trivia-finished', { scores });
   setTimeout(() => triviaRooms.delete(code), 60_000);
@@ -323,6 +337,7 @@ function scheduleBotMove(code) {
           updateLeaderboard(humanName, 'draw');
         }
         io.emit('leaderboard-update', getLeaderboardData());
+        io.emit('global-leaderboard-update', getGlobalLeaderboardData());
       }
     }
   }, 700);
@@ -490,6 +505,7 @@ io.on('connection', (socket) => {
           updateLeaderboard(room.playerNames.Y, 'draw');
         }
         io.emit('leaderboard-update', getLeaderboardData());
+        io.emit('global-leaderboard-update', getGlobalLeaderboardData());
       } else if (['medium', 'hard'].includes(room.botDifficulty)) {
         // Solo vs bot (moyen/difficile) : enregistrer uniquement le joueur humain
         const humanName = room.playerNames.R;
@@ -500,6 +516,7 @@ io.on('connection', (socket) => {
             updateLeaderboard(humanName, 'draw');
           }
           io.emit('leaderboard-update', getLeaderboardData());
+        io.emit('global-leaderboard-update', getGlobalLeaderboardData());
         }
       }
     } else if (room.vsBot) {
@@ -554,6 +571,11 @@ io.on('connection', (socket) => {
   // ── Classement ───────────────────────────────────────────────────────────
   socket.on('get-leaderboard', () => {
     socket.emit('leaderboard-update', getLeaderboardData());
+    socket.emit('global-leaderboard-update', getGlobalLeaderboardData());
+  });
+
+  socket.on('get-global-leaderboard', () => {
+    socket.emit('global-leaderboard-update', getGlobalLeaderboardData());
   });
 
   // ── Quitter la room (retour menu) ───────────────────────────────────────
@@ -684,6 +706,7 @@ io.on('connection', (socket) => {
     const playerName = String(name || '').trim().slice(0, 20) || 'Anonyme';
     updateTriviaLeaderboard(playerName, score);
     io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
+    io.emit('global-leaderboard-update', getGlobalLeaderboardData());
   });
 
   // ── Chat ─────────────────────────────────────────────────────────────────
@@ -865,6 +888,7 @@ app.get('/admin/reset', (req, res) => {
   saveData();
   io.emit('leaderboard-update', []);
   io.emit('trivia-leaderboard-update', []);
+  io.emit('global-leaderboard-update', []);
   res.json({ ok: true, message: 'Classements réinitialisés.' });
 });
 

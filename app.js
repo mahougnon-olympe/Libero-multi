@@ -69,6 +69,7 @@ const DICT = {
     errLoadQ:'Impossible de charger les questions. Vérifie ta connexion.',
     err4Letters:'Entre un code à 4 lettres.',
     soloLoading:'⏳ Chargement…',
+    globalLbTitle:'Classement Global', globalLbEmpty:'Aucune partie jouée.', globalLbPts:'pts',
     themeDay:'☀️ Thème jour', themeNight:'🌙 Thème nuit', themeToggle:'Basculer le thème',
     mixLabel:n => `🎲 Mix (${n} thèmes)`,
     colLabel:n => `Jouer colonne ${n}`,
@@ -136,6 +137,7 @@ const DICT = {
     errLoadQ:'Could not load questions. Check your connection.',
     err4Letters:'Enter a 4-letter code.',
     soloLoading:'⏳ Loading…',
+    globalLbTitle:'Global Leaderboard', globalLbEmpty:'No games played yet.', globalLbPts:'pts',
     themeDay:'☀️ Day theme', themeNight:'🌙 Night theme', themeToggle:'Toggle theme',
     mixLabel:n => `🎲 Mix (${n} themes)`,
     colLabel:n => `Play column ${n}`,
@@ -164,8 +166,9 @@ function applyLang() {
   const btm = $('btn-theme-toggle'); if (btm) btm.title = d.themeToggle;
 
   // Landing
-  const lt = $('landing-title');   if (lt) lt.textContent = d.siteTitle;
+  const lt = $('landing-title');    if (lt) lt.textContent = d.siteTitle;
   const ls = $('landing-subtitle'); if (ls) ls.textContent = d.siteSubtitle;
+  const glbt = $('global-lb-title'); if (glbt) glbt.textContent = d.globalLbTitle;
   const bc = $('btn-go-classic');
   if (bc) { bc.querySelector('h2').textContent = d.classicTitle; bc.querySelector('p').textContent = d.classicDesc; }
   const bgt = $('btn-go-trivia');
@@ -884,6 +887,25 @@ function clearChat() {
   $('chat-input').value = '';
 }
 
+// ── Classement Global (landing) ───────────────────────────────────────────────
+function renderGlobalLeaderboard(data) {
+  const list = $('global-lb-list');
+  if (!list) return;
+  if (!data || data.length === 0) {
+    list.innerHTML = `<p class="lb-empty">${t().globalLbEmpty}</p>`;
+    return;
+  }
+  const medals  = ['🥇', '🥈', '🥉'];
+  const classes = ['gold', 'silver', 'bronze'];
+  list.innerHTML = data.slice(0, 5).map((entry, i) => `
+    <div class="global-lb-row">
+      <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
+      <span class="lb-name">${entry.name}</span>
+      <span class="global-lb-score">${entry.globalScore} ${t().globalLbPts}</span>
+    </div>
+  `).join('');
+}
+
 // ── Classement ────────────────────────────────────────────────────────────────
 function renderLeaderboard(data) {
   const list = $('leaderboard-list');
@@ -1322,6 +1344,7 @@ socket.on('connect', () => {
   triviaMySocketId = socket.id;
   socket.emit('get-leaderboard');
   socket.emit('get-trivia-leaderboard');
+  socket.emit('get-global-leaderboard');
 
   // Jeu classique
   const saved = sessionStorage.getItem('p4session');
@@ -1459,13 +1482,17 @@ socket.on('restart-requested', () => {
 socket.on('new-message',       (msg)  => { appendMessage(msg); });
 socket.on('leaderboard-update', (data) => {
   renderLeaderboard(data);
+});
+
+socket.on('global-leaderboard-update', (data) => {
+  renderGlobalLeaderboard(data);
   const name = localStorage.getItem('playerName') || '';
   const idx  = name ? data.findIndex(e => e.name === name) : -1;
   if (idx !== -1) {
-    const rank = idx + 1;
-    const wins = data[idx].wins || 0;
-    const rankBonus = [8, 5, 3, 1, 0][Math.min(4, rank - 1)];
-    cursorSnake.update(4 + Math.min(6, wins) + rankBonus, rank);
+    const rank  = idx + 1;
+    const score = data[idx].globalScore || 0;
+    const len   = 4 + Math.min(14, Math.floor(score / 10));
+    cursorSnake.update(len, rank);
   }
 });
 
@@ -1771,9 +1798,15 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
       target: '.landing-grid',
     },
     {
+      id: 'landing_lb',
+      screen: 'landing',
+      text: '🌍 Le <strong>Classement Global</strong> combine tes victoires en jeux classiques (×10 pts) et tes points quiz. Plus ton score monte, plus ton serpent 🐍 grandit et change de couleur !',
+      target: '.global-lb-card',
+    },
+    {
       id: 'landing_btns',
       screen: 'landing',
-      text: '⚙️ Des boutons permanents sont disponibles :<br>▶ <strong>En haut à droite</strong> : ☀️/🌙 <strong>Thème</strong> — bascule entre le mode jour et nuit<br>▶ <strong>En bas à droite</strong> : 🌐 <strong>Langue</strong> (FR/EN) · 🐍 <strong>Serpent</strong> (curseur animé) · ❓ <strong>Aide</strong>',
+      text: '⚙️ Des boutons permanents sont disponibles :<br>▶ <strong>En haut à droite</strong> : ☀️/🌙 <strong>Thème</strong> — bascule entre le mode jour et nuit<br>▶ <strong>En bas à droite</strong> : 🌐 <strong>Langue</strong> (FR/EN) · 🐍 <strong>Serpent</strong> (évolue avec ton score global) · ❓ <strong>Aide</strong>',
       target: null,
     },
 

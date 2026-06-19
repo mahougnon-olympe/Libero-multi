@@ -677,6 +677,12 @@ h1 {
 @media (max-width: 600px) {
   .screen.game-screen.active ~ .btn-help-float { display: none; }
   .tg-header { padding-right: 52px; }
+  #screen-landing { gap: 12px; padding: 56px 12px 16px; }
+  .landing-card { padding: 16px 12px; gap: 8px; }
+  .landing-icon  { font-size: 2rem; }
+  .landing-card h2 { font-size: .92rem; }
+  .global-lb-card { padding: 8px 12px 4px; }
+  .logo h1 { font-size: 1.4rem; }
   .btn-help-inline {
     display: flex; align-items: center; justify-content: center;
     align-self: center;
@@ -744,6 +750,8 @@ h1 {
 /* ── Landing ── */
 #screen-landing {
   background: radial-gradient(ellipse at 50% 5%, rgba(99,102,241,.2) 0%, transparent 65%);
+  justify-content: center;
+  gap: 16px;
 }
 .landing-grid {
   display: grid;
@@ -753,7 +761,7 @@ h1 {
 }
 .landing-card {
   display: flex; flex-direction: column; align-items: center;
-  gap: 12px; padding: 32px 20px;
+  gap: 10px; padding: 24px 16px;
   background: var(--card);
   border: 1px solid rgba(99,102,241,.25);
   border-radius: var(--radius); cursor: pointer;
@@ -769,7 +777,39 @@ h1 {
 .landing-card:active { transform: scale(.97); }
 .landing-card h2 { font-size: 1rem; font-weight: 700; margin: 0; color: var(--accent); }
 .landing-card p  { font-size: .78rem; color: var(--muted); margin: 0; text-align: center; }
-.landing-icon    { font-size: 2.8rem; }
+.landing-icon    { font-size: 2.4rem; }
+
+/* ── Classement Global (landing) ── */
+.global-lb-card {
+  width: 100%; max-width: 480px;
+  background: var(--card);
+  border: 1px solid rgba(99,102,241,.3);
+  border-radius: var(--radius);
+  padding: 10px 16px 6px;
+  box-shadow: 0 0 18px rgba(99,102,241,.1), var(--shadow);
+}
+.global-lb-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 6px; font-size: .9rem;
+}
+.global-lb-list { display: flex; flex-direction: column; }
+.global-lb-row {
+  display: grid;
+  grid-template-columns: 26px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  font-size: .82rem;
+}
+.global-lb-row:last-child { border-bottom: none; }
+.global-lb-score {
+  font-size: .75rem; font-weight: 700;
+  color: var(--accent); white-space: nowrap;
+}
+.global-lb-snake {
+  font-size: .7rem; margin-left: 2px; opacity: .8;
+}
 
 /* ── Bouton retour ── */
 .btn-back {
