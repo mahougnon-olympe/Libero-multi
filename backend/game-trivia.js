@@ -32,9 +32,9 @@ function fetchQuestionsEN(category, amount = 10) {
   });
 }
 
-// ── Traduction FR via MyMemory (gratuit, sans clé) ────────────────────────────
+// ── Traduction FR via Google Translate (sans clé) ─────────────────────────────
 function translateTextFR(text) {
-  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|fr`;
+  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=fr&dt=t&q=${encodeURIComponent(text)}`;
   return new Promise((resolve) => {
     const timeout = setTimeout(() => resolve(text), 8000);
     https.get(url, (res) => {
@@ -44,9 +44,9 @@ function translateTextFR(text) {
         clearTimeout(timeout);
         try {
           const json = JSON.parse(data);
-          if (json.responseStatus === 200 && json.responseData?.translatedText) {
-            resolve(json.responseData.translatedText);
-          } else { resolve(text); }
+          // Format : [[["traduit","original",...],...]...]
+          const translated = json[0].map(chunk => chunk[0]).join('');
+          resolve(translated || text);
         } catch { resolve(text); }
       });
     }).on('error', () => { clearTimeout(timeout); resolve(text); });
