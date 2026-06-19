@@ -631,6 +631,11 @@ h1 {
   font-size: .75rem; line-height: 1.4;
   color: var(--text);
 }
+.news-msg-sep {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(99,102,241,.2);
+}
 
 /* ── Bouton aide flottant ── */
 .btn-help-float {
