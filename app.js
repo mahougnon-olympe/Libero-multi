@@ -1820,6 +1820,12 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   const STEPS = [
     // ── Accueil ──
     {
+      id: 'landing_news',
+      screen: 'landing',
+      text: '📰 Le cadre <strong>News</strong> en haut à gauche contiendra les dernières actualités du site : nouvelles fonctionnalités, annonces et commentaires de joueurs. Il est mis à jour par l\'équipe.',
+      target: '#news-card',
+    },
+    {
       id: 'landing_cats',
       screen: 'landing',
       text: '👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! Le site propose deux sections : <strong>Jeux Classiques</strong> (Puissance 4, Morpion, Échecs) et <strong>Culture Générale</strong> (quiz par thèmes). Clique sur une carte pour commencer.',
