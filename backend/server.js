@@ -37,10 +37,15 @@ async function connectDB() {
     console.warn('⚠️  MONGODB_URI non définie — scores non persistants entre les redémarrages.');
     return;
   }
-  mongoClient = new MongoClient(uri);
-  await mongoClient.connect();
-  db = mongoClient.db('libero');
-  console.log('✅ MongoDB connecté.');
+  try {
+    mongoClient = new MongoClient(uri);
+    await mongoClient.connect();
+    db = mongoClient.db('libero');
+    console.log('✅ MongoDB connecté.');
+  } catch (e) {
+    console.error('❌ Connexion MongoDB échouée — scores non persistants :', e.message);
+    db = null;
+  }
 }
 
 async function loadData() {
