@@ -785,6 +785,18 @@ h1 {
   background: rgba(99,102,241,.18);
   box-shadow: 0 0 12px rgba(99,102,241,.28);
 }
+.trivia-diff-row { display: flex; gap: 6px; width: 100%; margin-bottom: 12px; }
+.diff-btn {
+  flex: 1; padding: 7px 4px;
+  background: var(--card2); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-size: .78rem; font-weight: 600; cursor: pointer;
+  transition: background .18s, border-color .18s, box-shadow .18s, color .18s;
+}
+.diff-btn:hover { border-color: var(--board); color: var(--accent); background: rgba(99,102,241,.1); }
+.diff-btn.active                        { background: rgba(99,102,241,.22); border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.diff-btn[data-diff="easy"].active      { background: rgba(22,163,74,.18);  border-color: #16a34a; color: #16a34a; box-shadow: 0 0 0 2px #16a34a; }
+.diff-btn[data-diff="medium"].active    { background: rgba(234,88,12,.18);  border-color: #ea580c; color: #ea580c; box-shadow: 0 0 0 2px #ea580c; }
+.diff-btn[data-diff="hard"].active      { background: rgba(220,38,38,.18);  border-color: #dc2626; color: #dc2626; box-shadow: 0 0 0 2px #dc2626; }
 .trivia-action-row { display: flex; gap: 8px; width: 100%; margin-bottom: 8px; }
 .trivia-action-row .btn { flex: 1; }
 

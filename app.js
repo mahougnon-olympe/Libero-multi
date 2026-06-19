@@ -53,7 +53,7 @@ const DICT = {
     triviaHomeTitle:'🧠 Culture Générale',
     triviaHomeSubtitle:'Choisis un ou plusieurs thèmes et joue !',
     triviaNamePh:'Ton pseudo (obligatoire)',
-    triviaThemesLabel:'Thèmes (sélection multiple) :',
+    triviaThemesLabel:'Thèmes (sélection multiple) :', triviaDiffLabel:'Difficulté :', diffMixed:'🎲 Mixte',
     btnSolo:'▶ Solo', btnCreateTrivia:'+ Créer un salon',
     triviaCodePh:'Code à 4 lettres', btnJoinTrivia:'Rejoindre',
     triviaLbTitle:'Classement Quiz',
@@ -119,7 +119,7 @@ const DICT = {
     triviaHomeTitle:'🧠 General Knowledge',
     triviaHomeSubtitle:'Choose one or more themes and play!',
     triviaNamePh:'Your username (required)',
-    triviaThemesLabel:'Themes (multiple selection):',
+    triviaThemesLabel:'Themes (multiple selection):', triviaDiffLabel:'Difficulty:', diffMixed:'🎲 Mixed',
     btnSolo:'▶ Solo', btnCreateTrivia:'+ Create a room',
     triviaCodePh:'4-letter code', btnJoinTrivia:'Join',
     triviaLbTitle:'Quiz Leaderboard',
@@ -206,6 +206,12 @@ function applyLang() {
   const thsu = $('trivia-home-subtitle'); if (thsu) thsu.textContent = d.triviaHomeSubtitle;
   const itn  = $('input-trivia-name');    if (itn)  itn.placeholder  = d.triviaNamePh;
   const ttl  = $('trivia-theme-label');   if (ttl)  ttl.textContent  = d.triviaThemesLabel;
+  const tdl  = $('trivia-diff-label');    if (tdl)  tdl.textContent  = d.triviaDiffLabel;
+  document.querySelectorAll('.diff-btn').forEach(b => {
+    if (!b.dataset.diff) { b.textContent = d.diffMixed; return; }
+    const icons = { easy:'😊', medium:'🎯', hard:'💀' };
+    b.textContent = `${icons[b.dataset.diff]} ${d.diffLabels[b.dataset.diff]}`;
+  });
   const bso  = $('btn-solo-trivia');      if (bso)  bso.textContent  = d.btnSolo;
   const bct2 = $('btn-create-trivia');    if (bct2) bct2.textContent = d.btnCreateTrivia;
   const itc  = $('input-trivia-code');    if (itc)  itc.placeholder  = d.triviaCodePh;
@@ -263,6 +269,7 @@ const TRIVIA_COLORS = ['#2563eb','#dc2626','#16a34a','#9333ea','#ea580c','#0891b
 
 // ── Trivia : état ─────────────────────────────────────────────────────────────
 let selectedTriviaCategories = [];
+let selectedTriviaDifficulty = '';
 let triviaRoomCode         = null;
 let triviaIsHost           = false;
 let triviaIsSolo           = false;
@@ -926,6 +933,10 @@ function goToTriviaHome() {
   triviaQuestions = []; triviaCurrentQ = 0; triviaScore = 0;
   selectedTriviaCategories = [];
   document.querySelectorAll('#trivia-themes .theme-btn').forEach(b => b.classList.remove('active'));
+  selectedTriviaDifficulty = '';
+  document.querySelectorAll('#trivia-diff-row .diff-btn').forEach(b => b.classList.remove('active'));
+  const mixBtn = document.querySelector('#trivia-diff-row .diff-btn[data-diff=""]');
+  if (mixBtn) mixBtn.classList.add('active');
   $('tg-choices').innerHTML = '';
   $('tg-reveal').classList.add('hidden');
   $('tg-finished').classList.add('hidden');
@@ -956,6 +967,16 @@ function buildTriviaThemes() {
   });
 }
 
+// Boutons de difficulté trivia
+document.querySelectorAll('#trivia-diff-row .diff-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#trivia-diff-row .diff-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedTriviaDifficulty = btn.dataset.diff;
+    clearTriviaError();
+  });
+});
+
 // Pseudo trivia sync avec classique
 $('input-trivia-name').value = localStorage.getItem('playerName') || '';
 $('input-trivia-name').addEventListener('input', e => {
@@ -974,14 +995,14 @@ $('btn-solo-trivia').addEventListener('click', () => {
   clearTriviaError();
   $('btn-solo-trivia').disabled = true;
   $('btn-solo-trivia').textContent = t().soloLoading;
-  socket.emit('fetch-trivia-solo', { categories: selectedTriviaCategories, amount: 10, lang: currentLang });
+  socket.emit('fetch-trivia-solo', { categories: selectedTriviaCategories, amount: 10, lang: currentLang, difficulty: selectedTriviaDifficulty });
 });
 
 $('btn-create-trivia').addEventListener('click', () => {
   if (!getTriviaName())                  { showTriviaError(t().errNoName);  return; }
   if (!selectedTriviaCategories.length)  { showTriviaError(t().errNoTheme); return; }
   clearTriviaError();
-  socket.emit('create-trivia-room', { categories: selectedTriviaCategories, name: getTriviaName(), lang: currentLang });
+  socket.emit('create-trivia-room', { categories: selectedTriviaCategories, name: getTriviaName(), lang: currentLang, difficulty: selectedTriviaDifficulty });
 });
 
 $('btn-join-trivia').addEventListener('click',  joinTriviaRoom);

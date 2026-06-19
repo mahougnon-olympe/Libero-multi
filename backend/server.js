@@ -188,9 +188,10 @@ async function startTriviaGame(code) {
   try {
     const cats = room.categories || [room.category];
     const lang = room.lang || 'fr';
+    const diff = room.difficulty || '';
     room.questions = cats.length === 1
-      ? await triviaGame.fetchQuestions(cats[0], room.totalQ, lang)
-      : await triviaGame.fetchQuestionsMulti(cats, room.totalQ, lang);
+      ? await triviaGame.fetchQuestions(cats[0], room.totalQ, lang, diff)
+      : await triviaGame.fetchQuestionsMulti(cats, room.totalQ, lang, diff);
   } catch {
     io.to(code).emit('trivia-error', { message: 'Impossible de charger les questions. Réessaie.' });
     room.status = 'waiting';
@@ -574,11 +575,12 @@ io.on('connection', (socket) => {
   });
 
   // ── Trivia : créer un salon ──────────────────────────────────────────────
-  socket.on('create-trivia-room', ({ categories, name = '', lang = 'fr' } = {}) => {
+  socket.on('create-trivia-room', ({ categories, name = '', lang = 'fr', difficulty = '' } = {}) => {
     const cats = [].concat(categories || []).map(c => parseInt(c)).filter(c => TRIVIA_CATEGORIES[c]);
     if (cats.length === 0) return;
     const playerName = String(name).trim().slice(0, 20) || 'Anonyme';
     const roomLang = ['fr', 'en'].includes(lang) ? lang : 'fr';
+    const roomDiff = ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : '';
     const code = generateCode();
     const players = new Map();
     players.set(socket.id, { name: playerName, colorIndex: 0, score: 0 });
@@ -587,7 +589,7 @@ io.on('connection', (socket) => {
     triviaRooms.set(code, {
       code, hostId: socket.id, categories: cats,
       categoryName,
-      lang: roomLang,
+      lang: roomLang, difficulty: roomDiff,
       players, questions: null, currentQ: -1,
       status: 'waiting', answersThisRound: new Map(),
       timer: null, revealTimer: null, totalQ: TRIVIA_Q_COUNT,
@@ -656,15 +658,16 @@ io.on('connection', (socket) => {
   });
 
   // ── Trivia : fetch questions solo (proxy pour éviter le CORS côté client) ────
-  socket.on('fetch-trivia-solo', async ({ categories = [], amount = 10, lang = 'fr' } = {}) => {
+  socket.on('fetch-trivia-solo', async ({ categories = [], amount = 10, lang = 'fr', difficulty = '' } = {}) => {
     const cats = [].concat(categories).map(c => parseInt(c)).filter(c => TRIVIA_CATEGORIES[c]);
     if (!cats.length) { socket.emit('trivia-solo-error'); return; }
     const l = ['fr', 'en'].includes(lang) ? lang : 'fr';
     const n = Math.min(20, Math.max(1, parseInt(amount) || 10));
+    const d = ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : '';
     try {
       const qs = cats.length === 1
-        ? await triviaGame.fetchQuestions(cats[0], n, l)
-        : await triviaGame.fetchQuestionsMulti(cats, n, l);
+        ? await triviaGame.fetchQuestions(cats[0], n, l, d)
+        : await triviaGame.fetchQuestionsMulti(cats, n, l, d);
       socket.emit('trivia-solo-questions', qs);
     } catch { socket.emit('trivia-solo-error'); }
   });

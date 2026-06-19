@@ -10,8 +10,9 @@ function shuffle(arr) {
 }
 
 // ── Anglais : Open Trivia DB ───────────────────────────────────────────────────
-function fetchQuestionsEN(category, amount = 10) {
-  const url = `https://opentdb.com/api.php?amount=${amount}&category=${category}&type=multiple&encode=url3986`;
+function fetchQuestionsEN(category, amount = 10, difficulty = '') {
+  const diff = ['easy', 'medium', 'hard'].includes(difficulty) ? `&difficulty=${difficulty}` : '';
+  const url = `https://opentdb.com/api.php?amount=${amount}&category=${category}&type=multiple&encode=url3986${diff}`;
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => reject(new Error('timeout')), 10000);
     https.get(url, (res) => {
@@ -44,7 +45,6 @@ function translateTextFR(text) {
         clearTimeout(timeout);
         try {
           const json = JSON.parse(data);
-          // Format : [[["traduit","original",...],...]...]
           const translated = json[0].map(chunk => chunk[0]).join('');
           resolve(translated || text);
         } catch { resolve(text); }
@@ -62,11 +62,9 @@ async function translateQuestionFR(q) {
 
   let parts = translated.split(SEP);
   if (parts.length !== q.choices.length + 1) {
-    // Tentative sans espaces autour du séparateur
     parts = translated.split('|||').map(s => s.trim());
   }
   if (parts.length !== q.choices.length + 1) {
-    // Repli : traduire chaque texte séparément
     const texts = await Promise.all([q.question, ...q.choices].map(t => translateTextFR(t)));
     parts = texts;
   }
@@ -80,16 +78,24 @@ async function translateQuestionFR(q) {
 }
 
 // ── API principale ─────────────────────────────────────────────────────────────
-async function fetchQuestions(category, amount = 10, lang = 'fr') {
-  const questions = await fetchQuestionsEN(category, amount);
+async function fetchQuestions(category, amount = 10, lang = 'fr', difficulty = '') {
+  const questions = await fetchQuestionsEN(category, amount, difficulty);
   if (lang !== 'fr') return questions;
   return Promise.all(questions.map(translateQuestionFR));
 }
 
-async function fetchQuestionsMulti(categories, totalAmount, lang = 'fr') {
+// Requêtes séquentielles pour éviter le rate-limit OpenTDB sur les multi-catégories
+async function fetchQuestionsMulti(categories, totalAmount, lang = 'fr', difficulty = '') {
   const perCat = Math.max(2, Math.ceil(totalAmount / categories.length));
-  const results = await Promise.all(categories.map(cat => fetchQuestions(cat, perCat, lang)));
-  return shuffle(results.flat()).slice(0, totalAmount);
+  const results = [];
+  for (const cat of categories) {
+    try {
+      const qs = await fetchQuestions(cat, perCat, lang, difficulty);
+      results.push(...qs);
+    } catch { /* catégorie sans résultats ou rate-limitée, on continue */ }
+  }
+  if (results.length === 0) throw new Error('no questions');
+  return shuffle(results).slice(0, totalAmount);
 }
 
 module.exports = { fetchQuestions, fetchQuestionsMulti };
