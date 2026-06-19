@@ -92,7 +92,8 @@ setInterval(saveDataSync, 2 * 60 * 1000);
 loadData();
 
 const CODE_CHARS   = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-const RECONNECT_MS = 30_000;
+const RECONNECT_MS        = 30_000;
+const TRIVIA_RECONNECT_MS = 20_000;
 const VALID_GAMES  = new Set(['connect4', 'tictactoe', 'chess']);
 
 const TRIVIA_CATEGORIES = {
@@ -170,7 +171,7 @@ function getTriviaRoomState(room) {
     hostId:       room.hostId,
     categoryName: room.categoryName,
     status:       room.status,
-    players: [...room.players.entries()].map(([sid, p]) => ({
+    players: [...room.players.entries()].filter(([, p]) => !p.disconnected).map(([sid, p]) => ({
       socketId: sid, name: p.name, colorIndex: p.colorIndex, score: p.score,
     })),
   };
@@ -178,6 +179,7 @@ function getTriviaRoomState(room) {
 
 function getRoomScores(room) {
   return [...room.players.entries()]
+    .filter(([, p]) => !p.disconnected)
     .map(([sid, p]) => ({ socketId: sid, name: p.name, score: p.score, colorIndex: p.colorIndex }))
     .sort((a, b) => b.score - a.score);
 }
@@ -695,47 +697,117 @@ io.on('connection', (socket) => {
 
   // ── Déconnexion ──────────────────────────────────────────────────────────
   socket.on('disconnect', () => {
-    if (!roomCode) return;
-    const room = rooms.get(roomCode);
-    if (!room) return;
-    if (room.players[myPlayer] !== socket.id) return;
-
-    room.players[myPlayer] = null;
-
-    if (room.status === 'waiting') { rooms.delete(roomCode); return; }
-
-    const other = myPlayer === 'R' ? 'Y' : 'R';
-    if (room.players[other]) io.to(room.players[other]).emit('opponent-reconnecting');
-
-    room.reconnectTimers[myPlayer] = setTimeout(() => {
-      if (room.players[myPlayer] !== null) return;
-      if (room.players[other]) io.to(room.players[other]).emit('player-disconnected');
-      rooms.delete(roomCode);
-    }, RECONNECT_MS);
-
-    // Déconnexion d'un salon trivia
-    if (triviaRoomCode) {
-      const troom = triviaRooms.get(triviaRoomCode);
-      if (troom) {
-        troom.players.delete(socket.id);
-        if (troom.players.size === 0) {
-          clearTimeout(troom.timer);
-          clearTimeout(troom.revealTimer);
-          triviaRooms.delete(triviaRoomCode);
+    // Jeu classique
+    if (roomCode) {
+      const room = rooms.get(roomCode);
+      if (room && room.players[myPlayer] === socket.id) {
+        room.players[myPlayer] = null;
+        if (room.status === 'waiting') {
+          rooms.delete(roomCode);
         } else {
-          if (troom.hostId === socket.id) troom.hostId = [...troom.players.keys()][0];
-          if (troom.status === 'waiting') {
-            io.to(triviaRoomCode).emit('trivia-room-updated', getTriviaRoomState(troom));
-          } else if (troom.status === 'question') {
-            const connectedIds = [...troom.players.keys()].filter(sid => io.sockets.sockets.get(sid)?.connected);
-            if (connectedIds.length > 0 && connectedIds.every(sid => troom.answersThisRound.has(sid))) {
-              clearTimeout(troom.timer);
-              revealTriviaAnswer(triviaRoomCode);
-            }
-          }
+          const other = myPlayer === 'R' ? 'Y' : 'R';
+          if (room.players[other]) io.to(room.players[other]).emit('opponent-reconnecting');
+          room.reconnectTimers[myPlayer] = setTimeout(() => {
+            if (room.players[myPlayer] !== null) return;
+            if (room.players[other]) io.to(room.players[other]).emit('player-disconnected');
+            rooms.delete(roomCode);
+          }, RECONNECT_MS);
         }
       }
     }
+
+    // Salon trivia : fenêtre de grâce avant suppression
+    if (triviaRoomCode) {
+      const troom = triviaRooms.get(triviaRoomCode);
+      if (troom) {
+        const player = troom.players.get(socket.id);
+        if (player) {
+          player.disconnected = true;
+          if (!troom.reconnectTimers) troom.reconnectTimers = new Map();
+          troom.reconnectTimers.set(socket.id, setTimeout(() => {
+            troom.players.delete(socket.id);
+            if (troom.reconnectTimers) troom.reconnectTimers.delete(socket.id);
+            const activePlayers = [...troom.players.values()].filter(p => !p.disconnected);
+            if (activePlayers.length === 0) {
+              clearTimeout(troom.timer);
+              clearTimeout(troom.revealTimer);
+              triviaRooms.delete(triviaRoomCode);
+            } else {
+              if (troom.hostId === socket.id) {
+                const nextSid = [...troom.players.entries()].find(([, p]) => !p.disconnected)?.[0];
+                if (nextSid) troom.hostId = nextSid;
+              }
+              if (troom.status === 'waiting') {
+                io.to(triviaRoomCode).emit('trivia-room-updated', getTriviaRoomState(troom));
+              } else if (troom.status === 'question') {
+                const connectedIds = [...troom.players.keys()].filter(sid => {
+                  const p = troom.players.get(sid);
+                  return !p.disconnected && io.sockets.sockets.get(sid)?.connected;
+                });
+                if (connectedIds.length > 0 && connectedIds.every(sid => troom.answersThisRound.has(sid))) {
+                  clearTimeout(troom.timer);
+                  revealTriviaAnswer(triviaRoomCode);
+                }
+              }
+            }
+          }, TRIVIA_RECONNECT_MS));
+        }
+      }
+    }
+  });
+
+  // ── Reconnexion salon trivia ──────────────────────────────────────────────
+  socket.on('reconnect-trivia-room', ({ code, mySocketId } = {}) => {
+    const key   = (code || '').toUpperCase().trim();
+    const troom = triviaRooms.get(key);
+    if (!troom) { socket.emit('trivia-reconnect-failed'); return; }
+
+    const player = troom.players.get(mySocketId);
+    if (!player || !player.disconnected) { socket.emit('trivia-reconnect-failed'); return; }
+
+    // Annuler le timer de suppression
+    if (troom.reconnectTimers?.has(mySocketId)) {
+      clearTimeout(troom.reconnectTimers.get(mySocketId));
+      troom.reconnectTimers.delete(mySocketId);
+    }
+
+    // Migrer vers le nouveau socket.id
+    troom.players.delete(mySocketId);
+    player.disconnected = false;
+    troom.players.set(socket.id, player);
+
+    if (troom.hostId === mySocketId) troom.hostId = socket.id;
+    if (troom.answersThisRound.has(mySocketId)) {
+      const ans = troom.answersThisRound.get(mySocketId);
+      troom.answersThisRound.delete(mySocketId);
+      troom.answersThisRound.set(socket.id, ans);
+    }
+
+    triviaRoomCode = key;
+    socket.join(key);
+
+    const reconnectData = {
+      code: key,
+      status:     troom.status,
+      scores:     getRoomScores(troom),
+      colorIndex: player.colorIndex,
+      hostId:     troom.hostId,
+    };
+
+    if (troom.status === 'question' && troom.questions?.[troom.currentQ]) {
+      const q = troom.questions[troom.currentQ];
+      reconnectData.question = {
+        questionNum:    troom.currentQ + 1,
+        totalQuestions: troom.totalQ,
+        question:       q.question,
+        choices:        q.choices,
+        timeLimit:      TRIVIA_TIME_MS / 1000,
+        scores:         getRoomScores(troom),
+      };
+    }
+
+    socket.emit('trivia-reconnect-success', reconnectData);
+    io.to(key).emit('trivia-room-updated', getTriviaRoomState(troom));
   });
 });
 

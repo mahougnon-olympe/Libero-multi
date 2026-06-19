@@ -366,6 +366,11 @@ function saveSession(code, player) {
 }
 function clearSession() { sessionStorage.removeItem('p4session'); }
 
+function saveTriviaSession(data) {
+  sessionStorage.setItem('triviaSession', JSON.stringify(data));
+}
+function clearTriviaSession() { sessionStorage.removeItem('triviaSession'); }
+
 // ── Attente ───────────────────────────────────────────────────────────────────
 $('btn-copy').addEventListener('click', () => {
   navigator.clipboard.writeText($('room-code').textContent).then(() => {
@@ -931,6 +936,7 @@ function clearTriviaError()   { $('trivia-error-msg').classList.add('hidden'); }
 function goToTriviaHome() {
   if (triviaRoomCode) socket.emit('leave-trivia-room');
   stopTriviaTimer();
+  clearTriviaSession();
   triviaRoomCode = null; triviaIsHost = false; triviaIsSolo = false;
   triviaAnsweredThis = false; triviaChoiceSelected = null;
   triviaQuestions = []; triviaCurrentQ = 0; triviaScore = 0;
@@ -1147,6 +1153,7 @@ $('btn-quit-trivia').addEventListener('click', goToTriviaHome);
 // ── Trivia solo : logique locale ──────────────────────────────────────────────
 function soloNextQuestion() {
   if (triviaCurrentQ >= triviaQuestions.length) {
+    clearTriviaSession();
     const name = getTriviaName();
     const scores = [{ name, score: triviaScore, colorIndex: 0 }];
     $('tg-q-num').textContent = '';
@@ -1164,6 +1171,7 @@ function soloReveal(myChoice) {
   if (myChoice === q.correct) triviaScore++;
   showTriviaReveal({ correct: q.correct, correctSocketIds: [], scores: null, myChoice });
   triviaCurrentQ++;
+  saveTriviaSession({ isSolo: true, questions: triviaQuestions, currentQ: triviaCurrentQ, score: triviaScore });
   setTimeout(soloNextQuestion, 3000);
 }
 
@@ -1239,6 +1247,7 @@ $('btn-quit').addEventListener('click', () => {
 // ── Socket Trivia ─────────────────────────────────────────────────────────────
 socket.on('trivia-room-created', ({ code, categoryName, roomState }) => {
   triviaRoomCode = code; triviaIsHost = true;
+  saveTriviaSession({ isSolo: false, code, mySocketId: socket.id });
   $('trivia-room-code').textContent = code;
   $('trivia-wait-theme').textContent = categoryName;
   renderTriviaWaitPlayers(roomState.players, roomState.hostId);
@@ -1247,6 +1256,7 @@ socket.on('trivia-room-created', ({ code, categoryName, roomState }) => {
 
 socket.on('trivia-room-joined', ({ code, categoryName }) => {
   triviaRoomCode = code; triviaIsHost = false;
+  saveTriviaSession({ isSolo: false, code, mySocketId: socket.id });
   $('trivia-room-code').textContent = code;
   $('trivia-wait-theme').textContent = categoryName;
   showScreen('trivia-waiting');
@@ -1290,6 +1300,7 @@ socket.on('trivia-solo-questions', (questions) => {
   triviaQuestions = shuffle(questions).slice(0, 10);
   if (!triviaQuestions.length) { showTriviaError(t().errLoadQ); return; }
   triviaIsSolo = true; triviaCurrentQ = 0; triviaScore = 0; triviaRoomCode = null;
+  saveTriviaSession({ isSolo: true, questions: triviaQuestions, currentQ: 0, score: 0 });
   $('tg-theme-label').textContent = getCategoryLabel(selectedTriviaCategories);
   $('tg-scores').innerHTML = '';
   $('tg-finished').classList.add('hidden');
@@ -1311,13 +1322,58 @@ socket.on('connect', () => {
   triviaMySocketId = socket.id;
   socket.emit('get-leaderboard');
   socket.emit('get-trivia-leaderboard');
+
+  // Jeu classique
   const saved = sessionStorage.getItem('p4session');
-  if (!saved) return;
+  if (saved) {
+    try {
+      const { roomCode, player } = JSON.parse(saved);
+      socket.emit('reconnect-room', { code: roomCode, player });
+    } catch { clearSession(); }
+  }
+
+  // Trivia solo ou multi
+  const savedTrivia = sessionStorage.getItem('triviaSession');
+  if (!savedTrivia) return;
   try {
-    const { roomCode, player } = JSON.parse(saved);
-    socket.emit('reconnect-room', { code: roomCode, player });
-  } catch { clearSession(); }
+    const data = JSON.parse(savedTrivia);
+    if (data.isSolo && Array.isArray(data.questions) && data.questions.length) {
+      triviaQuestions  = data.questions;
+      triviaCurrentQ   = data.currentQ ?? 0;
+      triviaScore      = data.score ?? 0;
+      triviaIsSolo     = true;
+      triviaRoomCode   = null;
+      $('tg-theme-label').textContent = '';
+      $('tg-scores').innerHTML = '';
+      $('tg-finished').classList.add('hidden');
+      showScreen('trivia-game');
+      soloNextQuestion();
+    } else if (!data.isSolo && data.code && data.mySocketId) {
+      socket.emit('reconnect-trivia-room', { code: data.code, mySocketId: data.mySocketId });
+    } else {
+      clearTriviaSession();
+    }
+  } catch { clearTriviaSession(); }
 });
+
+socket.on('trivia-reconnect-success', ({ code, status, scores, question, hostId }) => {
+  triviaRoomCode = code;
+  triviaIsSolo   = false;
+  triviaIsHost   = (socket.id === hostId);
+  saveTriviaSession({ isSolo: false, code, mySocketId: socket.id });
+  if (scores) renderTriviaScores(scores);
+  $('tg-finished').classList.add('hidden');
+  showScreen('trivia-game');
+  if (status === 'question' && question) {
+    showTriviaQuestion(question);
+  } else {
+    $('tg-choices').innerHTML = '';
+    $('tg-reveal').textContent = '⏳';
+    $('tg-reveal').className   = 'tg-reveal ok';
+  }
+});
+
+socket.on('trivia-reconnect-failed', () => { clearTriviaSession(); });
 
 socket.on('room-created', ({ code, gameType }) => {
   currentRoomCode = code;
