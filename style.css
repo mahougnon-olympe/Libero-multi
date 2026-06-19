@@ -950,6 +950,8 @@ html.light body {
 html.light .divider::before,
 html.light .divider::after         { background: rgba(0,0,0,.08); }
 html.light .c4-cell                { background: #dde3f8; }
+html.light .c4-cell.red            { background: var(--red);    box-shadow: 0 0 10px rgba(248,113,113,.55); }
+html.light .c4-cell.yellow         { background: var(--yellow); box-shadow: 0 0 10px rgba(251,191,36,.45); }
 html.light .chat-form              { border-top-color: rgba(0,0,0,.07); }
 html.light .help-modal-header      { border-bottom-color: rgba(0,0,0,.07); }
 html.light .lb-row                 { border-bottom-color: rgba(0,0,0,.07); }

@@ -64,7 +64,7 @@ const DICT = {
     btnLeaveTrivia:'Quitter le salon',
     triviaWaitHint:'1 à 6 joueurs. Démarre dès que tu es prêt·e.',
     triviaCorrect:'✅ Bonne réponse !', triviaWrong:'❌ La réponse était : ',
-    triviaFinishedTitle:'Résultats finaux', btnLeaveGame:'Retour au menu',
+    triviaFinishedTitle:'Résultats finaux', btnLeaveGame:'Retour au menu', btnQuitTrivia:'🚪 Quitter',
     errNoTheme:'Choisis au moins un thème pour commencer.',
     errLoadQ:'Impossible de charger les questions. Vérifie ta connexion.',
     err4Letters:'Entre un code à 4 lettres.',
@@ -130,7 +130,7 @@ const DICT = {
     btnLeaveTrivia:'Leave room',
     triviaWaitHint:'1 to 6 players. Start whenever you\'re ready.',
     triviaCorrect:'✅ Correct!', triviaWrong:'❌ The answer was: ',
-    triviaFinishedTitle:'Final Results', btnLeaveGame:'Back to menu',
+    triviaFinishedTitle:'Final Results', btnLeaveGame:'Back to menu', btnQuitTrivia:'🚪 Quit',
     errNoTheme:'Choose at least one theme to start.',
     errLoadQ:'Could not load questions. Check your connection.',
     err4Letters:'Enter a 4-letter code.',
@@ -224,6 +224,7 @@ function applyLang() {
   // Trivia game
   const tft  = $('tg-finished-title');     if (tft)  tft.textContent  = d.triviaFinishedTitle;
   const bltg = $('btn-leave-trivia-game'); if (bltg) bltg.textContent = d.btnLeaveGame;
+  const bqt  = $('btn-quit-trivia');       if (bqt)  bqt.textContent  = d.btnQuitTrivia;
 
   // Help modal
   const hmt = $('help-modal-title'); if (hmt) hmt.textContent = d.help.title;
@@ -286,11 +287,25 @@ $('btn-go-trivia').addEventListener('click',  () => { buildTriviaThemes(); showS
 $('btn-back-classic').addEventListener('click', () => showScreen('landing'));
 
 // ── Pseudo ────────────────────────────────────────────────────────────────────
+const ANON_ADJECTIVES = ['Swift','Bold','Cool','Wild','Keen','Brave','Calm','Sharp','Witty','Lucky'];
+const ANON_NOUNS      = ['Fox','Wolf','Bear','Hawk','Lion','Lynx','Owl','Puma','Stag','Crow'];
+function getOrCreateAnonName() {
+  let n = localStorage.getItem('anonName');
+  if (!n) {
+    const adj  = ANON_ADJECTIVES[Math.floor(Math.random() * ANON_ADJECTIVES.length)];
+    const noun = ANON_NOUNS[Math.floor(Math.random() * ANON_NOUNS.length)];
+    const num  = Math.floor(Math.random() * 900) + 100;
+    n = `${adj}${noun}${num}`;
+    localStorage.setItem('anonName', n);
+  }
+  return n;
+}
+
 $('input-name').value = localStorage.getItem('playerName') || '';
 $('input-name').addEventListener('input', e => {
   localStorage.setItem('playerName', e.target.value.trim());
 });
-function getPlayerName() { return ($('input-name').value.trim()) || ''; }
+function getPlayerName() { return ($('input-name').value.trim()) || getOrCreateAnonName(); }
 
 // ── Sélecteur de jeu (accueil) ───────────────────────────────────────────────
 document.querySelectorAll('.game-btn').forEach(btn => {
@@ -880,7 +895,7 @@ function shuffle(arr) {
   return a;
 }
 
-function getTriviaName() { return ($('input-trivia-name').value.trim()) || ''; }
+function getTriviaName() { return ($('input-trivia-name').value.trim()) || getOrCreateAnonName(); }
 
 function getCategoryLabel(ids) {
   const cats = t().triviaCats;
@@ -1091,6 +1106,7 @@ function showTriviaFinished(scores) {
 }
 
 $('btn-leave-trivia-game').addEventListener('click', goToTriviaHome);
+$('btn-quit-trivia').addEventListener('click', goToTriviaHome);
 
 // ── Trivia solo : logique locale ──────────────────────────────────────────────
 function soloNextQuestion() {
