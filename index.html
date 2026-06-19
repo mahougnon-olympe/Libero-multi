@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Libero's Multi</title>
+  <meta property="og:title" content="Libero's Multi" />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── Écran 0 : Landing ── -->
+  <div id="screen-landing" class="screen active">
+    <div class="logo">
+      <h1 id="landing-title">Jeux Multijoueur</h1>
+      <p id="landing-subtitle" class="subtitle">Choisissez votre catégorie</p>
+    </div>
+    <div class="landing-grid">
+      <button class="landing-card" id="btn-go-classic">
+        <span class="landing-icon">🎮</span>
+        <h2>Jeux Classiques</h2>
+        <p>Puissance 4 · Morpion · Échecs</p>
+      </button>
+      <button class="landing-card" id="btn-go-trivia">
+        <span class="landing-icon">🧠</span>
+        <h2>Culture Générale</h2>
+        <p>Quiz par thèmes · Solo &amp; Multi</p>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Écran 1 : Accueil Classique ── -->
+  <div id="screen-home" class="screen">
+    <button class="btn-back" id="btn-back-classic">← Retour</button>
+    <div class="logo">
+      <h1>Jeux Multijoueur</h1>
+      <p id="home-subtitle" class="subtitle">2 joueurs • Temps réel</p>
+    </div>
+
+    <div class="game-selector">
+      <button class="game-btn active" data-game="connect4">
+        <span class="game-btn-icon">🔴</span>
+        <span id="gn-connect4" class="game-btn-name">Puissance 4</span>
+      </button>
+      <button class="game-btn" data-game="tictactoe">
+        <span class="game-btn-icon">✕</span>
+        <span id="gn-tictactoe" class="game-btn-name">Tic Tac Toe</span>
+      </button>
+      <button class="game-btn" data-game="chess">
+        <span class="game-btn-icon">♟</span>
+        <span id="gn-chess" class="game-btn-name">Échecs</span>
+      </button>
+    </div>
+
+    <div class="card">
+      <input
+        id="input-name"
+        type="text"
+        placeholder="Ton pseudo (optionnel)"
+        maxlength="20"
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+      />
+      <p id="bot-label-p" class="bot-label">🤖 Jouer seul contre le robot :</p>
+      <div class="bot-row">
+        <button class="btn bot-btn" data-diff="easy">😊 Facile</button>
+        <button class="btn bot-btn" data-diff="medium">🎯 Moyen</button>
+        <button class="btn bot-btn" data-diff="hard">💀 Difficile</button>
+      </div>
+      <button id="btn-create" class="btn btn-secondary">Créer une partie multijoueur</button>
+      <div class="divider"><span id="divider-join-text">ou rejoindre</span></div>
+      <div class="join-group">
+        <input
+          id="input-code"
+          type="text"
+          placeholder="Code à 4 lettres"
+          maxlength="4"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="characters"
+          spellcheck="false"
+        />
+        <button id="btn-join" class="btn btn-secondary">Rejoindre</button>
+      </div>
+      <p id="error-msg" class="error-msg hidden"></p>
+    </div>
+    <div class="lb-card">
+      <div class="lb-header">
+        <span>🏆</span>
+        <span id="lb-title-classic" class="lb-title">Classement</span>
+      </div>
+      <div id="leaderboard-list" class="lb-list">
+        <p class="lb-empty">Aucune partie jouée pour l'instant.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Écran 2 : Attente ── -->
+  <div id="screen-waiting" class="screen">
+    <div class="card waiting-card">
+      <div class="spinner"></div>
+      <p id="waiting-game-name" class="waiting-game-name"></p>
+      <h2 id="waiting-title">En attente d'un adversaire…</h2>
+      <p id="waiting-share">Partage ce code :</p>
+      <div id="room-code" class="code-display"></div>
+      <button id="btn-copy" class="btn btn-secondary">Copier le code</button>
+      <p id="waiting-hint" class="hint">La partie démarre automatiquement dès que ton adversaire rejoint.</p>
+    </div>
+  </div>
+
+  <!-- ── Écran 3 : Jeu ── -->
+  <div id="screen-game" class="screen game-screen">
+
+    <header class="game-header">
+      <div class="player-badge" id="badge-r">
+        <span id="badge-r-icon" class="player-icon"></span>
+        <span id="label-r"></span>
+      </div>
+      <div class="game-header-center">
+        <div id="turn-indicator" class="turn-text"></div>
+        <button id="btn-quit" class="btn-quit" title="Quitter la partie">🚪 Quitter</button>
+      </div>
+      <div class="player-badge" id="badge-y">
+        <span id="label-y"></span>
+        <span id="badge-y-icon" class="player-icon"></span>
+      </div>
+    </header>
+
+    <!-- Plateau dynamique (injecté par JS selon le type de jeu) -->
+    <div id="board-area"></div>
+
+    <!-- Bannière fin de partie -->
+    <div id="game-status" class="game-status hidden">
+      <p id="status-text" class="status-text"></p>
+      <div class="status-actions">
+        <button id="btn-restart" class="btn btn-primary hidden">Rejouer</button>
+        <p id="restart-pending" class="hint hidden">En attente de l'adversaire…</p>
+        <button id="btn-menu" class="btn btn-secondary hidden">Menu principal</button>
+      </div>
+    </div>
+
+    <!-- Chat -->
+    <section id="chat" class="chat">
+      <div class="chat-header">
+        <span id="chat-title-span" class="chat-title">Chat</span>
+        <button type="button" id="btn-clear-chat" class="chat-clear">Vider</button>
+      </div>
+      <div id="chat-messages" class="chat-messages"></div>
+      <form id="chat-form" class="chat-form">
+        <input id="chat-input" type="text" placeholder="Envoyer un message…"
+          maxlength="200" autocomplete="off" autocorrect="off" />
+        <button type="submit" class="chat-send" aria-label="Envoyer">&#8593;</button>
+      </form>
+    </section>
+
+    <!-- Bouton aide inline (mobile uniquement, sous le chat) -->
+    <button id="btn-help-game" class="btn-help-inline" title="Aide">?</button>
+
+  </div>
+
+  <!-- ── Overlay : Déconnexion / reconnexion ── -->
+  <div id="overlay-disconnect" class="overlay hidden">
+    <div class="overlay-box">
+      <div id="dc-icon"  class="overlay-icon"></div>
+      <h2 id="dc-title"></h2>
+      <p  id="dc-msg"></p>
+      <button id="btn-home" class="btn btn-primary hidden">Retour à l'accueil</button>
+    </div>
+  </div>
+
+  <!-- ── Overlay : Promotion du pion (Échecs) ── -->
+  <div id="overlay-promotion" class="overlay hidden">
+    <div class="overlay-box">
+      <h3 id="promo-title">Promouvoir le pion</h3>
+      <div id="promo-choices" class="promo-choices"></div>
+    </div>
+  </div>
+
+  <!-- ── Écran 4 : Culture Générale (accueil) ── -->
+  <div id="screen-trivia-home" class="screen">
+    <button class="btn-back" id="btn-back-trivia-home">← Retour</button>
+    <div class="logo">
+      <h1 id="trivia-home-title">🧠 Culture Générale</h1>
+      <p id="trivia-home-subtitle" class="subtitle">Choisis un ou plusieurs thèmes et joue !</p>
+    </div>
+    <div class="card">
+      <input id="input-trivia-name" type="text" placeholder="Ton pseudo (optionnel)"
+        maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false" />
+      <p id="trivia-theme-label" class="trivia-theme-label">Thèmes (sélection multiple) :</p>
+      <div id="trivia-themes" class="trivia-themes"></div>
+      <div class="trivia-action-row">
+        <button id="btn-solo-trivia" class="btn btn-primary">▶ Solo</button>
+        <button id="btn-create-trivia" class="btn btn-secondary">+ Créer un salon</button>
+      </div>
+      <div class="join-group">
+        <input id="input-trivia-code" type="text" placeholder="Code à 4 lettres"
+          maxlength="4" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" />
+        <button id="btn-join-trivia" class="btn btn-secondary">Rejoindre</button>
+      </div>
+      <p id="trivia-error-msg" class="error-msg hidden"></p>
+    </div>
+    <div class="lb-card">
+      <div class="lb-header"><span>🏆</span><span id="lb-title-trivia" class="lb-title">Classement Quiz</span></div>
+      <div id="trivia-lb-list" class="lb-list"><p class="lb-empty">Aucune partie jouée pour l'instant.</p></div>
+    </div>
+  </div>
+
+  <!-- ── Écran 5 : Salon trivia (attente) ── -->
+  <div id="screen-trivia-waiting" class="screen">
+    <div class="card waiting-card">
+      <div class="spinner"></div>
+      <p id="trivia-wait-theme" class="waiting-game-name"></p>
+      <h2 id="trivia-waiting-title">En attente de joueurs…</h2>
+      <p id="trivia-waiting-share">Code du salon :</p>
+      <div id="trivia-room-code" class="code-display"></div>
+      <button id="btn-trivia-copy" class="btn btn-secondary">Copier le code</button>
+      <div id="trivia-wait-players" class="trivia-wait-players"></div>
+      <button id="btn-start-trivia" class="btn btn-primary hidden">▶ Démarrer la partie</button>
+      <button id="btn-leave-trivia-wait" class="btn btn-secondary">Quitter le salon</button>
+      <p id="trivia-waiting-hint" class="hint">1 à 6 joueurs. Démarre dès que tu es prêt·e.</p>
+    </div>
+  </div>
+
+  <!-- ── Écran 6 : Trivia en cours ── -->
+  <div id="screen-trivia-game" class="screen game-screen">
+    <div class="tg-wrap">
+      <div class="tg-header">
+        <span id="tg-q-num" class="tg-q-num"></span>
+        <span id="tg-theme-label" class="tg-theme-lbl"></span>
+        <div id="tg-timer" class="tg-timer">20</div>
+      </div>
+      <div id="tg-scores" class="tg-scores"></div>
+      <div class="tg-question-box">
+        <p id="tg-question" class="tg-question"></p>
+      </div>
+      <div id="tg-choices" class="tg-choices"></div>
+      <div id="tg-reveal" class="tg-reveal hidden"></div>
+      <div id="tg-finished" class="tg-finished hidden">
+        <h2 id="tg-finished-title" class="tg-finished-title">Résultats finaux</h2>
+        <div id="tg-final-scores" class="tg-final-scores"></div>
+        <button id="btn-leave-trivia-game" class="btn btn-primary">Retour au menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Bouton aide (flottant) ── -->
+  <button id="btn-help" class="btn-help-float" title="Aide">?</button>
+  <!-- ── Bouton langue (flottant) ── -->
+  <button id="btn-lang" class="btn-lang-float" title="Langue / Language">🇬🇧 EN</button>
+  <!-- ── Bouton serpent (flottant) ── -->
+  <button id="btn-snake-toggle" class="btn-snake-float" title="Activer / Désactiver le serpent">🐍</button>
+
+  <!-- ── Bouton commentaire (flottant) ── -->
+  <button id="btn-comment" class="btn-comment-float" title="Laisser un commentaire">✉️</button>
+
+  <!-- ── Modal : Commentaire ── -->
+  <div id="overlay-comment" class="overlay hidden">
+    <div class="comment-modal">
+      <div class="comment-modal-header">
+        <h2 class="comment-modal-title">💬 Laisser un commentaire</h2>
+        <button id="btn-comment-close" class="help-close-btn">✕</button>
+      </div>
+      <p class="comment-modal-sub">Partage ton avis, une idée ou un bug — le créateur le recevra par mail.</p>
+      <form id="comment-form" class="comment-form" autocomplete="off">
+        <input
+          id="comment-pseudo"
+          type="text"
+          placeholder="Ton pseudo (optionnel)"
+          maxlength="30"
+          autocorrect="off"
+          spellcheck="false"
+        />
+        <textarea
+          id="comment-message"
+          placeholder="Ton message…"
+          maxlength="1000"
+          rows="5"
+          required
+        ></textarea>
+        <div class="comment-form-footer">
+          <span id="comment-chars" class="comment-chars">0 / 1000</span>
+          <button type="submit" id="btn-comment-send" class="btn btn-primary">Envoyer ✉️</button>
+        </div>
+        <p id="comment-feedback" class="comment-feedback hidden"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Tutoriel premiers pas ── -->
+  <div id="tuto-wrap" class="tuto-wrap hidden">
+    <div id="tuto-bubble" class="tuto-bubble">
+      <div id="tuto-dots" class="tuto-dots"></div>
+      <p id="tuto-text" class="tuto-text"></p>
+      <div class="tuto-actions">
+        <button id="tuto-skip" class="tuto-skip">Passer le guide</button>
+        <button id="tuto-ok"   class="tuto-ok">J'ai compris ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Overlay : Aide ── -->
+  <div id="overlay-help" class="overlay hidden">
+    <div class="help-modal">
+
+      <div class="help-modal-header">
+        <h2 id="help-modal-title" class="help-modal-title">Aide</h2>
+        <button id="btn-help-close" class="help-close-btn">✕</button>
+      </div>
+
+      <div class="help-tabs-bar">
+        <button class="help-tab active" data-tab="general">Général</button>
+        <button class="help-tab" data-tab="quiz">Quiz</button>
+        <button class="help-tab" data-tab="connect4">Puissance 4</button>
+        <button class="help-tab" data-tab="ttt">Morpion</button>
+        <button class="help-tab" data-tab="chess">Échecs</button>
+      </div>
+
+      <div class="help-body">
+
+        <!-- Général -->
+        <div class="help-panel active" id="help-tab-general">
+          <div class="help-item">
+            <span class="help-icon">🏠</span>
+            <div><strong>Deux sections</strong><p>L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs) et <em>Culture Générale</em> (quiz par thèmes). Chaque section a son propre classement.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">🎮</span>
+            <div><strong>Créer une partie classique</strong><p>Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">🤖</span>
+            <div><strong>Mode Solo (vs Bot)</strong><p>Joue seul contre un robot. <em>Facile</em> : le bot joue au hasard. <em>Moyen</em> : le bot bloque et attaque. <em>Difficile</em> : le bot joue de manière optimale. Les parties en mode <strong>Moyen et Difficile</strong> comptent dans le classement classique.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">🔗</span>
+            <div><strong>Rejoindre</strong><p>Entre le code à 4 lettres reçu et clique <em>Rejoindre</em>. La partie démarre automatiquement dès que les deux joueurs sont connectés.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">💬</span>
+            <div><strong>Chat</strong><p>Envoie des messages à ton adversaire pendant une partie classique. Le bouton <em>Vider</em> efface l'historique côté local uniquement.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">🔄</span>
+            <div><strong>Reconnexion</strong><p>Si tu recharges la page, tu retrouves automatiquement ta partie classique en cours. L'adversaire a <strong>30 secondes</strong> pour se reconnecter, sinon la partie est annulée.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">🔁</span>
+            <div><strong>Rejouer</strong><p>En fin de partie classique, clique <em>Rejouer</em>. La partie redémarre uniquement si les deux joueurs acceptent.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">🏆</span>
+            <div><strong>Classements</strong><p>Jeux classiques : victoires / défaites / nuls par pseudo (parties vs joueur et solo moyen/difficile). Quiz : total de points cumulés sur tous les quiz. Les deux sont mis à jour en temps réel.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">🐍</span>
+            <div><strong>Serpent</strong><p>Un petit serpent suit ton curseur. Il grandit et change de couleur selon ta position dans le classement classique : or (1er), bleu (2e), bronze (3e). Plus tu gagnes, plus il est long ! Clique sur le bouton <strong>🐍</strong> en bas à droite pour l'activer ou le désactiver (ton choix est mémorisé).</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">🚪</span>
+            <div><strong>Bouton Quitter</strong><p>Pendant une partie, le bouton <em>🚪 Quitter</em> en haut au centre te ramène au menu principal. Si une partie est en cours, tu es averti que tu abandonneras avant de confirmer.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">✉️</span>
+            <div><strong>Laisser un commentaire</strong><p>Clique sur le bouton <strong>✉️</strong> en bas à gauche pour envoyer un message au créateur : avis, idée, bug… Aucune connexion requise. Tu peux laisser un pseudo ou rester anonyme.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">🎓</span>
+            <div><strong>Tutoriel</strong><p>À ta première visite, un guide apparaît automatiquement pour te présenter chaque fonctionnalité écran par écran. Une fois une étape vue, elle ne s'affiche plus. Pour tout revoir depuis le début, vide le cache de ton navigateur (localStorage).</p></div>
+          </div>
+        </div>
+
+        <!-- Quiz -->
+        <div class="help-panel" id="help-tab-quiz">
+          <div class="help-item">
+            <span class="help-icon">🧠</span>
+            <div><strong>Culture Générale</strong><p>Réponds à <strong>10 questions</strong> à choix multiple. Sélectionne <strong>un ou plusieurs thèmes</strong> parmi 12 catégories : Histoire, Sciences, Cinéma, Musique, etc. Les questions sont mélangées si tu choisis plusieurs thèmes.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">🌐</span>
+            <div><strong>Langue</strong><p>Les questions sont automatiquement <strong>traduites en français</strong> si tu as choisi le mode FR. Les termes techniques restent en anglais quand nécessaire. En mode EN, les questions sont en anglais d'origine.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">▶</span>
+            <div><strong>Mode Solo</strong><p>Sélectionne un ou plusieurs thèmes et clique <em>Solo</em>. Tu joues seul à ton rythme. Ton score est automatiquement ajouté au classement à la fin.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">👥</span>
+            <div><strong>Mode Multijoueur</strong><p>Clique <em>Créer un salon</em> (2 à 6 joueurs). Partage le code à 4 lettres. L'hôte lance la partie quand tout le monde est prêt. Tout le monde voit les mêmes questions en même temps.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">⏱</span>
+            <div><strong>Chrono</strong><p>Tu as <strong>20 secondes</strong> par question. Le chrono passe en rouge sous les 5 secondes. Sans réponse dans le temps imparti, la question est perdue.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">✅</span>
+            <div><strong>Correction</strong><p>Après chaque réponse (ou expiration du temps), la bonne réponse s'affiche en vert et les mauvaises en rouge. En multi, tu vois aussi le score de chaque joueur.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">🏆</span>
+            <div><strong>Classement Quiz</strong><p>1 point par bonne réponse. Les points s'accumulent quiz après quiz, qu'on joue en solo ou en groupe. Le classement affiche le total de points et le nombre de quiz joués.</p></div>
+          </div>
+        </div>
+
+        <!-- Puissance 4 -->
+        <div class="help-panel" id="help-tab-connect4">
+          <div class="help-item">
+            <span class="help-icon">🎯</span>
+            <div><strong>Objectif</strong><p>Aligner <strong>4 pions</strong> de ta couleur, horizontalement, verticalement ou en diagonale.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">👥</span>
+            <div><strong>Joueurs</strong><p>Rouge 🔴 contre Jaune 🟡. Le joueur Rouge commence toujours.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">▼</span>
+            <div><strong>Comment jouer</strong><p>Clique sur le bouton <strong>▼</strong> au-dessus de la colonne où tu veux faire tomber ton pion. Le pion descend tout en bas de la colonne.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">📐</span>
+            <div><strong>Grille</strong><p>7 colonnes × 6 rangées. Une colonne pleine ne peut plus être jouée.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">✨</span>
+            <div><strong>Fin de partie</strong><p>Les 4 pions gagnants sont surlignés. Si la grille est pleine sans alignement, c'est un match nul.</p></div>
+          </div>
+        </div>
+
+        <!-- Tic Tac Toe -->
+        <div class="help-panel" id="help-tab-ttt">
+          <div class="help-item">
+            <span class="help-icon">🎯</span>
+            <div><strong>Objectif</strong><p>Aligner <strong>3 symboles</strong> identiques en ligne, en colonne ou en diagonale.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">👥</span>
+            <div><strong>Joueurs</strong><p>Croix ✕ contre Rond ○. Le joueur Croix commence toujours.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">👆</span>
+            <div><strong>Comment jouer</strong><p>Clique sur une <strong>case vide</strong> pour y poser ton symbole. Impossible de jouer sur une case déjà occupée.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">📐</span>
+            <div><strong>Grille</strong><p>3 × 3 cases, soit 9 cases au total.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">✨</span>
+            <div><strong>Fin de partie</strong><p>La ligne gagnante est surlignée. Si les 9 cases sont remplies sans alignement, c'est un match nul.</p></div>
+          </div>
+        </div>
+
+        <!-- Échecs -->
+        <div class="help-panel" id="help-tab-chess">
+          <div class="help-item">
+            <span class="help-icon">🎯</span>
+            <div><strong>Objectif</strong><p>Mettre le roi adverse en <strong>échec et mat</strong> (il est attaqué et ne peut plus s'échapper).</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">👥</span>
+            <div><strong>Joueurs</strong><p>Blancs ♔ contre Noirs ♚. Les Blancs commencent toujours. Le plateau est orienté : tes pièces sont toujours en bas.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">👆</span>
+            <div><strong>Comment jouer</strong><p><strong>1.</strong> Clique sur une de tes pièces → les cases accessibles s'affichent.<br><strong>2.</strong> <em>Point noir</em> = case libre · <em>Anneau</em> = capture possible.<br><strong>3.</strong> Clique sur une case surlignée pour jouer le coup.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">🔴</span>
+            <div><strong>Échec</strong><p>Quand ton roi est en échec, sa case devient <strong>rouge</strong>. Tu dois obligatoirement parer l'échec.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">🟡</span>
+            <div><strong>Dernier coup</strong><p>Les deux cases du dernier coup joué sont surlignées en <strong>jaune</strong>.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">♛</span>
+            <div><strong>Promotion du pion</strong><p>Quand ton pion atteint la dernière rangée, une fenêtre s'ouvre pour choisir la pièce de remplacement : Dame, Tour, Fou ou Cavalier.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">📜</span>
+            <div><strong>Règles avancées</strong><p>Le <strong>roque</strong> (petit et grand), la <strong>prise en passant</strong> et le <strong>pat</strong> (match nul) sont gérés automatiquement.</p></div>
+          </div>
+        </div>
+
+      </div><!-- /.help-body -->
+    </div><!-- /.help-modal -->
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
