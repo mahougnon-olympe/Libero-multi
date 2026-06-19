@@ -1292,3 +1292,4 @@ html.light #screen-landing         { background: radial-gradient(ellipse at 50% 
   position: relative;
   z-index: 1;
 }
+#news-card.tuto-highlight { position: fixed; }
