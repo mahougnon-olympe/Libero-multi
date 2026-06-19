@@ -2035,3 +2035,6 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   // Affiche le step initial
   window._tutoOnScreen('landing');
 })();
+
+// Lance le timer de repli News dès le chargement (landing active par défaut)
+_scheduleNewsCollapse();
