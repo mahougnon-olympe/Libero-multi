@@ -1962,6 +1962,13 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
       if (el) { el.classList.add('tuto-highlight'); highlighted = el; }
     }
 
+    // Si l'étape cible la News, forcer la carte visible pendant toute la durée
+    if (step.target === '#news-card') {
+      clearTimeout(_newsTimer);
+      const nc = document.getElementById('news-card');
+      if (nc) nc.classList.remove('collapsed');
+    }
+
     clearTimeout(autoTimer);
     if (step.autoDone) {
       autoTimer = setTimeout(() => advance(), 6000);
@@ -1978,10 +1985,14 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   function advance() {
     if (!current) return;
     clearTimeout(autoTimer);
+    const stepId    = current.id;
     const screenName = current.screen;
     markDone(current.id);
     clearHighlight();
     current = null;
+
+    // Reprendre le repli auto de la News une fois l'étape passée
+    if (stepId === 'landing_news') _scheduleNewsCollapse();
 
     // Cherche la prochaine étape non faite sur le même écran
     const next = STEPS.find(s => s.screen === screenName && !isDone(s.id));
