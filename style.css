@@ -657,6 +657,21 @@ h1 {
 .btn-snake-float:active { transform: scale(.92); }
 .btn-snake-float.off    { opacity: .35; }
 
+.btn-theme-float {
+  position: fixed;
+  bottom: 20px; right: 200px;
+  width: 44px; height: 44px;
+  border-radius: 50%; border: none;
+  background: var(--board); color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(99,102,241,.5);
+  z-index: 50;
+  transition: transform .15s, box-shadow .15s;
+}
+.btn-theme-float:hover  { box-shadow: 0 0 28px rgba(99,102,241,.8); }
+.btn-theme-float:active { transform: scale(.92); }
+
 .btn-help-inline { display: none; }
 
 @media (max-width: 600px) {

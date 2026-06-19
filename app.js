@@ -69,6 +69,7 @@ const DICT = {
     errLoadQ:'Impossible de charger les questions. Vérifie ta connexion.',
     err4Letters:'Entre un code à 4 lettres.',
     soloLoading:'⏳ Chargement…',
+    themeDay:'☀️ Thème jour', themeNight:'🌙 Thème nuit', themeToggle:'Basculer le thème',
     mixLabel:n => `🎲 Mix (${n} thèmes)`,
     colLabel:n => `Jouer colonne ${n}`,
     restartRequested:"\nL'adversaire veut rejouer !",
@@ -135,6 +136,7 @@ const DICT = {
     errLoadQ:'Could not load questions. Check your connection.',
     err4Letters:'Enter a 4-letter code.',
     soloLoading:'⏳ Loading…',
+    themeDay:'☀️ Day theme', themeNight:'🌙 Night theme', themeToggle:'Toggle theme',
     mixLabel:n => `🎲 Mix (${n} themes)`,
     colLabel:n => `Play column ${n}`,
     restartRequested:'\nOpponent wants to play again!',
@@ -159,6 +161,7 @@ function applyLang() {
   document.title = d.siteTitle;
   const bl = $('btn-lang');
   if (bl) bl.textContent = currentLang === 'fr' ? '🇫🇷 FR' : '🇬🇧 EN';
+  const btm = $('btn-theme-toggle'); if (btm) btm.title = d.themeToggle;
 
   // Landing
   const lt = $('landing-title');   if (lt) lt.textContent = d.siteTitle;
@@ -1449,20 +1452,28 @@ document.addEventListener('click', e => {
   if (e.target.closest('.btn-primary, .landing-card')) spawnParticles(e.clientX, e.clientY);
 }, { passive: true });
 
-// ── Thème adaptatif selon l'heure ─────────────────────────────────────────────
+// ── Thème : adaptatif selon l'heure + bascule manuelle ───────────────────────
 (function () {
   let lastLight = null;
   let clockTimer = null;
 
-  function applyThemeByTime() {
+  function getIsLight() {
+    const manual = localStorage.getItem('themeMode');
+    if (manual === 'light') return true;
+    if (manual === 'dark')  return false;
     const h = new Date().getHours();
-    const isLight = h >= 7 && h < 20;
+    return h >= 7 && h < 20;
+  }
 
-    if (isLight !== lastLight) {
-      document.documentElement.classList.toggle('light', isLight);
-      showThemeClock(isLight ? '☀️ Thème jour' : '🌙 Thème nuit');
-      lastLight = isLight;
+  function applyTheme(showNotif = false) {
+    const isLight = getIsLight();
+    document.documentElement.classList.toggle('light', isLight);
+    const btn = document.getElementById('btn-theme-toggle');
+    if (btn) btn.textContent = isLight ? '☀️' : '🌙';
+    if (showNotif && isLight !== lastLight) {
+      showThemeClock(isLight ? t().themeDay : t().themeNight);
     }
+    lastLight = isLight;
   }
 
   function showThemeClock(label) {
@@ -1478,8 +1489,16 @@ document.addEventListener('click', e => {
     clockTimer = setTimeout(() => el.classList.remove('visible'), 3000);
   }
 
-  applyThemeByTime();
-  setInterval(applyThemeByTime, 60_000);
+  document.getElementById('btn-theme-toggle').addEventListener('click', () => {
+    const isNowLight = !document.documentElement.classList.contains('light');
+    localStorage.setItem('themeMode', isNowLight ? 'light' : 'dark');
+    lastLight = null; // force l'affichage du toast
+    applyTheme(true);
+  });
+
+  applyTheme(false);
+  // Auto-update toutes les minutes uniquement si pas de préférence manuelle
+  setInterval(() => { if (!localStorage.getItem('themeMode')) applyTheme(true); }, 60_000);
 })();
 
 // ── Serpent curseur ───────────────────────────────────────────────────────────
