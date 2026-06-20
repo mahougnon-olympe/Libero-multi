@@ -876,6 +876,23 @@ h1 {
 .snake-over-text { font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0; }
 #snake-over-score { font-size: .85rem; color: var(--muted); margin: 0; }
 .snake-hint { font-size: .72rem; color: var(--muted); opacity: .65; margin: 0; }
+.snake-dpad {
+  display: none;
+  flex-direction: column; align-items: center; gap: 6px; margin-top: 4px;
+}
+@media (max-width: 600px) { .snake-dpad { display: flex; } }
+.dpad-row { display: flex; gap: 6px; }
+.dpad-btn {
+  width: 54px; height: 54px;
+  background: var(--card);
+  border: 1px solid rgba(99,102,241,.4);
+  border-radius: 10px;
+  font-size: 1.4rem; color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; user-select: none; touch-action: manipulation;
+  transition: background .1s, transform .1s;
+}
+.dpad-btn:active { background: rgba(99,102,241,.22); transform: scale(.9); }
 
 /* ── Classement Global (landing) ── */
 .global-lb-card {

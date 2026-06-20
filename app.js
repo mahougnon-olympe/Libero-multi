@@ -1645,6 +1645,7 @@ const cursorSnake = (() => {
   let pendingLen = MIN, pendingRank = 0;
   let _overrideMx = null, _overrideMy = null;
   let _flySpeed   = 0.18;
+  let _hidden     = false;
   let _eventBonus = Math.min(8, Math.floor(parseInt(localStorage.getItem('libero_snake_event_hs') || '0', 10) / 2));
 
   function hueFor(rank) {
@@ -1739,16 +1740,18 @@ const cursorSnake = (() => {
       }, 50);
     },
     hide() {
+      _hidden = true;
       segs.forEach(s => { s.el.style.transition = 'opacity .3s'; s.el.style.opacity = '0'; });
     },
     show() {
+      _hidden = false;
       if (!enabled) return;
       const n = Math.min(MAX, Math.max(MIN, pendingLen + _eventBonus));
       build(n, hueFor(pendingRank));
     },
     setBonus(eventHs) {
       _eventBonus = Math.min(8, Math.floor(eventHs / 2));
-      if (enabled) {
+      if (!_hidden && enabled) {
         const n = Math.min(MAX, Math.max(MIN, pendingLen + _eventBonus));
         const h = hueFor(pendingRank);
         if (n !== segs.length || h !== curHue) build(n, h);
@@ -1765,11 +1768,17 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
 // ── Évents : Snake Challenge ──────────────────────────────────────────────────
 (function () {
   const HS_KEY  = 'libero_snake_event_hs';
-  const COLS = 20, ROWS = 20, TICK = 140;
+  const COLS = 20, ROWS = 20;
   let CELL = 15;
 
   let canvas, ctx, gameLoop;
   let snake, dir, nextDir, food, score, running;
+
+  function updateSpeed() {
+    clearInterval(gameLoop);
+    const interval = Math.max(65, 180 - score * 8);
+    gameLoop = setInterval(tick, interval);
+  }
 
   function getHs()   { return parseInt(localStorage.getItem(HS_KEY) || '0', 10); }
   function saveHs(n) {
@@ -1810,8 +1819,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     document.getElementById('snake-score-val').textContent = 0;
     document.getElementById('snake-hs-val').textContent    = getHs();
     document.getElementById('snake-over-overlay').classList.add('hidden');
-    clearInterval(gameLoop);
-    gameLoop = setInterval(tick, TICK);
+    updateSpeed();
     draw();
   }
 
@@ -1830,6 +1838,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
       document.getElementById('snake-score-val').textContent = score;
       document.getElementById('snake-hs-val').textContent = Math.max(score, getHs());
       food = rndFood();
+      updateSpeed();
     } else {
       snake.pop();
     }
@@ -1884,6 +1893,20 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
       `Score : ${score} · Meilleur : ${Math.max(score, getHs())}`;
     document.getElementById('snake-over-overlay').classList.remove('hidden');
   }
+
+  // Contrôles D-pad mobile
+  const _dpadMap = {
+    up: { x: 0, y: -1 }, down: { x: 0, y: 1 },
+    left: { x: -1, y: 0 }, right: { x: 1, y: 0 },
+  };
+  ['up', 'down', 'left', 'right'].forEach(d => {
+    document.getElementById(`dpad-${d}`)?.addEventListener('touchstart', e => {
+      e.preventDefault();
+      if (!running) return;
+      const nd = _dpadMap[d];
+      if (nd.x !== -dir.x || nd.y !== -dir.y) nextDir = nd;
+    }, { passive: false });
+  });
 
   // Contrôles clavier
   document.addEventListener('keydown', e => {
