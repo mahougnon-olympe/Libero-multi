@@ -183,23 +183,35 @@ function updateSnakeLeaderboard(id, name, hs) {
 }
 
 function getSnakeLeaderboardData() {
-  return [...snakeLeaderboard.entries()]
-    .filter(([, s]) => s.hs > 0)
-    .map(([id, s]) => ({ name: s.name || id, hs: s.hs }))
+  const byName = new Map();
+  for (const [, s] of snakeLeaderboard.entries()) {
+    if (s.hs <= 0 || !s.name) continue;
+    const existing = byName.get(s.name);
+    if (!existing || s.hs > existing.hs) byName.set(s.name, s);
+  }
+  return [...byName.values()]
     .sort((a, b) => b.hs - a.hs)
     .slice(0, 10);
 }
 
 function getGlobalLeaderboardData() {
   const ids = new Set([...leaderboard.keys(), ...triviaLeaderboard.keys(), ...snakeLeaderboard.keys()]);
-  return [...ids]
-    .map(id => {
-      const c  = leaderboard.get(id)       || { name: id, wins: 0 };
-      const tr = triviaLeaderboard.get(id) || { name: id, points: 0 };
-      const sk = snakeLeaderboard.get(id)  || { name: id, hs: 0 };
-      const name = c.name || tr.name || sk.name || id;
-      return { name, globalScore: c.wins * 10 + tr.points + sk.hs * 10, wins: c.wins, triviaPoints: tr.points, snakeHs: sk.hs };
-    })
+  const byName = new Map();
+  for (const id of ids) {
+    const c  = leaderboard.get(id)       || { name: '', wins: 0 };
+    const tr = triviaLeaderboard.get(id) || { name: '', points: 0 };
+    const sk = snakeLeaderboard.get(id)  || { name: '', hs: 0 };
+    const name = c.name || tr.name || sk.name;
+    // Ignore entries with no real name or where the name is the player ID itself
+    if (!name || name === id) continue;
+    const globalScore = c.wins * 10 + tr.points + sk.hs * 10;
+    if (globalScore <= 0) continue;
+    const existing = byName.get(name);
+    if (!existing || globalScore > existing.globalScore) {
+      byName.set(name, { name, globalScore, wins: c.wins, triviaPoints: tr.points, snakeHs: sk.hs });
+    }
+  }
+  return [...byName.values()]
     .sort((a, b) => b.globalScore - a.globalScore)
     .slice(0, 10);
 }
@@ -615,8 +627,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('submit-snake-score', ({ name, hs, playerId } = {}) => {
-    if (!name || typeof hs !== 'number') return;
-    const playerName = String(name).trim().slice(0, 20);
+    const playerName = String(name || '').trim().slice(0, 20);
+    if (!playerName || typeof hs !== 'number') return;
     const id = safePlayerId(playerId) || playerName;
     const result = updateSnakeLeaderboard(id, playerName, Math.max(0, Math.floor(hs)));
     if (result === 'improved') {
