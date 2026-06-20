@@ -29,6 +29,7 @@ const snakeLeaderboard  = new Map();
 const comments        = [];
 const libs            = new Map();
 const socketPlayerIds = new Map();
+const playerIdAliases = new Map();
 
 // ── Persistance MongoDB ────────────────────────────────────────────────────
 let mongoClient = null;
@@ -53,19 +54,21 @@ async function connectDB() {
 
 async function loadData() {
   if (!db) return;
-  const [lbDocs, tlbDocs, cmtDocs, slbDocs, libsDocs] = await Promise.all([
+  const [lbDocs, tlbDocs, cmtDocs, slbDocs, libsDocs, aliasDocs] = await Promise.all([
     db.collection('leaderboard').find().toArray(),
     db.collection('trivia_leaderboard').find().toArray(),
     db.collection('comments').find().sort({ date: 1 }).toArray(),
     db.collection('snake_leaderboard').find().toArray(),
     db.collection('libs').find().toArray(),
+    db.collection('player_aliases').find().toArray(),
   ]);
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
   cmtDocs.forEach(d => comments.push({ pseudo: d.pseudo, message: d.message, date: d.date }));
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0 }));
-  console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${cmtDocs.length} commentaires, ${libsDocs.length} libs.`);
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [] }));
+  aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
+  console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias.`);
 }
 
 function dbUpsertLeaderboard(id, entry) {
@@ -90,7 +93,16 @@ function dbUpsertSnakeLeaderboard(id, entry) {
 }
 
 function safePlayerId(id) {
-  return typeof id === 'string' && id.trim() ? id.trim().slice(0, 64) : null;
+  const raw = typeof id === 'string' && id.trim() ? id.trim().slice(0, 64) : null;
+  if (!raw) return null;
+  return playerIdAliases.get(raw) || raw;
+}
+
+function dbUpsertAlias(from, to) {
+  if (!db) return;
+  db.collection('player_aliases')
+    .updateOne({ _id: from }, { $set: { canonId: to } }, { upsert: true })
+    .catch(e => console.error('Erreur sauvegarde alias:', e));
 }
 
 function dbInsertComment(comment) {
@@ -103,7 +115,7 @@ function dbInsertComment(comment) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [] } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -129,9 +141,10 @@ function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0 };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [] };
     libs.set(id, entry);
   }
+  if (!entry.usedCodes) entry.usedCodes = [];
   const prevBal = entry.balance;
   applyDecay(entry);
   if (entry.balance !== prevBal) dbUpsertLibs(id, entry);
@@ -959,6 +972,28 @@ io.on('connection', (socket) => {
     socket.emit('buy-boost-result', { ok: true, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, itemId });
   });
 
+  socket.on('redeem-code', ({ code, playerId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) { socket.emit('redeem-result', { ok: false, error: 'invalid' }); return; }
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') {
+      socket.emit('redeem-result', { ok: false, error: 'anonymous' }); return;
+    }
+    const PROMOS = { 'EMAR': 30 };
+    const normalCode = String(code || '').trim().toUpperCase();
+    const reward = PROMOS[normalCode];
+    if (!reward) { socket.emit('redeem-result', { ok: false, error: 'invalid' }); return; }
+    if (entry.usedCodes.includes(normalCode)) {
+      socket.emit('redeem-result', { ok: false, error: 'already_used' }); return;
+    }
+    entry.balance += reward;
+    entry.usedCodes.push(normalCode);
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: reward, nextAt: nextDistributionAt });
+    socket.emit('redeem-result', { ok: true, delta: reward });
+  });
+
   socket.on('activate-quiz-boost', ({ playerId } = {}) => {
     const id = safePlayerId(playerId);
     if (!id) { socket.emit('quiz-boost-status', { active: false }); return; }
@@ -1190,6 +1225,8 @@ async function mergeDuplicateNames() {
       const [canonId, canon] = mergeEntries(entries);
       for (const [dupId] of entries) {
         if (dupId === canonId) continue;
+        playerIdAliases.set(dupId, canonId);
+        dbUpsertAlias(dupId, canonId);
         map.delete(dupId);
         if (db) await db.collection(collection).deleteOne({ _id: dupId }).catch(() => {});
       }
@@ -1224,10 +1261,12 @@ async function mergeDuplicateNames() {
   await mergeMap(libs, 'libs', entries => {
     entries.sort((a, b) => b[1].balance - a[1].balance);
     const [canonId, canon] = entries[0];
+    if (!canon.usedCodes) canon.usedCodes = [];
     for (const [, e] of entries.slice(1)) {
       canon.balance          += e.balance || 0;
       canon.pendingBoostHint += e.pendingBoostHint || 0;
       canon.lastActive        = Math.max(canon.lastActive || 0, e.lastActive || 0);
+      (e.usedCodes || []).forEach(c => { if (!canon.usedCodes.includes(c)) canon.usedCodes.push(c); });
     }
     dbUpsertLibs(canonId, canon);
     return [canonId, canon];

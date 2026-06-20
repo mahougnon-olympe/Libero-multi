@@ -107,6 +107,9 @@ const DICT = {
     shopPending:n => `${n} dispo`,
     shopInsufficient:'Champion, tu n\'as pas assez de Libs.', shopBuyError:'Erreur lors de l\'achat.',
     shopBuyOk:'Boost acheté !',
+    shopPromoTitle:'🎟 Code promo', shopPromoPlaceholder:'Code à 4 caractères', shopPromoBtn:'Valider',
+    shopPromoOk:n => `🎉 +${n} ⚡ crédités !`,
+    shopPromoAlreadyUsed:'Tu as déjà utilisé ce code.', shopPromoInvalid:'Code invalide.', shopPromoAnon:'Les joueurs anonymes ne peuvent pas utiliser de code.',
     boostHintBtn:'💡 Indice',
     helpLibsTitle:'Libs (monnaie)',
     helpLibsDesc:'Les Libs ⚡ sont une monnaie virtuelle. Les joueurs classés <strong>top 3 du classement Global</strong> en gagnent automatiquement toutes les 5 heures (1er : +5 ⚡, 2e : +3 ⚡, 3e : +2 ⚡). Si tu ne joues pas pendant 48 h, ton solde diminue de 10 ⚡ par jour supplémentaire. Clique sur le compteur ⚡ en haut à droite pour ouvrir la boutique. Les joueurs anonymes ne perçoivent pas de Libs.',
@@ -284,6 +287,9 @@ const DICT = {
     shopPending:n => `${n} available`,
     shopInsufficient:'Champion, you don\'t have enough Libs.', shopBuyError:'Purchase failed.',
     shopBuyOk:'Boost purchased!',
+    shopPromoTitle:'🎟 Promo code', shopPromoPlaceholder:'4-character code', shopPromoBtn:'Redeem',
+    shopPromoOk:n => `🎉 +${n} ⚡ credited!`,
+    shopPromoAlreadyUsed:'You have already used this code.', shopPromoInvalid:'Invalid code.', shopPromoAnon:'Anonymous players cannot use codes.',
     boostHintBtn:'💡 Hint',
     helpLibsTitle:'Libs (currency)',
     helpLibsDesc:'Libs ⚡ are a virtual currency. Players ranked <strong>top 3 in the Global leaderboard</strong> automatically earn some every 5 hours (1st: +5 ⚡, 2nd: +3 ⚡, 3rd: +2 ⚡). If you don\'t play for 48 h, your balance drops by 10 ⚡ per additional day of inactivity. Click the ⚡ counter in the top-right corner to open the shop. Anonymous players do not receive Libs.',
@@ -2115,6 +2121,19 @@ socket.on('buy-boost-result', ({ ok, balance, pendingBoostHint, error } = {}) =>
   }
 });
 
+socket.on('redeem-result', ({ ok, delta, error } = {}) => {
+  if (ok) {
+    const inp = $('shop-promo-input');
+    if (inp) inp.value = '';
+    _showShopFeedback(t().shopPromoOk(delta), '#22c55e');
+  } else {
+    const msg = error === 'already_used' ? t().shopPromoAlreadyUsed
+              : error === 'anonymous'    ? t().shopPromoAnon
+              : t().shopPromoInvalid;
+    _showShopFeedback(msg, '#ef4444');
+  }
+});
+
 socket.on('quiz-boost-status', ({ active, balance, pendingBoostHint } = {}) => {
   boostHintActive = !!active;
   if (balance !== undefined) {
@@ -2258,9 +2277,26 @@ function _renderShopItems() {
         </button>
       </div>
     </div>
+    <div class="shop-promo-section">
+      <span class="shop-promo-title">${d.shopPromoTitle}</span>
+      <div class="shop-promo-row">
+        <input id="shop-promo-input" type="text" maxlength="4" class="shop-promo-input"
+          placeholder="${d.shopPromoPlaceholder}" autocomplete="off" autocorrect="off"
+          autocapitalize="characters" spellcheck="false">
+        <button id="btn-redeem-code" class="btn btn-secondary" style="font-size:.8rem;padding:6px 14px;">${d.shopPromoBtn}</button>
+      </div>
+    </div>
   `;
   $('btn-buy-boost-hint').addEventListener('click', () => {
     socket.emit('buy-boost', { itemId: 'boost_hint', playerId: getPlayerId() });
+  });
+  $('btn-redeem-code').addEventListener('click', () => {
+    const code = ($('shop-promo-input').value || '').trim();
+    if (!code) return;
+    socket.emit('redeem-code', { code, playerId: getPlayerId() });
+  });
+  $('shop-promo-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') $('btn-redeem-code').click();
   });
 }
 
