@@ -170,7 +170,6 @@ function applyLang() {
   const btm = $('btn-theme-toggle'); if (btm) btm.title = d.themeToggle;
 
   // Landing
-  const lt = $('landing-title');    if (lt) lt.textContent = d.siteTitle;
   const ls = $('landing-subtitle'); if (ls) ls.textContent = d.siteSubtitle;
   const glbt = $('global-lb-title'); if (glbt) glbt.textContent = d.globalLbTitle;
   const bc = $('btn-go-classic');
@@ -281,6 +280,7 @@ function _scheduleNewsCollapse() {
 }
 
 function showScreen(name) {
+  sessionStorage.setItem('libero_screen', name);
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById('screen-' + name);
   if (el) el.classList.add('active');
@@ -1026,6 +1026,9 @@ function goToTriviaHome() {
   clearTriviaSession();
   triviaRoomCode = null; triviaIsHost = false; triviaIsSolo = false;
   triviaAnsweredThis = false; triviaChoiceSelected = null;
+  triviaPaused = false; triviaPauseRemaining = 0;
+  $('btn-trivia-pause').classList.add('hidden');
+  $('trivia-pause-overlay').classList.add('hidden');
   triviaQuestions = []; triviaCurrentQ = 0; triviaScore = 0;
   selectedTriviaCategories = [];
   document.querySelectorAll('#trivia-themes .theme-btn').forEach(b => b.classList.remove('active'));
@@ -1243,6 +1246,46 @@ function showTriviaFinished(scores) {
 $('btn-leave-trivia-game').addEventListener('click', goToTriviaHome);
 $('btn-quit-trivia').addEventListener('click', goToTriviaHome);
 
+// ── Trivia : pause (solo uniquement) ─────────────────────────────────────────
+let triviaPaused = false;
+let triviaPauseRemaining = 0;
+
+function pauseTrivia() {
+  if (!triviaIsSolo || triviaPaused || triviaAnsweredThis) return;
+  triviaPaused = true;
+  triviaPauseRemaining = parseInt($('tg-timer').textContent) || 0;
+  stopTriviaTimer();
+  $('tg-choices').querySelectorAll('.tg-choice').forEach(b => b.disabled = true);
+  $('trivia-pause-overlay').classList.remove('hidden');
+  $('btn-trivia-pause').textContent = '▶';
+}
+
+function resumeTrivia() {
+  if (!triviaPaused) return;
+  triviaPaused = false;
+  $('trivia-pause-overlay').classList.add('hidden');
+  $('btn-trivia-pause').textContent = '⏸';
+  $('tg-choices').querySelectorAll('.tg-choice').forEach(b => b.disabled = false);
+  startTriviaTimer(triviaPauseRemaining, () => onTriviaTimeUp());
+}
+
+function toggleTriviaPause() {
+  if (!triviaIsSolo) return;
+  if (triviaPaused) resumeTrivia(); else pauseTrivia();
+}
+
+$('btn-trivia-pause').addEventListener('click', toggleTriviaPause);
+$('btn-trivia-resume').addEventListener('click', resumeTrivia);
+$('btn-trivia-pause-back').addEventListener('click', () => { triviaPaused = false; goToTriviaHome(); });
+$('btn-trivia-pause-home').addEventListener('click', () => { triviaPaused = false; goToTriviaHome(); showScreen('landing'); });
+
+document.addEventListener('keydown', e => {
+  if (!['Escape', 'p', 'P'].includes(e.key)) return;
+  if (document.getElementById('screen-trivia-game')?.classList.contains('active')) {
+    toggleTriviaPause();
+  }
+});
+
 // ── Trivia solo : logique locale ──────────────────────────────────────────────
 function soloNextQuestion() {
   if (triviaCurrentQ >= triviaQuestions.length) {
@@ -1365,6 +1408,8 @@ socket.on('trivia-start', ({ totalQuestions, categoryName }) => {
   $('tg-theme-label').textContent = categoryName;
   $('tg-scores').innerHTML = '';
   $('tg-finished').classList.add('hidden');
+  $('btn-trivia-pause').classList.add('hidden');
+  $('trivia-pause-overlay').classList.add('hidden');
   showScreen('trivia-game');
 });
 
@@ -1393,10 +1438,14 @@ socket.on('trivia-solo-questions', (questions) => {
   triviaQuestions = shuffle(questions).slice(0, 10);
   if (!triviaQuestions.length) { showTriviaError(t().errLoadQ); return; }
   triviaIsSolo = true; triviaCurrentQ = 0; triviaScore = 0; triviaRoomCode = null;
+  triviaPaused = false;
   saveTriviaSession({ isSolo: true, questions: triviaQuestions, currentQ: 0, score: 0 });
   $('tg-theme-label').textContent = getCategoryLabel(selectedTriviaCategories);
   $('tg-scores').innerHTML = '';
   $('tg-finished').classList.add('hidden');
+  $('btn-trivia-pause').classList.remove('hidden');
+  $('btn-trivia-pause').textContent = '⏸';
+  $('trivia-pause-overlay').classList.add('hidden');
   showScreen('trivia-game');
   soloNextQuestion();
 });
@@ -1416,6 +1465,7 @@ socket.on('connect', () => {
   socket.emit('get-leaderboard');
   socket.emit('get-trivia-leaderboard');
   socket.emit('get-global-leaderboard');
+  if (sessionStorage.getItem('libero_screen') === 'events') socket.emit('get-snake-leaderboard');
 
   // Jeu classique
   const saved = sessionStorage.getItem('p4session');
@@ -1437,9 +1487,13 @@ socket.on('connect', () => {
       triviaScore      = data.score ?? 0;
       triviaIsSolo     = true;
       triviaRoomCode   = null;
+      triviaPaused     = false;
       $('tg-theme-label').textContent = '';
       $('tg-scores').innerHTML = '';
       $('tg-finished').classList.add('hidden');
+      $('btn-trivia-pause').classList.remove('hidden');
+      $('btn-trivia-pause').textContent = '⏸';
+      $('trivia-pause-overlay').classList.add('hidden');
       showScreen('trivia-game');
       soloNextQuestion();
     } else if (!data.isSolo && data.code && data.mySocketId) {
@@ -1457,6 +1511,8 @@ socket.on('trivia-reconnect-success', ({ code, status, scores, question, hostId 
   saveTriviaSession({ isSolo: false, code, mySocketId: socket.id });
   if (scores) renderTriviaScores(scores);
   $('tg-finished').classList.add('hidden');
+  $('btn-trivia-pause').classList.add('hidden');
+  $('trivia-pause-overlay').classList.add('hidden');
   showScreen('trivia-game');
   if (status === 'question' && question) {
     showTriviaQuestion(question);
@@ -1467,7 +1523,7 @@ socket.on('trivia-reconnect-success', ({ code, status, scores, question, hostId 
   }
 });
 
-socket.on('trivia-reconnect-failed', () => { clearTriviaSession(); });
+socket.on('trivia-reconnect-failed', () => { clearTriviaSession(); sessionStorage.removeItem('libero_screen'); });
 
 socket.on('room-created', ({ code, gameType }) => {
   currentRoomCode = code;
@@ -1497,7 +1553,7 @@ socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, r
   showScreen('game');
 });
 
-socket.on('reconnect-failed', () => { clearSession(); });
+socket.on('reconnect-failed', () => { clearSession(); sessionStorage.removeItem('libero_screen'); });
 
 socket.on('game-update', ({ gameType, state, status, winner }) => {
   if (gameType === 'chess') lastMove = null; // sera mis à jour via onChessClick
@@ -2309,7 +2365,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     {
       id: 'landing_lb',
       screen: 'landing',
-      text: '🌍 Le <strong>Classement Global</strong> combine tes victoires en jeux classiques (×10 pts) et tes points quiz. Plus ton score monte, plus ton serpent 🐍 grandit et change de couleur !',
+      text: '🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10. Plus tu montes, plus ton serpent 🐍 grandit !',
       target: '.global-lb-card',
     },
     {
@@ -2507,6 +2563,24 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
 
   // Affiche le step initial
   window._tutoOnScreen('landing');
+})();
+
+// ── Restauration d'écran après refresh ───────────────────────────────────────
+(function() {
+  const saved = sessionStorage.getItem('libero_screen');
+  if (!saved || saved === 'landing') return;
+  // Écrans gérés par la reconnexion socket — ils se restaurent via p4session/triviaSession
+  if (saved === 'game' || saved === 'waiting') {
+    if (!sessionStorage.getItem('p4session')) sessionStorage.removeItem('libero_screen');
+    return;
+  }
+  if (saved === 'trivia-game' || saved === 'trivia-waiting') {
+    if (!sessionStorage.getItem('triviaSession')) sessionStorage.removeItem('libero_screen');
+    return;
+  }
+  // Restauration directe (home, trivia-home, events)
+  if (saved === 'trivia-home') buildTriviaThemes();
+  showScreen(saved);
 })();
 
 // Lance le timer de repli News dès le chargement (landing active par défaut)

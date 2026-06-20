@@ -4,8 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Libero's Multi</title>
+  <link rel="icon" type="image/svg+xml" href="logo-badge.svg" />
   <meta property="og:title" content="Libero's Multi" />
   <meta property="og:type" content="website" />
+  <meta property="og:description" content="Puissance 4 · Morpion · Échecs · Quiz · Snake" />
+  <meta property="og:image" content="logo-badge.svg" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -13,7 +16,7 @@
   <!-- ── Écran 0 : Landing ── -->
   <div id="screen-landing" class="screen active">
     <div class="logo">
-      <h1 id="landing-title">Jeux Multijoueur</h1>
+      <img src="logo-full.svg" alt="Jeux Multijoueur" class="logo-full" id="landing-logo" />
       <p id="landing-subtitle" class="subtitle">Choisissez votre catégorie</p>
     </div>
 
@@ -260,6 +263,7 @@
     <div class="tg-wrap">
       <div class="tg-header">
         <button id="btn-quit-trivia" class="btn-quit">🚪 Quitter</button>
+        <button id="btn-trivia-pause" class="snake-pause-btn hidden" title="Pause">⏸</button>
         <span id="tg-q-num" class="tg-q-num"></span>
         <span id="tg-theme-label" class="tg-theme-lbl"></span>
         <div id="tg-timer" class="tg-timer">20</div>
@@ -274,6 +278,12 @@
         <h2 id="tg-finished-title" class="tg-finished-title">Résultats finaux</h2>
         <div id="tg-final-scores" class="tg-final-scores"></div>
         <button id="btn-leave-trivia-game" class="btn btn-primary">Retour au menu</button>
+      </div>
+      <div class="snake-pause-overlay hidden" id="trivia-pause-overlay">
+        <p class="snake-over-text">⏸ Pause</p>
+        <button id="btn-trivia-resume" class="btn btn-primary">▶ Reprendre</button>
+        <button id="btn-trivia-pause-back" class="btn btn-secondary">← Retour au Quiz</button>
+        <button id="btn-trivia-pause-home" class="btn btn-secondary">🏠 Quitter</button>
       </div>
     </div>
   </div>
@@ -500,7 +510,7 @@
           </div>
           <div class="help-item">
             <span class="help-icon">🌍</span>
-            <div><strong>Classement Global</strong><p>Visible dès la page d'accueil, il fusionne <strong>victoires classiques</strong> (×10 pts chacune) et <strong>points Quiz</strong> en un score unique. Il se met à jour en temps réel après chaque partie.</p></div>
+            <div><strong>Classement Global</strong><p>Visible dès la page d'accueil, il regroupe <strong>tous les joueurs ayant au moins un point</strong>, quelle que soit la section jouée. Score = victoires classiques (×10) + points Quiz + meilleur score Snake (×10). Tu apparais dès ta première victoire ou ton premier point — même si tu n'as joué qu'une seule section. Mis à jour en temps réel.</p></div>
           </div>
           <div class="help-item">
             <span class="help-icon">🏆</span>

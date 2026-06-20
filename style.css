@@ -60,6 +60,10 @@ html, body {
 
 /* ── Logo ── */
 .logo { text-align: center; }
+.logo-full {
+  height: 56px; width: auto; max-width: 280px;
+  display: block; margin: 0 auto;
+}
 h1 {
   font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;
   background: linear-gradient(135deg, var(--accent) 0%, #c7d2fe 50%, #60a5fa 100%);
@@ -712,7 +716,7 @@ h1 {
   .landing-icon  { font-size: 2rem; }
   .landing-card h2 { font-size: .92rem; }
   .global-lb-card { padding: 8px 12px 4px; }
-  .logo h1 { font-size: 1.4rem; }
+  .logo-full { height: 42px; }
   .news-card {
     pointer-events: auto;
     cursor: pointer;
@@ -1117,6 +1121,7 @@ body.screen-events-active .btn-comment-float { display: none !important; }
 .tg-wrap {
   display: flex; flex-direction: column; gap: 14px;
   width: 100%; max-width: 520px; padding-bottom: 20px;
+  position: relative;
 }
 .tg-header {
   display: flex; align-items: center; justify-content: space-between;
