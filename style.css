@@ -854,7 +854,8 @@ h1 {
 }
 .snake-hud {
   display: flex; justify-content: space-between;
-  width: 300px; font-size: .85rem; color: var(--muted);
+  width: 300px; /* mis à jour dynamiquement par JS */
+  font-size: .85rem; color: var(--muted);
 }
 .snake-canvas-wrap {
   position: relative;

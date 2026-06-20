@@ -1644,6 +1644,7 @@ const cursorSnake = (() => {
   let enabled = localStorage.getItem('snakeEnabled') !== 'false';
   let pendingLen = MIN, pendingRank = 0;
   let _overrideMx = null, _overrideMy = null;
+  let _flySpeed   = 0.18;
   let _eventBonus = Math.min(8, Math.floor(parseInt(localStorage.getItem('libero_snake_event_hs') || '0', 10) / 2));
 
   function hueFor(rank) {
@@ -1680,8 +1681,8 @@ const cursorSnake = (() => {
     if (segs.length) {
       const _tx = _overrideMx !== null ? _overrideMx : mx;
       const _ty = _overrideMy !== null ? _overrideMy : my;
-      segs[0].x += (_tx - segs[0].x) * 0.18;
-      segs[0].y += (_ty - segs[0].y) * 0.18;
+      segs[0].x += (_tx - segs[0].x) * _flySpeed;
+      segs[0].y += (_ty - segs[0].y) * _flySpeed;
       for (let i = 1; i < segs.length; i++) {
         const pr = segs[i - 1], cu = segs[i];
         const dx = pr.x - cu.x, dy = pr.y - cu.y;
@@ -1724,13 +1725,15 @@ const cursorSnake = (() => {
     },
     flyTo(x, y, cb) {
       _overrideMx = x; _overrideMy = y;
+      _flySpeed   = 0.28;
       let tries = 0;
       const check = setInterval(() => {
         tries++;
         const close = segs.length > 0 && Math.hypot(segs[0].x - x, segs[0].y - y) < 28;
-        if (tries > 80 || close) {
+        if (tries > 60 || close) {
           clearInterval(check);
           _overrideMx = null; _overrideMy = null;
+          _flySpeed   = 0.18;
           if (cb) cb();
         }
       }, 50);
@@ -1762,7 +1765,8 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
 // ── Évents : Snake Challenge ──────────────────────────────────────────────────
 (function () {
   const HS_KEY  = 'libero_snake_event_hs';
-  const COLS = 20, ROWS = 20, CELL = 15, TICK = 140;
+  const COLS = 20, ROWS = 20, TICK = 140;
+  let CELL = 15;
 
   let canvas, ctx, gameLoop;
   let snake, dir, nextDir, food, score, running;
@@ -1792,6 +1796,11 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   function startGame() {
     canvas = document.getElementById('snake-canvas');
     ctx    = canvas.getContext('2d');
+    CELL   = window.innerWidth > 600 ? 21 : 15;
+    canvas.width  = COLS * CELL;
+    canvas.height = ROWS * CELL;
+    const hud = document.querySelector('.snake-hud');
+    if (hud) hud.style.width = `${COLS * CELL}px`;
     snake  = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
     dir    = { x: 1, y: 0 };
     nextDir = { x: 1, y: 0 };
