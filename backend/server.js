@@ -982,7 +982,7 @@ io.on('connection', (socket) => {
     if (!entry.name || entry.name === 'Anonyme') {
       socket.emit('redeem-result', { ok: false, error: 'anonymous' }); return;
     }
-    const PROMOS = { 'EMAR': 30 };
+    const PROMOS = { 'EMAR': 30, 'NODE': 1000 };
     const normalCode = String(code || '').trim().toUpperCase();
     const reward = PROMOS[normalCode];
     if (!reward) { socket.emit('redeem-result', { ok: false, error: 'invalid' }); return; }

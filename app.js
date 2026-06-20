@@ -2335,7 +2335,7 @@ $('overlay-shop').addEventListener('click', e => { if (e.target === $('overlay-s
 function _updateBoostHintBtn() {
   const btn = $('btn-boost-hint');
   if (!btn) return;
-  btn.textContent = t().boostHintBtn;
+  btn.textContent = `${t().boostHintBtn} (${pendingHintCharges})`;
   if (pendingHintCharges > 0) {
     btn.classList.remove('hidden');
     btn.disabled = hintsUsedThisQ >= 2;
