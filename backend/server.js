@@ -248,7 +248,7 @@ function getLeaderboardData() {
     byName.set(name, ex);
   }
   return [...byName.values()]
-    .sort((a, b) => b.wins - a.wins || (b.wins - b.losses) - (a.wins - a.losses))
+    .sort((a, b) => b.wins - a.wins || (b.wins - b.losses) - (a.wins - a.losses) || a.name.localeCompare(b.name))
     .slice(0, 10);
 }
 
@@ -274,7 +274,7 @@ function getTriviaLeaderboardData() {
     byName.set(name, ex);
   }
   return [...byName.values()]
-    .sort((a, b) => b.points - a.points)
+    .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))
     .slice(0, 10);
 }
 
@@ -299,7 +299,7 @@ function getSnakeLeaderboardData() {
     if (!existing || s.hs > existing.hs) byName.set(displayName, { name: displayName, hs: s.hs });
   }
   return [...byName.values()]
-    .sort((a, b) => b.hs - a.hs)
+    .sort((a, b) => b.hs - a.hs || a.name.localeCompare(b.name))
     .slice(0, 10);
 }
 
@@ -321,7 +321,7 @@ function getGlobalLeaderboardData() {
   return [...byName.values()]
     .map(e => ({ ...e, globalScore: e.wins * 10 + e.triviaPoints + e.snakeHs * 10 }))
     .filter(e => e.globalScore > 0)
-    .sort((a, b) => b.globalScore - a.globalScore)
+    .sort((a, b) => b.globalScore - a.globalScore || a.name.localeCompare(b.name))
     .slice(0, 50);
 }
 
