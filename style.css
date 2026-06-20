@@ -877,6 +877,27 @@ h1 {
 #snake-over-score { font-size: .85rem; color: var(--muted); margin: 0; }
 .snake-hint { font-size: .72rem; color: var(--muted); opacity: .65; margin: 0; }
 
+/* ── Formulaire pseudo Snake ── */
+.snake-name-form {
+  width: 100%; max-width: 340px; margin: 1rem auto 0;
+}
+.snake-name-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.4rem 1.4rem 1.2rem;
+  display: flex; flex-direction: column; gap: .75rem; align-items: center;
+}
+.snake-name-title  { font-size: 1.1rem; font-weight: 700; margin: 0; }
+.snake-name-sub    { font-size: .82rem; color: var(--muted); margin: 0; text-align: center; }
+.snake-pseudo-input {
+  width: 100%; padding: .55rem .8rem; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--bg);
+  color: var(--text); font-size: .95rem; text-align: center;
+  outline: none; box-sizing: border-box;
+}
+.snake-pseudo-input:focus { border-color: var(--accent); }
+.snake-name-error  { font-size: .78rem; color: #e74c3c; margin: -.25rem 0 0; }
+.snake-name-actions { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; }
+
 /* ── Classement Snake ── */
 .snake-lb-card {
   width: 100%; max-width: 380px;

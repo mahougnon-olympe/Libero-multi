@@ -1971,32 +1971,72 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     socket.emit('get-snake-leaderboard');
   });
 
+  function showEventIntro() {
+    document.getElementById('snake-game-wrap').classList.add('hidden');
+    document.getElementById('snake-name-form').classList.add('hidden');
+    document.getElementById('event-intro').classList.remove('hidden');
+    document.getElementById('snake-lb-card').classList.remove('hidden');
+  }
+
   document.getElementById('btn-back-events')?.addEventListener('click', () => {
     clearInterval(gameLoop);
     running = false;
-    document.getElementById('snake-game-wrap').classList.add('hidden');
-    document.getElementById('event-intro').classList.remove('hidden');
-    document.getElementById('snake-lb-card').classList.remove('hidden');
+    showEventIntro();
     cursorSnake.show();
     showScreen('landing');
   });
 
-  document.getElementById('btn-event-play')?.addEventListener('click', () => {
+  function launchSnakeGame() {
     document.getElementById('event-intro').classList.add('hidden');
     document.getElementById('snake-lb-card').classList.add('hidden');
     const gameWrap = document.getElementById('snake-game-wrap');
     gameWrap.classList.remove('hidden');
-    // Laisser un frame pour que le canvas ait ses dimensions, puis animer le serpent
     requestAnimationFrame(() => {
-      const c   = document.getElementById('snake-canvas');
-      const r   = c.getBoundingClientRect();
-      const cx  = r.left + r.width  / 2;
-      const cy  = r.top  + r.height / 2;
+      const c  = document.getElementById('snake-canvas');
+      const r  = c.getBoundingClientRect();
+      const cx = r.left + r.width  / 2;
+      const cy = r.top  + r.height / 2;
       cursorSnake.flyTo(cx, cy, () => {
         cursorSnake.hide();
         setTimeout(startGame, 120);
       });
     });
+  }
+
+  document.getElementById('btn-event-play')?.addEventListener('click', () => {
+    const name = (localStorage.getItem('playerName') || '').trim();
+    if (!name) {
+      document.getElementById('event-intro').classList.add('hidden');
+      document.getElementById('snake-lb-card').classList.add('hidden');
+      const input = document.getElementById('snake-pseudo-input');
+      document.getElementById('snake-name-form').classList.remove('hidden');
+      document.getElementById('snake-name-error').classList.add('hidden');
+      input.value = '';
+      input.focus();
+      return;
+    }
+    launchSnakeGame();
+  });
+
+  document.getElementById('btn-snake-confirm-name')?.addEventListener('click', () => {
+    const input = document.getElementById('snake-pseudo-input');
+    const val   = input.value.trim();
+    if (!val) {
+      document.getElementById('snake-name-error').classList.remove('hidden');
+      input.focus();
+      return;
+    }
+    localStorage.setItem('playerName', val);
+    document.getElementById('snake-name-form').classList.add('hidden');
+    launchSnakeGame();
+  });
+
+  document.getElementById('snake-pseudo-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('btn-snake-confirm-name')?.click();
+  });
+
+  document.getElementById('btn-snake-cancel-name')?.addEventListener('click', () => {
+    showEventIntro();
   });
 
   document.getElementById('btn-snake-restart')?.addEventListener('click', startGame);
@@ -2004,11 +2044,10 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   document.getElementById('btn-snake-quit')?.addEventListener('click', () => {
     clearInterval(gameLoop);
     running = false;
-    document.getElementById('snake-game-wrap').classList.add('hidden');
-    document.getElementById('event-intro').classList.remove('hidden');
-    document.getElementById('snake-lb-card').classList.remove('hidden');
+    showEventIntro();
     cursorSnake.show();
     updateHsDisplay();
+    socket.emit('get-snake-leaderboard');
   });
 })();
 

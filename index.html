@@ -292,6 +292,20 @@
       <div class="event-hs-display" id="event-hs-display"></div>
       <button id="btn-event-play" class="btn btn-primary">Jouer</button>
     </div>
+    <!-- Formulaire pseudo (obligatoire avant de jouer) -->
+    <div class="snake-name-form hidden" id="snake-name-form">
+      <div class="snake-name-card">
+        <p class="snake-name-title">🐍 Ton pseudo</p>
+        <p class="snake-name-sub">Choisis un pseudo pour figurer dans le classement.</p>
+        <input type="text" id="snake-pseudo-input" class="snake-pseudo-input" placeholder="Ton pseudo" maxlength="20" autocomplete="off">
+        <p class="snake-name-error hidden" id="snake-name-error">Entre un pseudo pour continuer.</p>
+        <div class="snake-name-actions">
+          <button class="btn btn-primary" id="btn-snake-confirm-name">C'est parti !</button>
+          <button class="btn btn-secondary" id="btn-snake-cancel-name">Annuler</button>
+        </div>
+      </div>
+    </div>
+
     <div class="snake-lb-card" id="snake-lb-card">
       <div class="snake-lb-header">
         <span>🏆</span>
