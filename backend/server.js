@@ -222,8 +222,16 @@ function updateLeaderboard(id, name, result) {
 }
 
 function getLeaderboardData() {
-  return [...leaderboard.entries()]
-    .map(([id, s]) => ({ name: s.name || id, wins: s.wins, losses: s.losses, draws: s.draws }))
+  const byName = new Map();
+  for (const [id, s] of leaderboard.entries()) {
+    const name = s.name || id;
+    const ex = byName.get(name) || { name, wins: 0, losses: 0, draws: 0 };
+    ex.wins   += s.wins;
+    ex.losses += s.losses;
+    ex.draws  += s.draws;
+    byName.set(name, ex);
+  }
+  return [...byName.values()]
     .sort((a, b) => b.wins - a.wins || (b.wins - b.losses) - (a.wins - a.losses))
     .slice(0, 10);
 }
@@ -241,8 +249,15 @@ function updateTriviaLeaderboard(id, name, points) {
 }
 
 function getTriviaLeaderboardData() {
-  return [...triviaLeaderboard.entries()]
-    .map(([id, s]) => ({ name: s.name || id, points: s.points, games: s.games }))
+  const byName = new Map();
+  for (const [id, s] of triviaLeaderboard.entries()) {
+    const name = s.name || id;
+    const ex = byName.get(name) || { name, points: 0, games: 0 };
+    ex.points += s.points;
+    ex.games  += s.games;
+    byName.set(name, ex);
+  }
+  return [...byName.values()]
     .sort((a, b) => b.points - a.points)
     .slice(0, 10);
 }
@@ -1159,9 +1174,72 @@ app.get('/admin/reset', async (req, res) => {
   res.json({ ok: true, message: 'Classements réinitialisés.' });
 });
 
+async function mergeDuplicateNames() {
+  let merged = 0;
+
+  async function mergeMap(map, collection, mergeEntries) {
+    const byName = new Map();
+    for (const [id, e] of map.entries()) {
+      const name = (e.name || '').trim();
+      if (!name || name === 'Anonyme') continue;
+      if (!byName.has(name)) byName.set(name, []);
+      byName.get(name).push([id, e]);
+    }
+    for (const entries of byName.values()) {
+      if (entries.length < 2) continue;
+      const [canonId, canon] = mergeEntries(entries);
+      for (const [dupId] of entries) {
+        if (dupId === canonId) continue;
+        map.delete(dupId);
+        if (db) await db.collection(collection).deleteOne({ _id: dupId }).catch(() => {});
+      }
+      map.set(canonId, canon);
+      merged++;
+    }
+  }
+
+  await mergeMap(leaderboard, 'leaderboard', entries => {
+    entries.sort((a, b) => b[1].wins - a[1].wins);
+    const [canonId, canon] = entries[0];
+    for (const [, e] of entries.slice(1)) { canon.wins += e.wins; canon.losses += e.losses; canon.draws += e.draws; }
+    dbUpsertLeaderboard(canonId, canon);
+    return [canonId, canon];
+  });
+
+  await mergeMap(triviaLeaderboard, 'trivia_leaderboard', entries => {
+    entries.sort((a, b) => b[1].points - a[1].points);
+    const [canonId, canon] = entries[0];
+    for (const [, e] of entries.slice(1)) { canon.points += e.points; canon.games += e.games; }
+    dbUpsertTriviaLeaderboard(canonId, canon);
+    return [canonId, canon];
+  });
+
+  await mergeMap(snakeLeaderboard, 'snake_leaderboard', entries => {
+    entries.sort((a, b) => b[1].hs - a[1].hs);
+    const [canonId, canon] = entries[0];
+    dbUpsertSnakeLeaderboard(canonId, canon);
+    return [canonId, canon];
+  });
+
+  await mergeMap(libs, 'libs', entries => {
+    entries.sort((a, b) => b[1].balance - a[1].balance);
+    const [canonId, canon] = entries[0];
+    for (const [, e] of entries.slice(1)) {
+      canon.balance          += e.balance || 0;
+      canon.pendingBoostHint += e.pendingBoostHint || 0;
+      canon.lastActive        = Math.max(canon.lastActive || 0, e.lastActive || 0);
+    }
+    dbUpsertLibs(canonId, canon);
+    return [canonId, canon];
+  });
+
+  if (merged > 0) console.log(`🔀 ${merged} groupe(s) de doublons fusionnés.`);
+}
+
 (async () => {
   await connectDB();
   await loadData();
+  await mergeDuplicateNames();
   distributeLibs();
   setInterval(distributeLibs, 5 * 3_600_000);
   const PORT = process.env.PORT || 3001;
