@@ -33,10 +33,10 @@
         <h2>Évents</h2>
         <p>Week-end · Snake Challenge</p>
       </button>
-      <div class="landing-card landing-card--soon landing-card--community">
+      <button class="landing-card landing-card--community" id="btn-go-community">
         <span class="landing-icon landing-icon--big">?</span>
         <p>Pour la communauté</p>
-      </div>
+      </button>
     </div>
 
     <div class="global-lb-card" id="global-lb-card">
@@ -367,6 +367,35 @@
   <button id="btn-snake-toggle" class="btn-snake-float" title="Activer / Désactiver le serpent">🐍</button>
   <!-- ── Bouton thème (flottant) ── -->
   <button id="btn-theme-toggle" class="btn-theme-float" title="Basculer le thème">☀️</button>
+
+  <!-- ── Modal : Pour la communauté ── -->
+  <div id="overlay-community" class="overlay hidden">
+    <div class="community-modal">
+      <div class="comment-modal-header">
+        <h2 class="comment-modal-title">? Pour la communauté</h2>
+        <button id="btn-community-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="community-modal-body">
+        <p class="community-modal-intro">Cette section est réservée à un <strong>jeu choisi par vous</strong> — les joueurs de Libero.</p>
+        <div class="community-steps">
+          <div class="community-step">
+            <span class="community-step-num">1</span>
+            <p>Propose le jeu que tu voudrais voir sur le site en laissant un commentaire via le bouton <strong>✉️</strong> en bas à gauche.</p>
+          </div>
+          <div class="community-step">
+            <span class="community-step-num">2</span>
+            <p>Les suggestions les plus mentionnées seront sélectionnées et soumises au vote de la communauté.</p>
+          </div>
+          <div class="community-step">
+            <span class="community-step-num">3</span>
+            <p>Le jeu le plus voté sera développé et ajouté sur Libero. <strong>Ton avis compte vraiment.</strong></p>
+          </div>
+        </div>
+        <p class="community-modal-cta">Tu as une idée ? Fais-le savoir !</p>
+        <button id="btn-community-open-comment" class="btn btn-primary">✉️ Laisser une suggestion</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ── Bouton commentaire (flottant) ── -->
   <button id="btn-comment" class="btn-comment-float" title="Laisser un commentaire">✉️</button>

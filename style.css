@@ -831,7 +831,42 @@ h1 {
   cursor: default;
   pointer-events: none;
 }
+.landing-card--community {
+  opacity: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  border: 1.5px dashed var(--accent);
+  position: relative;
+  transition: box-shadow .18s, opacity .18s;
+}
+.landing-card--community:hover { box-shadow: 0 0 12px 2px var(--accent-glow, rgba(99,102,241,.35)); }
 .landing-icon--big { font-size: 3rem; font-weight: 900; color: var(--accent); }
+
+/* ── Modal Communauté ── */
+.community-modal {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 24px 22px 22px;
+  width: min(92vw, 400px);
+  display: flex; flex-direction: column; gap: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.45);
+}
+.community-modal-body { display: flex; flex-direction: column; gap: 14px; }
+.community-modal-intro { font-size: .88rem; color: var(--text); text-align: center; margin: 0; }
+.community-steps { display: flex; flex-direction: column; gap: 10px; }
+.community-step {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: rgba(99,102,241,.08); border-radius: 10px; padding: 10px 12px;
+}
+.community-step-num {
+  min-width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: .78rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.community-step p { font-size: .82rem; color: var(--text); margin: 0; line-height: 1.45; }
+.community-modal-cta { font-size: .84rem; color: var(--muted); text-align: center; margin: 0; }
 
 /* ── Écran Évents / Snake ── */
 .event-intro {

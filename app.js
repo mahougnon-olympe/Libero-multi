@@ -2163,6 +2163,18 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   $('btn-comment-close').addEventListener('click', closeModal);
   overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
 
+  // ── Modal Communauté ──
+  const communityOverlay = $('overlay-community');
+  function openCommunity() { communityOverlay.classList.remove('hidden'); }
+  function closeCommunity() { communityOverlay.classList.add('hidden'); }
+  $('btn-go-community').addEventListener('click', openCommunity);
+  $('btn-community-close').addEventListener('click', closeCommunity);
+  communityOverlay.addEventListener('click', e => { if (e.target === communityOverlay) closeCommunity(); });
+  $('btn-community-open-comment').addEventListener('click', () => {
+    closeCommunity();
+    openModal();
+  });
+
   pseudo.addEventListener('input', e => {
     const v = e.target.value;
     localStorage.setItem('playerName', v.trim());
