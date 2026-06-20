@@ -313,14 +313,52 @@ function showScreen(name) {
   if (window._tutoOnScreen) window._tutoOnScreen(name);
 }
 
-document.getElementById('news-card')?.addEventListener('click', () => {
-  if (window.innerWidth > 600) return;
+(function() {
   const nc = document.getElementById('news-card');
   if (!nc) return;
-  _newsAutoDisabled = true;
-  clearTimeout(_newsTimer);
-  nc.classList.toggle('collapsed');
-});
+  let startX = 0, startBase = 0, moved = false;
+  function minX() { return -(nc.offsetWidth - 44); }
+
+  nc.addEventListener('touchstart', e => {
+    if (window.innerWidth > 600) return;
+    startX    = e.touches[0].clientX;
+    startBase = nc.classList.contains('collapsed') ? minX() : 0;
+    moved     = false;
+    nc.style.transition = 'none';
+    nc.style.transform  = `translateX(${startBase}px)`;
+  }, { passive: true });
+
+  nc.addEventListener('touchmove', e => {
+    if (window.innerWidth > 600) return;
+    const dx = e.touches[0].clientX - startX;
+    if (Math.abs(dx) > 6) moved = true;
+    if (!moved) return;
+    nc.style.transform = `translateX(${Math.max(minX(), Math.min(0, startBase + dx))}px)`;
+  }, { passive: true });
+
+  nc.addEventListener('touchend', e => {
+    if (window.innerWidth > 600) return;
+    const dx          = e.changedTouches[0].clientX - startX;
+    const wasCollapsed = nc.classList.contains('collapsed');
+    _newsAutoDisabled  = true;
+    clearTimeout(_newsTimer);
+
+    if (!moved) {
+      nc.style.transition = '';
+      nc.style.transform  = '';
+      nc.classList.toggle('collapsed');
+      return;
+    }
+
+    const toCollapsed = wasCollapsed ? dx < 40 : dx < -40;
+    nc.style.transition = '';
+    nc.style.transform  = toCollapsed ? `translateX(${minX()}px)` : 'translateX(0)';
+    nc.addEventListener('transitionend', () => {
+      toCollapsed ? nc.classList.add('collapsed') : nc.classList.remove('collapsed');
+      nc.style.transform = '';
+    }, { once: true });
+  }, { passive: true });
+})();
 
 // ── Trivia : constantes ───────────────────────────────────────────────────────
 const TRIVIA_COLORS = ['#2563eb','#dc2626','#16a34a','#9333ea','#ea580c','#0891b2'];
