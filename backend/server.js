@@ -204,14 +204,15 @@ function getGlobalLeaderboardData() {
     const sk = snakeLeaderboard.get(id)  || { name: '', hs: 0 };
     const name = c.name || tr.name || sk.name;
     if (!name) continue;
-    const globalScore = c.wins * 10 + tr.points + sk.hs * 10;
-    if (globalScore <= 0) continue;
-    const existing = byName.get(name);
-    if (!existing || globalScore > existing.globalScore) {
-      byName.set(name, { name, globalScore, wins: c.wins, triviaPoints: tr.points, snakeHs: sk.hs });
-    }
+    const existing = byName.get(name) || { name, wins: 0, triviaPoints: 0, snakeHs: 0 };
+    existing.wins         = Math.max(existing.wins, c.wins || 0);
+    existing.triviaPoints = Math.max(existing.triviaPoints, tr.points || 0);
+    existing.snakeHs      = Math.max(existing.snakeHs, sk.hs || 0);
+    byName.set(name, existing);
   }
   return [...byName.values()]
+    .map(e => ({ ...e, globalScore: e.wins * 10 + e.triviaPoints + e.snakeHs * 10 }))
+    .filter(e => e.globalScore > 0)
     .sort((a, b) => b.globalScore - a.globalScore)
     .slice(0, 10);
 }
