@@ -876,6 +876,12 @@ h1 {
 .snake-over-text { font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0; }
 #snake-over-score { font-size: .85rem; color: var(--muted); margin: 0; }
 .snake-hint { font-size: .72rem; color: var(--muted); opacity: .65; margin: 0; }
+/* Masquer les boutons flottants du bas sur l'écran Évents (évite la superposition avec le D-pad) */
+body.screen-events-active .btn-help-float,
+body.screen-events-active .btn-lang-float,
+body.screen-events-active .btn-snake-float,
+body.screen-events-active .btn-comment-float { display: none !important; }
+
 .snake-dpad {
   display: none;
   flex-direction: column; align-items: center; gap: 6px; margin-top: 4px;

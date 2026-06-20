@@ -284,6 +284,7 @@ function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById('screen-' + name);
   if (el) el.classList.add('active');
+  document.body.classList.toggle('screen-events-active', name === 'events');
   const nc = document.getElementById('news-card');
   if (nc) nc.style.display = name === 'landing' ? '' : 'none';
   if (name === 'landing') { _scheduleNewsCollapse(); }
@@ -1695,7 +1696,7 @@ const cursorSnake = (() => {
     requestAnimationFrame(tick);
   })();
 
-  build(MIN, curHue);
+  build(Math.min(MAX, Math.max(MIN, MIN + _eventBonus)), curHue);
 
   // Met à jour le bouton flottant pour refléter l'état
   function syncBtn() {
@@ -2134,7 +2135,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     {
       id: 'events_snake',
       screen: 'events',
-      text: '🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em> — ton serpent quittera le curseur pour entrer dans l\'arène. Chaque 🍎 mangée le fait grandir sur tout le site.',
+      text: '🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em> — ton serpent se détache du curseur et entre dans l\'arène. Chaque 🍎 mangée le fait grandir sur tout le site, et sa taille est <strong>sauvegardée</strong> même après rechargement.',
       target: '.event-intro',
     },
 
