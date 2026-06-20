@@ -729,7 +729,7 @@ h1 {
   .landing-icon  { font-size: 2rem; }
   .landing-card h2 { font-size: .92rem; }
   .global-lb-card { padding: 8px 12px 4px; }
-  .logo-full { height: 105px; max-width: 340px; }
+  .logo-full { height: 125px; max-width: 360px; display: block; margin: 0 auto; }
   .news-card {
     pointer-events: auto;
     cursor: pointer;
