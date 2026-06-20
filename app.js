@@ -1793,7 +1793,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   let CELL = 15;
 
   let canvas, ctx, gameLoop;
-  let snake, dir, nextDir, food, score, running;
+  let snake, dir, nextDir, food, score, running, paused;
 
   function updateSpeed() {
     clearInterval(gameLoop);
@@ -1839,9 +1839,11 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     food   = rndFood();
     score  = 0;
     running = true;
+    paused  = false;
     document.getElementById('snake-score-val').textContent = 0;
     document.getElementById('snake-hs-val').textContent    = getHs();
     document.getElementById('snake-over-overlay').classList.add('hidden');
+    document.getElementById('snake-pause-overlay').classList.add('hidden');
     updateSpeed();
     draw();
   }
@@ -1930,7 +1932,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   ['up', 'down', 'left', 'right'].forEach(d => {
     document.getElementById(`dpad-${d}`)?.addEventListener('touchstart', e => {
       e.preventDefault();
-      if (!running) return;
+      if (!running || paused) return;
       const nd = _dpadMap[d];
       if (nd.x !== -dir.x || nd.y !== -dir.y) nextDir = nd;
     }, { passive: false });
@@ -1938,7 +1940,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
 
   // Contrôles clavier
   document.addEventListener('keydown', e => {
-    if (!running) return;
+    if (!running || paused) return;
     const map = {
       ArrowUp: { x: 0, y: -1 }, w: { x: 0, y: -1 },
       ArrowDown: { x: 0, y: 1 }, s: { x: 0, y: 1 },
@@ -2057,6 +2059,51 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     cursorSnake.show();
     updateHsDisplay();
     socket.emit('get-snake-leaderboard');
+  });
+
+  // ── Pause ─────────────────────────────────────────────────────────────────
+  function togglePause() {
+    if (!running) return;
+    paused = !paused;
+    const overlay = document.getElementById('snake-pause-overlay');
+    const btn     = document.getElementById('btn-snake-pause');
+    if (paused) {
+      clearInterval(gameLoop);
+      overlay.classList.remove('hidden');
+      btn.textContent = '▶';
+    } else {
+      overlay.classList.add('hidden');
+      btn.textContent = '⏸';
+      updateSpeed();
+    }
+  }
+
+  document.getElementById('btn-snake-pause')?.addEventListener('click', togglePause);
+  document.getElementById('btn-snake-resume')?.addEventListener('click', togglePause);
+
+  document.getElementById('btn-snake-pause-quit-events')?.addEventListener('click', () => {
+    clearInterval(gameLoop);
+    running = false;
+    paused  = false;
+    document.getElementById('snake-pause-overlay').classList.add('hidden');
+    showEventIntro();
+    cursorSnake.show();
+    updateHsDisplay();
+    socket.emit('get-snake-leaderboard');
+  });
+
+  document.getElementById('btn-snake-pause-quit-home')?.addEventListener('click', () => {
+    clearInterval(gameLoop);
+    running = false;
+    paused  = false;
+    document.getElementById('snake-pause-overlay').classList.add('hidden');
+    showEventIntro();
+    cursorSnake.show();
+    showScreen('landing');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') togglePause();
   });
 })();
 

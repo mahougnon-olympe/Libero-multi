@@ -319,6 +319,7 @@
     <div class="snake-game-wrap hidden" id="snake-game-wrap">
       <div class="snake-hud">
         <span>Score&nbsp;: <strong id="snake-score-val">0</strong></span>
+        <button id="btn-snake-pause" class="snake-pause-btn" title="Pause">⏸</button>
         <span>Meilleur&nbsp;: <strong id="snake-hs-val">0</strong></span>
       </div>
       <div class="snake-canvas-wrap">
@@ -329,6 +330,12 @@
           <p id="snake-over-score"></p>
           <button id="btn-snake-restart" class="btn btn-primary">Rejouer</button>
           <button id="btn-snake-quit" class="btn btn-secondary">Quitter</button>
+        </div>
+        <div class="snake-pause-overlay hidden" id="snake-pause-overlay">
+          <p class="snake-over-text">⏸ Pause</p>
+          <button id="btn-snake-resume" class="btn btn-primary">▶ Reprendre</button>
+          <button id="btn-snake-pause-quit-events" class="btn btn-secondary">← Retour</button>
+          <button id="btn-snake-pause-quit-home" class="btn btn-secondary">🏠 Quitter</button>
         </div>
       </div>
       <p class="snake-hint">↑ ↓ ← → ou glisser sur mobile</p>
