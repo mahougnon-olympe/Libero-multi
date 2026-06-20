@@ -39,12 +39,12 @@
       </button>
       <button class="landing-card" id="btn-go-events">
         <span class="landing-icon">🎉</span>
-        <h2>Évents</h2>
-        <p>Week-end · Snake Challenge</p>
+        <h2 id="events-card-title">Évents</h2>
+        <p id="events-card-desc">Week-end · Snake Challenge</p>
       </button>
       <button class="landing-card landing-card--community" id="btn-go-community">
         <span class="landing-icon landing-icon--big">?</span>
-        <p>Pour la communauté</p>
+        <p id="community-card-text">Pour la communauté</p>
       </button>
     </div>
 
@@ -63,7 +63,7 @@
   <div id="screen-home" class="screen">
     <button class="btn-back" id="btn-back-classic">← Retour</button>
     <div class="logo">
-      <h1>Jeux Multijoueur</h1>
+      <h1 id="home-classic-title">Jeux Multijoueur</h1>
       <p id="home-subtitle" class="subtitle">2 joueurs • Temps réel</p>
     </div>
 
@@ -288,7 +288,7 @@
         <button id="btn-leave-trivia-game" class="btn btn-primary">Retour au menu</button>
       </div>
       <div class="snake-pause-overlay hidden" id="trivia-pause-overlay">
-        <p class="snake-over-text">⏸ Pause</p>
+        <p class="snake-over-text" id="trivia-pause-text">⏸ Pause</p>
         <button id="btn-trivia-resume" class="btn btn-primary">▶ Reprendre</button>
         <button id="btn-trivia-pause-back" class="btn btn-secondary">← Retour au Quiz</button>
         <button id="btn-trivia-pause-home" class="btn btn-secondary">🏠 Quitter</button>
@@ -300,21 +300,21 @@
   <div id="screen-events" class="screen">
     <button class="btn-back" id="btn-back-events">← Retour</button>
     <div class="logo">
-      <h1>🎉 Évents</h1>
-      <p class="subtitle">Week-end spécial</p>
+      <h1 id="events-screen-title">🎉 Évents</h1>
+      <p class="subtitle" id="events-screen-sub">Week-end spécial</p>
     </div>
     <div class="event-intro" id="event-intro">
       <div class="event-badge">🐍</div>
-      <h2>Snake Challenge</h2>
-      <p>Nourris ton serpent pour le faire grandir sur tout le site !</p>
+      <h2 id="snake-challenge-title">Snake Challenge</h2>
+      <p id="snake-challenge-desc">Nourris ton serpent pour le faire grandir sur tout le site !</p>
       <div class="event-hs-display" id="event-hs-display"></div>
       <button id="btn-event-play" class="btn btn-primary">Jouer</button>
     </div>
     <!-- Formulaire pseudo (obligatoire avant de jouer) -->
     <div class="snake-name-form hidden" id="snake-name-form">
       <div class="snake-name-card">
-        <p class="snake-name-title">🐍 Ton pseudo</p>
-        <p class="snake-name-sub">Choisis un pseudo pour figurer dans le classement.</p>
+        <p class="snake-name-title" id="snake-name-title-el">🐍 Ton pseudo</p>
+        <p class="snake-name-sub" id="snake-name-sub-el">Choisis un pseudo pour figurer dans le classement.</p>
         <input type="text" id="snake-pseudo-input" class="snake-pseudo-input" placeholder="Ton pseudo" maxlength="20" autocomplete="off">
         <p class="snake-name-error hidden" id="snake-name-error">Entre un pseudo pour continuer.</p>
         <p class="pseudo-warning hidden" id="snake-pseudo-warning"></p>
@@ -328,7 +328,7 @@
     <div class="snake-lb-card" id="snake-lb-card">
       <div class="snake-lb-header">
         <span>🏆</span>
-        <span>Classement Snake</span>
+        <span id="snake-lb-title-span">Classement Snake</span>
       </div>
       <div id="snake-lb-list" class="snake-lb-list">
         <p class="lb-empty">Aucun score enregistré.</p>
@@ -337,27 +337,27 @@
 
     <div class="snake-game-wrap hidden" id="snake-game-wrap">
       <div class="snake-hud">
-        <span>Score&nbsp;: <strong id="snake-score-val">0</strong></span>
+        <span><span id="snake-score-text">Score&nbsp;: </span><strong id="snake-score-val">0</strong></span>
         <button id="btn-snake-pause" class="snake-pause-btn" title="Pause">⏸</button>
-        <span>Meilleur&nbsp;: <strong id="snake-hs-val">0</strong></span>
+        <span><span id="snake-best-text">Meilleur&nbsp;: </span><strong id="snake-hs-val">0</strong></span>
       </div>
       <div class="snake-canvas-wrap">
         <canvas id="snake-canvas" width="300" height="300"></canvas>
         <div class="snake-over-overlay hidden" id="snake-over-overlay">
-          <p class="snake-over-text">Game Over</p>
+          <p class="snake-over-text" id="snake-game-over-text">Game Over</p>
           <p class="snake-new-hs hidden" id="snake-new-hs">🏆 Nouveau record !</p>
           <p id="snake-over-score"></p>
           <button id="btn-snake-restart" class="btn btn-primary">Rejouer</button>
           <button id="btn-snake-quit" class="btn btn-secondary">Quitter</button>
         </div>
         <div class="snake-pause-overlay hidden" id="snake-pause-overlay">
-          <p class="snake-over-text">⏸ Pause</p>
+          <p class="snake-over-text" id="snake-pause-text">⏸ Pause</p>
           <button id="btn-snake-resume" class="btn btn-primary">▶ Reprendre</button>
           <button id="btn-snake-pause-quit-events" class="btn btn-secondary">← Retour</button>
           <button id="btn-snake-pause-quit-home" class="btn btn-secondary">🏠 Quitter</button>
         </div>
       </div>
-      <p class="snake-hint">↑ ↓ ← → ou glisser sur mobile</p>
+      <p class="snake-hint" id="snake-hint-text">↑ ↓ ← → ou glisser sur mobile</p>
       <div class="snake-dpad" id="snake-dpad">
         <div class="dpad-row"><button class="dpad-btn" id="dpad-up">↑</button></div>
         <div class="dpad-row">
@@ -372,7 +372,7 @@
   <!-- ── Cadre News (fixe, haut gauche) ── -->
   <div id="news-card" class="news-card">
     <span class="news-handle">📰</span>
-    <p class="news-title">📰 News</p>
+    <p class="news-title" id="news-title-el">📰 News</p>
     <p class="news-msg"><strong>Mr X :</strong> Moi je veux un jeu comme celui de Google, le dinosaure là 🤌🏾 bien soigné !!!! 🕺🏾🪎<br><em>Merci pour ton commentaire.</em></p>
     <p class="news-msg news-msg-sep">🐍 <strong>Évent ce week-end</strong> : Snake Challenge ! Nourris ton serpent pour le faire grandir sur tout le site.</p>
     <p class="news-msg news-msg-sep">⚠️ Suite à la mise à jour du <strong>20/06/2026 à 01h00</strong>, vos précédents scores ont été réinitialisés.</p>
@@ -398,26 +398,26 @@
   <div id="overlay-community" class="overlay hidden">
     <div class="community-modal">
       <div class="comment-modal-header">
-        <h2 class="comment-modal-title">? Pour la communauté</h2>
+        <h2 class="comment-modal-title" id="community-modal-title">? Pour la communauté</h2>
         <button id="btn-community-close" class="help-close-btn">✕</button>
       </div>
       <div class="community-modal-body">
-        <p class="community-modal-intro">Cette section est réservée à un <strong>jeu choisi par vous</strong>, les joueurs de Libero.</p>
+        <p class="community-modal-intro" id="community-intro">Cette section est réservée à un <strong>jeu choisi par vous</strong>, les joueurs de Libero.</p>
         <div class="community-steps">
           <div class="community-step">
             <span class="community-step-num">1</span>
-            <p>Propose le jeu que tu voudrais voir sur le site en laissant un commentaire via le bouton <strong>✉️</strong> en bas à gauche.</p>
+            <p id="community-step-1">Propose le jeu que tu voudrais voir sur le site en laissant un commentaire via le bouton <strong>✉️</strong> en bas à gauche.</p>
           </div>
           <div class="community-step">
             <span class="community-step-num">2</span>
-            <p>Les suggestions les plus mentionnées seront sélectionnées et soumises au vote de la communauté.</p>
+            <p id="community-step-2">Les suggestions les plus mentionnées seront sélectionnées et soumises au vote de la communauté.</p>
           </div>
           <div class="community-step">
             <span class="community-step-num">3</span>
-            <p>Le jeu le plus voté sera développé et ajouté sur Libero. <strong>Ton avis compte vraiment.</strong></p>
+            <p id="community-step-3">Le jeu le plus voté sera développé et ajouté sur Libero. <strong>Ton avis compte vraiment.</strong></p>
           </div>
         </div>
-        <p class="community-modal-cta">Tu as une idée ? Fais-le savoir !</p>
+        <p class="community-modal-cta" id="community-cta">Tu as une idée ? Fais-le savoir !</p>
         <button id="btn-community-open-comment" class="btn btn-primary">✉️ Laisser une suggestion</button>
       </div>
     </div>
@@ -446,10 +446,10 @@
   <div id="overlay-comment" class="overlay hidden">
     <div class="comment-modal">
       <div class="comment-modal-header">
-        <h2 class="comment-modal-title">💬 Laisser un commentaire</h2>
+        <h2 class="comment-modal-title" id="comment-modal-title">💬 Laisser un commentaire</h2>
         <button id="btn-comment-close" class="help-close-btn">✕</button>
       </div>
-      <p class="comment-modal-sub">Partage ton avis, une idée ou un bug, le créateur le recevra par mail.</p>
+      <p class="comment-modal-sub" id="comment-modal-sub">Partage ton avis, une idée ou un bug, le créateur le recevra par mail.</p>
       <form id="comment-form" class="comment-form" autocomplete="off">
         <input
           id="comment-pseudo"
@@ -507,196 +507,19 @@
       <div class="help-body">
 
         <!-- Général -->
-        <div class="help-panel active" id="help-tab-general">
-          <div class="help-item">
-            <span class="help-icon">🏠</span>
-            <div><strong>Sections d'accueil</strong><p>L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (vote pour le prochain jeu à ajouter sur le site). Chaque section a son propre classement.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">🎉</span>
-            <div><strong>Évents</strong><p>Chaque week-end, un mini-jeu spécial est disponible. Ce week-end : <em>Snake Challenge</em>. Nourris ton serpent avec les 🍎, les bords sont traversables (tu ressors de l'autre côté). Un nouveau record affiche <em>🏆 Nouveau record !</em> à la fin. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause : tu peux reprendre, retourner à l'écran Évents ou quitter. Ton meilleur score persiste : le serpent curseur garde cette taille même après rechargement.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">🎮</span>
-            <div><strong>Créer une partie classique</strong><p>Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">🤖</span>
-            <div><strong>Mode Solo (vs Bot)</strong><p>Joue seul contre un robot. <em>Facile</em> : le bot joue au hasard. <em>Moyen</em> : le bot bloque et attaque. <em>Difficile</em> : le bot joue de manière optimale. Les parties en mode <strong>Moyen et Difficile</strong> comptent dans le classement classique.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">🔗</span>
-            <div><strong>Rejoindre</strong><p>Entre le code à 4 lettres reçu et clique <em>Rejoindre</em>. La partie démarre automatiquement dès que les deux joueurs sont connectés.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">💬</span>
-            <div><strong>Chat</strong><p>Envoie des messages à ton adversaire pendant une partie classique. Le bouton <em>Vider</em> efface l'historique côté local uniquement.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">🔄</span>
-            <div><strong>Reconnexion</strong><p>Si tu recharges la page, tu retrouves automatiquement ta partie classique en cours. L'adversaire a <strong>30 secondes</strong> pour se reconnecter, sinon la partie est annulée.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">🔁</span>
-            <div><strong>Rejouer</strong><p>En fin de partie classique, clique <em>Rejouer</em>. La partie redémarre uniquement si les deux joueurs acceptent.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">🌍</span>
-            <div><strong>Classement Global</strong><p>Visible dès la page d'accueil, il regroupe <strong>tous les joueurs ayant au moins un point</strong>, quelle que soit la section jouée. Score = victoires classiques (×10) + points Quiz + meilleur score Snake (×10). Tu apparais dès ta première victoire ou ton premier point, même si tu n'as joué qu'une seule section. Mis à jour en temps réel.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">🏆</span>
-            <div><strong>Classements par section</strong><p>Chaque section garde aussi son propre classement : victoires/défaites/nuls pour les Jeux Classiques, total de points pour le Quiz.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">?</span>
-            <div><strong>Pour la communauté</strong><p>Cette section te permet de voter pour le prochain jeu ajouté sur Libero. Propose ton idée via le bouton <strong>✉️</strong> en bas à gauche, les suggestions les plus mentionnées seront soumises au vote, le jeu le plus voté sera développé et intégré au site.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">📰</span>
-            <div><strong>News</strong><p>La carte News est repliée dans le <strong>coin en haut à gauche</strong>. <strong>Clique dessus</strong> pour l'ouvrir : elle affiche les dernières actualités, annonces et commentaires de joueurs. Reclique pour la refermer.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">🐍</span>
-            <div><strong>Serpent</strong><p>Un petit serpent suit ton curseur. Il <strong>grandit et change de couleur</strong> selon ton score global 🌍 : or (1er), bleu (2e), bronze (3e). Joue et grimpe dans le classement pour l'allonger ! Clique sur <strong>🐍</strong> en bas à droite pour l'activer/désactiver.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">☀️</span>
-            <div><strong>Thème jour / nuit</strong><p>Le bouton <strong>☀️</strong> / <strong>🌙</strong> en <em>haut à droite</em> bascule entre le thème clair et sombre. Le site s'adapte aussi automatiquement selon l'heure (clair de 7h à 20h, sombre la nuit). Ton choix manuel est mémorisé entre les sessions.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">🚪</span>
-            <div><strong>Bouton Quitter</strong><p>Pendant une partie, le bouton <em>🚪 Quitter</em> en haut au centre te ramène au menu principal. Si une partie est en cours, tu es averti que tu abandonneras avant de confirmer.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">✉️</span>
-            <div><strong>Laisser un commentaire</strong><p>Clique sur le bouton <strong>✉️</strong> en bas à gauche pour envoyer un message au créateur : avis, idée, bug… Aucune connexion requise. Tu peux laisser un pseudo ou rester anonyme.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">⚡</span>
-            <div><strong id="help-libs-title">Libs (monnaie)</strong><p id="help-libs-desc">Les Libs ⚡ sont une monnaie virtuelle. Les joueurs classés <strong>top 3 du classement Global</strong> en gagnent automatiquement toutes les 5 heures (1er : +5 ⚡, 2e : +3 ⚡, 3e : +2 ⚡). Si tu ne joues pas pendant 48 h, ton solde diminue de 10 ⚡ par jour supplémentaire. Clique sur le compteur ⚡ en haut à droite pour ouvrir la boutique. Les joueurs anonymes ne perçoivent pas de Libs.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">💡</span>
-            <div><strong id="help-boost-title">Boost Indice (quiz)</strong><p id="help-boost-desc">Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s'utilise une fois par question.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">🎓</span>
-            <div><strong>Tutoriel</strong><p>À ta première visite, un guide apparaît automatiquement pour te présenter chaque fonctionnalité écran par écran. Une fois une étape vue, elle ne s'affiche plus. Pour tout revoir depuis le début, vide le cache de ton navigateur (localStorage).</p></div>
-          </div>
-        </div>
+        <div class="help-panel active" id="help-tab-general"></div>
 
         <!-- Quiz -->
-        <div class="help-panel" id="help-tab-quiz">
-          <div class="help-item">
-            <span class="help-icon">🧠</span>
-            <div><strong>Culture Générale</strong><p>Réponds à <strong>10 questions</strong> à choix multiple. Sélectionne <strong>un ou plusieurs thèmes</strong> parmi 12 catégories : Histoire, Sciences, Cinéma, Musique, etc. Les questions sont mélangées si tu choisis plusieurs thèmes.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">🌐</span>
-            <div><strong>Langue</strong><p>Les questions sont automatiquement <strong>traduites en français</strong> si tu as choisi le mode FR. Les termes techniques restent en anglais quand nécessaire. En mode EN, les questions sont en anglais d'origine.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">▶</span>
-            <div><strong>Mode Solo</strong><p>Sélectionne un ou plusieurs thèmes et clique <em>Solo</em>. Tu joues seul à ton rythme. Ton score est automatiquement ajouté au classement à la fin.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">👥</span>
-            <div><strong>Mode Multijoueur</strong><p>Clique <em>Créer un salon</em> (2 à 6 joueurs). Partage le code à 4 lettres. L'hôte lance la partie quand tout le monde est prêt. Tout le monde voit les mêmes questions en même temps.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">⏱</span>
-            <div><strong>Chrono</strong><p>Tu as <strong>20 secondes</strong> par question. Le chrono passe en rouge sous les 5 secondes. Sans réponse dans le temps imparti, la question est perdue.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">✅</span>
-            <div><strong>Correction</strong><p>Après chaque réponse (ou expiration du temps), la bonne réponse s'affiche en vert et les mauvaises en rouge. En multi, tu vois aussi le score de chaque joueur.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">🏆</span>
-            <div><strong>Classement Quiz</strong><p>1 point par bonne réponse. Les points s'accumulent quiz après quiz, qu'on joue en solo ou en groupe. Le classement affiche le total de points et le nombre de quiz joués.</p></div>
-          </div>
-        </div>
+        <div class="help-panel" id="help-tab-quiz"></div>
 
         <!-- Puissance 4 -->
-        <div class="help-panel" id="help-tab-connect4">
-          <div class="help-item">
-            <span class="help-icon">🎯</span>
-            <div><strong>Objectif</strong><p>Aligner <strong>4 pions</strong> de ta couleur, horizontalement, verticalement ou en diagonale.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">👥</span>
-            <div><strong>Joueurs</strong><p>Rouge 🔴 contre Jaune 🟡. Le joueur Rouge commence toujours.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">▼</span>
-            <div><strong>Comment jouer</strong><p>Clique sur le bouton <strong>▼</strong> au-dessus de la colonne où tu veux faire tomber ton pion. Le pion descend tout en bas de la colonne.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">📐</span>
-            <div><strong>Grille</strong><p>7 colonnes × 6 rangées. Une colonne pleine ne peut plus être jouée.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">✨</span>
-            <div><strong>Fin de partie</strong><p>Les 4 pions gagnants sont surlignés. Si la grille est pleine sans alignement, c'est un match nul.</p></div>
-          </div>
-        </div>
+        <div class="help-panel" id="help-tab-connect4"></div>
 
         <!-- Tic Tac Toe -->
-        <div class="help-panel" id="help-tab-ttt">
-          <div class="help-item">
-            <span class="help-icon">🎯</span>
-            <div><strong>Objectif</strong><p>Aligner <strong>3 symboles</strong> identiques en ligne, en colonne ou en diagonale.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">👥</span>
-            <div><strong>Joueurs</strong><p>Croix ✕ contre Rond ○. Le joueur Croix commence toujours.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">👆</span>
-            <div><strong>Comment jouer</strong><p>Clique sur une <strong>case vide</strong> pour y poser ton symbole. Impossible de jouer sur une case déjà occupée.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">📐</span>
-            <div><strong>Grille</strong><p>3 × 3 cases, soit 9 cases au total.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">✨</span>
-            <div><strong>Fin de partie</strong><p>La ligne gagnante est surlignée. Si les 9 cases sont remplies sans alignement, c'est un match nul.</p></div>
-          </div>
-        </div>
+        <div class="help-panel" id="help-tab-ttt"></div>
 
         <!-- Échecs -->
-        <div class="help-panel" id="help-tab-chess">
-          <div class="help-item">
-            <span class="help-icon">🎯</span>
-            <div><strong>Objectif</strong><p>Mettre le roi adverse en <strong>échec et mat</strong> (il est attaqué et ne peut plus s'échapper).</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">👥</span>
-            <div><strong>Joueurs</strong><p>Blancs ♔ contre Noirs ♚. Les Blancs commencent toujours. Le plateau est orienté : tes pièces sont toujours en bas.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">👆</span>
-            <div><strong>Comment jouer</strong><p><strong>1.</strong> Clique sur une de tes pièces → les cases accessibles s'affichent.<br><strong>2.</strong> <em>Point noir</em> = case libre · <em>Anneau</em> = capture possible.<br><strong>3.</strong> Clique sur une case surlignée pour jouer le coup.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">🔴</span>
-            <div><strong>Échec</strong><p>Quand ton roi est en échec, sa case devient <strong>rouge</strong>. Tu dois obligatoirement parer l'échec.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">🟡</span>
-            <div><strong>Dernier coup</strong><p>Les deux cases du dernier coup joué sont surlignées en <strong>jaune</strong>.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">♛</span>
-            <div><strong>Promotion du pion</strong><p>Quand ton pion atteint la dernière rangée, une fenêtre s'ouvre pour choisir la pièce de remplacement : Dame, Tour, Fou ou Cavalier.</p></div>
-          </div>
-          <div class="help-item">
-            <span class="help-icon">📜</span>
-            <div><strong>Règles avancées</strong><p>Le <strong>roque</strong> (petit et grand), la <strong>prise en passant</strong> et le <strong>pat</strong> (match nul) sont gérés automatiquement.</p></div>
-          </div>
-        </div>
+        <div class="help-panel" id="help-tab-chess"></div>
 
       </div><!-- /.help-body -->
     </div><!-- /.help-modal -->

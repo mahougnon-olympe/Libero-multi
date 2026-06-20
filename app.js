@@ -105,6 +105,98 @@ const DICT = {
     helpLibsDesc:'Les Libs ⚡ sont une monnaie virtuelle. Les joueurs classés <strong>top 3 du classement Global</strong> en gagnent automatiquement toutes les 5 heures (1er : +5 ⚡, 2e : +3 ⚡, 3e : +2 ⚡). Si tu ne joues pas pendant 48 h, ton solde diminue de 10 ⚡ par jour supplémentaire. Clique sur le compteur ⚡ en haut à droite pour ouvrir la boutique. Les joueurs anonymes ne perçoivent pas de Libs.',
     helpBoostTitle:'Boost Indice (quiz)',
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
+    eventsTitle:'Évents', eventsDesc:'Week-end · Snake Challenge',
+    communityCard:'Pour la communauté',
+    homeClassicTitle:'Jeux Multijoueur',
+    btnQuit:'🚪 Quitter',
+    eventsScreenTitle:'🎉 Évents', eventsScreenSub:'Week-end spécial',
+    snakeChallengeTitle:'Snake Challenge',
+    snakeChallengeDesc:'Nourris ton serpent pour le faire grandir sur tout le site !',
+    btnPlay:'Jouer',
+    snakeNameTitle:'🐍 Ton pseudo',
+    snakeNameSub:'Choisis un pseudo pour figurer dans le classement.',
+    snakeNamePh:'Ton pseudo',
+    snakeNameErr:'Entre un pseudo pour continuer.',
+    btnSnakeConfirm:"C'est parti !", btnSnakeCancel:'Annuler',
+    snakeLbTitle:'Classement Snake', snakeLbEmpty:'Aucun score enregistré.',
+    snakeScoreLabel:'Score', snakeBestLabel:'Meilleur',
+    snakeGameOver:'Game Over', snakeNewRecord:'🏆 Nouveau record !',
+    btnSnakeRestart:'Rejouer', btnSnakeQuit:'Quitter',
+    snakePause:'⏸ Pause', btnSnakeResume:'▶ Reprendre',
+    btnSnakeBack:'← Retour', btnSnakeHome:'🏠 Quitter',
+    snakeHint:'↑ ↓ ← → ou glisser sur mobile',
+    triviaResumeBtn:'▶ Reprendre', triviaBackToQuiz:'← Retour au Quiz', triviaQuitHome:'🏠 Quitter',
+    communityTitle:'? Pour la communauté',
+    communityIntro:'Cette section est réservée à un <strong>jeu choisi par vous</strong>, les joueurs de Libero.',
+    communityStep1:'Propose le jeu que tu voudrais voir sur le site en laissant un commentaire via le bouton <strong>✉️</strong> en bas à gauche.',
+    communityStep2:'Les suggestions les plus mentionnées seront sélectionnées et soumises au vote de la communauté.',
+    communityStep3:'Le jeu le plus voté sera développé et ajouté sur Libero. <strong>Ton avis compte vraiment.</strong>',
+    communityCta:'Tu as une idée ? Fais-le savoir !',
+    btnSuggestion:'✉️ Laisser une suggestion',
+    commentTitle:'💬 Laisser un commentaire',
+    commentSub:'Partage ton avis, une idée ou un bug, le créateur le recevra par mail.',
+    commentPseudoPh:'Ton pseudo (optionnel)',
+    commentMsgPh:'Ton message…',
+    btnSend:'Envoyer ✉️',
+    tutoSkip:'Passer le guide', tutoOk:"J'ai compris ✓",
+    newsTitle:'📰 News',
+    btnHelpTitle:'Aide', btnSnakeToggle:'Activer / Désactiver le serpent', libsCounterTitle:'Ouvrir la boutique',
+    snakeOverScore:(score, hs) => `Score : ${score} · Meilleur : ${hs}`,
+    helpContent:{
+      general:[
+        { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (vote pour le prochain jeu à ajouter sur le site). Chaque section a son propre classement." },
+        { icon:'🎉', title:'Évents', desc:"Chaque week-end, un mini-jeu spécial est disponible. Ce week-end : <em>Snake Challenge</em>. Nourris ton serpent avec les 🍎, les bords sont traversables (tu ressors de l'autre côté). Un nouveau record affiche <em>🏆 Nouveau record !</em> à la fin. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
+        { icon:'🎮', title:'Créer une partie classique', desc:"Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile." },
+        { icon:'🤖', title:'Mode Solo (vs Bot)', desc:"Joue seul contre un robot. <em>Facile</em> : le bot joue au hasard. <em>Moyen</em> : le bot bloque et attaque. <em>Difficile</em> : le bot joue de manière optimale. Les parties <strong>Moyen et Difficile</strong> comptent dans le classement classique." },
+        { icon:'🔗', title:'Rejoindre', desc:"Entre le code à 4 lettres reçu et clique <em>Rejoindre</em>. La partie démarre automatiquement dès que les deux joueurs sont connectés." },
+        { icon:'💬', title:'Chat', desc:"Envoie des messages à ton adversaire pendant une partie classique. Le bouton <em>Vider</em> efface l'historique côté local uniquement." },
+        { icon:'🔄', title:'Reconnexion', desc:"Si tu recharges la page, tu retrouves automatiquement ta partie classique en cours. L'adversaire a <strong>30 secondes</strong> pour se reconnecter, sinon la partie est annulée." },
+        { icon:'🔁', title:'Rejouer', desc:"En fin de partie classique, clique <em>Rejouer</em>. La partie redémarre uniquement si les deux joueurs acceptent." },
+        { icon:'🌍', title:'Classement Global', desc:"Visible dès la page d'accueil, il regroupe <strong>tous les joueurs ayant au moins un point</strong>. Score = victoires classiques (×10) + points Quiz + meilleur score Snake (×10). Mis à jour en temps réel." },
+        { icon:'🏆', title:'Classements par section', desc:"Chaque section garde aussi son propre classement : victoires/défaites/nuls pour les Jeux Classiques, total de points pour le Quiz." },
+        { icon:'?', title:'Pour la communauté', desc:"Cette section te permet de voter pour le prochain jeu ajouté sur Libero. Propose ton idée via le bouton <strong>✉️</strong> en bas à gauche, les suggestions les plus mentionnées seront soumises au vote, le jeu le plus voté sera développé et intégré au site." },
+        { icon:'📰', title:'News', desc:"La carte News est repliée dans le <strong>coin en haut à gauche</strong>. <strong>Clique dessus</strong> pour l'ouvrir : elle affiche les dernières actualités, annonces et commentaires de joueurs. Reclique pour la refermer." },
+        { icon:'🐍', title:'Serpent', desc:"Un petit serpent suit ton curseur. Il <strong>grandit et change de couleur</strong> selon ton score global 🌍 : or (1er), bleu (2e), bronze (3e). Joue et grimpe dans le classement pour l'allonger ! Clique sur <strong>🐍</strong> pour l'activer/désactiver." },
+        { icon:'☀️', title:'Thème jour / nuit', desc:"Le bouton <strong>☀️</strong> / <strong>🌙</strong> en <em>haut à droite</em> bascule entre le thème clair et sombre. Le site s'adapte aussi automatiquement selon l'heure (clair de 7h à 20h, sombre la nuit). Ton choix manuel est mémorisé entre les sessions." },
+        { icon:'🚪', title:'Bouton Quitter', desc:"Pendant une partie, le bouton <em>🚪 Quitter</em> en haut au centre te ramène au menu principal. Si une partie est en cours, tu es averti que tu abandonneras avant de confirmer." },
+        { icon:'✉️', title:'Laisser un commentaire', desc:"Clique sur le bouton <strong>✉️</strong> en bas à gauche pour envoyer un message au créateur : avis, idée, bug… Aucune connexion requise. Tu peux laisser un pseudo ou rester anonyme." },
+        { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
+        { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
+        { icon:'🎓', title:'Tutoriel', desc:"À ta première visite, un guide apparaît automatiquement pour te présenter chaque fonctionnalité écran par écran. Une fois une étape vue, elle ne s'affiche plus. Pour tout revoir depuis le début, vide le cache de ton navigateur (localStorage)." },
+      ],
+      quiz:[
+        { icon:'🧠', title:'Culture Générale', desc:"Réponds à des questions à choix multiple. Sélectionne <strong>un ou plusieurs thèmes</strong> parmi 12 catégories : Histoire, Sciences, Cinéma, Musique, etc. Les questions sont mélangées si tu choisis plusieurs thèmes." },
+        { icon:'🌐', title:'Langue', desc:"Les questions sont automatiquement <strong>traduites en français</strong> si tu as choisi le mode FR. Les termes techniques restent en anglais quand nécessaire. En mode EN, les questions sont en anglais d'origine." },
+        { icon:'▶', title:'Mode Solo', desc:"Sélectionne un ou plusieurs thèmes et clique <em>Solo</em>. Tu joues seul à ton rythme. Ton score est automatiquement ajouté au classement à la fin." },
+        { icon:'👥', title:'Mode Multijoueur', desc:"Clique <em>Créer un salon</em> (2 à 6 joueurs). Partage le code à 4 lettres. L'hôte lance la partie quand tout le monde est prêt. Tout le monde voit les mêmes questions en même temps." },
+        { icon:'⏱', title:'Chrono', desc:"Tu as <strong>20 secondes</strong> par question. Le chrono passe en rouge sous les 5 secondes. Sans réponse dans le temps imparti, la question est perdue." },
+        { icon:'✅', title:'Correction', desc:"Après chaque réponse (ou expiration du temps), la bonne réponse s'affiche en vert et les mauvaises en rouge. En multi, tu vois aussi le score de chaque joueur." },
+        { icon:'🏆', title:'Classement Quiz', desc:"1 point par bonne réponse. Les points s'accumulent quiz après quiz, qu'on joue en solo ou en groupe. Le classement affiche le total de points et le nombre de quiz joués." },
+      ],
+      connect4:[
+        { icon:'🎯', title:'Objectif', desc:"Aligner <strong>4 pions</strong> de ta couleur, horizontalement, verticalement ou en diagonale." },
+        { icon:'👥', title:'Joueurs', desc:"Rouge 🔴 contre Jaune 🟡. Le joueur Rouge commence toujours." },
+        { icon:'▼', title:'Comment jouer', desc:"Clique sur le bouton <strong>▼</strong> au-dessus de la colonne où tu veux faire tomber ton pion. Le pion descend tout en bas de la colonne." },
+        { icon:'📐', title:'Grille', desc:"7 colonnes × 6 rangées. Une colonne pleine ne peut plus être jouée." },
+        { icon:'✨', title:'Fin de partie', desc:"Les 4 pions gagnants sont surlignés. Si la grille est pleine sans alignement, c'est un match nul." },
+      ],
+      ttt:[
+        { icon:'🎯', title:'Objectif', desc:"Aligner <strong>3 symboles</strong> identiques en ligne, en colonne ou en diagonale." },
+        { icon:'👥', title:'Joueurs', desc:"Croix ✕ contre Rond ○. Le joueur Croix commence toujours." },
+        { icon:'👆', title:'Comment jouer', desc:"Clique sur une <strong>case vide</strong> pour y poser ton symbole. Impossible de jouer sur une case déjà occupée." },
+        { icon:'📐', title:'Grille', desc:"3 × 3 cases, soit 9 cases au total." },
+        { icon:'✨', title:'Fin de partie', desc:"La ligne gagnante est surlignée. Si les 9 cases sont remplies sans alignement, c'est un match nul." },
+      ],
+      chess:[
+        { icon:'🎯', title:'Objectif', desc:"Mettre le roi adverse en <strong>échec et mat</strong> (il est attaqué et ne peut plus s'échapper)." },
+        { icon:'👥', title:'Joueurs', desc:"Blancs ♔ contre Noirs ♚. Les Blancs commencent toujours. Le plateau est orienté : tes pièces sont toujours en bas." },
+        { icon:'👆', title:'Comment jouer', desc:"<strong>1.</strong> Clique sur une de tes pièces → les cases accessibles s'affichent.<br><strong>2.</strong> <em>Point noir</em> = case libre · <em>Anneau</em> = capture possible.<br><strong>3.</strong> Clique sur une case surlignée pour jouer le coup." },
+        { icon:'🔴', title:'Échec', desc:"Quand ton roi est en échec, sa case devient <strong>rouge</strong>. Tu dois obligatoirement parer l'échec." },
+        { icon:'🟡', title:'Dernier coup', desc:"Les deux cases du dernier coup joué sont surlignées en <strong>jaune</strong>." },
+        { icon:'♛', title:'Promotion du pion', desc:"Quand ton pion atteint la dernière rangée, une fenêtre s'ouvre pour choisir la pièce de remplacement : Dame, Tour, Fou ou Cavalier." },
+        { icon:'📜', title:'Règles avancées', desc:"Le <strong>roque</strong> (petit et grand), la <strong>prise en passant</strong> et le <strong>pat</strong> (match nul) sont gérés automatiquement." },
+      ],
+    },
     triviaCats:[
       { id:9,  name:'Culture G.', icon:'🧠' }, { id:23, name:'Histoire',   icon:'📜' },
       { id:22, name:'Géographie', icon:'🌍' }, { id:17, name:'Sciences',   icon:'🔬' },
@@ -187,6 +279,98 @@ const DICT = {
     helpLibsDesc:'Libs ⚡ are a virtual currency. Players ranked <strong>top 3 in the Global leaderboard</strong> automatically earn some every 5 hours (1st: +5 ⚡, 2nd: +3 ⚡, 3rd: +2 ⚡). If you don\'t play for 48 h, your balance drops by 10 ⚡ per additional day of inactivity. Click the ⚡ counter in the top-right corner to open the shop. Anonymous players do not receive Libs.',
     helpBoostTitle:'Quiz Hint Boost',
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
+    eventsTitle:'Events', eventsDesc:'Weekend · Snake Challenge',
+    communityCard:'Community',
+    homeClassicTitle:'Multiplayer Games',
+    btnQuit:'🚪 Quit',
+    eventsScreenTitle:'🎉 Events', eventsScreenSub:'Special weekend',
+    snakeChallengeTitle:'Snake Challenge',
+    snakeChallengeDesc:'Feed your snake to make it grow across the whole site!',
+    btnPlay:'Play',
+    snakeNameTitle:'🐍 Your username',
+    snakeNameSub:'Choose a username to appear in the leaderboard.',
+    snakeNamePh:'Your username',
+    snakeNameErr:'Enter a username to continue.',
+    btnSnakeConfirm:"Let's go!", btnSnakeCancel:'Cancel',
+    snakeLbTitle:'Snake Leaderboard', snakeLbEmpty:'No scores recorded yet.',
+    snakeScoreLabel:'Score', snakeBestLabel:'Best',
+    snakeGameOver:'Game Over', snakeNewRecord:'🏆 New record!',
+    btnSnakeRestart:'Play again', btnSnakeQuit:'Quit',
+    snakePause:'⏸ Pause', btnSnakeResume:'▶ Resume',
+    btnSnakeBack:'← Back', btnSnakeHome:'🏠 Quit',
+    snakeHint:'↑ ↓ ← → or swipe on mobile',
+    triviaResumeBtn:'▶ Resume', triviaBackToQuiz:'← Back to Quiz', triviaQuitHome:'🏠 Quit',
+    communityTitle:'? Community',
+    communityIntro:'This section is dedicated to a <strong>game chosen by you</strong>, the Libero players.',
+    communityStep1:'Suggest the game you would like to see on the site by leaving a comment via the <strong>✉️</strong> button in the bottom left.',
+    communityStep2:'The most mentioned suggestions will be selected and submitted to a community vote.',
+    communityStep3:'The most voted game will be developed and added to Libero. <strong>Your opinion truly matters.</strong>',
+    communityCta:'Have an idea? Let us know!',
+    btnSuggestion:'✉️ Leave a suggestion',
+    commentTitle:'💬 Leave a comment',
+    commentSub:'Share your thoughts, an idea or a bug report — the creator will receive it by email.',
+    commentPseudoPh:'Your username (optional)',
+    commentMsgPh:'Your message…',
+    btnSend:'Send ✉️',
+    tutoSkip:'Skip guide', tutoOk:'Got it ✓',
+    newsTitle:'📰 News',
+    btnHelpTitle:'Help', btnSnakeToggle:'Enable / Disable the snake', libsCounterTitle:'Open shop',
+    snakeOverScore:(score, hs) => `Score: ${score} · Best: ${hs}`,
+    helpContent:{
+      general:[
+        { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (vote for the next game). Each section has its own leaderboard." },
+        { icon:'🎉', title:'Events', desc:"Every weekend, a special mini-game is available. This weekend: <em>Snake Challenge</em>. Feed your snake with 🍎, walls wrap around. A new record shows <em>🏆 New record!</em> at the end. Press <strong>⏸</strong> (or Esc / P) to pause: you can resume, go back to Events or quit." },
+        { icon:'🎮', title:'Create a classic game', desc:"Choose a game, enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent. You can also play <strong>Solo vs the bot</strong> by choosing a difficulty: Easy, Medium or Hard." },
+        { icon:'🤖', title:'Solo mode (vs Bot)', desc:"Play alone against a robot. <em>Easy</em>: plays randomly. <em>Medium</em>: blocks and attacks. <em>Hard</em>: plays optimally. <strong>Medium and Hard</strong> games count in the classic leaderboard." },
+        { icon:'🔗', title:'Join', desc:"Enter the 4-letter code you received and click <em>Join</em>. The game starts automatically as soon as both players are connected." },
+        { icon:'💬', title:'Chat', desc:"Send messages to your opponent during a classic game. The <em>Clear</em> button erases the history on your side only." },
+        { icon:'🔄', title:'Reconnection', desc:"If you reload the page, you automatically rejoin your ongoing classic game. The opponent has <strong>30 seconds</strong> to reconnect, otherwise the game is cancelled." },
+        { icon:'🔁', title:'Play again', desc:"At the end of a classic game, click <em>Play again</em>. The game restarts only if both players agree." },
+        { icon:'🌍', title:'Global leaderboard', desc:"Visible from the home page, it gathers <strong>all players with at least one point</strong>. Score = classic wins (×10) + Quiz points + best Snake score (×10). Updated in real time." },
+        { icon:'🏆', title:'Section leaderboards', desc:"Each section also keeps its own leaderboard: wins/losses/draws for Classic Games, total points for Quiz." },
+        { icon:'?', title:'Community', desc:"This section lets you vote for the next game added to Libero. Suggest your idea via the <strong>✉️</strong> button in the bottom left, the most mentioned suggestions will be put to a vote, and the most voted game will be developed and added to the site." },
+        { icon:'📰', title:'News', desc:"The News card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the latest news, announcements and player comments. Click again to close it." },
+        { icon:'🐍', title:'Snake', desc:"A little snake follows your cursor. It <strong>grows and changes colour</strong> based on your global score 🌍: gold (1st), blue (2nd), bronze (3rd). Play and climb the leaderboard to make it longer! Click <strong>🐍</strong> to enable/disable it." },
+        { icon:'☀️', title:'Day / night theme', desc:"The <strong>☀️</strong> / <strong>🌙</strong> button in the <em>top right</em> toggles between light and dark theme. The site also adapts automatically based on the time (light 7am–8pm, dark at night). Your manual choice is remembered between sessions." },
+        { icon:'🚪', title:'Quit button', desc:"During a game, the <em>🚪 Quit</em> button in the top centre takes you back to the main menu. If a game is in progress, you are warned that you will forfeit before confirming." },
+        { icon:'✉️', title:'Leave a comment', desc:"Click the <strong>✉️</strong> button in the bottom left to send a message to the creator: feedback, idea, bug… No account required. You can leave a username or stay anonymous." },
+        { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
+        { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
+        { icon:'🎓', title:'Tutorial', desc:"On your first visit, a guide appears automatically to walk you through each feature screen by screen. Once a step has been seen, it won't show again. To restart from the beginning, clear your browser cache (localStorage)." },
+      ],
+      quiz:[
+        { icon:'🧠', title:'General Knowledge', desc:"Answer multiple-choice questions. Select <strong>one or more themes</strong> from 12 categories: History, Science, Movies, Music, etc. Questions are shuffled when multiple themes are chosen." },
+        { icon:'🌐', title:'Language', desc:"Questions are automatically <strong>in the language you have chosen</strong> (FR/EN). Technical terms may remain in English when necessary." },
+        { icon:'▶', title:'Solo mode', desc:"Select one or more themes and click <em>Solo</em>. You play at your own pace. Your score is automatically added to the leaderboard at the end." },
+        { icon:'👥', title:'Multiplayer mode', desc:"Click <em>Create a room</em> (2 to 6 players). Share the 4-letter code. The host starts the game when everyone is ready. All players see the same questions at the same time." },
+        { icon:'⏱', title:'Timer', desc:"You have <strong>20 seconds</strong> per question. The timer turns red under 5 seconds. If you don't answer in time, the question is lost." },
+        { icon:'✅', title:'Answer reveal', desc:"After each answer (or when time runs out), the correct answer is shown in green and wrong answers in red. In multiplayer, you also see each player's score." },
+        { icon:'🏆', title:'Quiz leaderboard', desc:"1 point per correct answer. Points accumulate quiz after quiz. The leaderboard shows total points and number of quizzes played." },
+      ],
+      connect4:[
+        { icon:'🎯', title:'Objective', desc:"Align <strong>4 pieces</strong> of your colour, horizontally, vertically or diagonally." },
+        { icon:'👥', title:'Players', desc:"Red 🔴 vs Yellow 🟡. The Red player always goes first." },
+        { icon:'▼', title:'How to play', desc:"Click the <strong>▼</strong> button above the column where you want to drop your piece. The piece falls to the bottom of the column." },
+        { icon:'📐', title:'Grid', desc:"7 columns × 6 rows. A full column can no longer be played." },
+        { icon:'✨', title:'End of game', desc:"The 4 winning pieces are highlighted. If the grid is full with no alignment, it's a draw." },
+      ],
+      ttt:[
+        { icon:'🎯', title:'Objective', desc:"Align <strong>3 identical symbols</strong> in a row, column or diagonal." },
+        { icon:'👥', title:'Players', desc:"Cross ✕ vs Circle ○. The Cross player always goes first." },
+        { icon:'👆', title:'How to play', desc:"Click on an <strong>empty cell</strong> to place your symbol. You cannot play on an already occupied cell." },
+        { icon:'📐', title:'Grid', desc:"3 × 3 cells, 9 cells in total." },
+        { icon:'✨', title:'End of game', desc:"The winning line is highlighted. If all 9 cells are filled with no alignment, it's a draw." },
+      ],
+      chess:[
+        { icon:'🎯', title:'Objective', desc:"Put the opponent's king in <strong>checkmate</strong> (it is attacked and cannot escape)." },
+        { icon:'👥', title:'Players', desc:"White ♔ vs Black ♚. White always goes first. The board is oriented so your pieces are always at the bottom." },
+        { icon:'👆', title:'How to play', desc:"<strong>1.</strong> Click on one of your pieces → available squares are shown.<br><strong>2.</strong> <em>Black dot</em> = free square · <em>Ring</em> = possible capture.<br><strong>3.</strong> Click a highlighted square to make the move." },
+        { icon:'🔴', title:'Check', desc:"When your king is in check, its square turns <strong>red</strong>. You must address the check." },
+        { icon:'🟡', title:'Last move', desc:"The two squares of the last move played are highlighted in <strong>yellow</strong>." },
+        { icon:'♛', title:'Pawn promotion', desc:"When your pawn reaches the last rank, a window opens to choose the replacement piece: Queen, Rook, Bishop or Knight." },
+        { icon:'📜', title:'Advanced rules', desc:"<strong>Castling</strong> (kingside and queenside), <strong>en passant</strong> and <strong>stalemate</strong> (draw) are handled automatically." },
+      ],
+    },
     triviaCats:[
       { id:9,  name:'General',   icon:'🧠' }, { id:23, name:'History',   icon:'📜' },
       { id:22, name:'Geography', icon:'🌍' }, { id:17, name:'Science',   icon:'🔬' },
@@ -199,6 +383,21 @@ const DICT = {
 };
 
 function t() { return DICT[currentLang]; }
+
+function renderHelp() {
+  const d = t();
+  const tabs = { general:'help-tab-general', quiz:'help-tab-quiz', connect4:'help-tab-connect4', ttt:'help-tab-ttt', chess:'help-tab-chess' };
+  for (const [key, id] of Object.entries(tabs)) {
+    const panel = document.getElementById(id);
+    if (!panel) continue;
+    const items = d.helpContent[key] || [];
+    panel.innerHTML = items.map(item => {
+      const title = item.titleKey ? d[item.titleKey] : item.title;
+      const desc  = item.descKey  ? d[item.descKey]  : item.desc;
+      return `<div class="help-item"><span class="help-icon">${item.icon}</span><div><strong>${title}</strong><p>${desc}</p></div></div>`;
+    }).join('');
+  }
+}
 
 function applyLang() {
   const d = t();
@@ -234,6 +433,7 @@ function applyLang() {
   const lbc = $('lb-title-classic'); if (lbc) lbc.textContent = d.lbTitle;
   const bco = $('btn-copy');      if (bco) bco.textContent = d.btnCopyCode;
   const bba = $('btn-back-classic'); if (bba) bba.textContent = `← ${d.backLabel}`;
+  const bbev = $('btn-back-events'); if (bbev) bbev.textContent = `← ${d.backLabel}`;
 
   // Waiting screen
   const wt = $('waiting-title');  if (wt) wt.textContent = d.waitingFor;
@@ -281,16 +481,81 @@ function applyLang() {
   const bltg = $('btn-leave-trivia-game'); if (bltg) bltg.textContent = d.btnLeaveGame;
   const bqt  = $('btn-quit-trivia');       if (bqt)  bqt.textContent  = d.btnQuitTrivia;
 
+  // Landing
+  const ect = $('events-card-title');    if (ect) ect.textContent  = d.eventsTitle;
+  const ecd = $('events-card-desc');     if (ecd) ecd.textContent  = d.eventsDesc;
+  const cct = $('community-card-text');  if (cct) cct.textContent  = d.communityCard;
+
+  // Home classic
+  const hct = $('home-classic-title');  if (hct) hct.textContent = d.homeClassicTitle;
+  const bqt2 = $('btn-quit');           if (bqt2) bqt2.textContent = d.btnQuit;
+
+  // Events screen
+  const est  = $('events-screen-title'); if (est)  est.textContent  = d.eventsScreenTitle;
+  const ess  = $('events-screen-sub');   if (ess)  ess.textContent  = d.eventsScreenSub;
+  const sct  = $('snake-challenge-title'); if (sct) sct.textContent = d.snakeChallengeTitle;
+  const scd  = $('snake-challenge-desc');  if (scd) scd.textContent = d.snakeChallengeDesc;
+  const bep  = $('btn-event-play');      if (bep)  bep.textContent  = d.btnPlay;
+  const snnt = $('snake-name-title-el'); if (snnt) snnt.textContent = d.snakeNameTitle;
+  const snns = $('snake-name-sub-el');   if (snns) snns.textContent = d.snakeNameSub;
+  const snpi = $('snake-pseudo-input');  if (snpi) snpi.placeholder = d.snakeNamePh;
+  const sner = $('snake-name-error');    if (sner) sner.textContent = d.snakeNameErr;
+  const bscn = $('btn-snake-confirm-name'); if (bscn) bscn.textContent = d.btnSnakeConfirm;
+  const bsca = $('btn-snake-cancel-name'); if (bsca) bsca.textContent = d.btnSnakeCancel;
+  const slts = $('snake-lb-title-span'); if (slts) slts.textContent = d.snakeLbTitle;
+  const sst  = $('snake-score-text');    if (sst)  sst.textContent  = d.snakeScoreLabel + ' : ';
+  const sbt  = $('snake-best-text');     if (sbt)  sbt.textContent  = d.snakeBestLabel  + ' : ';
+  const sgot = $('snake-game-over-text'); if (sgot) sgot.textContent = d.snakeGameOver;
+  const snhs = $('snake-new-hs');        if (snhs) snhs.textContent = d.snakeNewRecord;
+  const bsr  = $('btn-snake-restart');   if (bsr)  bsr.textContent  = d.btnSnakeRestart;
+  const bsq  = $('btn-snake-quit');      if (bsq)  bsq.textContent  = d.btnSnakeQuit;
+  const spt  = $('snake-pause-text');    if (spt)  spt.textContent  = d.snakePause;
+  const bsrr = $('btn-snake-resume');    if (bsrr) bsrr.textContent = d.btnSnakeResume;
+  const bspe = $('btn-snake-pause-quit-events'); if (bspe) bspe.textContent = d.btnSnakeBack;
+  const bsph = $('btn-snake-pause-quit-home');   if (bsph) bsph.textContent = d.btnSnakeHome;
+  const sht  = $('snake-hint-text');     if (sht)  sht.textContent  = d.snakeHint;
+
+  // Trivia pause
+  const tpt  = $('trivia-pause-text');   if (tpt)  tpt.textContent  = d.snakePause;
+  const btr  = $('btn-trivia-resume');   if (btr)  btr.textContent  = d.triviaResumeBtn;
+  const btpb = $('btn-trivia-pause-back'); if (btpb) btpb.textContent = d.triviaBackToQuiz;
+  const btph = $('btn-trivia-pause-home'); if (btph) btph.textContent = d.triviaQuitHome;
+
+  // Community modal
+  const cmt  = $('community-modal-title'); if (cmt)  cmt.textContent  = d.communityTitle;
+  const cmi  = $('community-intro');       if (cmi)  cmi.innerHTML    = d.communityIntro;
+  const cms1 = $('community-step-1');      if (cms1) cms1.innerHTML   = d.communityStep1;
+  const cms2 = $('community-step-2');      if (cms2) cms2.textContent = d.communityStep2;
+  const cms3 = $('community-step-3');      if (cms3) cms3.innerHTML   = d.communityStep3;
+  const cmca = $('community-cta');         if (cmca) cmca.textContent = d.communityCta;
+  const bcoc = $('btn-community-open-comment'); if (bcoc) bcoc.textContent = d.btnSuggestion;
+
+  // Comment modal
+  const comt = $('comment-modal-title'); if (comt) comt.textContent = d.commentTitle;
+  const coms = $('comment-modal-sub');   if (coms) coms.textContent = d.commentSub;
+  const cpph = $('comment-pseudo');      if (cpph) cpph.placeholder = d.commentPseudoPh;
+  const cmph = $('comment-message');     if (cmph) cmph.placeholder = d.commentMsgPh;
+  const bcs  = $('btn-comment-send');    if (bcs)  bcs.textContent  = d.btnSend;
+
+  // Tutorial
+  const tskip = $('tuto-skip'); if (tskip) tskip.textContent = d.tutoSkip;
+  const tok   = $('tuto-ok');   if (tok)   tok.textContent   = d.tutoOk;
+
+  // News
+  const nte = $('news-title-el'); if (nte) nte.textContent = d.newsTitle;
+
+  // Floating button tooltips
+  const bh = $('btn-help');          if (bh)  bh.title = d.btnHelpTitle;
+  const bst = $('btn-snake-toggle'); if (bst) bst.title = d.btnSnakeToggle;
+  const lc  = $('libs-counter');     if (lc)  lc.title  = d.libsCounterTitle;
+
   // Help modal
   const hmt = $('help-modal-title'); if (hmt) hmt.textContent = d.help.title;
   document.querySelectorAll('.help-tab').forEach(tab => {
     const lbl = d.help.tabs[tab.dataset.tab];
     if (lbl) tab.textContent = lbl;
   });
-  const hlt = $('help-libs-title');  if (hlt) hlt.textContent = d.helpLibsTitle;
-  const hld = $('help-libs-desc');   if (hld) hld.innerHTML   = d.helpLibsDesc;
-  const hbt = $('help-boost-title'); if (hbt) hbt.textContent = d.helpBoostTitle;
-  const hbd = $('help-boost-desc');  if (hbd) hbd.innerHTML   = d.helpBoostDesc;
+  renderHelp();
 
   // Libs : mettre à jour le bouton boost hint si affiché
   _updateBoostHintBtn();
@@ -1102,7 +1367,7 @@ function renderSnakeLeaderboard(data) {
   const el = document.getElementById('snake-lb-list');
   if (!el) return;
   if (!data || data.length === 0) {
-    el.innerHTML = '<p class="lb-empty">Aucun score enregistré.</p>';
+    el.innerHTML = `<p class="lb-empty">${t().snakeLbEmpty}</p>`;
     return;
   }
   const medals = ['🥇', '🥈', '🥉'];
@@ -2327,8 +2592,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     if (_snakeName && getHs() === 0) socket.emit('submit-snake-score', { name: _snakeName, hs: 0, playerId: getPlayerId() });
     const newHsEl = document.getElementById('snake-new-hs');
     if (newHsEl) newHsEl.classList.toggle('hidden', !isNewHs);
-    document.getElementById('snake-over-score').textContent =
-      `Score : ${score} · Meilleur : ${getHs()}`;
+    document.getElementById('snake-over-score').textContent = t().snakeOverScore(score, getHs());
     document.getElementById('snake-over-overlay').classList.remove('hidden');
   }
 
