@@ -36,6 +36,8 @@ html, body {
 }
 
 /* ── Screens ── */
+html.restoring #screen-landing { display: none !important; }
+
 .screen {
   display: none;
   min-height: 100dvh;

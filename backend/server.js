@@ -57,32 +57,36 @@ async function loadData() {
     db.collection('comments').find().sort({ date: 1 }).toArray(),
     db.collection('snake_leaderboard').find().toArray(),
   ]);
-  lbDocs.forEach(d  => leaderboard.set(d._id, { wins: d.wins, losses: d.losses, draws: d.draws }));
-  tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { points: d.points, games: d.games }));
+  lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || d._id, wins: d.wins, losses: d.losses, draws: d.draws }));
+  tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || d._id, points: d.points, games: d.games }));
   cmtDocs.forEach(d => comments.push({ pseudo: d.pseudo, message: d.message, date: d.date }));
-  slbDocs.forEach(d => snakeLeaderboard.set(d._id, { hs: d.hs }));
+  slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || d._id, hs: d.hs }));
   console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${cmtDocs.length} commentaires.`);
 }
 
-function dbUpsertLeaderboard(name, entry) {
+function dbUpsertLeaderboard(id, entry) {
   if (!db) return;
   db.collection('leaderboard')
-    .updateOne({ _id: name }, { $set: entry }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, wins: entry.wins, losses: entry.losses, draws: entry.draws } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde classement:', e));
 }
 
-function dbUpsertTriviaLeaderboard(name, entry) {
+function dbUpsertTriviaLeaderboard(id, entry) {
   if (!db) return;
   db.collection('trivia_leaderboard')
-    .updateOne({ _id: name }, { $set: entry }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, points: entry.points, games: entry.games } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde classement quiz:', e));
 }
 
-function dbUpsertSnakeLeaderboard(name, entry) {
+function dbUpsertSnakeLeaderboard(id, entry) {
   if (!db) return;
   db.collection('snake_leaderboard')
-    .updateOne({ _id: name }, { $set: entry }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, hs: entry.hs } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde classement snake:', e));
+}
+
+function safePlayerId(id) {
+  return typeof id === 'string' && id.trim() ? id.trim().slice(0, 64) : null;
 }
 
 function dbInsertComment(comment) {
@@ -129,72 +133,71 @@ function createInitialState(gameType) {
 
 // ── Leaderboard helpers ────────────────────────────────────────────────────
 
-function updateLeaderboard(name, result) {
-  if (!name) return;
-  const e = leaderboard.get(name) || { wins: 0, losses: 0, draws: 0 };
+function updateLeaderboard(id, name, result) {
+  if (!id) return;
+  const e = leaderboard.get(id) || { name, wins: 0, losses: 0, draws: 0 };
+  e.name = name;
   if (result === 'win')  e.wins++;
   if (result === 'loss') e.losses++;
   if (result === 'draw') e.draws++;
-  leaderboard.set(name, e);
-  dbUpsertLeaderboard(name, e);
+  leaderboard.set(id, e);
+  dbUpsertLeaderboard(id, e);
 }
 
 function getLeaderboardData() {
   return [...leaderboard.entries()]
-    .map(([name, s]) => ({ name, wins: s.wins, losses: s.losses, draws: s.draws }))
+    .map(([id, s]) => ({ name: s.name || id, wins: s.wins, losses: s.losses, draws: s.draws }))
     .sort((a, b) => b.wins - a.wins || (b.wins - b.losses) - (a.wins - a.losses))
     .slice(0, 10);
 }
 
 // ── Trivia leaderboard helpers ─────────────────────────────────────────────
 
-function updateTriviaLeaderboard(name, points) {
-  if (!name) return;
-  const e = triviaLeaderboard.get(name) || { points: 0, games: 0 };
+function updateTriviaLeaderboard(id, name, points) {
+  if (!id) return;
+  const e = triviaLeaderboard.get(id) || { name, points: 0, games: 0 };
+  e.name = name;
   e.points += Math.max(0, parseInt(points) || 0);
   e.games++;
-  triviaLeaderboard.set(name, e);
-  dbUpsertTriviaLeaderboard(name, e);
+  triviaLeaderboard.set(id, e);
+  dbUpsertTriviaLeaderboard(id, e);
 }
 
 function getTriviaLeaderboardData() {
   return [...triviaLeaderboard.entries()]
-    .map(([name, s]) => ({ name, points: s.points, games: s.games }))
+    .map(([id, s]) => ({ name: s.name || id, points: s.points, games: s.games }))
     .sort((a, b) => b.points - a.points)
     .slice(0, 10);
 }
 
-function updateSnakeLeaderboard(name, hs) {
-  if (!name) return false;
-  const isNew = !snakeLeaderboard.has(name);
-  const existing = snakeLeaderboard.get(name) || { hs: 0 };
+function updateSnakeLeaderboard(id, name, hs) {
+  if (!id) return false;
+  const isNew = !snakeLeaderboard.has(id);
+  const existing = snakeLeaderboard.get(id) || { name, hs: 0 };
+  existing.name = name;
   const improved = hs > existing.hs;
-  if (improved) {
-    existing.hs = hs;
-    snakeLeaderboard.set(name, existing);
-    dbUpsertSnakeLeaderboard(name, existing);
-  } else if (isNew) {
-    snakeLeaderboard.set(name, { hs: 0 });
-    dbUpsertSnakeLeaderboard(name, { hs: 0 });
-  }
+  if (improved) existing.hs = hs;
+  snakeLeaderboard.set(id, existing);
+  if (improved || isNew) dbUpsertSnakeLeaderboard(id, existing);
   return improved ? 'improved' : isNew ? 'registered' : false;
 }
 
 function getSnakeLeaderboardData() {
   return [...snakeLeaderboard.entries()]
     .filter(([, s]) => s.hs > 0)
-    .map(([name, s]) => ({ name, hs: s.hs }))
+    .map(([id, s]) => ({ name: s.name || id, hs: s.hs }))
     .sort((a, b) => b.hs - a.hs)
     .slice(0, 10);
 }
 
 function getGlobalLeaderboardData() {
-  const names = new Set([...leaderboard.keys(), ...triviaLeaderboard.keys(), ...snakeLeaderboard.keys()]);
-  return [...names]
-    .map(name => {
-      const c  = leaderboard.get(name)       || { wins: 0 };
-      const tr = triviaLeaderboard.get(name) || { points: 0 };
-      const sk = snakeLeaderboard.get(name)  || { hs: 0 };
+  const ids = new Set([...leaderboard.keys(), ...triviaLeaderboard.keys(), ...snakeLeaderboard.keys()]);
+  return [...ids]
+    .map(id => {
+      const c  = leaderboard.get(id)       || { name: id, wins: 0 };
+      const tr = triviaLeaderboard.get(id) || { name: id, points: 0 };
+      const sk = snakeLeaderboard.get(id)  || { name: id, hs: 0 };
+      const name = c.name || tr.name || sk.name || id;
       return { name, globalScore: c.wins * 10 + tr.points + sk.hs * 10, wins: c.wins, triviaPoints: tr.points, snakeHs: sk.hs };
     })
     .sort((a, b) => b.globalScore - a.globalScore)
@@ -218,7 +221,7 @@ function getTriviaRoomState(room) {
 function getRoomScores(room) {
   return [...room.players.entries()]
     .filter(([, p]) => !p.disconnected)
-    .map(([sid, p]) => ({ socketId: sid, name: p.name, score: p.score, colorIndex: p.colorIndex }))
+    .map(([sid, p]) => ({ socketId: sid, name: p.name, playerId: p.playerId, score: p.score, colorIndex: p.colorIndex }))
     .sort((a, b) => b.score - a.score);
 }
 
@@ -294,7 +297,7 @@ function finishTriviaGame(code) {
   const scores = getRoomScores(room);
 
   for (const s of scores) {
-    updateTriviaLeaderboard(s.name, s.score);
+    updateTriviaLeaderboard(s.playerId || s.name, s.name, s.score);
   }
   io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
   io.emit('global-leaderboard-update', getGlobalLeaderboardData());
@@ -355,11 +358,12 @@ function scheduleBotMove(code) {
 
     if (status !== 'playing') {
       const humanName = room.playerNames.R;
+      const humanId   = room.playerIds?.R || humanName;
       if (humanName) {
         if (status === 'won') {
-          updateLeaderboard(humanName, winner === 'R' ? 'win' : 'loss');
+          updateLeaderboard(humanId, humanName, winner === 'R' ? 'win' : 'loss');
         } else {
-          updateLeaderboard(humanName, 'draw');
+          updateLeaderboard(humanId, humanName, 'draw');
         }
         io.emit('leaderboard-update', getLeaderboardData());
         io.emit('global-leaderboard-update', getGlobalLeaderboardData());
@@ -376,7 +380,7 @@ io.on('connection', (socket) => {
   let triviaRoomCode = null;
 
   // ── Créer une room ──────────────────────────────────────────────────────
-  socket.on('create-room', ({ gameType = 'connect4', name = '', vsBot = false, botDifficulty = 'medium' } = {}) => {
+  socket.on('create-room', ({ gameType = 'connect4', name = '', vsBot = false, botDifficulty = 'medium', playerId } = {}) => {
     if (!VALID_GAMES.has(gameType)) return;
     const playerName = String(name).trim().slice(0, 20) || 'Anonyme';
     const diff = ['easy', 'medium', 'hard'].includes(botDifficulty) ? botDifficulty : 'medium';
@@ -388,6 +392,7 @@ io.on('connection', (socket) => {
       state: createInitialState(gameType),
       players:     { R: socket.id, Y: vsBot ? 'bot' : null },
       playerNames: { R: playerName, Y: vsBot ? '🤖 Robot' : null },
+      playerIds:   { R: safePlayerId(playerId) || playerName, Y: null },
       status: vsBot ? 'playing' : 'waiting',
       vsBot,
       botDifficulty: diff,
@@ -408,7 +413,7 @@ io.on('connection', (socket) => {
   });
 
   // ── Rejoindre une room ──────────────────────────────────────────────────
-  socket.on('join-room', ({ code, name = '' }) => {
+  socket.on('join-room', ({ code, name = '', playerId } = {}) => {
     const playerName = String(name).trim().slice(0, 20) || 'Anonyme';
     const key  = (code || '').toUpperCase().trim();
     const room = rooms.get(key);
@@ -416,8 +421,9 @@ io.on('connection', (socket) => {
     if (!room)          { socket.emit('error', { message: 'Room introuvable. Vérifie le code.' }); return; }
     if (room.players.Y) { socket.emit('error', { message: 'Cette room est déjà pleine.' });        return; }
 
-    room.players.Y    = socket.id;
+    room.players.Y     = socket.id;
     room.playerNames.Y = playerName;
+    if (room.playerIds) room.playerIds.Y = safePlayerId(playerId) || playerName;
     room.status       = 'playing';
     roomCode = key;
     myPlayer = 'Y';
@@ -523,22 +529,23 @@ io.on('connection', (socket) => {
       if (!room.vsBot) {
         if (status === 'won') {
           const loserRole = winner === 'R' ? 'Y' : 'R';
-          updateLeaderboard(room.playerNames[winner], 'win');
-          updateLeaderboard(room.playerNames[loserRole], 'loss');
+          updateLeaderboard(room.playerIds?.[winner]    || room.playerNames[winner],   room.playerNames[winner],   'win');
+          updateLeaderboard(room.playerIds?.[loserRole] || room.playerNames[loserRole], room.playerNames[loserRole], 'loss');
         } else {
-          updateLeaderboard(room.playerNames.R, 'draw');
-          updateLeaderboard(room.playerNames.Y, 'draw');
+          updateLeaderboard(room.playerIds?.R || room.playerNames.R, room.playerNames.R, 'draw');
+          updateLeaderboard(room.playerIds?.Y || room.playerNames.Y, room.playerNames.Y, 'draw');
         }
         io.emit('leaderboard-update', getLeaderboardData());
         io.emit('global-leaderboard-update', getGlobalLeaderboardData());
       } else {
         // Solo vs bot (toutes difficultés) : enregistrer le joueur humain
         const humanName = room.playerNames.R;
+        const humanId   = room.playerIds?.R || humanName;
         if (humanName) {
           if (status === 'won') {
-            updateLeaderboard(humanName, winner === 'R' ? 'win' : 'loss');
+            updateLeaderboard(humanId, humanName, winner === 'R' ? 'win' : 'loss');
           } else {
-            updateLeaderboard(humanName, 'draw');
+            updateLeaderboard(humanId, humanName, 'draw');
           }
           io.emit('leaderboard-update', getLeaderboardData());
           io.emit('global-leaderboard-update', getGlobalLeaderboardData());
@@ -607,9 +614,11 @@ io.on('connection', (socket) => {
     socket.emit('snake-leaderboard-update', getSnakeLeaderboardData());
   });
 
-  socket.on('submit-snake-score', ({ name, hs } = {}) => {
+  socket.on('submit-snake-score', ({ name, hs, playerId } = {}) => {
     if (!name || typeof hs !== 'number') return;
-    const result = updateSnakeLeaderboard(String(name).trim().slice(0, 20), Math.max(0, Math.floor(hs)));
+    const playerName = String(name).trim().slice(0, 20);
+    const id = safePlayerId(playerId) || playerName;
+    const result = updateSnakeLeaderboard(id, playerName, Math.max(0, Math.floor(hs)));
     if (result === 'improved') {
       io.emit('snake-leaderboard-update', getSnakeLeaderboardData());
       io.emit('global-leaderboard-update', getGlobalLeaderboardData());
@@ -639,7 +648,7 @@ io.on('connection', (socket) => {
   });
 
   // ── Trivia : créer un salon ──────────────────────────────────────────────
-  socket.on('create-trivia-room', ({ categories, name = '', lang = 'fr', difficulty = '', amount } = {}) => {
+  socket.on('create-trivia-room', ({ categories, name = '', lang = 'fr', difficulty = '', amount, playerId } = {}) => {
     const cats = [].concat(categories || []).map(c => parseInt(c)).filter(c => TRIVIA_CATEGORIES[c]);
     if (cats.length === 0) return;
     const playerName = String(name).trim().slice(0, 20) || 'Anonyme';
@@ -649,7 +658,7 @@ io.on('connection', (socket) => {
     const totalQ = Math.round(Math.min(40, Math.max(10, rawN)) / 5) * 5;
     const code = generateCode();
     const players = new Map();
-    players.set(socket.id, { name: playerName, colorIndex: 0, score: 0 });
+    players.set(socket.id, { name: playerName, playerId: safePlayerId(playerId) || playerName, colorIndex: 0, score: 0 });
     const catNames = cats.map(c => TRIVIA_CATEGORIES[c]);
     const categoryName = cats.length <= 2 ? catNames.join(' · ') : `Mix (${cats.length})`;
     triviaRooms.set(code, {
@@ -666,7 +675,7 @@ io.on('connection', (socket) => {
   });
 
   // ── Trivia : rejoindre ───────────────────────────────────────────────────
-  socket.on('join-trivia-room', ({ code, name = '' } = {}) => {
+  socket.on('join-trivia-room', ({ code, name = '', playerId } = {}) => {
     const key  = (code || '').toUpperCase().trim();
     const room = triviaRooms.get(key);
     const playerName = String(name).trim().slice(0, 20) || 'Anonyme';
@@ -674,7 +683,7 @@ io.on('connection', (socket) => {
     if (room.status !== 'waiting') { socket.emit('trivia-error', { message: 'La partie a déjà commencé.' });        return; }
     if (room.players.size >= 6)  { socket.emit('trivia-error', { message: 'Le salon est complet (6 joueurs max).' }); return; }
     const colorIndex = room.players.size;
-    room.players.set(socket.id, { name: playerName, colorIndex, score: 0 });
+    room.players.set(socket.id, { name: playerName, playerId: safePlayerId(playerId) || playerName, colorIndex, score: 0 });
     triviaRoomCode = key;
     socket.join(key);
     socket.emit('trivia-room-joined', { code: key, categoryName: room.categoryName });
@@ -745,9 +754,10 @@ io.on('connection', (socket) => {
   });
 
   // ── Trivia : fin de partie solo ──────────────────────────────────────────
-  socket.on('solo-trivia-finished', ({ name, score } = {}) => {
+  socket.on('solo-trivia-finished', ({ name, score, playerId } = {}) => {
     const playerName = String(name || '').trim().slice(0, 20) || 'Anonyme';
-    updateTriviaLeaderboard(playerName, score);
+    const id = safePlayerId(playerId) || playerName;
+    updateTriviaLeaderboard(id, playerName, score);
     io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
     io.emit('global-leaderboard-update', getGlobalLeaderboardData());
   });

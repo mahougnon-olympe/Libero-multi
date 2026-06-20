@@ -1,3 +1,13 @@
+// ── Identifiant joueur stable ─────────────────────────────────────────────────
+function getPlayerId() {
+  let id = localStorage.getItem('libero_player_id');
+  if (!id) {
+    id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    localStorage.setItem('libero_player_id', id);
+  }
+  return id;
+}
+
 // ── État global ─────────────────────────────────────────────────────────────
 let myPlayer        = null;   // 'R' | 'Y'
 let gameActive      = false;
@@ -280,6 +290,7 @@ function _scheduleNewsCollapse() {
 }
 
 function showScreen(name) {
+  document.documentElement.classList.remove('restoring');
   sessionStorage.setItem('libero_screen', name);
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById('screen-' + name);
@@ -368,14 +379,14 @@ document.querySelectorAll('.bot-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     if (!getPlayerName()) { showError(t().errNoName); return; }
     clearError();
-    socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), vsBot: true, botDifficulty: btn.dataset.diff });
+    socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), vsBot: true, botDifficulty: btn.dataset.diff, playerId: getPlayerId() });
   });
 });
 
 $('btn-create').addEventListener('click', () => {
   if (!getPlayerName()) { showError(t().errNoName); return; }
   clearError();
-  socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName() });
+  socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), playerId: getPlayerId() });
 });
 
 $('btn-join').addEventListener('click', joinRoom);
@@ -388,7 +399,7 @@ function joinRoom() {
   if (code.length !== 4) { showError(t().err4Letters); return; }
   clearError();
   currentRoomCode = code;
-  socket.emit('join-room', { code, name: getPlayerName() });
+  socket.emit('join-room', { code, name: getPlayerName(), playerId: getPlayerId() });
 }
 
 function showError(msg) { const e = $('error-msg'); e.textContent = msg; e.classList.remove('hidden'); }
@@ -1107,7 +1118,7 @@ $('btn-create-trivia').addEventListener('click', () => {
   if (!getTriviaName())                  { showTriviaError(t().errNoName);  return; }
   if (!selectedTriviaCategories.length)  { showTriviaError(t().errNoTheme); return; }
   clearTriviaError();
-  socket.emit('create-trivia-room', { categories: selectedTriviaCategories, name: getTriviaName(), lang: currentLang, difficulty: selectedTriviaDifficulty, amount: getTriviaQCount() });
+  socket.emit('create-trivia-room', { categories: selectedTriviaCategories, name: getTriviaName(), lang: currentLang, difficulty: selectedTriviaDifficulty, amount: getTriviaQCount(), playerId: getPlayerId() });
 });
 
 $('btn-join-trivia').addEventListener('click',  joinTriviaRoom);
@@ -1119,7 +1130,7 @@ function joinTriviaRoom() {
   const code = $('input-trivia-code').value.trim().toUpperCase();
   if (code.length !== 4) { showTriviaError(t().err4Letters); return; }
   clearTriviaError();
-  socket.emit('join-trivia-room', { code, name: getTriviaName() });
+  socket.emit('join-trivia-room', { code, name: getTriviaName(), playerId: getPlayerId() });
 }
 
 // ── Trivia : salle d'attente ──────────────────────────────────────────────────
@@ -1295,7 +1306,7 @@ function soloNextQuestion() {
     $('tg-q-num').textContent = '';
     $('tg-timer').textContent = '–';
     showTriviaFinished(scores);
-    socket.emit('solo-trivia-finished', { name, score: triviaScore, total: triviaQuestions.length });
+    socket.emit('solo-trivia-finished', { name, score: triviaScore, total: triviaQuestions.length, playerId: getPlayerId() });
     return;
   }
   const q = triviaQuestions[triviaCurrentQ];
@@ -1523,7 +1534,7 @@ socket.on('trivia-reconnect-success', ({ code, status, scores, question, hostId 
   }
 });
 
-socket.on('trivia-reconnect-failed', () => { clearTriviaSession(); sessionStorage.removeItem('libero_screen'); });
+socket.on('trivia-reconnect-failed', () => { clearTriviaSession(); showScreen('landing'); });
 
 socket.on('room-created', ({ code, gameType }) => {
   currentRoomCode = code;
@@ -1553,7 +1564,7 @@ socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, r
   showScreen('game');
 });
 
-socket.on('reconnect-failed', () => { clearSession(); sessionStorage.removeItem('libero_screen'); });
+socket.on('reconnect-failed', () => { clearSession(); showScreen('landing'); });
 
 socket.on('game-update', ({ gameType, state, status, winner }) => {
   if (gameType === 'chess') lastMove = null; // sera mis à jour via onChessClick
@@ -1870,7 +1881,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
       localStorage.setItem(HS_KEY, String(n));
       cursorSnake.setBonus(n);
       const name = localStorage.getItem('playerName');
-      if (name) socket.emit('submit-snake-score', { name, hs: n });
+      if (name) socket.emit('submit-snake-score', { name, hs: n, playerId: getPlayerId() });
     }
   }
 
@@ -1984,7 +1995,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     saveHs(score);
     // Enregistre la participation même si score=0 (premier jeu sans pomme)
     const _snakeName = localStorage.getItem('playerName');
-    if (_snakeName && getHs() === 0) socket.emit('submit-snake-score', { name: _snakeName, hs: 0 });
+    if (_snakeName && getHs() === 0) socket.emit('submit-snake-score', { name: _snakeName, hs: 0, playerId: getPlayerId() });
     const newHsEl = document.getElementById('snake-new-hs');
     if (newHsEl) newHsEl.classList.toggle('hidden', !isNewHs);
     document.getElementById('snake-over-score').textContent =
@@ -2065,7 +2076,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
 
   function launchSnakeGame() {
     const _hs = getHs(), _name = localStorage.getItem('playerName');
-    if (_hs > 0 && _name) socket.emit('submit-snake-score', { name: _name, hs: _hs });
+    if (_hs > 0 && _name) socket.emit('submit-snake-score', { name: _name, hs: _hs, playerId: getPlayerId() });
 
     document.getElementById('event-intro').classList.add('hidden');
     document.getElementById('snake-lb-card').classList.add('hidden');
@@ -2629,11 +2640,17 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   if (!saved || saved === 'landing') return;
   // Écrans gérés par la reconnexion socket — ils se restaurent via p4session/triviaSession
   if (saved === 'game' || saved === 'waiting') {
-    if (!sessionStorage.getItem('p4session')) sessionStorage.removeItem('libero_screen');
+    if (!sessionStorage.getItem('p4session')) {
+      document.documentElement.classList.remove('restoring');
+      sessionStorage.removeItem('libero_screen');
+    }
     return;
   }
   if (saved === 'trivia-game' || saved === 'trivia-waiting') {
-    if (!sessionStorage.getItem('triviaSession')) sessionStorage.removeItem('libero_screen');
+    if (!sessionStorage.getItem('triviaSession')) {
+      document.documentElement.classList.remove('restoring');
+      sessionStorage.removeItem('libero_screen');
+    }
     return;
   }
   // Restauration directe (home, trivia-home, events)
