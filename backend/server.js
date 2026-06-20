@@ -188,7 +188,7 @@ function getGlobalLeaderboardData() {
       const c  = leaderboard.get(name)       || { wins: 0 };
       const tr = triviaLeaderboard.get(name) || { points: 0 };
       const sk = snakeLeaderboard.get(name)  || { hs: 0 };
-      return { name, globalScore: c.wins * 10 + tr.points + sk.hs * 10 };
+      return { name, globalScore: c.wins * 10 + tr.points + sk.hs * 10, wins: c.wins, triviaPoints: tr.points, snakeHs: sk.hs };
     })
     .filter(e => e.globalScore > 0)
     .sort((a, b) => b.globalScore - a.globalScore)

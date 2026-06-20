@@ -1560,9 +1560,10 @@ socket.on('global-leaderboard-update', (data) => {
   const name = localStorage.getItem('playerName') || '';
   const idx  = name ? data.findIndex(e => e.name === name) : -1;
   if (idx !== -1) {
-    const rank  = idx + 1;
-    const score = data[idx].globalScore || 0;
-    const len   = 4 + Math.min(14, Math.floor(score / 10));
+    const rank     = idx + 1;
+    const entry    = data[idx];
+    const rawSum   = (entry.wins || 0) + (entry.triviaPoints || 0) + (entry.snakeHs || 0);
+    const len      = 4 + Math.min(14, Math.floor(rawSum / 5));
     cursorSnake.update(len, rank);
   }
 });
