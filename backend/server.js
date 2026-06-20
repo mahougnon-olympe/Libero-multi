@@ -184,10 +184,11 @@ function updateSnakeLeaderboard(id, name, hs) {
 
 function getSnakeLeaderboardData() {
   const byName = new Map();
-  for (const [, s] of snakeLeaderboard.entries()) {
-    if (s.hs <= 0 || !s.name) continue;
-    const existing = byName.get(s.name);
-    if (!existing || s.hs > existing.hs) byName.set(s.name, s);
+  for (const [id, s] of snakeLeaderboard.entries()) {
+    if (s.hs <= 0) continue;
+    const displayName = s.name || id;
+    const existing = byName.get(displayName);
+    if (!existing || s.hs > existing.hs) byName.set(displayName, { name: displayName, hs: s.hs });
   }
   return [...byName.values()]
     .sort((a, b) => b.hs - a.hs)
