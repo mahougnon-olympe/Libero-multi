@@ -405,11 +405,36 @@ function getOrCreateAnonName() {
 }
 
 $('input-name').value = localStorage.getItem('playerName') || '';
+
+let _pseudoCheckTimer = null;
+function checkPseudo(name, warningId) {
+  clearTimeout(_pseudoCheckTimer);
+  const w = $(warningId);
+  if (!name || name.length < 2) { if (w) w.classList.add('hidden'); return; }
+  _pseudoCheckTimer = setTimeout(() => {
+    socket.emit('check-pseudo', { name, playerId: getPlayerId() });
+  }, 600);
+}
+
+socket.on('pseudo-check-result', ({ taken }) => {
+  ['pseudo-warning', 'snake-pseudo-warning'].forEach(id => {
+    const w = $(id);
+    if (!w) return;
+    if (taken) {
+      w.textContent = '⚠️ Ce pseudo est déjà utilisé. Choisis-en un autre pour éviter la fusion des scores.';
+      w.classList.remove('hidden');
+    } else {
+      w.classList.add('hidden');
+    }
+  });
+});
+
 $('input-name').addEventListener('input', e => {
   const v = e.target.value;
   localStorage.setItem('playerName', v.trim());
   const other = $('input-trivia-name');
   if (other) other.value = v;
+  checkPseudo(v.trim(), 'pseudo-warning');
 });
 function getPlayerName() { return $('input-name').value.trim(); }
 
@@ -2180,6 +2205,9 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     launchSnakeGame();
   });
 
+  document.getElementById('snake-pseudo-input')?.addEventListener('input', (e) => {
+    checkPseudo(e.target.value.trim(), 'snake-pseudo-warning');
+  });
   document.getElementById('snake-pseudo-input')?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') document.getElementById('btn-snake-confirm-name')?.click();
   });

@@ -246,6 +246,7 @@ h1 {
 
 /* ── Error ── */
 .error-msg { color: var(--red); font-size: .875rem; text-align: center; font-weight: 500; }
+.pseudo-warning { color: #f59e0b; font-size: .82rem; text-align: center; font-weight: 500; margin: .25rem 0 0; }
 
 /* ── Waiting ── */
 .waiting-card { text-align: center; }

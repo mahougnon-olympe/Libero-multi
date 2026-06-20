@@ -214,7 +214,7 @@ function getGlobalLeaderboardData() {
     .map(e => ({ ...e, globalScore: e.wins * 10 + e.triviaPoints + e.snakeHs * 10 }))
     .filter(e => e.globalScore > 0)
     .sort((a, b) => b.globalScore - a.globalScore)
-    .slice(0, 10);
+    .slice(0, 50);
 }
 
 // ── Trivia room helpers ────────────────────────────────────────────────────
@@ -625,6 +625,22 @@ io.on('connection', (socket) => {
 
   socket.on('get-snake-leaderboard', () => {
     socket.emit('snake-leaderboard-update', getSnakeLeaderboardData());
+  });
+
+  socket.on('check-pseudo', ({ name, playerId } = {}) => {
+    const cleanName = String(name || '').trim().slice(0, 20);
+    const id = safePlayerId(playerId);
+    if (!cleanName || cleanName === 'Anonyme' || !id) {
+      socket.emit('pseudo-check-result', { taken: false });
+      return;
+    }
+    const taken = [leaderboard, triviaLeaderboard, snakeLeaderboard].some(map => {
+      for (const [k, v] of map.entries()) {
+        if (v.name === cleanName && k !== id) return true;
+      }
+      return false;
+    });
+    socket.emit('pseudo-check-result', { taken });
   });
 
   socket.on('submit-snake-score', ({ name, hs, playerId } = {}) => {

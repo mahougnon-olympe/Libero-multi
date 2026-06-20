@@ -92,6 +92,7 @@
         autocorrect="off"
         spellcheck="false"
       />
+      <p class="pseudo-warning hidden" id="pseudo-warning"></p>
       <p id="bot-label-p" class="bot-label">🤖 Jouer seul contre le robot :</p>
       <div class="bot-row">
         <button class="btn bot-btn" data-diff="easy">😊 Facile</button>
@@ -315,6 +316,7 @@
         <p class="snake-name-sub">Choisis un pseudo pour figurer dans le classement.</p>
         <input type="text" id="snake-pseudo-input" class="snake-pseudo-input" placeholder="Ton pseudo" maxlength="20" autocomplete="off">
         <p class="snake-name-error hidden" id="snake-name-error">Entre un pseudo pour continuer.</p>
+        <p class="pseudo-warning hidden" id="snake-pseudo-warning"></p>
         <div class="snake-name-actions">
           <button class="btn btn-primary" id="btn-snake-confirm-name">C'est parti !</button>
           <button class="btn btn-secondary" id="btn-snake-cancel-name">Annuler</button>
