@@ -9,6 +9,11 @@ function getPlayerId() {
 }
 
 // ── État global ─────────────────────────────────────────────────────────────
+let libsBalance        = parseInt(localStorage.getItem('libero_libs') || '0', 10);
+let boostHintActive    = false;
+let boostHintUsedThisQ = false;
+let _libsAnimTimer     = null;
+
 let myPlayer        = null;   // 'R' | 'Y'
 let gameActive      = false;
 let currentRoomCode = null;
@@ -88,6 +93,18 @@ const DICT = {
     restartRequested:"\nL'adversaire veut rejouer !",
     errConnect:'Impossible de joindre le serveur. Réessaie.',
     help:{ title:'Aide', tabs:{ general:'Général', quiz:'Quiz', connect4:'Puissance 4', ttt:'Morpion', chess:'Échecs' } },
+    shopTitle:'⚡ Boutique', shopBalanceLabel:'Ton solde :',
+    shopBoostHintName:'💡 Indice Quiz',
+    shopBoostHintDesc:'Élimine une mauvaise réponse par question pendant tout un quiz complet.',
+    shopBtnBuy:'Acheter', shopBuyFor:'— 3 ⚡',
+    shopPending:n => `${n} dispo`, shopNoPending:'Non disponible',
+    shopInsufficient:'Solde insuffisant.', shopBuyError:'Erreur lors de l\'achat.',
+    shopBuyOk:'Boost acheté !',
+    boostHintBtn:'💡 Indice',
+    helpLibsTitle:'Libs (monnaie)',
+    helpLibsDesc:'Les Libs ⚡ sont une monnaie virtuelle. Les joueurs classés <strong>top 3 du classement Global</strong> en gagnent automatiquement toutes les 5 heures (1er : +5 ⚡, 2e : +3 ⚡, 3e : +2 ⚡). Si tu ne joues pas pendant 48 h, ton solde diminue de 10 ⚡ par jour supplémentaire. Clique sur le compteur ⚡ en haut à droite pour ouvrir la boutique. Les joueurs anonymes ne perçoivent pas de Libs.',
+    helpBoostTitle:'Boost Indice (quiz)',
+    helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     triviaCats:[
       { id:9,  name:'Culture G.', icon:'🧠' }, { id:23, name:'Histoire',   icon:'📜' },
       { id:22, name:'Géographie', icon:'🌍' }, { id:17, name:'Sciences',   icon:'🔬' },
@@ -158,6 +175,18 @@ const DICT = {
     restartRequested:'\nOpponent wants to play again!',
     errConnect:'Cannot reach the server. Please try again.',
     help:{ title:'Help', tabs:{ general:'General', quiz:'Quiz', connect4:'Connect 4', ttt:'Tic Tac Toe', chess:'Chess' } },
+    shopTitle:'⚡ Shop', shopBalanceLabel:'Your balance:',
+    shopBoostHintName:'💡 Quiz Hint',
+    shopBoostHintDesc:'Eliminates a wrong answer per question for a whole quiz.',
+    shopBtnBuy:'Buy', shopBuyFor:'— 3 ⚡',
+    shopPending:n => `${n} available`, shopNoPending:'Not available',
+    shopInsufficient:'Insufficient balance.', shopBuyError:'Purchase failed.',
+    shopBuyOk:'Boost purchased!',
+    boostHintBtn:'💡 Hint',
+    helpLibsTitle:'Libs (currency)',
+    helpLibsDesc:'Libs ⚡ are a virtual currency. Players ranked <strong>top 3 in the Global leaderboard</strong> automatically earn some every 5 hours (1st: +5 ⚡, 2nd: +3 ⚡, 3rd: +2 ⚡). If you don\'t play for 48 h, your balance drops by 10 ⚡ per additional day of inactivity. Click the ⚡ counter in the top-right corner to open the shop. Anonymous players do not receive Libs.',
+    helpBoostTitle:'Quiz Hint Boost',
+    helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     triviaCats:[
       { id:9,  name:'General',   icon:'🧠' }, { id:23, name:'History',   icon:'📜' },
       { id:22, name:'Geography', icon:'🌍' }, { id:17, name:'Science',   icon:'🔬' },
@@ -258,6 +287,13 @@ function applyLang() {
     const lbl = d.help.tabs[tab.dataset.tab];
     if (lbl) tab.textContent = lbl;
   });
+  const hlt = $('help-libs-title');  if (hlt) hlt.textContent = d.helpLibsTitle;
+  const hld = $('help-libs-desc');   if (hld) hld.innerHTML   = d.helpLibsDesc;
+  const hbt = $('help-boost-title'); if (hbt) hbt.textContent = d.helpBoostTitle;
+  const hbd = $('help-boost-desc');  if (hbd) hbd.innerHTML   = d.helpBoostDesc;
+
+  // Libs : mettre à jour le bouton boost hint si affiché
+  _updateBoostHintBtn();
 
   // Rebuild trivia themes (garde les sélections actives)
   $('trivia-themes').innerHTML = '';
@@ -435,6 +471,8 @@ $('input-name').addEventListener('input', e => {
   const other = $('input-trivia-name');
   if (other) other.value = v;
   checkPseudo(v.trim(), 'pseudo-warning');
+  const counter = $('libs-counter');
+  if (counter) counter.classList.toggle('hidden', !v.trim() || v.trim() === 'Anonyme');
 });
 function getPlayerName() { return $('input-name').value.trim(); }
 
@@ -1110,6 +1148,8 @@ function goToTriviaHome() {
   clearTriviaSession();
   triviaRoomCode = null; triviaIsHost = false; triviaIsSolo = false;
   triviaAnsweredThis = false; triviaChoiceSelected = null;
+  boostHintActive = false; boostHintUsedThisQ = false;
+  _updateBoostHintBtn();
   triviaPaused = false; triviaPauseRemaining = 0;
   $('btn-trivia-pause').classList.add('hidden');
   $('trivia-pause-overlay').classList.add('hidden');
@@ -1167,6 +1207,8 @@ $('input-trivia-name').addEventListener('input', e => {
   localStorage.setItem('playerName', v.trim());
   const other = $('input-name');
   if (other) other.value = v;
+  const counter = $('libs-counter');
+  if (counter) counter.classList.toggle('hidden', !v.trim() || v.trim() === 'Anonyme');
 });
 
 // Boutons trivia home
@@ -1249,6 +1291,8 @@ const LETTERS = ['A','B','C','D'];
 
 function showTriviaQuestion({ questionNum, totalQuestions, question, choices, timeLimit, scores }) {
   triviaAnsweredThis = false; triviaChoiceSelected = null;
+  boostHintUsedThisQ = false;
+  _updateBoostHintBtn();
   $('tg-q-num').textContent = `Q ${questionNum} / ${totalQuestions}`;
   $('tg-question').textContent = question;
   $('tg-reveal').classList.add('hidden');
@@ -1494,6 +1538,8 @@ socket.on('trivia-start', ({ totalQuestions, categoryName }) => {
   $('tg-finished').classList.add('hidden');
   $('btn-trivia-pause').classList.add('hidden');
   $('trivia-pause-overlay').classList.add('hidden');
+  boostHintActive = false; boostHintUsedThisQ = false;
+  socket.emit('activate-quiz-boost', { playerId: getPlayerId() });
   showScreen('trivia-game');
 });
 
@@ -1522,6 +1568,8 @@ socket.on('trivia-solo-questions', (questions) => {
   triviaQuestions = shuffle(questions);
   if (!triviaQuestions.length) { showTriviaError(t().errLoadQ); return; }
   triviaIsSolo = true; triviaCurrentQ = 0; triviaScore = 0; triviaRoomCode = null;
+  boostHintActive = false; boostHintUsedThisQ = false;
+  socket.emit('activate-quiz-boost', { playerId: getPlayerId() });
   triviaPaused = false;
   saveTriviaSession({ isSolo: true, questions: triviaQuestions, currentQ: 0, score: 0 });
   $('tg-theme-label').textContent = getCategoryLabel(selectedTriviaCategories);
@@ -1549,6 +1597,7 @@ socket.on('connect', () => {
   socket.emit('get-leaderboard');
   socket.emit('get-trivia-leaderboard');
   socket.emit('get-global-leaderboard');
+  socket.emit('get-libs', { playerId: getPlayerId() });
   if (sessionStorage.getItem('libero_screen') === 'events') socket.emit('get-snake-leaderboard');
 
   // Jeu classique
@@ -1710,6 +1759,53 @@ socket.on('global-leaderboard-update', (data) => {
 
 socket.on('snake-leaderboard-update', (data) => { renderSnakeLeaderboard(data); });
 
+// ── Libs : handlers socket ────────────────────────────────────────────────────
+socket.on('libs-update', ({ balance, pendingBoostHint, delta } = {}) => {
+  const prev = libsBalance;
+  libsBalance = balance ?? 0;
+  localStorage.setItem('libero_libs', String(libsBalance));
+  _refreshLibsUI(prev, libsBalance, delta ?? null);
+  const shopBal = $('shop-balance-display');
+  if (shopBal) shopBal.textContent = `⚡ ${libsBalance} Libs`;
+  _updateShopPending(pendingBoostHint);
+});
+
+socket.on('buy-boost-result', ({ ok, balance, pendingBoostHint, error } = {}) => {
+  if (ok) {
+    const prev = libsBalance;
+    libsBalance = balance;
+    localStorage.setItem('libero_libs', String(libsBalance));
+    _refreshLibsUI(prev, libsBalance, null);
+    const shopBal = $('shop-balance-display');
+    if (shopBal) shopBal.textContent = `⚡ ${libsBalance} Libs`;
+    _updateShopPending(pendingBoostHint);
+    _showShopFeedback(t().shopBuyOk, '#22c55e');
+  } else {
+    _showShopFeedback(error === 'insufficient' ? t().shopInsufficient : t().shopBuyError, '#ef4444');
+  }
+});
+
+socket.on('quiz-boost-status', ({ active, balance, pendingBoostHint } = {}) => {
+  boostHintActive = !!active;
+  if (balance !== undefined) {
+    libsBalance = balance;
+    localStorage.setItem('libero_libs', String(libsBalance));
+    const balEl = $('libs-balance');
+    if (balEl) balEl.textContent = libsBalance;
+  }
+  _updateShopPending(pendingBoostHint);
+  _updateBoostHintBtn();
+});
+
+socket.on('boost-hint-result', ({ eliminateChoice } = {}) => {
+  if (!eliminateChoice) return;
+  document.querySelectorAll('.tg-choice').forEach(btn => {
+    if (btn.dataset.choice === eliminateChoice) {
+      btn.classList.add('dimmed'); btn.disabled = true;
+    }
+  });
+});
+
 socket.on('error', ({ message }) => { showError(message); });
 socket.on('connect_error', () => { showError(t().errConnect); });
 
@@ -1723,6 +1819,158 @@ $('btn-lang').addEventListener('click', () => {
 
 // Init langue au chargement
 applyLang();
+
+// ── Libs : fonctions UI ───────────────────────────────────────────────────────
+function _refreshLibsUI(prev, next, delta) {
+  // Afficher/masquer le compteur selon si le joueur a un pseudo
+  const name = localStorage.getItem('playerName') || '';
+  const counter = $('libs-counter');
+  if (counter) counter.classList.toggle('hidden', !name || name === 'Anonyme');
+
+  const balEl = $('libs-balance');
+  if (!balEl) return;
+  const diff = next - prev;
+  if (diff === 0) { balEl.textContent = next; return; }
+  const steps = Math.min(20, Math.abs(diff));
+  let step = 0;
+  clearInterval(_libsAnimTimer);
+  _libsAnimTimer = setInterval(() => {
+    step++;
+    balEl.textContent = Math.round(prev + diff * (step / steps));
+    if (step >= steps) { clearInterval(_libsAnimTimer); balEl.textContent = next; }
+  }, 30);
+  if (delta !== null && delta !== 0) {
+    _spawnLibsPill(delta > 0 ? `+${delta} ⚡` : `${delta} ⚡`, delta > 0);
+    _playLibsSound();
+  }
+}
+
+function _spawnLibsPill(text, isPositive) {
+  const counter = $('libs-counter');
+  if (!counter || counter.classList.contains('hidden')) return;
+  const rect = counter.getBoundingClientRect();
+  const pill = document.createElement('div');
+  pill.className = 'libs-pill';
+  pill.textContent = text;
+  pill.style.color = isPositive ? '#fbbf24' : '#ef4444';
+  pill.style.left  = `${rect.left + rect.width / 2}px`;
+  pill.style.top   = `${rect.top - 2}px`;
+  document.body.appendChild(pill);
+  pill.addEventListener('animationend', () => pill.remove(), { once: true });
+}
+
+function _playLibsSound() {
+  try {
+    const ctx  = new (window.AudioContext || window.webkitAudioContext)();
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 880; osc.type = 'sine';
+    gain.gain.setValueAtTime(0.22, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.28);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.28);
+    setTimeout(() => ctx.close(), 600);
+  } catch (_) {}
+}
+
+// ── Libs : boutique ───────────────────────────────────────────────────────────
+function openShop() {
+  const d = t();
+  const title = $('shop-modal-title');
+  if (title) title.textContent = d.shopTitle;
+  const lbl = $('shop-balance-label');
+  if (lbl) lbl.textContent = d.shopBalanceLabel;
+  const shopBal = $('shop-balance-display');
+  if (shopBal) shopBal.textContent = `⚡ ${libsBalance} Libs`;
+  _renderShopItems();
+  socket.emit('get-libs', { playerId: getPlayerId() });
+  $('overlay-shop').classList.remove('hidden');
+}
+
+function _renderShopItems() {
+  const d = t();
+  const container = $('shop-items-list');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="shop-item">
+      <div class="shop-item-header">
+        <span class="shop-item-name">${d.shopBoostHintName}</span>
+        <span class="shop-item-price">3 ⚡</span>
+      </div>
+      <p class="shop-item-desc">${d.shopBoostHintDesc}</p>
+      <div class="shop-item-footer">
+        <span class="shop-pending" id="shop-pending-boost-hint">…</span>
+        <button id="btn-buy-boost-hint" class="btn btn-primary" style="font-size:.8rem;padding:6px 14px;">
+          ${d.shopBtnBuy} ${d.shopBuyFor}
+        </button>
+      </div>
+    </div>
+  `;
+  $('btn-buy-boost-hint').addEventListener('click', () => {
+    socket.emit('buy-boost', { itemId: 'boost_hint', playerId: getPlayerId() });
+  });
+}
+
+function _updateShopPending(pendingBoostHint) {
+  const el = $('shop-pending-boost-hint');
+  if (!el || pendingBoostHint === undefined) return;
+  const d = t();
+  el.textContent = pendingBoostHint > 0 ? d.shopPending(pendingBoostHint) : d.shopNoPending;
+}
+
+function _showShopFeedback(msg, color) {
+  const fb = $('shop-feedback');
+  if (!fb) return;
+  fb.textContent = msg;
+  fb.style.color = color;
+  clearTimeout(fb._t);
+  fb._t = setTimeout(() => { fb.textContent = ''; }, 3000);
+}
+
+$('libs-counter').addEventListener('click', openShop);
+$('btn-shop-close').addEventListener('click', () => $('overlay-shop').classList.add('hidden'));
+$('overlay-shop').addEventListener('click', e => { if (e.target === $('overlay-shop')) $('overlay-shop').classList.add('hidden'); });
+
+// Affichage initial du compteur
+(function() {
+  const name = localStorage.getItem('playerName') || '';
+  const counter = $('libs-counter');
+  if (counter) counter.classList.toggle('hidden', !name || name === 'Anonyme');
+  const balEl = $('libs-balance');
+  if (balEl) balEl.textContent = libsBalance;
+})();
+
+// ── Libs : boost indice quiz ──────────────────────────────────────────────────
+function _updateBoostHintBtn() {
+  const btn = $('btn-boost-hint');
+  if (!btn) return;
+  const d = t();
+  btn.textContent = d.boostHintBtn;
+  if (boostHintActive) {
+    btn.classList.remove('hidden');
+    btn.disabled = boostHintUsedThisQ;
+  } else {
+    btn.classList.add('hidden');
+  }
+}
+
+$('btn-boost-hint').addEventListener('click', () => {
+  if (!boostHintActive || boostHintUsedThisQ) return;
+  boostHintUsedThisQ = true;
+  _updateBoostHintBtn();
+  if (triviaIsSolo) {
+    const q = triviaQuestions[triviaCurrentQ];
+    if (!q) return;
+    const choices = $('tg-choices').querySelectorAll('.tg-choice:not([disabled])');
+    const wrongs  = [...choices].filter(b => b.dataset.choice !== q.correct && !b.classList.contains('dimmed'));
+    if (wrongs.length) {
+      const target = wrongs[Math.floor(Math.random() * wrongs.length)];
+      target.classList.add('dimmed'); target.disabled = true;
+    }
+  } else {
+    socket.emit('use-boost-hint');
+  }
+});
 
 // ── Particules ─────────────────────────────────────────────────────────────────
 function spawnParticles(x, y) {
@@ -2201,6 +2449,9 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     localStorage.setItem('playerName', val);
     const n = $('input-name');        if (n)  n.value  = val;
     const tn = $('input-trivia-name'); if (tn) tn.value = val;
+    const counter = $('libs-counter');
+    if (counter) counter.classList.toggle('hidden', !val || val === 'Anonyme');
+    socket.emit('get-libs', { playerId: getPlayerId() });
     document.getElementById('snake-name-form').classList.add('hidden');
     launchSnakeGame();
   });
@@ -2443,6 +2694,8 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     localStorage.setItem('playerName', v.trim());
     const n = $('input-name');       if (n) n.value = v;
     const tn = $('input-trivia-name'); if (tn) tn.value = v;
+    const counter = $('libs-counter');
+    if (counter) counter.classList.toggle('hidden', !v.trim() || v.trim() === 'Anonyme');
   });
 
   message.addEventListener('input', () => {
@@ -2528,6 +2781,12 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
       screen: 'landing',
       text: '⚙️ Des boutons permanents sont disponibles :<br>▶ <strong>En haut à droite</strong> : ☀️/🌙 <strong>Thème</strong> : bascule entre le mode jour et nuit<br>▶ <strong>En bas à droite</strong> : 🌐 <strong>Langue</strong> (FR/EN) · 🐍 <strong>Serpent</strong> (évolue avec ton score global) · ❓ <strong>Aide</strong>',
       target: null,
+    },
+    {
+      id: 'landing_libs',
+      screen: 'landing',
+      text: '⚡ <strong>Libs</strong> : une monnaie virtuelle gagnée par les meilleurs joueurs. Les top 3 du classement Global reçoivent automatiquement des Libs toutes les 5h (1er : +5 ⚡, 2e : +3 ⚡, 3e : +2 ⚡). Dépense-les dans la <strong>boutique</strong> pour obtenir des boosts quiz !',
+      target: '#libs-counter',
     },
 
     // ── Évents ──

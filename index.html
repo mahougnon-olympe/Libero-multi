@@ -271,6 +271,7 @@
       <div class="tg-header">
         <button id="btn-quit-trivia" class="btn-quit">🚪 Quitter</button>
         <button id="btn-trivia-pause" class="snake-pause-btn hidden" title="Pause">⏸</button>
+      <button id="btn-boost-hint" class="boost-hint-btn hidden" title="Indice : éliminer une mauvaise réponse">💡</button>
         <span id="tg-q-num" class="tg-q-num"></span>
         <span id="tg-theme-label" class="tg-theme-lbl"></span>
         <div id="tg-timer" class="tg-timer">20</div>
@@ -386,6 +387,13 @@
   <!-- ── Bouton thème (flottant) ── -->
   <button id="btn-theme-toggle" class="btn-theme-float" title="Basculer le thème">☀️</button>
 
+  <!-- ── Compteur Libs (permanent, haut droite) ── -->
+  <button id="libs-counter" class="libs-counter hidden" title="Ouvrir la boutique">
+    <span class="libs-icon">⚡</span>
+    <span id="libs-balance">0</span>
+    <span class="libs-label">Libs</span>
+  </button>
+
   <!-- ── Modal : Pour la communauté ── -->
   <div id="overlay-community" class="overlay hidden">
     <div class="community-modal">
@@ -417,6 +425,22 @@
 
   <!-- ── Bouton commentaire (flottant) ── -->
   <button id="btn-comment" class="btn-comment-float" title="Laisser un commentaire">✉️</button>
+
+  <!-- ── Modal : Boutique Libs ── -->
+  <div id="overlay-shop" class="overlay hidden">
+    <div class="shop-modal">
+      <div class="shop-modal-header">
+        <h2 class="shop-modal-title" id="shop-modal-title">⚡ Boutique</h2>
+        <button id="btn-shop-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="shop-balance-row">
+        <span id="shop-balance-label">Ton solde :</span>
+        <span id="shop-balance-display" class="shop-balance-amount">⚡ 0 Libs</span>
+      </div>
+      <div id="shop-items-list" class="shop-items-list"></div>
+      <p id="shop-feedback" class="shop-feedback"></p>
+    </div>
+  </div>
 
   <!-- ── Modal : Commentaire ── -->
   <div id="overlay-comment" class="overlay hidden">
@@ -547,6 +571,14 @@
           <div class="help-item">
             <span class="help-icon">✉️</span>
             <div><strong>Laisser un commentaire</strong><p>Clique sur le bouton <strong>✉️</strong> en bas à gauche pour envoyer un message au créateur : avis, idée, bug… Aucune connexion requise. Tu peux laisser un pseudo ou rester anonyme.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">⚡</span>
+            <div><strong id="help-libs-title">Libs (monnaie)</strong><p id="help-libs-desc">Les Libs ⚡ sont une monnaie virtuelle. Les joueurs classés <strong>top 3 du classement Global</strong> en gagnent automatiquement toutes les 5 heures (1er : +5 ⚡, 2e : +3 ⚡, 3e : +2 ⚡). Si tu ne joues pas pendant 48 h, ton solde diminue de 10 ⚡ par jour supplémentaire. Clique sur le compteur ⚡ en haut à droite pour ouvrir la boutique. Les joueurs anonymes ne perçoivent pas de Libs.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">💡</span>
+            <div><strong id="help-boost-title">Boost Indice (quiz)</strong><p id="help-boost-desc">Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s'utilise une fois par question.</p></div>
           </div>
           <div class="help-item">
             <span class="help-icon">🎓</span>

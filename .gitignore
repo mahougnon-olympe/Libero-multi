@@ -7,3 +7,5 @@ backend/.env
 
 # Données runtime (générées par le serveur)
 backend/data.json
+OVERVIEW.md
+Reference.md

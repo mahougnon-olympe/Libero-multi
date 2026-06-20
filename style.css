@@ -1486,3 +1486,93 @@ html.light #screen-landing         { background: radial-gradient(ellipse at 50% 
   z-index: 1;
 }
 #news-card.tuto-highlight { position: fixed; }
+
+/* ── Libs counter ── */
+.libs-counter {
+  position: fixed;
+  top: 16px; right: 68px;
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 22px; border: none;
+  background: var(--board); color: #fff;
+  font-size: .82rem; font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(99,102,241,.5);
+  z-index: 51;
+  display: flex; align-items: center; gap: 5px;
+  transition: transform .15s, box-shadow .15s;
+  user-select: none;
+}
+.libs-counter.hidden { display: none !important; }
+.libs-counter:hover  { box-shadow: 0 0 28px rgba(99,102,241,.8); }
+.libs-counter:active { transform: scale(.92); }
+.libs-icon  { font-size: .95rem; }
+.libs-label { font-size: .7rem; opacity: .75; }
+
+/* ── Libs pill animation ── */
+.libs-pill {
+  position: fixed;
+  font-size: .85rem; font-weight: 800;
+  pointer-events: none;
+  z-index: 9999;
+  white-space: nowrap;
+  transform: translate(-50%, 0);
+  animation: libs-pill-up .9s ease-out forwards;
+}
+@keyframes libs-pill-up {
+  0%   { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -44px) scale(.8); }
+}
+
+/* ── Shop modal ── */
+.shop-modal {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 20px 20px 24px;
+  width: min(92vw, 380px);
+  display: flex; flex-direction: column; gap: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.45);
+  max-height: 85vh; overflow-y: auto;
+}
+.shop-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.shop-modal-title { font-size: 1.1rem; font-weight: 800; color: var(--accent); }
+.shop-balance-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(99,102,241,.08); border-radius: 10px; padding: 10px 14px;
+  font-size: .88rem; color: var(--muted);
+}
+.shop-balance-amount { font-weight: 800; color: #fbbf24; font-size: .95rem; }
+.shop-items-list { display: flex; flex-direction: column; gap: 12px; }
+.shop-item {
+  background: rgba(99,102,241,.07);
+  border: 1px solid rgba(99,102,241,.2);
+  border-radius: 12px; padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.shop-item-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.shop-item-name   { font-weight: 700; font-size: .9rem; color: var(--text); }
+.shop-item-price  { font-weight: 800; color: #fbbf24; font-size: .88rem; white-space: nowrap; }
+.shop-item-desc   { font-size: .78rem; color: var(--muted); line-height: 1.4; }
+.shop-item-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.shop-pending     { font-size: .78rem; color: var(--accent); }
+.shop-feedback    { font-size: .82rem; text-align: center; min-height: 1.2em; }
+
+/* ── Boost hint button in quiz ── */
+.boost-hint-btn {
+  background: rgba(251,191,36,.15);
+  border: 1.5px solid #fbbf24;
+  border-radius: 8px;
+  color: #fbbf24;
+  font-size: .82rem; font-weight: 700;
+  padding: 5px 11px;
+  cursor: pointer;
+  transition: background .15s, transform .12s;
+  white-space: nowrap;
+}
+.boost-hint-btn:hover:not(:disabled) { background: rgba(251,191,36,.28); }
+.boost-hint-btn:active:not(:disabled) { transform: scale(.93); }
+.boost-hint-btn:disabled { opacity: .38; cursor: default; }
+html.light .shop-item { background: rgba(99,102,241,.04); }
+html.light .shop-balance-row { background: rgba(99,102,241,.06); }

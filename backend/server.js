@@ -27,6 +27,8 @@ const triviaRooms     = new Map();
 const triviaLeaderboard = new Map();
 const snakeLeaderboard  = new Map();
 const comments        = [];
+const libs            = new Map();
+const socketPlayerIds = new Map();
 
 // ── Persistance MongoDB ────────────────────────────────────────────────────
 let mongoClient = null;
@@ -51,17 +53,19 @@ async function connectDB() {
 
 async function loadData() {
   if (!db) return;
-  const [lbDocs, tlbDocs, cmtDocs, slbDocs] = await Promise.all([
+  const [lbDocs, tlbDocs, cmtDocs, slbDocs, libsDocs] = await Promise.all([
     db.collection('leaderboard').find().toArray(),
     db.collection('trivia_leaderboard').find().toArray(),
     db.collection('comments').find().sort({ date: 1 }).toArray(),
     db.collection('snake_leaderboard').find().toArray(),
+    db.collection('libs').find().toArray(),
   ]);
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
   cmtDocs.forEach(d => comments.push({ pseudo: d.pseudo, message: d.message, date: d.date }));
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${cmtDocs.length} commentaires.`);
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0 }));
+  console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${cmtDocs.length} commentaires, ${libsDocs.length} libs.`);
 }
 
 function dbUpsertLeaderboard(id, entry) {
@@ -94,6 +98,76 @@ function dbInsertComment(comment) {
   db.collection('comments')
     .insertOne(comment)
     .catch(e => console.error('Erreur sauvegarde commentaire:', e));
+}
+
+function dbUpsertLibs(id, entry) {
+  if (!db) return;
+  db.collection('libs')
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint } }, { upsert: true })
+    .catch(e => console.error('Erreur sauvegarde libs:', e));
+}
+
+// ── Libs : constantes ──────────────────────────────────────────────────────
+const DECAY_GRACE_MS  = 48 * 3_600_000;
+const DECAY_PERIOD_MS = 24 * 3_600_000;
+const DECAY_AMOUNT    = 10;
+const LIBS_REWARDS    = [5, 3, 2];
+const SHOP_ITEMS      = [{ id: 'boost_hint', price: 3 }];
+
+function applyDecay(entry) {
+  if (!entry.lastActive) return entry;
+  const elapsed = Date.now() - entry.lastActive;
+  if (elapsed <= DECAY_GRACE_MS) return entry;
+  const periods = Math.floor((elapsed - DECAY_GRACE_MS) / DECAY_PERIOD_MS);
+  if (periods <= 0) return entry;
+  entry.balance    = Math.max(0, entry.balance - periods * DECAY_AMOUNT);
+  entry.lastActive = entry.lastActive + periods * DECAY_PERIOD_MS;
+  return entry;
+}
+
+function getLibsEntry(id) {
+  if (!id) return null;
+  let entry = libs.get(id);
+  if (!entry) {
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0 };
+    libs.set(id, entry);
+  }
+  const prevBal = entry.balance;
+  applyDecay(entry);
+  if (entry.balance !== prevBal) dbUpsertLibs(id, entry);
+  return entry;
+}
+
+function updateLastActive(id, name) {
+  if (!id) return;
+  const entry = getLibsEntry(id);
+  entry.lastActive = Date.now();
+  if (name && name !== 'Anonyme') entry.name = name;
+  libs.set(id, entry);
+  dbUpsertLibs(id, entry);
+}
+
+function distributeLibs() {
+  const top3 = getGlobalLeaderboardData().slice(0, 3);
+  top3.forEach((rankEntry, i) => {
+    if (!rankEntry.name || rankEntry.name === 'Anonyme') return;
+    const reward = LIBS_REWARDS[i];
+    const matchingIds = new Set();
+    for (const [id, e] of leaderboard.entries())       { if (e.name === rankEntry.name) matchingIds.add(id); }
+    for (const [id, e] of triviaLeaderboard.entries()) { if (e.name === rankEntry.name) matchingIds.add(id); }
+    for (const [id, e] of snakeLeaderboard.entries())  { if (e.name === rankEntry.name) matchingIds.add(id); }
+    for (const id of matchingIds) {
+      const entry = getLibsEntry(id);
+      entry.name    = rankEntry.name;
+      entry.balance = entry.balance + reward;
+      libs.set(id, entry);
+      dbUpsertLibs(id, entry);
+      for (const [sockId, pid] of socketPlayerIds.entries()) {
+        if (pid === id) io.to(sockId).emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: reward });
+      }
+    }
+    if (matchingIds.size > 0) console.log(`[⚡] +${reward} Libs → ${rankEntry.name} (rang ${i + 1})`);
+  });
 }
 
 const CODE_CHARS   = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -311,6 +385,7 @@ function finishTriviaGame(code) {
 
   for (const s of scores) {
     updateTriviaLeaderboard(s.playerId || s.name, s.name, s.score);
+    updateLastActive(s.playerId, s.name);
   }
   io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
   io.emit('global-leaderboard-update', getGlobalLeaderboardData());
@@ -378,6 +453,7 @@ function scheduleBotMove(code) {
         } else {
           updateLeaderboard(humanId, humanName, 'draw');
         }
+        updateLastActive(humanId, humanName);
         io.emit('leaderboard-update', getLeaderboardData());
         io.emit('global-leaderboard-update', getGlobalLeaderboardData());
       }
@@ -544,9 +620,13 @@ io.on('connection', (socket) => {
           const loserRole = winner === 'R' ? 'Y' : 'R';
           updateLeaderboard(room.playerIds?.[winner]    || room.playerNames[winner],   room.playerNames[winner],   'win');
           updateLeaderboard(room.playerIds?.[loserRole] || room.playerNames[loserRole], room.playerNames[loserRole], 'loss');
+          updateLastActive(room.playerIds?.[winner],    room.playerNames[winner]);
+          updateLastActive(room.playerIds?.[loserRole], room.playerNames[loserRole]);
         } else {
           updateLeaderboard(room.playerIds?.R || room.playerNames.R, room.playerNames.R, 'draw');
           updateLeaderboard(room.playerIds?.Y || room.playerNames.Y, room.playerNames.Y, 'draw');
+          updateLastActive(room.playerIds?.R, room.playerNames.R);
+          updateLastActive(room.playerIds?.Y, room.playerNames.Y);
         }
         io.emit('leaderboard-update', getLeaderboardData());
         io.emit('global-leaderboard-update', getGlobalLeaderboardData());
@@ -560,6 +640,7 @@ io.on('connection', (socket) => {
           } else {
             updateLeaderboard(humanId, humanName, 'draw');
           }
+          updateLastActive(humanId, humanName);
           io.emit('leaderboard-update', getLeaderboardData());
           io.emit('global-leaderboard-update', getGlobalLeaderboardData());
         }
@@ -648,6 +729,7 @@ io.on('connection', (socket) => {
     if (!playerName || typeof hs !== 'number') return;
     const id = safePlayerId(playerId) || playerName;
     const result = updateSnakeLeaderboard(id, playerName, Math.max(0, Math.floor(hs)));
+    updateLastActive(id, playerName);
     if (result === 'improved') {
       io.emit('snake-leaderboard-update', getSnakeLeaderboardData());
       io.emit('global-leaderboard-update', getGlobalLeaderboardData());
@@ -787,6 +869,7 @@ io.on('connection', (socket) => {
     const playerName = String(name || '').trim().slice(0, 20) || 'Anonyme';
     const id = safePlayerId(playerId) || playerName;
     updateTriviaLeaderboard(id, playerName, score);
+    updateLastActive(id, playerName);
     io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
     io.emit('global-leaderboard-update', getGlobalLeaderboardData());
   });
@@ -800,8 +883,62 @@ io.on('connection', (socket) => {
     io.to(roomCode).emit('new-message', { player: myPlayer, text: clean, timestamp: Date.now() });
   });
 
+  // ── Libs ─────────────────────────────────────────────────────────────────────
+  socket.on('get-libs', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) { socket.emit('libs-update', { balance: 0, pendingBoostHint: 0 }); return; }
+    socketPlayerIds.set(socket.id, id);
+    const entry = getLibsEntry(id);
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint });
+  });
+
+  socket.on('get-shop', () => {
+    socket.emit('shop-items', SHOP_ITEMS);
+  });
+
+  socket.on('buy-boost', ({ itemId, playerId } = {}) => {
+    const id   = safePlayerId(playerId);
+    const item = SHOP_ITEMS.find(s => s.id === itemId);
+    if (!id || !item) { socket.emit('buy-boost-result', { ok: false, error: 'invalid' }); return; }
+    const entry = getLibsEntry(id);
+    if (entry.balance < item.price) {
+      socket.emit('buy-boost-result', { ok: false, error: 'insufficient', balance: entry.balance });
+      return;
+    }
+    entry.balance -= item.price;
+    if (itemId === 'boost_hint') entry.pendingBoostHint = (entry.pendingBoostHint || 0) + 1;
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    socket.emit('buy-boost-result', { ok: true, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, itemId });
+  });
+
+  socket.on('activate-quiz-boost', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) { socket.emit('quiz-boost-status', { active: false }); return; }
+    const entry = getLibsEntry(id);
+    if (!entry.pendingBoostHint || entry.pendingBoostHint <= 0) {
+      socket.emit('quiz-boost-status', { active: false });
+      return;
+    }
+    entry.pendingBoostHint--;
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    socket.emit('quiz-boost-status', { active: true, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint });
+  });
+
+  socket.on('use-boost-hint', () => {
+    const room = triviaRooms.get(triviaRoomCode);
+    if (!room || room.status !== 'question') { socket.emit('boost-hint-result', { eliminateChoice: null }); return; }
+    const q = room.questions[room.currentQ];
+    if (!q) { socket.emit('boost-hint-result', { eliminateChoice: null }); return; }
+    const wrongs    = q.choices.filter(c => c !== q.correct);
+    const eliminate = wrongs[Math.floor(Math.random() * wrongs.length)] ?? null;
+    socket.emit('boost-hint-result', { eliminateChoice: eliminate });
+  });
+
   // ── Déconnexion ──────────────────────────────────────────────────────────
   socket.on('disconnect', () => {
+    socketPlayerIds.delete(socket.id);
     // Jeu classique
     if (roomCode) {
       const room = rooms.get(roomCode);
@@ -973,23 +1110,28 @@ app.get('/admin/reset', async (req, res) => {
   leaderboard.clear();
   triviaLeaderboard.clear();
   snakeLeaderboard.clear();
+  libs.clear();
   if (db) {
     await Promise.all([
       db.collection('leaderboard').deleteMany({}),
       db.collection('trivia_leaderboard').deleteMany({}),
       db.collection('snake_leaderboard').deleteMany({}),
+      db.collection('libs').deleteMany({}),
     ]);
   }
   io.emit('leaderboard-update', []);
   io.emit('trivia-leaderboard-update', []);
   io.emit('snake-leaderboard-update', []);
   io.emit('global-leaderboard-update', []);
+  io.emit('libs-update', { balance: 0, pendingBoostHint: 0 });
   res.json({ ok: true, message: 'Classements réinitialisés.' });
 });
 
 (async () => {
   await connectDB();
   await loadData();
+  distributeLibs();
+  setInterval(distributeLibs, 5 * 3_600_000);
   const PORT = process.env.PORT || 3001;
   server.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));
 })();
