@@ -1777,7 +1777,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
 
   function updateSpeed() {
     clearInterval(gameLoop);
-    const interval = Math.max(65, 180 - score * 8);
+    const interval = Math.max(75, 180 - Math.floor(score / 5) * 15);
     gameLoop = setInterval(tick, interval);
   }
 
