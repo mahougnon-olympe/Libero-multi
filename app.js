@@ -13,6 +13,9 @@ let libsBalance        = parseInt(localStorage.getItem('libero_libs') || '0', 10
 let boostHintActive    = false;
 let boostHintUsedThisQ = false;
 let _libsAnimTimer     = null;
+let _libsDistTimer     = null;
+let _nextDistAt        = 0;
+let _globalLbData      = [];
 
 let myPlayer        = null;   // 'R' | 'Y'
 let gameActive      = false;
@@ -97,8 +100,8 @@ const DICT = {
     shopBoostHintName:'💡 Indice Quiz',
     shopBoostHintDesc:'Élimine une mauvaise réponse par question pendant tout un quiz complet.',
     shopBtnBuy:'Acheter', shopBuyFor:'— 3 ⚡',
-    shopPending:n => `${n} dispo`, shopNoPending:'Non disponible',
-    shopInsufficient:'Solde insuffisant.', shopBuyError:'Erreur lors de l\'achat.',
+    shopPending:n => `${n} dispo`,
+    shopInsufficient:'Champion, tu n\'as pas assez de Libs.', shopBuyError:'Erreur lors de l\'achat.',
     shopBuyOk:'Boost acheté !',
     boostHintBtn:'💡 Indice',
     helpLibsTitle:'Libs (monnaie)',
@@ -120,6 +123,7 @@ const DICT = {
     btnSnakeConfirm:"C'est parti !", btnSnakeCancel:'Annuler',
     snakeLbTitle:'Classement Snake', snakeLbEmpty:'Aucun score enregistré.',
     snakeScoreLabel:'Score', snakeBestLabel:'Meilleur',
+    snakeHsDisplay:n => `🏆 Ton record : ${n} pomme${n > 1 ? 's' : ''}`,
     snakeGameOver:'Game Over', snakeNewRecord:'🏆 Nouveau record !',
     btnSnakeRestart:'Rejouer', btnSnakeQuit:'Quitter',
     snakePause:'⏸ Pause', btnSnakeResume:'▶ Reprendre',
@@ -271,8 +275,8 @@ const DICT = {
     shopBoostHintName:'💡 Quiz Hint',
     shopBoostHintDesc:'Eliminates a wrong answer per question for a whole quiz.',
     shopBtnBuy:'Buy', shopBuyFor:'— 3 ⚡',
-    shopPending:n => `${n} available`, shopNoPending:'Not available',
-    shopInsufficient:'Insufficient balance.', shopBuyError:'Purchase failed.',
+    shopPending:n => `${n} available`,
+    shopInsufficient:'Champion, you don\'t have enough Libs.', shopBuyError:'Purchase failed.',
     shopBuyOk:'Boost purchased!',
     boostHintBtn:'💡 Hint',
     helpLibsTitle:'Libs (currency)',
@@ -294,6 +298,7 @@ const DICT = {
     btnSnakeConfirm:"Let's go!", btnSnakeCancel:'Cancel',
     snakeLbTitle:'Snake Leaderboard', snakeLbEmpty:'No scores recorded yet.',
     snakeScoreLabel:'Score', snakeBestLabel:'Best',
+    snakeHsDisplay:n => `🏆 Your record: ${n} apple${n > 1 ? 's' : ''}`,
     snakeGameOver:'Game Over', snakeNewRecord:'🏆 New record!',
     btnSnakeRestart:'Play again', btnSnakeQuit:'Quit',
     snakePause:'⏸ Pause', btnSnakeResume:'▶ Resume',
@@ -406,6 +411,7 @@ function applyLang() {
   const bl = $('btn-lang');
   if (bl) bl.textContent = currentLang === 'fr' ? '🇫🇷 FR' : '🇬🇧 EN';
   const btm = $('btn-theme-toggle'); if (btm) btm.title = d.themeToggle;
+  const ll = $('landing-logo'); if (ll) ll.src = currentLang === 'en' ? 'logo-full-en.svg' : 'logo-full.svg';
 
   // Landing
   const ls = $('landing-subtitle'); if (ls) ls.textContent = d.siteSubtitle;
@@ -2010,6 +2016,7 @@ socket.on('leaderboard-update', (data) => {
 });
 
 socket.on('global-leaderboard-update', (data) => {
+  _globalLbData = data;
   renderGlobalLeaderboard(data);
   const name = localStorage.getItem('playerName') || '';
   const idx  = name ? data.findIndex(e => e.name === name) : -1;
@@ -2020,12 +2027,13 @@ socket.on('global-leaderboard-update', (data) => {
     const len      = 4 + Math.min(14, Math.floor(rawSum / 5));
     cursorSnake.update(len, rank);
   }
+  _updateLibsCountdown();
 });
 
 socket.on('snake-leaderboard-update', (data) => { renderSnakeLeaderboard(data); });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ balance, pendingBoostHint, delta } = {}) => {
+socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt } = {}) => {
   const prev = libsBalance;
   libsBalance = balance ?? 0;
   localStorage.setItem('libero_libs', String(libsBalance));
@@ -2033,6 +2041,7 @@ socket.on('libs-update', ({ balance, pendingBoostHint, delta } = {}) => {
   const shopBal = $('shop-balance-display');
   if (shopBal) shopBal.textContent = `⚡ ${libsBalance} Libs`;
   _updateShopPending(pendingBoostHint);
+  if (nextAt) { _nextDistAt = nextAt; _updateLibsCountdown(); }
 });
 
 socket.on('buy-boost-result', ({ ok, balance, pendingBoostHint, error } = {}) => {
@@ -2086,6 +2095,27 @@ $('btn-lang').addEventListener('click', () => {
 applyLang();
 
 // ── Libs : fonctions UI ───────────────────────────────────────────────────────
+function _isPlayerInTop3() {
+  const name = localStorage.getItem('playerName') || '';
+  if (!name || name === 'Anonyme' || !_globalLbData.length) return false;
+  return _globalLbData.slice(0, 3).some(e => e.name === name);
+}
+
+function _updateLibsCountdown() {
+  clearInterval(_libsDistTimer);
+  const span = $('libs-dist-countdown');
+  if (!span) return;
+  if (!_nextDistAt || !_isPlayerInTop3()) { span.textContent = ''; return; }
+  function tick() {
+    const left = _nextDistAt - Date.now();
+    if (left <= 0) { clearInterval(_libsDistTimer); span.textContent = ''; return; }
+    const mins = Math.ceil(left / 60_000);
+    span.textContent = `· ⏱${mins}min`;
+  }
+  tick();
+  _libsDistTimer = setInterval(tick, 60_000);
+}
+
 function _refreshLibsUI(prev, next, delta) {
   // Afficher/masquer le compteur selon si le joueur a un pseudo
   const name = localStorage.getItem('playerName') || '';
@@ -2180,7 +2210,7 @@ function _updateShopPending(pendingBoostHint) {
   const el = $('shop-pending-boost-hint');
   if (!el || pendingBoostHint === undefined) return;
   const d = t();
-  el.textContent = pendingBoostHint > 0 ? d.shopPending(pendingBoostHint) : d.shopNoPending;
+  el.textContent = pendingBoostHint > 0 ? d.shopPending(pendingBoostHint) : '';
 }
 
 function _showShopFeedback(msg, color) {
@@ -2483,7 +2513,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     const el = document.getElementById('event-hs-display');
     if (!el) return;
     const h = getHs();
-    el.textContent = h > 0 ? `🏆 Ton record : ${h} pomme${h > 1 ? 's' : ''}` : '';
+    el.textContent = h > 0 ? t().snakeHsDisplay(h) : '';
   }
 
   function rndFood() {

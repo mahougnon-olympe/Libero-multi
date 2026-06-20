@@ -1508,6 +1508,7 @@ html.light #screen-landing         { background: radial-gradient(ellipse at 50% 
 .libs-counter:active { transform: scale(.92); }
 .libs-icon  { font-size: .95rem; }
 .libs-label { font-size: .7rem; opacity: .75; }
+.libs-dist-countdown { font-size: .62rem; opacity: .8; margin-left: 2px; }
 
 /* ── Libs pill animation ── */
 .libs-pill {

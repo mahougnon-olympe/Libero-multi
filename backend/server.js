@@ -147,7 +147,10 @@ function updateLastActive(id, name) {
   dbUpsertLibs(id, entry);
 }
 
+let nextDistributionAt = 0;
+
 function distributeLibs() {
+  nextDistributionAt = Date.now() + 5 * 3_600_000;
   const top3 = getGlobalLeaderboardData().slice(0, 3);
   top3.forEach((rankEntry, i) => {
     if (!rankEntry.name || rankEntry.name === 'Anonyme') return;
@@ -163,7 +166,7 @@ function distributeLibs() {
       libs.set(id, entry);
       dbUpsertLibs(id, entry);
       for (const [sockId, pid] of socketPlayerIds.entries()) {
-        if (pid === id) io.to(sockId).emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: reward });
+        if (pid === id) io.to(sockId).emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: reward, nextAt: nextDistributionAt });
       }
     }
     if (matchingIds.size > 0) console.log(`[⚡] +${reward} Libs → ${rankEntry.name} (rang ${i + 1})`);
@@ -889,7 +892,7 @@ io.on('connection', (socket) => {
     if (!id) { socket.emit('libs-update', { balance: 0, pendingBoostHint: 0 }); return; }
     socketPlayerIds.set(socket.id, id);
     const entry = getLibsEntry(id);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, nextAt: nextDistributionAt });
   });
 
   socket.on('get-shop', () => {
