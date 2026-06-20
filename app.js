@@ -1992,6 +1992,9 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   });
 
   function launchSnakeGame() {
+    const _hs = getHs(), _name = localStorage.getItem('playerName');
+    if (_hs > 0 && _name) socket.emit('submit-snake-score', { name: _name, hs: _hs });
+
     document.getElementById('event-intro').classList.add('hidden');
     document.getElementById('snake-lb-card').classList.add('hidden');
     const gameWrap = document.getElementById('snake-game-wrap');
