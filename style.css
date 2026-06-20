@@ -63,7 +63,7 @@ html.restoring #screen-landing { display: none !important; }
 /* ── Logo ── */
 .logo { text-align: center; }
 .logo-full {
-  height: 80px; width: auto; max-width: 360px;
+  height: 110px; width: auto; max-width: 400px;
   display: block; margin: 0 auto;
 }
 h1 {
@@ -718,7 +718,7 @@ h1 {
   .landing-icon  { font-size: 2rem; }
   .landing-card h2 { font-size: .92rem; }
   .global-lb-card { padding: 8px 12px 4px; }
-  .logo-full { height: 62px; max-width: 280px; }
+  .logo-full { height: 82px; max-width: 300px; }
   .news-card {
     pointer-events: auto;
     cursor: pointer;

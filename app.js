@@ -949,7 +949,7 @@ function _paintGlobalLb() {
   if (!list) return;
   const medals  = ['🥇', '🥈', '🥉'];
   const classes = ['gold', 'silver', 'bronze'];
-  const visible = _glbExpanded ? _glbData : _glbData.slice(0, 3);
+  const visible = _glbExpanded ? _glbData : _glbData.slice(0, 2);
   const rows = visible.map((entry, i) => `
     <div class="global-lb-row">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
@@ -957,7 +957,7 @@ function _paintGlobalLb() {
       <span class="global-lb-score">${entry.globalScore} ${t().globalLbPts}</span>
     </div>
   `).join('');
-  const moreBtn = _glbData.length > 3
+  const moreBtn = _glbData.length > 2
     ? `<button class="lb-more-btn" id="btn-lb-more">${_glbExpanded ? t().globalLbLess : t().globalLbMore}</button>`
     : '';
   list.innerHTML = rows + moreBtn;
