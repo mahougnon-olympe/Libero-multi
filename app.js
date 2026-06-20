@@ -1031,7 +1031,6 @@ function goToTriviaHome() {
   $('trivia-pause-overlay').classList.add('hidden');
   triviaQuestions = []; triviaCurrentQ = 0; triviaScore = 0;
   selectedTriviaCategories = [];
-  document.querySelectorAll('#trivia-themes .theme-btn').forEach(b => b.classList.remove('active'));
   selectedTriviaDifficulty = '';
   document.querySelectorAll('#trivia-diff-row .diff-btn').forEach(b => b.classList.remove('active'));
   const mixBtn = document.querySelector('#trivia-diff-row .diff-btn[data-diff=""]');
@@ -1040,6 +1039,7 @@ function goToTriviaHome() {
   $('tg-reveal').classList.add('hidden');
   $('tg-finished').classList.add('hidden');
   clearTriviaError();
+  buildTriviaThemes();
   showScreen('trivia-home');
 }
 
@@ -1457,7 +1457,7 @@ socket.on('trivia-solo-error', () => {
 });
 
 socket.on('trivia-leaderboard-update', (data) => { renderTriviaLeaderboard(data); });
-socket.on('trivia-error', ({ message }) => { showTriviaError(message); showScreen('trivia-home'); });
+socket.on('trivia-error', ({ message }) => { showTriviaError(message); buildTriviaThemes(); showScreen('trivia-home'); });
 
 // ── Reconnexion automatique après reload + chargement du classement ───────────
 socket.on('connect', () => {
