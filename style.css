@@ -874,6 +874,12 @@ h1 {
 }
 .snake-over-overlay.hidden { display: none; }
 .snake-over-text { font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0; }
+.snake-new-hs {
+  font-size: 1.15rem; font-weight: 800; color: gold; margin: 0;
+  animation: hs-pulse .55s ease-in-out infinite alternate;
+}
+.snake-new-hs.hidden { display: none; }
+@keyframes hs-pulse { from { transform: scale(1); opacity: .9; } to { transform: scale(1.1); opacity: 1; } }
 #snake-over-score { font-size: .85rem; color: var(--muted); margin: 0; }
 .snake-hint { font-size: .72rem; color: var(--muted); opacity: .65; margin: 0; }
 

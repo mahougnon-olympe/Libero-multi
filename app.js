@@ -1727,7 +1727,7 @@ const cursorSnake = (() => {
   return {
     update(len, rank) {
       pendingLen = len; pendingRank = rank;
-      if (!enabled) return;
+      if (!enabled || _hidden) return;
       const h = hueFor(rank);
       const n = Math.min(MAX, Math.max(MIN, len + _eventBonus));
       if (n !== segs.length || h !== curHue) build(n, h);
@@ -1848,9 +1848,11 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   function tick() {
     if (!running) return;
     dir = { ...nextDir };
-    const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
-    if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS ||
-        snake.some(s => s.x === head.x && s.y === head.y)) {
+    const head = {
+      x: ((snake[0].x + dir.x) % COLS + COLS) % COLS,
+      y: ((snake[0].y + dir.y) % ROWS + ROWS) % ROWS,
+    };
+    if (snake.some(s => s.x === head.x && s.y === head.y)) {
       endGame(); return;
     }
     snake.unshift(head);
@@ -1910,9 +1912,12 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   function endGame() {
     running = false;
     clearInterval(gameLoop);
+    const isNewHs = score > getHs();
     saveHs(score);
+    const newHsEl = document.getElementById('snake-new-hs');
+    if (newHsEl) newHsEl.classList.toggle('hidden', !isNewHs);
     document.getElementById('snake-over-score').textContent =
-      `Score : ${score} · Meilleur : ${Math.max(score, getHs())}`;
+      `Score : ${score} · Meilleur : ${getHs()}`;
     document.getElementById('snake-over-overlay').classList.remove('hidden');
   }
 
@@ -2199,7 +2204,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     {
       id: 'events_snake',
       screen: 'events',
-      text: '🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em> — ton serpent se détache du curseur et entre dans l\'arène. Chaque 🍎 mangée le fait grandir sur tout le site, et sa taille est <strong>sauvegardée</strong> même après rechargement.',
+      text: '🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em> — ton serpent entre dans l\'arène. Mange les 🍎 pour grandir (les bords sont traversables, tu ressors de l\'autre côté !). Ton meilleur score <strong>persiste</strong> entre les sessions.',
       target: '.event-intro',
     },
 
