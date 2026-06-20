@@ -2241,13 +2241,13 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     {
       id: 'landing_news',
       screen: 'landing',
-      text: '📰 Le cadre <strong>News</strong> en haut à gauche contiendra les dernières actualités du site : nouvelles fonctionnalités, annonces et commentaires de joueurs. Il est mis à jour par l\'équipe.',
+      text: '📰 Le cadre <strong>News</strong> est replié dans le coin <strong>en haut à gauche</strong>. <strong>Clique dessus</strong> pour l\'ouvrir — il affiche les dernières actualités : nouvelles fonctionnalités, annonces et commentaires de joueurs. Reclique pour le refermer.',
       target: '#news-card',
     },
     {
       id: 'landing_cats',
       screen: 'landing',
-      text: '👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose quatre sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> et une section <strong>communauté</strong> (ces deux dernières arrivent bientôt). Clique sur une carte active pour commencer.',
+      text: '👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose quatre sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> (mini-jeux du week-end) et <strong>Pour la communauté</strong> (vote pour le prochain jeu). Clique sur une carte pour commencer.',
       target: '.landing-grid',
     },
     {
