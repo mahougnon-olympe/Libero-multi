@@ -25,6 +25,7 @@ const rooms           = new Map();
 const leaderboard     = new Map();
 const triviaRooms     = new Map();
 const triviaLeaderboard = new Map();
+const snakeLeaderboard  = new Map();
 const comments        = [];
 
 // ── Persistance MongoDB ────────────────────────────────────────────────────
@@ -50,15 +51,17 @@ async function connectDB() {
 
 async function loadData() {
   if (!db) return;
-  const [lbDocs, tlbDocs, cmtDocs] = await Promise.all([
+  const [lbDocs, tlbDocs, cmtDocs, slbDocs] = await Promise.all([
     db.collection('leaderboard').find().toArray(),
     db.collection('trivia_leaderboard').find().toArray(),
     db.collection('comments').find().sort({ date: 1 }).toArray(),
+    db.collection('snake_leaderboard').find().toArray(),
   ]);
   lbDocs.forEach(d  => leaderboard.set(d._id, { wins: d.wins, losses: d.losses, draws: d.draws }));
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { points: d.points, games: d.games }));
   cmtDocs.forEach(d => comments.push({ pseudo: d.pseudo, message: d.message, date: d.date }));
-  console.log(`📦 Chargé: ${lbDocs.length} joueurs classiques, ${tlbDocs.length} joueurs quiz, ${cmtDocs.length} commentaires.`);
+  slbDocs.forEach(d => snakeLeaderboard.set(d._id, { hs: d.hs }));
+  console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${cmtDocs.length} commentaires.`);
 }
 
 function dbUpsertLeaderboard(name, entry) {
@@ -73,6 +76,13 @@ function dbUpsertTriviaLeaderboard(name, entry) {
   db.collection('trivia_leaderboard')
     .updateOne({ _id: name }, { $set: entry }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde classement quiz:', e));
+}
+
+function dbUpsertSnakeLeaderboard(name, entry) {
+  if (!db) return;
+  db.collection('snake_leaderboard')
+    .updateOne({ _id: name }, { $set: entry }, { upsert: true })
+    .catch(e => console.error('Erreur sauvegarde classement snake:', e));
 }
 
 function dbInsertComment(comment) {
@@ -154,13 +164,31 @@ function getTriviaLeaderboardData() {
     .slice(0, 10);
 }
 
+function updateSnakeLeaderboard(name, hs) {
+  if (!name) return false;
+  const existing = snakeLeaderboard.get(name) || { hs: 0 };
+  if (hs <= existing.hs) return false;
+  existing.hs = hs;
+  snakeLeaderboard.set(name, existing);
+  dbUpsertSnakeLeaderboard(name, existing);
+  return true;
+}
+
+function getSnakeLeaderboardData() {
+  return [...snakeLeaderboard.entries()]
+    .map(([name, s]) => ({ name, hs: s.hs }))
+    .sort((a, b) => b.hs - a.hs)
+    .slice(0, 10);
+}
+
 function getGlobalLeaderboardData() {
-  const names = new Set([...leaderboard.keys(), ...triviaLeaderboard.keys()]);
+  const names = new Set([...leaderboard.keys(), ...triviaLeaderboard.keys(), ...snakeLeaderboard.keys()]);
   return [...names]
     .map(name => {
       const c  = leaderboard.get(name)       || { wins: 0 };
       const tr = triviaLeaderboard.get(name) || { points: 0 };
-      return { name, globalScore: c.wins * 10 + tr.points };
+      const sk = snakeLeaderboard.get(name)  || { hs: 0 };
+      return { name, globalScore: c.wins * 10 + tr.points + sk.hs };
     })
     .filter(e => e.globalScore > 0)
     .sort((a, b) => b.globalScore - a.globalScore)
@@ -569,6 +597,19 @@ io.on('connection', (socket) => {
     socket.emit('global-leaderboard-update', getGlobalLeaderboardData());
   });
 
+  socket.on('get-snake-leaderboard', () => {
+    socket.emit('snake-leaderboard-update', getSnakeLeaderboardData());
+  });
+
+  socket.on('submit-snake-score', ({ name, hs } = {}) => {
+    if (!name || typeof hs !== 'number' || hs <= 0) return;
+    const improved = updateSnakeLeaderboard(String(name).trim().slice(0, 20), Math.floor(hs));
+    if (improved) {
+      io.emit('snake-leaderboard-update', getSnakeLeaderboardData());
+      io.emit('global-leaderboard-update', getGlobalLeaderboardData());
+    }
+  });
+
   // ── Quitter la room (retour menu) ───────────────────────────────────────
   socket.on('leave-room', () => {
     const room = rooms.get(roomCode);
@@ -880,14 +921,17 @@ app.get('/admin/reset', async (req, res) => {
   }
   leaderboard.clear();
   triviaLeaderboard.clear();
+  snakeLeaderboard.clear();
   if (db) {
     await Promise.all([
       db.collection('leaderboard').deleteMany({}),
       db.collection('trivia_leaderboard').deleteMany({}),
+      db.collection('snake_leaderboard').deleteMany({}),
     ]);
   }
   io.emit('leaderboard-update', []);
   io.emit('trivia-leaderboard-update', []);
+  io.emit('snake-leaderboard-update', []);
   io.emit('global-leaderboard-update', []);
   res.json({ ok: true, message: 'Classements réinitialisés.' });
 });

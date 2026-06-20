@@ -976,6 +976,23 @@ function renderLeaderboard(data) {
   `).join('');
 }
 
+function renderSnakeLeaderboard(data) {
+  const el = document.getElementById('snake-lb-list');
+  if (!el) return;
+  if (!data || data.length === 0) {
+    el.innerHTML = '<p class="lb-empty">Aucun score enregistré.</p>';
+    return;
+  }
+  const medals = ['🥇', '🥈', '🥉'];
+  el.innerHTML = data.map((e, i) => `
+    <div class="lb-row">
+      <span class="lb-rank">${medals[i] || i + 1}</span>
+      <span class="lb-name">${e.name}</span>
+      <span class="lb-score-snake">${e.hs} 🍎</span>
+    </div>
+  `).join('');
+}
+
 // ── Trivia : utilitaires ──────────────────────────────────────────────────────
 function shuffle(arr) {
   const a = [...arr];
@@ -1550,6 +1567,8 @@ socket.on('global-leaderboard-update', (data) => {
   }
 });
 
+socket.on('snake-leaderboard-update', (data) => { renderSnakeLeaderboard(data); });
+
 socket.on('error', ({ message }) => { showError(message); });
 socket.on('connect_error', () => { showError(t().errConnect); });
 
@@ -1786,6 +1805,8 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     if (n > getHs()) {
       localStorage.setItem(HS_KEY, String(n));
       cursorSnake.setBonus(n);
+      const name = localStorage.getItem('playerName');
+      if (name) socket.emit('submit-snake-score', { name, hs: n });
     }
   }
 
@@ -1947,6 +1968,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   document.getElementById('btn-go-events')?.addEventListener('click', () => {
     showScreen('events');
     updateHsDisplay();
+    socket.emit('get-snake-leaderboard');
   });
 
   document.getElementById('btn-back-events')?.addEventListener('click', () => {
@@ -1954,12 +1976,14 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     running = false;
     document.getElementById('snake-game-wrap').classList.add('hidden');
     document.getElementById('event-intro').classList.remove('hidden');
+    document.getElementById('snake-lb-card').classList.remove('hidden');
     cursorSnake.show();
     showScreen('landing');
   });
 
   document.getElementById('btn-event-play')?.addEventListener('click', () => {
     document.getElementById('event-intro').classList.add('hidden');
+    document.getElementById('snake-lb-card').classList.add('hidden');
     const gameWrap = document.getElementById('snake-game-wrap');
     gameWrap.classList.remove('hidden');
     // Laisser un frame pour que le canvas ait ses dimensions, puis animer le serpent
@@ -1982,6 +2006,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     running = false;
     document.getElementById('snake-game-wrap').classList.add('hidden');
     document.getElementById('event-intro').classList.remove('hidden');
+    document.getElementById('snake-lb-card').classList.remove('hidden');
     cursorSnake.show();
     updateHsDisplay();
   });
