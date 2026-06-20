@@ -2038,6 +2038,8 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
       return;
     }
     localStorage.setItem('playerName', val);
+    const n = $('input-name');        if (n)  n.value  = val;
+    const tn = $('input-trivia-name'); if (tn) tn.value = val;
     document.getElementById('snake-name-form').classList.add('hidden');
     launchSnakeGame();
   });
