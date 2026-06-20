@@ -1643,6 +1643,8 @@ const cursorSnake = (() => {
   let segs = [], mx = -999, my = -999, curHue = 140;
   let enabled = localStorage.getItem('snakeEnabled') !== 'false';
   let pendingLen = MIN, pendingRank = 0;
+  let _overrideMx = null, _overrideMy = null;
+  let _eventBonus = Math.min(8, Math.floor(parseInt(localStorage.getItem('libero_snake_event_hs') || '0', 10) / 2));
 
   function hueFor(rank) {
     return rank === 1 ? 48 : rank === 2 ? 205 : rank === 3 ? 22 : 140;
@@ -1676,8 +1678,10 @@ const cursorSnake = (() => {
 
   (function tick() {
     if (segs.length) {
-      segs[0].x += (mx - segs[0].x) * 0.18;
-      segs[0].y += (my - segs[0].y) * 0.18;
+      const _tx = _overrideMx !== null ? _overrideMx : mx;
+      const _ty = _overrideMy !== null ? _overrideMy : my;
+      segs[0].x += (_tx - segs[0].x) * 0.18;
+      segs[0].y += (_ty - segs[0].y) * 0.18;
       for (let i = 1; i < segs.length; i++) {
         const pr = segs[i - 1], cu = segs[i];
         const dx = pr.x - cu.x, dy = pr.y - cu.y;
@@ -1703,14 +1707,14 @@ const cursorSnake = (() => {
       pendingLen = len; pendingRank = rank;
       if (!enabled) return;
       const h = hueFor(rank);
-      const n = Math.min(MAX, Math.max(MIN, len));
+      const n = Math.min(MAX, Math.max(MIN, len + _eventBonus));
       if (n !== segs.length || h !== curHue) build(n, h);
     },
     toggle() {
       enabled = !enabled;
       localStorage.setItem('snakeEnabled', enabled);
       if (enabled) {
-        build(Math.min(MAX, Math.max(MIN, pendingLen)), hueFor(pendingRank));
+        build(Math.min(MAX, Math.max(MIN, pendingLen + _eventBonus)), hueFor(pendingRank));
       } else {
         segs.forEach(s => s.el.remove());
         segs = [];
@@ -1718,12 +1722,237 @@ const cursorSnake = (() => {
       syncBtn();
       return enabled;
     },
+    flyTo(x, y, cb) {
+      _overrideMx = x; _overrideMy = y;
+      let tries = 0;
+      const check = setInterval(() => {
+        tries++;
+        const close = segs.length > 0 && Math.hypot(segs[0].x - x, segs[0].y - y) < 28;
+        if (tries > 80 || close) {
+          clearInterval(check);
+          _overrideMx = null; _overrideMy = null;
+          if (cb) cb();
+        }
+      }, 50);
+    },
+    hide() {
+      segs.forEach(s => { s.el.style.transition = 'opacity .3s'; s.el.style.opacity = '0'; });
+    },
+    show() {
+      if (!enabled) return;
+      const n = Math.min(MAX, Math.max(MIN, pendingLen + _eventBonus));
+      build(n, hueFor(pendingRank));
+    },
+    setBonus(eventHs) {
+      _eventBonus = Math.min(8, Math.floor(eventHs / 2));
+      if (enabled) {
+        const n = Math.min(MAX, Math.max(MIN, pendingLen + _eventBonus));
+        const h = hueFor(pendingRank);
+        if (n !== segs.length || h !== curHue) build(n, h);
+      }
+    },
+    getHue() { return curHue; },
   };
 })();
 
 document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   cursorSnake.toggle();
 });
+
+// ── Évents : Snake Challenge ──────────────────────────────────────────────────
+(function () {
+  const HS_KEY  = 'libero_snake_event_hs';
+  const COLS = 20, ROWS = 20, CELL = 15, TICK = 140;
+
+  let canvas, ctx, gameLoop;
+  let snake, dir, nextDir, food, score, running;
+
+  function getHs()   { return parseInt(localStorage.getItem(HS_KEY) || '0', 10); }
+  function saveHs(n) {
+    if (n > getHs()) {
+      localStorage.setItem(HS_KEY, String(n));
+      cursorSnake.setBonus(n);
+    }
+  }
+
+  function updateHsDisplay() {
+    const el = document.getElementById('event-hs-display');
+    if (!el) return;
+    const h = getHs();
+    el.textContent = h > 0 ? `🏆 Ton record : ${h} pomme${h > 1 ? 's' : ''}` : '';
+  }
+
+  function rndFood() {
+    let p;
+    do { p = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) }; }
+    while (snake.some(s => s.x === p.x && s.y === p.y));
+    return p;
+  }
+
+  function startGame() {
+    canvas = document.getElementById('snake-canvas');
+    ctx    = canvas.getContext('2d');
+    snake  = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+    dir    = { x: 1, y: 0 };
+    nextDir = { x: 1, y: 0 };
+    food   = rndFood();
+    score  = 0;
+    running = true;
+    document.getElementById('snake-score-val').textContent = 0;
+    document.getElementById('snake-hs-val').textContent    = getHs();
+    document.getElementById('snake-over-overlay').classList.add('hidden');
+    clearInterval(gameLoop);
+    gameLoop = setInterval(tick, TICK);
+    draw();
+  }
+
+  function tick() {
+    if (!running) return;
+    dir = { ...nextDir };
+    const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+    if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS ||
+        snake.some(s => s.x === head.x && s.y === head.y)) {
+      endGame(); return;
+    }
+    snake.unshift(head);
+    if (head.x === food.x && head.y === food.y) {
+      score++;
+      saveHs(score);
+      document.getElementById('snake-score-val').textContent = score;
+      document.getElementById('snake-hs-val').textContent = Math.max(score, getHs());
+      food = rndFood();
+    } else {
+      snake.pop();
+    }
+    draw();
+  }
+
+  function draw() {
+    if (!ctx) return;
+    const hue = cursorSnake.getHue();
+    ctx.fillStyle = '#0f0f1a';
+    ctx.fillRect(0, 0, COLS * CELL, ROWS * CELL);
+
+    // Grille subtile
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth   = 0.5;
+    for (let i = 0; i <= COLS; i++) {
+      ctx.beginPath(); ctx.moveTo(i * CELL, 0); ctx.lineTo(i * CELL, ROWS * CELL); ctx.stroke();
+    }
+    for (let j = 0; j <= ROWS; j++) {
+      ctx.beginPath(); ctx.moveTo(0, j * CELL); ctx.lineTo(COLS * CELL, j * CELL); ctx.stroke();
+    }
+
+    // Pomme
+    ctx.font = `${CELL}px serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('🍎', (food.x + 0.5) * CELL, (food.y + 0.5) * CELL);
+
+    // Serpent
+    snake.forEach((seg, i) => {
+      const p  = snake.length > 1 ? i / (snake.length - 1) : 0;
+      const l  = Math.round(58 - p * 22);
+      const s  = Math.round(80 - p * 20);
+      const a  = (1 - p * 0.6).toFixed(2);
+      ctx.fillStyle = `hsla(${hue},${s}%,${l}%,${a})`;
+      const r = CELL * (i === 0 ? 0.42 : 0.35);
+      const x = seg.x * CELL + CELL * 0.1;
+      const y = seg.y * CELL + CELL * 0.1;
+      const w = CELL * 0.8, h = CELL * 0.8;
+      if (i === 0) { ctx.shadowColor = `hsl(${hue},80%,65%)`; ctx.shadowBlur = 7; }
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, r);
+      ctx.fill();
+      if (i === 0) ctx.shadowBlur = 0;
+    });
+  }
+
+  function endGame() {
+    running = false;
+    clearInterval(gameLoop);
+    saveHs(score);
+    document.getElementById('snake-over-score').textContent =
+      `Score : ${score} · Meilleur : ${Math.max(score, getHs())}`;
+    document.getElementById('snake-over-overlay').classList.remove('hidden');
+  }
+
+  // Contrôles clavier
+  document.addEventListener('keydown', e => {
+    if (!running) return;
+    const map = {
+      ArrowUp: { x: 0, y: -1 }, w: { x: 0, y: -1 },
+      ArrowDown: { x: 0, y: 1 }, s: { x: 0, y: 1 },
+      ArrowLeft: { x: -1, y: 0 }, a: { x: -1, y: 0 },
+      ArrowRight: { x: 1, y: 0 }, d: { x: 1, y: 0 },
+    };
+    const nd = map[e.key];
+    if (nd && (nd.x !== -dir.x || nd.y !== -dir.y)) {
+      nextDir = nd;
+      if (e.key.startsWith('Arrow')) e.preventDefault();
+    }
+  });
+
+  // Contrôles tactiles (swipe)
+  let _ts = null;
+  document.addEventListener('touchstart', e => {
+    if (!running) return;
+    _ts = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    if (!running || !_ts) return;
+    const dx = e.changedTouches[0].clientX - _ts.x;
+    const dy = e.changedTouches[0].clientY - _ts.y;
+    _ts = null;
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+    let nd;
+    if (Math.abs(dx) > Math.abs(dy)) nd = dx > 0 ? { x: 1, y: 0 } : { x: -1, y: 0 };
+    else                              nd = dy > 0 ? { x: 0, y: 1 } : { x: 0, y: -1 };
+    if (nd.x !== -dir.x || nd.y !== -dir.y) nextDir = nd;
+  }, { passive: true });
+
+  // Navigation
+  document.getElementById('btn-go-events')?.addEventListener('click', () => {
+    showScreen('events');
+    updateHsDisplay();
+  });
+
+  document.getElementById('btn-back-events')?.addEventListener('click', () => {
+    clearInterval(gameLoop);
+    running = false;
+    document.getElementById('snake-game-wrap').classList.add('hidden');
+    document.getElementById('event-intro').classList.remove('hidden');
+    cursorSnake.show();
+    showScreen('landing');
+  });
+
+  document.getElementById('btn-event-play')?.addEventListener('click', () => {
+    document.getElementById('event-intro').classList.add('hidden');
+    const gameWrap = document.getElementById('snake-game-wrap');
+    gameWrap.classList.remove('hidden');
+    // Laisser un frame pour que le canvas ait ses dimensions, puis animer le serpent
+    requestAnimationFrame(() => {
+      const c   = document.getElementById('snake-canvas');
+      const r   = c.getBoundingClientRect();
+      const cx  = r.left + r.width  / 2;
+      const cy  = r.top  + r.height / 2;
+      cursorSnake.flyTo(cx, cy, () => {
+        cursorSnake.hide();
+        setTimeout(startGame, 120);
+      });
+    });
+  });
+
+  document.getElementById('btn-snake-restart')?.addEventListener('click', startGame);
+
+  document.getElementById('btn-snake-quit')?.addEventListener('click', () => {
+    clearInterval(gameLoop);
+    running = false;
+    document.getElementById('snake-game-wrap').classList.add('hidden');
+    document.getElementById('event-intro').classList.remove('hidden');
+    cursorSnake.show();
+    updateHsDisplay();
+  });
+})();
 
 // ── Pluie d'émojis au chargement ──────────────────────────────────────────────
 (() => {
@@ -1867,6 +2096,14 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
       screen: 'landing',
       text: '⚙️ Des boutons permanents sont disponibles :<br>▶ <strong>En haut à droite</strong> : ☀️/🌙 <strong>Thème</strong> — bascule entre le mode jour et nuit<br>▶ <strong>En bas à droite</strong> : 🌐 <strong>Langue</strong> (FR/EN) · 🐍 <strong>Serpent</strong> (évolue avec ton score global) · ❓ <strong>Aide</strong>',
       target: null,
+    },
+
+    // ── Évents ──
+    {
+      id: 'events_snake',
+      screen: 'events',
+      text: '🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em> — ton serpent quittera le curseur pour entrer dans l\'arène. Chaque 🍎 mangée le fait grandir sur tout le site.',
+      target: '.event-intro',
     },
 
     // ── Jeux classiques ──
@@ -2029,6 +2266,9 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     STEPS.filter(s => s.screen === 'landing').forEach(s => markDone(s.id));
   });
   document.getElementById('btn-go-trivia')?.addEventListener('click', () => {
+    STEPS.filter(s => s.screen === 'landing').forEach(s => markDone(s.id));
+  });
+  document.getElementById('btn-go-events')?.addEventListener('click', () => {
     STEPS.filter(s => s.screen === 'landing').forEach(s => markDone(s.id));
   });
 

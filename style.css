@@ -833,6 +833,49 @@ h1 {
 }
 .landing-icon--big { font-size: 3rem; font-weight: 900; color: var(--accent); }
 
+/* ── Écran Évents / Snake ── */
+.event-intro {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 16px; width: 100%; max-width: 380px;
+  background: var(--card);
+  border: 1px solid rgba(99,102,241,.25);
+  border-radius: var(--radius);
+  padding: 32px 24px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.35);
+}
+.event-badge { font-size: 3.2rem; line-height: 1; }
+.event-intro h2 { font-size: 1.2rem; font-weight: 700; color: var(--accent); margin: 0; }
+.event-intro p  { font-size: .85rem; color: var(--muted); margin: 0; text-align: center; }
+.event-hs-display { font-size: .82rem; color: var(--accent); font-weight: 600; min-height: 1.2em; }
+
+.snake-game-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; width: 100%;
+}
+.snake-hud {
+  display: flex; justify-content: space-between;
+  width: 300px; font-size: .85rem; color: var(--muted);
+}
+.snake-canvas-wrap {
+  position: relative;
+  border: 2px solid rgba(99,102,241,.4);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(99,102,241,.2);
+}
+#snake-canvas { display: block; }
+.snake-over-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.78);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 12px;
+}
+.snake-over-overlay.hidden { display: none; }
+.snake-over-text { font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0; }
+#snake-over-score { font-size: .85rem; color: var(--muted); margin: 0; }
+.snake-hint { font-size: .72rem; color: var(--muted); opacity: .65; margin: 0; }
+
 /* ── Classement Global (landing) ── */
 .global-lb-card {
   width: 100%; max-width: 480px;

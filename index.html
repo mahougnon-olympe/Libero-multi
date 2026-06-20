@@ -28,11 +28,11 @@
         <h2>Culture Générale</h2>
         <p>Quiz par thèmes · Solo &amp; Multi</p>
       </button>
-      <div class="landing-card landing-card--soon">
+      <button class="landing-card" id="btn-go-events">
         <span class="landing-icon">🎉</span>
         <h2>Évents</h2>
-        <p>Bientôt disponible</p>
-      </div>
+        <p>Week-end · Snake Challenge</p>
+      </button>
       <div class="landing-card landing-card--soon landing-card--community">
         <span class="landing-icon landing-icon--big">?</span>
         <p>Pour la communauté</p>
@@ -278,6 +278,38 @@
     </div>
   </div>
 
+  <!-- ── Écran Évents ── -->
+  <div id="screen-events" class="screen">
+    <button class="btn-back" id="btn-back-events">← Retour</button>
+    <div class="logo">
+      <h1>🎉 Évents</h1>
+      <p class="subtitle">Week-end spécial</p>
+    </div>
+    <div class="event-intro" id="event-intro">
+      <div class="event-badge">🐍</div>
+      <h2>Snake Challenge</h2>
+      <p>Nourris ton serpent pour le faire grandir sur tout le site !</p>
+      <div class="event-hs-display" id="event-hs-display"></div>
+      <button id="btn-event-play" class="btn btn-primary">Jouer</button>
+    </div>
+    <div class="snake-game-wrap hidden" id="snake-game-wrap">
+      <div class="snake-hud">
+        <span>Score&nbsp;: <strong id="snake-score-val">0</strong></span>
+        <span>Meilleur&nbsp;: <strong id="snake-hs-val">0</strong></span>
+      </div>
+      <div class="snake-canvas-wrap">
+        <canvas id="snake-canvas" width="300" height="300"></canvas>
+        <div class="snake-over-overlay hidden" id="snake-over-overlay">
+          <p class="snake-over-text">Game Over</p>
+          <p id="snake-over-score"></p>
+          <button id="btn-snake-restart" class="btn btn-primary">Rejouer</button>
+          <button id="btn-snake-quit" class="btn btn-secondary">Quitter</button>
+        </div>
+      </div>
+      <p class="snake-hint">↑ ↓ ← → ou glisser sur mobile</p>
+    </div>
+  </div>
+
   <!-- ── Cadre News (fixe, haut gauche) ── -->
   <div id="news-card" class="news-card">
     <span class="news-handle">📰</span>
@@ -370,7 +402,11 @@
           </div>
           <div class="help-item">
             <span class="help-icon">🏠</span>
-            <div><strong>Quatre sections</strong><p>L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> et une section <em>Pour la communauté</em>. Les deux dernières arrivent bientôt. Chaque section active a son propre classement.</p></div>
+            <div><strong>Sections d'accueil</strong><p>L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes) — chacune avec son classement — et la section <em>Évents</em> (mini-jeux temporaires chaque week-end). La section <em>Pour la communauté</em> arrive bientôt.</p></div>
+          </div>
+          <div class="help-item">
+            <span class="help-icon">🎉</span>
+            <div><strong>Évents</strong><p>Chaque week-end, un mini-jeu spécial est disponible. Ce week-end : <em>Snake Challenge</em>. Nourris ton serpent avec les 🍎 — chaque pomme le fait grandir sur tout le site. Ton record est sauvegardé entre les sessions.</p></div>
           </div>
           <div class="help-item">
             <span class="help-icon">🎮</span>
