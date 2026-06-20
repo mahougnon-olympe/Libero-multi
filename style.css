@@ -826,6 +826,12 @@ h1 {
 .landing-card h2 { font-size: 1rem; font-weight: 700; margin: 0; color: var(--accent); }
 .landing-card p  { font-size: .78rem; color: var(--muted); margin: 0; text-align: center; }
 .landing-icon    { font-size: 2.4rem; }
+.landing-card--soon {
+  opacity: .45;
+  cursor: default;
+  pointer-events: none;
+}
+.landing-icon--big { font-size: 3rem; font-weight: 900; color: var(--accent); }
 
 /* ── Classement Global (landing) ── */
 .global-lb-card {

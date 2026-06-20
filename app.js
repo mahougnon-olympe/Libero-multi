@@ -1853,7 +1853,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     {
       id: 'landing_cats',
       screen: 'landing',
-      text: '👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! Le site propose deux sections : <strong>Jeux Classiques</strong> (Puissance 4, Morpion, Échecs) et <strong>Culture Générale</strong> (quiz par thèmes). Clique sur une carte pour commencer.',
+      text: '👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose quatre sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> et une section <strong>communauté</strong> (ces deux dernières arrivent bientôt). Clique sur une carte active pour commencer.',
       target: '.landing-grid',
     },
     {
