@@ -166,16 +166,23 @@ function getTriviaLeaderboardData() {
 
 function updateSnakeLeaderboard(name, hs) {
   if (!name) return false;
+  const isNew = !snakeLeaderboard.has(name);
   const existing = snakeLeaderboard.get(name) || { hs: 0 };
-  if (hs <= existing.hs) return false;
-  existing.hs = hs;
-  snakeLeaderboard.set(name, existing);
-  dbUpsertSnakeLeaderboard(name, existing);
-  return true;
+  const improved = hs > existing.hs;
+  if (improved) {
+    existing.hs = hs;
+    snakeLeaderboard.set(name, existing);
+    dbUpsertSnakeLeaderboard(name, existing);
+  } else if (isNew) {
+    snakeLeaderboard.set(name, { hs: 0 });
+    dbUpsertSnakeLeaderboard(name, { hs: 0 });
+  }
+  return improved ? 'improved' : isNew ? 'registered' : false;
 }
 
 function getSnakeLeaderboardData() {
   return [...snakeLeaderboard.entries()]
+    .filter(([, s]) => s.hs > 0)
     .map(([name, s]) => ({ name, hs: s.hs }))
     .sort((a, b) => b.hs - a.hs)
     .slice(0, 10);
@@ -190,7 +197,6 @@ function getGlobalLeaderboardData() {
       const sk = snakeLeaderboard.get(name)  || { hs: 0 };
       return { name, globalScore: c.wins * 10 + tr.points + sk.hs * 10, wins: c.wins, triviaPoints: tr.points, snakeHs: sk.hs };
     })
-    .filter(e => e.globalScore > 0)
     .sort((a, b) => b.globalScore - a.globalScore)
     .slice(0, 10);
 }
@@ -347,7 +353,7 @@ function scheduleBotMove(code) {
     room.winner = winner;
     io.to(code).emit('game-update', { gameType: room.gameType, state: newState, status, winner });
 
-    if (status !== 'playing' && ['medium', 'hard'].includes(room.botDifficulty)) {
+    if (status !== 'playing') {
       const humanName = room.playerNames.R;
       if (humanName) {
         if (status === 'won') {
@@ -525,8 +531,8 @@ io.on('connection', (socket) => {
         }
         io.emit('leaderboard-update', getLeaderboardData());
         io.emit('global-leaderboard-update', getGlobalLeaderboardData());
-      } else if (['medium', 'hard'].includes(room.botDifficulty)) {
-        // Solo vs bot (moyen/difficile) : enregistrer uniquement le joueur humain
+      } else {
+        // Solo vs bot (toutes difficultés) : enregistrer le joueur humain
         const humanName = room.playerNames.R;
         if (humanName) {
           if (status === 'won') {
@@ -535,7 +541,7 @@ io.on('connection', (socket) => {
             updateLeaderboard(humanName, 'draw');
           }
           io.emit('leaderboard-update', getLeaderboardData());
-        io.emit('global-leaderboard-update', getGlobalLeaderboardData());
+          io.emit('global-leaderboard-update', getGlobalLeaderboardData());
         }
       }
     } else if (room.vsBot) {
@@ -602,10 +608,12 @@ io.on('connection', (socket) => {
   });
 
   socket.on('submit-snake-score', ({ name, hs } = {}) => {
-    if (!name || typeof hs !== 'number' || hs <= 0) return;
-    const improved = updateSnakeLeaderboard(String(name).trim().slice(0, 20), Math.floor(hs));
-    if (improved) {
+    if (!name || typeof hs !== 'number') return;
+    const result = updateSnakeLeaderboard(String(name).trim().slice(0, 20), Math.max(0, Math.floor(hs)));
+    if (result === 'improved') {
       io.emit('snake-leaderboard-update', getSnakeLeaderboardData());
+      io.emit('global-leaderboard-update', getGlobalLeaderboardData());
+    } else if (result === 'registered') {
       io.emit('global-leaderboard-update', getGlobalLeaderboardData());
     }
   });

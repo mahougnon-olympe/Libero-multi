@@ -61,7 +61,7 @@ html, body {
 /* ── Logo ── */
 .logo { text-align: center; }
 .logo-full {
-  height: 56px; width: auto; max-width: 280px;
+  height: 80px; width: auto; max-width: 360px;
   display: block; margin: 0 auto;
 }
 h1 {
@@ -716,7 +716,7 @@ h1 {
   .landing-icon  { font-size: 2rem; }
   .landing-card h2 { font-size: .92rem; }
   .global-lb-card { padding: 8px 12px 4px; }
-  .logo-full { height: 42px; }
+  .logo-full { height: 62px; max-width: 280px; }
   .news-card {
     pointer-events: auto;
     cursor: pointer;

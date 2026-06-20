@@ -1435,7 +1435,7 @@ socket.on('trivia-finished', ({ scores }) => {
 socket.on('trivia-solo-questions', (questions) => {
   $('btn-solo-trivia').disabled = false;
   $('btn-solo-trivia').textContent = t().btnSolo;
-  triviaQuestions = shuffle(questions).slice(0, 10);
+  triviaQuestions = shuffle(questions);
   if (!triviaQuestions.length) { showTriviaError(t().errLoadQ); return; }
   triviaIsSolo = true; triviaCurrentQ = 0; triviaScore = 0; triviaRoomCode = null;
   triviaPaused = false;
@@ -1844,12 +1844,19 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
 
 // ── Évents : Snake Challenge ──────────────────────────────────────────────────
 (function () {
-  const HS_KEY  = 'libero_snake_event_hs';
+  const HS_KEY         = 'libero_snake_event_hs';
+  const SNAKE_SESS_KEY = 'libero_snake_session';
   const COLS = 20, ROWS = 20;
   let CELL = 15;
 
   let canvas, ctx, gameLoop;
   let snake, dir, nextDir, food, score, running, paused;
+
+  function saveSnakeSession() {
+    if (!running) return;
+    sessionStorage.setItem(SNAKE_SESS_KEY, JSON.stringify({ snake, dir, nextDir, food, score }));
+  }
+  function clearSnakeSession() { sessionStorage.removeItem(SNAKE_SESS_KEY); }
 
   function updateSpeed() {
     clearInterval(gameLoop);
@@ -1882,6 +1889,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   }
 
   function startGame() {
+    clearSnakeSession();
     canvas = document.getElementById('snake-canvas');
     ctx    = canvas.getContext('2d');
     CELL   = window.innerWidth > 600 ? 21 : 15;
@@ -1971,8 +1979,12 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   function endGame() {
     running = false;
     clearInterval(gameLoop);
+    clearSnakeSession();
     const isNewHs = score > getHs();
     saveHs(score);
+    // Enregistre la participation même si score=0 (premier jeu sans pomme)
+    const _snakeName = localStorage.getItem('playerName');
+    if (_snakeName && getHs() === 0) socket.emit('submit-snake-score', { name: _snakeName, hs: 0 });
     const newHsEl = document.getElementById('snake-new-hs');
     if (newHsEl) newHsEl.classList.toggle('hidden', !isNewHs);
     document.getElementById('snake-over-score').textContent =
@@ -2045,6 +2057,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   document.getElementById('btn-back-events')?.addEventListener('click', () => {
     clearInterval(gameLoop);
     running = false;
+    clearSnakeSession();
     showEventIntro();
     cursorSnake.show();
     showScreen('landing');
@@ -2113,6 +2126,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   document.getElementById('btn-snake-quit')?.addEventListener('click', () => {
     clearInterval(gameLoop);
     running = false;
+    clearSnakeSession();
     showEventIntro();
     cursorSnake.show();
     updateHsDisplay();
@@ -2143,6 +2157,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     clearInterval(gameLoop);
     running = false;
     paused  = false;
+    clearSnakeSession();
     document.getElementById('snake-pause-overlay').classList.add('hidden');
     showEventIntro();
     cursorSnake.show();
@@ -2154,6 +2169,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     clearInterval(gameLoop);
     running = false;
     paused  = false;
+    clearSnakeSession();
     document.getElementById('snake-pause-overlay').classList.add('hidden');
     showEventIntro();
     cursorSnake.show();
@@ -2163,6 +2179,48 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') togglePause();
   });
+
+  // Sauvegarde l'état avant refresh
+  window.addEventListener('beforeunload', () => { if (running) saveSnakeSession(); });
+
+  // Restauration après refresh (si une partie était en cours)
+  (function() {
+    const saved = sessionStorage.getItem(SNAKE_SESS_KEY);
+    if (!saved || sessionStorage.getItem('libero_screen') !== 'events') {
+      if (saved) clearSnakeSession();
+      return;
+    }
+    try {
+      const data = JSON.parse(saved);
+      if (!Array.isArray(data.snake) || !data.food || data.score === undefined) throw new Error();
+      canvas = document.getElementById('snake-canvas');
+      ctx    = canvas.getContext('2d');
+      CELL   = window.innerWidth > 600 ? 21 : 15;
+      canvas.width  = COLS * CELL;
+      canvas.height = ROWS * CELL;
+      const hud = document.querySelector('.snake-hud');
+      if (hud) hud.style.width = `${COLS * CELL}px`;
+      snake   = data.snake;
+      dir     = data.dir;
+      nextDir = data.nextDir;
+      food    = data.food;
+      score   = data.score;
+      running = true;
+      paused  = true;
+      document.getElementById('snake-score-val').textContent = score;
+      document.getElementById('snake-hs-val').textContent    = getHs();
+      document.getElementById('event-intro').classList.add('hidden');
+      document.getElementById('snake-lb-card').classList.add('hidden');
+      document.getElementById('snake-over-overlay').classList.add('hidden');
+      document.getElementById('snake-game-wrap').classList.remove('hidden');
+      document.getElementById('snake-pause-overlay').classList.remove('hidden');
+      document.getElementById('btn-snake-pause').textContent = '▶';
+      cursorSnake.hide();
+      draw();
+    } catch {
+      clearSnakeSession();
+    }
+  })();
 })();
 
 // ── Pluie d'émojis au chargement ──────────────────────────────────────────────
@@ -2353,7 +2411,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     {
       id: 'landing_news',
       screen: 'landing',
-      text: '📰 Le cadre <strong>News</strong> est replié dans le coin <strong>en haut à gauche</strong>. <strong>Clique dessus</strong> pour l\'ouvrir — il affiche les dernières actualités : nouvelles fonctionnalités, annonces et commentaires de joueurs. Reclique pour le refermer.',
+      text: '📰 Le cadre <strong>News</strong> est replié dans le coin <strong>en haut à gauche</strong>. <strong>Clique dessus</strong> pour l\'ouvrir : il affiche les dernières actualités, nouvelles fonctionnalités, annonces et commentaires de joueurs. Reclique pour le refermer.',
       target: '#news-card',
     },
     {
@@ -2371,7 +2429,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     {
       id: 'landing_btns',
       screen: 'landing',
-      text: '⚙️ Des boutons permanents sont disponibles :<br>▶ <strong>En haut à droite</strong> : ☀️/🌙 <strong>Thème</strong> — bascule entre le mode jour et nuit<br>▶ <strong>En bas à droite</strong> : 🌐 <strong>Langue</strong> (FR/EN) · 🐍 <strong>Serpent</strong> (évolue avec ton score global) · ❓ <strong>Aide</strong>',
+      text: '⚙️ Des boutons permanents sont disponibles :<br>▶ <strong>En haut à droite</strong> : ☀️/🌙 <strong>Thème</strong> : bascule entre le mode jour et nuit<br>▶ <strong>En bas à droite</strong> : 🌐 <strong>Langue</strong> (FR/EN) · 🐍 <strong>Serpent</strong> (évolue avec ton score global) · ❓ <strong>Aide</strong>',
       target: null,
     },
 
@@ -2379,7 +2437,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     {
       id: 'events_snake',
       screen: 'events',
-      text: '🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em> — ton serpent entre dans l\'arène. Mange les 🍎 pour grandir (les bords sont traversables, tu ressors de l\'autre côté !). Ton meilleur score <strong>persiste</strong> entre les sessions.',
+      text: '🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les 🍎 pour grandir (les bords sont traversables, tu ressors de l\'autre côté !). Ton meilleur score <strong>persiste</strong> entre les sessions.',
       target: '.event-intro',
     },
 
@@ -2393,7 +2451,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     {
       id: 'home_bot',
       screen: 'home',
-      text: '🤖 <strong>Mode Solo</strong> : joue contre le bot à 3 niveaux de difficulté — Facile, Moyen ou Difficile. Tes victoires et défaites sont comptées dans le classement !',
+      text: '🤖 <strong>Mode Solo</strong> : joue contre le bot à 3 niveaux de difficulté : Facile, Moyen ou Difficile. Tes victoires et défaites sont comptées dans le classement !',
       target: '.bot-row',
     },
     {
@@ -2413,7 +2471,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     {
       id: 'waiting_code',
       screen: 'waiting',
-      text: '📋 <strong>Partage ce code</strong> à 4 lettres avec ton adversaire — par message, WhatsApp, Discord… La partie démarre automatiquement dès qu\'il rejoint !',
+      text: '📋 <strong>Partage ce code</strong> à 4 lettres avec ton adversaire, par message, WhatsApp, Discord… La partie démarre automatiquement dès qu\'il rejoint !',
       target: '#room-code',
       autoDone: true,
     },
