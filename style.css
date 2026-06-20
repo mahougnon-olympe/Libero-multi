@@ -1509,6 +1509,7 @@ html.light #screen-landing         { background: radial-gradient(ellipse at 50% 
 .libs-icon  { font-size: .95rem; }
 .libs-label { font-size: .7rem; opacity: .75; }
 .libs-dist-countdown { font-size: .62rem; opacity: .8; margin-left: 2px; }
+.event-card-countdown { font-size: .72rem; opacity: .85; margin: 4px 0 0; }
 
 /* ── Libs pill animation ── */
 .libs-pill {

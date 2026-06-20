@@ -727,6 +727,35 @@ io.on('connection', (socket) => {
     socket.emit('pseudo-check-result', { taken });
   });
 
+  socket.on('rename-player', ({ name, playerId } = {}) => {
+    const newName = String(name || '').trim().slice(0, 20);
+    const id = safePlayerId(playerId);
+    if (!newName || newName === 'Anonyme' || !id) {
+      socket.emit('rename-result', { ok: false, error: 'invalid' });
+      return;
+    }
+    const taken = [leaderboard, triviaLeaderboard, snakeLeaderboard].some(map => {
+      for (const [k, v] of map.entries()) {
+        if (v.name === newName && k !== id) return true;
+      }
+      return false;
+    });
+    if (taken) { socket.emit('rename-result', { ok: false, error: 'taken' }); return; }
+    let changed = false;
+    [[leaderboard, dbUpsertLeaderboard], [triviaLeaderboard, dbUpsertTriviaLeaderboard],
+     [snakeLeaderboard, dbUpsertSnakeLeaderboard], [libs, dbUpsertLibs]].forEach(([map, upsert]) => {
+      const entry = map.get(id);
+      if (entry) { entry.name = newName; map.set(id, entry); upsert(id, entry); changed = true; }
+    });
+    if (changed) {
+      io.emit('leaderboard-update', getLeaderboardData());
+      io.emit('global-leaderboard-update', getGlobalLeaderboardData());
+      io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
+      io.emit('snake-leaderboard-update', getSnakeLeaderboardData());
+    }
+    socket.emit('rename-result', { ok: true });
+  });
+
   socket.on('submit-snake-score', ({ name, hs, playerId } = {}) => {
     const playerName = String(name || '').trim().slice(0, 20);
     if (!playerName || typeof hs !== 'number') return;

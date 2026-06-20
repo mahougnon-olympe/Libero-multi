@@ -16,6 +16,8 @@ let _libsAnimTimer     = null;
 let _libsDistTimer     = null;
 let _nextDistAt        = 0;
 let _globalLbData      = [];
+let _nameTaken         = false;
+let _renameTimer       = null;
 
 let myPlayer        = null;   // 'R' | 'Y'
 let gameActive      = false;
@@ -44,6 +46,8 @@ const DICT = {
     botEasy:'😊 Facile', botMedium:'🎯 Moyen', botHard:'💀 Difficile',
     btnCreate:'Créer une partie multijoueur',
     namePh:'Ton pseudo (obligatoire)', codePh:'Code à 4 lettres', errNoName:'Entre un pseudo pour continuer.',
+    errNameTaken:'🚫 Ce pseudo est déjà pris. Choisis-en un autre.',
+    eventCountdownFmt: ms => { const m=Math.ceil(ms/60000),d=Math.floor(m/1440),h=Math.floor((m%1440)/60),r=m%60; return d>0?`⏳ Fin de l'évent dans ${d}j ${h}h`:h>0?`⏳ Fin de l'évent dans ${h}h ${r}min`:`⏳ Fin de l'évent dans ${r}min`; },
     btnJoin:'Rejoindre', dividerJoin:'ou rejoindre', lbTitle:'Classement',
     lbEmpty:'Aucune partie jouée pour l\'instant.',
     lbW:'V', lbL:'D', lbD:'N',
@@ -219,6 +223,8 @@ const DICT = {
     botEasy:'😊 Easy', botMedium:'🎯 Medium', botHard:'💀 Hard',
     btnCreate:'Create a multiplayer game',
     namePh:'Your username (required)', codePh:'4-letter code', errNoName:'Enter a username to continue.',
+    errNameTaken:'🚫 This username is already taken. Choose another one.',
+    eventCountdownFmt: ms => { const m=Math.ceil(ms/60000),d=Math.floor(m/1440),h=Math.floor((m%1440)/60),r=m%60; return d>0?`⏳ Event ends in ${d}d ${h}h`:h>0?`⏳ Event ends in ${h}h ${r}min`:`⏳ Event ends in ${r}min`; },
     btnJoin:'Join', dividerJoin:'or join', lbTitle:'Leaderboard',
     lbEmpty:'No games played yet.',
     lbW:'W', lbL:'L', lbD:'D',
@@ -404,6 +410,24 @@ function renderHelp() {
   }
 }
 
+function _getEventEndMs() {
+  const now = new Date();
+  const day = now.getDay();
+  const end = new Date(now);
+  end.setDate(now.getDate() + (day === 0 ? 0 : 7 - day));
+  end.setHours(23, 59, 59, 0);
+  if (end.getTime() <= Date.now()) end.setDate(end.getDate() + 7);
+  return end.getTime();
+}
+
+function _updateEventCountdown() {
+  const left = _getEventEndMs() - Date.now();
+  const text = left > 0 ? t().eventCountdownFmt(left) : '';
+  ['event-card-countdown', 'news-event-countdown'].forEach(id => {
+    const el = $(id); if (el) el.textContent = text;
+  });
+}
+
 function applyLang() {
   const d = t();
   document.documentElement.lang = currentLang;
@@ -566,6 +590,9 @@ function applyLang() {
   // Libs : mettre à jour le bouton boost hint si affiché
   _updateBoostHintBtn();
 
+  // Countdown évent (se retraduit lors du changement de langue)
+  _updateEventCountdown();
+
   // Rebuild trivia themes (garde les sélections actives)
   $('trivia-themes').innerHTML = '';
 }
@@ -724,16 +751,38 @@ function checkPseudo(name, warningId) {
 }
 
 socket.on('pseudo-check-result', ({ taken }) => {
-  ['pseudo-warning', 'snake-pseudo-warning'].forEach(id => {
-    const w = $(id);
-    if (!w) return;
-    if (taken) {
-      w.textContent = '⚠️ Ce pseudo est déjà utilisé. Choisis-en un autre pour éviter la fusion des scores.';
-      w.classList.remove('hidden');
-    } else {
-      w.classList.add('hidden');
-    }
-  });
+  const w = $('snake-pseudo-warning');
+  if (!w) return;
+  if (taken) {
+    w.textContent = t().errNameTaken;
+    w.classList.remove('hidden');
+  } else {
+    w.classList.add('hidden');
+  }
+});
+
+function triggerRename(name) {
+  clearTimeout(_renameTimer);
+  const w = $('pseudo-warning');
+  if (!name || name.length < 2 || name === 'Anonyme') {
+    _nameTaken = false;
+    if (w) w.classList.add('hidden');
+    return;
+  }
+  _renameTimer = setTimeout(() => {
+    socket.emit('rename-player', { name, playerId: getPlayerId() });
+  }, 700);
+}
+
+socket.on('rename-result', ({ ok, error }) => {
+  const w = $('pseudo-warning');
+  if (!ok && error === 'taken') {
+    _nameTaken = true;
+    if (w) { w.textContent = t().errNameTaken; w.classList.remove('hidden'); }
+  } else if (ok) {
+    _nameTaken = false;
+    if (w) w.classList.add('hidden');
+  }
 });
 
 $('input-name').addEventListener('input', e => {
@@ -741,7 +790,7 @@ $('input-name').addEventListener('input', e => {
   localStorage.setItem('playerName', v.trim());
   const other = $('input-trivia-name');
   if (other) other.value = v;
-  checkPseudo(v.trim(), 'pseudo-warning');
+  triggerRename(v.trim());
   const counter = $('libs-counter');
   if (counter) counter.classList.toggle('hidden', !v.trim() || v.trim() === 'Anonyme');
 });
@@ -760,6 +809,7 @@ document.querySelectorAll('.game-btn').forEach(btn => {
 document.querySelectorAll('.bot-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     if (!getPlayerName()) { showError(t().errNoName); return; }
+    if (_nameTaken) { showError(t().errNameTaken); return; }
     clearError();
     socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), vsBot: true, botDifficulty: btn.dataset.diff, playerId: getPlayerId() });
   });
@@ -767,6 +817,7 @@ document.querySelectorAll('.bot-btn').forEach(btn => {
 
 $('btn-create').addEventListener('click', () => {
   if (!getPlayerName()) { showError(t().errNoName); return; }
+  if (_nameTaken) { showError(t().errNameTaken); return; }
   clearError();
   socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), playerId: getPlayerId() });
 });
@@ -777,6 +828,7 @@ $('input-code').addEventListener('input', e => { e.target.value = e.target.value
 
 function joinRoom() {
   if (!getPlayerName()) { showError(t().errNoName); return; }
+  if (_nameTaken) { showError(t().errNameTaken); return; }
   const code = $('input-code').value.trim().toUpperCase();
   if (code.length !== 4) { showError(t().err4Letters); return; }
   clearError();
@@ -1478,6 +1530,7 @@ $('input-trivia-name').addEventListener('input', e => {
   localStorage.setItem('playerName', v.trim());
   const other = $('input-name');
   if (other) other.value = v;
+  triggerRename(v.trim());
   const counter = $('libs-counter');
   if (counter) counter.classList.toggle('hidden', !v.trim() || v.trim() === 'Anonyme');
 });
@@ -1492,8 +1545,9 @@ $('input-trivia-nb').addEventListener('input', () => {
 });
 
 $('btn-solo-trivia').addEventListener('click', () => {
-  if (!getTriviaName())                  { showTriviaError(t().errNoName);  return; }
-  if (!selectedTriviaCategories.length)  { showTriviaError(t().errNoTheme); return; }
+  if (!getTriviaName())                  { showTriviaError(t().errNoName);    return; }
+  if (_nameTaken)                        { showTriviaError(t().errNameTaken); return; }
+  if (!selectedTriviaCategories.length)  { showTriviaError(t().errNoTheme);  return; }
   clearTriviaError();
   $('btn-solo-trivia').disabled = true;
   $('btn-solo-trivia').textContent = t().soloLoading;
@@ -1501,8 +1555,9 @@ $('btn-solo-trivia').addEventListener('click', () => {
 });
 
 $('btn-create-trivia').addEventListener('click', () => {
-  if (!getTriviaName())                  { showTriviaError(t().errNoName);  return; }
-  if (!selectedTriviaCategories.length)  { showTriviaError(t().errNoTheme); return; }
+  if (!getTriviaName())                  { showTriviaError(t().errNoName);    return; }
+  if (_nameTaken)                        { showTriviaError(t().errNameTaken); return; }
+  if (!selectedTriviaCategories.length)  { showTriviaError(t().errNoTheme);  return; }
   clearTriviaError();
   socket.emit('create-trivia-room', { categories: selectedTriviaCategories, name: getTriviaName(), lang: currentLang, difficulty: selectedTriviaDifficulty, amount: getTriviaQCount(), playerId: getPlayerId() });
 });
@@ -1513,6 +1568,7 @@ $('input-trivia-code').addEventListener('input',   e => { e.target.value = e.tar
 
 function joinTriviaRoom() {
   if (!getTriviaName()) { showTriviaError(t().errNoName); return; }
+  if (_nameTaken)       { showTriviaError(t().errNameTaken); return; }
   const code = $('input-trivia-code').value.trim().toUpperCase();
   if (code.length !== 4) { showTriviaError(t().err4Letters); return; }
   clearTriviaError();
@@ -2093,6 +2149,8 @@ $('btn-lang').addEventListener('click', () => {
 
 // Init langue au chargement
 applyLang();
+_updateEventCountdown();
+setInterval(_updateEventCountdown, 60_000);
 
 // ── Libs : fonctions UI ───────────────────────────────────────────────────────
 function _isPlayerInTop3() {
