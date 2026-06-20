@@ -74,7 +74,7 @@ html.restoring[data-restore="events"]        #screen-events { display: flex !imp
 /* ── Logo ── */
 .logo { text-align: center; }
 .logo-full {
-  height: 110px; width: auto; max-width: 400px;
+  height: 145px; width: auto; max-width: 480px;
   display: block; margin: 0 auto;
 }
 h1 {
@@ -729,7 +729,7 @@ h1 {
   .landing-icon  { font-size: 2rem; }
   .landing-card h2 { font-size: .92rem; }
   .global-lb-card { padding: 8px 12px 4px; }
-  .logo-full { height: 82px; max-width: 300px; }
+  .logo-full { height: 105px; max-width: 340px; }
   .news-card {
     pointer-events: auto;
     cursor: pointer;
