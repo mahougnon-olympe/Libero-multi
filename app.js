@@ -1738,9 +1738,11 @@ document.addEventListener('click', e => {
 // ── Serpent curseur ───────────────────────────────────────────────────────────
 const cursorSnake = (() => {
   const MAX = 18, MIN = 4, GAP = 13, HEAD_SZ = 12, TAIL_SZ = 5;
-  let segs = [], mx = -999, my = -999, curHue = 140;
+  const _cpRaw = (() => { try { return JSON.parse(sessionStorage.getItem('libero_cursor_pos') || 'null'); } catch { return null; } })();
+  let pendingRank = parseInt(localStorage.getItem('libero_cursor_rank') || '0', 10);
+  let segs = [], mx = _cpRaw?.x ?? -999, my = _cpRaw?.y ?? -999, curHue = 140;
   let enabled = localStorage.getItem('snakeEnabled') !== 'false';
-  let pendingLen = MIN, pendingRank = 0;
+  let pendingLen = MIN;
   let _overrideMx = null, _overrideMy = null;
   let _flySpeed   = 0.18;
   let _hidden     = false;
@@ -1749,6 +1751,7 @@ const cursorSnake = (() => {
   function hueFor(rank) {
     return rank === 1 ? 48 : rank === 2 ? 205 : rank === 3 ? 22 : 140;
   }
+  curHue = hueFor(pendingRank);
 
   function build(len, h) {
     segs.forEach(s => s.el.remove());
@@ -1767,7 +1770,7 @@ const cursorSnake = (() => {
         `opacity:${(1 - p * 0.82).toFixed(2)};` +
         (i === 0 ? `box-shadow:0 0 8px 3px hsl(${h},80%,65%);` : '');
       document.body.appendChild(el);
-      segs.push({ el, x: -999, y: -999 });
+      segs.push({ el, x: mx, y: my });
     }
   }
 
@@ -1802,9 +1805,14 @@ const cursorSnake = (() => {
   }
   syncBtn();
 
+  window.addEventListener('beforeunload', () => {
+    if (mx > -900 && my > -900) sessionStorage.setItem('libero_cursor_pos', JSON.stringify({ x: mx, y: my }));
+  });
+
   return {
     update(len, rank) {
       pendingLen = len; pendingRank = rank;
+      localStorage.setItem('libero_cursor_rank', String(rank));
       if (!enabled || _hidden) return;
       const h = hueFor(rank);
       const n = Math.min(MAX, Math.max(MIN, len + _eventBonus));
@@ -2246,6 +2254,8 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
 
 // ── Pluie d'émojis au chargement ──────────────────────────────────────────────
 (() => {
+  const _sc = sessionStorage.getItem('libero_screen');
+  if (_sc && _sc !== 'landing') return;
   const EMOJIS = ['🔴','🟡','♟','♔','♚','♛','♜','♝','♞','❌','⭕','🧠','❓','💡','🎮','🎯','🏆','🎲'];
   const wrap = document.createElement('div');
   wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9998;';
