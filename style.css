@@ -36,7 +36,18 @@ html, body {
 }
 
 /* ── Screens ── */
-html.restoring #screen-landing { display: none !important; }
+html.restoring #screen-landing,
+html.restoring #news-card { display: none !important; }
+
+html.restoring[data-restore="home"]          #screen-home,
+html.restoring[data-restore="game"]          #screen-game,
+html.restoring[data-restore="waiting"]       #screen-waiting,
+html.restoring[data-restore="trivia-home"]   #screen-trivia-home,
+html.restoring[data-restore="trivia-game"]   #screen-trivia-game,
+html.restoring[data-restore="trivia-waiting"] #screen-trivia-waiting,
+html.restoring[data-restore="events"]        #screen-events { display: flex !important; }
+
+.screen[data-restored] { animation: none !important; }
 
 .screen {
   display: none;

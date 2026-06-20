@@ -290,11 +290,21 @@ function _scheduleNewsCollapse() {
 }
 
 function showScreen(name) {
-  document.documentElement.classList.remove('restoring');
-  sessionStorage.setItem('libero_screen', name);
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const wasRestoring = document.documentElement.classList.contains('restoring');
   const el = document.getElementById('screen-' + name);
-  if (el) el.classList.add('active');
+  // Marquer avant de retirer restoring : supprime l'animation quand JS active l'écran
+  if (wasRestoring && el) el.setAttribute('data-restored', '');
+  document.documentElement.classList.remove('restoring');
+  document.documentElement.removeAttribute('data-restore');
+  sessionStorage.setItem('libero_screen', name);
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    if (s !== el) s.removeAttribute('data-restored');
+  });
+  if (el) {
+    if (!wasRestoring) el.removeAttribute('data-restored');
+    el.classList.add('active');
+  }
   document.body.classList.toggle('screen-events-active', name === 'events');
   const nc = document.getElementById('news-card');
   if (nc) nc.style.display = name === 'landing' ? '' : 'none';
@@ -2642,6 +2652,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   if (saved === 'game' || saved === 'waiting') {
     if (!sessionStorage.getItem('p4session')) {
       document.documentElement.classList.remove('restoring');
+      document.documentElement.removeAttribute('data-restore');
       sessionStorage.removeItem('libero_screen');
     }
     return;
@@ -2649,6 +2660,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   if (saved === 'trivia-game' || saved === 'trivia-waiting') {
     if (!sessionStorage.getItem('triviaSession')) {
       document.documentElement.classList.remove('restoring');
+      document.documentElement.removeAttribute('data-restore');
       sessionStorage.removeItem('libero_screen');
     }
     return;
