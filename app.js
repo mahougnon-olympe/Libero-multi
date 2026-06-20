@@ -10,8 +10,8 @@ function getPlayerId() {
 
 // ── État global ─────────────────────────────────────────────────────────────
 let libsBalance        = parseInt(localStorage.getItem('libero_libs') || '0', 10);
-let boostHintActive    = false;
-let boostHintUsedThisQ = false;
+let pendingHintCharges = 0;
+let hintsUsedThisQ     = 0;
 let _libsAnimTimer     = null;
 let _libsDistTimer     = null;
 let _nextDistAt        = 0;
@@ -102,9 +102,9 @@ const DICT = {
     help:{ title:'Aide', tabs:{ general:'Général', quiz:'Quiz', connect4:'Puissance 4', ttt:'Morpion', chess:'Échecs' } },
     shopTitle:'⚡ Boutique', shopBalanceLabel:'Ton solde :',
     shopBoostHintName:'💡 Indice Quiz',
-    shopBoostHintDesc:'Élimine une mauvaise réponse par question pendant tout un quiz complet.',
-    shopBtnBuy:'Acheter', shopBuyFor:'— 3 ⚡',
-    shopPending:n => `${n} dispo`,
+    shopBoostHintDesc:'Élimine une mauvaise réponse. Utilisable jusqu\'à 2 fois par question.',
+    shopBtnBuy10:'10 indices — 3 ⚡', shopBtnBuy20:'20 indices — 5 ⚡',
+    shopPending:n => `${n} indice${n > 1 ? 's' : ''} restant${n > 1 ? 's' : ''}`,
     shopInsufficient:'Champion, tu n\'as pas assez de Libs.', shopBuyError:'Erreur lors de l\'achat.',
     shopBuyOk:'Boost acheté !',
     shopPromoTitle:'🎟 Code promo', shopPromoPlaceholder:'Code à 4 caractères', shopPromoBtn:'Valider',
@@ -282,9 +282,9 @@ const DICT = {
     help:{ title:'Help', tabs:{ general:'General', quiz:'Quiz', connect4:'Connect 4', ttt:'Tic Tac Toe', chess:'Chess' } },
     shopTitle:'⚡ Shop', shopBalanceLabel:'Your balance:',
     shopBoostHintName:'💡 Quiz Hint',
-    shopBoostHintDesc:'Eliminates a wrong answer per question for a whole quiz.',
-    shopBtnBuy:'Buy', shopBuyFor:'— 3 ⚡',
-    shopPending:n => `${n} available`,
+    shopBoostHintDesc:'Eliminates a wrong answer. Usable up to 2 times per question.',
+    shopBtnBuy10:'10 hints — 3 ⚡', shopBtnBuy20:'20 hints — 5 ⚡',
+    shopPending:n => `${n} hint${n > 1 ? 's' : ''} remaining`,
     shopInsufficient:'Champion, you don\'t have enough Libs.', shopBuyError:'Purchase failed.',
     shopBuyOk:'Boost purchased!',
     shopPromoTitle:'🎟 Promo code', shopPromoPlaceholder:'4-character code', shopPromoBtn:'Redeem',
@@ -1477,7 +1477,7 @@ function goToTriviaHome() {
   clearTriviaSession();
   triviaRoomCode = null; triviaIsHost = false; triviaIsSolo = false;
   triviaAnsweredThis = false; triviaChoiceSelected = null;
-  boostHintActive = false; boostHintUsedThisQ = false;
+  pendingHintCharges = 0; hintsUsedThisQ = 0;
   _updateBoostHintBtn();
   triviaPaused = false; triviaPauseRemaining = 0;
   $('btn-trivia-pause').classList.add('hidden');
@@ -1624,7 +1624,7 @@ const LETTERS = ['A','B','C','D'];
 
 function showTriviaQuestion({ questionNum, totalQuestions, question, choices, timeLimit, scores }) {
   triviaAnsweredThis = false; triviaChoiceSelected = null;
-  boostHintUsedThisQ = false;
+  hintsUsedThisQ = 0;
   _updateBoostHintBtn();
   $('tg-q-num').textContent = `Q ${questionNum} / ${totalQuestions}`;
   $('tg-question').textContent = question;
@@ -1871,7 +1871,7 @@ socket.on('trivia-start', ({ totalQuestions, categoryName }) => {
   $('tg-finished').classList.add('hidden');
   $('btn-trivia-pause').classList.add('hidden');
   $('trivia-pause-overlay').classList.add('hidden');
-  boostHintActive = false; boostHintUsedThisQ = false;
+  hintsUsedThisQ = 0;
   socket.emit('activate-quiz-boost', { playerId: getPlayerId() });
   showScreen('trivia-game');
 });
@@ -1901,7 +1901,7 @@ socket.on('trivia-solo-questions', (questions) => {
   triviaQuestions = shuffle(questions);
   if (!triviaQuestions.length) { showTriviaError(t().errLoadQ); return; }
   triviaIsSolo = true; triviaCurrentQ = 0; triviaScore = 0; triviaRoomCode = null;
-  boostHintActive = false; boostHintUsedThisQ = false;
+  hintsUsedThisQ = 0;
   socket.emit('activate-quiz-boost', { playerId: getPlayerId() });
   triviaPaused = false;
   saveTriviaSession({ isSolo: true, questions: triviaQuestions, currentQ: 0, score: 0 });
@@ -2102,7 +2102,8 @@ socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt } = {}) => 
   _refreshLibsUI(prev, libsBalance, delta ?? null);
   const shopBal = $('shop-balance-display');
   if (shopBal) shopBal.textContent = `⚡ ${libsBalance} Libs`;
-  _updateShopPending(pendingBoostHint);
+  if (pendingBoostHint !== undefined) { pendingHintCharges = pendingBoostHint; _updateBoostHintBtn(); }
+  _updateShopPending(pendingHintCharges);
   if (nextAt) { _nextDistAt = nextAt; _updateLibsCountdown(); }
 });
 
@@ -2134,15 +2135,15 @@ socket.on('redeem-result', ({ ok, delta, error } = {}) => {
   }
 });
 
-socket.on('quiz-boost-status', ({ active, balance, pendingBoostHint } = {}) => {
-  boostHintActive = !!active;
+socket.on('quiz-boost-status', ({ balance, pendingBoostHint } = {}) => {
+  if (pendingBoostHint !== undefined) pendingHintCharges = pendingBoostHint;
   if (balance !== undefined) {
     libsBalance = balance;
     localStorage.setItem('libero_libs', String(libsBalance));
     const balEl = $('libs-balance');
     if (balEl) balEl.textContent = libsBalance;
   }
-  _updateShopPending(pendingBoostHint);
+  _updateShopPending(pendingHintCharges);
   _updateBoostHintBtn();
 });
 
@@ -2267,14 +2268,12 @@ function _renderShopItems() {
     <div class="shop-item">
       <div class="shop-item-header">
         <span class="shop-item-name">${d.shopBoostHintName}</span>
-        <span class="shop-item-price">3 ⚡</span>
+        <span class="shop-pending" id="shop-pending-boost-hint"></span>
       </div>
       <p class="shop-item-desc">${d.shopBoostHintDesc}</p>
       <div class="shop-item-footer">
-        <span class="shop-pending" id="shop-pending-boost-hint">…</span>
-        <button id="btn-buy-boost-hint" class="btn btn-primary" style="font-size:.8rem;padding:6px 14px;">
-          ${d.shopBtnBuy} ${d.shopBuyFor}
-        </button>
+        <button id="btn-buy-boost-hint-10" class="btn btn-primary" style="font-size:.8rem;padding:6px 14px;">${d.shopBtnBuy10}</button>
+        <button id="btn-buy-boost-hint-20" class="btn btn-primary" style="font-size:.8rem;padding:6px 14px;">${d.shopBtnBuy20}</button>
       </div>
     </div>
     <div class="shop-promo-section">
@@ -2287,8 +2286,11 @@ function _renderShopItems() {
       </div>
     </div>
   `;
-  $('btn-buy-boost-hint').addEventListener('click', () => {
-    socket.emit('buy-boost', { itemId: 'boost_hint', playerId: getPlayerId() });
+  $('btn-buy-boost-hint-10').addEventListener('click', () => {
+    socket.emit('buy-boost', { itemId: 'boost_hint_10', playerId: getPlayerId() });
+  });
+  $('btn-buy-boost-hint-20').addEventListener('click', () => {
+    socket.emit('buy-boost', { itemId: 'boost_hint_20', playerId: getPlayerId() });
   });
   $('btn-redeem-code').addEventListener('click', () => {
     const code = ($('shop-promo-input').value || '').trim();
@@ -2333,21 +2335,21 @@ $('overlay-shop').addEventListener('click', e => { if (e.target === $('overlay-s
 function _updateBoostHintBtn() {
   const btn = $('btn-boost-hint');
   if (!btn) return;
-  const d = t();
-  btn.textContent = d.boostHintBtn;
-  if (boostHintActive) {
+  btn.textContent = t().boostHintBtn;
+  if (pendingHintCharges > 0) {
     btn.classList.remove('hidden');
-    btn.disabled = boostHintUsedThisQ;
+    btn.disabled = hintsUsedThisQ >= 2;
   } else {
     btn.classList.add('hidden');
   }
 }
 
 $('btn-boost-hint').addEventListener('click', () => {
-  if (!boostHintActive || boostHintUsedThisQ) return;
-  boostHintUsedThisQ = true;
+  if (pendingHintCharges <= 0 || hintsUsedThisQ >= 2) return;
+  hintsUsedThisQ++;
   _updateBoostHintBtn();
   if (triviaIsSolo) {
+    socket.emit('use-boost-hint', { playerId: getPlayerId(), solo: true });
     const q = triviaQuestions[triviaCurrentQ];
     if (!q) return;
     const choices = $('tg-choices').querySelectorAll('.tg-choice:not([disabled])');
@@ -2357,7 +2359,7 @@ $('btn-boost-hint').addEventListener('click', () => {
       target.classList.add('dimmed'); target.disabled = true;
     }
   } else {
-    socket.emit('use-boost-hint');
+    socket.emit('use-boost-hint', { playerId: getPlayerId() });
   }
 });
 

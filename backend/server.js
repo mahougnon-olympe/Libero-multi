@@ -124,7 +124,10 @@ const DECAY_GRACE_MS  = 48 * 3_600_000;
 const DECAY_PERIOD_MS = 24 * 3_600_000;
 const DECAY_AMOUNT    = 10;
 const LIBS_REWARDS    = [5, 3, 2];
-const SHOP_ITEMS      = [{ id: 'boost_hint', price: 3 }];
+const SHOP_ITEMS      = [
+  { id: 'boost_hint_10', price: 3, amount: 10 },
+  { id: 'boost_hint_20', price: 5, amount: 20 },
+];
 
 function applyDecay(entry) {
   if (!entry.lastActive) return entry;
@@ -966,7 +969,7 @@ io.on('connection', (socket) => {
       return;
     }
     entry.balance -= item.price;
-    if (itemId === 'boost_hint') entry.pendingBoostHint = (entry.pendingBoostHint || 0) + 1;
+    entry.pendingBoostHint = (entry.pendingBoostHint || 0) + item.amount;
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
     socket.emit('buy-boost-result', { ok: true, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, itemId });
@@ -996,19 +999,23 @@ io.on('connection', (socket) => {
 
   socket.on('activate-quiz-boost', ({ playerId } = {}) => {
     const id = safePlayerId(playerId);
-    if (!id) { socket.emit('quiz-boost-status', { active: false }); return; }
+    if (!id) { socket.emit('quiz-boost-status', { active: false, pendingBoostHint: 0 }); return; }
     const entry = getLibsEntry(id);
-    if (!entry.pendingBoostHint || entry.pendingBoostHint <= 0) {
-      socket.emit('quiz-boost-status', { active: false });
-      return;
-    }
-    entry.pendingBoostHint--;
-    libs.set(id, entry);
-    dbUpsertLibs(id, entry);
-    socket.emit('quiz-boost-status', { active: true, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint });
+    socket.emit('quiz-boost-status', { active: entry.pendingBoostHint > 0, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint });
   });
 
-  socket.on('use-boost-hint', () => {
+  socket.on('use-boost-hint', ({ playerId, solo } = {}) => {
+    const pid = safePlayerId(playerId) || socketPlayerIds.get(socket.id);
+    if (pid) {
+      const entry = getLibsEntry(pid);
+      if (entry.pendingBoostHint > 0) {
+        entry.pendingBoostHint--;
+        libs.set(pid, entry);
+        dbUpsertLibs(pid, entry);
+        socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, nextAt: nextDistributionAt });
+      }
+    }
+    if (solo) return;
     const room = triviaRooms.get(triviaRoomCode);
     if (!room || room.status !== 'question') { socket.emit('boost-hint-result', { eliminateChoice: null }); return; }
     const q = room.questions[room.currentQ];
