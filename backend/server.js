@@ -889,7 +889,11 @@ app.post('/api/comment', (req, res) => {
   const now = Date.now();
   const times = (commentRateMap.get(ip) || []).filter(t => now - t < 3_600_000);
   if (times.length >= 3) {
-    return res.status(429).json({ error: 'Limite atteinte. Réessaie dans une heure.' });
+    const oldest    = Math.min(...times);
+    const waitMs    = 3_600_000 - (now - oldest);
+    const waitMins  = Math.ceil(waitMs / 60_000);
+    const waitStr   = waitMins <= 1 ? 'moins d\'une minute' : `${waitMins} minutes`;
+    return res.status(429).json({ error: `Limite atteinte (3/h). Réessaie dans ${waitStr}.`, waitMs });
   }
   times.push(now);
   commentRateMap.set(ip, times);

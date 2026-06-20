@@ -2153,13 +2153,63 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   const feedback = $('comment-feedback');
   const sendBtn  = $('btn-comment-send');
 
+  const LS_BLOCK = 'libero_comment_block'; // { until: timestamp }
+  let countdownTimer = null;
+
+  function getRemainingMs() {
+    try {
+      const b = JSON.parse(localStorage.getItem(LS_BLOCK) || 'null');
+      if (b && b.until > Date.now()) return b.until - Date.now();
+    } catch {}
+    return 0;
+  }
+
+  function startCooldown(waitMs) {
+    const until = Date.now() + waitMs;
+    localStorage.setItem(LS_BLOCK, JSON.stringify({ until }));
+    runCountdown(until);
+  }
+
+  function runCountdown(until) {
+    clearInterval(countdownTimer);
+    function tick() {
+      const left = until - Date.now();
+      if (left <= 0) {
+        clearInterval(countdownTimer);
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Envoyer ✉️';
+        feedback.className = 'comment-feedback hidden';
+        localStorage.removeItem(LS_BLOCK);
+        return;
+      }
+      const mins = Math.ceil(left / 60_000);
+      const str  = mins <= 1 ? 'moins d\'une minute' : `${mins} min`;
+      feedback.textContent = `⏳ Limite atteinte (3/h). Réessaie dans ${str}.`;
+      feedback.className = 'comment-feedback err';
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Patiente…';
+    }
+    tick();
+    countdownTimer = setInterval(tick, 30_000);
+  }
+
   function openModal() {
     overlay.classList.remove('hidden');
-    feedback.className = 'comment-feedback hidden';
-    feedback.textContent = '';
     pseudo.value = localStorage.getItem('playerName') || '';
+    const left = getRemainingMs();
+    if (left > 0) {
+      runCountdown(Date.now() + left);
+    } else {
+      feedback.className = 'comment-feedback hidden';
+      feedback.textContent = '';
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'Envoyer ✉️';
+    }
   }
-  function closeModal() { overlay.classList.add('hidden'); }
+  function closeModal() {
+    overlay.classList.add('hidden');
+    clearInterval(countdownTimer);
+  }
 
   $('btn-comment').addEventListener('click', openModal);
   $('btn-comment-close').addEventListener('click', closeModal);
@@ -2210,6 +2260,8 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
         form.reset();
         charsEl.textContent = '0 / 1000';
         setTimeout(closeModal, 2200);
+      } else if (res.status === 429 && data.waitMs) {
+        startCooldown(data.waitMs);
       } else {
         feedback.textContent = `❌ ${data.error || 'Erreur inconnue.'}`;
         feedback.className = 'comment-feedback err';
@@ -2219,8 +2271,10 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
       feedback.className = 'comment-feedback err';
     }
 
-    sendBtn.disabled = false;
-    sendBtn.textContent = 'Envoyer ✉️';
+    if (!sendBtn.disabled) {
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'Envoyer ✉️';
+    }
   });
 })();
 
