@@ -57,10 +57,10 @@ async function loadData() {
     db.collection('comments').find().sort({ date: 1 }).toArray(),
     db.collection('snake_leaderboard').find().toArray(),
   ]);
-  lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || d._id, wins: d.wins, losses: d.losses, draws: d.draws }));
-  tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || d._id, points: d.points, games: d.games }));
+  lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
+  tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
   cmtDocs.forEach(d => comments.push({ pseudo: d.pseudo, message: d.message, date: d.date }));
-  slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || d._id, hs: d.hs }));
+  slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${cmtDocs.length} commentaires.`);
 }
 
@@ -202,8 +202,7 @@ function getGlobalLeaderboardData() {
     const tr = triviaLeaderboard.get(id) || { name: '', points: 0 };
     const sk = snakeLeaderboard.get(id)  || { name: '', hs: 0 };
     const name = c.name || tr.name || sk.name;
-    // Ignore entries with no real name or where the name is the player ID itself
-    if (!name || name === id) continue;
+    if (!name) continue;
     const globalScore = c.wins * 10 + tr.points + sk.hs * 10;
     if (globalScore <= 0) continue;
     const existing = byName.get(name);
