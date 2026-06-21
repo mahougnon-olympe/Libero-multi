@@ -2306,6 +2306,7 @@ function openShop() {
 
 function _renderShopItems() {
   const d = t();
+  const playerPreview = localStorage.getItem('playerName') || d.shopCosmeticPreview;
   const container = $('shop-items-list');
   if (!container) return;
   container.innerHTML = `
@@ -2341,7 +2342,7 @@ function _renderShopItems() {
               : `<button class="btn btn-secondary shop-cosmetic-btn" data-id="${c.id}" data-action="equip">${d.shopCosmeticEquip}</button>`
             : `<button class="btn btn-primary shop-cosmetic-btn" data-id="${c.id}" data-action="buy">${d.shopCosmeticBuy(c.price)}</button>`;
           return `<div class="shop-cosmetic-card">
-            <span class="shop-cosmetic-preview name-${c.id}">${d.shopCosmeticPreview}</span>
+            <span class="shop-cosmetic-preview name-${c.id}">${playerPreview}</span>
             <span class="shop-cosmetic-name">${d.shopCosmeticNames[c.id]}</span>
             ${btnHtml}
           </div>`;
