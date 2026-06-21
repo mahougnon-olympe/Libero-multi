@@ -15,6 +15,7 @@ let hintsUsedThisQ     = 0;
 let ownedCosmetics     = [];
 let equippedCosmetic   = null;
 let equippedFont       = null;
+let equippedBubble     = null;
 let _libsAnimTimer     = null;
 let _libsDistTimer     = null;
 let _nextDistAt        = 0;
@@ -124,6 +125,8 @@ const DICT = {
     shopFontsTitle:'✍️ Polices de pseudo',
     shopFontCategories:{ futuriste:'Futuriste', impact:'Impact', hacker:'Hacker', retro:'Rétro', fun:'Fun', elegant:'Élégant', free:'Gratuit' },
     shopFontGetFree:'Obtenir',
+    shopBubbleTitle:'💬 Bulles de chat',
+    shopBubbleNames:{ 'bubble-ardoise':'Ardoise', 'bubble-ocean':'Océan', 'bubble-menthe':'Menthe', 'bubble-corail':'Corail', 'bubble-ambre':'Ambre', 'bubble-lavande':'Lavande', 'bubble-rubis':'Rubis', 'bubble-emeraude':'Émeraude', 'bubble-indigo':'Indigo', 'bubble-magenta':'Magenta néon', 'bubble-cyan':'Cyan néon', 'bubble-crepuscule':'Crépuscule', 'bubble-aurore':'Aurore', 'bubble-sunset':'Coucher de soleil', 'bubble-tropical':'Tropical', 'bubble-arcade':'Néon arcade', 'bubble-galaxie':'Galaxie', 'bubble-verre':'Verre néon', 'bubble-or':'Or liquide', 'bubble-holographique':'Holographique', 'bubble-cameleon':'Caméléon' },
     boostHintBtn:'💡 Indice',
     helpLibsTitle:'Libs (monnaie)',
     helpLibsDesc:'Les Libs ⚡ sont une monnaie virtuelle. Les joueurs classés <strong>top 3 du classement Global</strong> en gagnent automatiquement toutes les 5 heures (1er : +5 ⚡, 2e : +3 ⚡, 3e : +2 ⚡). Si tu ne joues pas pendant 48 h, ton solde diminue de 10 ⚡ par jour supplémentaire. Clique sur le compteur ⚡ en haut à droite pour ouvrir la boutique. Les joueurs anonymes ne perçoivent pas de Libs.',
@@ -315,6 +318,8 @@ const DICT = {
     shopFontsTitle:'✍️ Pseudo fonts',
     shopFontCategories:{ futuriste:'Futuristic', impact:'Impact', hacker:'Hacker', retro:'Retro', fun:'Fun', elegant:'Elegant', free:'Free' },
     shopFontGetFree:'Get',
+    shopBubbleTitle:'💬 Chat bubbles',
+    shopBubbleNames:{ 'bubble-ardoise':'Slate', 'bubble-ocean':'Ocean', 'bubble-menthe':'Mint', 'bubble-corail':'Coral', 'bubble-ambre':'Amber', 'bubble-lavande':'Lavender', 'bubble-rubis':'Ruby', 'bubble-emeraude':'Emerald', 'bubble-indigo':'Indigo', 'bubble-magenta':'Neon magenta', 'bubble-cyan':'Neon cyan', 'bubble-crepuscule':'Dusk', 'bubble-aurore':'Aurora', 'bubble-sunset':'Sunset', 'bubble-tropical':'Tropical', 'bubble-arcade':'Arcade neon', 'bubble-galaxie':'Galaxy', 'bubble-verre':'Neon glass', 'bubble-or':'Liquid gold', 'bubble-holographique':'Holographic', 'bubble-cameleon':'Chameleon' },
     boostHintBtn:'💡 Hint',
     helpLibsTitle:'Libs (currency)',
     helpLibsDesc:'Libs ⚡ are a virtual currency. Players ranked <strong>top 3 in the Global leaderboard</strong> automatically earn some every 5 hours (1st: +5 ⚡, 2nd: +3 ⚡, 3rd: +2 ⚡). If you don\'t play for 48 h, your balance drops by 10 ⚡ per additional day of inactivity. Click the ⚡ counter in the top-right corner to open the shop. Anonymous players do not receive Libs.',
@@ -1367,14 +1372,15 @@ $('chat-form').addEventListener('submit', e => {
   input.value = '';
 });
 
-function appendMessage({ player, text, timestamp }) {
+function appendMessage({ player, text, timestamp, bubbleColor }) {
   const time = new Date(timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   const mine = player === myPlayer;
   const msg  = document.createElement('div');
   msg.className = `msg ${mine ? 'msg-mine' : 'msg-theirs'}`;
 
   const bubble = document.createElement('div');
-  bubble.className = 'msg-bubble';
+  const bc = _bubbleClass(bubbleColor);
+  bubble.className = `msg-bubble${bc ? ' ' + bc : ''}`;
   bubble.textContent = text;
 
   const meta = document.createElement('span');
@@ -2120,7 +2126,7 @@ socket.on('global-leaderboard-update', (data) => {
 socket.on('snake-leaderboard-update', (data) => { renderSnakeLeaderboard(data); });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont } = {}) => {
+socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble } = {}) => {
   const prev = libsBalance;
   libsBalance = balance ?? 0;
   localStorage.setItem('libero_libs', String(libsBalance));
@@ -2134,6 +2140,7 @@ socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosme
     ownedCosmetics   = newOwned;
     equippedCosmetic = newEquipped !== undefined ? newEquipped : equippedCosmetic;
     equippedFont     = newFont     !== undefined ? newFont     : equippedFont;
+    equippedBubble   = newBubble   !== undefined ? newBubble   : equippedBubble;
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   }
 });
@@ -2180,10 +2187,11 @@ socket.on('buy-cosmetic-result', ({ ok, cosmeticId, error } = {}) => {
   }
 });
 
-socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippedFont: newFont } = {}) => {
+socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippedFont: newFont, equippedBubble: newBubble } = {}) => {
   if (ok) {
     if (newCosmetic !== undefined) equippedCosmetic = newCosmetic;
     if (newFont     !== undefined) equippedFont     = newFont;
+    if (newBubble   !== undefined) equippedBubble   = newBubble;
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   }
 });
@@ -2371,7 +2379,7 @@ function _renderShopItems() {
         { key:'free',      price:0,   fonts:[{id:'font-monoton',name:'Monoton'}] },
       ].map(group => `
         <div class="shop-font-group">
-          <span class="shop-font-group-label">${d.shopFontCategories[group.key]}${group.price > 0 ? ` — ${group.price} ⚡` : ''}</span>
+          <span class="shop-font-group-label">${d.shopFontCategories[group.key]}${group.price > 0 ? ` · ${group.price} ⚡` : ''}</span>
           <div class="shop-cosmetics-grid">
             ${group.fonts.map(f => {
               const owned    = ownedCosmetics.includes(f.id);
@@ -2390,6 +2398,33 @@ function _renderShopItems() {
           </div>
         </div>
       `).join('')}
+    </div>
+    <div class="shop-cosmetics-section">
+      <span class="shop-promo-title">${d.shopBubbleTitle}</span>
+      <div class="shop-cosmetics-grid">
+        ${[
+          {id:'bubble-ardoise',price:5},{id:'bubble-ocean',price:10},{id:'bubble-menthe',price:10},
+          {id:'bubble-corail',price:12},{id:'bubble-ambre',price:15},{id:'bubble-lavande',price:20},
+          {id:'bubble-rubis',price:25},{id:'bubble-emeraude',price:30},{id:'bubble-indigo',price:40},
+          {id:'bubble-magenta',price:50},{id:'bubble-cyan',price:50},{id:'bubble-crepuscule',price:70},
+          {id:'bubble-aurore',price:80},{id:'bubble-sunset',price:90},{id:'bubble-tropical',price:100},
+          {id:'bubble-arcade',price:120},{id:'bubble-galaxie',price:140},{id:'bubble-verre',price:170},
+          {id:'bubble-or',price:180},{id:'bubble-holographique',price:190},{id:'bubble-cameleon',price:200},
+        ].map(b => {
+          const owned    = ownedCosmetics.includes(b.id);
+          const equipped = equippedBubble === b.id;
+          const btnHtml  = owned
+            ? equipped
+              ? `<button class="btn btn-cosmetic-equipped shop-cosmetic-btn" data-id="${b.id}" data-action="unequip" data-type="bubble">${d.shopCosmeticEquipped}</button>`
+              : `<button class="btn btn-secondary shop-cosmetic-btn" data-id="${b.id}" data-action="equip" data-type="bubble">${d.shopCosmeticEquip}</button>`
+            : `<button class="btn btn-primary shop-cosmetic-btn" data-id="${b.id}" data-action="buy" data-type="bubble">${d.shopCosmeticBuy(b.price)}</button>`;
+          return `<div class="shop-cosmetic-card">
+            <div class="shop-bubble-preview ${b.id}">Salut !</div>
+            <span class="shop-cosmetic-name">${d.shopBubbleNames[b.id]}</span>
+            ${btnHtml}
+          </div>`;
+        }).join('')}
+      </div>
     </div>
   `;
   $('btn-buy-boost-hint-10').addEventListener('click', () => {
@@ -2423,6 +2458,14 @@ function _updateShopPending(pendingBoostHint) {
   if (!el || pendingBoostHint === undefined) return;
   const d = t();
   el.textContent = pendingBoostHint > 0 ? d.shopPending(pendingBoostHint) : '';
+}
+
+function _bubbleClass(bubble) {
+  const valid = ['bubble-ardoise','bubble-ocean','bubble-menthe','bubble-corail','bubble-ambre',
+    'bubble-lavande','bubble-rubis','bubble-emeraude','bubble-indigo','bubble-magenta','bubble-cyan',
+    'bubble-crepuscule','bubble-aurore','bubble-sunset','bubble-tropical','bubble-arcade',
+    'bubble-galaxie','bubble-verre','bubble-or','bubble-holographique','bubble-cameleon'];
+  return bubble && valid.includes(bubble) ? bubble : '';
 }
 
 function _showShopFeedback(msg, color) {

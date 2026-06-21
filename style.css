@@ -1632,6 +1632,31 @@ html.light #screen-landing         { background: radial-gradient(ellipse at 50% 
 .font-fredoka    { font-family: 'Fredoka', sans-serif; }
 .font-monoton    { font-family: 'Monoton', sans-serif; }
 
+/* ── Chat bubble cosmetics ── */
+.shop-bubble-preview { font-size: .82rem; padding: 5px 10px; border-radius: 12px 12px 4px 12px; font-weight: 500; width: 100%; text-align: center; background: var(--card2); color: var(--text); }
+.msg-bubble.bubble-ardoise,       .shop-bubble-preview.bubble-ardoise       { background: #546e7a !important; color: #eceff1 !important; }
+.msg-bubble.bubble-ocean,         .shop-bubble-preview.bubble-ocean         { background: #1565c0 !important; color: #e3f2fd !important; }
+.msg-bubble.bubble-menthe,        .shop-bubble-preview.bubble-menthe        { background: #26a69a !important; color: #e0f2f1 !important; }
+.msg-bubble.bubble-corail,        .shop-bubble-preview.bubble-corail        { background: #ef5350 !important; color: #fff !important; }
+.msg-bubble.bubble-ambre,         .shop-bubble-preview.bubble-ambre         { background: #f57f17 !important; color: #fff3e0 !important; }
+.msg-bubble.bubble-lavande,       .shop-bubble-preview.bubble-lavande       { background: #7e57c2 !important; color: #ede7f6 !important; }
+.msg-bubble.bubble-rubis,         .shop-bubble-preview.bubble-rubis         { background: #b71c1c !important; color: #fce4ec !important; }
+.msg-bubble.bubble-emeraude,      .shop-bubble-preview.bubble-emeraude      { background: #1b5e20 !important; color: #e8f5e9 !important; }
+.msg-bubble.bubble-indigo,        .shop-bubble-preview.bubble-indigo        { background: #283593 !important; color: #e8eaf6 !important; }
+.msg-bubble.bubble-magenta,       .shop-bubble-preview.bubble-magenta       { background: #e91e63 !important; color: #fff !important; }
+.msg-bubble.bubble-cyan,          .shop-bubble-preview.bubble-cyan          { background: #00bcd4 !important; color: #fff !important; }
+.msg-bubble.bubble-crepuscule,    .shop-bubble-preview.bubble-crepuscule    { background: linear-gradient(135deg,#4a148c,#e91e63) !important; color: #fff !important; }
+.msg-bubble.bubble-aurore,        .shop-bubble-preview.bubble-aurore        { background: linear-gradient(135deg,#43e97b,#38f9d7) !important; color: #004d40 !important; }
+.msg-bubble.bubble-sunset,        .shop-bubble-preview.bubble-sunset        { background: linear-gradient(135deg,#f7971e,#e53935) !important; color: #fff !important; }
+.msg-bubble.bubble-tropical,      .shop-bubble-preview.bubble-tropical      { background: linear-gradient(135deg,#11998e,#38ef7d) !important; color: #fff !important; }
+.msg-bubble.bubble-arcade,        .shop-bubble-preview.bubble-arcade        { background: linear-gradient(135deg,#ff00de,#00ffe5) !important; color: #fff !important; }
+.msg-bubble.bubble-galaxie,       .shop-bubble-preview.bubble-galaxie       { background: linear-gradient(135deg,#0d0221,#3a0ca3,#7209b7,#b5179e) !important; color: #e0d7ff !important; }
+.msg-bubble.bubble-verre,         .shop-bubble-preview.bubble-verre         { background: rgba(0,200,255,.18) !important; border: 1.5px solid #00e5ff; color: #e0ffff !important; }
+.msg-bubble.bubble-or,            .shop-bubble-preview.bubble-or            { background: linear-gradient(135deg,#d4a017,#ffd700,#b8860b) !important; color: #1a0f00 !important; }
+.msg-bubble.bubble-holographique, .shop-bubble-preview.bubble-holographique { background: linear-gradient(135deg,#ff0080,#ff4500,#ffff00,#00ff80,#00ffff,#0040ff,#8000ff) !important; color: #fff !important; }
+.msg-bubble.bubble-cameleon,      .shop-bubble-preview.bubble-cameleon      { background: linear-gradient(270deg,#ff6b6b,#ffd93d,#6bcb77,#4d96ff,#c77dff); background-size: 400% 400% !important; animation: cameleon-shift 4s ease infinite !important; color: #fff !important; }
+@keyframes cameleon-shift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+
 /* ── Boost hint button in quiz ── */
 .boost-hint-btn {
   background: rgba(251,191,36,.15);
