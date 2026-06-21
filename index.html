@@ -435,17 +435,20 @@
 
   <!-- ── Modal : Boutique Libs ── -->
   <div id="overlay-shop" class="overlay hidden">
-    <div class="shop-modal">
-      <div class="shop-modal-header">
-        <h2 class="shop-modal-title" id="shop-modal-title">⚡ Boutique</h2>
-        <button id="btn-shop-close" class="help-close-btn">✕</button>
+    <div class="shop-fortnite">
+      <div class="shop-fn-header">
+        <h2 class="shop-fn-title" id="shop-modal-title">⚡ Boutique</h2>
+        <div class="shop-fn-header-right">
+          <div class="shop-fn-balance">
+            <span id="shop-balance-label" class="shop-fn-balance-label">Ton solde</span>
+            <span id="shop-balance-display" class="shop-fn-balance-amount">⚡ 0 Libs</span>
+          </div>
+          <button id="btn-shop-close" class="shop-fn-close-btn">✕</button>
+        </div>
       </div>
-      <div class="shop-balance-row">
-        <span id="shop-balance-label">Ton solde :</span>
-        <span id="shop-balance-display" class="shop-balance-amount">⚡ 0 Libs</span>
-      </div>
-      <div id="shop-items-list" class="shop-items-list"></div>
-      <p id="shop-feedback" class="shop-feedback"></p>
+      <div id="shop-items-list" class="shop-fn-body"></div>
+      <div id="shop-detail-panel" class="shop-fn-detail hidden"></div>
+      <p id="shop-feedback" class="shop-fn-toast hidden" role="status"></p>
     </div>
   </div>
 

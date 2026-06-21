@@ -17,6 +17,7 @@ let equippedCosmetic   = null;
 let equippedFont       = null;
 let equippedBubble     = null;
 let equippedBackground = localStorage.getItem('libero_equipped_bg') || null;
+let _shopDetailItem    = null;
 let _libsAnimTimer     = null;
 let _libsDistTimer     = null;
 let _nextDistAt        = 0;
@@ -2320,146 +2321,178 @@ function openShop() {
   const title = $('shop-modal-title');
   if (title) title.textContent = d.shopTitle;
   const lbl = $('shop-balance-label');
-  if (lbl) lbl.textContent = d.shopBalanceLabel;
+  if (lbl) lbl.textContent = currentLang === 'fr' ? 'Ton solde' : 'Your balance';
   const shopBal = $('shop-balance-display');
   if (shopBal) shopBal.textContent = `⚡ ${libsBalance} Libs`;
+  _shopDetailItem = null;
   _renderShopItems();
   socket.emit('get-libs', { playerId: getPlayerId() });
   $('overlay-shop').classList.remove('hidden');
 }
 
+function _getRarity(price) {
+  if (price === 0)   return 'commun';
+  if (price <= 20)  return 'commun';
+  if (price <= 80)  return 'rare';
+  if (price <= 150) return 'epique';
+  return 'legendaire';
+}
+
+const _FONT_DISPLAY_NAMES = {
+  'font-orbitron':'Orbitron','font-rajdhani':'Rajdhani','font-chakra':'Chakra Petch',
+  'font-audiowide':'Audiowide','font-exo2':'Exo 2','font-bungee':'Bungee',
+  'font-blackops':'Black Ops One','font-russo':'Russo One','font-pressstart':'Press Start 2P',
+  'font-vt323':'VT323','font-sharetech':'Share Tech Mono','font-majormono':'Major Mono',
+  'font-cinzel':'Cinzel','font-tektur':'Tektur','font-pacifico':'Pacifico',
+  'font-lobster':'Lobster','font-fredoka':'Fredoka','font-monoton':'Monoton',
+};
+
+const _FEATURED_IDS = ['bg-hologramme', 'bubble-cameleon'];
+
 function _renderShopItems() {
   const d = t();
+  const fr = currentLang === 'fr';
   const playerPreview = localStorage.getItem('playerName') || d.shopCosmeticPreview;
   const container = $('shop-items-list');
   if (!container) return;
+
+  const rarityLabel = {
+    commun:     fr ? 'Commun'     : 'Common',
+    rare:       'Rare',
+    epique:     fr ? 'Épique'     : 'Epic',
+    legendaire: fr ? 'Légendaire' : 'Legendary',
+  };
+  const lblOwned    = fr ? 'Possédé' : 'Owned';
+  const lblEquipped = fr ? 'Équipé'  : 'Equipped';
+  const lblFeatured = fr ? 'À la une' : 'Featured';
+  const lblFree     = fr ? 'Gratuit'  : 'Free';
+
+  const ALL_COLORS  = [
+    {id:'rainbow',price:100},{id:'galaxy',price:100},{id:'silver',price:20},
+    {id:'bronze',price:20},{id:'gold',price:70},{id:'diamond',price:70},
+  ];
+  const ALL_FONTS = [
+    {id:'font-orbitron',price:100},{id:'font-rajdhani',price:100},{id:'font-chakra',price:100},
+    {id:'font-audiowide',price:100},{id:'font-exo2',price:100},{id:'font-bungee',price:90},
+    {id:'font-blackops',price:90},{id:'font-russo',price:90},{id:'font-pressstart',price:10},
+    {id:'font-vt323',price:10},{id:'font-sharetech',price:50},{id:'font-majormono',price:50},
+    {id:'font-cinzel',price:200},{id:'font-tektur',price:200},{id:'font-pacifico',price:5},
+    {id:'font-lobster',price:5},{id:'font-fredoka',price:5},{id:'font-monoton',price:0},
+  ];
+  const ALL_BUBBLES = [
+    {id:'bubble-ardoise',price:5},{id:'bubble-ocean',price:10},{id:'bubble-menthe',price:10},
+    {id:'bubble-corail',price:12},{id:'bubble-ambre',price:15},{id:'bubble-lavande',price:20},
+    {id:'bubble-rubis',price:25},{id:'bubble-emeraude',price:30},{id:'bubble-indigo',price:40},
+    {id:'bubble-magenta',price:50},{id:'bubble-cyan',price:50},{id:'bubble-crepuscule',price:70},
+    {id:'bubble-aurore',price:80},{id:'bubble-sunset',price:90},{id:'bubble-tropical',price:100},
+    {id:'bubble-arcade',price:120},{id:'bubble-galaxie',price:140},{id:'bubble-verre',price:170},
+    {id:'bubble-or',price:180},{id:'bubble-holographique',price:190},{id:'bubble-cameleon',price:200},
+  ];
+  const ALL_BGS = [
+    {id:'bg-nuit',price:10},{id:'bg-ardoise',price:15},{id:'bg-brume',price:25},
+    {id:'bg-aurore-deg',price:40},{id:'bg-crepuscule',price:50},{id:'bg-cyber',price:70},
+    {id:'bg-circuit',price:80},{id:'bg-hexagones',price:90},{id:'bg-etoile',price:100},
+    {id:'bg-particules',price:120},{id:'bg-pluie',price:140},{id:'bg-vagues',price:150},
+    {id:'bg-synthwave',price:170},{id:'bg-nebuleuse',price:190},{id:'bg-aurores',price:210},
+    {id:'bg-galaxie',price:240},{id:'bg-tempete',price:270},{id:'bg-hologramme',price:300},
+  ];
+
+  const colorItems  = ALL_COLORS.map(c  => ({ ...c, type:'color',      name: d.shopCosmeticNames[c.id] }));
+  const fontItems   = ALL_FONTS.map(f   => ({ ...f, type:'font',       name: _FONT_DISPLAY_NAMES[f.id] }));
+  const bubbleItems = ALL_BUBBLES.map(b => ({ ...b, type:'bubble',     name: d.shopBubbleNames[b.id] }));
+  const bgItems     = ALL_BGS.map(b     => ({ ...b, type:'background', name: d.shopBgNames[b.id] }));
+
+  const allItemsById = {};
+  [...colorItems, ...fontItems, ...bubbleItems, ...bgItems].forEach(it => { allItemsById[it.id] = it; });
+  const featuredItems = _FEATURED_IDS.map(id => allItemsById[id]).filter(Boolean);
+
+  function tileHtml(item, large = false) {
+    const { id, type, price, name } = item;
+    const rarity  = _getRarity(price);
+    const owned   = ownedCosmetics.includes(id);
+    const isEquipped = [equippedCosmetic, equippedFont, equippedBubble, equippedBackground].includes(id);
+    const safeName = (name || id).replace(/"/g, '&quot;');
+    let previewHtml = '';
+    if (type === 'background') {
+      previewHtml = `<div class="shop-bg-preview ${id}"></div>`;
+    } else if (type === 'bubble') {
+      previewHtml = `<div class="shop-bubble-preview ${id}">Salut ! 👋</div>`;
+    } else if (type === 'font') {
+      previewHtml = `<span class="shop-fn-font-preview ${_cosmeticClass(equippedCosmetic)} ${id}">${playerPreview}</span>`;
+    } else if (type === 'color') {
+      previewHtml = `<span class="shop-cosmetic-preview name-${id} ${_fontClass(equippedFont)}">${playerPreview}</span>`;
+    }
+    return `<div class="shop-tile${large ? ' shop-tile-large' : ''} rarity-${rarity}"
+      data-id="${id}" data-type="${type}" data-price="${price}" data-name="${safeName}">
+      <div class="shop-tile-img">${previewHtml}</div>
+      <div class="shop-tile-footer">
+        <span class="shop-tile-name">${name || id}</span>
+        <span class="shop-tile-price">${price === 0 ? lblFree : price + ' ⚡'}</span>
+      </div>
+      <div class="shop-tile-badge rarity-${rarity}">${rarityLabel[rarity]}</div>
+      ${owned ? `<div class="shop-tile-owned">${isEquipped ? lblEquipped : lblOwned}</div>` : ''}
+    </div>`;
+  }
+
   container.innerHTML = `
-    <div class="shop-item">
-      <div class="shop-item-header">
-        <span class="shop-item-name">${d.shopBoostHintName}</span>
-        <span class="shop-pending" id="shop-pending-boost-hint"></span>
+    <section class="shop-fn-section">
+      <h3 class="shop-fn-section-title">${lblFeatured}</h3>
+      <div class="shop-fn-featured">
+        ${featuredItems.map(it => tileHtml(it, true)).join('')}
       </div>
-      <p class="shop-item-desc">${d.shopBoostHintDesc}</p>
-      <div class="shop-item-footer">
-        <button id="btn-buy-boost-hint-10" class="btn btn-primary" style="font-size:.8rem;padding:6px 14px;">${d.shopBtnBuy10}</button>
-        <button id="btn-buy-boost-hint-20" class="btn btn-primary" style="font-size:.8rem;padding:6px 14px;">${d.shopBtnBuy20}</button>
+    </section>
+    <section class="shop-fn-section">
+      <h3 class="shop-fn-section-title">${d.shopBgTitle}</h3>
+      <div class="shop-fn-grid">
+        ${bgItems.map(it => tileHtml(it)).join('')}
       </div>
-    </div>
-    <div class="shop-promo-section">
-      <span class="shop-promo-title">${d.shopPromoTitle}</span>
-      <div class="shop-promo-row">
-        <input id="shop-promo-input" type="text" maxlength="4" class="shop-promo-input"
-          placeholder="${d.shopPromoPlaceholder}" autocomplete="off" autocorrect="off"
-          autocapitalize="characters" spellcheck="false">
-        <button id="btn-redeem-code" class="btn btn-secondary" style="font-size:.8rem;padding:6px 14px;">${d.shopPromoBtn}</button>
+    </section>
+    <section class="shop-fn-section">
+      <h3 class="shop-fn-section-title">${d.shopBubbleTitle}</h3>
+      <div class="shop-fn-grid">
+        ${bubbleItems.map(it => tileHtml(it)).join('')}
       </div>
-      <span id="shop-promo-feedback" style="font-size:.8rem;min-height:1.1em;display:block;margin-top:4px;"></span>
-    </div>
-    <div class="shop-cosmetics-section">
-      <span class="shop-promo-title">${d.shopCosmeticsTitle}</span>
-      <div class="shop-cosmetics-grid">
-        ${[{id:'rainbow',price:100},{id:'galaxy',price:100},{id:'silver',price:20},{id:'bronze',price:20},{id:'gold',price:70},{id:'diamond',price:70}].map(c => {
-          const owned    = ownedCosmetics.includes(c.id);
-          const equipped = equippedCosmetic === c.id;
-          const btnHtml  = owned
-            ? equipped
-              ? `<button class="btn btn-cosmetic-equipped shop-cosmetic-btn" data-id="${c.id}" data-action="unequip" data-type="color">${d.shopCosmeticEquipped}</button>`
-              : `<button class="btn btn-secondary shop-cosmetic-btn" data-id="${c.id}" data-action="equip" data-type="color">${d.shopCosmeticEquip}</button>`
-            : `<button class="btn btn-primary shop-cosmetic-btn" data-id="${c.id}" data-action="buy" data-type="color">${d.shopCosmeticBuy(c.price)}</button>`;
-          return `<div class="shop-cosmetic-card">
-            <span class="shop-cosmetic-preview name-${c.id} ${_fontClass(equippedFont)}">${playerPreview}</span>
-            <span class="shop-cosmetic-name">${d.shopCosmeticNames[c.id]}</span>
-            ${btnHtml}
-          </div>`;
-        }).join('')}
+    </section>
+    <section class="shop-fn-section">
+      <h3 class="shop-fn-section-title">${d.shopFontsTitle}</h3>
+      <div class="shop-fn-grid">
+        ${fontItems.map(it => tileHtml(it)).join('')}
       </div>
-    </div>
-    <div class="shop-cosmetics-section">
-      <span class="shop-promo-title">${d.shopFontsTitle}</span>
-      ${[
-        { key:'futuriste', price:100, fonts:[{id:'font-orbitron',name:'Orbitron'},{id:'font-rajdhani',name:'Rajdhani'},{id:'font-chakra',name:'Chakra Petch'},{id:'font-audiowide',name:'Audiowide'},{id:'font-exo2',name:'Exo 2'}] },
-        { key:'impact',    price:90,  fonts:[{id:'font-bungee',name:'Bungee'},{id:'font-blackops',name:'Black Ops One'},{id:'font-russo',name:'Russo One'}] },
-        { key:'hacker',    price:50,  fonts:[{id:'font-sharetech',name:'Share Tech Mono'},{id:'font-majormono',name:'Major Mono'}] },
-        { key:'retro',     price:10,  fonts:[{id:'font-pressstart',name:'Press Start 2P'},{id:'font-vt323',name:'VT323'}] },
-        { key:'fun',       price:5,   fonts:[{id:'font-pacifico',name:'Pacifico'},{id:'font-lobster',name:'Lobster'},{id:'font-fredoka',name:'Fredoka'}] },
-        { key:'elegant',   price:200, fonts:[{id:'font-cinzel',name:'Cinzel'},{id:'font-tektur',name:'Tektur'}] },
-        { key:'free',      price:0,   fonts:[{id:'font-monoton',name:'Monoton'}] },
-      ].map(group => `
-        <div class="shop-font-group">
-          <span class="shop-font-group-label">${d.shopFontCategories[group.key]}${group.price > 0 ? ` · ${group.price} ⚡` : ''}</span>
-          <div class="shop-cosmetics-grid">
-            ${group.fonts.map(f => {
-              const owned    = ownedCosmetics.includes(f.id);
-              const equipped = equippedFont === f.id;
-              const btnHtml  = owned
-                ? equipped
-                  ? `<button class="btn btn-cosmetic-equipped shop-cosmetic-btn" data-id="${f.id}" data-action="unequip" data-type="font">${d.shopCosmeticEquipped}</button>`
-                  : `<button class="btn btn-secondary shop-cosmetic-btn" data-id="${f.id}" data-action="equip" data-type="font">${d.shopCosmeticEquip}</button>`
-                : `<button class="btn btn-primary shop-cosmetic-btn" data-id="${f.id}" data-action="buy" data-type="font">${group.price === 0 ? d.shopFontGetFree : d.shopCosmeticBuy(group.price)}</button>`;
-              return `<div class="shop-cosmetic-card">
-                <span class="shop-cosmetic-preview ${_cosmeticClass(equippedCosmetic)} ${f.id}">${playerPreview}</span>
-                <span class="shop-cosmetic-name">${f.name}</span>
-                ${btnHtml}
-              </div>`;
-            }).join('')}
-          </div>
+    </section>
+    <section class="shop-fn-section">
+      <h3 class="shop-fn-section-title">${d.shopCosmeticsTitle}</h3>
+      <div class="shop-fn-grid">
+        ${colorItems.map(it => tileHtml(it)).join('')}
+      </div>
+    </section>
+    <section class="shop-fn-section">
+      <h3 class="shop-fn-section-title">${fr ? 'Boosts' : 'Boosts'}</h3>
+      <div class="shop-fn-boost">
+        <div class="shop-fn-boost-header">
+          <span class="shop-fn-boost-name">${d.shopBoostHintName}</span>
+          <span class="shop-fn-boost-pending" id="shop-pending-boost-hint"></span>
         </div>
-      `).join('')}
-    </div>
-    <div class="shop-cosmetics-section">
-      <span class="shop-promo-title">${d.shopBubbleTitle}</span>
-      <div class="shop-cosmetics-grid">
-        ${[
-          {id:'bubble-ardoise',price:5},{id:'bubble-ocean',price:10},{id:'bubble-menthe',price:10},
-          {id:'bubble-corail',price:12},{id:'bubble-ambre',price:15},{id:'bubble-lavande',price:20},
-          {id:'bubble-rubis',price:25},{id:'bubble-emeraude',price:30},{id:'bubble-indigo',price:40},
-          {id:'bubble-magenta',price:50},{id:'bubble-cyan',price:50},{id:'bubble-crepuscule',price:70},
-          {id:'bubble-aurore',price:80},{id:'bubble-sunset',price:90},{id:'bubble-tropical',price:100},
-          {id:'bubble-arcade',price:120},{id:'bubble-galaxie',price:140},{id:'bubble-verre',price:170},
-          {id:'bubble-or',price:180},{id:'bubble-holographique',price:190},{id:'bubble-cameleon',price:200},
-        ].map(b => {
-          const owned    = ownedCosmetics.includes(b.id);
-          const equipped = equippedBubble === b.id;
-          const btnHtml  = owned
-            ? equipped
-              ? `<button class="btn btn-cosmetic-equipped shop-cosmetic-btn" data-id="${b.id}" data-action="unequip" data-type="bubble">${d.shopCosmeticEquipped}</button>`
-              : `<button class="btn btn-secondary shop-cosmetic-btn" data-id="${b.id}" data-action="equip" data-type="bubble">${d.shopCosmeticEquip}</button>`
-            : `<button class="btn btn-primary shop-cosmetic-btn" data-id="${b.id}" data-action="buy" data-type="bubble">${d.shopCosmeticBuy(b.price)}</button>`;
-          return `<div class="shop-cosmetic-card">
-            <div class="shop-bubble-preview ${b.id}">Salut !</div>
-            <span class="shop-cosmetic-name">${d.shopBubbleNames[b.id]}</span>
-            ${btnHtml}
-          </div>`;
-        }).join('')}
+        <p class="shop-fn-boost-desc">${d.shopBoostHintDesc}</p>
+        <div class="shop-fn-boost-btns">
+          <button id="btn-buy-boost-hint-10" class="btn btn-primary">${d.shopBtnBuy10}</button>
+          <button id="btn-buy-boost-hint-20" class="btn btn-primary">${d.shopBtnBuy20}</button>
+        </div>
       </div>
-    </div>
-    <div class="shop-cosmetics-section">
-      <span class="shop-promo-title">${d.shopBgTitle}</span>
-      <div class="shop-cosmetics-grid">
-        ${[
-          {id:'bg-nuit',price:10},{id:'bg-ardoise',price:15},{id:'bg-brume',price:25},
-          {id:'bg-aurore-deg',price:40},{id:'bg-crepuscule',price:50},{id:'bg-cyber',price:70},
-          {id:'bg-circuit',price:80},{id:'bg-hexagones',price:90},{id:'bg-etoile',price:100},
-          {id:'bg-particules',price:120},{id:'bg-pluie',price:140},{id:'bg-vagues',price:150},
-          {id:'bg-synthwave',price:170},{id:'bg-nebuleuse',price:190},{id:'bg-aurores',price:210},
-          {id:'bg-galaxie',price:240},{id:'bg-tempete',price:270},{id:'bg-hologramme',price:300},
-        ].map(b => {
-          const owned    = ownedCosmetics.includes(b.id);
-          const equipped = equippedBackground === b.id;
-          const btnHtml  = owned
-            ? equipped
-              ? `<button class="btn btn-cosmetic-equipped shop-cosmetic-btn" data-id="${b.id}" data-action="unequip" data-type="background">${d.shopCosmeticEquipped}</button>`
-              : `<button class="btn btn-secondary shop-cosmetic-btn" data-id="${b.id}" data-action="equip" data-type="background">${d.shopCosmeticEquip}</button>`
-            : `<button class="btn btn-primary shop-cosmetic-btn" data-id="${b.id}" data-action="buy" data-type="background">${d.shopCosmeticBuy(b.price)}</button>`;
-          return `<div class="shop-cosmetic-card">
-            <div class="shop-bg-preview ${b.id}"></div>
-            <span class="shop-cosmetic-name">${d.shopBgNames[b.id]}</span>
-            ${btnHtml}
-          </div>`;
-        }).join('')}
+    </section>
+    <section class="shop-fn-section">
+      <h3 class="shop-fn-section-title">${d.shopPromoTitle}</h3>
+      <div class="shop-fn-promo">
+        <div class="shop-fn-promo-row">
+          <input id="shop-promo-input" type="text" maxlength="4" class="shop-fn-promo-input"
+            placeholder="${d.shopPromoPlaceholder}" autocomplete="off" autocorrect="off"
+            autocapitalize="characters" spellcheck="false">
+          <button id="btn-redeem-code" class="btn btn-secondary">${d.shopPromoBtn}</button>
+        </div>
+        <span id="shop-promo-feedback" class="shop-fn-promo-feedback"></span>
       </div>
-    </div>
+    </section>
   `;
+
   $('btn-buy-boost-hint-10').addEventListener('click', () => {
     socket.emit('buy-boost', { itemId: 'boost_hint_10', playerId: getPlayerId() });
   });
@@ -2474,14 +2507,89 @@ function _renderShopItems() {
   $('shop-promo-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') $('btn-redeem-code').click();
   });
-  container.querySelectorAll('.shop-cosmetic-btn').forEach(btn => {
+  _updateShopPending(pendingHintCharges);
+
+  container.querySelectorAll('.shop-tile').forEach(tile => {
+    tile.addEventListener('click', () => {
+      const id    = tile.dataset.id;
+      const item  = allItemsById[id];
+      if (item) _openShopDetail(item);
+    });
+  });
+
+  if (_shopDetailItem) _openShopDetail(_shopDetailItem);
+}
+
+function _openShopDetail(item) {
+  _shopDetailItem = item;
+  const { id, type, price, name } = item;
+  const d   = t();
+  const fr  = currentLang === 'fr';
+  const rarity = _getRarity(price);
+  const playerPreview = localStorage.getItem('playerName') || d.shopCosmeticPreview;
+  const panel = $('shop-detail-panel');
+  if (!panel) return;
+
+  const rarityLabel = {
+    commun:     fr ? 'Commun'     : 'Common',
+    rare:       'Rare',
+    epique:     fr ? 'Épique'     : 'Epic',
+    legendaire: fr ? 'Légendaire' : 'Legendary',
+  };
+
+  let previewHtml = '';
+  if (type === 'background') {
+    previewHtml = `<div class="shop-bg-preview ${id}"></div>`;
+  } else if (type === 'bubble') {
+    previewHtml = `<div class="shop-bubble-preview ${id}">Salut ! 👋</div>`;
+  } else if (type === 'font') {
+    previewHtml = `<span class="shop-fn-font-preview ${_cosmeticClass(equippedCosmetic)} ${id}">${playerPreview}</span>`;
+  } else if (type === 'color') {
+    previewHtml = `<span class="shop-cosmetic-preview name-${id} ${_fontClass(equippedFont)}">${playerPreview}</span>`;
+  }
+
+  const owned      = ownedCosmetics.includes(id);
+  const isEquipped = [equippedCosmetic, equippedFont, equippedBubble, equippedBackground].includes(id);
+  const lblFree    = fr ? 'Gratuit' : 'Free';
+  const priceStr   = price === 0 ? lblFree : `${price} ⚡`;
+
+  let actionHtml = '';
+  if (owned) {
+    if (isEquipped) {
+      actionHtml = `<div class="shop-fn-equipped-label">${d.shopCosmeticEquipped}</div>
+        <button class="btn btn-secondary shop-detail-action-btn" data-id="${id}" data-action="unequip" data-type="${type}">${d.shopCosmeticUnequip}</button>`;
+    } else {
+      actionHtml = `<button class="btn btn-primary shop-detail-action-btn" data-id="${id}" data-action="equip" data-type="${type}">${d.shopCosmeticEquip}</button>`;
+    }
+  } else {
+    actionHtml = `<button class="btn btn-primary shop-detail-action-btn" data-id="${id}" data-action="buy" data-type="${type}">${price === 0 ? lblFree : d.shopCosmeticBuy(price)}</button>`;
+  }
+
+  panel.innerHTML = `
+    <button class="shop-fn-detail-back" id="shop-detail-back">← ${fr ? 'Retour' : 'Back'}</button>
+    <div class="shop-fn-detail-preview">${previewHtml}</div>
+    <div class="shop-fn-detail-info">
+      <span class="shop-fn-rarity-badge ${rarity}">${rarityLabel[rarity]}</span>
+      <h3 class="shop-fn-detail-name">${name || id}</h3>
+      <div class="shop-fn-detail-price">${priceStr}</div>
+      <div class="shop-fn-detail-action">${actionHtml}</div>
+    </div>
+  `;
+  panel.classList.remove('hidden');
+
+  $('shop-detail-back').addEventListener('click', () => {
+    panel.classList.add('hidden');
+    _shopDetailItem = null;
+  });
+
+  panel.querySelectorAll('.shop-detail-action-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const id     = btn.dataset.id;
       const action = btn.dataset.action;
-      const type   = btn.dataset.type || 'color';
-      if (action === 'buy')          socket.emit('buy-cosmetic',   { cosmeticId: id,   playerId: getPlayerId() });
-      else if (action === 'equip')   socket.emit('equip-cosmetic', { cosmeticId: id,   type, playerId: getPlayerId() });
-      else if (action === 'unequip') socket.emit('equip-cosmetic', { cosmeticId: null, type, playerId: getPlayerId() });
+      const bId   = btn.dataset.id;
+      const bType = btn.dataset.type;
+      if (action === 'buy')          socket.emit('buy-cosmetic',   { cosmeticId: bId,   playerId: getPlayerId() });
+      else if (action === 'equip')   socket.emit('equip-cosmetic', { cosmeticId: bId,   type: bType, playerId: getPlayerId() });
+      else if (action === 'unequip') socket.emit('equip-cosmetic', { cosmeticId: null,  type: bType, playerId: getPlayerId() });
     });
   });
 }
@@ -2505,9 +2613,10 @@ function _showShopFeedback(msg, color) {
   const fb = $('shop-feedback');
   if (!fb) return;
   fb.textContent = msg;
-  fb.style.color = color;
+  fb.style.color = color || '#fff';
+  fb.classList.remove('hidden');
   clearTimeout(fb._t);
-  fb._t = setTimeout(() => { fb.textContent = ''; }, 3000);
+  fb._t = setTimeout(() => { fb.classList.add('hidden'); fb.textContent = ''; }, 3500);
 }
 
 function _showPromoFeedback(msg, color) {
@@ -2520,8 +2629,12 @@ function _showPromoFeedback(msg, color) {
 }
 
 $('libs-counter').addEventListener('click', openShop);
-$('btn-shop-close').addEventListener('click', () => $('overlay-shop').classList.add('hidden'));
-$('overlay-shop').addEventListener('click', e => { if (e.target === $('overlay-shop')) $('overlay-shop').classList.add('hidden'); });
+$('btn-shop-close').addEventListener('click', () => {
+  $('overlay-shop').classList.add('hidden');
+  const dp = $('shop-detail-panel');
+  if (dp) dp.classList.add('hidden');
+  _shopDetailItem = null;
+});
 
 // Affichage initial du compteur
 (function() {
