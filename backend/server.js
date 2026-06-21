@@ -54,13 +54,14 @@ async function connectDB() {
 
 async function loadData() {
   if (!db) return;
-  const [lbDocs, tlbDocs, cmtDocs, slbDocs, libsDocs, aliasDocs] = await Promise.all([
+  const [lbDocs, tlbDocs, cmtDocs, slbDocs, libsDocs, aliasDocs, configDocs] = await Promise.all([
     db.collection('leaderboard').find().toArray(),
     db.collection('trivia_leaderboard').find().toArray(),
     db.collection('comments').find().sort({ date: 1 }).toArray(),
     db.collection('snake_leaderboard').find().toArray(),
     db.collection('libs').find().toArray(),
     db.collection('player_aliases').find().toArray(),
+    db.collection('server_config').find().toArray(),
   ]);
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
@@ -68,6 +69,8 @@ async function loadData() {
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [] }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
+  const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
+  if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
   console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias.`);
 }
 
@@ -119,6 +122,29 @@ function dbUpsertLibs(id, entry) {
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
+function dbSaveNextDistributionAt() {
+  if (!db) return;
+  db.collection('server_config')
+    .updateOne({ _id: 'nextDistributionAt' }, { $set: { value: nextDistributionAt } }, { upsert: true })
+    .catch(e => console.error('Erreur sauvegarde nextDistributionAt:', e));
+}
+
+async function resetLibsBalancesOnce() {
+  if (!db) return;
+  const flag = await db.collection('server_config').findOne({ _id: 'libs_reset_done' });
+  if (flag) return;
+  const promises = [];
+  for (const [id, entry] of libs.entries()) {
+    if (entry.name === 'Libero') continue;
+    entry.balance = 0;
+    libs.set(id, entry);
+    promises.push(db.collection('libs').updateOne({ _id: id }, { $set: { balance: 0 } }).catch(() => {}));
+  }
+  await Promise.all(promises);
+  await db.collection('server_config').insertOne({ _id: 'libs_reset_done', value: true });
+  console.log('💸 Soldes Libs remis à 0 (sauf Libero).');
+}
+
 // ── Libs : constantes ──────────────────────────────────────────────────────
 const DECAY_GRACE_MS  = 48 * 3_600_000;
 const DECAY_PERIOD_MS = 24 * 3_600_000;
@@ -167,6 +193,7 @@ let nextDistributionAt = 0;
 
 function distributeLibs() {
   nextDistributionAt = Date.now() + 5 * 3_600_000;
+  dbSaveNextDistributionAt();
   const top3 = getGlobalLeaderboardData().slice(0, 3);
   top3.forEach((rankEntry, i) => {
     if (!rankEntry.name || rankEntry.name === 'Anonyme') return;
@@ -1286,8 +1313,19 @@ async function mergeDuplicateNames() {
   await connectDB();
   await loadData();
   await mergeDuplicateNames();
-  distributeLibs();
-  setInterval(distributeLibs, 5 * 3_600_000);
+  await resetLibsBalancesOnce();
+
+  const DIST_INTERVAL = 5 * 3_600_000;
+  const now = Date.now();
+  if (nextDistributionAt > now) {
+    const delay = nextDistributionAt - now;
+    console.log(`⏳ Prochaine distribution Libs dans ${Math.round(delay / 60000)} min.`);
+    setTimeout(() => { distributeLibs(); setInterval(distributeLibs, DIST_INTERVAL); }, delay);
+  } else {
+    distributeLibs();
+    setInterval(distributeLibs, DIST_INTERVAL);
+  }
+
   const PORT = process.env.PORT || 3001;
   server.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));
 })();
