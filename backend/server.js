@@ -1049,10 +1049,12 @@ io.on('connection', (socket) => {
     socket.emit('buy-boost-result', { ok: true, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, itemId });
   });
 
-  socket.on('redeem-code', ({ code, playerId } = {}) => {
+  socket.on('redeem-code', ({ code, playerId, name } = {}) => {
     const id = safePlayerId(playerId);
     if (!id) { socket.emit('redeem-result', { ok: false, error: 'invalid' }); return; }
     const entry = getLibsEntry(id);
+    const cleanName = String(name || '').trim();
+    if (cleanName && cleanName !== 'Anonyme') entry.name = cleanName;
     if (!entry.name || entry.name === 'Anonyme') {
       socket.emit('redeem-result', { ok: false, error: 'anonymous' }); return;
     }

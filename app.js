@@ -2401,7 +2401,7 @@ function _renderShopItems() {
   $('btn-redeem-code').addEventListener('click', () => {
     const code = ($('shop-promo-input').value || '').trim();
     if (!code) return;
-    socket.emit('redeem-code', { code, playerId: getPlayerId() });
+    socket.emit('redeem-code', { code, playerId: getPlayerId(), name: localStorage.getItem('playerName') || '' });
   });
   $('shop-promo-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') $('btn-redeem-code').click();
