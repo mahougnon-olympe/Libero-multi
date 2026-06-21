@@ -386,12 +386,34 @@
 
   <!-- ── Bouton aide (flottant) ── -->
   <button id="btn-help" class="btn-help-float" title="Aide">?</button>
-  <!-- ── Bouton langue (flottant) ── -->
-  <button id="btn-lang" class="btn-lang-float" title="Langue / Language">🇬🇧 EN</button>
-  <!-- ── Bouton serpent (flottant) ── -->
-  <button id="btn-snake-toggle" class="btn-snake-float" title="Activer / Désactiver le serpent">🐍</button>
-  <!-- ── Bouton thème (flottant) ── -->
-  <button id="btn-theme-toggle" class="btn-theme-float" title="Basculer le thème">☀️</button>
+  <!-- ── Boutons cachés (pilotés par le panneau Paramètres) ── -->
+  <button id="btn-lang" class="btn-hidden" aria-hidden="true">🇬🇧 EN</button>
+  <button id="btn-snake-toggle" class="btn-hidden" aria-hidden="true">🐍</button>
+  <button id="btn-theme-toggle" class="btn-hidden" aria-hidden="true">☀️</button>
+
+  <!-- ── Bouton Paramètres ── -->
+  <button id="btn-settings" class="btn-settings-float" title="Paramètres">⚙️</button>
+
+  <!-- ── Panneau Paramètres ── -->
+  <div id="settings-panel" class="settings-panel hidden">
+    <div class="sp-row">
+      <span class="sp-label" data-sp-label="settingsLang">Langue</span>
+      <button id="sp-lang-btn" class="sp-toggle">🇬🇧 EN</button>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label" data-sp-label="settingsTheme">Thème</span>
+      <button id="sp-theme-btn" class="sp-toggle">☀️</button>
+    </div>
+    <div class="sp-row">
+      <span class="sp-label" data-sp-label="settingsSnake">Serpent</span>
+      <button id="sp-snake-btn" class="sp-toggle">Activé</button>
+    </div>
+    <div class="sp-divider"></div>
+    <div class="sp-row sp-row-refund">
+      <span class="sp-label" data-sp-label="settingsRefundTitle">Remboursements</span>
+    </div>
+    <p id="sp-refund-info" class="sp-refund-info">2/2 cartes disponibles</p>
+  </div>
 
   <!-- ── Compteur Libs (permanent, haut droite) ── -->
   <button id="libs-counter" class="libs-counter hidden" title="Ouvrir la boutique">

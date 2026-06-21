@@ -17,7 +17,9 @@ let equippedCosmetic   = null;
 let equippedFont       = null;
 let equippedBubble     = null;
 let equippedBackground = localStorage.getItem('libero_equipped_bg') || null;
-let _shopDetailItem    = null;
+let _shopDetailItem         = null;
+let refundCards             = 2;
+let refundCardsNextRefill   = null;
 let _libsAnimTimer     = null;
 let _libsDistTimer     = null;
 let _nextDistAt        = 0;
@@ -34,7 +36,7 @@ let isBotGame = false;
 let currentTurnPlayer = null;
 
 // ── Langue ───────────────────────────────────────────────────────────────────
-let currentLang = localStorage.getItem('lang') || 'fr';
+let currentLang = localStorage.getItem('lang') || (navigator.language?.startsWith('en') ? 'en' : 'fr');
 
 const TRIVIA_API_CAT_MAP = {
   9:'general_knowledge', 23:'history', 22:'geography', 17:'science',
@@ -131,6 +133,21 @@ const DICT = {
     shopBubbleNames:{ 'bubble-ardoise':'Ardoise', 'bubble-ocean':'Océan', 'bubble-menthe':'Menthe', 'bubble-corail':'Corail', 'bubble-ambre':'Ambre', 'bubble-lavande':'Lavande', 'bubble-rubis':'Rubis', 'bubble-emeraude':'Émeraude', 'bubble-indigo':'Indigo', 'bubble-magenta':'Magenta néon', 'bubble-cyan':'Cyan néon', 'bubble-crepuscule':'Crépuscule', 'bubble-aurore':'Aurore', 'bubble-sunset':'Coucher de soleil', 'bubble-tropical':'Tropical', 'bubble-arcade':'Néon arcade', 'bubble-galaxie':'Galaxie', 'bubble-verre':'Verre néon', 'bubble-or':'Or liquide', 'bubble-holographique':'Holographique', 'bubble-cameleon':'Caméléon' },
     shopBgTitle:'🖼 Fonds d\'écran',
     shopBgNames:{'bg-nuit':'Nuit Calme','bg-ardoise':'Ardoise Profonde','bg-brume':'Brume Violette','bg-aurore-deg':'Dégradé Aurore','bg-crepuscule':'Crépuscule Néon','bg-cyber':'Grille Cyber','bg-circuit':'Circuit','bg-hexagones':'Hexagones','bg-etoile':'Ciel Étoilé','bg-particules':'Particules Flottantes','bg-pluie':'Pluie Néon','bg-vagues':'Vagues Lumineuses','bg-synthwave':'Synthwave','bg-nebuleuse':'Nébuleuse','bg-aurores':'Aurores Mouvantes','bg-galaxie':'Galaxie Vivante','bg-tempete':'Tempête Néon','bg-hologramme':'Hologramme'},
+    settingsTitle:'⚙️ Paramètres',
+    settingsLang:'Langue', settingsTheme:'Thème', settingsSnake:'Serpent',
+    settingsSnakeOn:'Activé', settingsSnakeOff:'Désactivé',
+    settingsRefundTitle:'Cartes de remboursement',
+    settingsRefundInfo:(cards, next) => {
+      const base = `${cards}/2 carte${cards !== 1 ? 's' : ''} disponible${cards !== 1 ? 's' : ''}`;
+      if (!next || cards >= 2) return base;
+      const ms = next - Date.now(); if (ms <= 0) return base;
+      const d = Math.floor(ms / 86400000), h = Math.floor((ms % 86400000) / 3600000);
+      return `${base} · recharge dans ${d > 0 ? `${d}j ` : ''}${h}h`;
+    },
+    shopRefundBtn:'🎟 Rembourser',
+    shopRefundNoCards:'Plus de cartes disponibles',
+    shopRefundOk:n => `+${n} ⚡ remboursé !`,
+    shopRefundError:'Erreur lors du remboursement.',
     boostHintBtn:'💡 Indice',
     helpLibsTitle:'Libs (monnaie)',
     helpLibsDesc:'Les Libs ⚡ sont une monnaie virtuelle. Les joueurs classés <strong>top 3 du classement Global</strong> en gagnent automatiquement toutes les 5 heures (1er : +5 ⚡, 2e : +3 ⚡, 3e : +2 ⚡). Si tu ne joues pas pendant 48 h, ton solde diminue de 10 ⚡ par jour supplémentaire. Clique sur le compteur ⚡ en haut à droite pour ouvrir la boutique. Les joueurs anonymes ne perçoivent pas de Libs.',
@@ -188,8 +205,8 @@ const DICT = {
         { icon:'🏆', title:'Classements par section', desc:"Chaque section garde aussi son propre classement : victoires/défaites/nuls pour les Jeux Classiques, total de points pour le Quiz." },
         { icon:'?', title:'Pour la communauté', desc:"Cette section te permet de voter pour le prochain jeu ajouté sur Libero. Propose ton idée via le bouton <strong>✉️</strong> en bas à gauche, les suggestions les plus mentionnées seront soumises au vote, le jeu le plus voté sera développé et intégré au site." },
         { icon:'📰', title:'News', desc:"La carte News est repliée dans le <strong>coin en haut à gauche</strong>. <strong>Clique dessus</strong> pour l'ouvrir : elle affiche les dernières actualités, annonces et commentaires de joueurs. Reclique pour la refermer." },
-        { icon:'🐍', title:'Serpent', desc:"Un petit serpent suit ton curseur. Il <strong>grandit et change de couleur</strong> selon ton score global 🌍 : or (1er), bleu (2e), bronze (3e). Joue et grimpe dans le classement pour l'allonger ! Clique sur <strong>🐍</strong> pour l'activer/désactiver." },
-        { icon:'☀️', title:'Thème jour / nuit', desc:"Le bouton <strong>☀️</strong> / <strong>🌙</strong> en <em>haut à droite</em> bascule entre le thème clair et sombre. Le site s'adapte aussi automatiquement selon l'heure (clair de 7h à 20h, sombre la nuit). Ton choix manuel est mémorisé entre les sessions." },
+        { icon:'🐍', title:'Serpent', desc:"Un petit serpent suit ton curseur. Il <strong>grandit et change de couleur</strong> selon ton score global 🌍 : or (1er), bleu (2e), bronze (3e). Joue et grimpe dans le classement pour l'allonger ! Active ou désactive-le via le bouton <strong>⚙️</strong> en haut à droite → <strong>Serpent</strong>." },
+        { icon:'☀️', title:'Thème jour / nuit', desc:"Le bouton <strong>⚙️</strong> en <em>haut à droite</em> → <strong>Thème</strong> bascule entre le thème clair et sombre. Le site s'adapte aussi automatiquement selon l'heure (clair de 7h à 20h, sombre la nuit). Ton choix manuel est mémorisé entre les sessions." },
         { icon:'🚪', title:'Bouton Quitter', desc:"Pendant une partie, le bouton <em>🚪 Quitter</em> en haut au centre te ramène au menu principal. Si une partie est en cours, tu es averti que tu abandonneras avant de confirmer." },
         { icon:'✉️', title:'Laisser un commentaire', desc:"Clique sur le bouton <strong>✉️</strong> en bas à gauche pour envoyer un message au créateur : avis, idée, bug… Aucune connexion requise. Tu peux laisser un pseudo ou rester anonyme." },
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
@@ -237,6 +254,20 @@ const DICT = {
       { id:19, name:'Maths',      icon:'🔢' }, { id:20, name:'Info',       icon:'💻' },
       { id:25, name:'Arts',       icon:'🎨' }, { id:27, name:'Animaux',    icon:'🐾' },
     ],
+    tutoSteps:{
+      landing_news:'📰 Le cadre <strong>News</strong> est replié dans le coin <strong>en haut à gauche</strong>. <strong>Clique dessus</strong> pour l\'ouvrir : il affiche les dernières actualités, nouvelles fonctionnalités, annonces et commentaires de joueurs. Reclique pour le refermer.',
+      landing_cats:'👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose quatre sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> (mini-jeux du week-end) et <strong>Pour la communauté</strong> (vote pour le prochain jeu). Clique sur une carte pour commencer.',
+      landing_lb:'🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10. Plus tu montes, plus ton serpent 🐍 grandit !',
+      landing_btns:'⚙️ Des boutons permanents sont disponibles :<br>▶ <strong>En haut à droite</strong> : le bouton <strong>⚙️</strong> ouvre les <strong>Paramètres</strong> (thème, langue, serpent, cartes de remboursement).<br>▶ <strong>En bas à droite</strong> : ❓ <strong>Aide</strong> · ✉️ <strong>Commentaire</strong>',
+      landing_libs:'⚡ <strong>Libs</strong> : une monnaie virtuelle gagnée par les meilleurs joueurs. Les top 3 du classement Global reçoivent automatiquement des Libs toutes les 5h (1er : +5 ⚡, 2e : +3 ⚡, 3e : +2 ⚡). Dépense-les dans la <strong>boutique</strong> pour obtenir des boosts quiz !',
+      events_snake:'🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les 🍎 pour grandir (les bords sont traversables, tu ressors de l\'autre côté !). Ton meilleur score <strong>persiste</strong> entre les sessions.',
+      home_games:'🎮 Choisis ton jeu en haut : <strong>Puissance 4</strong>, <strong>Morpion</strong> ou <strong>Échecs</strong>. Le classement est partagé entre les trois jeux.',
+      home_bot:'🤖 <strong>Mode Solo</strong> : joue contre le bot à 3 niveaux de difficulté : Facile, Moyen ou Difficile. Tes victoires et défaites sont comptées dans le classement !',
+      home_multi:'👥 <strong>Mode Multijoueur</strong> : entre ton pseudo (optionnel), puis clique sur <em>Créer une partie</em> pour générer un code, ou entre le code d\'un ami pour le rejoindre.',
+      home_lb:'🏆 <strong>Classement</strong> : victoires, défaites et nuls s\'enregistrent automatiquement après chaque partie (bot Moyen / Difficile ou multijoueur).',
+      quiz_themes:'🧠 <strong>Quiz Culture Générale</strong> : sélectionne un ou plusieurs thèmes (Histoire, Cinéma, Sciences…), puis joue en <strong>Solo</strong> ou crée un <strong>salon multijoueur</strong> à partager avec tes amis.',
+      quiz_lb:'🏆 Le <strong>classement Quiz</strong> est séparé du classement Classique. Les points sont attribués selon ta vitesse de réponse et le nombre de bonnes réponses.',
+    },
   },
   en: {
     siteTitle:'Multiplayer Games', siteSubtitle:'Choose your category',
@@ -326,6 +357,21 @@ const DICT = {
     shopBubbleNames:{ 'bubble-ardoise':'Slate', 'bubble-ocean':'Ocean', 'bubble-menthe':'Mint', 'bubble-corail':'Coral', 'bubble-ambre':'Amber', 'bubble-lavande':'Lavender', 'bubble-rubis':'Ruby', 'bubble-emeraude':'Emerald', 'bubble-indigo':'Indigo', 'bubble-magenta':'Neon magenta', 'bubble-cyan':'Neon cyan', 'bubble-crepuscule':'Dusk', 'bubble-aurore':'Aurora', 'bubble-sunset':'Sunset', 'bubble-tropical':'Tropical', 'bubble-arcade':'Arcade neon', 'bubble-galaxie':'Galaxy', 'bubble-verre':'Neon glass', 'bubble-or':'Liquid gold', 'bubble-holographique':'Holographic', 'bubble-cameleon':'Chameleon' },
     shopBgTitle:'🖼 Wallpapers',
     shopBgNames:{'bg-nuit':'Calm Night','bg-ardoise':'Deep Slate','bg-brume':'Violet Mist','bg-aurore-deg':'Aurora Gradient','bg-crepuscule':'Neon Dusk','bg-cyber':'Cyber Grid','bg-circuit':'Circuit','bg-hexagones':'Hexagons','bg-etoile':'Starry Sky','bg-particules':'Floating Particles','bg-pluie':'Neon Rain','bg-vagues':'Light Waves','bg-synthwave':'Synthwave','bg-nebuleuse':'Nebula','bg-aurores':'Moving Auroras','bg-galaxie':'Living Galaxy','bg-tempete':'Neon Storm','bg-hologramme':'Hologram'},
+    settingsTitle:'⚙️ Settings',
+    settingsLang:'Language', settingsTheme:'Theme', settingsSnake:'Snake',
+    settingsSnakeOn:'Enabled', settingsSnakeOff:'Disabled',
+    settingsRefundTitle:'Refund cards',
+    settingsRefundInfo:(cards, next) => {
+      const base = `${cards}/2 card${cards !== 1 ? 's' : ''} available`;
+      if (!next || cards >= 2) return base;
+      const ms = next - Date.now(); if (ms <= 0) return base;
+      const d = Math.floor(ms / 86400000), h = Math.floor((ms % 86400000) / 3600000);
+      return `${base} · refill in ${d > 0 ? `${d}d ` : ''}${h}h`;
+    },
+    shopRefundBtn:'🎟 Refund',
+    shopRefundNoCards:'No cards left',
+    shopRefundOk:n => `+${n} ⚡ refunded!`,
+    shopRefundError:'Refund failed.',
     boostHintBtn:'💡 Hint',
     helpLibsTitle:'Libs (currency)',
     helpLibsDesc:'Libs ⚡ are a virtual currency. Players ranked <strong>top 3 in the Global leaderboard</strong> automatically earn some every 5 hours (1st: +5 ⚡, 2nd: +3 ⚡, 3rd: +2 ⚡). If you don\'t play for 48 h, your balance drops by 10 ⚡ per additional day of inactivity. Click the ⚡ counter in the top-right corner to open the shop. Anonymous players do not receive Libs.',
@@ -383,8 +429,8 @@ const DICT = {
         { icon:'🏆', title:'Section leaderboards', desc:"Each section also keeps its own leaderboard: wins/losses/draws for Classic Games, total points for Quiz." },
         { icon:'?', title:'Community', desc:"This section lets you vote for the next game added to Libero. Suggest your idea via the <strong>✉️</strong> button in the bottom left, the most mentioned suggestions will be put to a vote, and the most voted game will be developed and added to the site." },
         { icon:'📰', title:'News', desc:"The News card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the latest news, announcements and player comments. Click again to close it." },
-        { icon:'🐍', title:'Snake', desc:"A little snake follows your cursor. It <strong>grows and changes colour</strong> based on your global score 🌍: gold (1st), blue (2nd), bronze (3rd). Play and climb the leaderboard to make it longer! Click <strong>🐍</strong> to enable/disable it." },
-        { icon:'☀️', title:'Day / night theme', desc:"The <strong>☀️</strong> / <strong>🌙</strong> button in the <em>top right</em> toggles between light and dark theme. The site also adapts automatically based on the time (light 7am–8pm, dark at night). Your manual choice is remembered between sessions." },
+        { icon:'🐍', title:'Snake', desc:"A little snake follows your cursor. It <strong>grows and changes colour</strong> based on your global score 🌍: gold (1st), blue (2nd), bronze (3rd). Play and climb the leaderboard to make it longer! Enable or disable it via the <strong>⚙️</strong> button (top right) → <strong>Snake</strong>." },
+        { icon:'☀️', title:'Day / night theme', desc:"The <strong>⚙️</strong> button in the <em>top right</em> → <strong>Theme</strong> toggles between light and dark theme. The site also adapts automatically based on the time (light 7am–8pm, dark at night). Your manual choice is remembered between sessions." },
         { icon:'🚪', title:'Quit button', desc:"During a game, the <em>🚪 Quit</em> button in the top centre takes you back to the main menu. If a game is in progress, you are warned that you will forfeit before confirming." },
         { icon:'✉️', title:'Leave a comment', desc:"Click the <strong>✉️</strong> button in the bottom left to send a message to the creator: feedback, idea, bug… No account required. You can leave a username or stay anonymous." },
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
@@ -432,6 +478,20 @@ const DICT = {
       { id:19, name:'Maths',     icon:'🔢' }, { id:20, name:'Computing', icon:'💻' },
       { id:25, name:'Arts',      icon:'🎨' }, { id:27, name:'Animals',   icon:'🐾' },
     ],
+    tutoSteps:{
+      landing_news:'📰 The <strong>News</strong> card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the latest news, updates, announcements and player comments. Click again to close it.',
+      landing_cats:'👋 Welcome to <strong>Libero\'s Multi</strong>! The home screen offers four sections: <strong>Classic Games</strong>, <strong>General Knowledge</strong>, <strong>Events</strong> (weekend mini-games) and <strong>Community</strong> (vote for the next game). Click a card to get started.',
+      landing_lb:'🌍 The <strong>Global Leaderboard</strong> brings together <em>all</em> players with at least one point. Score = classic wins ×10 + Quiz points + best Snake score ×10. The higher you climb, the longer your snake 🐍 grows!',
+      landing_btns:'⚙️ Permanent buttons are available:<br>▶ <strong>Top right</strong>: the <strong>⚙️</strong> button opens <strong>Settings</strong> (day/night theme, language, snake, refund cards).<br>▶ <strong>Bottom right</strong>: ❓ <strong>Help</strong> · ✉️ <strong>Comment</strong>',
+      landing_libs:'⚡ <strong>Libs</strong>: a virtual currency earned by the best players. The top 3 in the Global Leaderboard automatically receive Libs every 5 hours (1st: +5 ⚡, 2nd: +3 ⚡, 3rd: +2 ⚡). Spend them in the <strong>shop</strong> to get quiz boosts!',
+      events_snake:'🐍 This weekend\'s event: <strong>Snake Challenge</strong>! Click <em>Play</em>, your snake enters the arena. Eat the 🍎 to grow (walls wrap around — you reappear on the other side!). Your best score <strong>persists</strong> between sessions.',
+      home_games:'🎮 Choose your game at the top: <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong> or <strong>Chess</strong>. The leaderboard is shared across all three games.',
+      home_bot:'🤖 <strong>Solo mode</strong>: play against the bot at 3 difficulty levels: Easy, Medium or Hard. Your wins and losses count in the leaderboard!',
+      home_multi:'👥 <strong>Multiplayer mode</strong>: enter your username (optional), then click <em>Create a game</em> to generate a code, or enter a friend\'s code to join them.',
+      home_lb:'🏆 <strong>Leaderboard</strong>: wins, losses and draws are recorded automatically after each game (Medium/Hard bot or multiplayer).',
+      quiz_themes:'🧠 <strong>General Knowledge Quiz</strong>: select one or more themes (History, Movies, Science…), then play <strong>Solo</strong> or create a <strong>multiplayer room</strong> to share with your friends.',
+      quiz_lb:'🏆 The <strong>Quiz leaderboard</strong> is separate from the Classic leaderboard. Points are awarded based on your response speed and number of correct answers.',
+    },
   },
 };
 
@@ -620,6 +680,7 @@ function applyLang() {
   const bh = $('btn-help');          if (bh)  bh.title = d.btnHelpTitle;
   const bst = $('btn-snake-toggle'); if (bst) bst.title = d.btnSnakeToggle;
   const lc  = $('libs-counter');     if (lc)  lc.title  = d.libsCounterTitle;
+  const bset = $('btn-settings');    if (bset) bset.title = d.settingsTitle;
 
   // Help modal
   const hmt = $('help-modal-title'); if (hmt) hmt.textContent = d.help.title;
@@ -637,6 +698,9 @@ function applyLang() {
 
   // Rebuild trivia themes (garde les sélections actives)
   $('trivia-themes').innerHTML = '';
+
+  // Mettre à jour le panneau Paramètres si ouvert
+  _updateSettingsPanel();
 }
 
 // État échecs
@@ -2134,7 +2198,7 @@ socket.on('global-leaderboard-update', (data) => {
 socket.on('snake-leaderboard-update', (data) => { renderSnakeLeaderboard(data); });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg } = {}) => {
+socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt } = {}) => {
   const prev = libsBalance;
   libsBalance = balance ?? 0;
   localStorage.setItem('libero_libs', String(libsBalance));
@@ -2152,6 +2216,9 @@ socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosme
     if (newBg !== undefined) { equippedBackground = newBg; localStorage.setItem('libero_equipped_bg', newBg || ''); BGManager.start(newBg); }
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   }
+  if (newRefundCards !== undefined) { refundCards = newRefundCards; }
+  if (newRefillAt    !== undefined) { refundCardsNextRefill = newRefillAt; }
+  _updateSettingsPanel();
 });
 
 socket.on('buy-boost-result', ({ ok, balance, pendingBoostHint, error } = {}) => {
@@ -2203,6 +2270,23 @@ socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippe
     if (newBubble   !== undefined) equippedBubble   = newBubble;
     if (newBg !== undefined) { equippedBackground = newBg; localStorage.setItem('libero_equipped_bg', newBg || ''); BGManager.start(newBg); }
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+  }
+});
+
+socket.on('refund-cosmetic-result', ({ ok, refundCards: newCards, delta, error } = {}) => {
+  if (ok) {
+    if (newCards !== undefined) refundCards = newCards;
+    _showShopFeedback(t().shopRefundOk(delta), '#22c55e');
+    _shopDetailItem = null;
+    const panel = $('shop-detail-panel');
+    if (panel) panel.classList.add('hidden');
+    if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+    _updateSettingsPanel();
+  } else {
+    const msg = error === 'no_cards'  ? t().shopRefundNoCards
+              : error === 'not_owned' ? t().shopRefundError
+              : t().shopRefundError;
+    _showShopFeedback(msg, '#ef4444');
   }
 });
 
@@ -2557,11 +2641,21 @@ function _openShopDetail(item) {
 
   let actionHtml = '';
   if (owned) {
+    const canRefund   = price > 0;
+    const hasCards    = refundCards > 0;
+    const refundLabel = canRefund
+      ? `${d.shopRefundBtn} (${hasCards ? `${refundCards}/2 🎟` : d.shopRefundNoCards})`
+      : '';
+    const refundBtn   = canRefund
+      ? `<button class="btn shop-detail-action-btn shop-refund-btn" data-id="${id}" data-action="refund" ${hasCards ? '' : 'disabled'}>${refundLabel}</button>`
+      : '';
     if (isEquipped) {
       actionHtml = `<div class="shop-fn-equipped-label">${d.shopCosmeticEquipped}</div>
-        <button class="btn btn-secondary shop-detail-action-btn" data-id="${id}" data-action="unequip" data-type="${type}">${d.shopCosmeticUnequip}</button>`;
+        <button class="btn btn-secondary shop-detail-action-btn" data-id="${id}" data-action="unequip" data-type="${type}">${d.shopCosmeticUnequip}</button>
+        ${refundBtn}`;
     } else {
-      actionHtml = `<button class="btn btn-primary shop-detail-action-btn" data-id="${id}" data-action="equip" data-type="${type}">${d.shopCosmeticEquip}</button>`;
+      actionHtml = `<button class="btn btn-primary shop-detail-action-btn" data-id="${id}" data-action="equip" data-type="${type}">${d.shopCosmeticEquip}</button>
+        ${refundBtn}`;
     }
   } else {
     actionHtml = `<button class="btn btn-primary shop-detail-action-btn" data-id="${id}" data-action="buy" data-type="${type}">${price === 0 ? lblFree : d.shopCosmeticBuy(price)}</button>`;
@@ -2589,9 +2683,10 @@ function _openShopDetail(item) {
       const action = btn.dataset.action;
       const bId   = btn.dataset.id;
       const bType = btn.dataset.type;
-      if (action === 'buy')          socket.emit('buy-cosmetic',   { cosmeticId: bId,   playerId: getPlayerId() });
-      else if (action === 'equip')   socket.emit('equip-cosmetic', { cosmeticId: bId,   type: bType, playerId: getPlayerId() });
-      else if (action === 'unequip') socket.emit('equip-cosmetic', { cosmeticId: null,  type: bType, playerId: getPlayerId() });
+      if (action === 'buy')          socket.emit('buy-cosmetic',    { cosmeticId: bId,  playerId: getPlayerId() });
+      else if (action === 'equip')   socket.emit('equip-cosmetic',  { cosmeticId: bId,  type: bType, playerId: getPlayerId() });
+      else if (action === 'unequip') socket.emit('equip-cosmetic',  { cosmeticId: null, type: bType, playerId: getPlayerId() });
+      else if (action === 'refund')  socket.emit('refund-cosmetic', { cosmeticId: bId,  playerId: getPlayerId() });
     });
   });
 }
@@ -2629,6 +2724,88 @@ function _showPromoFeedback(msg, color) {
   clearTimeout(fb._t);
   fb._t = setTimeout(() => { fb.textContent = ''; }, 3000);
 }
+
+// ── Panneau Paramètres ────────────────────────────────────────────────────────
+function _updateSettingsPanel() {
+  const panel = document.getElementById('settings-panel');
+  if (!panel || panel.classList.contains('hidden')) return;
+  const d = t();
+  const fr = currentLang === 'fr';
+
+  const langBtn = document.getElementById('sp-lang-btn');
+  if (langBtn) langBtn.textContent = fr ? '🇬🇧 EN' : '🇫🇷 FR';
+
+  const themeBtn = document.getElementById('sp-theme-btn');
+  if (themeBtn) {
+    const isLight = document.documentElement.classList.contains('light');
+    themeBtn.textContent = isLight ? '🌙' : '☀️';
+  }
+
+  const snakeBtn = document.getElementById('sp-snake-btn');
+  if (snakeBtn) {
+    const snakeOff = document.getElementById('btn-snake-toggle')?.classList.contains('off');
+    snakeBtn.textContent = snakeOff ? d.settingsSnakeOff : d.settingsSnakeOn;
+    snakeBtn.classList.toggle('sp-off', !!snakeOff);
+  }
+
+  const refundEl = document.getElementById('sp-refund-info');
+  if (refundEl) refundEl.textContent = d.settingsRefundInfo(refundCards, refundCardsNextRefill);
+
+  document.querySelectorAll('[data-sp-label]').forEach(el => {
+    const key = el.dataset.spLabel;
+    if (d[key]) el.textContent = d[key];
+  });
+}
+
+function _openSettingsPanel() {
+  const panel = document.getElementById('settings-panel');
+  if (!panel) return;
+  panel.classList.remove('hidden');
+  _updateSettingsPanel();
+  setTimeout(() => {
+    document.addEventListener('click', _settingsOutsideClick);
+  }, 0);
+}
+
+function _closeSettingsPanel() {
+  const panel = document.getElementById('settings-panel');
+  if (!panel) return;
+  panel.classList.add('hidden');
+  document.removeEventListener('click', _settingsOutsideClick);
+}
+
+function _settingsOutsideClick(e) {
+  const panel = document.getElementById('settings-panel');
+  const btn   = document.getElementById('btn-settings');
+  if (panel && !panel.contains(e.target) && btn && !btn.contains(e.target)) {
+    _closeSettingsPanel();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const settingsBtn = document.getElementById('btn-settings');
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const panel = document.getElementById('settings-panel');
+      if (panel && !panel.classList.contains('hidden')) _closeSettingsPanel();
+      else _openSettingsPanel();
+    });
+  }
+
+  document.getElementById('sp-lang-btn')?.addEventListener('click', () => {
+    document.getElementById('btn-lang')?.click();
+    _updateSettingsPanel();
+  });
+  document.getElementById('sp-theme-btn')?.addEventListener('click', () => {
+    document.getElementById('btn-theme-toggle')?.click();
+    setTimeout(_updateSettingsPanel, 50);
+  });
+  document.getElementById('sp-snake-btn')?.addEventListener('click', () => {
+    document.getElementById('btn-snake-toggle')?.click();
+    _updateSettingsPanel();
+  });
+});
 
 $('libs-counter').addEventListener('click', openShop);
 $('btn-shop-close').addEventListener('click', () => {
@@ -3595,7 +3772,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   function showStep(step) {
     if (isDone(step.id)) return;
     current = step;
-    textEl.innerHTML = step.text;
+    textEl.innerHTML = (t().tutoSteps && t().tutoSteps[step.id]) || step.text;
     renderDots(step.id);
 
     bubble.style.animation = 'none';

@@ -723,7 +723,13 @@ body:has(#overlay-shop:not(.hidden)) #news-card { display: none !important; }
 .btn-snake-float:active { transform: scale(.92); }
 .btn-snake-float.off    { opacity: .35; }
 
-.btn-theme-float {
+.btn-theme-float { display: none !important; }
+.btn-lang-float  { display: none !important; }
+.btn-snake-float { display: none !important; }
+.btn-hidden      { display: none !important; }
+
+/* ── Bouton Paramètres ── */
+.btn-settings-float {
   position: fixed;
   top: 16px; right: 16px;
   width: 44px; height: 44px;
@@ -732,11 +738,79 @@ body:has(#overlay-shop:not(.hidden)) #news-card { display: none !important; }
   font-size: 1.2rem;
   cursor: pointer;
   box-shadow: 0 0 20px rgba(99,102,241,.5);
-  z-index: 51;
+  z-index: 52;
   transition: transform .15s, box-shadow .15s;
 }
-.btn-theme-float:hover  { box-shadow: 0 0 28px rgba(99,102,241,.8); }
-.btn-theme-float:active { transform: scale(.92); }
+.btn-settings-float:hover  { box-shadow: 0 0 28px rgba(99,102,241,.8); }
+.btn-settings-float:active { transform: scale(.92); }
+
+/* ── Panneau Paramètres ── */
+.settings-panel {
+  position: fixed;
+  top: 68px; right: 16px;
+  z-index: 200;
+  background: var(--card);
+  border: 1px solid rgba(99,102,241,.3);
+  border-radius: 14px;
+  padding: 14px 16px;
+  min-width: 220px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.35);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.settings-panel.hidden { display: none !important; }
+
+.sp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sp-label {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text);
+  opacity: .85;
+}
+.sp-toggle {
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(99,102,241,.4);
+  background: rgba(99,102,241,.12);
+  color: var(--text);
+  font-size: .8rem; font-weight: 700;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  white-space: nowrap;
+}
+.sp-toggle:hover    { background: rgba(99,102,241,.22); border-color: rgba(99,102,241,.7); }
+.sp-toggle.sp-off   { background: rgba(100,100,100,.12); border-color: rgba(130,130,130,.3); color: var(--muted); }
+
+.sp-divider {
+  height: 1px;
+  background: rgba(99,102,241,.18);
+  margin: 2px 0;
+}
+.sp-row-refund .sp-label { font-size: .78rem; opacity: .6; }
+.sp-refund-info {
+  font-size: .78rem;
+  color: var(--accent);
+  margin: 0;
+  font-weight: 600;
+}
+
+/* ── Bouton Rembourser (boutique) ── */
+.shop-refund-btn {
+  margin-top: 6px;
+  font-size: .76rem;
+  background: rgba(239,68,68,.12);
+  border: 1px solid rgba(239,68,68,.35);
+  color: #ef4444;
+  padding: 6px 14px;
+  border-radius: 8px;
+  transition: background .15s;
+}
+.shop-refund-btn:hover:not(:disabled)   { background: rgba(239,68,68,.22); }
+.shop-refund-btn:disabled               { opacity: .4; cursor: not-allowed; }
 
 .btn-help-inline { display: none; }
 
@@ -991,8 +1065,6 @@ body:has(#overlay-shop:not(.hidden)) #news-card { display: none !important; }
 .lb-score-snake { font-size: .82rem; font-weight: 700; color: var(--accent); margin-left: auto; white-space: nowrap; }
 /* Masquer les boutons flottants du bas sur l'écran Évents (évite la superposition avec le D-pad) */
 body.screen-events-active .btn-help-float,
-body.screen-events-active .btn-lang-float,
-body.screen-events-active .btn-snake-float,
 body.screen-events-active .btn-comment-float { display: none !important; }
 
 .snake-dpad {

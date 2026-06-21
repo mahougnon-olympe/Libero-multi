@@ -28,7 +28,9 @@ const triviaLeaderboard = new Map();
 const snakeLeaderboard  = new Map();
 const comments        = [];
 const libs            = new Map();
-const MAX_BALANCE     = 19999;
+const MAX_BALANCE              = 19999;
+const REFUND_CARD_MAX          = 2;
+const REFUND_CARD_COOLDOWN_MS  = 30 * 24 * 3600 * 1000;
 const socketPlayerIds = new Map();
 const playerIdAliases = new Map();
 
@@ -68,7 +70,7 @@ async function loadData() {
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
   cmtDocs.forEach(d => comments.push({ pseudo: d.pseudo, message: d.message, date: d.date }));
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, refundCardsUsedAt: d.refundCardsUsedAt || [] }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
@@ -119,7 +121,7 @@ function dbInsertComment(comment) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, refundCardsUsedAt: entry.refundCardsUsedAt || [] } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -246,18 +248,30 @@ function applyDecay(entry) {
   return entry;
 }
 
+function getRefundCardsInfo(entry) {
+  const now = Date.now();
+  if (!entry.refundCardsUsedAt) entry.refundCardsUsedAt = [];
+  entry.refundCardsUsedAt = entry.refundCardsUsedAt.filter(t => now - t < REFUND_CARD_COOLDOWN_MS);
+  const available = REFUND_CARD_MAX - entry.refundCardsUsedAt.length;
+  const nextRefill = available < REFUND_CARD_MAX && entry.refundCardsUsedAt.length > 0
+    ? Math.min(...entry.refundCardsUsedAt) + REFUND_CARD_COOLDOWN_MS
+    : null;
+  return { available, nextRefill };
+}
+
 function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, refundCardsUsedAt: [] };
     libs.set(id, entry);
   }
-  if (!entry.usedCodes) entry.usedCodes = [];
-  if (!entry.ownedCosmetics) entry.ownedCosmetics = [];
-  if (!('equippedCosmetic' in entry)) entry.equippedCosmetic = null;
-  if (!('equippedFont'   in entry)) entry.equippedFont   = null;
-  if (!('equippedBubble' in entry)) entry.equippedBubble = null;
+  if (!entry.usedCodes)          entry.usedCodes          = [];
+  if (!entry.ownedCosmetics)     entry.ownedCosmetics     = [];
+  if (!entry.refundCardsUsedAt)  entry.refundCardsUsedAt  = [];
+  if (!('equippedCosmetic'   in entry)) entry.equippedCosmetic   = null;
+  if (!('equippedFont'       in entry)) entry.equippedFont       = null;
+  if (!('equippedBubble'     in entry)) entry.equippedBubble     = null;
   if (!('equippedBackground' in entry)) entry.equippedBackground = null;
   const prevBal = entry.balance;
   applyDecay(entry);
@@ -1070,7 +1084,8 @@ io.on('connection', (socket) => {
     if (!id) { socket.emit('libs-update', { balance: 0, pendingBoostHint: 0 }); return; }
     socketPlayerIds.set(socket.id, id);
     const entry = getLibsEntry(id);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, equippedBubble: entry.equippedBubble, equippedBackground: entry.equippedBackground, nextAt: nextDistributionAt });
+    const { available: refundCards, nextRefill: refundCardsNextRefill } = getRefundCardsInfo(entry);
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, equippedBubble: entry.equippedBubble, equippedBackground: entry.equippedBackground, nextAt: nextDistributionAt, refundCards, refundCardsNextRefill });
   });
 
   socket.on('get-shop', () => {
@@ -1163,6 +1178,37 @@ io.on('connection', (socket) => {
     } else {
       socket.emit('equip-cosmetic-result', { ok: false, error: 'not_owned' });
     }
+  });
+
+  socket.on('refund-cosmetic', ({ playerId, cosmeticId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) { socket.emit('refund-cosmetic-result', { ok: false, error: 'invalid' }); return; }
+    const entry = getLibsEntry(id);
+    if (!entry.ownedCosmetics.includes(cosmeticId)) {
+      socket.emit('refund-cosmetic-result', { ok: false, error: 'not_owned' }); return;
+    }
+    const { available } = getRefundCardsInfo(entry);
+    if (available <= 0) {
+      socket.emit('refund-cosmetic-result', { ok: false, error: 'no_cards' }); return;
+    }
+    const cosmetic = COSMETICS.find(c => c.id === cosmeticId);
+    if (!cosmetic) { socket.emit('refund-cosmetic-result', { ok: false, error: 'invalid' }); return; }
+    entry.ownedCosmetics     = entry.ownedCosmetics.filter(c => c !== cosmeticId);
+    if (entry.equippedCosmetic   === cosmeticId) entry.equippedCosmetic   = null;
+    if (entry.equippedFont       === cosmeticId) entry.equippedFont       = null;
+    if (entry.equippedBubble     === cosmeticId) entry.equippedBubble     = null;
+    if (entry.equippedBackground === cosmeticId) entry.equippedBackground = null;
+    entry.balance = Math.min(MAX_BALANCE, entry.balance + cosmetic.price);
+    entry.refundCardsUsedAt.push(Date.now());
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    const { available: refundCards, nextRefill: refundCardsNextRefill } = getRefundCardsInfo(entry);
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, equippedBubble: entry.equippedBubble, equippedBackground: entry.equippedBackground, nextAt: nextDistributionAt, refundCards, refundCardsNextRefill });
+    socket.emit('refund-cosmetic-result', { ok: true, cosmeticId, refundCards, delta: cosmetic.price });
+    io.emit('leaderboard-update', getLeaderboardData());
+    io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
+    io.emit('snake-leaderboard-update', getSnakeLeaderboardData());
+    io.emit('global-leaderboard-update', getGlobalLeaderboardData());
   });
 
   socket.on('activate-quiz-boost', ({ playerId } = {}) => {
