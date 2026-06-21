@@ -67,7 +67,7 @@ async function loadData() {
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
   cmtDocs.forEach(d => comments.push({ pseudo: d.pseudo, message: d.message, date: d.date }));
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [] }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
@@ -118,8 +118,15 @@ function dbInsertComment(comment) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [] } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
+}
+
+function getCosmeticByName(name) {
+  for (const [, e] of libs.entries()) {
+    if (e.name === name && e.equippedCosmetic) return e.equippedCosmetic;
+  }
+  return null;
 }
 
 function dbSaveNextDistributionAt() {
@@ -154,6 +161,14 @@ const SHOP_ITEMS      = [
   { id: 'boost_hint_10', price: 3, amount: 10 },
   { id: 'boost_hint_20', price: 5, amount: 20 },
 ];
+const COSMETICS = [
+  { id: 'rainbow', price: 100 },
+  { id: 'galaxy',  price: 100 },
+  { id: 'silver',  price: 20  },
+  { id: 'bronze',  price: 20  },
+  { id: 'gold',    price: 70  },
+  { id: 'diamond', price: 70  },
+];
 
 function applyDecay(entry) {
   if (!entry.lastActive) return entry;
@@ -170,10 +185,12 @@ function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [] };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null };
     libs.set(id, entry);
   }
   if (!entry.usedCodes) entry.usedCodes = [];
+  if (!entry.ownedCosmetics) entry.ownedCosmetics = [];
+  if (!('equippedCosmetic' in entry)) entry.equippedCosmetic = null;
   const prevBal = entry.balance;
   applyDecay(entry);
   if (entry.balance !== prevBal) dbUpsertLibs(id, entry);
@@ -276,7 +293,8 @@ function getLeaderboardData() {
   }
   return [...byName.values()]
     .sort((a, b) => b.wins - a.wins || (b.wins - b.losses) - (a.wins - a.losses) || a.name.localeCompare(b.name))
-    .slice(0, 10);
+    .slice(0, 10)
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name) }));
 }
 
 // ── Trivia leaderboard helpers ─────────────────────────────────────────────
@@ -302,7 +320,8 @@ function getTriviaLeaderboardData() {
   }
   return [...byName.values()]
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))
-    .slice(0, 10);
+    .slice(0, 10)
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name) }));
 }
 
 function updateSnakeLeaderboard(id, name, hs) {
@@ -327,7 +346,8 @@ function getSnakeLeaderboardData() {
   }
   return [...byName.values()]
     .sort((a, b) => b.hs - a.hs || a.name.localeCompare(b.name))
-    .slice(0, 10);
+    .slice(0, 10)
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name) }));
 }
 
 function getGlobalLeaderboardData() {
@@ -349,7 +369,8 @@ function getGlobalLeaderboardData() {
     .map(e => ({ ...e, globalScore: e.wins * 10 + e.triviaPoints + e.snakeHs * 10 }))
     .filter(e => e.globalScore > 0)
     .sort((a, b) => b.globalScore - a.globalScore || a.name.localeCompare(b.name))
-    .slice(0, 50);
+    .slice(0, 50)
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name) }));
 }
 
 // ── Trivia room helpers ────────────────────────────────────────────────────
@@ -979,7 +1000,7 @@ io.on('connection', (socket) => {
     if (!id) { socket.emit('libs-update', { balance: 0, pendingBoostHint: 0 }); return; }
     socketPlayerIds.set(socket.id, id);
     const entry = getLibsEntry(id);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, nextAt: nextDistributionAt });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, nextAt: nextDistributionAt });
   });
 
   socket.on('get-shop', () => {
@@ -1022,6 +1043,41 @@ io.on('connection', (socket) => {
     dbUpsertLibs(id, entry);
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: reward, nextAt: nextDistributionAt });
     socket.emit('redeem-result', { ok: true, delta: reward });
+  });
+
+  socket.on('buy-cosmetic', ({ playerId, cosmeticId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) { socket.emit('buy-cosmetic-result', { ok: false, error: 'invalid' }); return; }
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') { socket.emit('buy-cosmetic-result', { ok: false, error: 'anonymous' }); return; }
+    const cosmetic = COSMETICS.find(c => c.id === cosmeticId);
+    if (!cosmetic) { socket.emit('buy-cosmetic-result', { ok: false, error: 'invalid' }); return; }
+    if (entry.ownedCosmetics.includes(cosmeticId)) { socket.emit('buy-cosmetic-result', { ok: false, error: 'already_owned' }); return; }
+    if (entry.balance < cosmetic.price) { socket.emit('buy-cosmetic-result', { ok: false, error: 'insufficient' }); return; }
+    entry.balance -= cosmetic.price;
+    entry.ownedCosmetics.push(cosmeticId);
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, nextAt: nextDistributionAt });
+    socket.emit('buy-cosmetic-result', { ok: true, cosmeticId });
+  });
+
+  socket.on('equip-cosmetic', ({ playerId, cosmeticId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    const entry = getLibsEntry(id);
+    if (cosmeticId === null || entry.ownedCosmetics.includes(cosmeticId)) {
+      entry.equippedCosmetic = cosmeticId;
+      libs.set(id, entry);
+      dbUpsertLibs(id, entry);
+      socket.emit('equip-cosmetic-result', { ok: true, equippedCosmetic: cosmeticId });
+      io.emit('leaderboard-update', getLeaderboardData());
+      io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
+      io.emit('snake-leaderboard-update', getSnakeLeaderboardData());
+      io.emit('global-leaderboard-update', getGlobalLeaderboardData());
+    } else {
+      socket.emit('equip-cosmetic-result', { ok: false, error: 'not_owned' });
+    }
   });
 
   socket.on('activate-quiz-boost', ({ playerId } = {}) => {

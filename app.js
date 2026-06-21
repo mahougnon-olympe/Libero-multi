@@ -12,6 +12,8 @@ function getPlayerId() {
 let libsBalance        = parseInt(localStorage.getItem('libero_libs') || '0', 10);
 let pendingHintCharges = 0;
 let hintsUsedThisQ     = 0;
+let ownedCosmetics     = [];
+let equippedCosmetic   = null;
 let _libsAnimTimer     = null;
 let _libsDistTimer     = null;
 let _nextDistAt        = 0;
@@ -110,6 +112,14 @@ const DICT = {
     shopPromoTitle:'🎟 Code promo', shopPromoPlaceholder:'Code à 4 caractères', shopPromoBtn:'Valider',
     shopPromoOk:n => `🎉 +${n} ⚡ crédités !`,
     shopPromoAlreadyUsed:'Tu as déjà utilisé ce code.', shopPromoInvalid:'Code invalide.', shopPromoAnon:'Les joueurs anonymes ne peuvent pas utiliser de code.',
+    shopCosmeticsTitle:'🎨 Cosmétiques de pseudo',
+    shopCosmeticNames:{ rainbow:'Arc en ciel', galaxy:'Galaxie', silver:'Argent', bronze:'Bronze', gold:'Or', diamond:'Diamant' },
+    shopCosmeticBuy:p => `Acheter — ${p} ⚡`,
+    shopCosmeticEquip:'Équiper', shopCosmeticEquipped:'✓ Équipé', shopCosmeticUnequip:'Retirer',
+    shopCosmeticPreview:'Libero',
+    shopCosmeticBought:'🎨 Cosmétique acheté !',
+    shopCosmeticAlreadyOwned:'Tu possèdes déjà ce cosmétique.',
+    shopCosmeticAnon:'Les joueurs anonymes ne peuvent pas acheter de cosmétiques.',
     boostHintBtn:'💡 Indice',
     helpLibsTitle:'Libs (monnaie)',
     helpLibsDesc:'Les Libs ⚡ sont une monnaie virtuelle. Les joueurs classés <strong>top 3 du classement Global</strong> en gagnent automatiquement toutes les 5 heures (1er : +5 ⚡, 2e : +3 ⚡, 3e : +2 ⚡). Si tu ne joues pas pendant 48 h, ton solde diminue de 10 ⚡ par jour supplémentaire. Clique sur le compteur ⚡ en haut à droite pour ouvrir la boutique. Les joueurs anonymes ne perçoivent pas de Libs.',
@@ -290,6 +300,14 @@ const DICT = {
     shopPromoTitle:'🎟 Promo code', shopPromoPlaceholder:'4-character code', shopPromoBtn:'Redeem',
     shopPromoOk:n => `🎉 +${n} ⚡ credited!`,
     shopPromoAlreadyUsed:'You have already used this code.', shopPromoInvalid:'Invalid code.', shopPromoAnon:'Anonymous players cannot use codes.',
+    shopCosmeticsTitle:'🎨 Pseudo cosmetics',
+    shopCosmeticNames:{ rainbow:'Rainbow', galaxy:'Galaxy', silver:'Silver', bronze:'Bronze', gold:'Gold', diamond:'Diamond' },
+    shopCosmeticBuy:p => `Buy — ${p} ⚡`,
+    shopCosmeticEquip:'Equip', shopCosmeticEquipped:'✓ Equipped', shopCosmeticUnequip:'Remove',
+    shopCosmeticPreview:'Libero',
+    shopCosmeticBought:'🎨 Cosmetic purchased!',
+    shopCosmeticAlreadyOwned:'You already own this cosmetic.',
+    shopCosmeticAnon:'Anonymous players cannot buy cosmetics.',
     boostHintBtn:'💡 Hint',
     helpLibsTitle:'Libs (currency)',
     helpLibsDesc:'Libs ⚡ are a virtual currency. Players ranked <strong>top 3 in the Global leaderboard</strong> automatically earn some every 5 hours (1st: +5 ⚡, 2nd: +3 ⚡, 3rd: +2 ⚡). If you don\'t play for 48 h, your balance drops by 10 ⚡ per additional day of inactivity. Click the ⚡ counter in the top-right corner to open the shop. Anonymous players do not receive Libs.',
@@ -1393,7 +1411,7 @@ function _paintGlobalLb() {
   const rows = visible.map((entry, i) => `
     <div class="global-lb-row">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
-      <span class="lb-name">${entry.name}</span>
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)}">${entry.name}</span>
       <span class="global-lb-score">${entry.globalScore} ${t().globalLbPts}</span>
     </div>
   `).join('');
@@ -1417,7 +1435,7 @@ function renderLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
-      <span class="lb-name">${entry.name}</span>
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)}">${entry.name}</span>
       <div class="lb-stats">
         <span class="lb-w">${entry.wins}${t().lbW}</span>
         <span class="lb-l">${entry.losses}${t().lbL}</span>
@@ -1438,7 +1456,7 @@ function renderSnakeLeaderboard(data) {
   el.innerHTML = data.map((e, i) => `
     <div class="lb-row">
       <span class="lb-rank">${medals[i] || i + 1}</span>
-      <span class="lb-name">${e.name}</span>
+      <span class="lb-name ${_cosmeticClass(e.cosmetic)}">${e.name}</span>
       <span class="lb-score-snake">${e.hs} 🍎</span>
     </div>
   `).join('');
@@ -1780,7 +1798,7 @@ function renderTriviaLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row">
       <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${medals[i] || i+1}</span>
-      <span class="lb-name">${entry.name}</span>
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)}">${entry.name}</span>
       <div class="lb-stats">
         <span class="lb-w">${entry.points} ${t().triviaLbPts}</span>
         <span class="lb-d">${entry.games} ${t().triviaLbGames}</span>
@@ -2095,7 +2113,7 @@ socket.on('global-leaderboard-update', (data) => {
 socket.on('snake-leaderboard-update', (data) => { renderSnakeLeaderboard(data); });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt } = {}) => {
+socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped } = {}) => {
   const prev = libsBalance;
   libsBalance = balance ?? 0;
   localStorage.setItem('libero_libs', String(libsBalance));
@@ -2105,6 +2123,11 @@ socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt } = {}) => 
   if (pendingBoostHint !== undefined) { pendingHintCharges = pendingBoostHint; _updateBoostHintBtn(); }
   _updateShopPending(pendingHintCharges);
   if (nextAt) { _nextDistAt = nextAt; _updateLibsCountdown(); }
+  if (newOwned !== undefined) {
+    ownedCosmetics   = newOwned;
+    equippedCosmetic = newEquipped !== undefined ? newEquipped : equippedCosmetic;
+    if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+  }
 });
 
 socket.on('buy-boost-result', ({ ok, balance, pendingBoostHint, error } = {}) => {
@@ -2132,6 +2155,27 @@ socket.on('redeem-result', ({ ok, delta, error } = {}) => {
               : error === 'anonymous'    ? t().shopPromoAnon
               : t().shopPromoInvalid;
     _showShopFeedback(msg, '#ef4444');
+  }
+});
+
+socket.on('buy-cosmetic-result', ({ ok, cosmeticId, error } = {}) => {
+  if (ok) {
+    if (!ownedCosmetics.includes(cosmeticId)) ownedCosmetics.push(cosmeticId);
+    _showShopFeedback(t().shopCosmeticBought, '#22c55e');
+    if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+  } else {
+    const msg = error === 'already_owned'  ? t().shopCosmeticAlreadyOwned
+              : error === 'anonymous'      ? t().shopCosmeticAnon
+              : error === 'insufficient'   ? t().shopInsufficient
+              : t().shopBuyError;
+    _showShopFeedback(msg, '#ef4444');
+  }
+});
+
+socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic } = {}) => {
+  if (ok) {
+    equippedCosmetic = newCosmetic;
+    if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   }
 });
 
@@ -2285,6 +2329,25 @@ function _renderShopItems() {
         <button id="btn-redeem-code" class="btn btn-secondary" style="font-size:.8rem;padding:6px 14px;">${d.shopPromoBtn}</button>
       </div>
     </div>
+    <div class="shop-cosmetics-section">
+      <span class="shop-promo-title">${d.shopCosmeticsTitle}</span>
+      <div class="shop-cosmetics-grid">
+        ${[{id:'rainbow',price:100},{id:'galaxy',price:100},{id:'silver',price:20},{id:'bronze',price:20},{id:'gold',price:70},{id:'diamond',price:70}].map(c => {
+          const owned    = ownedCosmetics.includes(c.id);
+          const equipped = equippedCosmetic === c.id;
+          const btnHtml  = owned
+            ? equipped
+              ? `<button class="btn btn-cosmetic-equipped shop-cosmetic-btn" data-id="${c.id}" data-action="unequip">${d.shopCosmeticEquipped}</button>`
+              : `<button class="btn btn-secondary shop-cosmetic-btn" data-id="${c.id}" data-action="equip">${d.shopCosmeticEquip}</button>`
+            : `<button class="btn btn-primary shop-cosmetic-btn" data-id="${c.id}" data-action="buy">${d.shopCosmeticBuy(c.price)}</button>`;
+          return `<div class="shop-cosmetic-card">
+            <span class="shop-cosmetic-preview name-${c.id}">${d.shopCosmeticPreview}</span>
+            <span class="shop-cosmetic-name">${d.shopCosmeticNames[c.id]}</span>
+            ${btnHtml}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
   `;
   $('btn-buy-boost-hint-10').addEventListener('click', () => {
     socket.emit('buy-boost', { itemId: 'boost_hint_10', playerId: getPlayerId() });
@@ -2299,6 +2362,15 @@ function _renderShopItems() {
   });
   $('shop-promo-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') $('btn-redeem-code').click();
+  });
+  container.querySelectorAll('.shop-cosmetic-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id     = btn.dataset.id;
+      const action = btn.dataset.action;
+      if (action === 'buy')    socket.emit('buy-cosmetic',   { cosmeticId: id, playerId: getPlayerId() });
+      else if (action === 'equip')   socket.emit('equip-cosmetic', { cosmeticId: id,   playerId: getPlayerId() });
+      else if (action === 'unequip') socket.emit('equip-cosmetic', { cosmeticId: null, playerId: getPlayerId() });
+    });
   });
 }
 
@@ -2330,6 +2402,12 @@ $('overlay-shop').addEventListener('click', e => { if (e.target === $('overlay-s
   const balEl = $('libs-balance');
   if (balEl) balEl.textContent = libsBalance;
 })();
+
+// ── Cosmétiques : helper CSS ──────────────────────────────────────────────────
+function _cosmeticClass(cosmetic) {
+  const valid = ['rainbow','galaxy','silver','bronze','gold','diamond'];
+  return cosmetic && valid.includes(cosmetic) ? `name-${cosmetic}` : '';
+}
 
 // ── Libs : boost indice quiz ──────────────────────────────────────────────────
 function _updateBoostHintBtn() {

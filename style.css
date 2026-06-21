@@ -1565,6 +1565,50 @@ html.light #screen-landing         { background: radial-gradient(ellipse at 50% 
 .shop-promo-row     { display: flex; gap: 8px; }
 .shop-promo-input   { flex: 1; padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-size: .9rem; text-transform: uppercase; letter-spacing: 3px; font-weight: 700; }
 
+/* ── Cosmétiques de pseudo ── */
+.shop-cosmetics-section { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 4px; }
+.shop-cosmetics-grid    { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+.shop-cosmetic-card     { display: flex; flex-direction: column; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 6px 8px; }
+.shop-cosmetic-preview  { font-size: 1rem; font-weight: 800; letter-spacing: .5px; }
+.shop-cosmetic-name     { font-size: .72rem; color: var(--muted); font-weight: 600; }
+.shop-cosmetic-btn      { font-size: .7rem !important; padding: 4px 8px !important; width: 100%; }
+.btn-cosmetic-equipped  { background: rgba(34,197,94,.15); border: 1.5px solid #22c55e; color: #22c55e; border-radius: 8px; font-size: .7rem; font-weight: 700; padding: 4px 8px; cursor: pointer; width: 100%; }
+
+@keyframes rainbow-scroll { from { background-position: 0% } to { background-position: 300% } }
+@keyframes galaxy-scroll  { from { background-position: 0% } to { background-position: 300% } }
+@keyframes shimmer-scroll { from { background-position: 0% } to { background-position: 300% } }
+
+.name-rainbow {
+  background: linear-gradient(90deg,#ff0000,#ff8800,#ffff00,#00e600,#00ccff,#0000ff,#8800ff,#ff0000);
+  background-size: 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: rainbow-scroll 3s linear infinite;
+}
+.name-galaxy {
+  background: linear-gradient(90deg,#2d0052,#7b2ff7,#f107a3,#ffffff,#00cfff,#7b2ff7,#2d0052);
+  background-size: 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: galaxy-scroll 4s linear infinite;
+}
+.name-silver {
+  background: linear-gradient(90deg,#888,#ddd,#fff,#ddd,#888,#ddd,#fff);
+  background-size: 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: shimmer-scroll 2.5s linear infinite;
+}
+.name-bronze {
+  background: linear-gradient(90deg,#7a3e00,#cd7f32,#f4c68c,#cd7f32,#7a3e00,#cd7f32,#f4c68c);
+  background-size: 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: shimmer-scroll 2.5s linear infinite;
+}
+.name-gold {
+  background: linear-gradient(90deg,#a67c00,#ffd700,#fff7a0,#ffd700,#a67c00,#ffd700,#fff7a0);
+  background-size: 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: shimmer-scroll 2s linear infinite;
+}
+.name-diamond {
+  background: linear-gradient(90deg,#7ac7f5,#d0f4ff,#ffffff,#b9f2ff,#7ac7f5,#d0f4ff,#ffffff);
+  background-size: 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: shimmer-scroll 1.8s linear infinite;
+}
+
 /* ── Boost hint button in quiz ── */
 .boost-hint-btn {
   background: rgba(251,191,36,.15);
