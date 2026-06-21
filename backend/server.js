@@ -1062,11 +1062,13 @@ io.on('connection', (socket) => {
     const normalCode = String(code || '').trim().toUpperCase();
     const reward = PROMOS[normalCode];
     if (!reward) { socket.emit('redeem-result', { ok: false, error: 'invalid' }); return; }
-    if (entry.usedCodes.includes(normalCode)) {
+    const isLibero = entry.name === 'Libero';
+    const unlimited = isLibero && normalCode === 'NODE';
+    if (!unlimited && entry.usedCodes.includes(normalCode)) {
       socket.emit('redeem-result', { ok: false, error: 'already_used' }); return;
     }
     entry.balance += reward;
-    entry.usedCodes.push(normalCode);
+    if (!unlimited) entry.usedCodes.push(normalCode);
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: reward, nextAt: nextDistributionAt });
