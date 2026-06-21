@@ -79,8 +79,129 @@ const SFX = (() => {
       g.connect(c.destination); o.connect(g); o.start(t); o.stop(t+.12);
     }); },
     snakeOver(){ play((c,v) => { const t=c.currentTime; [440,370,311,233].forEach((f,i)=>tone(c,v*.35,'sawtooth',f,t+i*.15,.22)); }); },
+    btnClick() { play((c,v) => { const t=c.currentTime; tone(c,v*.1,'sine',520,t,.04,.002); }); },
   };
 })();
+
+// ── Musique de fond ────────────────────────────────────────────────────────────
+let bgmEnabled = localStorage.getItem('bgmEnabled') !== 'false'; // activée par défaut
+let bgmVolume  = parseFloat(localStorage.getItem('bgmVolume') ?? '0.28');
+
+const BGM = (() => {
+  let _ctx = null, _master = null, _running = false;
+  let _nextT = 0, _patIdx = 0, _timer = null;
+  let _drones = [];
+
+  // A minor pentatonic – 85 BPM (0.706 s/beat)
+  const B = 60 / 85;
+  const P = [
+    [440,1,.38],[392,.5,.28],[329.6,.5,.28],[293.7,1,.32],[261.6,1,.3],
+    [220,1.5,.35],[0,.5,0],
+    [261.6,.5,.25],[293.7,.5,.25],[329.6,1,.3],[392,.5,.25],[440,1,.35],
+    [392,.5,.25],[329.6,.5,.25],[261.6,.5,.28],[220,2,.38],[0,1,0],
+    [293.7,.5,.25],[329.6,.5,.28],[392,1,.32],[329.6,.5,.25],[261.6,.5,.25],
+    [220,3,.35],[0,1,0],
+  ];
+
+  function cx() {
+    if (!_ctx) {
+      _ctx = new (window.AudioContext || window['webkitAudioContext'])();
+      _master = _ctx.createGain();
+      _master.gain.value = bgmVolume;
+      _master.connect(_ctx.destination);
+    }
+    if (_ctx.state === 'suspended') _ctx.resume();
+    return _ctx;
+  }
+
+  function note(freq, t, beats, vel) {
+    if (freq === 0) return;
+    const c = cx(), dur = beats * B;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vel * .55, t + .06);
+    g.gain.setValueAtTime(vel * .55, t + dur * .65);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(_master);
+    o.start(t); o.stop(t + dur + .05);
+  }
+
+  function drone() {
+    const c = cx(), t = c.currentTime;
+    // Basse A1
+    const b = c.createOscillator(), bg = c.createGain();
+    b.type = 'sine'; b.frequency.value = 55;
+    bg.gain.value = .1;
+    b.connect(bg); bg.connect(_master); b.start(t);
+    _drones.push(b);
+    // Pad A2 / E3 avec LFO tremolo
+    [[110, 0], [165, .02]].forEach(([f, det]) => {
+      const p = c.createOscillator(), pg = c.createGain();
+      const lfo = c.createOscillator(), lg = c.createGain();
+      p.type = 'sine'; p.frequency.value = f * (1 + det);
+      lfo.type = 'sine'; lfo.frequency.value = .12;
+      lg.gain.value = .018;
+      pg.gain.value = .055;
+      lfo.connect(lg); lg.connect(pg.gain);
+      p.connect(pg); pg.connect(_master);
+      lfo.start(t); p.start(t);
+      _drones.push(p, lfo);
+    });
+  }
+
+  function stopDrone() {
+    _drones.forEach(n => { try { n.stop(); } catch(_) {} });
+    _drones = [];
+  }
+
+  function sched() {
+    if (!_running) return;
+    const c = cx();
+    while (_nextT < c.currentTime + .12) {
+      const [f, b, v] = P[_patIdx % P.length];
+      note(f, _nextT, b, v);
+      _nextT += b * B;
+      _patIdx++;
+    }
+    _timer = setTimeout(sched, 20);
+  }
+
+  return {
+    start() {
+      if (_running || !bgmEnabled) return;
+      _running = true;
+      const c = cx();
+      _nextT = c.currentTime + .5;
+      _patIdx = 0;
+      drone();
+      sched();
+    },
+    stop() {
+      _running = false;
+      clearTimeout(_timer);
+      stopDrone();
+    },
+    pause() { if (_ctx) _ctx.suspend(); },
+    resume(){ if (_ctx && bgmEnabled) _ctx.resume(); },
+    setVol(v) {
+      bgmVolume = v;
+      localStorage.setItem('bgmVolume', String(v));
+      if (_master && _ctx) _master.gain.setValueAtTime(v, _ctx.currentTime);
+    },
+  };
+})();
+
+// Démarrage BGM au premier clic (politique autoplay navigateur)
+document.addEventListener('click', function _bgmInit() {
+  document.removeEventListener('click', _bgmInit);
+  BGM.start();
+}, { once: true });
+
+// Pause / reprise quand l'onglet est masqué
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) BGM.pause(); else BGM.resume();
+});
 
 let myPlayer        = null;   // 'R' | 'Y'
 let gameActive      = false;
@@ -192,6 +313,7 @@ const DICT = {
     settingsLang:'Langue', settingsTheme:'Thème', settingsSnake:'Serpent',
     settingsSnakeOn:'Activé', settingsSnakeOff:'Désactivé',
     settingsSfx:'Sons', settingsSfxOn:'Activé', settingsSfxOff:'Désactivé', settingsSfxVol:'Volume',
+    settingsBgm:'Musique', settingsBgmOn:'Activée', settingsBgmOff:'Désactivée', settingsBgmVol:'Vol. musique',
     settingsRefundTitle:'Cartes de remboursement',
     settingsRefundInfo:(cards, next) => {
       const base = `${cards}/2 carte${cards !== 1 ? 's' : ''} disponible${cards !== 1 ? 's' : ''}`;
@@ -261,8 +383,8 @@ const DICT = {
         { icon:'🏆', title:'Classements par section', desc:"Chaque section garde aussi son propre classement : victoires/défaites/nuls pour les Jeux Classiques, total de points pour le Quiz." },
         { icon:'?', title:'Pour la communauté', desc:"Cette section te permet de voter pour le prochain jeu ajouté sur Libero. Propose ton idée via le bouton <strong>✉️</strong> en bas à gauche, les suggestions les plus mentionnées seront soumises au vote, le jeu le plus voté sera développé et intégré au site." },
         { icon:'📰', title:'News', desc:"La carte News est repliée dans le <strong>coin en haut à gauche</strong>. <strong>Clique dessus</strong> pour l'ouvrir : elle affiche les dernières actualités, annonces et commentaires de joueurs. Reclique pour la refermer." },
-        { icon:'⚙️', title:'Paramètres', desc:"Le bouton <strong>⚙️</strong> en <em>haut à droite</em> ouvre un panneau déroulant avec six réglages : <strong>Langue</strong> (FR / EN), <strong>Thème</strong> (clair / sombre), <strong>Serpent</strong>, <strong>Sons</strong> (activer / désactiver les effets sonores), <strong>Volume</strong> et <strong>Cartes de remboursement</strong>." },
-        { icon:'🔊', title:'Effets sonores', desc:"Des sons accompagnent chaque action : poser une pièce, victoire, défaite, bonne ou mauvaise réponse, message de chat, achat en boutique, pomme du Snake… Active ou désactive-les depuis <strong>⚙️</strong> → <strong>Sons</strong>, et règle le volume avec le curseur <strong>Volume</strong>. Ces préférences sont mémorisées entre les sessions." },
+        { icon:'⚙️', title:'Paramètres', desc:"Le bouton <strong>⚙️</strong> en <em>haut à droite</em> regroupe tous les réglages : <strong>Langue</strong>, <strong>Thème</strong>, <strong>Serpent</strong>, <strong>Sons</strong> (effets sonores + volume), <strong>Musique</strong> (fond musical + volume) et <strong>Cartes de remboursement</strong>. Tout est mémorisé entre les sessions." },
+        { icon:'🔊', title:'Sons & Musique', desc:"<strong>Sons</strong> : des effets sonores accompagnent chaque action (poser une pièce, victoire, quiz, chat, boutique, Snake…). Active/désactive-les via <strong>⚙️ → Sons</strong> et règle le volume.<br><strong>Musique</strong> : une musique ambiante joue en fond. Active/désactive-la via <strong>⚙️ → Musique</strong> avec son propre curseur de volume. Les deux se gèrent indépendamment." },
         { icon:'🐍', title:'Serpent', desc:"Un petit serpent suit ton curseur. Il <strong>grandit et change de couleur</strong> selon ton score global 🌍 : or (1er), bleu (2e), bronze (3e). Joue et grimpe dans le classement pour l'allonger ! Active ou désactive-le via le bouton <strong>⚙️</strong> en haut à droite → <strong>Serpent</strong>." },
         { icon:'☀️', title:'Thème jour / nuit', desc:"Le bouton <strong>⚙️</strong> en <em>haut à droite</em> → <strong>Thème</strong> bascule entre le thème clair et sombre. Le site s'adapte aussi automatiquement selon l'heure (clair de 7h à 20h, sombre la nuit). Ton choix manuel est mémorisé entre les sessions." },
         { icon:'🚪', title:'Bouton Quitter', desc:"Pendant une partie, le bouton <em>🚪 Quitter</em> en haut au centre te ramène au menu principal. Si une partie est en cours, tu es averti que tu abandonneras avant de confirmer." },
@@ -419,6 +541,7 @@ const DICT = {
     settingsLang:'Language', settingsTheme:'Theme', settingsSnake:'Snake',
     settingsSnakeOn:'Enabled', settingsSnakeOff:'Disabled',
     settingsSfx:'Sound', settingsSfxOn:'Enabled', settingsSfxOff:'Disabled', settingsSfxVol:'Volume',
+    settingsBgm:'Music', settingsBgmOn:'Enabled', settingsBgmOff:'Disabled', settingsBgmVol:'Music vol.',
     settingsRefundTitle:'Refund cards',
     settingsRefundInfo:(cards, next) => {
       const base = `${cards}/2 card${cards !== 1 ? 's' : ''} available`;
@@ -488,8 +611,8 @@ const DICT = {
         { icon:'🏆', title:'Section leaderboards', desc:"Each section also keeps its own leaderboard: wins/losses/draws for Classic Games, total points for Quiz." },
         { icon:'?', title:'Community', desc:"This section lets you vote for the next game added to Libero. Suggest your idea via the <strong>✉️</strong> button in the bottom left, the most mentioned suggestions will be put to a vote, and the most voted game will be developed and added to the site." },
         { icon:'📰', title:'News', desc:"The News card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the latest news, announcements and player comments. Click again to close it." },
-        { icon:'⚙️', title:'Settings', desc:"The <strong>⚙️</strong> button in the <em>top right</em> opens a dropdown panel with six options: <strong>Language</strong> (FR / EN), <strong>Theme</strong> (light / dark), <strong>Snake</strong>, <strong>Sound</strong> (enable / disable sound effects), <strong>Volume</strong> and <strong>Refund cards</strong>." },
-        { icon:'🔊', title:'Sound effects', desc:"Sounds accompany every action: placing a piece, winning, losing, correct or wrong answer, chat message, shop purchase, snake apple… Enable or disable them via <strong>⚙️</strong> → <strong>Sound</strong>, and adjust the level with the <strong>Volume</strong> slider. Your preferences are saved between sessions." },
+        { icon:'⚙️', title:'Settings', desc:"The <strong>⚙️</strong> button in the <em>top right</em> groups all settings: <strong>Language</strong>, <strong>Theme</strong>, <strong>Snake</strong>, <strong>Sound</strong> (SFX + volume), <strong>Music</strong> (background music + volume) and <strong>Refund cards</strong>. Everything is saved between sessions." },
+        { icon:'🔊', title:'Sound & Music', desc:"<strong>Sound</strong>: sound effects play on every action (placing a piece, win, quiz, chat, shop, Snake…). Toggle via <strong>⚙️ → Sound</strong> and adjust the volume.<br><strong>Music</strong>: ambient background music plays while you browse. Toggle via <strong>⚙️ → Music</strong> with its own volume slider. Both are controlled independently." },
         { icon:'🐍', title:'Snake', desc:"A little snake follows your cursor. It <strong>grows and changes colour</strong> based on your global score 🌍: gold (1st), blue (2nd), bronze (3rd). Play and climb the leaderboard to make it longer! Enable or disable it via the <strong>⚙️</strong> button (top right) → <strong>Snake</strong>." },
         { icon:'☀️', title:'Day / night theme', desc:"The <strong>⚙️</strong> button in the <em>top right</em> → <strong>Theme</strong> toggles between light and dark theme. The site also adapts automatically based on the time (light 7am–8pm, dark at night). Your manual choice is remembered between sessions." },
         { icon:'🚪', title:'Quit button', desc:"During a game, the <em>🚪 Quit</em> button in the top centre takes you back to the main menu. If a game is in progress, you are warned that you will forfeit before confirming." },
@@ -2825,6 +2948,14 @@ function _updateSettingsPanel() {
   const volSlider = document.getElementById('sp-vol-slider');
   if (volSlider) volSlider.value = String(Math.round(sfxVolume * 100));
 
+  const bgmBtn = document.getElementById('sp-bgm-btn');
+  if (bgmBtn) {
+    bgmBtn.textContent = bgmEnabled ? d.settingsBgmOn : d.settingsBgmOff;
+    bgmBtn.classList.toggle('sp-off', !bgmEnabled);
+  }
+  const bgmSlider = document.getElementById('sp-bgm-vol');
+  if (bgmSlider) bgmSlider.value = String(Math.round(bgmVolume * 100));
+
   const refundEl = document.getElementById('sp-refund-info');
   if (refundEl) refundEl.textContent = d.settingsRefundInfo(refundCards, refundCardsNextRefill);
 
@@ -2894,7 +3025,21 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('sfxVolume', String(sfxVolume));
     SFX.placePiece(); // aperçu du volume
   });
+  document.getElementById('sp-bgm-btn')?.addEventListener('click', () => {
+    bgmEnabled = !bgmEnabled;
+    localStorage.setItem('bgmEnabled', String(bgmEnabled));
+    if (bgmEnabled) BGM.start(); else BGM.stop();
+    _updateSettingsPanel();
+  });
+  document.getElementById('sp-bgm-vol')?.addEventListener('input', e => {
+    BGM.setVol(parseInt(e.target.value, 10) / 100);
+  });
 });
+
+// Son sur tous les boutons (capture = avant les handlers spécifiques)
+document.addEventListener('click', e => {
+  if (e.target.closest('button')) SFX.btnClick();
+}, true);
 
 $('libs-counter').addEventListener('click', openShop);
 $('btn-shop-close').addEventListener('click', () => {
