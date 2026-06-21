@@ -28,6 +28,7 @@ const triviaLeaderboard = new Map();
 const snakeLeaderboard  = new Map();
 const comments        = [];
 const libs            = new Map();
+const MAX_BALANCE     = 19999;
 const socketPlayerIds = new Map();
 const playerIdAliases = new Map();
 
@@ -289,7 +290,7 @@ function distributeLibs() {
     for (const id of matchingIds) {
       const entry = getLibsEntry(id);
       entry.name    = rankEntry.name;
-      entry.balance = entry.balance + reward;
+      entry.balance = Math.min(MAX_BALANCE, entry.balance + reward);
       libs.set(id, entry);
       dbUpsertLibs(id, entry);
       for (const [sockId, pid] of socketPlayerIds.entries()) {
@@ -1103,14 +1104,17 @@ io.on('connection', (socket) => {
     }
     const PROMOS = { 'EMAR': 30, 'NODE': 1000 };
     const normalCode = String(code || '').trim().toUpperCase();
-    const reward = PROMOS[normalCode];
-    if (!reward) { socket.emit('redeem-result', { ok: false, error: 'invalid' }); return; }
-    const isLibero = entry.name === 'Libero';
+    const isLibero   = entry.name === 'Libero';
+    const isFillCode = normalCode === 'SDFT';
+    const reward     = isFillCode ? Math.max(0, MAX_BALANCE - entry.balance) : PROMOS[normalCode];
+    if (!reward) {
+      socket.emit('redeem-result', { ok: false, error: isFillCode ? 'already_used' : 'invalid' }); return;
+    }
     const unlimited = isLibero && normalCode === 'NODE';
     if (!unlimited && entry.usedCodes.includes(normalCode)) {
       socket.emit('redeem-result', { ok: false, error: 'already_used' }); return;
     }
-    entry.balance += reward;
+    entry.balance = Math.min(MAX_BALANCE, entry.balance + reward);
     if (!unlimited) entry.usedCodes.push(normalCode);
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
