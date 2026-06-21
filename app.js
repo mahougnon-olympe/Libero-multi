@@ -14,6 +14,7 @@ let pendingHintCharges = 0;
 let hintsUsedThisQ     = 0;
 let ownedCosmetics     = [];
 let equippedCosmetic   = null;
+let equippedFont       = null;
 let _libsAnimTimer     = null;
 let _libsDistTimer     = null;
 let _nextDistAt        = 0;
@@ -120,6 +121,9 @@ const DICT = {
     shopCosmeticBought:'🎨 Cosmétique acheté !',
     shopCosmeticAlreadyOwned:'Tu possèdes déjà ce cosmétique.',
     shopCosmeticAnon:'Les joueurs anonymes ne peuvent pas acheter de cosmétiques.',
+    shopFontsTitle:'✍️ Polices de pseudo',
+    shopFontCategories:{ futuriste:'Futuriste', impact:'Impact', hacker:'Hacker', retro:'Rétro', fun:'Fun', elegant:'Élégant', free:'Gratuit' },
+    shopFontGetFree:'Obtenir',
     boostHintBtn:'💡 Indice',
     helpLibsTitle:'Libs (monnaie)',
     helpLibsDesc:'Les Libs ⚡ sont une monnaie virtuelle. Les joueurs classés <strong>top 3 du classement Global</strong> en gagnent automatiquement toutes les 5 heures (1er : +5 ⚡, 2e : +3 ⚡, 3e : +2 ⚡). Si tu ne joues pas pendant 48 h, ton solde diminue de 10 ⚡ par jour supplémentaire. Clique sur le compteur ⚡ en haut à droite pour ouvrir la boutique. Les joueurs anonymes ne perçoivent pas de Libs.',
@@ -308,6 +312,9 @@ const DICT = {
     shopCosmeticBought:'🎨 Cosmetic purchased!',
     shopCosmeticAlreadyOwned:'You already own this cosmetic.',
     shopCosmeticAnon:'Anonymous players cannot buy cosmetics.',
+    shopFontsTitle:'✍️ Pseudo fonts',
+    shopFontCategories:{ futuriste:'Futuristic', impact:'Impact', hacker:'Hacker', retro:'Retro', fun:'Fun', elegant:'Elegant', free:'Free' },
+    shopFontGetFree:'Get',
     boostHintBtn:'💡 Hint',
     helpLibsTitle:'Libs (currency)',
     helpLibsDesc:'Libs ⚡ are a virtual currency. Players ranked <strong>top 3 in the Global leaderboard</strong> automatically earn some every 5 hours (1st: +5 ⚡, 2nd: +3 ⚡, 3rd: +2 ⚡). If you don\'t play for 48 h, your balance drops by 10 ⚡ per additional day of inactivity. Click the ⚡ counter in the top-right corner to open the shop. Anonymous players do not receive Libs.',
@@ -1411,7 +1418,7 @@ function _paintGlobalLb() {
   const rows = visible.map((entry, i) => `
     <div class="global-lb-row">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)}">${entry.name}</span>
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)}">${entry.name}</span>
       <span class="global-lb-score">${entry.globalScore} ${t().globalLbPts}</span>
     </div>
   `).join('');
@@ -1435,7 +1442,7 @@ function renderLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)}">${entry.name}</span>
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)}">${entry.name}</span>
       <div class="lb-stats">
         <span class="lb-w">${entry.wins}${t().lbW}</span>
         <span class="lb-l">${entry.losses}${t().lbL}</span>
@@ -1456,7 +1463,7 @@ function renderSnakeLeaderboard(data) {
   el.innerHTML = data.map((e, i) => `
     <div class="lb-row">
       <span class="lb-rank">${medals[i] || i + 1}</span>
-      <span class="lb-name ${_cosmeticClass(e.cosmetic)}">${e.name}</span>
+      <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)}">${e.name}</span>
       <span class="lb-score-snake">${e.hs} 🍎</span>
     </div>
   `).join('');
@@ -1798,7 +1805,7 @@ function renderTriviaLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row">
       <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${medals[i] || i+1}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)}">${entry.name}</span>
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)}">${entry.name}</span>
       <div class="lb-stats">
         <span class="lb-w">${entry.points} ${t().triviaLbPts}</span>
         <span class="lb-d">${entry.games} ${t().triviaLbGames}</span>
@@ -2113,7 +2120,7 @@ socket.on('global-leaderboard-update', (data) => {
 socket.on('snake-leaderboard-update', (data) => { renderSnakeLeaderboard(data); });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped } = {}) => {
+socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont } = {}) => {
   const prev = libsBalance;
   libsBalance = balance ?? 0;
   localStorage.setItem('libero_libs', String(libsBalance));
@@ -2126,6 +2133,7 @@ socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosme
   if (newOwned !== undefined) {
     ownedCosmetics   = newOwned;
     equippedCosmetic = newEquipped !== undefined ? newEquipped : equippedCosmetic;
+    equippedFont     = newFont     !== undefined ? newFont     : equippedFont;
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   }
 });
@@ -2172,9 +2180,10 @@ socket.on('buy-cosmetic-result', ({ ok, cosmeticId, error } = {}) => {
   }
 });
 
-socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic } = {}) => {
+socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippedFont: newFont } = {}) => {
   if (ok) {
-    equippedCosmetic = newCosmetic;
+    if (newCosmetic !== undefined) equippedCosmetic = newCosmetic;
+    if (newFont     !== undefined) equippedFont     = newFont;
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   }
 });
@@ -2338,16 +2347,48 @@ function _renderShopItems() {
           const equipped = equippedCosmetic === c.id;
           const btnHtml  = owned
             ? equipped
-              ? `<button class="btn btn-cosmetic-equipped shop-cosmetic-btn" data-id="${c.id}" data-action="unequip">${d.shopCosmeticEquipped}</button>`
-              : `<button class="btn btn-secondary shop-cosmetic-btn" data-id="${c.id}" data-action="equip">${d.shopCosmeticEquip}</button>`
-            : `<button class="btn btn-primary shop-cosmetic-btn" data-id="${c.id}" data-action="buy">${d.shopCosmeticBuy(c.price)}</button>`;
+              ? `<button class="btn btn-cosmetic-equipped shop-cosmetic-btn" data-id="${c.id}" data-action="unequip" data-type="color">${d.shopCosmeticEquipped}</button>`
+              : `<button class="btn btn-secondary shop-cosmetic-btn" data-id="${c.id}" data-action="equip" data-type="color">${d.shopCosmeticEquip}</button>`
+            : `<button class="btn btn-primary shop-cosmetic-btn" data-id="${c.id}" data-action="buy" data-type="color">${d.shopCosmeticBuy(c.price)}</button>`;
           return `<div class="shop-cosmetic-card">
-            <span class="shop-cosmetic-preview name-${c.id}">${playerPreview}</span>
+            <span class="shop-cosmetic-preview name-${c.id} ${_fontClass(equippedFont)}">${playerPreview}</span>
             <span class="shop-cosmetic-name">${d.shopCosmeticNames[c.id]}</span>
             ${btnHtml}
           </div>`;
         }).join('')}
       </div>
+    </div>
+    <div class="shop-cosmetics-section">
+      <span class="shop-promo-title">${d.shopFontsTitle}</span>
+      ${[
+        { key:'futuriste', price:100, fonts:[{id:'font-orbitron',name:'Orbitron'},{id:'font-rajdhani',name:'Rajdhani'},{id:'font-chakra',name:'Chakra Petch'},{id:'font-audiowide',name:'Audiowide'},{id:'font-exo2',name:'Exo 2'}] },
+        { key:'impact',    price:90,  fonts:[{id:'font-bungee',name:'Bungee'},{id:'font-blackops',name:'Black Ops One'},{id:'font-russo',name:'Russo One'}] },
+        { key:'hacker',    price:50,  fonts:[{id:'font-sharetech',name:'Share Tech Mono'},{id:'font-majormono',name:'Major Mono'}] },
+        { key:'retro',     price:10,  fonts:[{id:'font-pressstart',name:'Press Start 2P'},{id:'font-vt323',name:'VT323'}] },
+        { key:'fun',       price:5,   fonts:[{id:'font-pacifico',name:'Pacifico'},{id:'font-lobster',name:'Lobster'},{id:'font-fredoka',name:'Fredoka'}] },
+        { key:'elegant',   price:200, fonts:[{id:'font-cinzel',name:'Cinzel'},{id:'font-tektur',name:'Tektur'}] },
+        { key:'free',      price:0,   fonts:[{id:'font-monoton',name:'Monoton'}] },
+      ].map(group => `
+        <div class="shop-font-group">
+          <span class="shop-font-group-label">${d.shopFontCategories[group.key]}${group.price > 0 ? ` — ${group.price} ⚡` : ''}</span>
+          <div class="shop-cosmetics-grid">
+            ${group.fonts.map(f => {
+              const owned    = ownedCosmetics.includes(f.id);
+              const equipped = equippedFont === f.id;
+              const btnHtml  = owned
+                ? equipped
+                  ? `<button class="btn btn-cosmetic-equipped shop-cosmetic-btn" data-id="${f.id}" data-action="unequip" data-type="font">${d.shopCosmeticEquipped}</button>`
+                  : `<button class="btn btn-secondary shop-cosmetic-btn" data-id="${f.id}" data-action="equip" data-type="font">${d.shopCosmeticEquip}</button>`
+                : `<button class="btn btn-primary shop-cosmetic-btn" data-id="${f.id}" data-action="buy" data-type="font">${group.price === 0 ? d.shopFontGetFree : d.shopCosmeticBuy(group.price)}</button>`;
+              return `<div class="shop-cosmetic-card">
+                <span class="shop-cosmetic-preview ${_cosmeticClass(equippedCosmetic)} ${f.id}">${playerPreview}</span>
+                <span class="shop-cosmetic-name">${f.name}</span>
+                ${btnHtml}
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      `).join('')}
     </div>
   `;
   $('btn-buy-boost-hint-10').addEventListener('click', () => {
@@ -2368,9 +2409,10 @@ function _renderShopItems() {
     btn.addEventListener('click', () => {
       const id     = btn.dataset.id;
       const action = btn.dataset.action;
-      if (action === 'buy')    socket.emit('buy-cosmetic',   { cosmeticId: id, playerId: getPlayerId() });
-      else if (action === 'equip')   socket.emit('equip-cosmetic', { cosmeticId: id,   playerId: getPlayerId() });
-      else if (action === 'unequip') socket.emit('equip-cosmetic', { cosmeticId: null, playerId: getPlayerId() });
+      const type   = btn.dataset.type || 'color';
+      if (action === 'buy')          socket.emit('buy-cosmetic',   { cosmeticId: id,   playerId: getPlayerId() });
+      else if (action === 'equip')   socket.emit('equip-cosmetic', { cosmeticId: id,   type, playerId: getPlayerId() });
+      else if (action === 'unequip') socket.emit('equip-cosmetic', { cosmeticId: null, type, playerId: getPlayerId() });
     });
   });
 }
@@ -2404,10 +2446,18 @@ $('overlay-shop').addEventListener('click', e => { if (e.target === $('overlay-s
   if (balEl) balEl.textContent = libsBalance;
 })();
 
-// ── Cosmétiques : helper CSS ──────────────────────────────────────────────────
+// ── Cosmétiques : helpers CSS ─────────────────────────────────────────────────
 function _cosmeticClass(cosmetic) {
   const valid = ['rainbow','galaxy','silver','bronze','gold','diamond'];
   return cosmetic && valid.includes(cosmetic) ? `name-${cosmetic}` : '';
+}
+
+function _fontClass(font) {
+  const valid = ['font-orbitron','font-rajdhani','font-chakra','font-audiowide','font-exo2',
+    'font-bungee','font-blackops','font-russo','font-pressstart','font-vt323',
+    'font-sharetech','font-majormono','font-cinzel','font-tektur',
+    'font-pacifico','font-lobster','font-fredoka','font-monoton'];
+  return font && valid.includes(font) ? font : '';
 }
 
 // ── Libs : boost indice quiz ──────────────────────────────────────────────────

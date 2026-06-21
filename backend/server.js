@@ -67,7 +67,7 @@ async function loadData() {
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
   cmtDocs.forEach(d => comments.push({ pseudo: d.pseudo, message: d.message, date: d.date }));
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
@@ -118,13 +118,20 @@ function dbInsertComment(comment) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
 function getCosmeticByName(name) {
   for (const [, e] of libs.entries()) {
     if (e.name === name && e.equippedCosmetic) return e.equippedCosmetic;
+  }
+  return null;
+}
+
+function getFontByName(name) {
+  for (const [, e] of libs.entries()) {
+    if (e.name === name && e.equippedFont) return e.equippedFont;
   }
   return null;
 }
@@ -162,12 +169,30 @@ const SHOP_ITEMS      = [
   { id: 'boost_hint_20', price: 5, amount: 20 },
 ];
 const COSMETICS = [
-  { id: 'rainbow', price: 100 },
-  { id: 'galaxy',  price: 100 },
-  { id: 'silver',  price: 20  },
-  { id: 'bronze',  price: 20  },
-  { id: 'gold',    price: 70  },
-  { id: 'diamond', price: 70  },
+  { id: 'rainbow',         type: 'color', price: 100 },
+  { id: 'galaxy',          type: 'color', price: 100 },
+  { id: 'silver',          type: 'color', price: 20  },
+  { id: 'bronze',          type: 'color', price: 20  },
+  { id: 'gold',            type: 'color', price: 70  },
+  { id: 'diamond',         type: 'color', price: 70  },
+  { id: 'font-orbitron',   type: 'font',  price: 100 },
+  { id: 'font-rajdhani',   type: 'font',  price: 100 },
+  { id: 'font-chakra',     type: 'font',  price: 100 },
+  { id: 'font-audiowide',  type: 'font',  price: 100 },
+  { id: 'font-exo2',       type: 'font',  price: 100 },
+  { id: 'font-bungee',     type: 'font',  price: 90  },
+  { id: 'font-blackops',   type: 'font',  price: 90  },
+  { id: 'font-russo',      type: 'font',  price: 90  },
+  { id: 'font-pressstart', type: 'font',  price: 10  },
+  { id: 'font-vt323',      type: 'font',  price: 10  },
+  { id: 'font-sharetech',  type: 'font',  price: 50  },
+  { id: 'font-majormono',  type: 'font',  price: 50  },
+  { id: 'font-cinzel',     type: 'font',  price: 200 },
+  { id: 'font-tektur',     type: 'font',  price: 200 },
+  { id: 'font-pacifico',   type: 'font',  price: 5   },
+  { id: 'font-lobster',    type: 'font',  price: 5   },
+  { id: 'font-fredoka',    type: 'font',  price: 5   },
+  { id: 'font-monoton',    type: 'font',  price: 0   },
 ];
 
 function applyDecay(entry) {
@@ -185,12 +210,13 @@ function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null };
     libs.set(id, entry);
   }
   if (!entry.usedCodes) entry.usedCodes = [];
   if (!entry.ownedCosmetics) entry.ownedCosmetics = [];
   if (!('equippedCosmetic' in entry)) entry.equippedCosmetic = null;
+  if (!('equippedFont' in entry)) entry.equippedFont = null;
   const prevBal = entry.balance;
   applyDecay(entry);
   if (entry.balance !== prevBal) dbUpsertLibs(id, entry);
@@ -294,7 +320,7 @@ function getLeaderboardData() {
   return [...byName.values()]
     .sort((a, b) => b.wins - a.wins || (b.wins - b.losses) - (a.wins - a.losses) || a.name.localeCompare(b.name))
     .slice(0, 10)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name) }));
 }
 
 // ── Trivia leaderboard helpers ─────────────────────────────────────────────
@@ -321,7 +347,7 @@ function getTriviaLeaderboardData() {
   return [...byName.values()]
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))
     .slice(0, 10)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name) }));
 }
 
 function updateSnakeLeaderboard(id, name, hs) {
@@ -347,7 +373,7 @@ function getSnakeLeaderboardData() {
   return [...byName.values()]
     .sort((a, b) => b.hs - a.hs || a.name.localeCompare(b.name))
     .slice(0, 10)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name) }));
 }
 
 function getGlobalLeaderboardData() {
@@ -370,7 +396,7 @@ function getGlobalLeaderboardData() {
     .filter(e => e.globalScore > 0)
     .sort((a, b) => b.globalScore - a.globalScore || a.name.localeCompare(b.name))
     .slice(0, 50)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name) }));
 }
 
 // ── Trivia room helpers ────────────────────────────────────────────────────
@@ -1000,7 +1026,7 @@ io.on('connection', (socket) => {
     if (!id) { socket.emit('libs-update', { balance: 0, pendingBoostHint: 0 }); return; }
     socketPlayerIds.set(socket.id, id);
     const entry = getLibsEntry(id);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, nextAt: nextDistributionAt });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, nextAt: nextDistributionAt });
   });
 
   socket.on('get-shop', () => {
@@ -1058,19 +1084,25 @@ io.on('connection', (socket) => {
     entry.ownedCosmetics.push(cosmeticId);
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, nextAt: nextDistributionAt });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, nextAt: nextDistributionAt });
     socket.emit('buy-cosmetic-result', { ok: true, cosmeticId });
   });
 
-  socket.on('equip-cosmetic', ({ playerId, cosmeticId } = {}) => {
+  socket.on('equip-cosmetic', ({ playerId, cosmeticId, type } = {}) => {
     const id = safePlayerId(playerId);
     if (!id) return;
     const entry = getLibsEntry(id);
+    let cosmType = type;
+    if (cosmeticId !== null) {
+      const cosm = COSMETICS.find(c => c.id === cosmeticId);
+      cosmType = cosm ? cosm.type : 'color';
+    }
     if (cosmeticId === null || entry.ownedCosmetics.includes(cosmeticId)) {
-      entry.equippedCosmetic = cosmeticId;
+      if (cosmType === 'font') entry.equippedFont = cosmeticId;
+      else entry.equippedCosmetic = cosmeticId;
       libs.set(id, entry);
       dbUpsertLibs(id, entry);
-      socket.emit('equip-cosmetic-result', { ok: true, equippedCosmetic: cosmeticId });
+      socket.emit('equip-cosmetic-result', { ok: true, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont });
       io.emit('leaderboard-update', getLeaderboardData());
       io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
       io.emit('snake-leaderboard-update', getSnakeLeaderboardData());
