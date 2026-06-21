@@ -16,6 +16,7 @@ let ownedCosmetics     = [];
 let equippedCosmetic   = null;
 let equippedFont       = null;
 let equippedBubble     = null;
+let equippedBackground = localStorage.getItem('libero_equipped_bg') || null;
 let _libsAnimTimer     = null;
 let _libsDistTimer     = null;
 let _nextDistAt        = 0;
@@ -127,6 +128,8 @@ const DICT = {
     shopFontGetFree:'Obtenir',
     shopBubbleTitle:'💬 Bulles de chat',
     shopBubbleNames:{ 'bubble-ardoise':'Ardoise', 'bubble-ocean':'Océan', 'bubble-menthe':'Menthe', 'bubble-corail':'Corail', 'bubble-ambre':'Ambre', 'bubble-lavande':'Lavande', 'bubble-rubis':'Rubis', 'bubble-emeraude':'Émeraude', 'bubble-indigo':'Indigo', 'bubble-magenta':'Magenta néon', 'bubble-cyan':'Cyan néon', 'bubble-crepuscule':'Crépuscule', 'bubble-aurore':'Aurore', 'bubble-sunset':'Coucher de soleil', 'bubble-tropical':'Tropical', 'bubble-arcade':'Néon arcade', 'bubble-galaxie':'Galaxie', 'bubble-verre':'Verre néon', 'bubble-or':'Or liquide', 'bubble-holographique':'Holographique', 'bubble-cameleon':'Caméléon' },
+    shopBgTitle:'🖼 Fonds d\'écran',
+    shopBgNames:{'bg-nuit':'Nuit Calme','bg-ardoise':'Ardoise Profonde','bg-brume':'Brume Violette','bg-aurore-deg':'Dégradé Aurore','bg-crepuscule':'Crépuscule Néon','bg-cyber':'Grille Cyber','bg-circuit':'Circuit','bg-hexagones':'Hexagones','bg-etoile':'Ciel Étoilé','bg-particules':'Particules Flottantes','bg-pluie':'Pluie Néon','bg-vagues':'Vagues Lumineuses','bg-synthwave':'Synthwave','bg-nebuleuse':'Nébuleuse','bg-aurores':'Aurores Mouvantes','bg-galaxie':'Galaxie Vivante','bg-tempete':'Tempête Néon','bg-hologramme':'Hologramme'},
     boostHintBtn:'💡 Indice',
     helpLibsTitle:'Libs (monnaie)',
     helpLibsDesc:'Les Libs ⚡ sont une monnaie virtuelle. Les joueurs classés <strong>top 3 du classement Global</strong> en gagnent automatiquement toutes les 5 heures (1er : +5 ⚡, 2e : +3 ⚡, 3e : +2 ⚡). Si tu ne joues pas pendant 48 h, ton solde diminue de 10 ⚡ par jour supplémentaire. Clique sur le compteur ⚡ en haut à droite pour ouvrir la boutique. Les joueurs anonymes ne perçoivent pas de Libs.',
@@ -320,6 +323,8 @@ const DICT = {
     shopFontGetFree:'Get',
     shopBubbleTitle:'💬 Chat bubbles',
     shopBubbleNames:{ 'bubble-ardoise':'Slate', 'bubble-ocean':'Ocean', 'bubble-menthe':'Mint', 'bubble-corail':'Coral', 'bubble-ambre':'Amber', 'bubble-lavande':'Lavender', 'bubble-rubis':'Ruby', 'bubble-emeraude':'Emerald', 'bubble-indigo':'Indigo', 'bubble-magenta':'Neon magenta', 'bubble-cyan':'Neon cyan', 'bubble-crepuscule':'Dusk', 'bubble-aurore':'Aurora', 'bubble-sunset':'Sunset', 'bubble-tropical':'Tropical', 'bubble-arcade':'Arcade neon', 'bubble-galaxie':'Galaxy', 'bubble-verre':'Neon glass', 'bubble-or':'Liquid gold', 'bubble-holographique':'Holographic', 'bubble-cameleon':'Chameleon' },
+    shopBgTitle:'🖼 Wallpapers',
+    shopBgNames:{'bg-nuit':'Calm Night','bg-ardoise':'Deep Slate','bg-brume':'Violet Mist','bg-aurore-deg':'Aurora Gradient','bg-crepuscule':'Neon Dusk','bg-cyber':'Cyber Grid','bg-circuit':'Circuit','bg-hexagones':'Hexagons','bg-etoile':'Starry Sky','bg-particules':'Floating Particles','bg-pluie':'Neon Rain','bg-vagues':'Light Waves','bg-synthwave':'Synthwave','bg-nebuleuse':'Nebula','bg-aurores':'Moving Auroras','bg-galaxie':'Living Galaxy','bg-tempete':'Neon Storm','bg-hologramme':'Hologram'},
     boostHintBtn:'💡 Hint',
     helpLibsTitle:'Libs (currency)',
     helpLibsDesc:'Libs ⚡ are a virtual currency. Players ranked <strong>top 3 in the Global leaderboard</strong> automatically earn some every 5 hours (1st: +5 ⚡, 2nd: +3 ⚡, 3rd: +2 ⚡). If you don\'t play for 48 h, your balance drops by 10 ⚡ per additional day of inactivity. Click the ⚡ counter in the top-right corner to open the shop. Anonymous players do not receive Libs.',
@@ -2126,7 +2131,7 @@ socket.on('global-leaderboard-update', (data) => {
 socket.on('snake-leaderboard-update', (data) => { renderSnakeLeaderboard(data); });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble } = {}) => {
+socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg } = {}) => {
   const prev = libsBalance;
   libsBalance = balance ?? 0;
   localStorage.setItem('libero_libs', String(libsBalance));
@@ -2141,6 +2146,7 @@ socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosme
     equippedCosmetic = newEquipped !== undefined ? newEquipped : equippedCosmetic;
     equippedFont     = newFont     !== undefined ? newFont     : equippedFont;
     equippedBubble   = newBubble   !== undefined ? newBubble   : equippedBubble;
+    if (newBg !== undefined) { equippedBackground = newBg; localStorage.setItem('libero_equipped_bg', newBg || ''); BGManager.start(newBg); }
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   }
 });
@@ -2187,11 +2193,12 @@ socket.on('buy-cosmetic-result', ({ ok, cosmeticId, error } = {}) => {
   }
 });
 
-socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippedFont: newFont, equippedBubble: newBubble } = {}) => {
+socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg } = {}) => {
   if (ok) {
     if (newCosmetic !== undefined) equippedCosmetic = newCosmetic;
     if (newFont     !== undefined) equippedFont     = newFont;
     if (newBubble   !== undefined) equippedBubble   = newBubble;
+    if (newBg !== undefined) { equippedBackground = newBg; localStorage.setItem('libero_equipped_bg', newBg || ''); BGManager.start(newBg); }
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   }
 });
@@ -2421,6 +2428,32 @@ function _renderShopItems() {
           return `<div class="shop-cosmetic-card">
             <div class="shop-bubble-preview ${b.id}">Salut !</div>
             <span class="shop-cosmetic-name">${d.shopBubbleNames[b.id]}</span>
+            ${btnHtml}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="shop-cosmetics-section">
+      <span class="shop-promo-title">${d.shopBgTitle}</span>
+      <div class="shop-cosmetics-grid">
+        ${[
+          {id:'bg-nuit',price:10},{id:'bg-ardoise',price:15},{id:'bg-brume',price:25},
+          {id:'bg-aurore-deg',price:40},{id:'bg-crepuscule',price:50},{id:'bg-cyber',price:70},
+          {id:'bg-circuit',price:80},{id:'bg-hexagones',price:90},{id:'bg-etoile',price:100},
+          {id:'bg-particules',price:120},{id:'bg-pluie',price:140},{id:'bg-vagues',price:150},
+          {id:'bg-synthwave',price:170},{id:'bg-nebuleuse',price:190},{id:'bg-aurores',price:210},
+          {id:'bg-galaxie',price:240},{id:'bg-tempete',price:270},{id:'bg-hologramme',price:300},
+        ].map(b => {
+          const owned    = ownedCosmetics.includes(b.id);
+          const equipped = equippedBackground === b.id;
+          const btnHtml  = owned
+            ? equipped
+              ? `<button class="btn btn-cosmetic-equipped shop-cosmetic-btn" data-id="${b.id}" data-action="unequip" data-type="background">${d.shopCosmeticEquipped}</button>`
+              : `<button class="btn btn-secondary shop-cosmetic-btn" data-id="${b.id}" data-action="equip" data-type="background">${d.shopCosmeticEquip}</button>`
+            : `<button class="btn btn-primary shop-cosmetic-btn" data-id="${b.id}" data-action="buy" data-type="background">${d.shopCosmeticBuy(b.price)}</button>`;
+          return `<div class="shop-cosmetic-card">
+            <div class="shop-bg-preview ${b.id}"></div>
+            <span class="shop-cosmetic-name">${d.shopBgNames[b.id]}</span>
             ${btnHtml}
           </div>`;
         }).join('')}
@@ -3579,3 +3612,399 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
 
 // Lance le timer de repli News dès le chargement (landing active par défaut)
 _scheduleNewsCollapse();
+
+// ── Background Manager ────────────────────────────────────────────────────────
+const BGManager = (() => {
+  const layer  = document.getElementById('bg-layer');
+  const canvas = document.getElementById('bg-canvas');
+  const ctx    = canvas ? canvas.getContext('2d') : null;
+  let animId   = null;
+  let resizeFn = null;
+  const CANVAS_BGS = new Set(['bg-circuit','bg-etoile','bg-particules','bg-pluie',
+    'bg-vagues','bg-synthwave','bg-nebuleuse','bg-aurores','bg-galaxie','bg-tempete','bg-hologramme']);
+  const THEMES = {
+    'bg-nuit':'void','bg-ardoise':'void',
+    'bg-brume':'violet','bg-crepuscule':'violet','bg-nebuleuse':'violet',
+    'bg-aurore-deg':'aurora','bg-particules':'aurora','bg-vagues':'aurora','bg-aurores':'aurora',
+    'bg-cyber':'cyber','bg-circuit':'cyber','bg-hexagones':'cyber','bg-pluie':'cyber','bg-tempete':'cyber','bg-hologramme':'cyber',
+    'bg-etoile':'space','bg-galaxie':'space',
+    'bg-synthwave':'synthwave',
+  };
+
+  function stop() {
+    if (animId) { cancelAnimationFrame(animId); animId = null; }
+    if (resizeFn) { window.removeEventListener('resize', resizeFn); resizeFn = null; }
+    if (ctx && canvas) { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    if (canvas) canvas.style.display = 'none';
+    if (layer) layer.className = '';
+    document.body.classList.remove('has-bg',
+      'bg-theme-void','bg-theme-violet','bg-theme-aurora','bg-theme-cyber','bg-theme-space','bg-theme-synthwave');
+  }
+
+  function start(id) {
+    stop();
+    if (!id) return;
+    document.body.classList.add('has-bg');
+    const theme = THEMES[id] || 'void';
+    document.body.classList.add('bg-theme-' + theme);
+    if (layer) layer.classList.add(id);
+    if (!CANVAS_BGS.has(id) || !ctx) return;
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.display = 'block';
+    resizeFn = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    window.addEventListener('resize', resizeFn);
+    switch(id) {
+      case 'bg-circuit':    animCircuit();    break;
+      case 'bg-etoile':     animEtoile();     break;
+      case 'bg-particules': animParticules();  break;
+      case 'bg-pluie':      animPluie();      break;
+      case 'bg-vagues':     animVagues();     break;
+      case 'bg-synthwave':  animSynthwave();  break;
+      case 'bg-nebuleuse':  animNebuleuse();  break;
+      case 'bg-aurores':    animAurores();    break;
+      case 'bg-galaxie':    animGalaxie();    break;
+      case 'bg-tempete':    animTempete();    break;
+      case 'bg-hologramme': animHologramme(); break;
+    }
+  }
+
+  function animCircuit() {
+    const grid = 40;
+    const nodes = [], lines = [];
+    function init() {
+      nodes.length = 0; lines.length = 0;
+      const W = canvas.width, H = canvas.height;
+      for (let x = 0; x <= W; x += grid)
+        for (let y = 0; y <= H; y += grid)
+          if (Math.random() > 0.45) nodes.push({ x, y, phase: Math.random() * Math.PI * 2 });
+      for (const n of nodes) {
+        if (Math.random() > 0.5) lines.push({ x1:n.x,y1:n.y,x2:n.x+grid,y2:n.y, p:Math.random(), sp:Math.random()*.004+.001 });
+        if (Math.random() > 0.5) lines.push({ x1:n.x,y1:n.y,x2:n.x,y2:n.y+grid, p:Math.random(), sp:Math.random()*.004+.001 });
+      }
+    }
+    init();
+    let t = 0;
+    function frame() {
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      t += 0.016;
+      for (const l of lines) {
+        l.p = (l.p + l.sp) % 1;
+        if (l.x2 > W || l.y2 > H) continue;
+        ctx.strokeStyle = '#00ff8822'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(l.x1,l.y1); ctx.lineTo(l.x2,l.y2); ctx.stroke();
+        const px = l.x1 + (l.x2-l.x1)*l.p, py = l.y1 + (l.y2-l.y1)*l.p;
+        ctx.beginPath(); ctx.arc(px,py,2.5,0,Math.PI*2);
+        ctx.fillStyle='#00ff88'; ctx.fill();
+      }
+      for (const n of nodes) {
+        if (n.x > W || n.y > H) continue;
+        const a = .3+.7*(.5+.5*Math.sin(t*1.5+n.phase));
+        ctx.beginPath(); ctx.arc(n.x,n.y,2,0,Math.PI*2);
+        ctx.fillStyle=`rgba(0,255,136,${a})`; ctx.fill();
+      }
+      animId = requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  function animEtoile() {
+    const stars = Array.from({length:250},()=>({
+      x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+      r:Math.random()*1.4+.3, phase:Math.random()*Math.PI*2, sp:Math.random()*.04+.01
+    }));
+    let t=0;
+    function frame() {
+      const W=canvas.width,H=canvas.height;
+      ctx.clearRect(0,0,W,H);
+      t+=.016;
+      for(const s of stars){
+        const a=.35+.65*(.5+.5*Math.sin(t*s.sp*60+s.phase));
+        ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,255,255,${a})`; ctx.fill();
+      }
+      animId=requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  function animParticules() {
+    const cols=['#4fc3f7','#7c4dff','#00e5ff','#69f0ae','#ff6b6b','#ffd740'];
+    const pts = Array.from({length:80},()=>({
+      x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+      r:Math.random()*3+.8, vx:(Math.random()-.5)*.5, vy:-(Math.random()*.6+.2),
+      c:cols[Math.floor(Math.random()*cols.length)], a:Math.random()*.8+.1
+    }));
+    function frame() {
+      const W=canvas.width,H=canvas.height;
+      ctx.clearRect(0,0,W,H);
+      for(const p of pts){
+        p.x+=p.vx; p.y+=p.vy; p.a-=.0025;
+        if(p.y<0||p.a<=0){p.x=Math.random()*W;p.y=H+10;p.a=.8;p.vx=(Math.random()-.5)*.5;p.vy=-(Math.random()*.6+.2);}
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=p.c+(Math.round(p.a*255).toString(16).padStart(2,'0'));
+        ctx.shadowColor=p.c; ctx.shadowBlur=8; ctx.fill(); ctx.shadowBlur=0;
+      }
+      animId=requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  function animPluie() {
+    const W=canvas.width, H=canvas.height;
+    const fontSize=14, cols2=Math.floor(W/fontSize);
+    const drops=Array.from({length:cols2},()=>Math.random()*(H/fontSize));
+    const neonCols=['#00ff88','#00ffff','#ff00ff','#ff0088','#ffff00'];
+    function frame() {
+      ctx.fillStyle='rgba(0,0,0,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+      for(let i=0;i<drops.length;i++){
+        ctx.fillStyle=neonCols[i%neonCols.length]; ctx.font=`${fontSize}px monospace`;
+        ctx.fillText(String.fromCharCode(0x30A0+Math.random()*96),i*fontSize,drops[i]*fontSize);
+        if(drops[i]*fontSize>canvas.height&&Math.random()>.975) drops[i]=0;
+        drops[i]++;
+      }
+      animId=requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  function animVagues() {
+    const waves=[
+      {c:'#4fc3f7',a:35,f:.018,sp:.025,y:.5},
+      {c:'#7c4dff',a:45,f:.013,sp:.018,y:.62},
+      {c:'#00e5ff',a:28,f:.022,sp:.032,y:.56},
+    ];
+    let t=0;
+    function frame() {
+      const W=canvas.width,H=canvas.height;
+      ctx.clearRect(0,0,W,H);
+      t+=.016;
+      for(const w of waves){
+        const yBase=H*w.y;
+        ctx.beginPath(); ctx.moveTo(0,H);
+        for(let x=0;x<=W;x+=3){
+          const y=yBase+Math.sin(x*w.f+t*w.sp*60)*w.a+Math.sin(x*w.f*2.1+t*w.sp*40)*w.a*.4;
+          x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+        }
+        ctx.lineTo(W,H); ctx.closePath();
+        ctx.fillStyle=w.c+'28'; ctx.fill();
+        ctx.strokeStyle=w.c+'77'; ctx.lineWidth=2; ctx.stroke();
+      }
+      animId=requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  function animSynthwave() {
+    let t=0;
+    function frame() {
+      const W=canvas.width,H=canvas.height;
+      ctx.clearRect(0,0,W,H);
+      t+=.005;
+      const hz=H*.52;
+      // Sky
+      const sky=ctx.createLinearGradient(0,0,0,hz);
+      sky.addColorStop(0,'#0a0018'); sky.addColorStop(1,'#3d0050');
+      ctx.fillStyle=sky; ctx.fillRect(0,0,W,hz);
+      // Sun
+      const sr=Math.min(W,H)*.13;
+      ctx.save(); ctx.beginPath(); ctx.rect(0,0,W,hz); ctx.clip();
+      const sg=ctx.createRadialGradient(W/2,hz,0,W/2,hz,sr*1.3);
+      sg.addColorStop(0,'#ff8800'); sg.addColorStop(.45,'#ff2d78'); sg.addColorStop(1,'transparent');
+      ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(W/2,hz,sr*1.3,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#3d0050';
+      for(let i=0;i<7;i++){const sy=hz-sr*.1-i*sr*.14; if(sy<hz-sr*1.2) break; ctx.fillRect(W/2-sr*1.3,sy,sr*2.6,sr*.07);}
+      ctx.restore();
+      // Floor
+      const fl=ctx.createLinearGradient(0,hz,0,H);
+      fl.addColorStop(0,'#220030'); fl.addColorStop(1,'#080010');
+      ctx.fillStyle=fl; ctx.fillRect(0,hz,W,H-hz);
+      // Vertical lines
+      const vn=14;
+      for(let i=0;i<=vn;i++){
+        const x=(i/vn)*W, a=.55*(1-Math.abs(i/vn-.5)*1.6);
+        ctx.strokeStyle=`rgba(255,20,200,${Math.max(.04,a)})`; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.moveTo(W/2,hz); ctx.lineTo(x,H); ctx.stroke();
+      }
+      // Scrolling horizontal lines
+      const hn=14, scroll=(t*3)%1;
+      for(let i=0;i<hn;i++){
+        const prog=((i+scroll)/hn), y=hz+(H-hz)*Math.pow(prog,1.8);
+        const a=Math.min(.75,prog*2.5);
+        ctx.strokeStyle=`rgba(255,20,200,${a})`; ctx.lineWidth=Math.max(.5,2*prog);
+        ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+      }
+      animId=requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  function animNebuleuse() {
+    const blobs=[
+      {xf:.3,yf:.4,r:.32,c:'#7c4dff',ph:0},
+      {xf:.7,yf:.6,r:.26,c:'#e91e63',ph:2.1},
+      {xf:.5,yf:.5,r:.22,c:'#3d5afe',ph:4.2},
+    ];
+    let t=0;
+    function frame() {
+      const W=canvas.width,H=canvas.height;
+      ctx.clearRect(0,0,W,H);
+      t+=.005;
+      for(const b of blobs){
+        const x=W*b.xf+Math.sin(t+b.ph)*50, y=H*b.yf+Math.cos(t*.7+b.ph)*30;
+        const r=Math.min(W,H)*b.r;
+        const g=ctx.createRadialGradient(x,y,0,x,y,r);
+        g.addColorStop(0,b.c+'44'); g.addColorStop(1,'transparent');
+        ctx.fillStyle=g;
+        ctx.beginPath();
+        ctx.ellipse(x,y,r*(.8+.2*Math.sin(t*1.3+b.ph)),r*.7,t*.1+b.ph,0,Math.PI*2);
+        ctx.fill();
+      }
+      animId=requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  function animAurores() {
+    const bands=[
+      {c:'#00e676',w:.14,yf:.22,ph:0},
+      {c:'#40c4ff',w:.11,yf:.36,ph:1.5},
+      {c:'#7c4dff',w:.09,yf:.29,ph:3.0},
+    ];
+    let t=0;
+    function frame() {
+      const W=canvas.width,H=canvas.height;
+      ctx.clearRect(0,0,W,H);
+      t+=.01;
+      for(const b of bands){
+        const yBase=H*b.yf, bw=H*b.w;
+        ctx.beginPath();
+        const steps=80;
+        for(let i=0;i<=steps;i++){
+          const x=(i/steps)*W;
+          const y=yBase+Math.sin(x*.005+t+b.ph)*H*.1+Math.sin(x*.01+t*1.5)*H*.04;
+          i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+        }
+        for(let i=steps;i>=0;i--){
+          const x=(i/steps)*W;
+          const y=yBase+bw+Math.sin(x*.005+t+b.ph+.5)*H*.07;
+          ctx.lineTo(x,y);
+        }
+        ctx.closePath();
+        const g=ctx.createLinearGradient(0,yBase-bw,0,yBase+bw*2);
+        g.addColorStop(0,'transparent'); g.addColorStop(.35,b.c+'55');
+        g.addColorStop(.7,b.c+'33'); g.addColorStop(1,'transparent');
+        ctx.fillStyle=g; ctx.fill();
+      }
+      animId=requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  function animGalaxie() {
+    const stars=Array.from({length:350},()=>{
+      const dist=Math.random()*Math.min(canvas.width,canvas.height)*.46;
+      const arm=Math.floor(Math.random()*2)*Math.PI;
+      const sp=arm+dist*.009+Math.random()*.5;
+      return {
+        x:Math.cos(sp)*dist, y:Math.sin(sp)*dist,
+        r:Math.random()*1.6+.3,
+        c:`hsl(${200+Math.random()*150},70%,${60+Math.random()*30}%)`
+      };
+    });
+    let rot=0;
+    function frame() {
+      const W=canvas.width,H=canvas.height;
+      ctx.clearRect(0,0,W,H);
+      rot+=.0003;
+      ctx.save(); ctx.translate(W/2,H/2); ctx.rotate(rot);
+      for(const s of stars){
+        ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+        ctx.fillStyle=s.c; ctx.fill();
+      }
+      ctx.restore();
+      animId=requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  function animTempete() {
+    const bolts=[];
+    const nCols=['#ff00ff','#00ffff','#ff4400'];
+    const pts2=Array.from({length:100},()=>({
+      x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+      vx:(Math.random()-.5)*4, vy:(Math.random()-.5)*4,
+      r:Math.random()*2+.5, c:nCols[Math.floor(Math.random()*3)]
+    }));
+    let tick=0;
+    function makeBolt() {
+      const W=canvas.width,H=canvas.height;
+      const sx=Math.random()*W;
+      const segs=[]; let cx=sx,cy=0;
+      while(cy<H){const nx=cx+(Math.random()-.5)*90,ny=cy+Math.random()*55+15;segs.push({x1:cx,y1:cy,x2:nx,y2:Math.min(ny,H)});cx=nx;cy=ny;}
+      bolts.push({segs,a:1,c:nCols[Math.floor(Math.random()*3)]});
+    }
+    function frame() {
+      const W=canvas.width,H=canvas.height;
+      ctx.clearRect(0,0,W,H);
+      tick++;
+      if(tick%18===0) makeBolt();
+      ctx.globalAlpha=1;
+      for(let i=bolts.length-1;i>=0;i--){
+        const b=bolts[i]; b.a-=.06;
+        if(b.a<=0){bolts.splice(i,1);continue;}
+        ctx.strokeStyle=b.c; ctx.lineWidth=2; ctx.globalAlpha=b.a;
+        ctx.shadowColor=b.c; ctx.shadowBlur=12;
+        ctx.beginPath();
+        for(const s of b.segs){ctx.moveTo(s.x1,s.y1);ctx.lineTo(s.x2,s.y2);}
+        ctx.stroke(); ctx.shadowBlur=0;
+      }
+      ctx.globalAlpha=1;
+      for(const p of pts2){
+        p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0||p.x>W)p.vx*=-1; if(p.y<0||p.y>H)p.vy*=-1;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=p.c; ctx.fill();
+      }
+      animId=requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  function animHologramme() {
+    let t=0, glitch=0;
+    function frame() {
+      const W=canvas.width,H=canvas.height;
+      ctx.clearRect(0,0,W,H);
+      t++;
+      // Grid
+      ctx.strokeStyle='rgba(0,200,255,0.09)'; ctx.lineWidth=.5;
+      for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+      for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      // Scanlines
+      for(let y=0;y<H;y+=4){
+        ctx.fillStyle=`rgba(0,200,255,${.025+.015*Math.sin(y*.08+t*.04)})`;
+        ctx.fillRect(0,y,W,2);
+      }
+      // Moving scan line
+      const sy=(t*2.5)%H;
+      const sg=ctx.createLinearGradient(0,sy-25,0,sy+25);
+      sg.addColorStop(0,'transparent'); sg.addColorStop(.5,'rgba(0,255,255,0.14)'); sg.addColorStop(1,'transparent');
+      ctx.fillStyle=sg; ctx.fillRect(0,sy-25,W,50);
+      // Glitch
+      glitch--;
+      if(glitch<=0&&Math.random()<.004){glitch=12;
+        for(let i=0;i<4;i++){const gy=Math.random()*H,gh=Math.random()*18+2;
+          ctx.fillStyle=`rgba(0,255,255,${Math.random()*.25})`;ctx.fillRect(0,gy,W,gh);}
+      }
+      animId=requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  return { start, stop };
+})();
+
+// Restore background cosmetic on load
+if (equippedBackground) BGManager.start(equippedBackground);

@@ -67,7 +67,7 @@ async function loadData() {
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
   cmtDocs.forEach(d => comments.push({ pseudo: d.pseudo, message: d.message, date: d.date }));
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
@@ -118,7 +118,7 @@ function dbInsertComment(comment) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -214,6 +214,24 @@ const COSMETICS = [
   { id: 'bubble-or',            type: 'bubble', price: 180 },
   { id: 'bubble-holographique', type: 'bubble', price: 190 },
   { id: 'bubble-cameleon',      type: 'bubble', price: 200 },
+  { id: 'bg-nuit',         type: 'background', price: 10  },
+  { id: 'bg-ardoise',      type: 'background', price: 15  },
+  { id: 'bg-brume',        type: 'background', price: 25  },
+  { id: 'bg-aurore-deg',   type: 'background', price: 40  },
+  { id: 'bg-crepuscule',   type: 'background', price: 50  },
+  { id: 'bg-cyber',        type: 'background', price: 70  },
+  { id: 'bg-circuit',      type: 'background', price: 80  },
+  { id: 'bg-hexagones',    type: 'background', price: 90  },
+  { id: 'bg-etoile',       type: 'background', price: 100 },
+  { id: 'bg-particules',   type: 'background', price: 120 },
+  { id: 'bg-pluie',        type: 'background', price: 140 },
+  { id: 'bg-vagues',       type: 'background', price: 150 },
+  { id: 'bg-synthwave',    type: 'background', price: 170 },
+  { id: 'bg-nebuleuse',    type: 'background', price: 190 },
+  { id: 'bg-aurores',      type: 'background', price: 210 },
+  { id: 'bg-galaxie',      type: 'background', price: 240 },
+  { id: 'bg-tempete',      type: 'background', price: 270 },
+  { id: 'bg-hologramme',   type: 'background', price: 300 },
 ];
 
 function applyDecay(entry) {
@@ -231,7 +249,7 @@ function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null };
     libs.set(id, entry);
   }
   if (!entry.usedCodes) entry.usedCodes = [];
@@ -239,6 +257,7 @@ function getLibsEntry(id) {
   if (!('equippedCosmetic' in entry)) entry.equippedCosmetic = null;
   if (!('equippedFont'   in entry)) entry.equippedFont   = null;
   if (!('equippedBubble' in entry)) entry.equippedBubble = null;
+  if (!('equippedBackground' in entry)) entry.equippedBackground = null;
   const prevBal = entry.balance;
   applyDecay(entry);
   if (entry.balance !== prevBal) dbUpsertLibs(id, entry);
@@ -1050,7 +1069,7 @@ io.on('connection', (socket) => {
     if (!id) { socket.emit('libs-update', { balance: 0, pendingBoostHint: 0 }); return; }
     socketPlayerIds.set(socket.id, id);
     const entry = getLibsEntry(id);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, equippedBubble: entry.equippedBubble, nextAt: nextDistributionAt });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, equippedBubble: entry.equippedBubble, equippedBackground: entry.equippedBackground, nextAt: nextDistributionAt });
   });
 
   socket.on('get-shop', () => {
@@ -1112,7 +1131,7 @@ io.on('connection', (socket) => {
     entry.ownedCosmetics.push(cosmeticId);
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, equippedBubble: entry.equippedBubble, nextAt: nextDistributionAt });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, equippedBubble: entry.equippedBubble, equippedBackground: entry.equippedBackground, nextAt: nextDistributionAt });
     socket.emit('buy-cosmetic-result', { ok: true, cosmeticId });
   });
 
@@ -1126,12 +1145,13 @@ io.on('connection', (socket) => {
       cosmType = cosm ? cosm.type : 'color';
     }
     if (cosmeticId === null || entry.ownedCosmetics.includes(cosmeticId)) {
-      if (cosmType === 'font')     entry.equippedFont   = cosmeticId;
-      else if (cosmType === 'bubble') entry.equippedBubble = cosmeticId;
+      if (cosmType === 'font')           entry.equippedFont       = cosmeticId;
+      else if (cosmType === 'bubble')     entry.equippedBubble     = cosmeticId;
+      else if (cosmType === 'background') entry.equippedBackground = cosmeticId;
       else entry.equippedCosmetic = cosmeticId;
       libs.set(id, entry);
       dbUpsertLibs(id, entry);
-      socket.emit('equip-cosmetic-result', { ok: true, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, equippedBubble: entry.equippedBubble });
+      socket.emit('equip-cosmetic-result', { ok: true, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, equippedBubble: entry.equippedBubble, equippedBackground: entry.equippedBackground });
       io.emit('leaderboard-update', getLeaderboardData());
       io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
       io.emit('snake-leaderboard-update', getSnakeLeaderboardData());

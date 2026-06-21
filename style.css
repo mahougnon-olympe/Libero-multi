@@ -1657,6 +1657,49 @@ html.light #screen-landing         { background: radial-gradient(ellipse at 50% 
 .msg-bubble.bubble-cameleon,      .shop-bubble-preview.bubble-cameleon      { background: linear-gradient(270deg,#ff6b6b,#ffd93d,#6bcb77,#4d96ff,#c77dff); background-size: 400% 400% !important; animation: cameleon-shift 4s ease infinite !important; color: #fff !important; }
 @keyframes cameleon-shift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
 
+/* ── Background layer ── */
+#bg-layer, #bg-canvas {
+  position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none;
+}
+#bg-layer  { z-index: -2; }
+#bg-canvas { z-index: -1; display: none; }
+
+body.has-bg { background-color: transparent !important; background-image: none !important; }
+body.has-bg .card, body.has-bg [class*="overlay-content"], body.has-bg .shop-overlay,
+body.has-bg .overlay > .overlay-content, body.has-bg .game-card,
+body.has-bg .chat, body.has-bg .leaderboard-panel { background: rgba(13,17,35,.82); backdrop-filter: blur(14px); }
+
+/* Themes: override CSS vars */
+body.bg-theme-violet   { --board:#8b5cf6;--board2:#7c3aed;--border:rgba(139,92,246,.2);--glow:rgba(139,92,246,.45); }
+body.bg-theme-aurora   { --board:#00c853;--board2:#00897b;--border:rgba(0,200,83,.2);--glow:rgba(0,200,83,.4); }
+body.bg-theme-cyber    { --board:#00b4d8;--board2:#0096c7;--border:rgba(0,180,216,.2);--glow:rgba(0,180,216,.45); }
+body.bg-theme-space    { --board:#3a86ff;--board2:#2176ff;--border:rgba(58,134,255,.2);--glow:rgba(58,134,255,.45); }
+body.bg-theme-synthwave{ --board:#ff2d78;--board2:#c9004a;--border:rgba(255,45,120,.2);--glow:rgba(255,45,120,.45); }
+
+/* Static CSS backgrounds */
+#bg-layer.bg-nuit,     .shop-bg-preview.bg-nuit     { background:#06060e; }
+#bg-layer.bg-ardoise,  .shop-bg-preview.bg-ardoise   { background:linear-gradient(135deg,#0f1923,#1a2a3a); }
+#bg-layer.bg-brume,    .shop-bg-preview.bg-brume     { background:radial-gradient(ellipse at 50% 30%,#2d0060 0%,#0a0015 65%); }
+#bg-layer.bg-aurore-deg,.shop-bg-preview.bg-aurore-deg{ background:linear-gradient(160deg,#0a1628 0%,#0d3320 35%,#0a1a28 65%,#0a0a28 100%); }
+#bg-layer.bg-crepuscule,.shop-bg-preview.bg-crepuscule{ background:linear-gradient(180deg,#0a0018 0%,#2d0050 50%,#3d0040 100%); }
+#bg-layer.bg-cyber,    .shop-bg-preview.bg-cyber     { background-color:#020c12;background-image:linear-gradient(rgba(0,255,200,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,200,.08) 1px,transparent 1px);background-size:40px 40px; }
+#bg-layer.bg-hexagones,.shop-bg-preview.bg-hexagones { background-color:#060c18;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92'%3E%3Cpath d='M40 0L80 23V69L40 92L0 69V23Z' fill='none' stroke='rgba(0%2C200%2C255%2C0.13)' stroke-width='1.5'/%3E%3C/svg%3E");background-size:80px 92px; }
+/* Canvas bg bases (preview only) */
+#bg-layer.bg-circuit,    .shop-bg-preview.bg-circuit    { background:linear-gradient(135deg,#010e05,#020e08); }
+#bg-layer.bg-etoile,     .shop-bg-preview.bg-etoile     { background:#02040c; }
+#bg-layer.bg-particules, .shop-bg-preview.bg-particules { background:linear-gradient(135deg,#050815,#080520); }
+#bg-layer.bg-pluie,      .shop-bg-preview.bg-pluie      { background:#000; }
+#bg-layer.bg-vagues,     .shop-bg-preview.bg-vagues     { background:linear-gradient(180deg,#020818,#030a18); }
+#bg-layer.bg-synthwave,  .shop-bg-preview.bg-synthwave  { background:linear-gradient(180deg,#0a0018 0%,#3d0050 45%,#220030 55%,#080010 100%); }
+#bg-layer.bg-nebuleuse,  .shop-bg-preview.bg-nebuleuse  { background:radial-gradient(ellipse at 40% 40%,#1a0040 0%,#02000c 70%); }
+#bg-layer.bg-aurores,    .shop-bg-preview.bg-aurores    { background:linear-gradient(180deg,#010508,#020c10); }
+#bg-layer.bg-galaxie,    .shop-bg-preview.bg-galaxie    { background:#000208; }
+#bg-layer.bg-tempete,    .shop-bg-preview.bg-tempete    { background:#030008; }
+#bg-layer.bg-hologramme, .shop-bg-preview.bg-hologramme { background:linear-gradient(135deg,#010d14,#020810); }
+
+/* Shop bg preview card */
+.shop-bg-preview { width:100%;height:56px;border-radius:8px;margin-bottom:2px; }
+
 /* ── Boost hint button in quiz ── */
 .boost-hint-btn {
   background: rgba(251,191,36,.15);
