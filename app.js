@@ -2157,12 +2157,12 @@ socket.on('redeem-result', ({ ok, delta, error } = {}) => {
   if (ok) {
     const inp = $('shop-promo-input');
     if (inp) inp.value = '';
-    _showShopFeedback(t().shopPromoOk(delta), '#22c55e');
+    _showPromoFeedback(t().shopPromoOk(delta), '#22c55e');
   } else {
     const msg = error === 'already_used' ? t().shopPromoAlreadyUsed
               : error === 'anonymous'    ? t().shopPromoAnon
               : t().shopPromoInvalid;
-    _showShopFeedback(msg, '#ef4444');
+    _showPromoFeedback(msg, '#ef4444');
   }
 });
 
@@ -2338,6 +2338,7 @@ function _renderShopItems() {
           autocapitalize="characters" spellcheck="false">
         <button id="btn-redeem-code" class="btn btn-secondary" style="font-size:.8rem;padding:6px 14px;">${d.shopPromoBtn}</button>
       </div>
+      <span id="shop-promo-feedback" style="font-size:.8rem;min-height:1.1em;display:block;margin-top:4px;"></span>
     </div>
     <div class="shop-cosmetics-section">
       <span class="shop-promo-title">${d.shopCosmeticsTitle}</span>
@@ -2426,6 +2427,15 @@ function _updateShopPending(pendingBoostHint) {
 
 function _showShopFeedback(msg, color) {
   const fb = $('shop-feedback');
+  if (!fb) return;
+  fb.textContent = msg;
+  fb.style.color = color;
+  clearTimeout(fb._t);
+  fb._t = setTimeout(() => { fb.textContent = ''; }, 3000);
+}
+
+function _showPromoFeedback(msg, color) {
+  const fb = $('shop-promo-feedback');
   if (!fb) return;
   fb.textContent = msg;
   fb.style.color = color;
