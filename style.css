@@ -790,6 +790,27 @@ body:has(#overlay-shop:not(.hidden)) #news-card { display: none !important; }
   background: rgba(99,102,241,.18);
   margin: 2px 0;
 }
+.sp-vol-row { align-items: center; }
+.sp-vol-slider {
+  -webkit-appearance: none; appearance: none;
+  width: 100px; height: 4px;
+  border-radius: 2px;
+  background: rgba(99,102,241,.3);
+  outline: none; cursor: pointer;
+}
+.sp-vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+}
+.sp-vol-slider::-moz-range-thumb {
+  width: 14px; height: 14px;
+  border-radius: 50%; border: none;
+  background: var(--accent); cursor: pointer;
+}
+
 .sp-row-refund .sp-label { font-size: .78rem; opacity: .6; }
 .sp-refund-info {
   font-size: .78rem;

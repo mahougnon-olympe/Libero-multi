@@ -27,6 +27,61 @@ let _globalLbData      = [];
 let _nameTaken         = false;
 let _renameTimer       = null;
 
+// ── Effets sonores ─────────────────────────────────────────────────────────────
+let sfxEnabled = localStorage.getItem('sfxEnabled') !== 'false';
+let sfxVolume  = parseFloat(localStorage.getItem('sfxVolume') ?? '0.5');
+
+const SFX = (() => {
+  let _ac = null;
+  function ac() {
+    if (!_ac) _ac = new (window.AudioContext || window['webkitAudioContext'])();
+    if (_ac.state === 'suspended') _ac.resume();
+    return _ac;
+  }
+  function play(fn) {
+    if (!sfxEnabled) return;
+    try { fn(ac(), sfxVolume); } catch(_) {}
+  }
+  function tone(ctx, vol, type, freq, t, dur, attack = 0.005) {
+    const g = ctx.createGain();
+    g.connect(ctx.destination);
+    const o = ctx.createOscillator();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + attack);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); o.start(t); o.stop(t + dur + 0.05);
+  }
+  return {
+    placePiece() { play((c,v) => { const t=c.currentTime; tone(c,v*.3,'sine',800,t,.08); }); },
+    win()  { play((c,v) => { const t=c.currentTime; [523,659,784,1047].forEach((f,i)=>tone(c,v*.4,'sine',f,t+i*.1,.18)); }); },
+    lose() { play((c,v) => { const t=c.currentTime; [392,330,294,220].forEach((f,i)=>tone(c,v*.35,'sine',f,t+i*.13,.22)); }); },
+    draw() { play((c,v) => { const t=c.currentTime; tone(c,v*.3,'sine',440,t,.12); tone(c,v*.3,'sine',440,t+.18,.12); }); },
+    quizOk()  { play((c,v) => { const t=c.currentTime; tone(c,v*.4,'sine',880,t,.25); tone(c,v*.2,'sine',1320,t+.05,.2); }); },
+    quizBad() { play((c,v) => {
+      const t=c.currentTime, g=c.createGain(), o=c.createOscillator();
+      o.type='sawtooth'; o.frequency.setValueAtTime(200,t); o.frequency.exponentialRampToValueAtTime(100,t+.3);
+      g.gain.setValueAtTime(v*.25,t); g.gain.exponentialRampToValueAtTime(0.001,t+.3);
+      g.connect(c.destination); o.connect(g); o.start(t); o.stop(t+.35);
+    }); },
+    chat()     { play((c,v) => { const t=c.currentTime; tone(c,v*.2,'sine',660,t,.07,.003); }); },
+    shopBuy()  { play((c,v) => { const t=c.currentTime; tone(c,v*.35,'triangle',740,t,.1); tone(c,v*.35,'triangle',988,t+.1,.15); }); },
+    openPanel(){ play((c,v) => {
+      const t=c.currentTime, g=c.createGain(), o=c.createOscillator();
+      o.type='sine'; o.frequency.setValueAtTime(300,t); o.frequency.exponentialRampToValueAtTime(600,t+.12);
+      g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v*.15,t+.03); g.gain.exponentialRampToValueAtTime(0.001,t+.15);
+      g.connect(c.destination); o.connect(g); o.start(t); o.stop(t+.2);
+    }); },
+    snakeEat() { play((c,v) => {
+      const t=c.currentTime, g=c.createGain(), o=c.createOscillator();
+      o.type='sine'; o.frequency.setValueAtTime(220,t); o.frequency.exponentialRampToValueAtTime(660,t+.08);
+      g.gain.setValueAtTime(v*.3,t); g.gain.exponentialRampToValueAtTime(0.001,t+.1);
+      g.connect(c.destination); o.connect(g); o.start(t); o.stop(t+.12);
+    }); },
+    snakeOver(){ play((c,v) => { const t=c.currentTime; [440,370,311,233].forEach((f,i)=>tone(c,v*.35,'sawtooth',f,t+i*.15,.22)); }); },
+  };
+})();
+
 let myPlayer        = null;   // 'R' | 'Y'
 let gameActive      = false;
 let currentRoomCode = null;
@@ -136,6 +191,7 @@ const DICT = {
     settingsTitle:'⚙️ Paramètres',
     settingsLang:'Langue', settingsTheme:'Thème', settingsSnake:'Serpent',
     settingsSnakeOn:'Activé', settingsSnakeOff:'Désactivé',
+    settingsSfx:'Sons', settingsSfxOn:'Activé', settingsSfxOff:'Désactivé', settingsSfxVol:'Volume',
     settingsRefundTitle:'Cartes de remboursement',
     settingsRefundInfo:(cards, next) => {
       const base = `${cards}/2 carte${cards !== 1 ? 's' : ''} disponible${cards !== 1 ? 's' : ''}`;
@@ -205,6 +261,8 @@ const DICT = {
         { icon:'🏆', title:'Classements par section', desc:"Chaque section garde aussi son propre classement : victoires/défaites/nuls pour les Jeux Classiques, total de points pour le Quiz." },
         { icon:'?', title:'Pour la communauté', desc:"Cette section te permet de voter pour le prochain jeu ajouté sur Libero. Propose ton idée via le bouton <strong>✉️</strong> en bas à gauche, les suggestions les plus mentionnées seront soumises au vote, le jeu le plus voté sera développé et intégré au site." },
         { icon:'📰', title:'News', desc:"La carte News est repliée dans le <strong>coin en haut à gauche</strong>. <strong>Clique dessus</strong> pour l'ouvrir : elle affiche les dernières actualités, annonces et commentaires de joueurs. Reclique pour la refermer." },
+        { icon:'⚙️', title:'Paramètres', desc:"Le bouton <strong>⚙️</strong> en <em>haut à droite</em> ouvre un panneau déroulant avec six réglages : <strong>Langue</strong> (FR / EN), <strong>Thème</strong> (clair / sombre), <strong>Serpent</strong>, <strong>Sons</strong> (activer / désactiver les effets sonores), <strong>Volume</strong> et <strong>Cartes de remboursement</strong>." },
+        { icon:'🔊', title:'Effets sonores', desc:"Des sons accompagnent chaque action : poser une pièce, victoire, défaite, bonne ou mauvaise réponse, message de chat, achat en boutique, pomme du Snake… Active ou désactive-les depuis <strong>⚙️</strong> → <strong>Sons</strong>, et règle le volume avec le curseur <strong>Volume</strong>. Ces préférences sont mémorisées entre les sessions." },
         { icon:'🐍', title:'Serpent', desc:"Un petit serpent suit ton curseur. Il <strong>grandit et change de couleur</strong> selon ton score global 🌍 : or (1er), bleu (2e), bronze (3e). Joue et grimpe dans le classement pour l'allonger ! Active ou désactive-le via le bouton <strong>⚙️</strong> en haut à droite → <strong>Serpent</strong>." },
         { icon:'☀️', title:'Thème jour / nuit', desc:"Le bouton <strong>⚙️</strong> en <em>haut à droite</em> → <strong>Thème</strong> bascule entre le thème clair et sombre. Le site s'adapte aussi automatiquement selon l'heure (clair de 7h à 20h, sombre la nuit). Ton choix manuel est mémorisé entre les sessions." },
         { icon:'🚪', title:'Bouton Quitter', desc:"Pendant une partie, le bouton <em>🚪 Quitter</em> en haut au centre te ramène au menu principal. Si une partie est en cours, tu es averti que tu abandonneras avant de confirmer." },
@@ -215,7 +273,7 @@ const DICT = {
       ],
       quiz:[
         { icon:'🧠', title:'Culture Générale', desc:"Réponds à des questions à choix multiple. Sélectionne <strong>un ou plusieurs thèmes</strong> parmi 12 catégories : Histoire, Sciences, Cinéma, Musique, etc. Les questions sont mélangées si tu choisis plusieurs thèmes." },
-        { icon:'🌐', title:'Langue', desc:"Les questions sont automatiquement <strong>traduites en français</strong> si tu as choisi le mode FR. Les termes techniques restent en anglais quand nécessaire. En mode EN, les questions sont en anglais d'origine." },
+        { icon:'🌐', title:'Langue', desc:"Change la langue via le bouton <strong>⚙️</strong> en haut à droite → <strong>Langue</strong>. En mode <strong>FR</strong>, les questions sont traduites en français (les termes techniques restent en anglais si nécessaire). En mode <strong>EN</strong>, les questions sont en anglais d'origine. Le site détecte automatiquement ta langue au premier lancement." },
         { icon:'▶', title:'Mode Solo', desc:"Sélectionne un ou plusieurs thèmes et clique <em>Solo</em>. Tu joues seul à ton rythme. Ton score est automatiquement ajouté au classement à la fin." },
         { icon:'👥', title:'Mode Multijoueur', desc:"Clique <em>Créer un salon</em> (2 à 6 joueurs). Partage le code à 4 lettres. L'hôte lance la partie quand tout le monde est prêt. Tout le monde voit les mêmes questions en même temps." },
         { icon:'⏱', title:'Chrono', desc:"Tu as <strong>20 secondes</strong> par question. Le chrono passe en rouge sous les 5 secondes. Sans réponse dans le temps imparti, la question est perdue." },
@@ -360,6 +418,7 @@ const DICT = {
     settingsTitle:'⚙️ Settings',
     settingsLang:'Language', settingsTheme:'Theme', settingsSnake:'Snake',
     settingsSnakeOn:'Enabled', settingsSnakeOff:'Disabled',
+    settingsSfx:'Sound', settingsSfxOn:'Enabled', settingsSfxOff:'Disabled', settingsSfxVol:'Volume',
     settingsRefundTitle:'Refund cards',
     settingsRefundInfo:(cards, next) => {
       const base = `${cards}/2 card${cards !== 1 ? 's' : ''} available`;
@@ -429,6 +488,8 @@ const DICT = {
         { icon:'🏆', title:'Section leaderboards', desc:"Each section also keeps its own leaderboard: wins/losses/draws for Classic Games, total points for Quiz." },
         { icon:'?', title:'Community', desc:"This section lets you vote for the next game added to Libero. Suggest your idea via the <strong>✉️</strong> button in the bottom left, the most mentioned suggestions will be put to a vote, and the most voted game will be developed and added to the site." },
         { icon:'📰', title:'News', desc:"The News card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the latest news, announcements and player comments. Click again to close it." },
+        { icon:'⚙️', title:'Settings', desc:"The <strong>⚙️</strong> button in the <em>top right</em> opens a dropdown panel with six options: <strong>Language</strong> (FR / EN), <strong>Theme</strong> (light / dark), <strong>Snake</strong>, <strong>Sound</strong> (enable / disable sound effects), <strong>Volume</strong> and <strong>Refund cards</strong>." },
+        { icon:'🔊', title:'Sound effects', desc:"Sounds accompany every action: placing a piece, winning, losing, correct or wrong answer, chat message, shop purchase, snake apple… Enable or disable them via <strong>⚙️</strong> → <strong>Sound</strong>, and adjust the level with the <strong>Volume</strong> slider. Your preferences are saved between sessions." },
         { icon:'🐍', title:'Snake', desc:"A little snake follows your cursor. It <strong>grows and changes colour</strong> based on your global score 🌍: gold (1st), blue (2nd), bronze (3rd). Play and climb the leaderboard to make it longer! Enable or disable it via the <strong>⚙️</strong> button (top right) → <strong>Snake</strong>." },
         { icon:'☀️', title:'Day / night theme', desc:"The <strong>⚙️</strong> button in the <em>top right</em> → <strong>Theme</strong> toggles between light and dark theme. The site also adapts automatically based on the time (light 7am–8pm, dark at night). Your manual choice is remembered between sessions." },
         { icon:'🚪', title:'Quit button', desc:"During a game, the <em>🚪 Quit</em> button in the top centre takes you back to the main menu. If a game is in progress, you are warned that you will forfeit before confirming." },
@@ -439,7 +500,7 @@ const DICT = {
       ],
       quiz:[
         { icon:'🧠', title:'General Knowledge', desc:"Answer multiple-choice questions. Select <strong>one or more themes</strong> from 12 categories: History, Science, Movies, Music, etc. Questions are shuffled when multiple themes are chosen." },
-        { icon:'🌐', title:'Language', desc:"Questions are automatically <strong>in the language you have chosen</strong> (FR/EN). Technical terms may remain in English when necessary." },
+        { icon:'🌐', title:'Language', desc:"Change the language via the <strong>⚙️</strong> button (top right) → <strong>Language</strong>. In <strong>FR</strong> mode, questions are translated into French (technical terms may stay in English). In <strong>EN</strong> mode, questions are in their original English. The site auto-detects your language on first load." },
         { icon:'▶', title:'Solo mode', desc:"Select one or more themes and click <em>Solo</em>. You play at your own pace. Your score is automatically added to the leaderboard at the end." },
         { icon:'👥', title:'Multiplayer mode', desc:"Click <em>Create a room</em> (2 to 6 players). Share the 4-letter code. The host starts the game when everyone is ready. All players see the same questions at the same time." },
         { icon:'⏱', title:'Timer', desc:"You have <strong>20 seconds</strong> per question. The timer turns red under 5 seconds. If you don't answer in time, the question is lost." },
@@ -1026,8 +1087,10 @@ function showGameOver(status, winner) {
   const isWinner = winner === myPlayer;
   if (status === 'won') {
     $('status-text').textContent = isWinner ? t().youWon : t().youLost;
+    if (isWinner) SFX.win(); else SFX.lose();
   } else {
     $('status-text').textContent = t().gameDraw;
+    SFX.draw();
   }
   $('game-status').classList.remove('hidden');
   $('btn-restart').classList.remove('hidden');
@@ -1097,7 +1160,7 @@ function buildConnect4(container, board) {
     btn.textContent = '▼';
     btn.dataset.col = col;
     btn.setAttribute('aria-label', t().colLabel(col + 1));
-    btn.addEventListener('click', () => { if (gameActive) socket.emit('make-move', { col }); });
+    btn.addEventListener('click', () => { if (gameActive) { SFX.placePiece(); socket.emit('make-move', { col }); } });
     arrows.appendChild(btn);
   }
 
@@ -1175,6 +1238,7 @@ function buildTTT(container, board) {
     cell.dataset.idx = i;
     cell.addEventListener('click', () => {
       if (!gameActive || cell.classList.contains('played')) return;
+      SFX.placePiece();
       socket.emit('make-move', { cell: i });
     });
     boardEl.appendChild(cell);
@@ -1373,6 +1437,7 @@ function onChessClick(square) {
       showPromoModal(myPlayer);
     } else {
       lastMove = { from, to };
+      SFX.placePiece();
       socket.emit('make-move', { from, to });
     }
     return;
@@ -1781,6 +1846,7 @@ function showTriviaReveal({ correct, correctSocketIds, scores, myChoice }) {
     : (correctSocketIds || []).includes(triviaMySocketId);
   $('tg-reveal').textContent  = gotIt ? t().triviaCorrect : `${t().triviaWrong}${correct}`;
   $('tg-reveal').className    = `tg-reveal ${gotIt ? 'ok' : 'ko'}`;
+  if (gotIt) SFX.quizOk(); else SFX.quizBad();
 }
 
 function renderTriviaScores(scores) {
@@ -2175,7 +2241,7 @@ socket.on('restart-requested', () => {
   }
 });
 
-socket.on('new-message',       (msg)  => { appendMessage(msg); });
+socket.on('new-message',       (msg)  => { appendMessage(msg); SFX.chat(); });
 socket.on('leaderboard-update', (data) => {
   renderLeaderboard(data);
 });
@@ -2230,6 +2296,7 @@ socket.on('buy-boost-result', ({ ok, balance, pendingBoostHint, error } = {}) =>
     const shopBal = $('shop-balance-display');
     if (shopBal) shopBal.textContent = `⚡ ${libsBalance} Libs`;
     _updateShopPending(pendingBoostHint);
+    SFX.shopBuy();
     _showShopFeedback(t().shopBuyOk, '#22c55e');
   } else {
     _showShopFeedback(error === 'insufficient' ? t().shopInsufficient : t().shopBuyError, '#ef4444');
@@ -2252,6 +2319,7 @@ socket.on('redeem-result', ({ ok, delta, error } = {}) => {
 socket.on('buy-cosmetic-result', ({ ok, cosmeticId, error } = {}) => {
   if (ok) {
     if (!ownedCosmetics.includes(cosmeticId)) ownedCosmetics.push(cosmeticId);
+    SFX.shopBuy();
     _showShopFeedback(t().shopCosmeticBought, '#22c55e');
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   } else {
@@ -2276,6 +2344,7 @@ socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippe
 socket.on('refund-cosmetic-result', ({ ok, refundCards: newCards, delta, error } = {}) => {
   if (ok) {
     if (newCards !== undefined) refundCards = newCards;
+    SFX.shopBuy();
     _showShopFeedback(t().shopRefundOk(delta), '#22c55e');
     _shopDetailItem = null;
     const panel = $('shop-detail-panel');
@@ -2748,6 +2817,14 @@ function _updateSettingsPanel() {
     snakeBtn.classList.toggle('sp-off', !!snakeOff);
   }
 
+  const sfxBtn = document.getElementById('sp-sfx-btn');
+  if (sfxBtn) {
+    sfxBtn.textContent = sfxEnabled ? d.settingsSfxOn : d.settingsSfxOff;
+    sfxBtn.classList.toggle('sp-off', !sfxEnabled);
+  }
+  const volSlider = document.getElementById('sp-vol-slider');
+  if (volSlider) volSlider.value = String(Math.round(sfxVolume * 100));
+
   const refundEl = document.getElementById('sp-refund-info');
   if (refundEl) refundEl.textContent = d.settingsRefundInfo(refundCards, refundCardsNextRefill);
 
@@ -2761,6 +2838,7 @@ function _openSettingsPanel() {
   const panel = document.getElementById('settings-panel');
   if (!panel) return;
   panel.classList.remove('hidden');
+  SFX.openPanel();
   _updateSettingsPanel();
   setTimeout(() => {
     document.addEventListener('click', _settingsOutsideClick);
@@ -2775,6 +2853,7 @@ function _closeSettingsPanel() {
 }
 
 function _settingsOutsideClick(e) {
+  if (!e.isTrusted) return; // ignore programmatic .click() calls from sp-buttons
   const panel = document.getElementById('settings-panel');
   const btn   = document.getElementById('btn-settings');
   if (panel && !panel.contains(e.target) && btn && !btn.contains(e.target)) {
@@ -2804,6 +2883,16 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('sp-snake-btn')?.addEventListener('click', () => {
     document.getElementById('btn-snake-toggle')?.click();
     _updateSettingsPanel();
+  });
+  document.getElementById('sp-sfx-btn')?.addEventListener('click', () => {
+    sfxEnabled = !sfxEnabled;
+    localStorage.setItem('sfxEnabled', String(sfxEnabled));
+    _updateSettingsPanel();
+  });
+  document.getElementById('sp-vol-slider')?.addEventListener('input', e => {
+    sfxVolume = parseInt(e.target.value, 10) / 100;
+    localStorage.setItem('sfxVolume', String(sfxVolume));
+    SFX.placePiece(); // aperçu du volume
   });
 });
 
@@ -3163,6 +3252,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     snake.unshift(head);
     if (head.x === food.x && head.y === food.y) {
       score++;
+      SFX.snakeEat();
       saveHs(score);
       document.getElementById('snake-score-val').textContent = score;
       document.getElementById('snake-hs-val').textContent = Math.max(score, getHs());
@@ -3217,6 +3307,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   function endGame() {
     running = false;
     clearInterval(gameLoop);
+    SFX.snakeOver();
     clearSnakeSession();
     const isNewHs = score > getHs();
     saveHs(score);
