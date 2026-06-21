@@ -656,7 +656,6 @@ const socket = io(window.BACKEND_URL, { transports: ['websocket', 'polling'] });
 let _newsTimer = null;
 let _newsAutoDisabled = false;
 function _scheduleNewsCollapse() {
-  if (window.innerWidth > 600) return;
   if (_newsAutoDisabled) return;
   clearTimeout(_newsTimer);
   _newsTimer = setTimeout(() => {
@@ -696,7 +695,6 @@ function showScreen(name) {
   function minX() { return -(nc.offsetWidth - 44); }
 
   nc.addEventListener('touchstart', e => {
-    if (window.innerWidth > 600) return;
     startX    = e.touches[0].clientX;
     startBase = nc.classList.contains('collapsed') ? minX() : 0;
     moved     = false;
@@ -705,7 +703,6 @@ function showScreen(name) {
   }, { passive: true });
 
   nc.addEventListener('touchmove', e => {
-    if (window.innerWidth > 600) return;
     const dx = e.touches[0].clientX - startX;
     if (Math.abs(dx) > 6) moved = true;
     if (!moved) return;
@@ -713,8 +710,7 @@ function showScreen(name) {
   }, { passive: true });
 
   nc.addEventListener('touchend', e => {
-    if (window.innerWidth > 600) return;
-    const dx          = e.changedTouches[0].clientX - startX;
+    const dx           = e.changedTouches[0].clientX - startX;
     const wasCollapsed = nc.classList.contains('collapsed');
     _newsAutoDisabled  = true;
     clearTimeout(_newsTimer);
@@ -722,7 +718,6 @@ function showScreen(name) {
     if (!moved) {
       nc.style.transition = '';
       nc.style.transform  = '';
-      nc.classList.toggle('collapsed');
       return;
     }
 
@@ -734,6 +729,13 @@ function showScreen(name) {
       nc.style.transform = '';
     }, { once: true });
   }, { passive: true });
+
+  nc.addEventListener('click', () => {
+    if (moved) { moved = false; return; }
+    _newsAutoDisabled = true;
+    clearTimeout(_newsTimer);
+    nc.classList.toggle('collapsed');
+  });
 })();
 
 // ── Trivia : constantes ───────────────────────────────────────────────────────
