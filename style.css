@@ -1563,6 +1563,7 @@ html.light #screen-landing         { background: radial-gradient(ellipse at 50% 
 .shop-promo-section { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 4px; }
 .shop-promo-title   { font-size: .82rem; font-weight: 700; color: var(--muted); display: block; margin-bottom: 8px; }
 .shop-promo-row     { display: flex; gap: 8px; }
+.shop-promo-row button { flex-shrink: 0; white-space: nowrap; }
 .shop-promo-input   { flex: 1; padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-size: .9rem; text-transform: uppercase; letter-spacing: 3px; font-weight: 700; }
 
 /* ── Cosmétiques de pseudo ── */
