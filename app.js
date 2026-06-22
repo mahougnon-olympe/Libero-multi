@@ -334,8 +334,9 @@ const DICT = {
     eventsTitle:'Évents', eventsDesc:'Week-end · Snake Challenge',
     eventsDescLocked:'Week-end prochain',
     eventsLockedCard: days => `📅 Dans ${days} j`,
-    eventsLockedMsg:  days => `🔒 <strong>Prochain évent dans ${days} jour${days>1?'s':''}</strong> : Snake Challenge revient ce week-end !`,
+    eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> — reste connecté !`,
     eventActiveMsg:   '🐍 <strong>Évent ce week-end</strong> : Snake Challenge ! Nourris ton serpent pour le faire grandir sur tout le site.',
+    newsCommunityMsg: '💬 <strong>Tu as une idée de jeu ?</strong> Glisse un message dans la section <strong>?</strong> en bas de l\'accueil — ta voix compte !',
     communityCard:'Pour la communauté',
     homeClassicTitle:'Jeux Multijoueur',
     btnQuit:'🚪 Quitter',
@@ -566,8 +567,9 @@ const DICT = {
     eventsTitle:'Events', eventsDesc:'Weekend · Snake Challenge',
     eventsDescLocked:'Next weekend',
     eventsLockedCard: days => `📅 In ${days}d`,
-    eventsLockedMsg:  days => `🔒 <strong>Next event in ${days} day${days>1?'s':''}</strong>: Snake Challenge is back this weekend!`,
+    eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> — stay tuned!`,
     eventActiveMsg:   '🐍 <strong>Event this weekend</strong>: Snake Challenge! Feed your snake to make it grow across the site.',
+    newsCommunityMsg: '💬 <strong>Got a game idea?</strong> Drop a message in the <strong>?</strong> section at the bottom of the home screen — your voice matters!',
     communityCard:'Community',
     homeClassicTitle:'Multiplayer Games',
     btnQuit:'🚪 Quit',
@@ -892,6 +894,7 @@ function applyLang() {
 
   // News
   const nte = $('news-title-el'); if (nte) nte.textContent = d.newsTitle;
+  const ncm = $('news-community-msg'); if (ncm) ncm.innerHTML = d.newsCommunityMsg;
 
   // Floating button tooltips
   const bh = $('btn-help');          if (bh)  bh.title = d.btnHelpTitle;
