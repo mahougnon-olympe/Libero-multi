@@ -2268,6 +2268,52 @@ body.bg-theme-synthwave{ --board:#ff2d78;--board2:#c9004a;--border:rgba(255,45,1
   white-space: nowrap;
 }
 
+.player-honor-tag {
+  display: inline-block;
+  font-size: .68rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(234,179,8,.22), rgba(251,146,60,.18));
+  border: 1px solid rgba(234,179,8,.55);
+  color: #fbbf24;
+  margin-left: 4px;
+  vertical-align: middle;
+  white-space: nowrap;
+  text-shadow: 0 0 6px rgba(251,191,36,.4);
+}
+
+/* ── Modal titre honorifique ─────────────────────────────────────────────── */
+.honor-reward-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  padding: 32px 28px;
+  max-width: 380px;
+}
+.honor-reward-icon {
+  font-size: 3rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 12px rgba(251,191,36,.6));
+}
+.honor-reward-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #fbbf24;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(251,191,36,.35);
+}
+.honor-reward-msg {
+  font-size: .92rem;
+  color: rgba(255,255,255,.8);
+  margin: 0;
+  line-height: 1.5;
+}
+html.light .honor-reward-msg { color: rgba(0,0,0,.7); }
+html.light .honor-reward-title { color: #d97706; }
+
 /* ── Skins Puissance 4 ───────────────────────────────────────────────────── */
 .p4skin-p4token-neon .c4-cell.red    { box-shadow:0 0 10px 3px #ff4488; background:radial-gradient(circle,#ff88bb,#cc0044) !important; }
 .p4skin-p4token-neon .c4-cell.yellow { box-shadow:0 0 10px 3px #44ffcc; background:radial-gradient(circle,#88ffee,#00ccaa) !important; }

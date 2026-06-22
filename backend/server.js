@@ -35,6 +35,10 @@ const REFUND_CARD_COOLDOWN_MS  = 30 * 24 * 3600 * 1000;
 const socketPlayerIds = new Map();
 const playerIdAliases = new Map();
 
+let rank1Classic = null;
+let rank1Trivia  = null;
+let rank1Snake   = null;
+
 // ── Persistance MongoDB ────────────────────────────────────────────────────
 let mongoClient = null;
 let db          = null;
@@ -72,7 +76,7 @@ async function loadData() {
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
   cmtDocs.forEach(d => comments.push({ pseudo: d.pseudo, message: d.message, date: d.date }));
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmote: d.equippedEmote || null, refundCardsUsedAt: d.refundCardsUsedAt || [] }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmote: d.equippedEmote || null, refundCardsUsedAt: d.refundCardsUsedAt || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
@@ -124,7 +128,7 @@ function dbInsertComment(comment) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmote: entry.equippedEmote || null, refundCardsUsedAt: entry.refundCardsUsedAt || [] } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmote: entry.equippedEmote || null, refundCardsUsedAt: entry.refundCardsUsedAt || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -152,6 +156,14 @@ function getNameEffectByName(name) {
 function getTitleByName(name) {
   for (const [, e] of libs.entries()) {
     if (e.name === name && e.equippedTitle) return e.equippedTitle;
+  }
+  return null;
+}
+
+function getHonorTitleByName(name) {
+  if (name === 'Libero') return 'honor-creator';
+  for (const [, e] of libs.entries()) {
+    if (e.name === name && e.honorTitle) return e.honorTitle;
   }
   return null;
 }
@@ -366,6 +378,7 @@ function _equippedPayload(entry) {
     equippedVictoryBan:  entry.equippedVictoryBan  || null,
     equippedSoundPack:   entry.equippedSoundPack   || null,
     equippedEmote:       entry.equippedEmote       || null,
+    honorTitle:          entry.honorTitle          || null,
   };
 }
 
@@ -418,7 +431,7 @@ function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmote: null, refundCardsUsedAt: [] };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmote: null, refundCardsUsedAt: [], honorTitle: null, pendingHonorModal: null };
     libs.set(id, entry);
   }
   if (!entry.usedCodes)          entry.usedCodes          = [];
@@ -441,6 +454,8 @@ function getLibsEntry(id) {
   if (!('equippedVictoryBan'  in entry)) entry.equippedVictoryBan  = null;
   if (!('equippedSoundPack'   in entry)) entry.equippedSoundPack   = null;
   if (!('equippedEmote'       in entry)) entry.equippedEmote       = null;
+  if (!('honorTitle'          in entry)) entry.honorTitle          = null;
+  if (!('pendingHonorModal'   in entry)) entry.pendingHonorModal   = null;
   const prevBal = entry.balance;
   applyDecay(entry);
   if (entry.balance !== prevBal) dbUpsertLibs(id, entry);
@@ -457,6 +472,43 @@ function updateLastActive(id, name) {
 }
 
 let nextDistributionAt = 0;
+
+function refreshAllHonorTitles() {
+  const lbData    = getLeaderboardData();
+  const trivData  = getTriviaLeaderboardData();
+  const snakeData = getSnakeLeaderboardData();
+  const newR1Classic = lbData[0]?.name    || null;
+  const newR1Trivia  = trivData[0]?.name  || null;
+  const newR1Snake   = snakeData[0]?.name || null;
+
+  if (newR1Classic === rank1Classic && newR1Trivia === rank1Trivia && newR1Snake === rank1Snake) return;
+  rank1Classic = newR1Classic;
+  rank1Trivia  = newR1Trivia;
+  rank1Snake   = newR1Snake;
+
+  for (const [id, entry] of libs.entries()) {
+    if (entry.name === 'Libero') continue;
+    const name = entry.name;
+    if (!name || name === 'Anonyme') continue;
+
+    let newHonor = null;
+    if      (name === rank1Classic) newHonor = 'honor-rank1-classic';
+    else if (name === rank1Trivia)  newHonor = 'honor-rank1-trivia';
+    else if (name === rank1Snake)   newHonor = 'honor-rank1-snake';
+
+    if (entry.honorTitle === newHonor) continue;
+
+    const justEarned = newHonor !== null;
+    entry.honorTitle = newHonor;
+    entry.pendingHonorModal = justEarned ? newHonor : null;
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+
+    for (const [sockId, pid] of socketPlayerIds.entries()) {
+      if (pid === id) io.to(sockId).emit('libs-update', { honorTitle: entry.honorTitle, pendingHonorModal: entry.pendingHonorModal });
+    }
+  }
+}
 
 function distributeLibs() {
   nextDistributionAt = Date.now() + 5 * 3_600_000;
@@ -529,6 +581,7 @@ function updateLeaderboard(id, name, result) {
   if (result === 'draw') e.draws++;
   leaderboard.set(id, e);
   dbUpsertLeaderboard(id, e);
+  refreshAllHonorTitles();
 }
 
 function getLeaderboardData() {
@@ -544,7 +597,7 @@ function getLeaderboardData() {
   return [...byName.values()]
     .sort((a, b) => b.wins - a.wins || (b.wins - b.losses) - (a.wins - a.losses) || a.name.localeCompare(b.name))
     .slice(0, 10)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), honorTitle: getHonorTitleByName(e.name) }));
 }
 
 // ── Trivia leaderboard helpers ─────────────────────────────────────────────
@@ -557,6 +610,7 @@ function updateTriviaLeaderboard(id, name, points) {
   e.games++;
   triviaLeaderboard.set(id, e);
   dbUpsertTriviaLeaderboard(id, e);
+  refreshAllHonorTitles();
 }
 
 function getTriviaLeaderboardData() {
@@ -571,7 +625,7 @@ function getTriviaLeaderboardData() {
   return [...byName.values()]
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))
     .slice(0, 10)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), honorTitle: getHonorTitleByName(e.name) }));
 }
 
 function updateSnakeLeaderboard(id, name, hs) {
@@ -582,7 +636,7 @@ function updateSnakeLeaderboard(id, name, hs) {
   const improved = hs > existing.hs;
   if (improved) existing.hs = hs;
   snakeLeaderboard.set(id, existing);
-  if (improved || isNew) dbUpsertSnakeLeaderboard(id, existing);
+  if (improved || isNew) { dbUpsertSnakeLeaderboard(id, existing); refreshAllHonorTitles(); }
   return improved ? 'improved' : isNew ? 'registered' : false;
 }
 
@@ -597,7 +651,7 @@ function getSnakeLeaderboardData() {
   return [...byName.values()]
     .sort((a, b) => b.hs - a.hs || a.name.localeCompare(b.name))
     .slice(0, 10)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), honorTitle: getHonorTitleByName(e.name) }));
 }
 
 function getGlobalLeaderboardData() {
@@ -620,7 +674,7 @@ function getGlobalLeaderboardData() {
     .filter(e => e.globalScore > 0)
     .sort((a, b) => b.globalScore - a.globalScore || a.name.localeCompare(b.name))
     .slice(0, 50)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), honorTitle: getHonorTitleByName(e.name) }));
 }
 
 // ── Trivia room helpers ────────────────────────────────────────────────────
@@ -1077,6 +1131,7 @@ io.on('connection', (socket) => {
       if (entry) { entry.name = newName; map.set(id, entry); upsert(id, entry); changed = true; }
     });
     if (changed) {
+      refreshAllHonorTitles();
       io.emit('leaderboard-update', getLeaderboardData());
       io.emit('global-leaderboard-update', getGlobalLeaderboardData());
       io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
@@ -1264,7 +1319,7 @@ io.on('connection', (socket) => {
     socketPlayerIds.set(socket.id, id);
     const entry = getLibsEntry(id);
     const { available: refundCards, nextRefill: refundCardsNextRefill } = getRefundCardsInfo(entry);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null });
   });
 
   socket.on('get-shop', () => {
@@ -1389,6 +1444,17 @@ io.on('connection', (socket) => {
     dbUpsertLibs(id, entry);
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
     socket.emit('buy-cosmetic-result', { ok: true, cosmeticId });
+  });
+
+  socket.on('honor-modal-seen', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    const entry = getLibsEntry(id);
+    if (entry.pendingHonorModal) {
+      entry.pendingHonorModal = null;
+      libs.set(id, entry);
+      dbUpsertLibs(id, entry);
+    }
   });
 
   socket.on('equip-cosmetic', ({ playerId, cosmeticId, type } = {}) => {

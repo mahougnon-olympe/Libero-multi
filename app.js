@@ -30,6 +30,7 @@ let equippedEmojiPack    = null;
 let equippedVictoryBan   = null;
 let equippedSoundPack    = null;
 let equippedEmote        = null;
+let honorTitle           = null;
 let _shopDetailItem         = null;
 let shopRotation            = null;
 let _shopCountdownTimer     = null;
@@ -346,6 +347,10 @@ const DICT = {
     shopNameEffectNames:{'nameeffect-blink':'Clignotement Néon','nameeffect-pulse':'Lueur Pulsée','nameeffect-gradient':'Dégradé Défilant','nameeffect-sparks':'Étincelles','nameeffect-glitch':'Glitch','nameeffect-rainbow':'Vague Arc-en-ciel'},
     shopTitlesTitle:'🏷️ Titres',
     shopTitleNames:{'title-tactician':'Tacticien','title-strategist':'Le Stratège','title-quizmaster':'Quiz Master','title-snakeking':'Roi du Snake','title-unbeaten':'Invaincu','title-champion':'Champion','title-legend':'Légende Vivante'},
+    honorTitleNames:{'honor-rank1-classic':'N°1 Classiques','honor-rank1-trivia':'N°1 Quiz','honor-rank1-snake':'N°1 Snake','honor-creator':'Créateur'},
+    honorModalTitle:'Titre honorifique !',
+    honorModalMsg:(titleName) => `Felicitations ! Tu es N°1 du classement. En recompense, tu recois le titre <strong>${titleName}</strong>. Il s'affichera a cote de ton pseudo tant que tu restes premier.`,
+    honorModalBtn:'Accepter',
     shopCursorSnakesTitle:'🖱️ Skins de curseur',
     shopCursorSnakeNames:{'cursorsnake-pixel':'Serpent Pixel','cursorsnake-neon':'Serpent Néon','cursorsnake-comet':'Comète','cursorsnake-electric':'Anguille Électrique','cursorsnake-stars':'Traînée Étoilée','cursorsnake-fire':'Dragon de Feu'},
     shopAvatarsTitle:'🎭 Avatars',
@@ -483,7 +488,8 @@ const DICT = {
         { icon:'🗂️', title:'Navigation boutique', desc:"En haut de la boutique, une <strong>barre de catégories</strong> te permet de sauter directement à la section souhaitée : ⭐ À la une, 📅 Quotidien, 🎁 Bundles, 💡 Boosts, 🎨 Couleurs, ✍️ Polices, 💬 Bulles, 🖼️ Fonds. Sur mobile, elle défile horizontalement. Le bouton de la section visible s'allume automatiquement." },
         { icon:'🎁', title:'Bundles', desc:"La section <strong>Bundles</strong> propose des lots thématiques regroupant plusieurs cosmétiques à prix réduit (−24 % à −28 %). Si tu possèdes déjà certains articles d'un bundle, le prix est <strong>ajusté automatiquement</strong> — tu ne paies que pour ce qu'il te manque. La sélection <strong>⭐ À la une</strong> et <strong>📅 Quotidien</strong> se renouvelle toutes les 24 h — un compte à rebours indique l'heure du prochain renouvellement." },
         { icon:'✨', title:'Effets de pseudo', desc:"Anime l'affichage de ton pseudo dans les classements, le chat, les badges et le podium. Les effets sont <strong>cumulables avec ta couleur de pseudo</strong> : la couleur reste la teinte, l'effet ajoute l'animation par-dessus. Exemples : Clignotement Néon, Glitch, Vague Arc-en-ciel. Rareté : Épique à Légendaire." },
-        { icon:'🏷️', title:'Titres', desc:"Ajoute un court texte de statut affiché à côté de ton pseudo dans les classements, badges et chips de salle d'attente. Exemples : Tacticien, Quiz Master, Roi du Snake, Légende Vivante. Rareté : Commun à Épique." },
+        { icon:'🏷️', title:'Titres', desc:"Ajoute un court texte de statut affiché à côté de ton pseudo dans les classements, badges et chips de salle d'attente. Exemples : Tacticien, Quiz Master, Roi du Snake, Légende Vivante. Rareté : Commun à Épique. Les titres achetés se combinent avec les <strong>titres honorifiques</strong> (voir ci-dessous)." },
+        { icon:'🥇', title:'Titres honorifiques', desc:"Si tu atteins la <strong>1re place</strong> du classement Classiques, Quiz ou Snake, tu reçois automatiquement un titre honorifique (ex. <em>N°1 Classiques</em>). Un message de félicitations apparait lors de ta prochaine visite — clique <em>Accepter</em> pour le valider. Le titre est retiré si tu es détrôné. Il n'est pas disponible en boutique." },
         { icon:'🖱️', title:'Skins de curseur', desc:"Remplace l'apparence du serpent qui suit ton curseur (couleur, motif, traînée, forme de tête). Le skin prend le pas sur la couleur de rang quand il est équipé. Visible uniquement si le <strong>Serpent</strong> est activé dans les paramètres. Rareté : Rare à Légendaire." },
         { icon:'🎭', title:'Avatars', desc:"Remplace l'icône affichée dans ton badge joueur en partie et dans les classements. Exemples : Manette 🎮, Chat Pixel 🐱, Fusée 🚀, Couronne 👑. Rareté : Commun à Épique." },
         { icon:'🔴', title:'Jetons Puissance 4', desc:"Restyle tes pions dans la grille 7×6 (motif, texture, lueur). La distinction <strong>rouge / jaune</strong> entre les deux camps est conservée — le skin habille la couleur sans la rendre ambiguë. Tes deux adversaires verront tes jetons. Rareté : Rare à Épique." },
@@ -645,6 +651,10 @@ const DICT = {
     shopNameEffectNames:{'nameeffect-blink':'Neon Blink','nameeffect-pulse':'Pulsing Glow','nameeffect-gradient':'Scrolling Gradient','nameeffect-sparks':'Sparks','nameeffect-glitch':'Glitch','nameeffect-rainbow':'Rainbow Wave'},
     shopTitlesTitle:'🏷️ Titles',
     shopTitleNames:{'title-tactician':'Tactician','title-strategist':'The Strategist','title-quizmaster':'Quiz Master','title-snakeking':'Snake King','title-unbeaten':'Undefeated','title-champion':'Champion','title-legend':'Living Legend'},
+    honorTitleNames:{'honor-rank1-classic':'#1 Classics','honor-rank1-trivia':'#1 Quiz','honor-rank1-snake':'#1 Snake','honor-creator':'Creator'},
+    honorModalTitle:'Honorary Title!',
+    honorModalMsg:(titleName) => `Congratulations! You're ranked #1. As a reward, you receive the title <strong>${titleName}</strong>. It will appear next to your username as long as you hold the top spot.`,
+    honorModalBtn:'Accept',
     shopCursorSnakesTitle:'🖱️ Cursor Skins',
     shopCursorSnakeNames:{'cursorsnake-pixel':'Pixel Snake','cursorsnake-neon':'Neon Snake','cursorsnake-comet':'Comet','cursorsnake-electric':'Electric Eel','cursorsnake-stars':'Starry Trail','cursorsnake-fire':'Fire Dragon'},
     shopAvatarsTitle:'🎭 Avatars',
@@ -782,7 +792,8 @@ const DICT = {
         { icon:'🗂️', title:'Shop navigation', desc:"At the top of the shop, a <strong>category bar</strong> lets you jump directly to any section: ⭐ Featured, 📅 Daily, 🎁 Bundles, 💡 Boosts, 🎨 Colors, ✍️ Fonts, 💬 Bubbles, 🖼️ Backgrounds. On mobile it scrolls horizontally. The button for the currently visible section lights up automatically." },
         { icon:'🎁', title:'Bundles', desc:"The <strong>Bundles</strong> section offers themed packs grouping several cosmetics at a reduced price (−24% to −28%). If you already own some items in a bundle, the price is <strong>automatically adjusted</strong> — you only pay for what you're missing. The <strong>⭐ Featured</strong> and <strong>📅 Daily</strong> picks refresh every 24 hours — a countdown shows the next refresh time." },
         { icon:'✨', title:'Name Effects', desc:"Animate your username display in leaderboards, chat, badges and the podium. Effects <strong>stack with your username color</strong>: the color sets the hue, the effect adds the animation on top. Examples: Neon Blink, Glitch, Rainbow Wave. Rarity: Epic to Legendary." },
-        { icon:'🏷️', title:'Titles', desc:"Add a short status text displayed next to your username in leaderboards, player badges and room chips. Examples: Tactician, Quiz Master, Snake King, Living Legend. Rarity: Common to Epic." },
+        { icon:'🏷️', title:'Titles', desc:"Add a short status text displayed next to your username in leaderboards, player badges and room chips. Examples: Tactician, Quiz Master, Snake King, Living Legend. Rarity: Common to Epic. Shop titles stack with <strong>honorary titles</strong> (see below)." },
+        { icon:'🥇', title:'Honorary Titles', desc:"If you reach <strong>1st place</strong> on the Classics, Quiz or Snake leaderboard, you automatically receive an honorary title (e.g. <em>#1 Classics</em>). A congratulatory message appears on your next visit — click <em>Accept</em> to confirm. The title is removed if you lose the top spot. It cannot be purchased from the shop." },
         { icon:'🖱️', title:'Cursor Skins', desc:"Replace the appearance of the snake following your cursor (color, pattern, trail, head shape). The skin overrides the rank color when equipped. Only visible if <strong>Snake</strong> is enabled in settings. Rarity: Rare to Legendary." },
         { icon:'🎭', title:'Avatars', desc:"Replace the icon shown in your player badge during games and in leaderboards. Examples: Gamepad 🎮, Pixel Cat 🐱, Rocket 🚀, Crown 👑. Rarity: Common to Epic." },
         { icon:'🔴', title:'Connect 4 Tokens', desc:"Restyle your tokens in the 7×6 grid (pattern, texture, glow). The <strong>red / yellow</strong> distinction between teams is always preserved. Your opponent will see your tokens. Rarity: Rare to Epic." },
@@ -1981,7 +1992,7 @@ function _paintGlobalLb() {
   const rows = visible.map((entry, i) => `
     <div class="global-lb-row">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title)}</span>
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <span class="global-lb-score">${entry.globalScore} ${t().globalLbPts}</span>
     </div>
   `).join('');
@@ -2005,7 +2016,7 @@ function renderLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title)}</span>
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <div class="lb-stats">
         <span class="lb-w">${entry.wins}${t().lbW}</span>
         <span class="lb-l">${entry.losses}${t().lbL}</span>
@@ -2026,7 +2037,7 @@ function renderSnakeLeaderboard(data) {
   el.innerHTML = data.map((e, i) => `
     <div class="lb-row">
       <span class="lb-rank">${medals[i] || i + 1}</span>
-      <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title)}</span>
+      <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
       <span class="lb-score-snake">${e.hs} 🍎</span>
     </div>
   `).join('');
@@ -2369,7 +2380,7 @@ function renderTriviaLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row">
       <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${medals[i] || i+1}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title)}</span>
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <div class="lb-stats">
         <span class="lb-w">${entry.points} ${t().triviaLbPts}</span>
         <span class="lb-d">${entry.games} ${t().triviaLbGames}</span>
@@ -2409,6 +2420,11 @@ $('btn-help-close').addEventListener('click', () => {
 });
 $('overlay-help').addEventListener('click', e => {
   if (e.target === $('overlay-help')) $('overlay-help').classList.add('hidden');
+});
+
+$('btn-honor-reward-accept').addEventListener('click', () => {
+  $('overlay-honor-reward').classList.add('hidden');
+  socket.emit('honor-modal-seen', { playerId: getPlayerId() });
 });
 
 document.querySelectorAll('.help-tab').forEach(tab => {
@@ -2684,7 +2700,7 @@ socket.on('global-leaderboard-update', (data) => {
 socket.on('snake-leaderboard-update', (data) => { renderSnakeLeaderboard(data); });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmote: newEmote, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt } = {}) => {
+socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmote: newEmote, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal } = {}) => {
   const prev = libsBalance;
   libsBalance = balance ?? 0;
   localStorage.setItem('libero_libs', String(libsBalance));
@@ -2718,6 +2734,8 @@ socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosme
   }
   if (newRefundCards !== undefined) { refundCards = newRefundCards; }
   if (newRefillAt    !== undefined) { refundCardsNextRefill = newRefillAt; }
+  if (newHonorTitle  !== undefined) honorTitle = newHonorTitle;
+  if (newHonorModal) _showHonorModal(newHonorModal);
   _updateSettingsPanel();
 });
 
@@ -3910,9 +3928,29 @@ const TITLE_TEXTS = {
   'title-strategist':'Le Stratège','title-quizmaster':'Quiz Master','title-snakeking':'Roi du Snake',
   'title-champion':'Champion','title-legend':'Légende Vivante','title-tactician':'Tacticien','title-undefeated':'Invaincu',
 };
-function _titleHtml(title) {
-  if (!title || !TITLE_TEXTS[title]) return '';
-  return `<span class="player-title-tag">${TITLE_TEXTS[title]}</span>`;
+function _titleHtml(title, ht) {
+  let html = '';
+  if (title && TITLE_TEXTS[title]) html += `<span class="player-title-tag">${TITLE_TEXTS[title]}</span>`;
+  if (ht) {
+    const htNames = t().honorTitleNames;
+    const name = (htNames && htNames[ht]) ? htNames[ht] : ht;
+    html += `<span class="player-honor-tag">${name}</span>`;
+  }
+  return html;
+}
+
+function _showHonorModal(honorId) {
+  const overlay = $('overlay-honor-reward');
+  if (!overlay) return;
+  const d = t();
+  const titleName = (d.honorTitleNames && d.honorTitleNames[honorId]) ? d.honorTitleNames[honorId] : honorId;
+  const titleEl = $('honor-reward-title');
+  const msgEl   = $('honor-reward-msg');
+  const btnEl   = $('btn-honor-reward-accept');
+  if (titleEl) titleEl.textContent = d.honorModalTitle || '';
+  if (msgEl)   msgEl.innerHTML = d.honorModalMsg ? d.honorModalMsg(titleName) : '';
+  if (btnEl)   btnEl.textContent = d.honorModalBtn || 'OK';
+  overlay.classList.remove('hidden');
 }
 
 // ── Libs : boost indice quiz ──────────────────────────────────────────────────
