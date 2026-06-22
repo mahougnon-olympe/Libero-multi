@@ -72,7 +72,7 @@ async function loadData() {
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
   cmtDocs.forEach(d => comments.push({ pseudo: d.pseudo, message: d.message, date: d.date }));
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, refundCardsUsedAt: d.refundCardsUsedAt || [] }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmote: d.equippedEmote || null, refundCardsUsedAt: d.refundCardsUsedAt || [] }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
@@ -124,7 +124,7 @@ function dbInsertComment(comment) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, refundCardsUsedAt: entry.refundCardsUsedAt || [] } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmote: entry.equippedEmote || null, refundCardsUsedAt: entry.refundCardsUsedAt || [] } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -238,6 +238,88 @@ const COSMETICS = [
   { id: 'bg-galaxie',      type: 'background', price: 240 },
   { id: 'bg-tempete',      type: 'background', price: 270 },
   { id: 'bg-hologramme',   type: 'background', price: 300 },
+  // Effets de pseudo animés
+  { id: 'nameeffect-blink',     type: 'nameeffect',  price: 90  },
+  { id: 'nameeffect-pulse',     type: 'nameeffect',  price: 100 },
+  { id: 'nameeffect-gradient',  type: 'nameeffect',  price: 120 },
+  { id: 'nameeffect-sparks',    type: 'nameeffect',  price: 130 },
+  { id: 'nameeffect-glitch',    type: 'nameeffect',  price: 160 },
+  { id: 'nameeffect-rainbow',   type: 'nameeffect',  price: 180 },
+  // Titres
+  { id: 'title-tactician',      type: 'title',       price: 15  },
+  { id: 'title-strategist',     type: 'title',       price: 40  },
+  { id: 'title-quizmaster',     type: 'title',       price: 60  },
+  { id: 'title-snakeking',      type: 'title',       price: 60  },
+  { id: 'title-unbeaten',       type: 'title',       price: 90  },
+  { id: 'title-champion',       type: 'title',       price: 100 },
+  { id: 'title-legend',         type: 'title',       price: 130 },
+  // Skins du serpent curseur
+  { id: 'cursorsnake-pixel',    type: 'cursorsnake', price: 50  },
+  { id: 'cursorsnake-neon',     type: 'cursorsnake', price: 80  },
+  { id: 'cursorsnake-comet',    type: 'cursorsnake', price: 110 },
+  { id: 'cursorsnake-electric', type: 'cursorsnake', price: 130 },
+  { id: 'cursorsnake-stars',    type: 'cursorsnake', price: 160 },
+  { id: 'cursorsnake-fire',     type: 'cursorsnake', price: 200 },
+  // Avatars
+  { id: 'avatar-gamepad',       type: 'avatar',      price: 15  },
+  { id: 'avatar-cat',           type: 'avatar',      price: 15  },
+  { id: 'avatar-lightning',     type: 'avatar',      price: 25  },
+  { id: 'avatar-rocket',        type: 'avatar',      price: 40  },
+  { id: 'avatar-robot',         type: 'avatar',      price: 70  },
+  { id: 'avatar-skull',         type: 'avatar',      price: 90  },
+  { id: 'avatar-crown',         type: 'avatar',      price: 120 },
+  // Jetons Puissance 4
+  { id: 'p4token-goldsilver',   type: 'p4token',     price: 50  },
+  { id: 'p4token-neon',         type: 'p4token',     price: 80  },
+  { id: 'p4token-lavalice',     type: 'p4token',     price: 110 },
+  { id: 'p4token-galaxy',       type: 'p4token',     price: 140 },
+  // Symboles Morpion
+  { id: 'ttt-neon',             type: 'ttt',         price: 20  },
+  { id: 'ttt-sunmoon',          type: 'ttt',         price: 40  },
+  { id: 'ttt-heartstar',        type: 'ttt',         price: 50  },
+  { id: 'ttt-catdog',           type: 'ttt',         price: 80  },
+  { id: 'ttt-skulllightning',   type: 'ttt',         price: 100 },
+  // Thèmes d'échiquier
+  { id: 'chess-cyber',          type: 'chess',       price: 100 },
+  { id: 'chess-frost',          type: 'chess',       price: 130 },
+  { id: 'chess-neon',           type: 'chess',       price: 170 },
+  { id: 'chess-marble',         type: 'chess',       price: 200 },
+  // Skins Snake (évents)
+  { id: 'snakeskin-gems',       type: 'snakeskin',   price: 50  },
+  { id: 'snakeskin-cyber',      type: 'snakeskin',   price: 80  },
+  { id: 'snakeskin-lava',       type: 'snakeskin',   price: 120 },
+  { id: 'snakeskin-galaxy',     type: 'snakeskin',   price: 140 },
+  { id: 'snakeskin-rainbow',    type: 'snakeskin',   price: 180 },
+  // Particules de clic
+  { id: 'clickfx-bubbles',      type: 'clickfx',     price: 15  },
+  { id: 'clickfx-confetti',     type: 'clickfx',     price: 30  },
+  { id: 'clickfx-neon',         type: 'clickfx',     price: 60  },
+  { id: 'clickfx-stars',        type: 'clickfx',     price: 90  },
+  { id: 'clickfx-firework',     type: 'clickfx',     price: 130 },
+  // Packs d'émojis
+  { id: 'emojipack-animals',    type: 'emojipack',   price: 10  },
+  { id: 'emojipack-hearts',     type: 'emojipack',   price: 15  },
+  { id: 'emojipack-party',      type: 'emojipack',   price: 25  },
+  { id: 'emojipack-gaming',     type: 'emojipack',   price: 40  },
+  { id: 'emojipack-cosmos',     type: 'emojipack',   price: 70  },
+  // Bannières de victoire
+  { id: 'victoryban-neon',      type: 'victoryban',  price: 90  },
+  { id: 'victoryban-confetti',  type: 'victoryban',  price: 110 },
+  { id: 'victoryban-flames',    type: 'victoryban',  price: 150 },
+  { id: 'victoryban-lightning', type: 'victoryban',  price: 170 },
+  { id: 'victoryban-crown',     type: 'victoryban',  price: 200 },
+  // Packs de sons
+  { id: 'soundpack-8bit',       type: 'soundpack',   price: 40  },
+  { id: 'soundpack-retro',      type: 'soundpack',   price: 60  },
+  { id: 'soundpack-crystal',    type: 'soundpack',   price: 80  },
+  { id: 'soundpack-cyber',      type: 'soundpack',   price: 100 },
+  { id: 'soundpack-epic',       type: 'soundpack',   price: 130 },
+  // Emotes
+  { id: 'emote-gg',             type: 'emote',       price: 5   },
+  { id: 'emote-wellplayed',     type: 'emote',       price: 10  },
+  { id: 'emote-fire',           type: 'emote',       price: 30  },
+  { id: 'emote-easy',           type: 'emote',       price: 50  },
+  { id: 'emote-omg',            type: 'emote',       price: 80  },
 ];
 
 const ROTATION_INTERVAL_MS = 24 * 3600 * 1000;
@@ -250,6 +332,28 @@ const BUNDLES = [
   { id:'bundle-prestige-or', nameFr:'Pack Prestige Or',       nameEn:'Gold Prestige Pack',     items:['bubble-or','gold','font-cinzel'], totalPrice:450, bundlePrice:340, featured:false },
   { id:'bundle-hologramme',  nameFr:'Pack Hologramme Ultime', nameEn:'Ultimate Hologram Pack', items:['bubble-holographique','bg-hologramme','font-tektur'], totalPrice:690, bundlePrice:500, featured:true },
 ];
+
+function _equippedPayload(entry) {
+  return {
+    equippedCosmetic:    entry.equippedCosmetic    || null,
+    equippedFont:        entry.equippedFont        || null,
+    equippedBubble:      entry.equippedBubble      || null,
+    equippedBackground:  entry.equippedBackground  || null,
+    equippedNameEffect:  entry.equippedNameEffect  || null,
+    equippedTitle:       entry.equippedTitle       || null,
+    equippedCursorSnake: entry.equippedCursorSnake || null,
+    equippedAvatar:      entry.equippedAvatar      || null,
+    equippedP4Token:     entry.equippedP4Token     || null,
+    equippedTtt:         entry.equippedTtt         || null,
+    equippedChess:       entry.equippedChess       || null,
+    equippedSnakeSkin:   entry.equippedSnakeSkin   || null,
+    equippedClickFx:     entry.equippedClickFx     || null,
+    equippedEmojiPack:   entry.equippedEmojiPack   || null,
+    equippedVictoryBan:  entry.equippedVictoryBan  || null,
+    equippedSoundPack:   entry.equippedSoundPack   || null,
+    equippedEmote:       entry.equippedEmote       || null,
+  };
+}
 
 function seededShuffle(arr, seed) {
   const a = [...arr];
@@ -300,16 +404,29 @@ function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, refundCardsUsedAt: [] };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmote: null, refundCardsUsedAt: [] };
     libs.set(id, entry);
   }
   if (!entry.usedCodes)          entry.usedCodes          = [];
   if (!entry.ownedCosmetics)     entry.ownedCosmetics     = [];
   if (!entry.refundCardsUsedAt)  entry.refundCardsUsedAt  = [];
-  if (!('equippedCosmetic'   in entry)) entry.equippedCosmetic   = null;
-  if (!('equippedFont'       in entry)) entry.equippedFont       = null;
-  if (!('equippedBubble'     in entry)) entry.equippedBubble     = null;
-  if (!('equippedBackground' in entry)) entry.equippedBackground = null;
+  if (!('equippedCosmetic'    in entry)) entry.equippedCosmetic    = null;
+  if (!('equippedFont'        in entry)) entry.equippedFont        = null;
+  if (!('equippedBubble'      in entry)) entry.equippedBubble      = null;
+  if (!('equippedBackground'  in entry)) entry.equippedBackground  = null;
+  if (!('equippedNameEffect'  in entry)) entry.equippedNameEffect  = null;
+  if (!('equippedTitle'       in entry)) entry.equippedTitle       = null;
+  if (!('equippedCursorSnake' in entry)) entry.equippedCursorSnake = null;
+  if (!('equippedAvatar'      in entry)) entry.equippedAvatar      = null;
+  if (!('equippedP4Token'     in entry)) entry.equippedP4Token     = null;
+  if (!('equippedTtt'         in entry)) entry.equippedTtt         = null;
+  if (!('equippedChess'       in entry)) entry.equippedChess       = null;
+  if (!('equippedSnakeSkin'   in entry)) entry.equippedSnakeSkin   = null;
+  if (!('equippedClickFx'     in entry)) entry.equippedClickFx     = null;
+  if (!('equippedEmojiPack'   in entry)) entry.equippedEmojiPack   = null;
+  if (!('equippedVictoryBan'  in entry)) entry.equippedVictoryBan  = null;
+  if (!('equippedSoundPack'   in entry)) entry.equippedSoundPack   = null;
+  if (!('equippedEmote'       in entry)) entry.equippedEmote       = null;
   const prevBal = entry.balance;
   applyDecay(entry);
   if (entry.balance !== prevBal) dbUpsertLibs(id, entry);
@@ -1122,7 +1239,7 @@ io.on('connection', (socket) => {
     socketPlayerIds.set(socket.id, id);
     const entry = getLibsEntry(id);
     const { available: refundCards, nextRefill: refundCardsNextRefill } = getRefundCardsInfo(entry);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, equippedBubble: entry.equippedBubble, equippedBackground: entry.equippedBackground, nextAt: nextDistributionAt, refundCards, refundCardsNextRefill });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill });
   });
 
   socket.on('get-shop', () => {
@@ -1183,7 +1300,7 @@ io.on('connection', (socket) => {
     });
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, equippedBubble: entry.equippedBubble, equippedBackground: entry.equippedBackground, nextAt: nextDistributionAt });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
     socket.emit('buy-bundle-result', { ok: true, bundleId, adjustedPrice, granted: unownedCosmetics });
   });
 
@@ -1245,7 +1362,7 @@ io.on('connection', (socket) => {
     entry.ownedCosmetics.push(cosmeticId);
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, equippedBubble: entry.equippedBubble, equippedBackground: entry.equippedBackground, nextAt: nextDistributionAt });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
     socket.emit('buy-cosmetic-result', { ok: true, cosmeticId });
   });
 
@@ -1259,13 +1376,26 @@ io.on('connection', (socket) => {
       cosmType = cosm ? cosm.type : 'color';
     }
     if (cosmeticId === null || entry.ownedCosmetics.includes(cosmeticId)) {
-      if (cosmType === 'font')           entry.equippedFont       = cosmeticId;
-      else if (cosmType === 'bubble')     entry.equippedBubble     = cosmeticId;
-      else if (cosmType === 'background') entry.equippedBackground = cosmeticId;
+      if      (cosmType === 'font')        entry.equippedFont        = cosmeticId;
+      else if (cosmType === 'bubble')      entry.equippedBubble      = cosmeticId;
+      else if (cosmType === 'background')  entry.equippedBackground  = cosmeticId;
+      else if (cosmType === 'nameeffect')  entry.equippedNameEffect  = cosmeticId;
+      else if (cosmType === 'title')       entry.equippedTitle       = cosmeticId;
+      else if (cosmType === 'cursorsnake') entry.equippedCursorSnake = cosmeticId;
+      else if (cosmType === 'avatar')      entry.equippedAvatar      = cosmeticId;
+      else if (cosmType === 'p4token')     entry.equippedP4Token     = cosmeticId;
+      else if (cosmType === 'ttt')         entry.equippedTtt         = cosmeticId;
+      else if (cosmType === 'chess')       entry.equippedChess       = cosmeticId;
+      else if (cosmType === 'snakeskin')   entry.equippedSnakeSkin   = cosmeticId;
+      else if (cosmType === 'clickfx')     entry.equippedClickFx     = cosmeticId;
+      else if (cosmType === 'emojipack')   entry.equippedEmojiPack   = cosmeticId;
+      else if (cosmType === 'victoryban')  entry.equippedVictoryBan  = cosmeticId;
+      else if (cosmType === 'soundpack')   entry.equippedSoundPack   = cosmeticId;
+      else if (cosmType === 'emote')       entry.equippedEmote       = cosmeticId;
       else entry.equippedCosmetic = cosmeticId;
       libs.set(id, entry);
       dbUpsertLibs(id, entry);
-      socket.emit('equip-cosmetic-result', { ok: true, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, equippedBubble: entry.equippedBubble, equippedBackground: entry.equippedBackground });
+      socket.emit('equip-cosmetic-result', { ok: true, ..._equippedPayload(entry) });
       io.emit('leaderboard-update', getLeaderboardData());
       io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
       io.emit('snake-leaderboard-update', getSnakeLeaderboardData());
@@ -1289,16 +1419,29 @@ io.on('connection', (socket) => {
     const cosmetic = COSMETICS.find(c => c.id === cosmeticId);
     if (!cosmetic) { socket.emit('refund-cosmetic-result', { ok: false, error: 'invalid' }); return; }
     entry.ownedCosmetics     = entry.ownedCosmetics.filter(c => c !== cosmeticId);
-    if (entry.equippedCosmetic   === cosmeticId) entry.equippedCosmetic   = null;
-    if (entry.equippedFont       === cosmeticId) entry.equippedFont       = null;
-    if (entry.equippedBubble     === cosmeticId) entry.equippedBubble     = null;
-    if (entry.equippedBackground === cosmeticId) entry.equippedBackground = null;
+    if (entry.equippedCosmetic    === cosmeticId) entry.equippedCosmetic    = null;
+    if (entry.equippedFont        === cosmeticId) entry.equippedFont        = null;
+    if (entry.equippedBubble      === cosmeticId) entry.equippedBubble      = null;
+    if (entry.equippedBackground  === cosmeticId) entry.equippedBackground  = null;
+    if (entry.equippedNameEffect  === cosmeticId) entry.equippedNameEffect  = null;
+    if (entry.equippedTitle       === cosmeticId) entry.equippedTitle       = null;
+    if (entry.equippedCursorSnake === cosmeticId) entry.equippedCursorSnake = null;
+    if (entry.equippedAvatar      === cosmeticId) entry.equippedAvatar      = null;
+    if (entry.equippedP4Token     === cosmeticId) entry.equippedP4Token     = null;
+    if (entry.equippedTtt         === cosmeticId) entry.equippedTtt         = null;
+    if (entry.equippedChess       === cosmeticId) entry.equippedChess       = null;
+    if (entry.equippedSnakeSkin   === cosmeticId) entry.equippedSnakeSkin   = null;
+    if (entry.equippedClickFx     === cosmeticId) entry.equippedClickFx     = null;
+    if (entry.equippedEmojiPack   === cosmeticId) entry.equippedEmojiPack   = null;
+    if (entry.equippedVictoryBan  === cosmeticId) entry.equippedVictoryBan  = null;
+    if (entry.equippedSoundPack   === cosmeticId) entry.equippedSoundPack   = null;
+    if (entry.equippedEmote       === cosmeticId) entry.equippedEmote       = null;
     entry.balance = Math.min(MAX_BALANCE, entry.balance + cosmetic.price);
     entry.refundCardsUsedAt.push(Date.now());
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
     const { available: refundCards, nextRefill: refundCardsNextRefill } = getRefundCardsInfo(entry);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, equippedBubble: entry.equippedBubble, equippedBackground: entry.equippedBackground, nextAt: nextDistributionAt, refundCards, refundCardsNextRefill });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill });
     socket.emit('refund-cosmetic-result', { ok: true, cosmeticId, refundCards, delta: cosmetic.price });
     io.emit('leaderboard-update', getLeaderboardData());
     io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
