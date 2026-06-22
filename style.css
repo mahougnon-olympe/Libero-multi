@@ -1870,7 +1870,7 @@ html.light .shop-fn-promo-input::placeholder { color: var(--muted); }
 
 /* ── Shop: Category nav bar ──────────────────────────────────────────────── */
 .shop-fn-nav {
-  display: flex; gap: 8px; overflow-x: auto;
+  display: flex; align-items: center; gap: 8px; overflow-x: auto;
   scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
   position: sticky; top: 0; z-index: 10;
   background: linear-gradient(180deg, rgba(11,14,35,.98) 85%, transparent);
@@ -1884,6 +1884,7 @@ html.light .shop-fn-promo-input::placeholder { color: var(--muted); }
   color: rgba(255,255,255,.7); font-size: 1rem; font-weight: 700;
   padding: 11px 28px; border-radius: 24px; cursor: pointer; transition: all .18s;
   white-space: nowrap; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
 }
 .shop-fn-nav-btn:hover  { background: rgba(255,255,255,.13); color: #fff; }
 .shop-fn-nav-btn.active { background: rgba(124,92,255,.35); border-color: rgba(124,92,255,.6); color: #fff; }
