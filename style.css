@@ -946,6 +946,13 @@ body:has(#overlay-shop:not(.hidden)) #news-card { display: none !important; }
   cursor: default;
   pointer-events: none;
 }
+.landing-card--locked {
+  opacity: .45;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(.5);
+}
+.landing-card--locked h2 { color: var(--muted); }
 .landing-card--community {
   opacity: 1;
   cursor: pointer;

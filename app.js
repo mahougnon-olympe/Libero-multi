@@ -332,6 +332,10 @@ const DICT = {
     helpBoostTitle:'Boost Indice (quiz)',
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     eventsTitle:'Évents', eventsDesc:'Week-end · Snake Challenge',
+    eventsDescLocked:'Week-end prochain',
+    eventsLockedCard: days => `📅 Dans ${days} j`,
+    eventsLockedMsg:  days => `🔒 <strong>Prochain évent dans ${days} jour${days>1?'s':''}</strong> : Snake Challenge revient ce week-end !`,
+    eventActiveMsg:   '🐍 <strong>Évent ce week-end</strong> : Snake Challenge ! Nourris ton serpent pour le faire grandir sur tout le site.',
     communityCard:'Pour la communauté',
     homeClassicTitle:'Jeux Multijoueur',
     btnQuit:'🚪 Quitter',
@@ -560,6 +564,10 @@ const DICT = {
     helpBoostTitle:'Quiz Hint Boost',
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     eventsTitle:'Events', eventsDesc:'Weekend · Snake Challenge',
+    eventsDescLocked:'Next weekend',
+    eventsLockedCard: days => `📅 In ${days}d`,
+    eventsLockedMsg:  days => `🔒 <strong>Next event in ${days} day${days>1?'s':''}</strong>: Snake Challenge is back this weekend!`,
+    eventActiveMsg:   '🐍 <strong>Event this weekend</strong>: Snake Challenge! Feed your snake to make it grow across the site.',
     communityCard:'Community',
     homeClassicTitle:'Multiplayer Games',
     btnQuit:'🚪 Quit',
@@ -696,6 +704,11 @@ function renderHelp() {
   }
 }
 
+function _isEventActive() {
+  const d = new Date().getDay();
+  return d === 0 || d === 6;
+}
+
 function _getEventEndMs() {
   const now = new Date();
   const day = now.getDay();
@@ -706,12 +719,32 @@ function _getEventEndMs() {
   return end.getTime();
 }
 
+function _getDaysUntilEvent() {
+  const day = new Date().getDay();
+  return day === 6 ? 7 : (6 - day);
+}
+
 function _updateEventCountdown() {
-  const left = _getEventEndMs() - Date.now();
-  const text = left > 0 ? t().eventCountdownFmt(left) : '';
-  ['event-card-countdown', 'news-event-countdown'].forEach(id => {
-    const el = $(id); if (el) el.textContent = text;
-  });
+  const active = _isEventActive();
+  const cardBtn  = document.getElementById('btn-go-events');
+  const cardDesc = document.getElementById('events-card-desc');
+  const cardCount = $('event-card-countdown');
+  const newsMsg  = document.getElementById('news-event-msg');
+  const d = t();
+
+  if (active) {
+    const left = _getEventEndMs() - Date.now();
+    if (cardCount) cardCount.textContent = left > 0 ? d.eventCountdownFmt(left) : '';
+    if (cardBtn)  { cardBtn.classList.remove('landing-card--locked'); cardBtn.disabled = false; }
+    if (cardDesc) cardDesc.textContent = d.eventsDesc;
+    if (newsMsg)  newsMsg.innerHTML = d.eventActiveMsg;
+  } else {
+    const days = _getDaysUntilEvent();
+    if (cardCount) cardCount.textContent = d.eventsLockedCard(days);
+    if (cardBtn)  { cardBtn.classList.add('landing-card--locked'); cardBtn.disabled = true; }
+    if (cardDesc) cardDesc.textContent = d.eventsDescLocked;
+    if (newsMsg)  newsMsg.innerHTML = d.eventsLockedMsg(days);
+  }
 }
 
 function applyLang() {
