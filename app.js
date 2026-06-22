@@ -3324,6 +3324,7 @@ function _renderShopItems() {
       <button class="shop-fn-nav-btn" data-section="soundpacks">🔊 ${nav.soundpacks}</button>
       <button class="shop-fn-nav-btn" data-section="emotes">😎 ${nav.emotes}</button>
     </nav>
+    <div class="shop-fn-content">
 
     <section class="shop-fn-section" id="shop-sec-featured" data-section-id="featured">
       <h3 class="shop-fn-section-title">${d.shopFeaturedTitle}</h3>
@@ -3464,6 +3465,7 @@ function _renderShopItems() {
         <span id="shop-promo-feedback" class="shop-fn-promo-feedback"></span>
       </div>
     </section>
+    </div>
   `;
 
   $('btn-buy-boost-hint-10').addEventListener('click', () => {
@@ -3503,6 +3505,7 @@ function _renderShopItems() {
     });
   });
 
+  const contentEl = container.querySelector('.shop-fn-content');
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -3512,7 +3515,7 @@ function _renderShopItems() {
         });
       }
     });
-  }, { root: container, threshold: 0.15 });
+  }, { root: contentEl || container, threshold: 0.15 });
   container.querySelectorAll('[data-section-id]').forEach(sec => observer.observe(sec));
 
   if (shopRotation) _startShopCountdown(shopRotation.resetAt);
@@ -3755,7 +3758,7 @@ function _updateSettingsPanel() {
   const themeBtn = document.getElementById('sp-theme-btn');
   if (themeBtn) {
     const isLight = document.documentElement.classList.contains('light');
-    themeBtn.textContent = isLight ? '🌙' : '☀️';
+    themeBtn.textContent = isLight ? (fr ? '☀️ Jour ⇄' : '☀️ Day ⇄') : (fr ? '🌙 Nuit ⇄' : '🌙 Night ⇄');
   }
 
   const snakeBtn = document.getElementById('sp-snake-btn');

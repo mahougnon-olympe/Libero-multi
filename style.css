@@ -1435,7 +1435,13 @@ html.light .shop-tile-badge.rarity-commun     { background: rgba(100,100,100,.12
 html.light .shop-tile-badge.rarity-rare       { background: rgba(59,130,246,.15);  color: #1d4ed8; }
 html.light .shop-tile-badge.rarity-epique     { background: rgba(139,92,246,.15);  color: #7e22ce; }
 html.light .shop-tile-badge.rarity-legendaire { background: rgba(245,158,11,.15);  color: #92400e; }
+/* Nav sidebar */
+html.light .shop-fn-nav { background: rgba(0,0,0,.04); border-right-color: rgba(0,0,0,.08); }
+html.light .shop-fn-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); }
 /* Panneau détail */
+html.light .shop-fn-detail { background: linear-gradient(180deg,#eef1ff 0%,#e8edff 100%); }
+html.light .shop-fn-detail-preview { background: rgba(0,0,0,.04); }
+html.light .shop-fn-fn-bundle-contains { color: var(--muted); }
 html.light .shop-fn-detail-back             { background: rgba(0,0,0,.06); color: var(--text); border-color: rgba(0,0,0,.12); }
 html.light .shop-fn-detail-back:hover       { background: rgba(0,0,0,.11); color: var(--text); }
 html.light .shop-fn-detail-name             { color: var(--text); }
@@ -1712,12 +1718,15 @@ html.light .shop-fn-promo-input::placeholder { color: var(--muted); }
 }
 .shop-fn-close-btn:hover { background: rgba(255,255,255,.18); color: #fff; }
 .shop-fn-body {
-  flex: 1; overflow-y: auto; padding: 20px 20px 40px;
+  flex: 1; display: flex; flex-direction: row; overflow: hidden; padding: 0; gap: 0;
+}
+.shop-fn-content {
+  flex: 1; overflow-y: auto; padding: 20px 20px 40px; min-width: 0;
   display: flex; flex-direction: column; gap: 32px;
   scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent;
 }
-.shop-fn-body::-webkit-scrollbar { width: 4px; }
-.shop-fn-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+.shop-fn-content::-webkit-scrollbar { width: 4px; }
+.shop-fn-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
 .shop-fn-section { display: flex; flex-direction: column; gap: 12px; }
 .shop-fn-section-title {
   font-size: .65rem; font-weight: 800; color: rgba(255,255,255,.4);
@@ -1866,11 +1875,23 @@ html.light .shop-title-tag { background: rgba(99,102,241,.15); border-color: rgb
 .shop-fn-promo-feedback { font-size: .8rem; min-height: 1.1em; display: block; }
 /* Cosmetic preview (standalone, used in tiles & detail) */
 .shop-cosmetic-preview { font-size: 1rem; font-weight: 800; letter-spacing: .5px; }
+@media (max-width: 580px) {
+  .shop-fn-body { flex-direction: column; overflow-y: auto; }
+  .shop-fn-nav {
+    flex-direction: row; align-items: center;
+    width: auto; min-width: auto; height: auto;
+    overflow-x: auto; overflow-y: hidden;
+    border-right: none; border-bottom: 1px solid rgba(255,255,255,.06);
+    padding: 8px 8px;
+    flex-shrink: 0;
+  }
+  .shop-fn-nav-btn { flex-shrink: 0; width: auto; font-size: .78rem; padding: 8px 12px; border-radius: 20px; }
+  .shop-fn-content { flex: unset; overflow-y: visible; padding: 14px 12px 30px; gap: 24px; }
+}
 @media (max-width: 480px) {
   .shop-fn-header { padding: 10px 14px; }
   .shop-fn-title  { font-size: 1rem; }
   .shop-fn-balance-label { display: none; }
-  .shop-fn-body   { padding: 14px 12px 30px; gap: 24px; }
   .shop-tile-large .shop-tile-img { min-height: 150px; }
   .shop-tile-large .shop-bg-preview { height: 120px; }
   .shop-fn-detail-preview { min-height: 170px; padding: 20px 16px; }
@@ -1880,24 +1901,26 @@ html.light .shop-title-tag { background: rgba(99,102,241,.15); border-color: rgb
 
 /* ── Shop: Category nav bar ──────────────────────────────────────────────── */
 .shop-fn-nav {
-  display: flex; align-items: center; gap: 8px; overflow-x: auto;
-  scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
-  position: sticky; top: 0; z-index: 10;
-  background: linear-gradient(180deg, rgba(11,14,35,.98) 85%, transparent);
-  padding: 36px 8px 40px; margin: -4px -4px 6px;
+  display: flex; flex-direction: column; align-items: stretch; gap: 3px;
+  width: 148px; min-width: 148px; flex-shrink: 0;
+  overflow-y: auto; overflow-x: hidden;
+  padding: 10px 8px; margin: 0;
+  background: rgba(0,0,0,.22);
+  border-right: 1px solid rgba(255,255,255,.06);
   scrollbar-width: none;
 }
 .shop-fn-nav::-webkit-scrollbar { display: none; }
 .shop-fn-nav-btn {
-  flex-shrink: 0; scroll-snap-align: start;
-  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15);
-  color: rgba(255,255,255,.7); font-size: 1rem; font-weight: 700;
-  padding: 11px 28px; border-radius: 24px; cursor: pointer; transition: all .18s;
-  white-space: nowrap; line-height: 1;
-  display: inline-flex; align-items: center; justify-content: center;
+  width: 100%; flex-shrink: 0;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.65); font-size: .82rem; font-weight: 700;
+  padding: 9px 11px; border-radius: 8px; cursor: pointer; transition: all .15s;
+  white-space: nowrap; line-height: 1.2;
+  display: flex; align-items: center; justify-content: flex-start; text-align: left;
+  overflow: hidden; text-overflow: ellipsis;
 }
-.shop-fn-nav-btn:hover  { background: rgba(255,255,255,.13); color: #fff; }
-.shop-fn-nav-btn.active { background: rgba(124,92,255,.35); border-color: rgba(124,92,255,.6); color: #fff; }
+.shop-fn-nav-btn:hover  { background: rgba(255,255,255,.12); color: #fff; }
+.shop-fn-nav-btn.active { background: rgba(124,92,255,.32); border-color: rgba(124,92,255,.55); color: #fff; }
 /* Shop: countdown in section title */
 .shop-fn-section-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .shop-fn-countdown {
@@ -1943,7 +1966,6 @@ html.light .shop-title-tag { background: rgba(99,102,241,.15); border-color: rgb
 .shop-fn-bundles-grid { grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); }
 /* Bundles grid: override featured (2-col) to allow more columns */
 /* Light theme overrides for new elements */
-html.light .shop-fn-nav { background: linear-gradient(180deg, rgba(238,241,255,.98) 80%, transparent); }
 html.light .shop-fn-nav-btn { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.1); color: rgba(0,0,0,.5); }
 html.light .shop-fn-nav-btn:hover  { background: rgba(0,0,0,.1); color: var(--text); }
 html.light .shop-fn-nav-btn.active { background: rgba(99,102,241,.18); border-color: rgba(99,102,241,.4); color: #3730a3; }
