@@ -347,10 +347,13 @@ const DICT = {
     shopNameEffectNames:{'nameeffect-blink':'Clignotement Néon','nameeffect-pulse':'Lueur Pulsée','nameeffect-gradient':'Dégradé Défilant','nameeffect-sparks':'Étincelles','nameeffect-glitch':'Glitch','nameeffect-rainbow':'Vague Arc-en-ciel'},
     shopTitlesTitle:'🏷️ Titres',
     shopTitleNames:{'title-tactician':'Tacticien','title-strategist':'Le Stratège','title-quizmaster':'Quiz Master','title-snakeking':'Roi du Snake','title-unbeaten':'Invaincu','title-champion':'Champion','title-legend':'Légende Vivante'},
-    honorTitleNames:{'honor-rank1-classic':'N°1 Classiques','honor-rank1-trivia':'N°1 Quiz','honor-rank1-snake':'N°1 Snake','honor-creator':'Créateur'},
+    honorTitleNames:{'honor-rank1-global':'N°1 Global','honor-creator':'Créateur'},
     honorModalTitle:'Titre honorifique !',
-    honorModalMsg:(titleName) => `Felicitations ! Tu es N°1 du classement. En recompense, tu recois le titre <strong>${titleName}</strong>. Il s'affichera a cote de ton pseudo tant que tu restes premier.`,
+    honorModalMsg:(titleName) => `Felicitations ! Tu es N°1 au classement global. En recompense, tu recois le titre <strong>${titleName}</strong>. Il s'affichera a cote de ton pseudo tant que tu restes premier.`,
     honorModalBtn:'Accepter',
+    shopHonoraryBadge:'🏆 Honorifique',
+    shopHonoraryOwned:'Obtenu',
+    shopHonoraryNote:'Deviens 1er au classement global pour obtenir ce titre.',
     shopCursorSnakesTitle:'🖱️ Skins de curseur',
     shopCursorSnakeNames:{'cursorsnake-pixel':'Serpent Pixel','cursorsnake-neon':'Serpent Néon','cursorsnake-comet':'Comète','cursorsnake-electric':'Anguille Électrique','cursorsnake-stars':'Traînée Étoilée','cursorsnake-fire':'Dragon de Feu'},
     shopAvatarsTitle:'🎭 Avatars',
@@ -489,7 +492,7 @@ const DICT = {
         { icon:'🎁', title:'Bundles', desc:"La section <strong>Bundles</strong> propose des lots thématiques regroupant plusieurs cosmétiques à prix réduit (−24 % à −28 %). Si tu possèdes déjà certains articles d'un bundle, le prix est <strong>ajusté automatiquement</strong> — tu ne paies que pour ce qu'il te manque. La sélection <strong>⭐ À la une</strong> et <strong>📅 Quotidien</strong> se renouvelle toutes les 24 h — un compte à rebours indique l'heure du prochain renouvellement." },
         { icon:'✨', title:'Effets de pseudo', desc:"Anime l'affichage de ton pseudo dans les classements, le chat, les badges et le podium. Les effets sont <strong>cumulables avec ta couleur de pseudo</strong> : la couleur reste la teinte, l'effet ajoute l'animation par-dessus. Exemples : Clignotement Néon, Glitch, Vague Arc-en-ciel. Rareté : Épique à Légendaire." },
         { icon:'🏷️', title:'Titres', desc:"Ajoute un court texte de statut affiché à côté de ton pseudo dans les classements, badges et chips de salle d'attente. Exemples : Tacticien, Quiz Master, Roi du Snake, Légende Vivante. Rareté : Commun à Épique. Les titres achetés se combinent avec les <strong>titres honorifiques</strong> (voir ci-dessous)." },
-        { icon:'🥇', title:'Titres honorifiques', desc:"Si tu atteins la <strong>1re place</strong> du classement Classiques, Quiz ou Snake, tu reçois automatiquement un titre honorifique (ex. <em>N°1 Classiques</em>). Un message de félicitations apparait lors de ta prochaine visite — clique <em>Accepter</em> pour le valider. Le titre est retiré si tu es détrôné. Il n'est pas disponible en boutique." },
+        { icon:'🥇', title:'Titres honorifiques', desc:"Si tu atteins la <strong>1re place</strong> du classement global, tu reçois automatiquement le titre honorifique <em>N°1 Global</em>. Un message de félicitations apparait lors de ta prochaine visite — clique <em>Accepter</em> pour le valider. Le titre est retiré si tu es détrôné. Il est visible en boutique mais ne peut pas être acheté." },
         { icon:'🖱️', title:'Skins de curseur', desc:"Remplace l'apparence du serpent qui suit ton curseur (couleur, motif, traînée, forme de tête). Le skin prend le pas sur la couleur de rang quand il est équipé. Visible uniquement si le <strong>Serpent</strong> est activé dans les paramètres. Rareté : Rare à Légendaire." },
         { icon:'🎭', title:'Avatars', desc:"Remplace l'icône affichée dans ton badge joueur en partie et dans les classements. Exemples : Manette 🎮, Chat Pixel 🐱, Fusée 🚀, Couronne 👑. Rareté : Commun à Épique." },
         { icon:'🔴', title:'Jetons Puissance 4', desc:"Restyle tes pions dans la grille 7×6 (motif, texture, lueur). La distinction <strong>rouge / jaune</strong> entre les deux camps est conservée — le skin habille la couleur sans la rendre ambiguë. Tes deux adversaires verront tes jetons. Rareté : Rare à Épique." },
@@ -651,7 +654,10 @@ const DICT = {
     shopNameEffectNames:{'nameeffect-blink':'Neon Blink','nameeffect-pulse':'Pulsing Glow','nameeffect-gradient':'Scrolling Gradient','nameeffect-sparks':'Sparks','nameeffect-glitch':'Glitch','nameeffect-rainbow':'Rainbow Wave'},
     shopTitlesTitle:'🏷️ Titles',
     shopTitleNames:{'title-tactician':'Tactician','title-strategist':'The Strategist','title-quizmaster':'Quiz Master','title-snakeking':'Snake King','title-unbeaten':'Undefeated','title-champion':'Champion','title-legend':'Living Legend'},
-    honorTitleNames:{'honor-rank1-classic':'#1 Classics','honor-rank1-trivia':'#1 Quiz','honor-rank1-snake':'#1 Snake','honor-creator':'Creator'},
+    honorTitleNames:{'honor-rank1-global':'#1 Global','honor-creator':'Creator'},
+    shopHonoraryBadge:'🏆 Honorary',
+    shopHonoraryOwned:'Earned',
+    shopHonoraryNote:'Reach #1 on the global leaderboard to earn this title.',
     honorModalTitle:'Honorary Title!',
     honorModalMsg:(titleName) => `Congratulations! You're ranked #1. As a reward, you receive the title <strong>${titleName}</strong>. It will appear next to your username as long as you hold the top spot.`,
     honorModalBtn:'Accept',
@@ -793,7 +799,7 @@ const DICT = {
         { icon:'🎁', title:'Bundles', desc:"The <strong>Bundles</strong> section offers themed packs grouping several cosmetics at a reduced price (−24% to −28%). If you already own some items in a bundle, the price is <strong>automatically adjusted</strong> — you only pay for what you're missing. The <strong>⭐ Featured</strong> and <strong>📅 Daily</strong> picks refresh every 24 hours — a countdown shows the next refresh time." },
         { icon:'✨', title:'Name Effects', desc:"Animate your username display in leaderboards, chat, badges and the podium. Effects <strong>stack with your username color</strong>: the color sets the hue, the effect adds the animation on top. Examples: Neon Blink, Glitch, Rainbow Wave. Rarity: Epic to Legendary." },
         { icon:'🏷️', title:'Titles', desc:"Add a short status text displayed next to your username in leaderboards, player badges and room chips. Examples: Tactician, Quiz Master, Snake King, Living Legend. Rarity: Common to Epic. Shop titles stack with <strong>honorary titles</strong> (see below)." },
-        { icon:'🥇', title:'Honorary Titles', desc:"If you reach <strong>1st place</strong> on the Classics, Quiz or Snake leaderboard, you automatically receive an honorary title (e.g. <em>#1 Classics</em>). A congratulatory message appears on your next visit — click <em>Accept</em> to confirm. The title is removed if you lose the top spot. It cannot be purchased from the shop." },
+        { icon:'🥇', title:'Honorary Titles', desc:"If you reach <strong>1st place</strong> on the global leaderboard, you automatically receive the honorary title <em>#1 Global</em>. A congratulatory message appears on your next visit — click <em>Accept</em> to confirm. The title is removed if you lose the top spot. It is visible in the shop but cannot be purchased." },
         { icon:'🖱️', title:'Cursor Skins', desc:"Replace the appearance of the snake following your cursor (color, pattern, trail, head shape). The skin overrides the rank color when equipped. Only visible if <strong>Snake</strong> is enabled in settings. Rarity: Rare to Legendary." },
         { icon:'🎭', title:'Avatars', desc:"Replace the icon shown in your player badge during games and in leaderboards. Examples: Gamepad 🎮, Pixel Cat 🐱, Rocket 🚀, Crown 👑. Rarity: Common to Epic." },
         { icon:'🔴', title:'Connect 4 Tokens', desc:"Restyle your tokens in the 7×6 grid (pattern, texture, glow). The <strong>red / yellow</strong> distinction between teams is always preserved. Your opponent will see your tokens. Rarity: Rare to Epic." },
@@ -3169,6 +3175,7 @@ function _renderShopItems() {
   const ALL_TITLES = [
     {id:'title-tactician',price:15},{id:'title-strategist',price:40},{id:'title-quizmaster',price:60},
     {id:'title-snakeking',price:60},{id:'title-unbeaten',price:90},{id:'title-champion',price:100},{id:'title-legend',price:130},
+    {id:'honor-rank1-global',price:0,honorary:true},
   ];
   const ALL_CURSORSNAKES = [
     {id:'cursorsnake-pixel',price:50},{id:'cursorsnake-neon',price:80},{id:'cursorsnake-comet',price:110},
@@ -3214,7 +3221,7 @@ function _renderShopItems() {
   const bubbleItems      = ALL_BUBBLES.map(b => ({ ...b, type:'bubble',      name: d.shopBubbleNames[b.id] }));
   const bgItems          = ALL_BGS.map(b     => ({ ...b, type:'background',  name: d.shopBgNames[b.id] }));
   const nameEffectItems  = ALL_NAMEEFFECTS.map(x  => ({ ...x, type:'nameeffect',  name: d.shopNameEffectNames[x.id] }));
-  const titleItems       = ALL_TITLES.map(x       => ({ ...x, type:'title',       name: d.shopTitleNames[x.id] }));
+  const titleItems       = ALL_TITLES.map(x       => ({ ...x, type:'title',       name: x.honorary ? (d.honorTitleNames?.[x.id] || x.id) : d.shopTitleNames[x.id] }));
   const cursorSnakeItems = ALL_CURSORSNAKES.map(x  => ({ ...x, type:'cursorsnake', name: d.shopCursorSnakeNames[x.id] }));
   const avatarItems      = ALL_AVATARS.map(x      => ({ ...x, type:'avatar',      name: d.shopAvatarNames[x.id] }));
   const p4TokenItems     = ALL_P4TOKENS.map(x     => ({ ...x, type:'p4token',     name: d.shopP4TokenNames[x.id] }));
@@ -3242,9 +3249,10 @@ function _renderShopItems() {
 
   function tileHtml(item, large = false, extraBadge = '') {
     const { id, type, price, name } = item;
+    const honorary = item.honorary || false;
     const rarity  = _getRarity(price);
-    const owned   = ownedCosmetics.includes(id);
-    const isEquipped = [equippedCosmetic, equippedFont, equippedBubble, equippedBackground,
+    const owned   = honorary ? (honorTitle === id) : ownedCosmetics.includes(id);
+    const isEquipped = !honorary && [equippedCosmetic, equippedFont, equippedBubble, equippedBackground,
       equippedNameEffect, equippedTitle, equippedCursorSnake, equippedAvatar,
       equippedP4Token, equippedTtt, equippedChess, equippedSnakeSkin,
       equippedClickFx, equippedEmojiPack, equippedVictoryBan, equippedSoundPack, equippedEmote,
@@ -3261,6 +3269,7 @@ function _renderShopItems() {
     else if (type === 'font')      previewHtml = `<span class="shop-fn-font-preview ${_cosmeticClass(equippedCosmetic)} ${id}">${playerPreview}</span>`;
     else if (type === 'color')     previewHtml = `<span class="shop-cosmetic-preview name-${id} ${_fontClass(equippedFont)}">${playerPreview}</span>`;
     else if (type === 'nameeffect') previewHtml = `<span class="shop-nameeffect-preview ${id}">${playerPreview}</span>`;
+    else if (type === 'title' && honorary) previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="player-honor-tag">${name || ''}</span></span>`;
     else if (type === 'title')      previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="shop-title-tag">${name || ''}</span></span>`;
     else if (type === 'cursorsnake') previewHtml = `<div class="shop-emoji-preview">🐍</div>`;
     else if (type === 'avatar')     previewHtml = `<div class="shop-emoji-preview">${_AV[id]||'🎭'}</div>`;
@@ -3272,16 +3281,21 @@ function _renderShopItems() {
     else if (type === 'victoryban') previewHtml = `<div class="shop-emoji-preview">🏆</div>`;
     else if (type === 'soundpack')  previewHtml = `<div class="shop-emoji-preview">🎵</div>`;
     else if (type === 'emote')      previewHtml = `<div class="shop-emoji-preview">${_EM[id]||'😊'}</div>`;
-    return `<div class="shop-tile${large ? ' shop-tile-large' : ''} rarity-${rarity}"
-      data-id="${id}" data-type="${type}" data-price="${price}" data-name="${safeName}">
+    const badgeHtml = honorary
+      ? `<div class="shop-tile-badge shop-tile-badge-honorary">${d.shopHonoraryBadge || '🏆'}</div>`
+      : `<div class="shop-tile-badge rarity-${rarity}">${rarityLabel[rarity]}</div>`;
+    const priceDisplay = honorary ? '' : (price === 0 ? lblFree : price + ' ⚡');
+    const ownedLabel = honorary ? (d.shopHonoraryOwned || 'Obtenu') : (isEquipped ? lblEquipped : lblOwned);
+    return `<div class="shop-tile${large ? ' shop-tile-large' : ''}${honorary ? ' shop-tile-honorary' : ''} rarity-${honorary ? 'honorary' : rarity}"
+      data-id="${id}" data-type="${type}" data-price="${price}" data-name="${safeName}"${honorary ? ' data-honorary="1"' : ''}>
       <div class="shop-tile-img">${previewHtml}</div>
       <div class="shop-tile-footer">
         <span class="shop-tile-name">${name || id}</span>
-        <span class="shop-tile-price">${price === 0 ? lblFree : price + ' ⚡'}</span>
+        ${priceDisplay ? `<span class="shop-tile-price">${priceDisplay}</span>` : ''}
       </div>
-      <div class="shop-tile-badge rarity-${rarity}">${rarityLabel[rarity]}</div>
+      ${badgeHtml}
       ${extraBadge ? `<div class="shop-tile-daily-badge">${extraBadge}</div>` : ''}
-      ${owned ? `<div class="shop-tile-owned">${isEquipped ? lblEquipped : lblOwned}</div>` : ''}
+      ${owned ? `<div class="shop-tile-owned">${ownedLabel}</div>` : ''}
     </div>`;
   }
 
@@ -3625,6 +3639,7 @@ function _openBundleDetail(bundle, allItemsById) {
 function _openShopDetail(item) {
   _shopDetailItem = item;
   const { id, type, price, name } = item;
+  const honorary = item.honorary || false;
   const d   = t();
   const fr  = currentLang === 'fr';
   const rarity = _getRarity(price);
@@ -3650,6 +3665,8 @@ function _openShopDetail(item) {
     previewHtml = `<span class="shop-cosmetic-preview name-${id} ${_fontClass(equippedFont)}">${playerPreview}</span>`;
   } else if (type === 'nameeffect') {
     previewHtml = `<span class="shop-nameeffect-preview ${id}">${playerPreview}</span>`;
+  } else if (type === 'title' && honorary) {
+    previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="player-honor-tag">${name || ''}</span></span>`;
   } else if (type === 'title') {
     previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="shop-title-tag">${name || ''}</span></span>`;
   } else {
@@ -3668,8 +3685,8 @@ function _openShopDetail(item) {
     previewHtml = `<div class="shop-emoji-preview large">${emoji}</div>`;
   }
 
-  const owned      = ownedCosmetics.includes(id);
-  const isEquipped = [equippedCosmetic, equippedFont, equippedBubble, equippedBackground,
+  const owned      = honorary ? (honorTitle === id) : ownedCosmetics.includes(id);
+  const isEquipped = !honorary && [equippedCosmetic, equippedFont, equippedBubble, equippedBackground,
     equippedNameEffect, equippedTitle, equippedCursorSnake, equippedAvatar,
     equippedP4Token, equippedTtt, equippedChess, equippedSnakeSkin,
     equippedClickFx, equippedEmojiPack, equippedVictoryBan, equippedSoundPack, equippedEmote,
@@ -3678,7 +3695,11 @@ function _openShopDetail(item) {
   const priceStr   = price === 0 ? lblFree : `${price} ⚡`;
 
   let actionHtml = '';
-  if (owned) {
+  if (honorary) {
+    actionHtml = owned
+      ? `<div class="shop-fn-equipped-label">${d.shopHonoraryOwned || 'Obtenu'}</div>`
+      : `<p class="shop-honorary-detail-note">${d.shopHonoraryNote || ''}</p>`;
+  } else if (owned) {
     const canRefund   = price > 0;
     const hasCards    = refundCards > 0;
     const refundLabel = canRefund
@@ -3703,9 +3724,11 @@ function _openShopDetail(item) {
     <button class="shop-fn-detail-back" id="shop-detail-back">← ${fr ? 'Retour' : 'Back'}</button>
     <div class="shop-fn-detail-preview">${previewHtml}</div>
     <div class="shop-fn-detail-info">
-      <span class="shop-fn-rarity-badge ${rarity}">${rarityLabel[rarity]}</span>
+      ${honorary
+        ? `<span class="shop-fn-rarity-badge shop-fn-rarity-badge-honorary">${d.shopHonoraryBadge || '🏆'}</span>`
+        : `<span class="shop-fn-rarity-badge ${rarity}">${rarityLabel[rarity]}</span>`}
       <h3 class="shop-fn-detail-name">${name || id}</h3>
-      <div class="shop-fn-detail-price">${priceStr}</div>
+      ${honorary ? '' : `<div class="shop-fn-detail-price">${priceStr}</div>`}
       <div class="shop-fn-detail-action">${actionHtml}</div>
     </div>
   `;

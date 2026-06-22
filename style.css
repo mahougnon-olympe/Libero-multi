@@ -1435,6 +1435,9 @@ html.light .shop-tile-badge.rarity-commun     { background: rgba(100,100,100,.12
 html.light .shop-tile-badge.rarity-rare       { background: rgba(59,130,246,.15);  color: #1d4ed8; }
 html.light .shop-tile-badge.rarity-epique     { background: rgba(139,92,246,.15);  color: #7e22ce; }
 html.light .shop-tile-badge.rarity-legendaire { background: rgba(245,158,11,.15);  color: #92400e; }
+html.light .shop-tile-badge-honorary          { background: rgba(234,179,8,.18);   color: #b45309; border-color: rgba(234,179,8,.4); }
+html.light .shop-fn-rarity-badge-honorary     { color: #b45309; border-color: rgba(234,179,8,.45); background: rgba(234,179,8,.1); }
+html.light .shop-honorary-detail-note         { color: #6b7280; }
 /* Nav sidebar */
 html.light .shop-fn-nav { background: rgba(0,0,0,.04); border-right-color: rgba(0,0,0,.08); }
 html.light .shop-fn-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); }
@@ -1770,6 +1773,7 @@ html.light .shop-fn-promo-input::placeholder { color: var(--muted); }
 .shop-tile-badge.rarity-rare       { background: rgba(59,130,246,.22);  color: #60a5fa; }
 .shop-tile-badge.rarity-epique     { background: rgba(139,92,246,.22);  color: #c084fc; }
 .shop-tile-badge.rarity-legendaire { background: rgba(245,158,11,.22);  color: #fcd34d; }
+.shop-tile-badge-honorary          { background: rgba(234,179,8,.22);   color: #fbbf24; border: 1px solid rgba(234,179,8,.4); }
 .shop-tile-owned {
   position: absolute; top: 7px; right: 7px;
   font-size: .58rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;
@@ -1832,6 +1836,8 @@ html.light .shop-title-tag { background: rgba(99,102,241,.15); border-color: rgb
 .shop-fn-rarity-badge.rare       { color:#60a5fa; border-color:rgba(96,165,250,.4);  background:rgba(96,165,250,.1); }
 .shop-fn-rarity-badge.epique     { color:#c084fc; border-color:rgba(192,132,252,.4); background:rgba(192,132,252,.1); }
 .shop-fn-rarity-badge.legendaire { color:#fcd34d; border-color:rgba(252,211,77,.4);  background:rgba(252,211,77,.1); }
+.shop-fn-rarity-badge-honorary   { color:#fbbf24; border-color:rgba(234,179,8,.5);   background:rgba(234,179,8,.12); }
+.shop-honorary-detail-note { font-size: .85rem; color: #9ca3af; margin: 0; line-height: 1.5; }
 .shop-fn-detail-name  { font-size: 1.6rem; font-weight: 900; color: #fff; margin: 0; }
 .shop-fn-detail-price { font-size: 1.1rem; font-weight: 800; color: #fbbf24; }
 .shop-fn-detail-action { display: flex; flex-direction: column; gap: 8px; }

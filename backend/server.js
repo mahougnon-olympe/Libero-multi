@@ -35,9 +35,7 @@ const REFUND_CARD_COOLDOWN_MS  = 30 * 24 * 3600 * 1000;
 const socketPlayerIds = new Map();
 const playerIdAliases = new Map();
 
-let rank1Classic = null;
-let rank1Trivia  = null;
-let rank1Snake   = null;
+let rank1Global = null;
 
 // ── Persistance MongoDB ────────────────────────────────────────────────────
 let mongoClient = null;
@@ -279,6 +277,7 @@ const COSMETICS = [
   { id: 'title-unbeaten',       type: 'title',       price: 90  },
   { id: 'title-champion',       type: 'title',       price: 100 },
   { id: 'title-legend',         type: 'title',       price: 130 },
+  { id: 'honor-rank1-global',   type: 'title',       price: 0,  honorary: true },
   // Skins du serpent curseur
   { id: 'cursorsnake-pixel',    type: 'cursorsnake', price: 50  },
   { id: 'cursorsnake-neon',     type: 'cursorsnake', price: 80  },
@@ -474,33 +473,20 @@ function updateLastActive(id, name) {
 let nextDistributionAt = 0;
 
 function refreshAllHonorTitles() {
-  const lbData    = getLeaderboardData();
-  const trivData  = getTriviaLeaderboardData();
-  const snakeData = getSnakeLeaderboardData();
-  const newR1Classic = lbData[0]?.name    || null;
-  const newR1Trivia  = trivData[0]?.name  || null;
-  const newR1Snake   = snakeData[0]?.name || null;
-
-  if (newR1Classic === rank1Classic && newR1Trivia === rank1Trivia && newR1Snake === rank1Snake) return;
-  rank1Classic = newR1Classic;
-  rank1Trivia  = newR1Trivia;
-  rank1Snake   = newR1Snake;
+  const newR1Global = getGlobalLeaderboardData()[0]?.name || null;
+  if (newR1Global === rank1Global) return;
+  rank1Global = newR1Global;
 
   for (const [id, entry] of libs.entries()) {
     if (entry.name === 'Libero') continue;
     const name = entry.name;
     if (!name || name === 'Anonyme') continue;
 
-    let newHonor = null;
-    if      (name === rank1Classic) newHonor = 'honor-rank1-classic';
-    else if (name === rank1Trivia)  newHonor = 'honor-rank1-trivia';
-    else if (name === rank1Snake)   newHonor = 'honor-rank1-snake';
-
+    const newHonor = (name === rank1Global) ? 'honor-rank1-global' : null;
     if (entry.honorTitle === newHonor) continue;
 
-    const justEarned = newHonor !== null;
     entry.honorTitle = newHonor;
-    entry.pendingHonorModal = justEarned ? newHonor : null;
+    entry.pendingHonorModal = newHonor !== null ? newHonor : null;
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
 
@@ -1436,6 +1422,7 @@ io.on('connection', (socket) => {
     if (!entry.name || entry.name === 'Anonyme') { socket.emit('buy-cosmetic-result', { ok: false, error: 'anonymous' }); return; }
     const cosmetic = COSMETICS.find(c => c.id === cosmeticId);
     if (!cosmetic) { socket.emit('buy-cosmetic-result', { ok: false, error: 'invalid' }); return; }
+    if (cosmetic.honorary) { socket.emit('buy-cosmetic-result', { ok: false, error: 'honorary' }); return; }
     if (entry.ownedCosmetics.includes(cosmeticId)) { socket.emit('buy-cosmetic-result', { ok: false, error: 'already_owned' }); return; }
     if (entry.balance < cosmetic.price) { socket.emit('buy-cosmetic-result', { ok: false, error: 'insufficient' }); return; }
     entry.balance -= cosmetic.price;
