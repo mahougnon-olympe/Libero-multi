@@ -356,8 +356,6 @@ const DICT = {
     shopTttNames:{'ttt-neon':'X & O Néon','ttt-sunmoon':'Soleil / Lune','ttt-heartstar':'Cœur / Étoile','ttt-catdog':'Chat / Chien','ttt-skulllightning':'Crâne / Éclair'},
     shopChessTitle:'♟️ Thèmes d\'échiquier',
     shopChessNames:{'chess-cyber':'Cyber Grid','chess-frost':'Verre Givré','chess-neon':'Échiquier Néon','chess-marble':'Marbre Royal'},
-    shopSnakeSkinsTitle:'🐍 Skins Snake',
-    shopSnakeSkinNames:{'snakeskin-gems':'Pommes en Gemmes','snakeskin-cyber':'Serpent Cyber','snakeskin-lava':'Serpent de Lave','snakeskin-galaxy':'Plateau Galaxie','snakeskin-rainbow':'Serpent Arc-en-ciel'},
     shopClickFxTitle:'💥 Particules de clic',
     shopClickFxNames:{'clickfx-bubbles':'Bulles','clickfx-confetti':'Confettis','clickfx-neon':'Étincelles Néon','clickfx-stars':'Étoiles Filantes','clickfx-firework':'Feu d\'Artifice'},
     shopEmojiPacksTitle:'🌈 Packs d\'émojis',
@@ -384,7 +382,7 @@ const DICT = {
     shopBundleInsufficientFunds:'Champion, tu n\'as pas assez de Libs.',
     shopBundleError:'Erreur lors de l\'achat.',
     shopBundleNames:{ 'bundle-debutant':'Pack Débutant','bundle-retro':'Pack Rétro','bundle-neon-arcade':'Pack Néon Arcade','bundle-galaxie':'Pack Galaxie','bundle-prestige-or':'Pack Prestige Or','bundle-hologramme':'Pack Hologramme Ultime' },
-    shopNavLabels:{ featured:'À la une', daily:'Quotidien', bundles:'Bundles', boosts:'Boosts', colors:'Couleurs', fonts:'Polices', bubbles:'Bulles', bgs:'Fonds', nameeffects:'Effets', titles:'Titres', cursorsnakes:'Curseur', avatars:'Avatars', p4tokens:'P4', ttt:'Morpion', chess:'Échiquier', snakeskins:'Snake', clickfx:'Particules', emojipacks:'Émojis', victorybans:'Victoire', soundpacks:'Sons', emotes:'Emotes' },
+    shopNavLabels:{ featured:'À la une', daily:'Quotidien', bundles:'Bundles', boosts:'Boosts', colors:'Couleurs', fonts:'Polices', bubbles:'Bulles', bgs:'Fonds', nameeffects:'Effets', titles:'Titres', cursorsnakes:'Curseur', avatars:'Avatars', p4tokens:'P4', ttt:'Morpion', chess:'Échiquier', clickfx:'Particules', emojipacks:'Émojis', victorybans:'Victoire', soundpacks:'Sons', emotes:'Emotes' },
     shopDailyBadge:'Quotidien',
     settingsTitle:'⚙️ Paramètres',
     settingsLang:'Langue', settingsTheme:'Thème', settingsSnake:'Serpent',
@@ -657,8 +655,6 @@ const DICT = {
     shopTttNames:{'ttt-neon':'X & O Neon','ttt-sunmoon':'Sun / Moon','ttt-heartstar':'Heart / Star','ttt-catdog':'Cat / Dog','ttt-skulllightning':'Skull / Lightning'},
     shopChessTitle:'♟️ Chess Themes',
     shopChessNames:{'chess-cyber':'Cyber Grid','chess-frost':'Frosted Glass','chess-neon':'Neon Board','chess-marble':'Royal Marble'},
-    shopSnakeSkinsTitle:'🐍 Snake Skins',
-    shopSnakeSkinNames:{'snakeskin-gems':'Gem Apples','snakeskin-cyber':'Cyber Snake','snakeskin-lava':'Lava Snake','snakeskin-galaxy':'Galaxy Board','snakeskin-rainbow':'Rainbow Snake'},
     shopClickFxTitle:'💥 Click Particles',
     shopClickFxNames:{'clickfx-bubbles':'Bubbles','clickfx-confetti':'Confetti','clickfx-neon':'Neon Sparks','clickfx-stars':'Shooting Stars','clickfx-firework':'Firework'},
     shopEmojiPacksTitle:'🌈 Emoji Packs',
@@ -685,7 +681,7 @@ const DICT = {
     shopBundleInsufficientFunds:'Champion, you don\'t have enough Libs.',
     shopBundleError:'Purchase failed.',
     shopBundleNames:{ 'bundle-debutant':'Starter Pack','bundle-retro':'Retro Pack','bundle-neon-arcade':'Neon Arcade Pack','bundle-galaxie':'Galaxy Pack','bundle-prestige-or':'Gold Prestige Pack','bundle-hologramme':'Ultimate Hologram Pack' },
-    shopNavLabels:{ featured:'Featured', daily:'Daily', bundles:'Bundles', boosts:'Boosts', colors:'Colors', fonts:'Fonts', bubbles:'Bubbles', bgs:'Backgrounds', nameeffects:'Effects', titles:'Titles', cursorsnakes:'Cursor', avatars:'Avatars', p4tokens:'P4', ttt:'Tic-Tac', chess:'Chess', snakeskins:'Snake', clickfx:'Particles', emojipacks:'Emojis', victorybans:'Victory', soundpacks:'Sounds', emotes:'Emotes' },
+    shopNavLabels:{ featured:'Featured', daily:'Daily', bundles:'Bundles', boosts:'Boosts', colors:'Colors', fonts:'Fonts', bubbles:'Bubbles', bgs:'Backgrounds', nameeffects:'Effects', titles:'Titles', cursorsnakes:'Cursor', avatars:'Avatars', p4tokens:'P4', ttt:'Tic-Tac', chess:'Chess', clickfx:'Particles', emojipacks:'Emojis', victorybans:'Victory', soundpacks:'Sounds', emotes:'Emotes' },
     shopDailyBadge:'Daily',
     settingsTitle:'⚙️ Settings',
     settingsLang:'Language', settingsTheme:'Theme', settingsSnake:'Snake',
@@ -3174,10 +3170,6 @@ function _renderShopItems() {
   const ALL_CHESS = [
     {id:'chess-cyber',price:100},{id:'chess-frost',price:130},{id:'chess-neon',price:170},{id:'chess-marble',price:200},
   ];
-  const ALL_SNAKESKINS = [
-    {id:'snakeskin-gems',price:50},{id:'snakeskin-cyber',price:80},{id:'snakeskin-lava',price:120},
-    {id:'snakeskin-galaxy',price:140},{id:'snakeskin-rainbow',price:180},
-  ];
   const ALL_CLICKFX = [
     {id:'clickfx-bubbles',price:15},{id:'clickfx-confetti',price:30},{id:'clickfx-neon',price:60},
     {id:'clickfx-stars',price:90},{id:'clickfx-firework',price:130},
@@ -3210,7 +3202,6 @@ function _renderShopItems() {
   const p4TokenItems     = ALL_P4TOKENS.map(x     => ({ ...x, type:'p4token',     name: d.shopP4TokenNames[x.id] }));
   const tttItems         = ALL_TTT.map(x          => ({ ...x, type:'ttt',         name: d.shopTttNames[x.id] }));
   const chessItems       = ALL_CHESS.map(x        => ({ ...x, type:'chess',       name: d.shopChessNames[x.id] }));
-  const snakeSkinItems   = ALL_SNAKESKINS.map(x   => ({ ...x, type:'snakeskin',   name: d.shopSnakeSkinNames[x.id] }));
   const clickFxItems     = ALL_CLICKFX.map(x      => ({ ...x, type:'clickfx',     name: d.shopClickFxNames[x.id] }));
   const emojiPackItems   = ALL_EMOJIPACKS.map(x   => ({ ...x, type:'emojipack',   name: d.shopEmojiPackNames[x.id] }));
   const victoryBanItems  = ALL_VICTORYBANS.map(x  => ({ ...x, type:'victoryban',  name: d.shopVictoryBanNames[x.id] }));
@@ -3220,7 +3211,7 @@ function _renderShopItems() {
   const allItemsById = {};
   [...colorItems, ...fontItems, ...bubbleItems, ...bgItems,
    ...nameEffectItems, ...titleItems, ...cursorSnakeItems, ...avatarItems,
-   ...p4TokenItems, ...tttItems, ...chessItems, ...snakeSkinItems,
+   ...p4TokenItems, ...tttItems, ...chessItems,
    ...clickFxItems, ...emojiPackItems, ...victoryBanItems, ...soundPackItems, ...emoteItems,
   ].forEach(it => { allItemsById[it.id] = it; });
   allItemsById['boost_hint_10'] = { id:'boost_hint_10', type:'boost', price:3, name:d.shopBoostHintName };
@@ -3258,7 +3249,6 @@ function _renderShopItems() {
     else if (type === 'p4token')    previewHtml = `<div class="shop-emoji-preview">🔴🟡</div>`;
     else if (type === 'ttt')        previewHtml = `<div class="shop-emoji-preview">${_TTT_E[id]||'✖️⭕'}</div>`;
     else if (type === 'chess')      previewHtml = `<div class="shop-emoji-preview">♟️♜</div>`;
-    else if (type === 'snakeskin')  previewHtml = `<div class="shop-emoji-preview">🐍🍎</div>`;
     else if (type === 'clickfx')    previewHtml = `<div class="shop-emoji-preview">${_CFX[id]||'✨'}</div>`;
     else if (type === 'emojipack')  previewHtml = `<div class="shop-emoji-preview">${_EP[id]||'🎉'}</div>`;
     else if (type === 'victoryban') previewHtml = `<div class="shop-emoji-preview">🏆</div>`;
@@ -3328,7 +3318,6 @@ function _renderShopItems() {
       <button class="shop-fn-nav-btn" data-section="p4tokens">🔴 ${nav.p4tokens}</button>
       <button class="shop-fn-nav-btn" data-section="ttt">✖️ ${nav.ttt}</button>
       <button class="shop-fn-nav-btn" data-section="chess">♟️ ${nav.chess}</button>
-      <button class="shop-fn-nav-btn" data-section="snakeskins">🐍 ${nav.snakeskins}</button>
       <button class="shop-fn-nav-btn" data-section="clickfx">💥 ${nav.clickfx}</button>
       <button class="shop-fn-nav-btn" data-section="emojipacks">🌈 ${nav.emojipacks}</button>
       <button class="shop-fn-nav-btn" data-section="victorybans">🏆 ${nav.victorybans}</button>
@@ -3436,11 +3425,6 @@ function _renderShopItems() {
     <section class="shop-fn-section" id="shop-sec-chess" data-section-id="chess">
       <h3 class="shop-fn-section-title">${d.shopChessTitle}</h3>
       <div class="shop-fn-grid">${chessItems.map(it => tileHtml(it)).join('')}</div>
-    </section>
-
-    <section class="shop-fn-section" id="shop-sec-snakeskins" data-section-id="snakeskins">
-      <h3 class="shop-fn-section-title">${d.shopSnakeSkinsTitle}</h3>
-      <div class="shop-fn-grid">${snakeSkinItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-clickfx" data-section-id="clickfx">
@@ -3649,7 +3633,7 @@ function _openShopDetail(item) {
     previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="shop-title-tag">${name || ''}</span></span>`;
   } else {
     const _DETAIL_EMOJI = {
-      'cursorsnake':'🐍','chess':'♟️♜','snakeskin':'🐍🍎','victoryban':'🏆','soundpack':'🎵🔊',
+      'cursorsnake':'🐍','chess':'♟️♜','victoryban':'🏆','soundpack':'🎵🔊',
       'p4token':'🔴🟡',
     };
     const _ITEM_EMOJI = {
