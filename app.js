@@ -414,7 +414,7 @@ const DICT = {
     helpLibsDesc:'Les Libs ⚡ sont une monnaie virtuelle. Les joueurs classés <strong>top 3 du classement Global</strong> en gagnent automatiquement toutes les 5 heures (1er : +5 ⚡, 2e : +3 ⚡, 3e : +2 ⚡). Si tu ne joues pas pendant 48 h, ton solde diminue de 10 ⚡ par jour supplémentaire. Clique sur le compteur ⚡ en haut à droite pour ouvrir la boutique. Les joueurs anonymes ne perçoivent pas de Libs.',
     helpBoostTitle:'Boost Indice (quiz)',
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
-    eventsTitle:'Évents', eventsDesc:'Week-end · Snake Challenge',
+    eventsTitle:'Évents', eventsDesc:'Ven-Sam · Snake Challenge',
     eventsDescLocked:'Week-end prochain',
     eventsLockedCard: days => `📅 Dans ${days} j`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> <u style="cursor:pointer">vote ici</u> !`,
@@ -721,7 +721,7 @@ const DICT = {
     helpLibsDesc:'Libs ⚡ are a virtual currency. Players ranked <strong>top 3 in the Global leaderboard</strong> automatically earn some every 5 hours (1st: +5 ⚡, 2nd: +3 ⚡, 3rd: +2 ⚡). If you don\'t play for 48 h, your balance drops by 10 ⚡ per additional day of inactivity. Click the ⚡ counter in the top-right corner to open the shop. Anonymous players do not receive Libs.',
     helpBoostTitle:'Quiz Hint Boost',
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
-    eventsTitle:'Events', eventsDesc:'Weekend · Snake Challenge',
+    eventsTitle:'Events', eventsDesc:'Fri-Sat · Snake Challenge',
     eventsDescLocked:'Next weekend',
     eventsLockedCard: days => `📅 In ${days}d`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> <u style="cursor:pointer">vote here</u>!`,
@@ -890,22 +890,21 @@ function renderHelp() {
 
 function _isEventActive() {
   const d = new Date().getDay();
-  return d === 0 || d === 6;
+  return d === 5 || d === 6; // Vendredi 00:00 → Dimanche 00:00
 }
 
 function _getEventEndMs() {
   const now = new Date();
-  const day = now.getDay();
+  const day = now.getDay(); // 5=Ven, 6=Sam (seuls cas possibles)
   const end = new Date(now);
-  end.setDate(now.getDate() + (day === 0 ? 0 : 7 - day));
-  end.setHours(23, 59, 59, 0);
-  if (end.getTime() <= Date.now()) end.setDate(end.getDate() + 7);
+  end.setDate(now.getDate() + (day === 5 ? 2 : 1)); // prochain dimanche
+  end.setHours(0, 0, 0, 0);
   return end.getTime();
 }
 
 function _getDaysUntilEvent() {
   const day = new Date().getDay();
-  return day === 6 ? 7 : (6 - day);
+  return ((5 - day) + 7) % 7 || 7; // jours jusqu'au prochain vendredi
 }
 
 function _updateEventCountdown() {
