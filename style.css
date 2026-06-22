@@ -1399,6 +1399,69 @@ html.light .help-tab:hover:not(.active) { background: rgba(0,0,0,.04); }
 html.light .overlay                { background: rgba(30,27,75,.55); }
 html.light #screen-landing         { background: radial-gradient(ellipse at 50% 5%, rgba(99,102,241,.1) 0%, transparent 65%); }
 
+/* ── Boutique — thème jour ��─ */
+html.light #overlay-shop { background: rgba(99,102,241,.18); }
+html.light .shop-fortnite {
+  background: linear-gradient(180deg, #eef1ff 0%, #f4f6ff 60%, #e8ecff 100%);
+}
+html.light .shop-fn-header {
+  background: rgba(255,255,255,.75);
+  border-bottom-color: rgba(0,0,0,.08);
+}
+html.light .shop-fn-title                  { color: var(--text); }
+html.light .shop-fn-balance-label          { color: var(--muted); }
+html.light .shop-fn-balance-amount         { color: #b45309; }
+html.light .shop-fn-close-btn              { background: rgba(0,0,0,.06); color: var(--text); border-color: rgba(0,0,0,.1); }
+html.light .shop-fn-close-btn:hover        { background: rgba(0,0,0,.12); color: var(--text); }
+html.light .shop-fn-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); }
+html.light .shop-fn-section-title {
+  color: var(--muted);
+  border-bottom-color: rgba(0,0,0,.08);
+}
+/* Tiles — backgrounds clairs par rareté */
+html.light .shop-tile.rarity-commun     { background: linear-gradient(180deg,#e8e8ef 0%,#d4d4e0 100%); border-color: rgba(100,100,100,.25); }
+html.light .shop-tile.rarity-commun:hover  { box-shadow: 0 6px 20px rgba(100,100,100,.2); }
+html.light .shop-tile.rarity-rare       { background: linear-gradient(180deg,#dbeafe 0%,#bfdbfe 100%); border-color: rgba(59,130,246,.4); }
+html.light .shop-tile.rarity-rare:hover    { box-shadow: 0 6px 22px rgba(59,130,246,.35); }
+html.light .shop-tile.rarity-epique     { background: linear-gradient(180deg,#ede9fe 0%,#ddd6fe 100%); border-color: rgba(139,92,246,.4); }
+html.light .shop-tile.rarity-epique:hover  { box-shadow: 0 6px 24px rgba(139,92,246,.4); }
+html.light .shop-tile.rarity-legendaire { background: linear-gradient(180deg,#fef3c7 0%,#fde68a 100%); border-color: rgba(245,158,11,.45); }
+html.light .shop-tile.rarity-legendaire:hover { box-shadow: 0 6px 26px rgba(245,158,11,.4); }
+html.light .shop-tile-footer            { background: rgba(255,255,255,.55); }
+html.light .shop-tile-name              { color: var(--text); }
+html.light .shop-tile-price             { color: #b45309; }
+/* Badges de rareté */
+html.light .shop-tile-badge.rarity-commun     { background: rgba(100,100,100,.12); color: #4b5563; }
+html.light .shop-tile-badge.rarity-rare       { background: rgba(59,130,246,.15);  color: #1d4ed8; }
+html.light .shop-tile-badge.rarity-epique     { background: rgba(139,92,246,.15);  color: #7e22ce; }
+html.light .shop-tile-badge.rarity-legendaire { background: rgba(245,158,11,.15);  color: #92400e; }
+/* Panneau détail */
+html.light .shop-fn-detail-back             { background: rgba(0,0,0,.06); color: var(--text); border-color: rgba(0,0,0,.12); }
+html.light .shop-fn-detail-back:hover       { background: rgba(0,0,0,.11); color: var(--text); }
+html.light .shop-fn-detail-name             { color: var(--text); }
+html.light .shop-fn-detail-price            { color: #b45309; }
+html.light .shop-fn-equipped-label          { color: #15803d; }
+html.light .shop-fn-rarity-badge.commun     { color:#4b5563; border-color:rgba(100,100,100,.3);  background:rgba(100,100,100,.08); }
+html.light .shop-fn-rarity-badge.rare       { color:#1d4ed8; border-color:rgba(29,78,216,.35);   background:rgba(29,78,216,.08); }
+html.light .shop-fn-rarity-badge.epique     { color:#7e22ce; border-color:rgba(126,34,206,.35);  background:rgba(126,34,206,.08); }
+html.light .shop-fn-rarity-badge.legendaire { color:#92400e; border-color:rgba(146,64,14,.35);   background:rgba(146,64,14,.08); }
+/* Toast */
+html.light .shop-fn-toast { background: rgba(240,244,255,.97); border-color: rgba(0,0,0,.1); color: var(--text); }
+/* Boosts */
+html.light .shop-fn-boost      { background: rgba(180,83,9,.05); border-color: rgba(180,83,9,.2); }
+html.light .shop-fn-boost-name { color: var(--text); }
+html.light .shop-fn-boost-desc { color: var(--muted); }
+html.light .shop-fn-boost-pending { color: #b45309; }
+/* Promo code */
+html.light .shop-fn-promo       { background: rgba(99,102,241,.06); border-color: rgba(99,102,241,.2); }
+html.light .shop-fn-promo-title { color: var(--muted); }
+html.light .shop-fn-promo-input {
+  background: rgba(255,255,255,.85);
+  color: var(--text);
+  border-color: rgba(99,102,241,.3);
+}
+html.light .shop-fn-promo-input::placeholder { color: var(--muted); }
+
 /* ── Indicateur thème (apparaît 3 s lors du changement) ── */
 #theme-clock {
   position: fixed;
