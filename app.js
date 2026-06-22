@@ -354,9 +354,18 @@ const DICT = {
     eventsTitle:'Évents', eventsDesc:'Week-end · Snake Challenge',
     eventsDescLocked:'Week-end prochain',
     eventsLockedCard: days => `📅 Dans ${days} j`,
-    eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> — reste connecté !`,
+    eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> — <u style="cursor:pointer">vote ici</u> !`,
     eventActiveMsg:   '🐍 <strong>Évent ce week-end</strong> : Snake Challenge ! Nourris ton serpent pour le faire grandir sur tout le site.',
     newsCommunityMsg: '💬 <strong>Tu as une idée de jeu ?</strong> Glisse un message dans la section <strong>?</strong> en bas de l\'accueil — ta voix compte !',
+    snakeVoteTitle:'Snake Challenge',
+    snakeVoteSubtitle:'Veux-tu voir le Snake Challenge revenir ?',
+    snakeVoteYes:'Oui, ramène-le !',
+    snakeVoteNo:'Non, pas maintenant',
+    snakeVoteTotalLabel: n => `${n} vote${n>1?'s':''}`,
+    snakeVoteAlreadyYes:'✅ Tu as voté pour le retour du Snake.',
+    snakeVoteAlreadyNo:'❌ Tu as voté contre le retour du Snake.',
+    snakeVoteChange:'(Changer d\'avis)',
+    snakeVoteAnon:'Connecte-toi avec un pseudo pour voter.',
     communityCard:'Pour la communauté',
     homeClassicTitle:'Jeux Multijoueur',
     btnQuit:'🚪 Quitter',
@@ -606,9 +615,18 @@ const DICT = {
     eventsTitle:'Events', eventsDesc:'Weekend · Snake Challenge',
     eventsDescLocked:'Next weekend',
     eventsLockedCard: days => `📅 In ${days}d`,
-    eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> — stay tuned!`,
+    eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> — <u style="cursor:pointer">vote here</u>!`,
     eventActiveMsg:   '🐍 <strong>Event this weekend</strong>: Snake Challenge! Feed your snake to make it grow across the site.',
     newsCommunityMsg: '💬 <strong>Got a game idea?</strong> Drop a message in the <strong>?</strong> section at the bottom of the home screen — your voice matters!',
+    snakeVoteTitle:'Snake Challenge',
+    snakeVoteSubtitle:'Do you want the Snake Challenge to come back?',
+    snakeVoteYes:'Yes, bring it back!',
+    snakeVoteNo:'No, not right now',
+    snakeVoteTotalLabel: n => `${n} vote${n>1?'s':''}`,
+    snakeVoteAlreadyYes:'✅ You voted for Snake\'s return.',
+    snakeVoteAlreadyNo:'❌ You voted against Snake\'s return.',
+    snakeVoteChange:'(Change your mind)',
+    snakeVoteAnon:'Set a username to vote.',
     communityCard:'Community',
     homeClassicTitle:'Multiplayer Games',
     btnQuit:'🚪 Quit',
@@ -779,13 +797,13 @@ function _updateEventCountdown() {
     if (cardCount) cardCount.textContent = left > 0 ? d.eventCountdownFmt(left) : '';
     if (cardBtn)  { cardBtn.classList.remove('landing-card--locked'); cardBtn.disabled = false; }
     if (cardDesc) cardDesc.textContent = d.eventsDesc;
-    if (newsMsg)  newsMsg.innerHTML = d.eventActiveMsg;
+    if (newsMsg)  { newsMsg.innerHTML = d.eventActiveMsg; newsMsg.classList.remove('vote-clickable'); }
   } else {
     const days = _getDaysUntilEvent();
     if (cardCount) cardCount.textContent = d.eventsLockedCard(days);
     if (cardBtn)  { cardBtn.classList.add('landing-card--locked'); cardBtn.disabled = true; }
     if (cardDesc) cardDesc.textContent = d.eventsDescLocked;
-    if (newsMsg)  newsMsg.innerHTML = d.eventsLockedMsg(days);
+    if (newsMsg)  { newsMsg.innerHTML = d.eventsLockedMsg(days); newsMsg.classList.add('vote-clickable'); }
   }
 }
 
@@ -2576,6 +2594,96 @@ socket.on('buy-bundle-result', ({ ok, error } = {}) => {
               : d.shopBundleError;
     _showShopFeedback(msg, '#ef4444');
   }
+});
+
+// ── Vote Snake Challenge ──────────────────────────────────────────────────────
+let _snakeVoteData = null; // { yes: number, no: number, myVote: 'yes'|'no'|null }
+
+function _openSnakeVote() {
+  const overlay = $('overlay-snake-vote');
+  if (!overlay) return;
+  overlay.classList.remove('hidden');
+  socket.emit('get-snake-vote', { playerId: getPlayerId() });
+  _updateSnakeVoteUI();
+}
+
+function _closeSnakeVote() {
+  const overlay = $('overlay-snake-vote');
+  if (overlay) overlay.classList.add('hidden');
+}
+
+function _updateSnakeVoteUI() {
+  const d = t();
+  const el = id => document.getElementById(id);
+  el('snake-vote-title').textContent    = d.snakeVoteTitle;
+  el('snake-vote-subtitle').textContent = d.snakeVoteSubtitle;
+  el('vote-yes-label').textContent      = d.snakeVoteYes;
+  el('vote-no-label').textContent       = d.snakeVoteNo;
+
+  const data      = _snakeVoteData;
+  const total     = data ? data.yes + data.no : 0;
+  const yesPct    = total > 0 ? Math.round(data.yes / total * 100) : 0;
+  const noPct     = total > 0 ? 100 - yesPct : 0;
+
+  el('snake-vote-pct-yes').textContent   = `${yesPct}%`;
+  el('snake-vote-pct-no').textContent    = `${noPct}%`;
+  el('snake-vote-bar-yes').style.width   = `${yesPct}%`;
+  el('snake-vote-total-label').textContent = d.snakeVoteTotalLabel(total);
+
+  const statusEl   = el('snake-vote-status');
+  const myVote     = data?.myVote;
+  const yesBtn     = el('btn-vote-yes');
+  const noBtn      = el('btn-vote-no');
+
+  yesBtn.classList.toggle('voted-active', myVote === 'yes');
+  noBtn.classList.toggle('voted-active',  myVote === 'no');
+
+  if (myVote) {
+    statusEl.classList.remove('hidden');
+    statusEl.innerHTML = (myVote === 'yes' ? d.snakeVoteAlreadyYes : d.snakeVoteAlreadyNo)
+      + ` <span style="opacity:.6;font-size:.8em;cursor:pointer" id="snake-vote-change-link">${d.snakeVoteChange}</span>`;
+    document.getElementById('snake-vote-change-link')?.addEventListener('click', () => {
+      _snakeVoteData = { ..._snakeVoteData, myVote: null };
+      yesBtn.disabled = false; noBtn.disabled = false;
+      _updateSnakeVoteUI();
+    });
+    yesBtn.disabled = myVote !== 'yes';
+    noBtn.disabled  = myVote !== 'no';
+  } else {
+    statusEl.classList.add('hidden');
+    yesBtn.disabled = false; noBtn.disabled = false;
+  }
+}
+
+(function _initSnakeVote() {
+  const overlay = $('overlay-snake-vote');
+  if (!overlay) return;
+
+  $('btn-snake-vote-close').addEventListener('click', _closeSnakeVote);
+  overlay.addEventListener('click', e => { if (e.target === overlay) _closeSnakeVote(); });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !overlay.classList.contains('hidden')) _closeSnakeVote();
+  });
+
+  $('btn-vote-yes').addEventListener('click', () => {
+    socket.emit('submit-snake-vote', { playerId: getPlayerId(), vote: 'yes' });
+  });
+  $('btn-vote-no').addEventListener('click', () => {
+    socket.emit('submit-snake-vote', { playerId: getPlayerId(), vote: 'no' });
+  });
+
+  const newsMsg = document.getElementById('news-event-msg');
+  if (newsMsg) {
+    newsMsg.addEventListener('click', () => {
+      if (!_isEventActive()) _openSnakeVote();
+    });
+  }
+})();
+
+socket.on('snake-vote-update', data => {
+  _snakeVoteData = data;
+  if (!$('overlay-snake-vote').classList.contains('hidden')) _updateSnakeVoteUI();
 });
 
 socket.on('quiz-boost-status', ({ balance, pendingBoostHint } = {}) => {

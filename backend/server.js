@@ -26,6 +26,7 @@ const leaderboard     = new Map();
 const triviaRooms     = new Map();
 const triviaLeaderboard = new Map();
 const snakeLeaderboard  = new Map();
+const snakeVotes        = new Map(); // playerId -> 'yes'|'no'
 const comments        = [];
 const libs            = new Map();
 const MAX_BALANCE              = 19999;
@@ -57,7 +58,7 @@ async function connectDB() {
 
 async function loadData() {
   if (!db) return;
-  const [lbDocs, tlbDocs, cmtDocs, slbDocs, libsDocs, aliasDocs, configDocs] = await Promise.all([
+  const [lbDocs, tlbDocs, cmtDocs, slbDocs, libsDocs, aliasDocs, configDocs, voteDocs] = await Promise.all([
     db.collection('leaderboard').find().toArray(),
     db.collection('trivia_leaderboard').find().toArray(),
     db.collection('comments').find().sort({ date: 1 }).toArray(),
@@ -65,6 +66,7 @@ async function loadData() {
     db.collection('libs').find().toArray(),
     db.collection('player_aliases').find().toArray(),
     db.collection('server_config').find().toArray(),
+    db.collection('snake_votes').find().toArray(),
   ]);
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
@@ -72,9 +74,10 @@ async function loadData() {
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, refundCardsUsedAt: d.refundCardsUsedAt || [] }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
+  voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
-  console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias.`);
+  console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias, ${voteDocs.length} votes snake.`);
 }
 
 function dbUpsertLeaderboard(id, entry) {
@@ -1128,6 +1131,25 @@ io.on('connection', (socket) => {
 
   socket.on('get-shop-rotation', () => {
     socket.emit('shop-rotation', getShopRotation());
+  });
+
+  socket.on('get-snake-vote', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId);
+    const yes = [...snakeVotes.values()].filter(v => v === 'yes').length;
+    const no  = [...snakeVotes.values()].filter(v => v === 'no').length;
+    socket.emit('snake-vote-update', { yes, no, myVote: id ? (snakeVotes.get(id) || null) : null });
+  });
+
+  socket.on('submit-snake-vote', ({ playerId, vote } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    if (vote !== 'yes' && vote !== 'no') return;
+    snakeVotes.set(id, vote);
+    if (db) db.collection('snake_votes').updateOne({ _id: id }, { $set: { vote } }, { upsert: true }).catch(() => {});
+    const yes = [...snakeVotes.values()].filter(v => v === 'yes').length;
+    const no  = [...snakeVotes.values()].filter(v => v === 'no').length;
+    io.emit('snake-vote-update', { yes, no, myVote: null });
+    socket.emit('snake-vote-update', { yes, no, myVote: vote });
   });
 
   socket.on('buy-bundle', ({ playerId, bundleId } = {}) => {

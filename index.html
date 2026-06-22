@@ -470,6 +470,39 @@
   <!-- ── Bouton commentaire (flottant) ── -->
   <button id="btn-comment" class="btn-comment-float" title="Laisser un commentaire">✉️</button>
 
+  <!-- ── Modal : Vote Snake Challenge ── -->
+  <div id="overlay-snake-vote" class="overlay hidden">
+    <div class="snake-vote-modal">
+      <button id="btn-snake-vote-close" class="snake-vote-close">✕</button>
+      <div class="snake-vote-icon">🐍</div>
+      <h2 id="snake-vote-title" class="snake-vote-title">Snake Challenge</h2>
+      <p id="snake-vote-subtitle" class="snake-vote-subtitle">Veux-tu voir le Snake Challenge revenir ?</p>
+
+      <div class="snake-vote-btns" id="snake-vote-btns">
+        <button id="btn-vote-yes" class="snake-vote-btn snake-vote-yes">
+          <span class="vote-btn-emoji">✅</span>
+          <span id="vote-yes-label">Oui, ramène-le !</span>
+        </button>
+        <button id="btn-vote-no" class="snake-vote-btn snake-vote-no">
+          <span class="vote-btn-emoji">❌</span>
+          <span id="vote-no-label">Non, pas maintenant</span>
+        </button>
+      </div>
+
+      <div class="snake-vote-results" id="snake-vote-results">
+        <div class="snake-vote-bar-row">
+          <span id="snake-vote-pct-yes" class="vote-pct-yes">0%</span>
+          <div class="snake-vote-bar">
+            <div id="snake-vote-bar-yes" class="snake-vote-bar-fill"></div>
+          </div>
+          <span id="snake-vote-pct-no" class="vote-pct-no">0%</span>
+        </div>
+        <p id="snake-vote-total-label" class="snake-vote-total-label">0 vote</p>
+        <p id="snake-vote-status" class="snake-vote-status hidden"></p>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Modal : Boutique Libs ── -->
   <div id="overlay-shop" class="overlay hidden">
     <div class="shop-fortnite">
