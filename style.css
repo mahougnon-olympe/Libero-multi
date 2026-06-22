@@ -1882,17 +1882,11 @@ html.light .shop-title-tag { background: rgba(99,102,241,.15); border-color: rgb
 /* Cosmetic preview (standalone, used in tiles & detail) */
 .shop-cosmetic-preview { font-size: 1rem; font-weight: 800; letter-spacing: .5px; }
 @media (max-width: 580px) {
-  .shop-fn-body { flex-direction: column; overflow-y: auto; }
-  .shop-fn-nav {
-    flex-direction: row; align-items: center;
-    width: auto; min-width: auto; height: auto;
-    overflow-x: auto; overflow-y: hidden;
-    border-right: none; border-bottom: 1px solid rgba(255,255,255,.06);
-    padding: 8px 8px;
-    flex-shrink: 0;
-  }
-  .shop-fn-nav-btn { flex-shrink: 0; width: auto; font-size: .78rem; padding: 8px 12px; border-radius: 20px; }
-  .shop-fn-content { flex: unset; overflow-y: visible; padding: 14px 12px 30px; gap: 24px; }
+  .shop-fn-nav { width: 46px; min-width: 46px; padding: 8px 4px; }
+  .shop-fn-nav-btn { justify-content: center; padding: 9px 4px; }
+  .shop-nav-label { display: none; }
+  .shop-nav-icon { font-size: 1.15rem; line-height: 1; }
+  .shop-fn-content { padding: 14px 10px 40px; gap: 24px; }
 }
 @media (max-width: 480px) {
   .shop-fn-header { padding: 10px 14px; }

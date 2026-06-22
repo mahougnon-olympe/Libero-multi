@@ -488,7 +488,7 @@ const DICT = {
         { icon:'✉️', title:'Laisser un commentaire', desc:"Clique sur le bouton <strong>✉️</strong> en bas à gauche pour envoyer un message au créateur : avis, idée, bug… Aucune connexion requise. Tu peux laisser un pseudo ou rester anonyme." },
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
         { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
-        { icon:'🗂️', title:'Navigation boutique', desc:"En haut de la boutique, une <strong>barre de catégories</strong> te permet de sauter directement à la section souhaitée : ⭐ À la une, 📅 Quotidien, 🎁 Bundles, 💡 Boosts, 🎨 Couleurs, ✍️ Polices, 💬 Bulles, 🖼️ Fonds. Sur mobile, elle défile horizontalement. Le bouton de la section visible s'allume automatiquement." },
+        { icon:'🗂️', title:'Navigation boutique', desc:"À gauche de la boutique, une <strong>barre de catégories</strong> te permet de sauter directement à la section souhaitée : ⭐ À la une, 📅 Quotidien, 🎁 Bundles, 💡 Boosts, 🎨 Couleurs, ✍️ Polices, 💬 Bulles, 🖼️ Fonds. Sur mobile, seuls les icônes sont affichés. Le bouton de la section visible s'allume automatiquement." },
         { icon:'🎁', title:'Bundles', desc:"La section <strong>Bundles</strong> propose des lots thématiques regroupant plusieurs cosmétiques à prix réduit (−24 % à −28 %). Si tu possèdes déjà certains articles d'un bundle, le prix est <strong>ajusté automatiquement</strong> — tu ne paies que pour ce qu'il te manque. La sélection <strong>⭐ À la une</strong> et <strong>📅 Quotidien</strong> se renouvelle toutes les 24 h — un compte à rebours indique l'heure du prochain renouvellement." },
         { icon:'✨', title:'Effets de pseudo', desc:"Anime l'affichage de ton pseudo dans les classements, le chat, les badges et le podium. Les effets sont <strong>cumulables avec ta couleur de pseudo</strong> : la couleur reste la teinte, l'effet ajoute l'animation par-dessus. Exemples : Clignotement Néon, Glitch, Vague Arc-en-ciel. Rareté : Épique à Légendaire." },
         { icon:'🏷️', title:'Titres', desc:"Ajoute un court texte de statut affiché à côté de ton pseudo dans les classements, badges et chips de salle d'attente. Exemples : Tacticien, Quiz Master, Roi du Snake, Légende Vivante. Rareté : Commun à Épique. Les titres achetés se combinent avec les <strong>titres honorifiques</strong> (voir ci-dessous)." },
@@ -795,7 +795,7 @@ const DICT = {
         { icon:'✉️', title:'Leave a comment', desc:"Click the <strong>✉️</strong> button in the bottom left to send a message to the creator: feedback, idea, bug… No account required. You can leave a username or stay anonymous." },
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
         { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
-        { icon:'🗂️', title:'Shop navigation', desc:"At the top of the shop, a <strong>category bar</strong> lets you jump directly to any section: ⭐ Featured, 📅 Daily, 🎁 Bundles, 💡 Boosts, 🎨 Colors, ✍️ Fonts, 💬 Bubbles, 🖼️ Backgrounds. On mobile it scrolls horizontally. The button for the currently visible section lights up automatically." },
+        { icon:'🗂️', title:'Shop navigation', desc:"On the left side of the shop, a <strong>category bar</strong> lets you jump directly to any section: ⭐ Featured, 📅 Daily, 🎁 Bundles, 💡 Boosts, 🎨 Colors, ✍️ Fonts, 💬 Bubbles, 🖼️ Backgrounds. On mobile only icons are shown. The button for the currently visible section lights up automatically." },
         { icon:'🎁', title:'Bundles', desc:"The <strong>Bundles</strong> section offers themed packs grouping several cosmetics at a reduced price (−24% to −28%). If you already own some items in a bundle, the price is <strong>automatically adjusted</strong> — you only pay for what you're missing. The <strong>⭐ Featured</strong> and <strong>📅 Daily</strong> picks refresh every 24 hours — a countdown shows the next refresh time." },
         { icon:'✨', title:'Name Effects', desc:"Animate your username display in leaderboards, chat, badges and the podium. Effects <strong>stack with your username color</strong>: the color sets the hue, the effect adds the animation on top. Examples: Neon Blink, Glitch, Rainbow Wave. Rarity: Epic to Legendary." },
         { icon:'🏷️', title:'Titles', desc:"Add a short status text displayed next to your username in leaderboards, player badges and room chips. Examples: Tactician, Quiz Master, Snake King, Living Legend. Rarity: Common to Epic. Shop titles stack with <strong>honorary titles</strong> (see below)." },
@@ -3335,26 +3335,26 @@ function _renderShopItems() {
 
   container.innerHTML = `
     <nav class="shop-fn-nav" id="shop-fn-nav">
-      <button class="shop-fn-nav-btn active" data-section="featured">⭐ ${nav.featured}</button>
-      <button class="shop-fn-nav-btn" data-section="daily">📅 ${nav.daily}</button>
-      <button class="shop-fn-nav-btn" data-section="bundles">🎁 ${nav.bundles}</button>
-      <button class="shop-fn-nav-btn" data-section="boosts">💡 ${nav.boosts}</button>
-      <button class="shop-fn-nav-btn" data-section="colors">🎨 ${nav.colors}</button>
-      <button class="shop-fn-nav-btn" data-section="fonts">✍️ ${nav.fonts}</button>
-      <button class="shop-fn-nav-btn" data-section="bubbles">💬 ${nav.bubbles}</button>
-      <button class="shop-fn-nav-btn" data-section="bgs">🖼️ ${nav.bgs}</button>
-      <button class="shop-fn-nav-btn" data-section="nameeffects">✨ ${nav.nameeffects}</button>
-      <button class="shop-fn-nav-btn" data-section="titles">🏷️ ${nav.titles}</button>
-      <button class="shop-fn-nav-btn" data-section="cursorsnakes">🖱️ ${nav.cursorsnakes}</button>
-      <button class="shop-fn-nav-btn" data-section="avatars">🎭 ${nav.avatars}</button>
-      <button class="shop-fn-nav-btn" data-section="p4tokens">🔴 ${nav.p4tokens}</button>
-      <button class="shop-fn-nav-btn" data-section="ttt">✖️ ${nav.ttt}</button>
-      <button class="shop-fn-nav-btn" data-section="chess">♟️ ${nav.chess}</button>
-      <button class="shop-fn-nav-btn" data-section="clickfx">💥 ${nav.clickfx}</button>
-      <button class="shop-fn-nav-btn" data-section="emojipacks">🌈 ${nav.emojipacks}</button>
-      <button class="shop-fn-nav-btn" data-section="victorybans">🏆 ${nav.victorybans}</button>
-      <button class="shop-fn-nav-btn" data-section="soundpacks">🔊 ${nav.soundpacks}</button>
-      <button class="shop-fn-nav-btn" data-section="emotes">😎 ${nav.emotes}</button>
+      <button class="shop-fn-nav-btn active" data-section="featured"><span class="shop-nav-icon">⭐</span><span class="shop-nav-label"> ${nav.featured}</span></button>
+      <button class="shop-fn-nav-btn" data-section="daily"><span class="shop-nav-icon">📅</span><span class="shop-nav-label"> ${nav.daily}</span></button>
+      <button class="shop-fn-nav-btn" data-section="bundles"><span class="shop-nav-icon">🎁</span><span class="shop-nav-label"> ${nav.bundles}</span></button>
+      <button class="shop-fn-nav-btn" data-section="boosts"><span class="shop-nav-icon">💡</span><span class="shop-nav-label"> ${nav.boosts}</span></button>
+      <button class="shop-fn-nav-btn" data-section="colors"><span class="shop-nav-icon">🎨</span><span class="shop-nav-label"> ${nav.colors}</span></button>
+      <button class="shop-fn-nav-btn" data-section="fonts"><span class="shop-nav-icon">✍️</span><span class="shop-nav-label"> ${nav.fonts}</span></button>
+      <button class="shop-fn-nav-btn" data-section="bubbles"><span class="shop-nav-icon">💬</span><span class="shop-nav-label"> ${nav.bubbles}</span></button>
+      <button class="shop-fn-nav-btn" data-section="bgs"><span class="shop-nav-icon">🖼️</span><span class="shop-nav-label"> ${nav.bgs}</span></button>
+      <button class="shop-fn-nav-btn" data-section="nameeffects"><span class="shop-nav-icon">✨</span><span class="shop-nav-label"> ${nav.nameeffects}</span></button>
+      <button class="shop-fn-nav-btn" data-section="titles"><span class="shop-nav-icon">🏷️</span><span class="shop-nav-label"> ${nav.titles}</span></button>
+      <button class="shop-fn-nav-btn" data-section="cursorsnakes"><span class="shop-nav-icon">🖱️</span><span class="shop-nav-label"> ${nav.cursorsnakes}</span></button>
+      <button class="shop-fn-nav-btn" data-section="avatars"><span class="shop-nav-icon">🎭</span><span class="shop-nav-label"> ${nav.avatars}</span></button>
+      <button class="shop-fn-nav-btn" data-section="p4tokens"><span class="shop-nav-icon">🔴</span><span class="shop-nav-label"> ${nav.p4tokens}</span></button>
+      <button class="shop-fn-nav-btn" data-section="ttt"><span class="shop-nav-icon">✖️</span><span class="shop-nav-label"> ${nav.ttt}</span></button>
+      <button class="shop-fn-nav-btn" data-section="chess"><span class="shop-nav-icon">♟️</span><span class="shop-nav-label"> ${nav.chess}</span></button>
+      <button class="shop-fn-nav-btn" data-section="clickfx"><span class="shop-nav-icon">💥</span><span class="shop-nav-label"> ${nav.clickfx}</span></button>
+      <button class="shop-fn-nav-btn" data-section="emojipacks"><span class="shop-nav-icon">🌈</span><span class="shop-nav-label"> ${nav.emojipacks}</span></button>
+      <button class="shop-fn-nav-btn" data-section="victorybans"><span class="shop-nav-icon">🏆</span><span class="shop-nav-label"> ${nav.victorybans}</span></button>
+      <button class="shop-fn-nav-btn" data-section="soundpacks"><span class="shop-nav-icon">🔊</span><span class="shop-nav-label"> ${nav.soundpacks}</span></button>
+      <button class="shop-fn-nav-btn" data-section="emotes"><span class="shop-nav-icon">😎</span><span class="shop-nav-label"> ${nav.emotes}</span></button>
     </nav>
     <div class="shop-fn-content">
 
