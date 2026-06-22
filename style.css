@@ -1874,7 +1874,7 @@ html.light .shop-fn-promo-input::placeholder { color: var(--muted); }
   scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
   position: sticky; top: 0; z-index: 10;
   background: linear-gradient(180deg, rgba(11,14,35,.98) 85%, transparent);
-  padding: 10px 4px 12px; margin: -4px -4px 6px;
+  padding: 18px 8px 20px; margin: -4px -4px 6px;
   scrollbar-width: none;
 }
 .shop-fn-nav::-webkit-scrollbar { display: none; }
