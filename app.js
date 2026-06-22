@@ -57,6 +57,24 @@ const SFX = (() => {
     if (!sfxEnabled) return;
     try { fn(ac(), sfxVolume); } catch(_) {}
   }
+  // Returns wave type based on equipped sound pack
+  function wt(def) {
+    const p = equippedSoundPack;
+    if (p === 'soundpack-retro')   return 'square';
+    if (p === 'soundpack-cyber')   return 'sawtooth';
+    if (p === 'soundpack-crystal') return 'triangle';
+    if (p === 'soundpack-8bit')    return 'square';
+    if (p === 'soundpack-epic')    return 'sine';
+    return def;
+  }
+  // Returns frequency scale factor based on pack
+  function fs() {
+    const p = equippedSoundPack;
+    if (p === 'soundpack-crystal') return 1.5;
+    if (p === 'soundpack-8bit')    return 0.5;
+    if (p === 'soundpack-epic')    return 0.8;
+    return 1;
+  }
   function tone(ctx, vol, type, freq, t, dur, attack = 0.005) {
     const g = ctx.createGain();
     g.connect(ctx.destination);
@@ -68,33 +86,33 @@ const SFX = (() => {
     o.connect(g); o.start(t); o.stop(t + dur + 0.05);
   }
   return {
-    placePiece() { play((c,v) => { const t=c.currentTime; tone(c,v*.3,'sine',800,t,.08); }); },
-    win()  { play((c,v) => { const t=c.currentTime; [523,659,784,1047].forEach((f,i)=>tone(c,v*.4,'sine',f,t+i*.1,.18)); }); },
-    lose() { play((c,v) => { const t=c.currentTime; [392,330,294,220].forEach((f,i)=>tone(c,v*.35,'sine',f,t+i*.13,.22)); }); },
-    draw() { play((c,v) => { const t=c.currentTime; tone(c,v*.3,'sine',440,t,.12); tone(c,v*.3,'sine',440,t+.18,.12); }); },
-    quizOk()  { play((c,v) => { const t=c.currentTime; tone(c,v*.4,'sine',880,t,.25); tone(c,v*.2,'sine',1320,t+.05,.2); }); },
+    placePiece() { play((c,v) => { const t=c.currentTime; tone(c,v*.3,wt('sine'),800*fs(),t,.08); }); },
+    win()  { play((c,v) => { const t=c.currentTime; [523,659,784,1047].map(f=>f*fs()).forEach((f,i)=>tone(c,v*.4,wt('sine'),f,t+i*.1,.18)); }); },
+    lose() { play((c,v) => { const t=c.currentTime; [392,330,294,220].map(f=>f*fs()).forEach((f,i)=>tone(c,v*.35,wt('sine'),f,t+i*.13,.22)); }); },
+    draw() { play((c,v) => { const t=c.currentTime; const f=440*fs(); tone(c,v*.3,wt('sine'),f,t,.12); tone(c,v*.3,wt('sine'),f,t+.18,.12); }); },
+    quizOk()  { play((c,v) => { const t=c.currentTime; tone(c,v*.4,wt('sine'),880*fs(),t,.25); tone(c,v*.2,wt('sine'),1320*fs(),t+.05,.2); }); },
     quizBad() { play((c,v) => {
       const t=c.currentTime, g=c.createGain(), o=c.createOscillator();
-      o.type='sawtooth'; o.frequency.setValueAtTime(200,t); o.frequency.exponentialRampToValueAtTime(100,t+.3);
+      o.type=wt('sawtooth'); o.frequency.setValueAtTime(200*fs(),t); o.frequency.exponentialRampToValueAtTime(100*fs(),t+.3);
       g.gain.setValueAtTime(v*.25,t); g.gain.exponentialRampToValueAtTime(0.001,t+.3);
       g.connect(c.destination); o.connect(g); o.start(t); o.stop(t+.35);
     }); },
-    chat()     { play((c,v) => { const t=c.currentTime; tone(c,v*.2,'sine',660,t,.07,.003); }); },
-    shopBuy()  { play((c,v) => { const t=c.currentTime; tone(c,v*.35,'triangle',740,t,.1); tone(c,v*.35,'triangle',988,t+.1,.15); }); },
+    chat()     { play((c,v) => { const t=c.currentTime; tone(c,v*.2,wt('sine'),660*fs(),t,.07,.003); }); },
+    shopBuy()  { play((c,v) => { const t=c.currentTime; tone(c,v*.35,wt('triangle'),740*fs(),t,.1); tone(c,v*.35,wt('triangle'),988*fs(),t+.1,.15); }); },
     openPanel(){ play((c,v) => {
       const t=c.currentTime, g=c.createGain(), o=c.createOscillator();
-      o.type='sine'; o.frequency.setValueAtTime(300,t); o.frequency.exponentialRampToValueAtTime(600,t+.12);
+      o.type=wt('sine'); o.frequency.setValueAtTime(300*fs(),t); o.frequency.exponentialRampToValueAtTime(600*fs(),t+.12);
       g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v*.15,t+.03); g.gain.exponentialRampToValueAtTime(0.001,t+.15);
       g.connect(c.destination); o.connect(g); o.start(t); o.stop(t+.2);
     }); },
     snakeEat() { play((c,v) => {
       const t=c.currentTime, g=c.createGain(), o=c.createOscillator();
-      o.type='sine'; o.frequency.setValueAtTime(220,t); o.frequency.exponentialRampToValueAtTime(660,t+.08);
+      o.type=wt('sine'); o.frequency.setValueAtTime(220*fs(),t); o.frequency.exponentialRampToValueAtTime(660*fs(),t+.08);
       g.gain.setValueAtTime(v*.3,t); g.gain.exponentialRampToValueAtTime(0.001,t+.1);
       g.connect(c.destination); o.connect(g); o.start(t); o.stop(t+.12);
     }); },
-    snakeOver(){ play((c,v) => { const t=c.currentTime; [440,370,311,233].forEach((f,i)=>tone(c,v*.35,'sawtooth',f,t+i*.15,.22)); }); },
-    btnClick() { play((c,v) => { const t=c.currentTime; tone(c,v*.1,'sine',520,t,.04,.002); }); },
+    snakeOver(){ play((c,v) => { const t=c.currentTime; [440,370,311,233].map(f=>f*fs()).forEach((f,i)=>tone(c,v*.35,wt('sawtooth'),f,t+i*.15,.22)); }); },
+    btnClick() { play((c,v) => { const t=c.currentTime; tone(c,v*.1,wt('sine'),520*fs(),t,.04,.002); }); },
   };
 })();
 
@@ -1338,11 +1356,17 @@ $('btn-copy').addEventListener('click', () => {
 });
 
 // ── Header joueurs ────────────────────────────────────────────────────────────
+const AVATAR_ICONS = {
+  'avatar-gamepad':'🎮','avatar-crown':'👑','avatar-lightning':'⚡','avatar-skull':'💀',
+  'avatar-rocket':'🚀','avatar-robot':'🤖','avatar-cat':'🐱',
+};
+
 function setPlayerBadges(gameType, yourPlayer) {
   const icons = PLAYER_ICONS[gameType];
   const names = t().playerNames[gameType];
-  $('badge-r-icon').textContent = icons.R;
-  $('badge-y-icon').textContent = icons.Y;
+  const myIcon = (equippedAvatar && AVATAR_ICONS[equippedAvatar]) || null;
+  $('badge-r-icon').textContent = (yourPlayer === 'R' && myIcon) ? myIcon : icons.R;
+  $('badge-y-icon').textContent = (yourPlayer === 'Y' && myIcon) ? myIcon : icons.Y;
   $('label-r').textContent = names.R;
   $('label-y').textContent = names.Y;
   $('badge-r').classList.toggle('you', yourPlayer === 'R');
@@ -1389,20 +1413,28 @@ function goToHome() {
 }
 
 // ── Fin de partie ─────────────────────────────────────────────────────────────
+const VICTORY_BANNER_CLASSES = ['victoryban-neon','victoryban-confetti','victoryban-flames','victoryban-lightning','victoryban-crown'];
+
 function showGameOver(status, winner) {
   gameActive = false;
   if (currentGame === 'connect4') setArrowsEnabled(false);
   if (currentGame === 'tictactoe') setTTTEnabled(false);
 
   const isWinner = winner === myPlayer;
+  const gs = $('game-status');
+  gs.classList.remove(...VICTORY_BANNER_CLASSES);
+
   if (status === 'won') {
     $('status-text').textContent = isWinner ? t().youWon : t().youLost;
-    if (isWinner) SFX.win(); else SFX.lose();
+    if (isWinner) {
+      SFX.win();
+      if (equippedVictoryBan) gs.classList.add(equippedVictoryBan);
+    } else SFX.lose();
   } else {
     $('status-text').textContent = t().gameDraw;
     SFX.draw();
   }
-  $('game-status').classList.remove('hidden');
+  gs.classList.remove('hidden');
   $('btn-restart').classList.remove('hidden');
   $('btn-restart').disabled = false;
   $('restart-pending').classList.add('hidden');
@@ -1494,6 +1526,12 @@ function buildConnect4(container, board) {
 }
 
 function updateConnect4(board) {
+  const skinClass = equippedP4Token || '';
+  const boardEl = document.getElementById('c4-board');
+  if (boardEl) {
+    boardEl.className = boardEl.className.replace(/\bp4skin-\S+/g, '').trim();
+    if (skinClass) boardEl.classList.add(`p4skin-${skinClass}`);
+  }
   for (let row = 0; row < 6; row++) {
     for (let col = 0; col < 7; col++) {
       const cell = document.querySelector(`.c4-cell[data-row="${row}"][data-col="${col}"]`);
@@ -1558,12 +1596,24 @@ function buildTTT(container, board) {
   updateTTT(board, null);
 }
 
+const TTT_SYMBOL_PACKS = {
+  'ttt-sunmoon':  ['☀️','🌙'], 'ttt-heartstar': ['❤️','⭐'],
+  'ttt-skulllightning': ['💀','⚡'], 'ttt-catdog': ['🐱','🐶'], 'ttt-neonxo': ['✕','○'],
+};
+
+function _getTttSymbols() {
+  const pack = equippedTtt && TTT_SYMBOL_PACKS[equippedTtt];
+  if (!pack) return { R: '✕', Y: '○' };
+  return myPlayer === 'R' ? { R: pack[0], Y: pack[1] } : { R: pack[1], Y: pack[0] };
+}
+
 function updateTTT(board, winLine) {
+  const sym = _getTttSymbols();
   document.querySelectorAll('.ttt-cell').forEach((cell, i) => {
     cell.classList.remove('ttt-r', 'ttt-y', 'played', 'win-cell');
     const val = board[i];
-    if (val === 'R') { cell.textContent = '✕'; cell.classList.add('ttt-r', 'played'); }
-    else if (val === 'Y') { cell.textContent = '○'; cell.classList.add('ttt-y', 'played'); }
+    if (val === 'R') { cell.textContent = sym.R; cell.classList.add('ttt-r', 'played'); }
+    else if (val === 'Y') { cell.textContent = sym.Y; cell.classList.add('ttt-y', 'played'); }
     else { cell.textContent = ''; }
     if (winLine?.includes(i)) cell.classList.add('win-cell');
   });
@@ -1582,6 +1632,13 @@ const CHESS_UNICODE = {
   K:'♔', Q:'♕', R:'♖', B:'♗', N:'♘', P:'♙',
   k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟',
 };
+
+function _applyChessTheme(theme) {
+  const board = document.getElementById('chess-board');
+  if (!board) return;
+  board.className = board.className.replace(/\bchess-theme-\S+/g, '').trim();
+  if (theme) board.classList.add(`chess-theme-${theme.replace('chess-','')}`);
+}
 
 function parseFenBoard(fen) {
   const board = {};
@@ -1677,6 +1734,7 @@ function buildChess(container, state, yourPlayer) {
 
   container.appendChild(wrapper);
   updateChess(state.fen, state.isCheck, state.currentPlayer);
+  _applyChessTheme(equippedChess);
 }
 
 function updateChess(fen, isCheck, currentPlayer) {
@@ -1810,6 +1868,62 @@ $('btn-restart').addEventListener('click', () => {
 // ── Chat ──────────────────────────────────────────────────────────────────────
 $('btn-clear-chat').addEventListener('click', () => { $('chat-messages').innerHTML = ''; });
 
+const EMOTE_DEFS = {
+  'emote-gg':   { emoji:'👍', label:'GG' },
+  'emote-ez':   { emoji:'😎', label:'Trop facile' },
+  'emote-fire': { emoji:'🔥', label:'En feu' },
+  'emote-wow':  { emoji:'😱', label:'Incroyable' },
+  'emote-gg2':  { emoji:'🤝', label:'Bien joué' },
+};
+
+function _renderEmoteBar() {
+  const chatEl = $('chat');
+  if (!chatEl) return;
+  let bar = document.getElementById('emote-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'emote-bar';
+    bar.className = 'emote-bar hidden';
+    const form = chatEl.querySelector('#chat-form');
+    if (form) chatEl.insertBefore(bar, form);
+  }
+  const ownedEmotes = (ownedCosmetics || []).filter(id => id.startsWith('emote-'));
+  if (ownedEmotes.length === 0) { bar.classList.add('hidden'); return; }
+  bar.innerHTML = ownedEmotes.map(id => {
+    const def = EMOTE_DEFS[id];
+    if (!def) return '';
+    return `<button class="emote-btn" data-emote="${id}" title="${def.label}">${def.emoji}</button>`;
+  }).join('');
+  bar.classList.remove('hidden');
+  bar.querySelectorAll('.emote-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!currentRoomCode) return;
+      socket.emit('send-emote', { emoteId: btn.dataset.emote });
+    });
+  });
+}
+
+socket.on('emote-received', ({ player, emoteId, timestamp }) => {
+  const def = EMOTE_DEFS[emoteId];
+  if (!def) return;
+  const mine = player === myPlayer;
+  const time = new Date(timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  const msg = document.createElement('div');
+  msg.className = `msg ${mine ? 'msg-mine' : 'msg-theirs'}`;
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble msg-emote';
+  bubble.textContent = `${def.emoji} ${def.label}`;
+  const meta = document.createElement('span');
+  meta.className = 'msg-meta';
+  meta.textContent = time;
+  msg.appendChild(bubble);
+  msg.appendChild(meta);
+  const el = $('chat-messages');
+  el.appendChild(msg);
+  el.scrollTop = el.scrollHeight;
+  SFX.chat();
+});
+
 $('chat-form').addEventListener('submit', e => {
   e.preventDefault();
   const input = $('chat-input');
@@ -1871,7 +1985,7 @@ function _paintGlobalLb() {
   const rows = visible.map((entry, i) => `
     <div class="global-lb-row">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)}">${entry.name}</span>
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}</span>${_titleHtml(entry.title)}
       <span class="global-lb-score">${entry.globalScore} ${t().globalLbPts}</span>
     </div>
   `).join('');
@@ -1895,7 +2009,7 @@ function renderLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)}">${entry.name}</span>
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}</span>${_titleHtml(entry.title)}
       <div class="lb-stats">
         <span class="lb-w">${entry.wins}${t().lbW}</span>
         <span class="lb-l">${entry.losses}${t().lbL}</span>
@@ -1916,7 +2030,7 @@ function renderSnakeLeaderboard(data) {
   el.innerHTML = data.map((e, i) => `
     <div class="lb-row">
       <span class="lb-rank">${medals[i] || i + 1}</span>
-      <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)}">${e.name}</span>
+      <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}</span>${_titleHtml(e.title)}
       <span class="lb-score-snake">${e.hs} 🍎</span>
     </div>
   `).join('');
@@ -2259,7 +2373,7 @@ function renderTriviaLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row">
       <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${medals[i] || i+1}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)}">${entry.name}</span>
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}</span>${_titleHtml(entry.title)}
       <div class="lb-stats">
         <span class="lb-w">${entry.points} ${t().triviaLbPts}</span>
         <span class="lb-d">${entry.games} ${t().triviaLbGames}</span>
@@ -2592,17 +2706,18 @@ socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosme
     if (newBg !== undefined) { equippedBackground = newBg; localStorage.setItem('libero_equipped_bg', newBg || ''); BGManager.start(newBg); }
     if (newNameEffect  !== undefined) equippedNameEffect  = newNameEffect;
     if (newTitle       !== undefined) equippedTitle       = newTitle;
-    if (newCursorSnake !== undefined) equippedCursorSnake = newCursorSnake;
+    if (newCursorSnake !== undefined) { equippedCursorSnake = newCursorSnake; cursorSnake.refreshSkin(); }
     if (newAvatar      !== undefined) equippedAvatar      = newAvatar;
     if (newP4Token     !== undefined) equippedP4Token     = newP4Token;
     if (newTtt         !== undefined) equippedTtt         = newTtt;
-    if (newChess       !== undefined) equippedChess       = newChess;
+    if (newChess       !== undefined) { equippedChess = newChess; _applyChessTheme(newChess); }
     if (newSnakeSkin   !== undefined) equippedSnakeSkin   = newSnakeSkin;
     if (newClickFx     !== undefined) equippedClickFx     = newClickFx;
-    if (newEmojiPack   !== undefined) equippedEmojiPack   = newEmojiPack;
+    if (newEmojiPack   !== undefined) { equippedEmojiPack = newEmojiPack; localStorage.setItem('libero_equipped_emojipack', newEmojiPack || ''); }
     if (newVictoryBan  !== undefined) equippedVictoryBan  = newVictoryBan;
     if (newSoundPack   !== undefined) equippedSoundPack   = newSoundPack;
-    if (newEmote       !== undefined) equippedEmote       = newEmote;
+    if (newEmote       !== undefined) { equippedEmote = newEmote; _renderEmoteBar(); }
+    _renderEmoteBar();
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   }
   if (newRefundCards !== undefined) { refundCards = newRefundCards; }
@@ -2644,6 +2759,7 @@ socket.on('buy-cosmetic-result', ({ ok, cosmeticId, error } = {}) => {
     if (!ownedCosmetics.includes(cosmeticId)) ownedCosmetics.push(cosmeticId);
     SFX.shopBuy();
     _showShopFeedback(t().shopCosmeticBought, '#22c55e');
+    if (cosmeticId?.startsWith('emote-')) _renderEmoteBar();
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   } else {
     const msg = error === 'already_owned'  ? t().shopCosmeticAlreadyOwned
@@ -2662,17 +2778,17 @@ socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippe
     if (newBg !== undefined) { equippedBackground = newBg; localStorage.setItem('libero_equipped_bg', newBg || ''); BGManager.start(newBg); }
     if (newNameEffect  !== undefined) equippedNameEffect  = newNameEffect;
     if (newTitle       !== undefined) equippedTitle       = newTitle;
-    if (newCursorSnake !== undefined) equippedCursorSnake = newCursorSnake;
+    if (newCursorSnake !== undefined) { equippedCursorSnake = newCursorSnake; cursorSnake.refreshSkin(); }
     if (newAvatar      !== undefined) equippedAvatar      = newAvatar;
     if (newP4Token     !== undefined) equippedP4Token     = newP4Token;
     if (newTtt         !== undefined) equippedTtt         = newTtt;
-    if (newChess       !== undefined) equippedChess       = newChess;
+    if (newChess       !== undefined) { equippedChess = newChess; _applyChessTheme(newChess); }
     if (newSnakeSkin   !== undefined) equippedSnakeSkin   = newSnakeSkin;
     if (newClickFx     !== undefined) equippedClickFx     = newClickFx;
-    if (newEmojiPack   !== undefined) equippedEmojiPack   = newEmojiPack;
+    if (newEmojiPack   !== undefined) { equippedEmojiPack = newEmojiPack; localStorage.setItem('libero_equipped_emojipack', newEmojiPack || ''); }
     if (newVictoryBan  !== undefined) equippedVictoryBan  = newVictoryBan;
     if (newSoundPack   !== undefined) equippedSoundPack   = newSoundPack;
-    if (newEmote       !== undefined) equippedEmote       = newEmote;
+    if (newEmote       !== undefined) { equippedEmote = newEmote; _renderEmoteBar(); }
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   }
 });
@@ -3797,6 +3913,21 @@ function _fontClass(font) {
   return font && valid.includes(font) ? font : '';
 }
 
+function _nameEffectClass(nameEffect) {
+  const valid = ['nameeffect-blink','nameeffect-pulse','nameeffect-gradient',
+    'nameeffect-sparks','nameeffect-glitch','nameeffect-rainbow'];
+  return nameEffect && valid.includes(nameEffect) ? nameEffect : '';
+}
+
+const TITLE_TEXTS = {
+  'title-strategist':'Le Stratège','title-quizmaster':'Quiz Master','title-snakeking':'Roi du Snake',
+  'title-champion':'Champion','title-legend':'Légende Vivante','title-tactician':'Tacticien','title-undefeated':'Invaincu',
+};
+function _titleHtml(title) {
+  if (!title || !TITLE_TEXTS[title]) return '';
+  return `<span class="player-title-tag">${TITLE_TEXTS[title]}</span>`;
+}
+
 // ── Libs : boost indice quiz ──────────────────────────────────────────────────
 function _updateBoostHintBtn() {
   const btn = $('btn-boost-hint');
@@ -3830,7 +3961,69 @@ $('btn-boost-hint').addEventListener('click', () => {
 });
 
 // ── Particules ─────────────────────────────────────────────────────────────────
+const CLICK_FX_CONFIGS = {
+  'clickfx-bubbles': {
+    count:14, shapes: () => {
+      const p = document.createElement('div');
+      const sz = 6 + Math.random() * 8;
+      const col = `hsl(${180+Math.random()*60|0},80%,${60+Math.random()*20|0}%)`;
+      p.style.cssText = `border-radius:50%;width:${sz}px;height:${sz}px;border:2px solid ${col};background:transparent;`;
+      return { el:p, dist:24+Math.random()*50, dur:500+Math.random()*400 };
+    },
+  },
+  'clickfx-confetti': {
+    count:20, shapes: () => {
+      const p = document.createElement('div');
+      const sz = 4+Math.random()*5; const h = 2+Math.random()*4;
+      const col = `hsl(${Math.random()*360|0},90%,60%)`;
+      p.style.cssText = `width:${sz}px;height:${h}px;background:${col};border-radius:1px;transform-origin:center;`;
+      return { el:p, dist:30+Math.random()*70, dur:400+Math.random()*500 };
+    },
+  },
+  'clickfx-neon': {
+    count:18, shapes: () => {
+      const p = document.createElement('div');
+      const sz = 2+Math.random()*4;
+      const col = ['#00ffff','#ff00ff','#ffff00','#00ff88'][Math.floor(Math.random()*4)];
+      p.style.cssText = `border-radius:50%;width:${sz}px;height:${sz}px;background:${col};box-shadow:0 0 6px 2px ${col};`;
+      return { el:p, dist:40+Math.random()*80, dur:350+Math.random()*350 };
+    },
+  },
+  'clickfx-stars': {
+    count:12, shapes: () => {
+      const p = document.createElement('span');
+      p.textContent = ['⭐','✨','🌟'][Math.floor(Math.random()*3)];
+      p.style.cssText = `font-size:${10+Math.random()*10}px;line-height:1;`;
+      return { el:p, dist:40+Math.random()*70, dur:500+Math.random()*400 };
+    },
+  },
+  'clickfx-firework': {
+    count:24, shapes: () => {
+      const p = document.createElement('div');
+      const sz = 3+Math.random()*4;
+      const col = `hsl(${Math.random()*360|0},100%,${55+Math.random()*20|0}%)`;
+      p.style.cssText = `border-radius:50%;width:${sz}px;height:${sz}px;background:${col};box-shadow:0 0 4px 1px ${col};`;
+      return { el:p, dist:50+Math.random()*100, dur:450+Math.random()*550 };
+    },
+  },
+};
+
 function spawnParticles(x, y) {
+  const cfg = CLICK_FX_CONFIGS[equippedClickFx];
+  if (cfg) {
+    for (let i = 0; i < cfg.count; i++) {
+      const { el, dist, dur } = cfg.shapes();
+      el.style.cssText += `position:fixed;left:${x}px;top:${y}px;pointer-events:none;z-index:9999;`;
+      document.body.appendChild(el);
+      const angle = (i / cfg.count) * Math.PI * 2 + Math.random() * 0.5;
+      const tx = Math.cos(angle) * dist, ty = Math.sin(angle) * dist;
+      el.animate([
+        { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+        { transform: `translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px)) scale(0)`, opacity: 0 },
+      ], { duration: dur, easing: 'cubic-bezier(0,.9,.57,1)', fill: 'forwards' }).onfinish = () => el.remove();
+    }
+    return;
+  }
   const palette = ['#6366f1','#818cf8','#a5b4fc','#c7d2fe','#60a5fa','#e879f9','#38bdf8'];
   const count = 16;
   for (let i = 0; i < count; i++) {
@@ -3921,22 +4114,41 @@ const cursorSnake = (() => {
   }
   curHue = hueFor(pendingRank);
 
+  const CURSOR_SNAKE_SKINS = {
+    'cursorsnake-neon':     (p) => ({ bg:`hsl(180,100%,${(60-p*20).toFixed(0)}%)`,    shadow:'0 0 10px 4px #00ffff' }),
+    'cursorsnake-fire':     (p) => ({ bg:`hsl(${(30-p*20).toFixed(0)},100%,${(55-p*15).toFixed(0)}%)`, shadow:'0 0 10px 4px #ff4400' }),
+    'cursorsnake-comet':    (p) => ({ bg:`hsl(240,${(90-p*30).toFixed(0)}%,${(75-p*25).toFixed(0)}%)`, shadow: p===0?'0 0 12px 5px #8080ff':'' }),
+    'cursorsnake-electric': (p) => ({ bg:`hsl(${(60+p*60).toFixed(0)},100%,${(65-p*20).toFixed(0)}%)`, shadow:'0 0 8px 3px #ffff00' }),
+    'cursorsnake-stars':    (p) => ({ bg:`hsl(${(200+p*120).toFixed(0)},80%,${(80-p*30).toFixed(0)}%)`, shadow: p===0?'0 0 12px 5px #ffffffaa':'' }),
+    'cursorsnake-pixel':    (p) => ({ bg:`hsl(${(120+p*80).toFixed(0)},70%,${(50-p*15).toFixed(0)}%)`, shadow:'', radius:'2px' }),
+  };
+
   function build(len, h) {
     segs.forEach(s => s.el.remove());
     segs = [];
     curHue = h;
     if (!enabled) return;
+    const skin = CURSOR_SNAKE_SKINS[equippedCursorSnake];
     for (let i = 0; i < len; i++) {
       const p  = len > 1 ? i / (len - 1) : 0;
       const sz = HEAD_SZ - p * (HEAD_SZ - TAIL_SZ);
       const el = document.createElement('div');
+      let bg, shadow, radius;
+      if (skin) {
+        const s = skin(p);
+        bg = s.bg; shadow = s.shadow || ''; radius = s.radius || '50%';
+      } else {
+        bg = `hsl(${h},${(80 - p * 20).toFixed(0)}%,${(58 - p * 22).toFixed(0)}%)`;
+        shadow = i === 0 ? `0 0 8px 3px hsl(${h},80%,65%)` : '';
+        radius = '50%';
+      }
       el.style.cssText =
-        `position:fixed;border-radius:50%;pointer-events:none;user-select:none;` +
+        `position:fixed;border-radius:${radius};pointer-events:none;user-select:none;` +
         `z-index:${999 - i};transform:translate(-50%,-50%);` +
         `width:${sz.toFixed(1)}px;height:${sz.toFixed(1)}px;` +
-        `background:hsl(${h},${(80 - p * 20).toFixed(0)}%,${(58 - p * 22).toFixed(0)}%);` +
+        `background:${bg};` +
         `opacity:${(1 - p * 0.82).toFixed(2)};` +
-        (i === 0 ? `box-shadow:0 0 8px 3px hsl(${h},80%,65%);` : '');
+        (shadow ? `box-shadow:${shadow};` : '');
       document.body.appendChild(el);
       segs.push({ el, x: mx, y: my });
     }
@@ -4032,6 +4244,11 @@ const cursorSnake = (() => {
       }
     },
     getHue() { return curHue; },
+    refreshSkin() {
+      if (!enabled || _hidden) return;
+      const n = Math.min(MAX, Math.max(MIN, pendingLen + _eventBonus));
+      build(n, hueFor(pendingRank));
+    },
   };
 })();
 
@@ -4134,14 +4351,26 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     draw();
   }
 
+  const SNAKE_SKINS = {
+    'snakeskin-rainbow': { bg:(t,p)=>`hsla(${(t*120+p*180)%360},90%,${60-p*20}%,${1-p*0.6})`, food:'💎', boardBg:'#0a0a20', glow:(t)=>`hsl(${t*120%360},80%,60%)` },
+    'snakeskin-lava':    { bg:(_t,p)=>`hsla(${20-p*15},100%,${55-p*20}%,${1-p*0.55})`,          food:'🔥', boardBg:'#1a0a00', glow:()=>'#ff4400' },
+    'snakeskin-cyber':   { bg:(_t,p)=>`hsla(180,100%,${55-p*25}%,${1-p*0.6})`,                  food:'⬡',  boardBg:'#001a1a', glow:()=>'#00ffff', square:true },
+    'snakeskin-galaxy':  { bg:(_t,p)=>`hsla(${260+p*40},80%,${55-p*20}%,${1-p*0.55})`,          food:'⭐', boardBg:'#05001a', glow:()=>'#9966ff' },
+    'snakeskin-gems':    { bg:(_t,p)=>`hsla(${140+p*80},70%,${58-p*18}%,${1-p*0.5})`,           food:'💎', boardBg:'#001a0a', glow:()=>'#00ff88' },
+  };
+  let _skinTick = 0;
+
   function draw() {
     if (!ctx) return;
     const hue = cursorSnake.getHue();
-    ctx.fillStyle = '#0f0f1a';
+    const skin = SNAKE_SKINS[equippedSnakeSkin];
+    _skinTick = (_skinTick + 1) % 360;
+
+    ctx.fillStyle = skin ? skin.boardBg : '#0f0f1a';
     ctx.fillRect(0, 0, COLS * CELL, ROWS * CELL);
 
     // Grille subtile
-    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.strokeStyle = skin ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.04)';
     ctx.lineWidth   = 0.5;
     for (let i = 0; i <= COLS; i++) {
       ctx.beginPath(); ctx.moveTo(i * CELL, 0); ctx.lineTo(i * CELL, ROWS * CELL); ctx.stroke();
@@ -4150,23 +4379,27 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
       ctx.beginPath(); ctx.moveTo(0, j * CELL); ctx.lineTo(COLS * CELL, j * CELL); ctx.stroke();
     }
 
-    // Pomme
+    // Pomme / food
+    const foodEmoji = skin ? skin.food : '🍎';
     ctx.font = `${CELL}px serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('🍎', (food.x + 0.5) * CELL, (food.y + 0.5) * CELL);
+    ctx.fillText(foodEmoji, (food.x + 0.5) * CELL, (food.y + 0.5) * CELL);
 
     // Serpent
     snake.forEach((seg, i) => {
       const p  = snake.length > 1 ? i / (snake.length - 1) : 0;
-      const l  = Math.round(58 - p * 22);
-      const s  = Math.round(80 - p * 20);
-      const a  = (1 - p * 0.6).toFixed(2);
-      ctx.fillStyle = `hsla(${hue},${s}%,${l}%,${a})`;
-      const r = CELL * (i === 0 ? 0.42 : 0.35);
+      const r = CELL * (i === 0 ? 0.42 : (skin?.square ? 0.1 : 0.35));
       const x = seg.x * CELL + CELL * 0.1;
       const y = seg.y * CELL + CELL * 0.1;
       const w = CELL * 0.8, h = CELL * 0.8;
-      if (i === 0) { ctx.shadowColor = `hsl(${hue},80%,65%)`; ctx.shadowBlur = 7; }
+      if (skin) {
+        ctx.fillStyle = skin.bg(_skinTick, p);
+        if (i === 0) { ctx.shadowColor = skin.glow(_skinTick); ctx.shadowBlur = 10; }
+      } else {
+        const l = Math.round(58 - p * 22), s = Math.round(80 - p * 20), a = (1 - p * 0.6).toFixed(2);
+        ctx.fillStyle = `hsla(${hue},${s}%,${l}%,${a})`;
+        if (i === 0) { ctx.shadowColor = `hsl(${hue},80%,65%)`; ctx.shadowBlur = 7; }
+      }
       ctx.beginPath();
       ctx.roundRect(x, y, w, h, r);
       ctx.fill();
@@ -4431,7 +4664,15 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
 (() => {
   const _sc = sessionStorage.getItem('libero_screen');
   if (_sc && _sc !== 'landing') return;
-  const EMOJIS = ['🔴','🟡','♟','♔','♚','♛','♜','♝','♞','❌','⭕','🧠','❓','💡','🎮','🎯','🏆','🎲'];
+  const EMOJI_PACK_SETS = {
+    'emojipack-animals': ['🐶','🐱','🐻','🦊','🐼','🐨','🐯','🦁','🐮','🐸','🐧','🦋','🦄','🐙','🦀'],
+    'emojipack-hearts':  ['💜','💙','💚','💛','🧡','❤️','🩷','🤍','🩵','💗','💖','💝','💘','💞','💓'],
+    'emojipack-party':   ['🎉','🎊','🎈','🎆','🎇','🥳','🎂','🎁','🪅','🎀','🥂','✨','🎠','🎪','🎭'],
+    'emojipack-gaming':  ['🎮','🕹️','👾','🎯','🏆','🎲','🃏','🎰','👑','⚔️','🛡️','🗡️','🧩','🕳️','💣'],
+    'emojipack-cosmos':  ['🌌','🪐','✨','⭐','🌟','💫','☄️','🌙','🌠','🔭','🛸','🚀','🌍','🌌','💥'],
+  };
+  const _equippedPack = localStorage.getItem('libero_equipped_emojipack') || '';
+  const EMOJIS = EMOJI_PACK_SETS[_equippedPack] || ['🔴','🟡','♟','♔','♚','♛','♜','♝','♞','❌','⭕','🧠','❓','💡','🎮','🎯','🏆','🎲'];
   const wrap = document.createElement('div');
   wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9998;';
   document.body.appendChild(wrap);

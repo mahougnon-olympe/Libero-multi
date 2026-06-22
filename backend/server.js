@@ -142,6 +142,20 @@ function getFontByName(name) {
   return null;
 }
 
+function getNameEffectByName(name) {
+  for (const [, e] of libs.entries()) {
+    if (e.name === name && e.equippedNameEffect) return e.equippedNameEffect;
+  }
+  return null;
+}
+
+function getTitleByName(name) {
+  for (const [, e] of libs.entries()) {
+    if (e.name === name && e.equippedTitle) return e.equippedTitle;
+  }
+  return null;
+}
+
 function dbSaveNextDistributionAt() {
   if (!db) return;
   db.collection('server_config')
@@ -530,7 +544,7 @@ function getLeaderboardData() {
   return [...byName.values()]
     .sort((a, b) => b.wins - a.wins || (b.wins - b.losses) - (a.wins - a.losses) || a.name.localeCompare(b.name))
     .slice(0, 10)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name) }));
 }
 
 // ── Trivia leaderboard helpers ─────────────────────────────────────────────
@@ -557,7 +571,7 @@ function getTriviaLeaderboardData() {
   return [...byName.values()]
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))
     .slice(0, 10)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name) }));
 }
 
 function updateSnakeLeaderboard(id, name, hs) {
@@ -583,7 +597,7 @@ function getSnakeLeaderboardData() {
   return [...byName.values()]
     .sort((a, b) => b.hs - a.hs || a.name.localeCompare(b.name))
     .slice(0, 10)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name) }));
 }
 
 function getGlobalLeaderboardData() {
@@ -606,7 +620,7 @@ function getGlobalLeaderboardData() {
     .filter(e => e.globalScore > 0)
     .sort((a, b) => b.globalScore - a.globalScore || a.name.localeCompare(b.name))
     .slice(0, 50)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name) }));
 }
 
 // ── Trivia room helpers ────────────────────────────────────────────────────
@@ -1230,6 +1244,17 @@ io.on('connection', (socket) => {
     const pid = socketPlayerIds.get(socket.id);
     const bubbleColor = (pid && libs.get(pid)?.equippedBubble) || null;
     io.to(roomCode).emit('new-message', { player: myPlayer, text: clean, timestamp: Date.now(), bubbleColor });
+  });
+
+  socket.on('send-emote', ({ emoteId } = {}) => {
+    const room = rooms.get(roomCode);
+    if (!room || !room.players.Y) return;
+    const pid = socketPlayerIds.get(socket.id);
+    const entry = pid ? libs.get(pid) : null;
+    const VALID_EMOTES = ['emote-gg','emote-ez','emote-fire','emote-wow','emote-gg2'];
+    if (!VALID_EMOTES.includes(emoteId)) return;
+    if (!entry || !entry.ownedCosmetics?.includes(emoteId)) return;
+    io.to(roomCode).emit('emote-received', { player: myPlayer, emoteId, timestamp: Date.now() });
   });
 
   // ── Libs ─────────────────────────────────────────────────────────────────────
