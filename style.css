@@ -1870,20 +1870,20 @@ html.light .shop-fn-promo-input::placeholder { color: var(--muted); }
 
 /* ── Shop: Category nav bar ──────────────────────────────────────────────── */
 .shop-fn-nav {
-  display: flex; gap: 6px; overflow-x: auto; padding: 0 0 10px;
+  display: flex; gap: 8px; overflow-x: auto;
   scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
   position: sticky; top: 0; z-index: 10;
-  background: linear-gradient(180deg, rgba(11,14,35,.98) 80%, transparent);
-  padding-top: 6px; margin: -4px -4px 4px;
+  background: linear-gradient(180deg, rgba(11,14,35,.98) 85%, transparent);
+  padding: 10px 4px 12px; margin: -4px -4px 6px;
   scrollbar-width: none;
 }
 .shop-fn-nav::-webkit-scrollbar { display: none; }
 .shop-fn-nav-btn {
   flex-shrink: 0; scroll-snap-align: start;
-  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
-  color: rgba(255,255,255,.55); font-size: .72rem; font-weight: 700;
-  padding: 5px 11px; border-radius: 20px; cursor: pointer; transition: all .18s;
-  white-space: nowrap;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15);
+  color: rgba(255,255,255,.7); font-size: .82rem; font-weight: 700;
+  padding: 8px 15px; border-radius: 20px; cursor: pointer; transition: all .18s;
+  white-space: nowrap; line-height: 1;
 }
 .shop-fn-nav-btn:hover  { background: rgba(255,255,255,.13); color: #fff; }
 .shop-fn-nav-btn.active { background: rgba(124,92,255,.35); border-color: rgba(124,92,255,.6); color: #fff; }
