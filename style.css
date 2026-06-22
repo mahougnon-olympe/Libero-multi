@@ -1881,8 +1881,8 @@ html.light .shop-fn-promo-input::placeholder { color: var(--muted); }
 .shop-fn-nav-btn {
   flex-shrink: 0; scroll-snap-align: start;
   background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15);
-  color: rgba(255,255,255,.7); font-size: .82rem; font-weight: 700;
-  padding: 8px 15px; border-radius: 20px; cursor: pointer; transition: all .18s;
+  color: rgba(255,255,255,.7); font-size: 1rem; font-weight: 700;
+  padding: 11px 28px; border-radius: 24px; cursor: pointer; transition: all .18s;
   white-space: nowrap; line-height: 1;
 }
 .shop-fn-nav-btn:hover  { background: rgba(255,255,255,.13); color: #fff; }
