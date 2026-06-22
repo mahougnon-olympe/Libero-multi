@@ -18,6 +18,8 @@ let equippedFont       = null;
 let equippedBubble     = null;
 let equippedBackground = localStorage.getItem('libero_equipped_bg') || null;
 let _shopDetailItem         = null;
+let shopRotation            = null;
+let _shopCountdownTimer     = null;
 let refundCards             = 2;
 let refundCardsNextRefill   = null;
 let _libsAnimTimer     = null;
@@ -309,6 +311,24 @@ const DICT = {
     shopBubbleNames:{ 'bubble-ardoise':'Ardoise', 'bubble-ocean':'Océan', 'bubble-menthe':'Menthe', 'bubble-corail':'Corail', 'bubble-ambre':'Ambre', 'bubble-lavande':'Lavande', 'bubble-rubis':'Rubis', 'bubble-emeraude':'Émeraude', 'bubble-indigo':'Indigo', 'bubble-magenta':'Magenta néon', 'bubble-cyan':'Cyan néon', 'bubble-crepuscule':'Crépuscule', 'bubble-aurore':'Aurore', 'bubble-sunset':'Coucher de soleil', 'bubble-tropical':'Tropical', 'bubble-arcade':'Néon arcade', 'bubble-galaxie':'Galaxie', 'bubble-verre':'Verre néon', 'bubble-or':'Or liquide', 'bubble-holographique':'Holographique', 'bubble-cameleon':'Caméléon' },
     shopBgTitle:'🖼 Fonds d\'écran',
     shopBgNames:{'bg-nuit':'Nuit Calme','bg-ardoise':'Ardoise Profonde','bg-brume':'Brume Violette','bg-aurore-deg':'Dégradé Aurore','bg-crepuscule':'Crépuscule Néon','bg-cyber':'Grille Cyber','bg-circuit':'Circuit','bg-hexagones':'Hexagones','bg-etoile':'Ciel Étoilé','bg-particules':'Particules Flottantes','bg-pluie':'Pluie Néon','bg-vagues':'Vagues Lumineuses','bg-synthwave':'Synthwave','bg-nebuleuse':'Nébuleuse','bg-aurores':'Aurores Mouvantes','bg-galaxie':'Galaxie Vivante','bg-tempete':'Tempête Néon','bg-hologramme':'Hologramme'},
+    shopFeaturedTitle:'⭐ À la une',
+    shopDailyTitle:'📅 Quotidien',
+    shopBundlesTitle:'🎁 Bundles',
+    shopRotationLabel:'Renouvellement dans',
+    shopCountdown: ms => { const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000),s=Math.floor((ms%60000)/1000); return h>0?`${h}h ${String(m).padStart(2,'0')}m`:`${m}m ${String(s).padStart(2,'0')}s`; },
+    shopBundleSave: pct => `−${pct}%`,
+    shopBundleItems: n => `${n} article${n>1?'s':''}`,
+    shopBundleContains:'🎁 Contenu :',
+    shopBundleAlreadyOwned:'Tu possèdes déjà tous les articles de ce bundle.',
+    shopBundlePartialOwned: n => `Tu possèdes déjà ${n} article${n>1?'s':''} — prix ajusté.`,
+    shopBundleBuy: p => `Acheter le bundle — ${p} ⚡`,
+    shopBundleBuyOk:'🎁 Bundle acheté !',
+    shopBundleAnon:'Les joueurs anonymes ne peuvent pas acheter de bundles.',
+    shopBundleInsufficientFunds:'Champion, tu n\'as pas assez de Libs.',
+    shopBundleError:'Erreur lors de l\'achat.',
+    shopBundleNames:{ 'bundle-debutant':'Pack Débutant','bundle-retro':'Pack Rétro','bundle-neon-arcade':'Pack Néon Arcade','bundle-galaxie':'Pack Galaxie','bundle-prestige-or':'Pack Prestige Or','bundle-hologramme':'Pack Hologramme Ultime' },
+    shopNavLabels:{ featured:'À la une', daily:'Quotidien', bundles:'Bundles', boosts:'Boosts', colors:'Couleurs', fonts:'Polices', bubbles:'Bulles', bgs:'Fonds' },
+    shopDailyBadge:'Quotidien',
     settingsTitle:'⚙️ Paramètres',
     settingsLang:'Langue', settingsTheme:'Thème', settingsSnake:'Serpent',
     settingsSnakeOn:'Activé', settingsSnakeOff:'Désactivé',
@@ -396,6 +416,7 @@ const DICT = {
         { icon:'✉️', title:'Laisser un commentaire', desc:"Clique sur le bouton <strong>✉️</strong> en bas à gauche pour envoyer un message au créateur : avis, idée, bug… Aucune connexion requise. Tu peux laisser un pseudo ou rester anonyme." },
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
         { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
+        { icon:'🎁', title:'Bundles', desc:"La section <strong>Bundles</strong> de la boutique propose des lots thématiques regroupant plusieurs cosmétiques à prix réduit (−24 % à −28 %). Si tu possèdes déjà certains articles d'un bundle, le prix est <strong>ajusté automatiquement</strong> — tu ne paies que pour ce qu'il te manque. La boutique renouvelle aussi sa sélection <strong>À la une</strong> et <strong>Quotidien</strong> toutes les 24 h. Navigue entre les sections avec la barre en haut de la boutique." },
         { icon:'🎓', title:'Tutoriel', desc:"À ta première visite, un guide apparaît automatiquement pour te présenter chaque fonctionnalité écran par écran. Une fois une étape vue, elle ne s'affiche plus. Pour tout revoir depuis le début, vide le cache de ton navigateur (localStorage)." },
       ],
       quiz:[
@@ -542,6 +563,24 @@ const DICT = {
     shopBubbleNames:{ 'bubble-ardoise':'Slate', 'bubble-ocean':'Ocean', 'bubble-menthe':'Mint', 'bubble-corail':'Coral', 'bubble-ambre':'Amber', 'bubble-lavande':'Lavender', 'bubble-rubis':'Ruby', 'bubble-emeraude':'Emerald', 'bubble-indigo':'Indigo', 'bubble-magenta':'Neon magenta', 'bubble-cyan':'Neon cyan', 'bubble-crepuscule':'Dusk', 'bubble-aurore':'Aurora', 'bubble-sunset':'Sunset', 'bubble-tropical':'Tropical', 'bubble-arcade':'Arcade neon', 'bubble-galaxie':'Galaxy', 'bubble-verre':'Neon glass', 'bubble-or':'Liquid gold', 'bubble-holographique':'Holographic', 'bubble-cameleon':'Chameleon' },
     shopBgTitle:'🖼 Wallpapers',
     shopBgNames:{'bg-nuit':'Calm Night','bg-ardoise':'Deep Slate','bg-brume':'Violet Mist','bg-aurore-deg':'Aurora Gradient','bg-crepuscule':'Neon Dusk','bg-cyber':'Cyber Grid','bg-circuit':'Circuit','bg-hexagones':'Hexagons','bg-etoile':'Starry Sky','bg-particules':'Floating Particles','bg-pluie':'Neon Rain','bg-vagues':'Light Waves','bg-synthwave':'Synthwave','bg-nebuleuse':'Nebula','bg-aurores':'Moving Auroras','bg-galaxie':'Living Galaxy','bg-tempete':'Neon Storm','bg-hologramme':'Hologram'},
+    shopFeaturedTitle:'⭐ Featured',
+    shopDailyTitle:'📅 Daily',
+    shopBundlesTitle:'🎁 Bundles',
+    shopRotationLabel:'Refreshes in',
+    shopCountdown: ms => { const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000),s=Math.floor((ms%60000)/1000); return h>0?`${h}h ${String(m).padStart(2,'0')}m`:`${m}m ${String(s).padStart(2,'0')}s`; },
+    shopBundleSave: pct => `−${pct}%`,
+    shopBundleItems: n => `${n} item${n>1?'s':''}`,
+    shopBundleContains:'🎁 Contents:',
+    shopBundleAlreadyOwned:'You already own all items in this bundle.',
+    shopBundlePartialOwned: n => `You already own ${n} item${n>1?'s':''} — price adjusted.`,
+    shopBundleBuy: p => `Buy bundle — ${p} ⚡`,
+    shopBundleBuyOk:'🎁 Bundle purchased!',
+    shopBundleAnon:'Anonymous players cannot buy bundles.',
+    shopBundleInsufficientFunds:'Champion, you don\'t have enough Libs.',
+    shopBundleError:'Purchase failed.',
+    shopBundleNames:{ 'bundle-debutant':'Starter Pack','bundle-retro':'Retro Pack','bundle-neon-arcade':'Neon Arcade Pack','bundle-galaxie':'Galaxy Pack','bundle-prestige-or':'Gold Prestige Pack','bundle-hologramme':'Ultimate Hologram Pack' },
+    shopNavLabels:{ featured:'Featured', daily:'Daily', bundles:'Bundles', boosts:'Boosts', colors:'Colors', fonts:'Fonts', bubbles:'Bubbles', bgs:'Backgrounds' },
+    shopDailyBadge:'Daily',
     settingsTitle:'⚙️ Settings',
     settingsLang:'Language', settingsTheme:'Theme', settingsSnake:'Snake',
     settingsSnakeOn:'Enabled', settingsSnakeOff:'Disabled',
@@ -629,6 +668,7 @@ const DICT = {
         { icon:'✉️', title:'Leave a comment', desc:"Click the <strong>✉️</strong> button in the bottom left to send a message to the creator: feedback, idea, bug… No account required. You can leave a username or stay anonymous." },
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
         { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
+        { icon:'🎁', title:'Bundles', desc:"The <strong>Bundles</strong> section of the shop offers themed packs grouping several cosmetics at a reduced price (−24% to −28%). If you already own some items in a bundle, the price is <strong>automatically adjusted</strong> — you only pay for what you're missing. The shop also refreshes its <strong>Featured</strong> and <strong>Daily</strong> picks every 24 hours. Navigate between sections using the bar at the top of the shop." },
         { icon:'🎓', title:'Tutorial', desc:"On your first visit, a guide appears automatically to walk you through each feature screen by screen. Once a step has been seen, it won't show again. To restart from the beginning, clear your browser cache (localStorage)." },
       ],
       quiz:[
@@ -754,7 +794,7 @@ function applyLang() {
   document.documentElement.lang = currentLang;
   document.title = d.siteTitle;
   const bl = $('btn-lang');
-  if (bl) bl.textContent = currentLang === 'fr' ? '🇫🇷 FR' : '🇬🇧 EN';
+  if (bl) bl.textContent = currentLang === 'fr' ? '🇫🇷 FR ⇄' : '🇬🇧 EN ⇄';
   const btm = $('btn-theme-toggle'); if (btm) btm.title = d.themeToggle;
   const ll = $('landing-logo'); if (ll) ll.src = currentLang === 'en' ? 'logo-full-en.svg' : 'logo-full.svg';
 
@@ -2518,6 +2558,26 @@ socket.on('refund-cosmetic-result', ({ ok, refundCards: newCards, delta, error }
   }
 });
 
+socket.on('shop-rotation', data => {
+  shopRotation = data;
+  if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+  _startShopCountdown(data.resetAt);
+});
+
+socket.on('buy-bundle-result', ({ ok, error } = {}) => {
+  const d = t();
+  if (ok) {
+    SFX.shopBuy();
+    _showShopFeedback(d.shopBundleBuyOk, '#22c55e');
+  } else {
+    const msg = error === 'insufficient' ? d.shopBundleInsufficientFunds
+              : error === 'all_owned'    ? d.shopBundleAlreadyOwned
+              : error === 'anonymous'    ? d.shopBundleAnon
+              : d.shopBundleError;
+    _showShopFeedback(msg, '#ef4444');
+  }
+});
+
 socket.on('quiz-boost-status', ({ balance, pendingBoostHint } = {}) => {
   if (pendingBoostHint !== undefined) pendingHintCharges = pendingBoostHint;
   if (balance !== undefined) {
@@ -2639,6 +2699,7 @@ function openShop() {
   const shopBal = $('shop-balance-display');
   if (shopBal) shopBal.textContent = `⚡ ${libsBalance} Libs`;
   _shopDetailItem = null;
+  socket.emit('get-shop-rotation', {});
   _renderShopItems();
   socket.emit('get-libs', { playerId: getPlayerId() });
   $('overlay-shop').classList.remove('hidden');
@@ -2663,6 +2724,40 @@ const _FONT_DISPLAY_NAMES = {
 
 const _FEATURED_IDS = ['bg-hologramme', 'bubble-cameleon'];
 
+const ALL_BUNDLES = [
+  { id:'bundle-debutant',    items:['silver','bubble-ardoise','bg-nuit','boost_hint_10'], totalPrice:38,  bundlePrice:25  },
+  { id:'bundle-retro',       items:['font-vt323','font-pressstart','bg-cyber','bubble-ocean'], totalPrice:100, bundlePrice:75 },
+  { id:'bundle-neon-arcade', items:['bubble-arcade','bg-pluie','font-audiowide'],           totalPrice:360, bundlePrice:270 },
+  { id:'bundle-galaxie',     items:['bubble-galaxie','bg-galaxie','galaxy'],                totalPrice:480, bundlePrice:360 },
+  { id:'bundle-prestige-or', items:['bubble-or','gold','font-cinzel'],                      totalPrice:450, bundlePrice:340 },
+  { id:'bundle-hologramme',  items:['bubble-holographique','bg-hologramme','font-tektur'],  totalPrice:690, bundlePrice:500 },
+];
+
+function _bundleRarity(bundle, allItemsById) {
+  const order = ['commun','rare','epique','legendaire'];
+  let max = 0;
+  bundle.items.forEach(id => {
+    const item = allItemsById[id];
+    if (!item) return;
+    const r = order.indexOf(_getRarity(item.price));
+    if (r > max) max = r;
+  });
+  return order[max];
+}
+
+function _startShopCountdown(resetAt) {
+  if (_shopCountdownTimer) clearInterval(_shopCountdownTimer);
+  function tick() {
+    const el = document.getElementById('shop-countdown-val');
+    if (!el) { clearInterval(_shopCountdownTimer); _shopCountdownTimer = null; return; }
+    const ms = resetAt - Date.now();
+    if (ms <= 0) { el.textContent = ''; return; }
+    el.textContent = t().shopCountdown(ms);
+  }
+  tick();
+  _shopCountdownTimer = setInterval(tick, 1000);
+}
+
 function _renderShopItems() {
   const d = t();
   const fr = currentLang === 'fr';
@@ -2678,7 +2773,6 @@ function _renderShopItems() {
   };
   const lblOwned    = fr ? 'Possédé' : 'Owned';
   const lblEquipped = fr ? 'Équipé'  : 'Equipped';
-  const lblFeatured = fr ? 'À la une' : 'Featured';
   const lblFree     = fr ? 'Gratuit'  : 'Free';
 
   const ALL_COLORS  = [
@@ -2718,24 +2812,25 @@ function _renderShopItems() {
 
   const allItemsById = {};
   [...colorItems, ...fontItems, ...bubbleItems, ...bgItems].forEach(it => { allItemsById[it.id] = it; });
-  const featuredItems = _FEATURED_IDS.map(id => allItemsById[id]).filter(Boolean);
+  allItemsById['boost_hint_10'] = { id:'boost_hint_10', type:'boost', price:3, name:d.shopBoostHintName };
+  allItemsById['boost_hint_20'] = { id:'boost_hint_20', type:'boost', price:5, name:d.shopBoostHintName };
 
-  function tileHtml(item, large = false) {
+  const rotFeatured = shopRotation?.featured?.length ? shopRotation.featured : _FEATURED_IDS;
+  const rotDaily    = shopRotation?.daily || [];
+  const featuredItems = rotFeatured.map(id => allItemsById[id]).filter(Boolean);
+  const dailyItems    = rotDaily.map(id => allItemsById[id]).filter(Boolean);
+
+  function tileHtml(item, large = false, extraBadge = '') {
     const { id, type, price, name } = item;
     const rarity  = _getRarity(price);
     const owned   = ownedCosmetics.includes(id);
     const isEquipped = [equippedCosmetic, equippedFont, equippedBubble, equippedBackground].includes(id);
     const safeName = (name || id).replace(/"/g, '&quot;');
     let previewHtml = '';
-    if (type === 'background') {
-      previewHtml = `<div class="shop-bg-preview ${id}"></div>`;
-    } else if (type === 'bubble') {
-      previewHtml = `<div class="shop-bubble-preview ${id}">Salut ! 👋</div>`;
-    } else if (type === 'font') {
-      previewHtml = `<span class="shop-fn-font-preview ${_cosmeticClass(equippedCosmetic)} ${id}">${playerPreview}</span>`;
-    } else if (type === 'color') {
-      previewHtml = `<span class="shop-cosmetic-preview name-${id} ${_fontClass(equippedFont)}">${playerPreview}</span>`;
-    }
+    if (type === 'background')     previewHtml = `<div class="shop-bg-preview ${id}"></div>`;
+    else if (type === 'bubble')    previewHtml = `<div class="shop-bubble-preview ${id}">Salut ! 👋</div>`;
+    else if (type === 'font')      previewHtml = `<span class="shop-fn-font-preview ${_cosmeticClass(equippedCosmetic)} ${id}">${playerPreview}</span>`;
+    else if (type === 'color')     previewHtml = `<span class="shop-cosmetic-preview name-${id} ${_fontClass(equippedFont)}">${playerPreview}</span>`;
     return `<div class="shop-tile${large ? ' shop-tile-large' : ''} rarity-${rarity}"
       data-id="${id}" data-type="${type}" data-price="${price}" data-name="${safeName}">
       <div class="shop-tile-img">${previewHtml}</div>
@@ -2744,43 +2839,111 @@ function _renderShopItems() {
         <span class="shop-tile-price">${price === 0 ? lblFree : price + ' ⚡'}</span>
       </div>
       <div class="shop-tile-badge rarity-${rarity}">${rarityLabel[rarity]}</div>
+      ${extraBadge ? `<div class="shop-tile-daily-badge">${extraBadge}</div>` : ''}
       ${owned ? `<div class="shop-tile-owned">${isEquipped ? lblEquipped : lblOwned}</div>` : ''}
     </div>`;
   }
 
+  function bundleTileHtml(bundle) {
+    const name    = d.shopBundleNames[bundle.id] || bundle.id;
+    const rarity  = _bundleRarity(bundle, allItemsById);
+    const savings = Math.round((1 - bundle.bundlePrice / bundle.totalPrice) * 100);
+    const cosmeticIds = bundle.items.filter(id => allItemsById[id]?.type !== 'boost');
+    const allOwned = cosmeticIds.every(id => ownedCosmetics.includes(id));
+    const previewId = bundle.items.find(id => allItemsById[id]?.type === 'background')
+                   || bundle.items.find(id => allItemsById[id]?.type === 'bubble')
+                   || bundle.items[0];
+    const previewItem = allItemsById[previewId];
+    let previewHtml = '';
+    if (previewItem?.type === 'background')
+      previewHtml = `<div class="shop-bg-preview ${previewId}"></div>`;
+    else if (previewItem?.type === 'bubble')
+      previewHtml = `<div class="shop-bubble-preview ${previewId}" style="font-size:.9rem;padding:6px 12px">Salut ! 👋</div>`;
+    return `<div class="shop-tile shop-tile-large rarity-${rarity}"
+      data-id="${bundle.id}" data-type="bundle">
+      <div class="shop-tile-img">${previewHtml}</div>
+      <div class="shop-tile-footer">
+        <span class="shop-tile-name">${name}</span>
+        <div class="shop-bundle-prices">
+          <span class="shop-price-crossed">${bundle.totalPrice} ⚡</span>
+          <span class="shop-tile-price">${bundle.bundlePrice} ⚡</span>
+        </div>
+      </div>
+      <div class="shop-tile-badge rarity-${rarity}">${rarityLabel[rarity]}</div>
+      <div class="shop-tile-saving">${d.shopBundleSave(savings)}</div>
+      ${allOwned ? `<div class="shop-tile-owned">${lblOwned}</div>` : ''}
+    </div>`;
+  }
+
+  const nav = d.shopNavLabels;
+  const countdownVal = shopRotation ? d.shopCountdown(Math.max(0, shopRotation.resetAt - Date.now())) : '';
+
   container.innerHTML = `
-    <section class="shop-fn-section">
-      <h3 class="shop-fn-section-title">${lblFeatured}</h3>
+    <nav class="shop-fn-nav" id="shop-fn-nav">
+      <button class="shop-fn-nav-btn active" data-section="featured">⭐ ${nav.featured}</button>
+      <button class="shop-fn-nav-btn" data-section="daily">📅 ${nav.daily}</button>
+      <button class="shop-fn-nav-btn" data-section="bundles">🎁 ${nav.bundles}</button>
+      <button class="shop-fn-nav-btn" data-section="boosts">💡 ${nav.boosts}</button>
+      <button class="shop-fn-nav-btn" data-section="colors">🎨 ${nav.colors}</button>
+      <button class="shop-fn-nav-btn" data-section="fonts">✍️ ${nav.fonts}</button>
+      <button class="shop-fn-nav-btn" data-section="bubbles">💬 ${nav.bubbles}</button>
+      <button class="shop-fn-nav-btn" data-section="bgs">🖼️ ${nav.bgs}</button>
+    </nav>
+
+    <section class="shop-fn-section" id="shop-sec-featured" data-section-id="featured">
+      <h3 class="shop-fn-section-title">${d.shopFeaturedTitle}</h3>
       <div class="shop-fn-featured">
         ${featuredItems.map(it => tileHtml(it, true)).join('')}
       </div>
     </section>
-    <section class="shop-fn-section">
+
+    <section class="shop-fn-section" id="shop-sec-daily" data-section-id="daily">
+      <h3 class="shop-fn-section-title">
+        ${d.shopDailyTitle}
+        ${shopRotation ? `<span class="shop-fn-countdown">${d.shopRotationLabel} <span id="shop-countdown-val">${countdownVal}</span></span>` : ''}
+      </h3>
+      <div class="shop-fn-grid">
+        ${dailyItems.map(it => tileHtml(it, false, d.shopDailyBadge)).join('')}
+      </div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-bundles" data-section-id="bundles">
+      <h3 class="shop-fn-section-title">${d.shopBundlesTitle}</h3>
+      <div class="shop-fn-featured shop-fn-bundles-grid">
+        ${ALL_BUNDLES.map(b => bundleTileHtml(b)).join('')}
+      </div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-bgs" data-section-id="bgs">
       <h3 class="shop-fn-section-title">${d.shopBgTitle}</h3>
       <div class="shop-fn-grid">
         ${bgItems.map(it => tileHtml(it)).join('')}
       </div>
     </section>
-    <section class="shop-fn-section">
+
+    <section class="shop-fn-section" id="shop-sec-bubbles" data-section-id="bubbles">
       <h3 class="shop-fn-section-title">${d.shopBubbleTitle}</h3>
       <div class="shop-fn-grid">
         ${bubbleItems.map(it => tileHtml(it)).join('')}
       </div>
     </section>
-    <section class="shop-fn-section">
+
+    <section class="shop-fn-section" id="shop-sec-fonts" data-section-id="fonts">
       <h3 class="shop-fn-section-title">${d.shopFontsTitle}</h3>
       <div class="shop-fn-grid">
         ${fontItems.map(it => tileHtml(it)).join('')}
       </div>
     </section>
-    <section class="shop-fn-section">
+
+    <section class="shop-fn-section" id="shop-sec-colors" data-section-id="colors">
       <h3 class="shop-fn-section-title">${d.shopCosmeticsTitle}</h3>
       <div class="shop-fn-grid">
         ${colorItems.map(it => tileHtml(it)).join('')}
       </div>
     </section>
-    <section class="shop-fn-section">
-      <h3 class="shop-fn-section-title">${fr ? 'Boosts' : 'Boosts'}</h3>
+
+    <section class="shop-fn-section" id="shop-sec-boosts" data-section-id="boosts">
+      <h3 class="shop-fn-section-title">Boosts</h3>
       <div class="shop-fn-boost">
         <div class="shop-fn-boost-header">
           <span class="shop-fn-boost-name">${d.shopBoostHintName}</span>
@@ -2793,7 +2956,8 @@ function _renderShopItems() {
         </div>
       </div>
     </section>
-    <section class="shop-fn-section">
+
+    <section class="shop-fn-section" id="shop-sec-promo">
       <h3 class="shop-fn-section-title">${d.shopPromoTitle}</h3>
       <div class="shop-fn-promo">
         <div class="shop-fn-promo-row">
@@ -2823,15 +2987,123 @@ function _renderShopItems() {
   });
   _updateShopPending(pendingHintCharges);
 
-  container.querySelectorAll('.shop-tile').forEach(tile => {
+  container.querySelectorAll('.shop-tile:not([data-type="bundle"])').forEach(tile => {
     tile.addEventListener('click', () => {
-      const id    = tile.dataset.id;
-      const item  = allItemsById[id];
+      const item = allItemsById[tile.dataset.id];
       if (item) _openShopDetail(item);
     });
   });
 
+  container.querySelectorAll('.shop-tile[data-type="bundle"]').forEach(tile => {
+    tile.addEventListener('click', () => {
+      const bundle = ALL_BUNDLES.find(b => b.id === tile.dataset.id);
+      if (bundle) _openBundleDetail(bundle, allItemsById);
+    });
+  });
+
+  container.querySelectorAll('.shop-fn-nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sec = container.querySelector(`#shop-sec-${btn.dataset.section}`);
+      if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const sid = entry.target.dataset.sectionId;
+        container.querySelectorAll('.shop-fn-nav-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.section === sid);
+        });
+      }
+    });
+  }, { root: container, threshold: 0.15 });
+  container.querySelectorAll('[data-section-id]').forEach(sec => observer.observe(sec));
+
+  if (shopRotation) _startShopCountdown(shopRotation.resetAt);
   if (_shopDetailItem) _openShopDetail(_shopDetailItem);
+}
+
+function _openBundleDetail(bundle, allItemsById) {
+  _shopDetailItem = null;
+  const d  = t();
+  const fr = currentLang === 'fr';
+  const panel = $('shop-detail-panel');
+  if (!panel) return;
+
+  const rarityLabel = {
+    commun: fr ? 'Commun' : 'Common', rare: 'Rare',
+    epique: fr ? 'Épique' : 'Epic', legendaire: fr ? 'Légendaire' : 'Legendary',
+  };
+  const lblFree  = fr ? 'Gratuit' : 'Free';
+  const lblOwned = fr ? 'Possédé' : 'Owned';
+  const name     = d.shopBundleNames[bundle.id] || bundle.id;
+  const rarity   = _bundleRarity(bundle, allItemsById);
+  const savings  = Math.round((1 - bundle.bundlePrice / bundle.totalPrice) * 100);
+
+  const cosmeticIds      = bundle.items.filter(id => allItemsById[id]?.type !== 'boost');
+  const boostIds         = bundle.items.filter(id => allItemsById[id]?.type === 'boost');
+  const unownedCosmetics = cosmeticIds.filter(id => !ownedCosmetics.includes(id));
+  const allOwned         = unownedCosmetics.length === 0 && boostIds.length === 0;
+  const ownedCount       = cosmeticIds.filter(id => ownedCosmetics.includes(id)).length;
+
+  const getPrice  = id => allItemsById[id]?.price || 0;
+  const uVal      = unownedCosmetics.reduce((s, id) => s + getPrice(id), 0)
+                  + boostIds.reduce((s, id) => s + getPrice(id), 0);
+  const adjPrice  = Math.max(1, Math.round(bundle.bundlePrice * uVal / bundle.totalPrice));
+
+  const itemsHtml = bundle.items.map(id => {
+    const item  = allItemsById[id];
+    if (!item) return '';
+    const isOwned = item.type !== 'boost' && ownedCosmetics.includes(id);
+    let prev = '';
+    if      (item.type === 'background') prev = `<div class="shop-bg-preview ${id}" style="width:38px;height:26px;border-radius:4px;flex-shrink:0"></div>`;
+    else if (item.type === 'bubble')     prev = `<div class="shop-bubble-preview ${id}" style="font-size:.6rem;padding:2px 7px;flex-shrink:0">💬</div>`;
+    else if (item.type === 'font')       prev = `<span class="shop-fn-font-preview ${id}" style="font-size:.95rem;flex-shrink:0">Aa</span>`;
+    else if (item.type === 'color')      prev = `<span class="shop-cosmetic-preview name-${id}" style="font-size:.8rem;font-weight:800;flex-shrink:0">Lib</span>`;
+    else if (item.type === 'boost')      prev = `<span style="font-size:1.1rem;flex-shrink:0">💡</span>`;
+    return `<div class="shop-bundle-content-item${isOwned ? ' is-owned' : ''}">
+      ${prev}
+      <span class="bundle-item-name">${item.name || id}</span>
+      ${isOwned ? `<span class="bundle-item-tag">${lblOwned}</span>`
+               : item.type !== 'boost' ? `<span class="bundle-item-price">${item.price > 0 ? item.price + ' ⚡' : lblFree}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  const priceHtml = allOwned
+    ? ''
+    : `<div class="shop-fn-detail-price">
+        ${adjPrice} ⚡
+        <span class="shop-price-crossed">${ownedCount > 0 ? bundle.bundlePrice : bundle.totalPrice} ⚡</span>
+        <span class="shop-bundle-saving-inline">${d.shopBundleSave(savings)}</span>
+      </div>`;
+
+  const actionHtml = allOwned
+    ? `<button class="btn btn-secondary" disabled>${d.shopBundleAlreadyOwned}</button>`
+    : `<button class="btn btn-primary shop-detail-action-btn" data-bundle-id="${bundle.id}" data-action="buy-bundle">${d.shopBundleBuy(adjPrice)}</button>`;
+
+  panel.innerHTML = `
+    <button class="shop-fn-detail-back" id="shop-detail-back">← ${fr ? 'Retour' : 'Back'}</button>
+    <div class="shop-fn-detail-info shop-bundle-detail-info">
+      <span class="shop-fn-rarity-badge ${rarity}">${rarityLabel[rarity]}</span>
+      <h3 class="shop-fn-detail-name">${name}</h3>
+      ${ownedCount > 0 && !allOwned ? `<p class="shop-bundle-status-partial">${d.shopBundlePartialOwned(ownedCount)}</p>` : ''}
+      <p class="shop-fn-bundle-contains">${d.shopBundleContains}</p>
+      <div class="shop-bundle-contents">${itemsHtml}</div>
+      ${priceHtml}
+      <div class="shop-fn-detail-action">${actionHtml}</div>
+    </div>
+  `;
+  panel.classList.remove('hidden');
+
+  $('shop-detail-back').addEventListener('click', () => {
+    panel.classList.add('hidden');
+  });
+  panel.querySelectorAll('[data-action="buy-bundle"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      socket.emit('buy-bundle', { bundleId: btn.dataset.bundleId, playerId: getPlayerId() });
+    });
+  });
 }
 
 function _openShopDetail(item) {
@@ -2961,7 +3233,7 @@ function _updateSettingsPanel() {
   const fr = currentLang === 'fr';
 
   const langBtn = document.getElementById('sp-lang-btn');
-  if (langBtn) langBtn.textContent = fr ? '🇬🇧 EN' : '🇫🇷 FR';
+  if (langBtn) langBtn.textContent = fr ? '🇫🇷 FR ⇄' : '🇬🇧 EN ⇄';
 
   const themeBtn = document.getElementById('sp-theme-btn');
   if (themeBtn) {

@@ -237,6 +237,40 @@ const COSMETICS = [
   { id: 'bg-hologramme',   type: 'background', price: 300 },
 ];
 
+const ROTATION_INTERVAL_MS = 24 * 3600 * 1000;
+
+const BUNDLES = [
+  { id:'bundle-debutant',    nameFr:'Pack Débutant',          nameEn:'Starter Pack',           items:['silver','bubble-ardoise','bg-nuit','boost_hint_10'], totalPrice:38,  bundlePrice:25,  featured:false },
+  { id:'bundle-retro',       nameFr:'Pack Rétro',             nameEn:'Retro Pack',             items:['font-vt323','font-pressstart','bg-cyber','bubble-ocean'], totalPrice:100, bundlePrice:75, featured:false },
+  { id:'bundle-neon-arcade', nameFr:'Pack Néon Arcade',       nameEn:'Neon Arcade Pack',       items:['bubble-arcade','bg-pluie','font-audiowide'], totalPrice:360, bundlePrice:270, featured:true },
+  { id:'bundle-galaxie',     nameFr:'Pack Galaxie',           nameEn:'Galaxy Pack',            items:['bubble-galaxie','bg-galaxie','galaxy'], totalPrice:480, bundlePrice:360, featured:false },
+  { id:'bundle-prestige-or', nameFr:'Pack Prestige Or',       nameEn:'Gold Prestige Pack',     items:['bubble-or','gold','font-cinzel'], totalPrice:450, bundlePrice:340, featured:false },
+  { id:'bundle-hologramme',  nameFr:'Pack Hologramme Ultime', nameEn:'Ultimate Hologram Pack', items:['bubble-holographique','bg-hologramme','font-tektur'], totalPrice:690, bundlePrice:500, featured:true },
+];
+
+function seededShuffle(arr, seed) {
+  const a = [...arr];
+  let s = seed >>> 0;
+  for (let i = a.length - 1; i > 0; i--) {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    const j = s % (i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getShopRotation() {
+  const period  = Math.floor(Date.now() / ROTATION_INTERVAL_MS);
+  const resetAt = (period + 1) * ROTATION_INTERVAL_MS;
+  const legendary    = COSMETICS.filter(c => c.price > 150).map(c => c.id);
+  const nonLegendary = COSMETICS.filter(c => c.price > 0 && c.price <= 150).map(c => c.id);
+  const featured = seededShuffle(legendary,    period * 99991 + 3571).slice(0, 2);
+  const featSet  = new Set(featured);
+  const daily    = seededShuffle(nonLegendary, period * 31337 + 7919)
+                     .filter(id => !featSet.has(id)).slice(0, 6);
+  return { featured, daily, resetAt };
+}
+
 function applyDecay(entry) {
   if (!entry.lastActive) return entry;
   const elapsed = Date.now() - entry.lastActive;
@@ -1090,6 +1124,45 @@ io.on('connection', (socket) => {
 
   socket.on('get-shop', () => {
     socket.emit('shop-items', SHOP_ITEMS);
+  });
+
+  socket.on('get-shop-rotation', () => {
+    socket.emit('shop-rotation', getShopRotation());
+  });
+
+  socket.on('buy-bundle', ({ playerId, bundleId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) { socket.emit('buy-bundle-result', { ok: false, error: 'invalid' }); return; }
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') { socket.emit('buy-bundle-result', { ok: false, error: 'anonymous' }); return; }
+    const bundle = BUNDLES.find(b => b.id === bundleId);
+    if (!bundle) { socket.emit('buy-bundle-result', { ok: false, error: 'invalid' }); return; }
+    const bundleCosmetics = bundle.items.filter(itemId => COSMETICS.some(c => c.id === itemId));
+    const bundleBoosts    = bundle.items.filter(itemId => SHOP_ITEMS.some(s => s.id === itemId));
+    const unownedCosmetics = bundleCosmetics.filter(itemId => !entry.ownedCosmetics.includes(itemId));
+    if (unownedCosmetics.length === 0 && bundleBoosts.length === 0) {
+      socket.emit('buy-bundle-result', { ok: false, error: 'all_owned' }); return;
+    }
+    const getItemPrice = itemId => {
+      const cosm = COSMETICS.find(c => c.id === itemId);
+      if (cosm) return cosm.price;
+      const boost = SHOP_ITEMS.find(s => s.id === itemId);
+      return boost ? boost.price : 0;
+    };
+    const unownedValue = unownedCosmetics.reduce((s, id) => s + getItemPrice(id), 0)
+                       + bundleBoosts.reduce((s, id) => s + getItemPrice(id), 0);
+    const adjustedPrice = Math.max(1, Math.round(bundle.bundlePrice * unownedValue / bundle.totalPrice));
+    if (entry.balance < adjustedPrice) { socket.emit('buy-bundle-result', { ok: false, error: 'insufficient' }); return; }
+    entry.balance -= adjustedPrice;
+    unownedCosmetics.forEach(itemId => { if (!entry.ownedCosmetics.includes(itemId)) entry.ownedCosmetics.push(itemId); });
+    bundleBoosts.forEach(itemId => {
+      const item = SHOP_ITEMS.find(s => s.id === itemId);
+      if (item) entry.pendingBoostHint = (entry.pendingBoostHint || 0) + item.amount;
+    });
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, equippedCosmetic: entry.equippedCosmetic, equippedFont: entry.equippedFont, equippedBubble: entry.equippedBubble, equippedBackground: entry.equippedBackground, nextAt: nextDistributionAt });
+    socket.emit('buy-bundle-result', { ok: true, bundleId, adjustedPrice, granted: unownedCosmetics });
   });
 
   socket.on('buy-boost', ({ itemId, playerId } = {}) => {

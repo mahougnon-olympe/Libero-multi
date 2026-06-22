@@ -1868,6 +1868,85 @@ html.light .shop-fn-promo-input::placeholder { color: var(--muted); }
   .shop-fn-detail-name { font-size: 1.3rem; }
 }
 
+/* ── Shop: Category nav bar ──────────────────────────────────────────────── */
+.shop-fn-nav {
+  display: flex; gap: 6px; overflow-x: auto; padding: 0 0 10px;
+  scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+  position: sticky; top: 0; z-index: 10;
+  background: linear-gradient(180deg, rgba(11,14,35,.98) 80%, transparent);
+  padding-top: 6px; margin: -4px -4px 4px;
+  scrollbar-width: none;
+}
+.shop-fn-nav::-webkit-scrollbar { display: none; }
+.shop-fn-nav-btn {
+  flex-shrink: 0; scroll-snap-align: start;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  color: rgba(255,255,255,.55); font-size: .72rem; font-weight: 700;
+  padding: 5px 11px; border-radius: 20px; cursor: pointer; transition: all .18s;
+  white-space: nowrap;
+}
+.shop-fn-nav-btn:hover  { background: rgba(255,255,255,.13); color: #fff; }
+.shop-fn-nav-btn.active { background: rgba(124,92,255,.35); border-color: rgba(124,92,255,.6); color: #fff; }
+/* Shop: countdown in section title */
+.shop-fn-section-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.shop-fn-countdown {
+  font-size: .72rem; font-weight: 600; color: rgba(255,255,255,.45);
+  margin-left: auto; white-space: nowrap;
+}
+.shop-fn-countdown #shop-countdown-val { color: #fbbf24; font-weight: 800; }
+/* Shop: bundle tile extras */
+.shop-tile-saving {
+  position: absolute; bottom: 56px; right: 8px;
+  background: #22c55e; color: #fff;
+  font-size: .65rem; font-weight: 900; padding: 2px 7px; border-radius: 12px;
+  letter-spacing: .5px; pointer-events: none;
+}
+.shop-price-crossed {
+  font-size: .7rem; color: rgba(255,255,255,.35);
+  text-decoration: line-through; font-weight: 500;
+}
+.shop-tile-large .shop-price-crossed { font-size: .82rem; }
+.shop-bundle-prices { display: flex; align-items: baseline; gap: 5px; flex-wrap: wrap; }
+/* Daily pick badge */
+.shop-tile-daily-badge {
+  position: absolute; top: 8px; left: 8px;
+  background: rgba(34,197,94,.25); border: 1px solid rgba(34,197,94,.45); color: #4ade80;
+  font-size: .6rem; font-weight: 800; padding: 2px 7px; border-radius: 10px;
+  letter-spacing: .5px; pointer-events: none; text-transform: uppercase;
+}
+/* Bundle detail panel */
+.shop-bundle-detail-info { padding: 20px 20px 48px; display: flex; flex-direction: column; gap: 12px; }
+.shop-fn-bundle-contains { font-size: .78rem; font-weight: 700; color: rgba(255,255,255,.45); margin: 0; }
+.shop-bundle-contents { display: flex; flex-direction: column; gap: 7px; }
+.shop-bundle-content-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 10px; border-radius: 8px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.07);
+}
+.shop-bundle-content-item.is-owned { opacity: .5; }
+.bundle-item-name  { flex: 1; font-size: .82rem; font-weight: 600; color: #fff; }
+.bundle-item-price { font-size: .75rem; font-weight: 700; color: #fbbf24; white-space: nowrap; }
+.bundle-item-tag   { font-size: .68rem; font-weight: 700; color: #4ade80; background: rgba(34,197,94,.15); padding: 1px 7px; border-radius: 8px; white-space: nowrap; }
+.shop-bundle-status-partial { font-size: .78rem; color: #fbbf24; margin: 0; }
+.shop-bundle-saving-inline  { font-size: .8rem; font-weight: 800; color: #22c55e; margin-left: 6px; }
+.shop-fn-bundles-grid { grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); }
+/* Bundles grid: override featured (2-col) to allow more columns */
+/* Light theme overrides for new elements */
+html.light .shop-fn-nav { background: linear-gradient(180deg, rgba(238,241,255,.98) 80%, transparent); }
+html.light .shop-fn-nav-btn { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.1); color: rgba(0,0,0,.5); }
+html.light .shop-fn-nav-btn:hover  { background: rgba(0,0,0,.1); color: var(--text); }
+html.light .shop-fn-nav-btn.active { background: rgba(99,102,241,.18); border-color: rgba(99,102,241,.4); color: #3730a3; }
+html.light .shop-fn-countdown { color: rgba(0,0,0,.4); }
+html.light .shop-fn-countdown #shop-countdown-val { color: #b45309; }
+html.light .shop-tile-daily-badge { background: rgba(21,128,61,.1); border-color: rgba(21,128,61,.3); color: #15803d; }
+html.light .shop-bundle-content-item { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.06); }
+html.light .bundle-item-name  { color: var(--text); }
+html.light .bundle-item-price { color: #b45309; }
+html.light .shop-price-crossed { color: rgba(0,0,0,.3); }
+html.light .shop-fn-bundle-contains { color: var(--muted); }
+html.light .shop-bundle-status-partial { color: #b45309; }
+html.light .bundle-item-tag { background: rgba(21,128,61,.12); color: #15803d; }
+
 @keyframes rainbow-scroll { from { background-position: 0% } to { background-position: 300% } }
 @keyframes galaxy-scroll  { from { background-position: 0% } to { background-position: 300% } }
 @keyframes shimmer-scroll { from { background-position: 0% } to { background-position: 300% } }
