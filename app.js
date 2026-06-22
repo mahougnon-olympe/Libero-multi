@@ -1985,7 +1985,7 @@ function _paintGlobalLb() {
   const rows = visible.map((entry, i) => `
     <div class="global-lb-row">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}</span>${_titleHtml(entry.title)}
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title)}</span>
       <span class="global-lb-score">${entry.globalScore} ${t().globalLbPts}</span>
     </div>
   `).join('');
@@ -2009,7 +2009,7 @@ function renderLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}</span>${_titleHtml(entry.title)}
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title)}</span>
       <div class="lb-stats">
         <span class="lb-w">${entry.wins}${t().lbW}</span>
         <span class="lb-l">${entry.losses}${t().lbL}</span>
@@ -2030,7 +2030,7 @@ function renderSnakeLeaderboard(data) {
   el.innerHTML = data.map((e, i) => `
     <div class="lb-row">
       <span class="lb-rank">${medals[i] || i + 1}</span>
-      <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}</span>${_titleHtml(e.title)}
+      <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title)}</span>
       <span class="lb-score-snake">${e.hs} 🍎</span>
     </div>
   `).join('');
@@ -2373,7 +2373,7 @@ function renderTriviaLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row">
       <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${medals[i] || i+1}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}</span>${_titleHtml(entry.title)}
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title)}</span>
       <div class="lb-stats">
         <span class="lb-w">${entry.points} ${t().triviaLbPts}</span>
         <span class="lb-d">${entry.games} ${t().triviaLbGames}</span>
@@ -3251,7 +3251,7 @@ function _renderShopItems() {
     else if (type === 'bubble')    previewHtml = `<div class="shop-bubble-preview ${id}">Salut ! 👋</div>`;
     else if (type === 'font')      previewHtml = `<span class="shop-fn-font-preview ${_cosmeticClass(equippedCosmetic)} ${id}">${playerPreview}</span>`;
     else if (type === 'color')     previewHtml = `<span class="shop-cosmetic-preview name-${id} ${_fontClass(equippedFont)}">${playerPreview}</span>`;
-    else if (type === 'nameeffect') previewHtml = `<span class="shop-nameeffect-preview nameeffect-${id}">${playerPreview}</span>`;
+    else if (type === 'nameeffect') previewHtml = `<span class="shop-nameeffect-preview ${id}">${playerPreview}</span>`;
     else if (type === 'title')      previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="shop-title-tag">${name || ''}</span></span>`;
     else if (type === 'cursorsnake') previewHtml = `<div class="shop-emoji-preview">🐍</div>`;
     else if (type === 'avatar')     previewHtml = `<div class="shop-emoji-preview">${_AV[id]||'🎭'}</div>`;
@@ -3644,7 +3644,7 @@ function _openShopDetail(item) {
   } else if (type === 'color') {
     previewHtml = `<span class="shop-cosmetic-preview name-${id} ${_fontClass(equippedFont)}">${playerPreview}</span>`;
   } else if (type === 'nameeffect') {
-    previewHtml = `<span class="shop-nameeffect-preview nameeffect-${id}">${playerPreview}</span>`;
+    previewHtml = `<span class="shop-nameeffect-preview ${id}">${playerPreview}</span>`;
   } else if (type === 'title') {
     previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="shop-title-tag">${name || ''}</span></span>`;
   } else {
