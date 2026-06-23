@@ -35,7 +35,8 @@ const REFUND_CARD_COOLDOWN_MS  = 30 * 24 * 3600 * 1000;
 const socketPlayerIds = new Map();
 const playerIdAliases = new Map();
 
-let rank1Global = null;
+let rank1Global      = null;
+let rank1StreakSince  = 0;
 
 // ── Persistance MongoDB ────────────────────────────────────────────────────
 let mongoClient = null;
@@ -79,6 +80,10 @@ async function loadData() {
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
+  const streakDoc = configDocs.find(d => d._id === 'rank1StreakSince');
+  if (streakDoc) rank1StreakSince = streakDoc.value;
+  const rank1NameDoc = configDocs.find(d => d._id === 'rank1GlobalName');
+  if (rank1NameDoc) rank1Global = rank1NameDoc.value;
   console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias, ${voteDocs.length} votes snake.`);
 }
 
@@ -166,11 +171,35 @@ function getHonorTitleByName(name) {
   return null;
 }
 
+function getAvatarByName(name) {
+  for (const [, e] of libs.entries()) {
+    if (e.name === name && e.equippedAvatar) return e.equippedAvatar;
+  }
+  return null;
+}
+
+function getCursorSnakeByName(name) {
+  for (const [, e] of libs.entries()) {
+    if (e.name === name && e.equippedCursorSnake) return e.equippedCursorSnake;
+  }
+  return null;
+}
+
 function dbSaveNextDistributionAt() {
   if (!db) return;
   db.collection('server_config')
     .updateOne({ _id: 'nextDistributionAt' }, { $set: { value: nextDistributionAt } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde nextDistributionAt:', e));
+}
+
+function dbSaveRank1Streak() {
+  if (!db) return;
+  db.collection('server_config')
+    .updateOne({ _id: 'rank1StreakSince' }, { $set: { value: rank1StreakSince } }, { upsert: true })
+    .catch(e => console.error('Erreur sauvegarde rank1StreakSince:', e));
+  db.collection('server_config')
+    .updateOne({ _id: 'rank1GlobalName' }, { $set: { value: rank1Global } }, { upsert: true })
+    .catch(e => console.error('Erreur sauvegarde rank1GlobalName:', e));
 }
 
 async function resetLibsBalancesOnce() {
@@ -194,6 +223,11 @@ const DECAY_GRACE_MS  = 48 * 3_600_000;
 const DECAY_PERIOD_MS = 24 * 3_600_000;
 const DECAY_AMOUNT    = 10;
 const LIBS_REWARDS    = [10, 5, 3];
+const SERVER_ANNOUNCEMENT = {
+  id:    'libero-thanks-2026-06',
+  msgFr: 'Libero vous remercie ! Merci de jouer et de soutenir le projet. Votre presence fait vivre cette communaute. A bientot !',
+  msgEn: 'Libero thanks you! Thank you for playing and supporting the project. Your presence brings this community to life. See you soon!',
+};
 const SHOP_ITEMS      = [
   { id: 'boost_hint_10', price: 3, amount: 10 },
   { id: 'boost_hint_20', price: 5, amount: 20 },
@@ -475,7 +509,9 @@ let nextDistributionAt = 0;
 function refreshAllHonorTitles() {
   const newR1Global = getGlobalLeaderboardData()[0]?.name || null;
   if (newR1Global === rank1Global) return;
-  rank1Global = newR1Global;
+  rank1Global     = newR1Global;
+  rank1StreakSince = Date.now();
+  dbSaveRank1Streak();
 
   for (const [id, entry] of libs.entries()) {
     if (entry.name === 'Libero') continue;
@@ -502,7 +538,11 @@ function distributeLibs() {
   const top3 = getGlobalLeaderboardData().slice(0, 3);
   top3.forEach((rankEntry, i) => {
     if (!rankEntry.name || rankEntry.name === 'Anonyme') return;
-    const reward = LIBS_REWARDS[i];
+    let reward = LIBS_REWARDS[i];
+    if (i === 0 && rank1StreakSince) {
+      const streakDays = (Date.now() - rank1StreakSince) / 86400000;
+      reward += Math.floor(streakDays / 3) * 5;
+    }
     const matchingIds = new Set();
     for (const [id, e] of leaderboard.entries())       { if (e.name === rankEntry.name) matchingIds.add(id); }
     for (const [id, e] of triviaLeaderboard.entries()) { if (e.name === rankEntry.name) matchingIds.add(id); }
@@ -583,7 +623,7 @@ function getLeaderboardData() {
   return [...byName.values()]
     .sort((a, b) => b.wins - a.wins || (b.wins - b.losses) - (a.wins - a.losses) || a.name.localeCompare(b.name))
     .slice(0, 10)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), honorTitle: getHonorTitleByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), honorTitle: getHonorTitleByName(e.name), avatar: getAvatarByName(e.name), cursorSnake: getCursorSnakeByName(e.name) }));
 }
 
 // ── Trivia leaderboard helpers ─────────────────────────────────────────────
@@ -611,7 +651,7 @@ function getTriviaLeaderboardData() {
   return [...byName.values()]
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))
     .slice(0, 10)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), honorTitle: getHonorTitleByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), honorTitle: getHonorTitleByName(e.name), avatar: getAvatarByName(e.name), cursorSnake: getCursorSnakeByName(e.name) }));
 }
 
 function updateSnakeLeaderboard(id, name, hs) {
@@ -637,7 +677,7 @@ function getSnakeLeaderboardData() {
   return [...byName.values()]
     .sort((a, b) => b.hs - a.hs || a.name.localeCompare(b.name))
     .slice(0, 10)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), honorTitle: getHonorTitleByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), honorTitle: getHonorTitleByName(e.name), avatar: getAvatarByName(e.name), cursorSnake: getCursorSnakeByName(e.name) }));
 }
 
 function getGlobalLeaderboardData() {
@@ -660,7 +700,7 @@ function getGlobalLeaderboardData() {
     .filter(e => e.globalScore > 0)
     .sort((a, b) => b.globalScore - a.globalScore || a.name.localeCompare(b.name))
     .slice(0, 50)
-    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), honorTitle: getHonorTitleByName(e.name) }));
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), honorTitle: getHonorTitleByName(e.name), avatar: getAvatarByName(e.name), cursorSnake: getCursorSnakeByName(e.name) }));
 }
 
 // ── Trivia room helpers ────────────────────────────────────────────────────
@@ -839,6 +879,9 @@ io.on('connection', (socket) => {
   let roomCode      = null;
   let myPlayer      = null;
   let triviaRoomCode = null;
+
+  socket.emit('server-announcement', SERVER_ANNOUNCEMENT);
+  socket.on('announcement-dismissed', () => {});
 
   // ── Créer une room ──────────────────────────────────────────────────────
   socket.on('create-room', ({ gameType = 'connect4', name = '', vsBot = false, botDifficulty = 'medium', playerId } = {}) => {

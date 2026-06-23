@@ -32,6 +32,8 @@ let equippedSoundPack    = null;
 let equippedEmote        = null;
 let honorTitle           = null;
 let _shopDetailItem         = null;
+let _pendingShopFocus       = null;
+let _shopScrollRestored     = false;
 let shopRotation            = null;
 let _shopCountdownTimer     = null;
 let refundCards             = 2;
@@ -1995,7 +1997,7 @@ function _paintGlobalLb() {
   const classes = ['gold', 'silver', 'bronze'];
   const visible = _glbExpanded ? _glbData : _glbData.slice(0, 2);
   const rows = visible.map((entry, i) => `
-    <div class="global-lb-row">
+    <div class="global-lb-row lb-row-clickable" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
       <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <span class="global-lb-score">${entry.globalScore} ${t().globalLbPts}</span>
@@ -2005,6 +2007,10 @@ function _paintGlobalLb() {
     ? `<button class="lb-more-btn" id="btn-lb-more">${_glbExpanded ? t().globalLbLess : t().globalLbMore}</button>`
     : '';
   list.innerHTML = rows + moreBtn;
+  list.querySelectorAll('.lb-row-clickable').forEach(row => {
+    const id = row.dataset.cosmetic || row.dataset.avatar || row.dataset.cursor;
+    if (id) row.addEventListener('click', () => _shopFocusItem(id));
+  });
   const btn = $('btn-lb-more');
   if (btn) btn.addEventListener('click', () => { _glbExpanded = !_glbExpanded; _paintGlobalLb(); });
 }
@@ -2019,7 +2025,7 @@ function renderLeaderboard(data) {
   const medals = ['🥇', '🥈', '🥉'];
   const classes = ['gold', 'silver', 'bronze'];
   list.innerHTML = data.map((entry, i) => `
-    <div class="lb-row">
+    <div class="lb-row lb-row-clickable" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
       <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <div class="lb-stats">
@@ -2029,6 +2035,10 @@ function renderLeaderboard(data) {
       </div>
     </div>
   `).join('');
+  list.querySelectorAll('.lb-row-clickable').forEach(row => {
+    const id = row.dataset.cosmetic || row.dataset.avatar || row.dataset.cursor;
+    if (id) row.addEventListener('click', () => _shopFocusItem(id));
+  });
 }
 
 function renderSnakeLeaderboard(data) {
@@ -2040,12 +2050,16 @@ function renderSnakeLeaderboard(data) {
   }
   const medals = ['🥇', '🥈', '🥉'];
   el.innerHTML = data.map((e, i) => `
-    <div class="lb-row">
+    <div class="lb-row lb-row-clickable" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}">
       <span class="lb-rank">${medals[i] || i + 1}</span>
       <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
       <span class="lb-score-snake">${e.hs} 🍎</span>
     </div>
   `).join('');
+  el.querySelectorAll('.lb-row-clickable').forEach(row => {
+    const id = row.dataset.cosmetic || row.dataset.avatar || row.dataset.cursor;
+    if (id) row.addEventListener('click', () => _shopFocusItem(id));
+  });
 }
 
 // ── Trivia : utilitaires ──────────────────────────────────────────────────────
@@ -2383,7 +2397,7 @@ function renderTriviaLeaderboard(data) {
   if (!data || data.length === 0) { list.innerHTML = `<p class="lb-empty">${t().triviaLbEmpty}</p>`; return; }
   const medals = ['🥇','🥈','🥉'];
   list.innerHTML = data.map((entry, i) => `
-    <div class="lb-row">
+    <div class="lb-row lb-row-clickable" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}">
       <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${medals[i] || i+1}</span>
       <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <div class="lb-stats">
@@ -2392,6 +2406,10 @@ function renderTriviaLeaderboard(data) {
       </div>
     </div>
   `).join('');
+  list.querySelectorAll('.lb-row-clickable').forEach(row => {
+    const id = row.dataset.cosmetic || row.dataset.avatar || row.dataset.cursor;
+    if (id) row.addEventListener('click', () => _shopFocusItem(id));
+  });
 }
 
 // ── Overlay déconnexion ───────────────────────────────────────────────────────
@@ -2430,6 +2448,18 @@ $('overlay-help').addEventListener('click', e => {
 $('btn-honor-reward-accept').addEventListener('click', () => {
   $('overlay-honor-reward').classList.add('hidden');
   socket.emit('honor-modal-seen', { playerId: getPlayerId() });
+});
+
+$('btn-announcement-ok').addEventListener('click', () => {
+  const overlay = $('overlay-announcement');
+  if (!overlay) return;
+  const id = overlay.dataset.announcementId;
+  overlay.classList.add('hidden');
+  if (id) {
+    const dismissed = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '[]');
+    if (!dismissed.includes(id)) { dismissed.push(id); localStorage.setItem('dismissedAnnouncements', JSON.stringify(dismissed)); }
+    socket.emit('announcement-dismissed', { id });
+  }
 });
 
 document.querySelectorAll('.help-tab').forEach(tab => {
@@ -2703,6 +2733,18 @@ socket.on('global-leaderboard-update', (data) => {
 });
 
 socket.on('snake-leaderboard-update', (data) => { renderSnakeLeaderboard(data); });
+
+socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
+  if (!id) return;
+  const dismissed = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '[]');
+  if (dismissed.includes(id)) return;
+  const overlay = $('overlay-announcement');
+  if (!overlay) return;
+  const msgEl = $('announcement-msg');
+  if (msgEl) msgEl.innerHTML = currentLang === 'fr' ? msgFr : msgEn;
+  overlay.dataset.announcementId = id;
+  overlay.classList.remove('hidden');
+});
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
 socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmote: newEmote, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal } = {}) => {
@@ -3061,10 +3103,17 @@ function openShop() {
   const shopBal = $('shop-balance-display');
   if (shopBal) shopBal.textContent = `⚡ ${libsBalance} Libs`;
   _shopDetailItem = null;
+  _shopScrollRestored = false;
+  sessionStorage.setItem('shopState', JSON.stringify({ open: true, scrollTop: 0 }));
   socket.emit('get-shop-rotation', {});
   _renderShopItems();
   socket.emit('get-libs', { playerId: getPlayerId() });
   $('overlay-shop').classList.remove('hidden');
+}
+
+function _shopFocusItem(itemId) {
+  _pendingShopFocus = itemId;
+  openShop();
 }
 
 function _getRarity(price) {
@@ -3551,6 +3600,40 @@ function _renderShopItems() {
 
   if (shopRotation) _startShopCountdown(shopRotation.resetAt);
   if (_shopDetailItem) _openShopDetail(_shopDetailItem);
+
+  // ── Focus item depuis un clic classement ────────────────────────────────
+  if (_pendingShopFocus && contentEl) {
+    const tile = container.querySelector(`.shop-tile[data-id="${_pendingShopFocus}"]`);
+    if (tile) {
+      _pendingShopFocus   = null;
+      _shopScrollRestored = true;
+      requestAnimationFrame(() => {
+        tile.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        tile.classList.add('shop-tile-highlight');
+        setTimeout(() => tile.classList.remove('shop-tile-highlight'), 2200);
+      });
+    }
+  }
+
+  // ── Persistance scroll boutique apres refresh ────────────────────────────
+  if (!_shopScrollRestored && contentEl) {
+    const saved = (() => { try { return JSON.parse(sessionStorage.getItem('shopState')); } catch { return null; } })();
+    if (saved?.scrollTop) {
+      requestAnimationFrame(() => { contentEl.scrollTop = saved.scrollTop; });
+      _shopScrollRestored = true;
+    }
+  }
+
+  if (contentEl) {
+    let _scrollSaveTimer;
+    contentEl.addEventListener('scroll', () => {
+      clearTimeout(_scrollSaveTimer);
+      _scrollSaveTimer = setTimeout(() => {
+        const prev = (() => { try { return JSON.parse(sessionStorage.getItem('shopState')) || {}; } catch { return {}; } })();
+        sessionStorage.setItem('shopState', JSON.stringify({ ...prev, scrollTop: contentEl.scrollTop }));
+      }, 300);
+    }, { passive: true });
+  }
 }
 
 function _openBundleDetail(bundle, allItemsById) {
@@ -3912,6 +3995,7 @@ document.addEventListener('click', e => {
 $('libs-counter').addEventListener('click', openShop);
 $('btn-shop-close').addEventListener('click', () => {
   $('overlay-shop').classList.add('hidden');
+  sessionStorage.removeItem('shopState');
   const dp = $('shop-detail-panel');
   if (dp) dp.classList.add('hidden');
   _shopDetailItem = null;
@@ -5549,3 +5633,8 @@ const BGManager = (() => {
 
 // Restore background cosmetic on load
 if (equippedBackground) BGManager.start(equippedBackground);
+
+// Reopen shop after accidental page refresh
+if (sessionStorage.getItem('shopState')) {
+  setTimeout(() => openShop(), 150);
+}
