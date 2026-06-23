@@ -6,10 +6,11 @@ backend/node_modules/
 backend/.env
 
 # Données runtime (générées par le serveur)
+.gitignore
 backend/data.json
 OVERVIEW.md
 Reference.md
-boutique-style-fortnite.md
+nouveaux-cosmétiques.md
 boutique.md
 emar
 node
