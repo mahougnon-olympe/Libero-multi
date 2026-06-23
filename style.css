@@ -1369,6 +1369,8 @@ html.light {
   --card2:  #eef0fb;
   --text:   #1e1b4b;
   --muted:  #64748b;
+  --accent: #4338ca;
+  --red:    #dc2626;
   --border: rgba(99,102,241,.22);
   --glow:   rgba(99,102,241,.2);
   --shadow: 0 4px 24px rgba(99,102,241,.1);
@@ -1392,6 +1394,10 @@ html.light .c4-cell.yellow         { background: var(--yellow); box-shadow: 0 0 
 html.light .chat-form              { border-top-color: rgba(0,0,0,.07); }
 html.light .help-modal-header      { border-bottom-color: rgba(0,0,0,.07); }
 html.light .lb-row                 { border-bottom-color: rgba(0,0,0,.07); }
+html.light .lb-rank.gold           { color: #b45309; }
+html.light .lb-rank.silver         { color: #475569; }
+html.light .lb-rank.bronze         { color: #c2410c; }
+html.light .lb-w                   { color: #15803d; }
 html.light .col-btn:disabled       { color: rgba(0,0,0,.2); }
 html.light .tg-choice-letter       { background: rgba(99,102,241,.1); color: var(--board); }
 html.light .help-close-btn         { background: rgba(0,0,0,.05); }
@@ -2056,6 +2062,8 @@ html.light .vote-pct-no  { color: #dc2626; }
 html.light .snake-vote-total-label { color: rgba(0,0,0,.4); }
 html.light .snake-vote-status { background: rgba(0,0,0,.04); color: rgba(0,0,0,.5); }
 html.light #news-event-msg.vote-clickable { text-decoration-color: rgba(0,0,0,.3); }
+html.light .boost-hint-btn { color: #b45309; border-color: #b45309; background: rgba(180,83,9,.1); }
+html.light .boost-hint-btn:hover:not(:disabled) { background: rgba(180,83,9,.2); }
 
 @keyframes rainbow-scroll { from { background-position: 0% } to { background-position: 300% } }
 @keyframes galaxy-scroll  { from { background-position: 0% } to { background-position: 300% } }
