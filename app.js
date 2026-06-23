@@ -33,7 +33,7 @@ let equippedEmote        = null;
 let honorTitle           = null;
 let _shopDetailItem         = null;
 let _pendingShopFocus       = null;
-let _shopScrollRestored     = false;
+let _shopRetainTileId       = null;
 let shopRotation            = null;
 let _shopCountdownTimer     = null;
 let refundCards             = 2;
@@ -3103,8 +3103,8 @@ function openShop() {
   const shopBal = $('shop-balance-display');
   if (shopBal) shopBal.textContent = `⚡ ${libsBalance} Libs`;
   _shopDetailItem = null;
-  _shopScrollRestored = false;
-  sessionStorage.setItem('shopState', JSON.stringify({ open: true, scrollTop: 0 }));
+  const _prevShopState = (() => { try { return JSON.parse(sessionStorage.getItem('shopState')) || {}; } catch { return {}; } })();
+  sessionStorage.setItem('shopState', JSON.stringify({ open: true, scrollTop: _prevShopState.scrollTop || 0 }));
   socket.emit('get-shop-rotation', {});
   _renderShopItems();
   socket.emit('get-libs', { playerId: getPlayerId() });
@@ -3601,12 +3601,14 @@ function _renderShopItems() {
   if (shopRotation) _startShopCountdown(shopRotation.resetAt);
   if (_shopDetailItem) _openShopDetail(_shopDetailItem);
 
-  // ── Focus item depuis un clic classement ────────────────────────────────
+  // ── Scroll / focus apres (re)rendu ──────────────────────────────────────
+  let _tileJustFocused = false;
   if (_pendingShopFocus && contentEl) {
     const tile = container.querySelector(`.shop-tile[data-id="${_pendingShopFocus}"]`);
     if (tile) {
-      _pendingShopFocus   = null;
-      _shopScrollRestored = true;
+      _shopRetainTileId = _pendingShopFocus;
+      _pendingShopFocus = null;
+      _tileJustFocused  = true;
       requestAnimationFrame(() => {
         tile.scrollIntoView({ behavior: 'smooth', block: 'center' });
         tile.classList.add('shop-tile-highlight');
@@ -3615,12 +3617,19 @@ function _renderShopItems() {
     }
   }
 
-  // ── Persistance scroll boutique apres refresh ────────────────────────────
-  if (!_shopScrollRestored && contentEl) {
+  if (!_tileJustFocused && _shopRetainTileId && contentEl) {
+    const tile = container.querySelector(`.shop-tile[data-id="${_shopRetainTileId}"]`);
+    if (tile) {
+      requestAnimationFrame(() => {
+        const cRect = contentEl.getBoundingClientRect();
+        const tRect = tile.getBoundingClientRect();
+        contentEl.scrollTop += tRect.top - cRect.top - (cRect.height - tRect.height) / 2;
+      });
+    }
+  } else if (!_tileJustFocused && !_shopRetainTileId && contentEl) {
     const saved = (() => { try { return JSON.parse(sessionStorage.getItem('shopState')); } catch { return null; } })();
     if (saved?.scrollTop) {
       requestAnimationFrame(() => { contentEl.scrollTop = saved.scrollTop; });
-      _shopScrollRestored = true;
     }
   }
 
@@ -3998,7 +4007,8 @@ $('btn-shop-close').addEventListener('click', () => {
   sessionStorage.removeItem('shopState');
   const dp = $('shop-detail-panel');
   if (dp) dp.classList.add('hidden');
-  _shopDetailItem = null;
+  _shopDetailItem   = null;
+  _shopRetainTileId = null;
 });
 
 // Affichage initial du compteur
