@@ -44,6 +44,9 @@ let _libsAnimTimer     = null;
 let _libsDistTimer     = null;
 let _nextDistAt        = 0;
 let _globalLbData      = [];
+let _classicLbData     = [];
+let _snakeLbData       = [];
+let _triviaLbData      = [];
 let _nameTaken         = false;
 let _renameTimer       = null;
 
@@ -1104,6 +1107,12 @@ function applyLang() {
   // Rebuild trivia themes (garde les sélections actives)
   $('trivia-themes').innerHTML = '';
 
+  // Re-render classements pour mettre a jour titres et badges traduits
+  if (_glbData.length)       _paintGlobalLb();
+  if (_classicLbData.length) renderLeaderboard(_classicLbData);
+  if (_snakeLbData.length)   renderSnakeLeaderboard(_snakeLbData);
+  if (_triviaLbData.length)  renderTriviaLeaderboard(_triviaLbData);
+
   // Mettre à jour le panneau Paramètres si ouvert
   _updateSettingsPanel();
 }
@@ -2011,7 +2020,8 @@ function _paintGlobalLb() {
   list.innerHTML = rows + moreBtn;
   list.querySelectorAll('.lb-row-clickable').forEach(row => {
     row.addEventListener('click', () => {
-      if (row.dataset.avatar) { _shopFocusItem(row.dataset.avatar); return; }
+      const _av = row.dataset.avatar;
+      if (_av && AVATAR_ICONS[_av]) { _shopFocusItem(_av); return; }
       const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
       if (ids.length) _shopFocusItems(ids); else openShop();
     });
@@ -2042,7 +2052,8 @@ function renderLeaderboard(data) {
   `).join('');
   list.querySelectorAll('.lb-row-clickable').forEach(row => {
     row.addEventListener('click', () => {
-      if (row.dataset.avatar) { _shopFocusItem(row.dataset.avatar); return; }
+      const _av = row.dataset.avatar;
+      if (_av && AVATAR_ICONS[_av]) { _shopFocusItem(_av); return; }
       const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
       if (ids.length) _shopFocusItems(ids); else openShop();
     });
@@ -2066,7 +2077,8 @@ function renderSnakeLeaderboard(data) {
   `).join('');
   el.querySelectorAll('.lb-row-clickable').forEach(row => {
     row.addEventListener('click', () => {
-      if (row.dataset.avatar) { _shopFocusItem(row.dataset.avatar); return; }
+      const _av = row.dataset.avatar;
+      if (_av && AVATAR_ICONS[_av]) { _shopFocusItem(_av); return; }
       const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
       if (ids.length) _shopFocusItems(ids); else openShop();
     });
@@ -2419,7 +2431,8 @@ function renderTriviaLeaderboard(data) {
   `).join('');
   list.querySelectorAll('.lb-row-clickable').forEach(row => {
     row.addEventListener('click', () => {
-      if (row.dataset.avatar) { _shopFocusItem(row.dataset.avatar); return; }
+      const _av = row.dataset.avatar;
+      if (_av && AVATAR_ICONS[_av]) { _shopFocusItem(_av); return; }
       const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
       if (ids.length) _shopFocusItems(ids); else openShop();
     });
@@ -2575,7 +2588,7 @@ socket.on('trivia-solo-error', () => {
   $('btn-solo-trivia').textContent = t().btnSolo;
 });
 
-socket.on('trivia-leaderboard-update', (data) => { renderTriviaLeaderboard(data); });
+socket.on('trivia-leaderboard-update', (data) => { _triviaLbData = data || []; renderTriviaLeaderboard(data); });
 socket.on('trivia-error', ({ message }) => { showTriviaError(message); buildTriviaThemes(); showScreen('trivia-home'); });
 
 // ── Reconnexion automatique après reload + chargement du classement ───────────
@@ -2728,6 +2741,7 @@ socket.on('restart-requested', () => {
 
 socket.on('new-message',       (msg)  => { appendMessage(msg); SFX.chat(); });
 socket.on('leaderboard-update', (data) => {
+  _classicLbData = data || [];
   renderLeaderboard(data);
 });
 
@@ -2746,7 +2760,7 @@ socket.on('global-leaderboard-update', (data) => {
   _updateLibsCountdown();
 });
 
-socket.on('snake-leaderboard-update', (data) => { renderSnakeLeaderboard(data); });
+socket.on('snake-leaderboard-update', (data) => { _snakeLbData = data || []; renderSnakeLeaderboard(data); });
 
 socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
   if (!id) return;
@@ -3649,7 +3663,7 @@ function _renderShopItems() {
         finalTile.classList.remove('shop-tile-highlight');
         void finalTile.offsetWidth;
         finalTile.classList.add('shop-tile-highlight');
-        setTimeout(() => finalTile.classList.remove('shop-tile-highlight'), 2200);
+        setTimeout(() => finalTile.classList.remove('shop-tile-highlight'), 2600);
       }, 300);
     }
   }
@@ -3682,7 +3696,7 @@ function _renderShopItems() {
           void t.offsetWidth; // force reflow pour relancer l'animation
           t.classList.add('shop-tile-highlight');
         });
-        setTimeout(() => finalTiles.forEach(t => t.classList.remove('shop-tile-highlight')), 2200);
+        setTimeout(() => finalTiles.forEach(t => t.classList.remove('shop-tile-highlight')), 2600);
       }, 300);
     }
   }
@@ -4120,7 +4134,7 @@ const TITLE_TEXTS = {
 };
 function _titleHtml(title, ht) {
   let html = '';
-  if (title && TITLE_TEXTS[title]) html += `<span class="player-title-tag">${TITLE_TEXTS[title]}</span>`;
+  if (title) { const tn = t().shopTitleNames?.[title]; if (tn) html += `<span class="player-title-tag">${tn}</span>`; }
   if (ht) {
     const htNames = t().honorTitleNames;
     const name = (htNames && htNames[ht]) ? htNames[ht] : ht;
