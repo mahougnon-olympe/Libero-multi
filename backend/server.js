@@ -193,7 +193,7 @@ async function resetLibsBalancesOnce() {
 const DECAY_GRACE_MS  = 48 * 3_600_000;
 const DECAY_PERIOD_MS = 24 * 3_600_000;
 const DECAY_AMOUNT    = 10;
-const LIBS_REWARDS    = [5, 3, 2];
+const LIBS_REWARDS    = [10, 5, 3];
 const SHOP_ITEMS      = [
   { id: 'boost_hint_10', price: 3, amount: 10 },
   { id: 'boost_hint_20', price: 5, amount: 20 },
