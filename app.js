@@ -34,6 +34,7 @@ let honorTitle           = null;
 let _shopDetailItem         = null;
 let _pendingShopFocus       = null;
 let _shopRetainTileId       = null;
+let _focusDebounceTimer     = null;
 let shopRotation            = null;
 let _shopCountdownTimer     = null;
 let refundCards             = 2;
@@ -3606,14 +3607,26 @@ function _renderShopItems() {
   if (_pendingShopFocus && contentEl) {
     const tile = container.querySelector(`.shop-tile[data-id="${_pendingShopFocus}"]`);
     if (tile) {
-      _shopRetainTileId = _pendingShopFocus;
-      _pendingShopFocus = null;
+      const capturedId  = _pendingShopFocus;
+      _shopRetainTileId = capturedId;
       _tileJustFocused  = true;
+      // Scroll instantane a chaque rendu pour que la tuile soit visible immediatement
       requestAnimationFrame(() => {
-        tile.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        tile.classList.add('shop-tile-highlight');
-        setTimeout(() => tile.classList.remove('shop-tile-highlight'), 2200);
+        const cRect = contentEl.getBoundingClientRect();
+        const tRect = tile.getBoundingClientRect();
+        contentEl.scrollTop += tRect.top - cRect.top - (cRect.height - tRect.height) / 2;
       });
+      // Debounce: attend que le DOM soit stable avant d'animer le highlight
+      clearTimeout(_focusDebounceTimer);
+      _focusDebounceTimer = setTimeout(() => {
+        _pendingShopFocus = null;
+        if ($('overlay-shop').classList.contains('hidden')) return;
+        const finalTile = container.querySelector(`.shop-tile[data-id="${capturedId}"]`);
+        if (!finalTile) return;
+        finalTile.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        finalTile.classList.add('shop-tile-highlight');
+        setTimeout(() => finalTile.classList.remove('shop-tile-highlight'), 2200);
+      }, 300);
     }
   }
 
@@ -4009,6 +4022,9 @@ $('btn-shop-close').addEventListener('click', () => {
   if (dp) dp.classList.add('hidden');
   _shopDetailItem   = null;
   _shopRetainTileId = null;
+  _pendingShopFocus = null;
+  clearTimeout(_focusDebounceTimer);
+  _focusDebounceTimer = null;
 });
 
 // Affichage initial du compteur
