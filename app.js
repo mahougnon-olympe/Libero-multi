@@ -33,6 +33,7 @@ let equippedEmote        = null;
 let honorTitle           = null;
 let _shopDetailItem         = null;
 let _pendingShopFocus       = null;
+let _pendingShopFocusIds    = null;
 let _shopRetainTileId       = null;
 let _focusDebounceTimer     = null;
 let shopRotation            = null;
@@ -1998,7 +1999,7 @@ function _paintGlobalLb() {
   const classes = ['gold', 'silver', 'bronze'];
   const visible = _glbExpanded ? _glbData : _glbData.slice(0, 2);
   const rows = visible.map((entry, i) => `
-    <div class="global-lb-row lb-row-clickable" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}">
+    <div class="global-lb-row lb-row-clickable" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
       <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <span class="global-lb-score">${entry.globalScore} ${t().globalLbPts}</span>
@@ -2009,8 +2010,11 @@ function _paintGlobalLb() {
     : '';
   list.innerHTML = rows + moreBtn;
   list.querySelectorAll('.lb-row-clickable').forEach(row => {
-    const id = row.dataset.cosmetic || row.dataset.avatar || row.dataset.cursor;
-    if (id) row.addEventListener('click', () => _shopFocusItem(id));
+    row.addEventListener('click', () => {
+      if (row.dataset.avatar) { _shopFocusItem(row.dataset.avatar); return; }
+      const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
+      if (ids.length) _shopFocusItems(ids);
+    });
   });
   const btn = $('btn-lb-more');
   if (btn) btn.addEventListener('click', () => { _glbExpanded = !_glbExpanded; _paintGlobalLb(); });
@@ -2026,7 +2030,7 @@ function renderLeaderboard(data) {
   const medals = ['🥇', '🥈', '🥉'];
   const classes = ['gold', 'silver', 'bronze'];
   list.innerHTML = data.map((entry, i) => `
-    <div class="lb-row lb-row-clickable" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}">
+    <div class="lb-row lb-row-clickable" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
       <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <div class="lb-stats">
@@ -2037,8 +2041,11 @@ function renderLeaderboard(data) {
     </div>
   `).join('');
   list.querySelectorAll('.lb-row-clickable').forEach(row => {
-    const id = row.dataset.cosmetic || row.dataset.avatar || row.dataset.cursor;
-    if (id) row.addEventListener('click', () => _shopFocusItem(id));
+    row.addEventListener('click', () => {
+      if (row.dataset.avatar) { _shopFocusItem(row.dataset.avatar); return; }
+      const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
+      if (ids.length) _shopFocusItems(ids);
+    });
   });
 }
 
@@ -2051,15 +2058,18 @@ function renderSnakeLeaderboard(data) {
   }
   const medals = ['🥇', '🥈', '🥉'];
   el.innerHTML = data.map((e, i) => `
-    <div class="lb-row lb-row-clickable" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}">
+    <div class="lb-row lb-row-clickable" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
       <span class="lb-rank">${medals[i] || i + 1}</span>
       <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
       <span class="lb-score-snake">${e.hs} 🍎</span>
     </div>
   `).join('');
   el.querySelectorAll('.lb-row-clickable').forEach(row => {
-    const id = row.dataset.cosmetic || row.dataset.avatar || row.dataset.cursor;
-    if (id) row.addEventListener('click', () => _shopFocusItem(id));
+    row.addEventListener('click', () => {
+      if (row.dataset.avatar) { _shopFocusItem(row.dataset.avatar); return; }
+      const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
+      if (ids.length) _shopFocusItems(ids);
+    });
   });
 }
 
@@ -2398,7 +2408,7 @@ function renderTriviaLeaderboard(data) {
   if (!data || data.length === 0) { list.innerHTML = `<p class="lb-empty">${t().triviaLbEmpty}</p>`; return; }
   const medals = ['🥇','🥈','🥉'];
   list.innerHTML = data.map((entry, i) => `
-    <div class="lb-row lb-row-clickable" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}">
+    <div class="lb-row lb-row-clickable" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${medals[i] || i+1}</span>
       <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <div class="lb-stats">
@@ -2408,8 +2418,11 @@ function renderTriviaLeaderboard(data) {
     </div>
   `).join('');
   list.querySelectorAll('.lb-row-clickable').forEach(row => {
-    const id = row.dataset.cosmetic || row.dataset.avatar || row.dataset.cursor;
-    if (id) row.addEventListener('click', () => _shopFocusItem(id));
+    row.addEventListener('click', () => {
+      if (row.dataset.avatar) { _shopFocusItem(row.dataset.avatar); return; }
+      const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
+      if (ids.length) _shopFocusItems(ids);
+    });
   });
 }
 
@@ -3113,7 +3126,16 @@ function openShop() {
 }
 
 function _shopFocusItem(itemId) {
-  _pendingShopFocus = itemId;
+  _pendingShopFocusIds = null;
+  _pendingShopFocus    = itemId;
+  openShop();
+}
+
+function _shopFocusItems(ids) {
+  const filtered = ids.filter(Boolean);
+  if (!filtered.length) return;
+  _pendingShopFocus    = null;
+  _pendingShopFocusIds = filtered;
   openShop();
 }
 
@@ -3604,19 +3626,19 @@ function _renderShopItems() {
 
   // ── Scroll / focus apres (re)rendu ──────────────────────────────────────
   let _tileJustFocused = false;
+
+  // Cas 1 : badge unique (avatar) -> glow anime
   if (_pendingShopFocus && contentEl) {
     const tile = container.querySelector(`.shop-tile[data-id="${_pendingShopFocus}"]`);
     if (tile) {
       const capturedId  = _pendingShopFocus;
       _shopRetainTileId = capturedId;
       _tileJustFocused  = true;
-      // Scroll instantane a chaque rendu pour que la tuile soit visible immediatement
       requestAnimationFrame(() => {
         const cRect = contentEl.getBoundingClientRect();
         const tRect = tile.getBoundingClientRect();
         contentEl.scrollTop += tRect.top - cRect.top - (cRect.height - tRect.height) / 2;
       });
-      // Debounce: attend que le DOM soit stable avant d'animer le highlight
       clearTimeout(_focusDebounceTimer);
       _focusDebounceTimer = setTimeout(() => {
         _pendingShopFocus = null;
@@ -3626,6 +3648,35 @@ function _renderShopItems() {
         finalTile.scrollIntoView({ behavior: 'smooth', block: 'center' });
         finalTile.classList.add('shop-tile-highlight');
         setTimeout(() => finalTile.classList.remove('shop-tile-highlight'), 2200);
+      }, 300);
+    }
+  }
+
+  // Cas 2 : pas de badge -> surligner font + nameEffect + cosmetic (style tuto-pulse)
+  if (!_tileJustFocused && _pendingShopFocusIds?.length && contentEl) {
+    const tiles = _pendingShopFocusIds
+      .map(id => container.querySelector(`.shop-tile[data-id="${id}"]`))
+      .filter(Boolean);
+    if (tiles.length) {
+      const capturedIds = [..._pendingShopFocusIds];
+      _shopRetainTileId = capturedIds[0];
+      _tileJustFocused  = true;
+      requestAnimationFrame(() => {
+        const cRect = contentEl.getBoundingClientRect();
+        const tRect = tiles[0].getBoundingClientRect();
+        contentEl.scrollTop += tRect.top - cRect.top - (cRect.height - tRect.height) / 2;
+      });
+      clearTimeout(_focusDebounceTimer);
+      _focusDebounceTimer = setTimeout(() => {
+        _pendingShopFocusIds = null;
+        if ($('overlay-shop').classList.contains('hidden')) return;
+        const finalTiles = capturedIds
+          .map(id => container.querySelector(`.shop-tile[data-id="${id}"]`))
+          .filter(Boolean);
+        if (!finalTiles.length) return;
+        finalTiles[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        finalTiles.forEach(t => t.classList.add('tuto-highlight'));
+        setTimeout(() => finalTiles.forEach(t => t.classList.remove('tuto-highlight')), 3500);
       }, 300);
     }
   }
@@ -4020,11 +4071,12 @@ $('btn-shop-close').addEventListener('click', () => {
   sessionStorage.removeItem('shopState');
   const dp = $('shop-detail-panel');
   if (dp) dp.classList.add('hidden');
-  _shopDetailItem   = null;
-  _shopRetainTileId = null;
-  _pendingShopFocus = null;
+  _shopDetailItem      = null;
+  _shopRetainTileId    = null;
+  _pendingShopFocus    = null;
+  _pendingShopFocusIds = null;
   clearTimeout(_focusDebounceTimer);
-  _focusDebounceTimer = null;
+  _focusDebounceTimer  = null;
 });
 
 // Affichage initial du compteur
