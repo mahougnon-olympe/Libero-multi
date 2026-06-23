@@ -837,6 +837,7 @@ body:has(#overlay-shop:not(.hidden)) #news-card { display: none !important; }
 
 @media (max-width: 600px) {
   .screen.game-screen.active ~ .btn-help-float { display: none; }
+  .game-screen { padding-top: 72px; }
   .tg-header { padding-right: 52px; }
   #screen-landing { gap: 12px; padding: 56px 12px 88px; }
   .landing-card { padding: 16px 12px; gap: 8px; }
