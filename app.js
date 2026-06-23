@@ -2013,7 +2013,7 @@ function _paintGlobalLb() {
     row.addEventListener('click', () => {
       if (row.dataset.avatar) { _shopFocusItem(row.dataset.avatar); return; }
       const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
-      if (ids.length) _shopFocusItems(ids);
+      if (ids.length) _shopFocusItems(ids); else openShop();
     });
   });
   const btn = $('btn-lb-more');
@@ -2044,7 +2044,7 @@ function renderLeaderboard(data) {
     row.addEventListener('click', () => {
       if (row.dataset.avatar) { _shopFocusItem(row.dataset.avatar); return; }
       const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
-      if (ids.length) _shopFocusItems(ids);
+      if (ids.length) _shopFocusItems(ids); else openShop();
     });
   });
 }
@@ -2068,7 +2068,7 @@ function renderSnakeLeaderboard(data) {
     row.addEventListener('click', () => {
       if (row.dataset.avatar) { _shopFocusItem(row.dataset.avatar); return; }
       const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
-      if (ids.length) _shopFocusItems(ids);
+      if (ids.length) _shopFocusItems(ids); else openShop();
     });
   });
 }
@@ -2421,7 +2421,7 @@ function renderTriviaLeaderboard(data) {
     row.addEventListener('click', () => {
       if (row.dataset.avatar) { _shopFocusItem(row.dataset.avatar); return; }
       const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
-      if (ids.length) _shopFocusItems(ids);
+      if (ids.length) _shopFocusItems(ids); else openShop();
     });
   });
 }
@@ -3646,13 +3646,15 @@ function _renderShopItems() {
         const finalTile = container.querySelector(`.shop-tile[data-id="${capturedId}"]`);
         if (!finalTile) return;
         finalTile.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        finalTile.classList.remove('shop-tile-highlight');
+        void finalTile.offsetWidth;
         finalTile.classList.add('shop-tile-highlight');
         setTimeout(() => finalTile.classList.remove('shop-tile-highlight'), 2200);
       }, 300);
     }
   }
 
-  // Cas 2 : pas de badge -> surligner font + nameEffect + cosmetic (style tuto-pulse)
+  // Cas 2 : pas de badge -> surligner font + nameEffect + cosmetic
   if (!_tileJustFocused && _pendingShopFocusIds?.length && contentEl) {
     const tiles = _pendingShopFocusIds
       .map(id => container.querySelector(`.shop-tile[data-id="${id}"]`))
@@ -3675,8 +3677,12 @@ function _renderShopItems() {
           .filter(Boolean);
         if (!finalTiles.length) return;
         finalTiles[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-        finalTiles.forEach(t => t.classList.add('tuto-highlight'));
-        setTimeout(() => finalTiles.forEach(t => t.classList.remove('tuto-highlight')), 3500);
+        finalTiles.forEach(t => {
+          t.classList.remove('shop-tile-highlight');
+          void t.offsetWidth; // force reflow pour relancer l'animation
+          t.classList.add('shop-tile-highlight');
+        });
+        setTimeout(() => finalTiles.forEach(t => t.classList.remove('shop-tile-highlight')), 2200);
       }, 300);
     }
   }
