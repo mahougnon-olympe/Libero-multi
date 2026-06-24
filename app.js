@@ -384,6 +384,27 @@ const DICT = {
     shopFeaturedTitle:'⭐ À la une',
     shopDailyTitle:'📅 Quotidien',
     shopBundlesTitle:'🎁 Bundles',
+    shopSectionDescs:{
+      featured:"La sélection de la semaine — se renouvelle toutes les 24h.",
+      daily:"Des offres à prix réduit, renouvelées chaque jour.",
+      bundles:"Packs thématiques à prix réduit. Si tu possèdes déjà certains articles, le prix s'ajuste automatiquement.",
+      colors:"Colorie ton pseudo dans les classements et en partie.",
+      fonts:"Change la police de ton pseudo partout sur Libero.",
+      bubbles:"Personnalise le style visuel de tes bulles de chat.",
+      bgs:"Applique un fond animé à ton espace de jeu.",
+      nameeffects:"Ajoute un effet visuel animé directement sur ton pseudo.",
+      titles:"Affiche un titre à côté de ton pseudo dans le classement.",
+      cursorsnakes:"Remplace ton curseur de souris par un serpent animé.",
+      avatars:"Un emoji s'affiche à côté de ton pseudo dans le classement.",
+      p4tokens:"Personnalise l'apparence de tes jetons en Puissance 4.",
+      ttt:"Personnalise tes symboles ✖️ et ⭕ en Morpion.",
+      chess:"Change le thème visuel de l'échiquier.",
+      clickfx:"Des particules s'animent autour de ton curseur à chaque clic.",
+      emojipacks:"Remplace les émojis du chat par un pack thématique.",
+      victorybans:"Une bannière animée s'affiche sur l'écran de fin quand tu gagnes.",
+      soundpacks:"Remplace les effets sonores du jeu par un pack personnalisé.",
+      emotes:"Envoie une réaction express à tes adversaires en cours de partie.",
+    },
     shopRotationLabel:'Renouvellement dans',
     shopCountdown: ms => { const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000),s=Math.floor((ms%60000)/1000); return h>0?`${h}h ${String(m).padStart(2,'0')}m`:`${m}m ${String(s).padStart(2,'0')}s`; },
     shopBundleSave: pct => `−${pct}%`,
@@ -691,6 +712,27 @@ const DICT = {
     shopFeaturedTitle:'⭐ Featured',
     shopDailyTitle:'📅 Daily',
     shopBundlesTitle:'🎁 Bundles',
+    shopSectionDescs:{
+      featured:"This week's picks — refreshes every 24h.",
+      daily:"Discounted deals, refreshed every day.",
+      bundles:"Themed packs at a reduced price. Already own some items? The price adjusts automatically.",
+      colors:"Color your username across leaderboards and matches.",
+      fonts:"Change the font of your username everywhere on Libero.",
+      bubbles:"Customize the look of your chat bubbles.",
+      bgs:"Apply an animated background to your play area.",
+      nameeffects:"Add an animated visual effect directly to your username.",
+      titles:"Display a title next to your username in the leaderboard.",
+      cursorsnakes:"Replace your mouse cursor with an animated snake.",
+      avatars:"An emoji displays next to your username in the leaderboard.",
+      p4tokens:"Customize the look of your Connect 4 tokens.",
+      ttt:"Customize your ✖️ and ⭕ symbols in Tic-Tac-Toe.",
+      chess:"Change the visual theme of the chess board.",
+      clickfx:"Particles animate around your cursor on every click.",
+      emojipacks:"Replace chat emojis with a themed pack.",
+      victorybans:"An animated banner appears on the end screen when you win.",
+      soundpacks:"Replace game sound effects with a custom pack.",
+      emotes:"Send a quick reaction to your opponents during a match.",
+    },
     shopRotationLabel:'Refreshes in',
     shopCountdown: ms => { const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000),s=Math.floor((ms%60000)/1000); return h>0?`${h}h ${String(m).padStart(2,'0')}m`:`${m}m ${String(s).padStart(2,'0')}s`; },
     shopBundleSave: pct => `−${pct}%`,
@@ -3445,6 +3487,7 @@ function _renderShopItems() {
 
     <section class="shop-fn-section" id="shop-sec-featured" data-section-id="featured">
       <h3 class="shop-fn-section-title">${d.shopFeaturedTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.featured}</p>
       <div class="shop-fn-featured">
         ${featuredItems.map(it => tileHtml(it, true)).join('')}
       </div>
@@ -3455,6 +3498,7 @@ function _renderShopItems() {
         ${d.shopDailyTitle}
         ${shopRotation ? `<span class="shop-fn-countdown">${d.shopRotationLabel} <span id="shop-countdown-val">${countdownVal}</span></span>` : ''}
       </h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.daily}</p>
       <div class="shop-fn-grid">
         ${dailyItems.map(it => tileHtml(it, false, d.shopDailyBadge)).join('')}
       </div>
@@ -3462,6 +3506,7 @@ function _renderShopItems() {
 
     <section class="shop-fn-section" id="shop-sec-bundles" data-section-id="bundles">
       <h3 class="shop-fn-section-title">${d.shopBundlesTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.bundles}</p>
       <div class="shop-fn-featured shop-fn-bundles-grid">
         ${ALL_BUNDLES.map(b => bundleTileHtml(b)).join('')}
       </div>
@@ -3469,6 +3514,7 @@ function _renderShopItems() {
 
     <section class="shop-fn-section" id="shop-sec-bgs" data-section-id="bgs">
       <h3 class="shop-fn-section-title">${d.shopBgTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.bgs}</p>
       <div class="shop-fn-grid">
         ${bgItems.map(it => tileHtml(it)).join('')}
       </div>
@@ -3476,6 +3522,7 @@ function _renderShopItems() {
 
     <section class="shop-fn-section" id="shop-sec-bubbles" data-section-id="bubbles">
       <h3 class="shop-fn-section-title">${d.shopBubbleTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.bubbles}</p>
       <div class="shop-fn-grid">
         ${bubbleItems.map(it => tileHtml(it)).join('')}
       </div>
@@ -3483,6 +3530,7 @@ function _renderShopItems() {
 
     <section class="shop-fn-section" id="shop-sec-fonts" data-section-id="fonts">
       <h3 class="shop-fn-section-title">${d.shopFontsTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.fonts}</p>
       <div class="shop-fn-grid">
         ${fontItems.map(it => tileHtml(it)).join('')}
       </div>
@@ -3490,6 +3538,7 @@ function _renderShopItems() {
 
     <section class="shop-fn-section" id="shop-sec-colors" data-section-id="colors">
       <h3 class="shop-fn-section-title">${d.shopCosmeticsTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.colors}</p>
       <div class="shop-fn-grid">
         ${colorItems.map(it => tileHtml(it)).join('')}
       </div>
@@ -3512,61 +3561,73 @@ function _renderShopItems() {
 
     <section class="shop-fn-section" id="shop-sec-nameeffects" data-section-id="nameeffects">
       <h3 class="shop-fn-section-title">${d.shopNameEffectsTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.nameeffects}</p>
       <div class="shop-fn-grid">${nameEffectItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-titles" data-section-id="titles">
       <h3 class="shop-fn-section-title">${d.shopTitlesTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.titles}</p>
       <div class="shop-fn-grid">${titleItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-cursorsnakes" data-section-id="cursorsnakes">
       <h3 class="shop-fn-section-title">${d.shopCursorSnakesTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.cursorsnakes}</p>
       <div class="shop-fn-grid">${cursorSnakeItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-avatars" data-section-id="avatars">
       <h3 class="shop-fn-section-title">${d.shopAvatarsTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.avatars}</p>
       <div class="shop-fn-grid">${avatarItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-p4tokens" data-section-id="p4tokens">
       <h3 class="shop-fn-section-title">${d.shopP4TokensTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.p4tokens}</p>
       <div class="shop-fn-grid">${p4TokenItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-ttt" data-section-id="ttt">
       <h3 class="shop-fn-section-title">${d.shopTttTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.ttt}</p>
       <div class="shop-fn-grid">${tttItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-chess" data-section-id="chess">
       <h3 class="shop-fn-section-title">${d.shopChessTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.chess}</p>
       <div class="shop-fn-grid">${chessItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-clickfx" data-section-id="clickfx">
       <h3 class="shop-fn-section-title">${d.shopClickFxTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.clickfx}</p>
       <div class="shop-fn-grid">${clickFxItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-emojipacks" data-section-id="emojipacks">
       <h3 class="shop-fn-section-title">${d.shopEmojiPacksTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.emojipacks}</p>
       <div class="shop-fn-grid">${emojiPackItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-victorybans" data-section-id="victorybans">
       <h3 class="shop-fn-section-title">${d.shopVictoryBansTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.victorybans}</p>
       <div class="shop-fn-grid">${victoryBanItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-soundpacks" data-section-id="soundpacks">
       <h3 class="shop-fn-section-title">${d.shopSoundPacksTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.soundpacks}</p>
       <div class="shop-fn-grid">${soundPackItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-emotes" data-section-id="emotes">
       <h3 class="shop-fn-section-title">${d.shopEmotesTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.emotes}</p>
       <div class="shop-fn-grid">${emoteItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
