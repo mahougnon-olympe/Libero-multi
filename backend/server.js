@@ -75,7 +75,7 @@ async function loadData() {
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
   cmtDocs.forEach(d => comments.push({ pseudo: d.pseudo, message: d.message, date: d.date }));
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmote: d.equippedEmote || null, refundCardsUsedAt: d.refundCardsUsedAt || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
@@ -131,7 +131,7 @@ function dbInsertComment(comment) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmote: entry.equippedEmote || null, refundCardsUsedAt: entry.refundCardsUsedAt || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -410,7 +410,7 @@ function _equippedPayload(entry) {
     equippedEmojiPack:   entry.equippedEmojiPack   || null,
     equippedVictoryBan:  entry.equippedVictoryBan  || null,
     equippedSoundPack:   entry.equippedSoundPack   || null,
-    equippedEmote:       entry.equippedEmote       || null,
+    equippedEmotes:      entry.equippedEmotes      || [],
     honorTitle:          entry.honorTitle          || null,
   };
 }
@@ -464,7 +464,7 @@ function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmote: null, refundCardsUsedAt: [], honorTitle: null, pendingHonorModal: null };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmotes: [], refundCardsUsedAt: [], honorTitle: null, pendingHonorModal: null };
     libs.set(id, entry);
   }
   if (!entry.usedCodes)          entry.usedCodes          = [];
@@ -486,7 +486,7 @@ function getLibsEntry(id) {
   if (!('equippedEmojiPack'   in entry)) entry.equippedEmojiPack   = null;
   if (!('equippedVictoryBan'  in entry)) entry.equippedVictoryBan  = null;
   if (!('equippedSoundPack'   in entry)) entry.equippedSoundPack   = null;
-  if (!('equippedEmote'       in entry)) entry.equippedEmote       = null;
+  if (!Array.isArray(entry.equippedEmotes)) entry.equippedEmotes = entry.equippedEmote ? [entry.equippedEmote] : [];
   if (!('honorTitle'          in entry)) entry.honorTitle          = null;
   if (!('pendingHonorModal'   in entry)) entry.pendingHonorModal   = null;
   const prevBal = entry.balance;
@@ -1487,7 +1487,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('equip-cosmetic', ({ playerId, cosmeticId, type } = {}) => {
+  socket.on('equip-cosmetic', ({ playerId, cosmeticId, type, remove } = {}) => {
     const id = safePlayerId(playerId);
     if (!id) return;
     const entry = getLibsEntry(id);
@@ -1512,7 +1512,11 @@ io.on('connection', (socket) => {
       else if (cosmType === 'emojipack')   entry.equippedEmojiPack   = cosmeticId;
       else if (cosmType === 'victoryban')  entry.equippedVictoryBan  = cosmeticId;
       else if (cosmType === 'soundpack')   entry.equippedSoundPack   = cosmeticId;
-      else if (cosmType === 'emote')       entry.equippedEmote       = cosmeticId;
+      else if (cosmType === 'emote') {
+        const arr = entry.equippedEmotes || [];
+        if (remove) { entry.equippedEmotes = arr.filter(e => e !== cosmeticId); }
+        else if (!arr.includes(cosmeticId) && arr.length < 5) { entry.equippedEmotes = [...arr, cosmeticId]; }
+      }
       else entry.equippedCosmetic = cosmeticId;
       libs.set(id, entry);
       dbUpsertLibs(id, entry);
@@ -1556,7 +1560,7 @@ io.on('connection', (socket) => {
     if (entry.equippedEmojiPack   === cosmeticId) entry.equippedEmojiPack   = null;
     if (entry.equippedVictoryBan  === cosmeticId) entry.equippedVictoryBan  = null;
     if (entry.equippedSoundPack   === cosmeticId) entry.equippedSoundPack   = null;
-    if (entry.equippedEmote       === cosmeticId) entry.equippedEmote       = null;
+    entry.equippedEmotes = (entry.equippedEmotes || []).filter(e => e !== cosmeticId);
     entry.balance = Math.min(MAX_BALANCE, entry.balance + cosmetic.price);
     entry.refundCardsUsedAt.push(Date.now());
     libs.set(id, entry);

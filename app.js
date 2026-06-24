@@ -29,7 +29,7 @@ let equippedClickFx      = null;
 let equippedEmojiPack    = null;
 let equippedVictoryBan   = null;
 let equippedSoundPack    = null;
-let equippedEmote        = null;
+let equippedEmotes       = [];
 let honorTitle           = null;
 let _shopDetailItem         = null;
 let _pendingShopFocus       = null;
@@ -1955,8 +1955,9 @@ function _renderEmoteBar() {
     if (form) chatEl.insertBefore(bar, form);
   }
   const ownedEmotes = (ownedCosmetics || []).filter(id => id.startsWith('emote-'));
-  if (ownedEmotes.length === 0) { bar.classList.add('hidden'); return; }
-  bar.innerHTML = ownedEmotes.map(id => {
+  const equippedBar = (equippedEmotes || []).filter(id => ownedEmotes.includes(id));
+  if (equippedBar.length === 0) { bar.classList.add('hidden'); return; }
+  bar.innerHTML = equippedBar.map(id => {
     const def = EMOTE_DEFS[id];
     if (!def) return '';
     return `<button class="emote-btn" data-emote="${id}" title="${def.label}">${def.emoji}</button>`;
@@ -2817,7 +2818,7 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmote: newEmote, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal } = {}) => {
+socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal } = {}) => {
   const prev = libsBalance;
   libsBalance = balance ?? 0;
   localStorage.setItem('libero_libs', String(libsBalance));
@@ -2845,7 +2846,7 @@ socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosme
     if (newEmojiPack   !== undefined) { equippedEmojiPack = newEmojiPack; localStorage.setItem('libero_equipped_emojipack', newEmojiPack || ''); }
     if (newVictoryBan  !== undefined) equippedVictoryBan  = newVictoryBan;
     if (newSoundPack   !== undefined) equippedSoundPack   = newSoundPack;
-    if (newEmote       !== undefined) { equippedEmote = newEmote; _renderEmoteBar(); }
+    if (newEmotes !== undefined) equippedEmotes = newEmotes || [];
     _renderEmoteBar();
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   }
@@ -2901,7 +2902,7 @@ socket.on('buy-cosmetic-result', ({ ok, cosmeticId, error } = {}) => {
   }
 });
 
-socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmote: newEmote } = {}) => {
+socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes } = {}) => {
   if (ok) {
     if (newCosmetic !== undefined) equippedCosmetic = newCosmetic;
     if (newFont     !== undefined) equippedFont     = newFont;
@@ -2919,7 +2920,7 @@ socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippe
     if (newEmojiPack   !== undefined) { equippedEmojiPack = newEmojiPack; localStorage.setItem('libero_equipped_emojipack', newEmojiPack || ''); }
     if (newVictoryBan  !== undefined) equippedVictoryBan  = newVictoryBan;
     if (newSoundPack   !== undefined) equippedSoundPack   = newSoundPack;
-    if (newEmote       !== undefined) { equippedEmote = newEmote; _renderEmoteBar(); }
+    if (newEmotes !== undefined) { equippedEmotes = newEmotes || []; _renderEmoteBar(); }
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   }
 });
@@ -3382,7 +3383,7 @@ function _renderShopItems() {
     const isEquipped = !honorary && [equippedCosmetic, equippedFont, equippedBubble, equippedBackground,
       equippedNameEffect, equippedTitle, equippedCursorSnake, equippedAvatar,
       equippedP4Token, equippedTtt, equippedChess, equippedSnakeSkin,
-      equippedClickFx, equippedEmojiPack, equippedVictoryBan, equippedSoundPack, equippedEmote,
+      equippedClickFx, equippedEmojiPack, equippedVictoryBan, equippedSoundPack, ...equippedEmotes,
     ].includes(id);
     const safeName = (name || id).replace(/"/g, '&quot;');
     const _AV = {'avatar-gamepad':'🎮','avatar-cat':'🐱','avatar-lightning':'⚡','avatar-rocket':'🚀','avatar-robot':'🤖','avatar-skull':'💀','avatar-crown':'👑'};
@@ -3925,7 +3926,7 @@ function _openShopDetail(item) {
   const isEquipped = !honorary && [equippedCosmetic, equippedFont, equippedBubble, equippedBackground,
     equippedNameEffect, equippedTitle, equippedCursorSnake, equippedAvatar,
     equippedP4Token, equippedTtt, equippedChess, equippedSnakeSkin,
-    equippedClickFx, equippedEmojiPack, equippedVictoryBan, equippedSoundPack, equippedEmote,
+    equippedClickFx, equippedEmojiPack, equippedVictoryBan, equippedSoundPack, ...equippedEmotes,
   ].includes(id);
   const lblFree    = fr ? 'Gratuit' : 'Free';
   const priceStr   = price === 0 ? lblFree : `${price} ⚡`;
@@ -3944,7 +3945,21 @@ function _openShopDetail(item) {
     const refundBtn   = canRefund
       ? `<button class="btn shop-detail-action-btn shop-refund-btn" data-id="${id}" data-action="refund" ${hasCards ? '' : 'disabled'}>${refundLabel}</button>`
       : '';
-    if (isEquipped) {
+    if (type === 'emote') {
+      const n = equippedEmotes.length;
+      const slotStr = fr ? `${n}/5 dans la barre` : `${n}/5 in bar`;
+      if (isEquipped) {
+        actionHtml = `<div class="shop-fn-equipped-label">${d.shopCosmeticEquipped}</div>
+          <p class="shop-fn-emote-slots">${slotStr}</p>
+          <button class="btn btn-secondary shop-detail-action-btn" data-id="${id}" data-action="unequip" data-type="${type}">${d.shopCosmeticUnequip}</button>
+          ${refundBtn}`;
+      } else {
+        const full = n >= 5;
+        actionHtml = `<p class="shop-fn-emote-slots">${slotStr}${full ? (fr ? ' — barre pleine' : ' — bar full') : ''}</p>
+          <button class="btn btn-primary shop-detail-action-btn" data-id="${id}" data-action="equip" data-type="${type}" ${full ? 'disabled' : ''}>${d.shopCosmeticEquip}</button>
+          ${refundBtn}`;
+      }
+    } else if (isEquipped) {
       actionHtml = `<div class="shop-fn-equipped-label">${d.shopCosmeticEquipped}</div>
         <button class="btn btn-secondary shop-detail-action-btn" data-id="${id}" data-action="unequip" data-type="${type}">${d.shopCosmeticUnequip}</button>
         ${refundBtn}`;
@@ -3982,7 +3997,7 @@ function _openShopDetail(item) {
       const bType = btn.dataset.type;
       if (action === 'buy')          socket.emit('buy-cosmetic',    { cosmeticId: bId,  playerId: getPlayerId() });
       else if (action === 'equip')   socket.emit('equip-cosmetic',  { cosmeticId: bId,  type: bType, playerId: getPlayerId() });
-      else if (action === 'unequip') socket.emit('equip-cosmetic',  { cosmeticId: null, type: bType, playerId: getPlayerId() });
+      else if (action === 'unequip') socket.emit('equip-cosmetic',  { cosmeticId: bType === 'emote' ? bId : null, type: bType, playerId: getPlayerId(), remove: bType === 'emote' });
       else if (action === 'refund')  socket.emit('refund-cosmetic', { cosmeticId: bId,  playerId: getPlayerId() });
     });
   });

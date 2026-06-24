@@ -1468,6 +1468,7 @@ html.light .shop-fn-boost      { background: rgba(180,83,9,.05); border-color: r
 html.light .shop-fn-boost-name { color: var(--text); }
 html.light .shop-fn-boost-desc { color: var(--muted); }
 html.light .shop-fn-section-desc { color: var(--muted); }
+html.light .shop-fn-emote-slots  { color: var(--muted); }
 html.light .shop-fn-boost-pending { color: #b45309; }
 /* Promo code */
 html.light .shop-fn-promo       { background: rgba(99,102,241,.06); border-color: rgba(99,102,241,.2); }
@@ -1745,6 +1746,7 @@ html.light .shop-fn-promo-input::placeholder { color: var(--muted); }
   padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,.07);
 }
 .shop-fn-section-desc { font-size: .78rem; color: rgba(255,255,255,.45); margin: 0; line-height: 1.5; }
+.shop-fn-emote-slots  { font-size: .78rem; color: rgba(255,255,255,.5); margin: 0 0 6px; }
 .shop-fn-featured { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
 .shop-fn-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(130px,1fr)); gap: 10px; }
 /* Tiles */
