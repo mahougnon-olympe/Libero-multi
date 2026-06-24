@@ -1936,11 +1936,11 @@ $('btn-restart').addEventListener('click', () => {
 $('btn-clear-chat').addEventListener('click', () => { $('chat-messages').innerHTML = ''; });
 
 const EMOTE_DEFS = {
-  'emote-gg':   { emoji:'👍', label:'GG' },
-  'emote-ez':   { emoji:'😎', label:'Trop facile' },
-  'emote-fire': { emoji:'🔥', label:'En feu' },
-  'emote-wow':  { emoji:'😱', label:'Incroyable' },
-  'emote-gg2':  { emoji:'🤝', label:'Bien joué' },
+  'emote-gg':        { emoji:'👍', label:'GG' },
+  'emote-wellplayed':{ emoji:'🤝', label:'Bien joué' },
+  'emote-fire':      { emoji:'🔥', label:'En feu' },
+  'emote-easy':      { emoji:'😎', label:'Trop facile' },
+  'emote-omg':       { emoji:'😱', label:'Incroyable' },
 };
 
 function _renderEmoteBar() {
