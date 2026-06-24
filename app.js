@@ -4112,6 +4112,8 @@ function _settingsOutsideClick(e) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  _loadNewsComments();
+
   const settingsBtn = document.getElementById('btn-settings');
   if (settingsBtn) {
     settingsBtn.addEventListener('click', e => {
@@ -5144,6 +5146,60 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     }
   });
 })();
+
+// ── Commentaires dans la news card ───────────────────────────────────────────
+function _timeAgo(iso) {
+  const ms = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(ms / 60000);
+  const h = Math.floor(m / 60);
+  const d = Math.floor(h / 24);
+  if (d > 0) return `il y a ${d}j`;
+  if (h > 0) return `il y a ${h}h`;
+  if (m > 0) return `il y a ${m}min`;
+  return 'à l\'instant';
+}
+
+async function _loadNewsComments() {
+  const container = document.getElementById('news-comments');
+  if (!container) return;
+  try {
+    const res  = await fetch(`${window.BACKEND_URL}/api/comments`);
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) { container.innerHTML = ''; return; }
+    const liked = JSON.parse(localStorage.getItem('libero_liked_comments') || '[]');
+    container.innerHTML = data.map(c => {
+      const isLiked = liked.includes(c.id);
+      return `<div class="news-comment">
+        <div class="news-comment-meta"><strong>${c.pseudo}</strong><span>${_timeAgo(c.date)}</span></div>
+        <p class="news-comment-msg">${c.message.slice(0, 140)}</p>
+        <button class="news-like-btn${isLiked ? ' liked' : ''}" data-id="${c.id}" ${isLiked ? 'disabled' : ''}>❤️ ${c.likes}</button>
+      </div>`;
+    }).join('');
+    container.querySelectorAll('.news-like-btn:not([disabled])').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        btn.disabled = true;
+        try {
+          const r      = await fetch(`${window.BACKEND_URL}/api/comment-like`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id }),
+          });
+          const result = await r.json();
+          if (result.ok) {
+            const arr = JSON.parse(localStorage.getItem('libero_liked_comments') || '[]');
+            arr.push(id);
+            localStorage.setItem('libero_liked_comments', JSON.stringify(arr));
+            btn.textContent = `❤️ ${result.likes}`;
+            btn.classList.add('liked');
+          } else {
+            btn.disabled = false;
+          }
+        } catch { btn.disabled = false; }
+      });
+    });
+  } catch(e) { console.error('news comments:', e); }
+}
 
 // ── Tutoriel premiers pas ──────────────────────────────────────────────────────
 (() => {

@@ -73,7 +73,7 @@ async function loadData() {
   ]);
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
-  cmtDocs.forEach(d => comments.push({ pseudo: d.pseudo, message: d.message, date: d.date }));
+  cmtDocs.forEach(d => comments.push({ _id: d._id, pseudo: d.pseudo, message: d.message, date: d.date }));
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
@@ -1722,7 +1722,35 @@ io.on('connection', (socket) => {
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 // ── Commentaires joueurs ─────────────────────────────────────────────────────
-const commentRateMap = new Map(); // ip → [timestamps]
+const commentRateMap    = new Map(); // ip → [timestamps]
+const commentLikeMap    = new Map(); // commentId (string) → Set<ip>
+const commentLikeIpMap  = new Map(); // ip → Set<commentId>
+
+app.get('/api/comments', (_req, res) => {
+  const recent = comments.slice(-5).reverse()
+    .filter(c => c._id)
+    .map(c => ({
+      id:     c._id.toString(),
+      pseudo: c.pseudo || 'Anonyme',
+      message: c.message,
+      date:   c.date,
+      likes:  commentLikeMap.get(c._id.toString())?.size || 0,
+    }));
+  res.json(recent);
+});
+
+app.post('/api/comment-like', (req, res) => {
+  const ip = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown').trim();
+  const { id } = req.body || {};
+  if (!id || typeof id !== 'string') return res.json({ ok: false });
+  const ipSet = commentLikeIpMap.get(ip) || new Set();
+  if (ipSet.has(id)) return res.json({ ok: false, error: 'already_liked' });
+  if (!commentLikeMap.has(id)) commentLikeMap.set(id, new Set());
+  commentLikeMap.get(id).add(ip);
+  ipSet.add(id);
+  commentLikeIpMap.set(ip, ipSet);
+  res.json({ ok: true, likes: commentLikeMap.get(id).size });
+});
 
 app.post('/api/comment', (req, res) => {
   const { pseudo, message } = req.body || {};

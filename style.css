@@ -673,6 +673,38 @@ body:has(#overlay-shop:not(.hidden)) #news-card { display: none !important; }
   padding-top: 6px;
   border-top: 1px solid rgba(99,102,241,.2);
 }
+.news-comments { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
+.news-comment {
+  background: rgba(99,102,241,.06);
+  border-top: 1px solid rgba(99,102,241,.18);
+  border-radius: 7px;
+  padding: 6px 9px;
+}
+.news-comment-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 2px;
+}
+.news-comment-meta strong { font-size: .72rem; color: var(--text); }
+.news-comment-meta span   { font-size: .65rem; color: rgba(255,255,255,.4); }
+.news-comment-msg {
+  font-size: .73rem; line-height: 1.35;
+  color: var(--text); margin: 0 0 5px;
+  word-break: break-word;
+}
+.news-like-btn {
+  background: none;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 20px;
+  padding: 2px 9px;
+  font-size: .68rem;
+  cursor: pointer;
+  color: rgba(255,255,255,.45);
+  transition: background .12s, border-color .12s, color .12s;
+}
+.news-like-btn:not([disabled]):hover { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.5); color: #ef4444; }
+.news-like-btn.liked { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.4); color: #ef4444; cursor: default; }
+html.light .news-comment-meta span { color: var(--muted); }
+html.light .news-like-btn { color: var(--muted); border-color: rgba(0,0,0,.15); }
 
 /* ── Bouton aide flottant ── */
 .btn-help-float {
