@@ -1954,8 +1954,7 @@ function _renderEmoteBar() {
     const form = chatEl.querySelector('#chat-form');
     if (form) chatEl.insertBefore(bar, form);
   }
-  const ownedEmotes = (ownedCosmetics || []).filter(id => id.startsWith('emote-'));
-  const equippedBar = (equippedEmotes || []).filter(id => ownedEmotes.includes(id));
+  const equippedBar = equippedEmotes || [];
   if (equippedBar.length === 0) { bar.classList.add('hidden'); return; }
   bar.innerHTML = equippedBar.map(id => {
     const def = EMOTE_DEFS[id];
