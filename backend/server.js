@@ -1904,6 +1904,27 @@ async function mergeDuplicateNames() {
     setInterval(distributeLibs, DIST_INTERVAL);
   }
 
+  function _cleanExpiredComments() {
+    const cutoff = Date.now() - 12 * 60 * 60 * 1000;
+    const toDelete = [];
+    const remaining = [];
+    for (const c of comments) {
+      const old     = new Date(c.date).getTime() < cutoff;
+      const hasLike = c._id && (commentLikeMap.get(c._id.toString())?.size || 0) > 0;
+      if (old && !hasLike) toDelete.push(c._id);
+      else remaining.push(c);
+    }
+    if (!toDelete.length) return;
+    comments.length = 0;
+    comments.push(...remaining);
+    db.collection('comments').deleteMany({ _id: { $in: toDelete } })
+      .catch(e => console.error('Erreur suppression commentaires expirés:', e));
+    console.log(`[🗑️] ${toDelete.length} commentaire(s) sans like supprimé(s) après 12h`);
+  }
+
+  _cleanExpiredComments();
+  setInterval(_cleanExpiredComments, 60 * 60 * 1000);
+
   const PORT = process.env.PORT || 3001;
   server.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));
 })();
