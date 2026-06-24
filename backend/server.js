@@ -1335,7 +1335,7 @@ io.on('connection', (socket) => {
     if (!room || !room.players.Y) return;
     const pid = socketPlayerIds.get(socket.id);
     const entry = pid ? libs.get(pid) : null;
-    const VALID_EMOTES = ['emote-gg','emote-ez','emote-fire','emote-wow','emote-gg2'];
+    const VALID_EMOTES = ['emote-gg','emote-wellplayed','emote-fire','emote-easy','emote-omg'];
     if (!VALID_EMOTES.includes(emoteId)) return;
     if (!entry || !entry.ownedCosmetics?.includes(emoteId)) return;
     io.to(roomCode).emit('emote-received', { player: myPlayer, emoteId, timestamp: Date.now() });
