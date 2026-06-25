@@ -5159,47 +5159,63 @@ function _timeAgo(iso) {
   return 'à l\'instant';
 }
 
-async function _loadNewsComments() {
+function _renderNewsComments(data) {
   const container = document.getElementById('news-comments');
   if (!container) return;
+  if (!Array.isArray(data) || !data.length) { container.innerHTML = ''; return; }
+  const liked = JSON.parse(localStorage.getItem('libero_liked_comments') || '[]');
+  container.innerHTML = data.map(c => {
+    const isLiked = liked.includes(c.id);
+    return `<div class="news-comment">
+      <div class="news-comment-meta"><strong>${c.pseudo}</strong><span>${_timeAgo(c.date)}</span></div>
+      <p class="news-comment-msg">${c.message.slice(0, 140)}</p>
+      <button class="news-like-btn${isLiked ? ' liked' : ''}" data-id="${c.id}" ${isLiked ? 'disabled' : ''}>❤️ ${c.likes}</button>
+    </div>`;
+  }).join('');
+  container.querySelectorAll('.news-like-btn:not([disabled])').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      btn.disabled = true;
+      try {
+        const r      = await fetch(`${window.BACKEND_URL}/api/comment-like`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id }),
+        });
+        const result = await r.json();
+        if (result.ok) {
+          const arr = JSON.parse(localStorage.getItem('libero_liked_comments') || '[]');
+          arr.push(id);
+          localStorage.setItem('libero_liked_comments', JSON.stringify(arr));
+          btn.textContent = `❤️ ${result.likes}`;
+          btn.classList.add('liked');
+        } else {
+          btn.disabled = false;
+        }
+      } catch { btn.disabled = false; }
+    });
+  });
+}
+
+async function _loadNewsComments() {
   try {
     const res  = await fetch(`${window.BACKEND_URL}/api/comments`);
     const data = await res.json();
-    if (!Array.isArray(data) || !data.length) { container.innerHTML = ''; return; }
-    const liked = JSON.parse(localStorage.getItem('libero_liked_comments') || '[]');
-    container.innerHTML = data.map(c => {
-      const isLiked = liked.includes(c.id);
-      return `<div class="news-comment">
-        <div class="news-comment-meta"><strong>${c.pseudo}</strong><span>${_timeAgo(c.date)}</span></div>
-        <p class="news-comment-msg">${c.message.slice(0, 140)}</p>
-        <button class="news-like-btn${isLiked ? ' liked' : ''}" data-id="${c.id}" ${isLiked ? 'disabled' : ''}>❤️ ${c.likes}</button>
-      </div>`;
-    }).join('');
-    container.querySelectorAll('.news-like-btn:not([disabled])').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const id = btn.dataset.id;
-        btn.disabled = true;
-        try {
-          const r      = await fetch(`${window.BACKEND_URL}/api/comment-like`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id }),
-          });
-          const result = await r.json();
-          if (result.ok) {
-            const arr = JSON.parse(localStorage.getItem('libero_liked_comments') || '[]');
-            arr.push(id);
-            localStorage.setItem('libero_liked_comments', JSON.stringify(arr));
-            btn.textContent = `❤️ ${result.likes}`;
-            btn.classList.add('liked');
-          } else {
-            btn.disabled = false;
-          }
-        } catch { btn.disabled = false; }
-      });
-    });
+    _renderNewsComments(data);
   } catch(e) { console.error('news comments:', e); }
 }
+
+socket.on('news-comments-update', data => _renderNewsComments(data));
+
+socket.on('comment-star', ({ pseudo, message, likes }) => {
+  const el = document.getElementById('news-star');
+  if (!el) return;
+  el.innerHTML = `<span class="news-star-badge">🏆 Commentaire du jour</span><strong>${pseudo}</strong> : "${message.slice(0, 100)}"<span class="news-star-likes"> — ❤️ ${likes}</span>`;
+  el.classList.remove('hidden');
+  const nc = document.getElementById('news-card');
+  if (nc) nc.classList.remove('collapsed');
+});
 
 // ── Tutoriel premiers pas ──────────────────────────────────────────────────────
 (() => {

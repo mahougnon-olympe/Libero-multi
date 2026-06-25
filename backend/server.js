@@ -1726,8 +1726,8 @@ const commentRateMap    = new Map(); // ip → [timestamps]
 const commentLikeMap    = new Map(); // commentId (string) → Set<ip>
 const commentLikeIpMap  = new Map(); // ip → Set<commentId>
 
-app.get('/api/comments', (_req, res) => {
-  const recent = comments.slice(-5).reverse()
+function _newsCommentsPayload() {
+  return comments.slice(-3).reverse()
     .filter(c => c._id)
     .map(c => ({
       id:     c._id.toString(),
@@ -1736,8 +1736,9 @@ app.get('/api/comments', (_req, res) => {
       date:   c.date,
       likes:  commentLikeMap.get(c._id.toString())?.size || 0,
     }));
-  res.json(recent);
-});
+}
+
+app.get('/api/comments', (_req, res) => res.json(_newsCommentsPayload()));
 
 app.post('/api/comment-like', (req, res) => {
   const ip = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown').trim();
@@ -1749,7 +1750,9 @@ app.post('/api/comment-like', (req, res) => {
   commentLikeMap.get(id).add(ip);
   ipSet.add(id);
   commentLikeIpMap.set(ip, ipSet);
-  res.json({ ok: true, likes: commentLikeMap.get(id).size });
+  const likes = commentLikeMap.get(id).size;
+  io.emit('news-comments-update', _newsCommentsPayload());
+  res.json({ ok: true, likes });
 });
 
 app.post('/api/comment', (req, res) => {
@@ -1783,6 +1786,7 @@ app.post('/api/comment', (req, res) => {
   };
   comments.push(comment);
   dbInsertComment(comment);
+  io.emit('news-comments-update', _newsCommentsPayload());
 
   console.log(`[💬] ${pseudo?.trim() || 'Anonyme'} : ${message.trim().slice(0, 80)}`);
   res.json({ ok: true });
@@ -1924,6 +1928,19 @@ async function mergeDuplicateNames() {
 
   _cleanExpiredComments();
   setInterval(_cleanExpiredComments, 60 * 60 * 1000);
+
+  function _celebrateMostLiked() {
+    let top = null, topLikes = 0;
+    for (const c of comments) {
+      if (!c._id) continue;
+      const count = commentLikeMap.get(c._id.toString())?.size || 0;
+      if (count > topLikes) { topLikes = count; top = c; }
+    }
+    if (!top || topLikes === 0) return;
+    io.emit('comment-star', { pseudo: top.pseudo, message: top.message, likes: topLikes });
+    console.log(`[🏆] Commentaire du jour : ${top.pseudo} (${topLikes} ❤️)`);
+  }
+  setInterval(_celebrateMostLiked, 24 * 60 * 60 * 1000);
 
   const PORT = process.env.PORT || 3001;
   server.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));

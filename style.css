@@ -705,6 +705,20 @@ body:has(#overlay-shop:not(.hidden)) #news-card { display: none !important; }
 .news-like-btn.liked { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.4); color: #ef4444; cursor: default; }
 html.light .news-comment-meta span { color: var(--muted); }
 html.light .news-like-btn { color: var(--muted); border-color: rgba(0,0,0,.15); }
+.news-star {
+  background: rgba(234,179,8,.1);
+  border: 1px solid rgba(234,179,8,.35);
+  border-radius: 7px;
+  padding: 7px 9px;
+  font-size: .72rem;
+  margin-top: 6px;
+  line-height: 1.5;
+  color: var(--text);
+  word-break: break-word;
+}
+.news-star-badge { display: block; font-weight: 700; color: #eab308; font-size: .68rem; margin-bottom: 2px; }
+.news-star-likes { color: #ef4444; }
+html.light .news-star { background: rgba(234,179,8,.08); }
 
 /* ── Bouton aide flottant ── */
 .btn-help-float {
