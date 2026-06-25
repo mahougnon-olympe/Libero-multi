@@ -4386,9 +4386,9 @@ document.addEventListener('click', e => {
     return h >= 7 && h < 20;
   }
 
-  function applyTheme(showNotif = false) {
+  function applyTheme(showNotif = false, force = false) {
     const isLight = getIsLight();
-    const changed = lastLight !== null && isLight !== lastLight;
+    const changed = force || (lastLight !== null && isLight !== lastLight);
     document.documentElement.classList.toggle('light', isLight);
     const btn = document.getElementById('btn-theme-toggle');
     if (btn) btn.textContent = isLight ? '☀️' : '🌙';
@@ -4417,8 +4417,7 @@ document.addEventListener('click', e => {
   document.getElementById('btn-theme-toggle').addEventListener('click', () => {
     const isNowLight = !document.documentElement.classList.contains('light');
     localStorage.setItem('themeMode', isNowLight ? 'light' : 'dark');
-    lastLight = null; // force l'affichage du toast
-    applyTheme(true);
+    applyTheme(true, true); // force: toast + repaint immédiat du fond équipé
   });
 
   applyTheme(false);
