@@ -2210,15 +2210,27 @@ body.has-bg { background-color: transparent !important; background-image: none !
 body.has-bg .card, body.has-bg [class*="overlay-content"], body.has-bg .shop-overlay,
 body.has-bg .overlay > .overlay-content, body.has-bg .game-card,
 body.has-bg .chat, body.has-bg .leaderboard-panel { background: rgba(13,17,35,.82); backdrop-filter: blur(14px); }
+html.light body.has-bg .card, html.light body.has-bg [class*="overlay-content"], html.light body.has-bg .shop-overlay,
+html.light body.has-bg .overlay > .overlay-content, html.light body.has-bg .game-card,
+html.light body.has-bg .chat, html.light body.has-bg .leaderboard-panel { background: rgba(255,255,255,.82); }
 
-/* Themes: override CSS vars */
+/* Themes: override CSS vars (version nuit) */
 body.bg-theme-violet   { --board:#8b5cf6;--board2:#7c3aed;--border:rgba(139,92,246,.2);--glow:rgba(139,92,246,.45); }
 body.bg-theme-aurora   { --board:#00c853;--board2:#00897b;--border:rgba(0,200,83,.2);--glow:rgba(0,200,83,.4); }
 body.bg-theme-cyber    { --board:#00b4d8;--board2:#0096c7;--border:rgba(0,180,216,.2);--glow:rgba(0,180,216,.45); }
 body.bg-theme-space    { --board:#3a86ff;--board2:#2176ff;--border:rgba(58,134,255,.2);--glow:rgba(58,134,255,.45); }
 body.bg-theme-synthwave{ --board:#ff2d78;--board2:#c9004a;--border:rgba(255,45,120,.2);--glow:rgba(255,45,120,.45); }
+body.bg-theme-void      { --board:#6b7fa8;--board2:#4f6090;--border:rgba(107,127,168,.22);--glow:rgba(107,127,168,.4); }
 
-/* Static CSS backgrounds */
+/* Themes: override CSS vars (version jour — boutons assortis au fond clair) */
+html.light body.bg-theme-violet   { --board:#7c3aed;--board2:#6d28d9;--border:rgba(124,58,237,.25);--glow:rgba(124,58,237,.25); }
+html.light body.bg-theme-aurora   { --board:#059669;--board2:#047857;--border:rgba(5,150,105,.25);--glow:rgba(5,150,105,.2); }
+html.light body.bg-theme-cyber    { --board:#0891b2;--board2:#0e7490;--border:rgba(8,145,178,.25);--glow:rgba(8,145,178,.2); }
+html.light body.bg-theme-space    { --board:#2563eb;--board2:#1d4ed8;--border:rgba(37,99,235,.25);--glow:rgba(37,99,235,.2); }
+html.light body.bg-theme-synthwave{ --board:#db2777;--board2:#be185d;--border:rgba(219,39,119,.25);--glow:rgba(219,39,119,.2); }
+html.light body.bg-theme-void      { --board:#475569;--board2:#334155;--border:rgba(71,85,105,.25);--glow:rgba(71,85,105,.18); }
+
+/* Static CSS backgrounds — version nuit */
 #bg-layer.bg-nuit,     .shop-bg-preview.bg-nuit     { background:#06060e; }
 #bg-layer.bg-ardoise,  .shop-bg-preview.bg-ardoise   { background:linear-gradient(135deg,#0f1923,#1a2a3a); }
 #bg-layer.bg-brume,    .shop-bg-preview.bg-brume     { background:radial-gradient(ellipse at 50% 30%,#2d0060 0%,#0a0015 65%); }
@@ -2226,7 +2238,7 @@ body.bg-theme-synthwave{ --board:#ff2d78;--board2:#c9004a;--border:rgba(255,45,1
 #bg-layer.bg-crepuscule,.shop-bg-preview.bg-crepuscule{ background:linear-gradient(180deg,#0a0018 0%,#2d0050 50%,#3d0040 100%); }
 #bg-layer.bg-cyber,    .shop-bg-preview.bg-cyber     { background-color:#020c12;background-image:linear-gradient(rgba(0,255,200,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,200,.08) 1px,transparent 1px);background-size:40px 40px; }
 #bg-layer.bg-hexagones,.shop-bg-preview.bg-hexagones { background-color:#060c18;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92'%3E%3Cpath d='M40 0L80 23V69L40 92L0 69V23Z' fill='none' stroke='rgba(0%2C200%2C255%2C0.13)' stroke-width='1.5'/%3E%3C/svg%3E");background-size:80px 92px; }
-/* Canvas bg bases (preview only) */
+/* Canvas bg bases (preview only) — version nuit */
 #bg-layer.bg-circuit,    .shop-bg-preview.bg-circuit    { background:linear-gradient(135deg,#010e05,#020e08); }
 #bg-layer.bg-etoile,     .shop-bg-preview.bg-etoile     { background:#02040c; }
 #bg-layer.bg-particules, .shop-bg-preview.bg-particules { background:linear-gradient(135deg,#050815,#080520); }
@@ -2238,6 +2250,27 @@ body.bg-theme-synthwave{ --board:#ff2d78;--board2:#c9004a;--border:rgba(255,45,1
 #bg-layer.bg-galaxie,    .shop-bg-preview.bg-galaxie    { background:#000208; }
 #bg-layer.bg-tempete,    .shop-bg-preview.bg-tempete    { background:#030008; }
 #bg-layer.bg-hologramme, .shop-bg-preview.bg-hologramme { background:linear-gradient(135deg,#010d14,#020810); }
+
+/* Static CSS backgrounds — version jour (mode clair) */
+html.light #bg-layer.bg-nuit,     html.light .shop-bg-preview.bg-nuit     { background:linear-gradient(135deg,#e3f2fd,#bbdefb); }
+html.light #bg-layer.bg-ardoise,  html.light .shop-bg-preview.bg-ardoise   { background:linear-gradient(135deg,#eceff1,#cfd8dc); }
+html.light #bg-layer.bg-brume,    html.light .shop-bg-preview.bg-brume     { background:radial-gradient(ellipse at 50% 30%,#f3e5f5 0%,#e1bee7 65%); }
+html.light #bg-layer.bg-aurore-deg,html.light .shop-bg-preview.bg-aurore-deg{ background:linear-gradient(160deg,#e0f7fa 0%,#c8e6c9 35%,#e1f5fe 65%,#e8eaf6 100%); }
+html.light #bg-layer.bg-crepuscule,html.light .shop-bg-preview.bg-crepuscule{ background:linear-gradient(180deg,#fde7f3 0%,#f3e5f5 50%,#fce4ec 100%); }
+html.light #bg-layer.bg-cyber,    html.light .shop-bg-preview.bg-cyber     { background-color:#e0f7fa;background-image:linear-gradient(rgba(0,131,143,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(0,131,143,.16) 1px,transparent 1px);background-size:40px 40px; }
+html.light #bg-layer.bg-hexagones,html.light .shop-bg-preview.bg-hexagones { background-color:#e8f0fe;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92'%3E%3Cpath d='M40 0L80 23V69L40 92L0 69V23Z' fill='none' stroke='rgba(0%2C120%2C200%2C0.22)' stroke-width='1.5'/%3E%3C/svg%3E");background-size:80px 92px; }
+/* Canvas bg bases (preview only) — version jour */
+html.light #bg-layer.bg-circuit,    html.light .shop-bg-preview.bg-circuit    { background:linear-gradient(135deg,#e0f2e9,#d7f0e4); }
+html.light #bg-layer.bg-etoile,     html.light .shop-bg-preview.bg-etoile     { background:linear-gradient(135deg,#dbeafe,#e0e7ff); }
+html.light #bg-layer.bg-particules, html.light .shop-bg-preview.bg-particules { background:linear-gradient(135deg,#e3f2fd,#ede7f6); }
+html.light #bg-layer.bg-pluie,      html.light .shop-bg-preview.bg-pluie      { background:#f1f5f9; }
+html.light #bg-layer.bg-vagues,     html.light .shop-bg-preview.bg-vagues     { background:linear-gradient(180deg,#e1f5fe,#e0f7fa); }
+html.light #bg-layer.bg-synthwave,  html.light .shop-bg-preview.bg-synthwave  { background:linear-gradient(180deg,#bbdefb 0%,#f8bbd0 45%,#ffe0b2 55%,#fff3e0 100%); }
+html.light #bg-layer.bg-nebuleuse,  html.light .shop-bg-preview.bg-nebuleuse  { background:radial-gradient(ellipse at 40% 40%,#ede7f6 0%,#f3e5f5 70%); }
+html.light #bg-layer.bg-aurores,    html.light .shop-bg-preview.bg-aurores    { background:linear-gradient(180deg,#e0f7fa,#e8f5e9); }
+html.light #bg-layer.bg-galaxie,    html.light .shop-bg-preview.bg-galaxie    { background:#e8eaf6; }
+html.light #bg-layer.bg-tempete,    html.light .shop-bg-preview.bg-tempete    { background:#eceff1; }
+html.light #bg-layer.bg-hologramme, html.light .shop-bg-preview.bg-hologramme { background:linear-gradient(135deg,#e0f7fa,#e1f5fe); }
 
 /* Shop bg preview card */
 .shop-bg-preview { width:100%;height:56px;border-radius:8px;margin-bottom:2px; }

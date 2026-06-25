@@ -4388,11 +4388,15 @@ document.addEventListener('click', e => {
 
   function applyTheme(showNotif = false) {
     const isLight = getIsLight();
+    const changed = lastLight !== null && isLight !== lastLight;
     document.documentElement.classList.toggle('light', isLight);
     const btn = document.getElementById('btn-theme-toggle');
     if (btn) btn.textContent = isLight ? '☀️' : '🌙';
-    if (showNotif && isLight !== lastLight) {
+    if (showNotif && changed) {
       showThemeClock(isLight ? t().themeDay : t().themeNight);
+    }
+    if (changed && typeof equippedBackground !== 'undefined' && equippedBackground) {
+      BGManager.start(equippedBackground);
     }
     lastLight = isLight;
   }
@@ -5544,22 +5548,27 @@ const BGManager = (() => {
     canvas.style.display = 'block';
     resizeFn = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
     window.addEventListener('resize', resizeFn);
+    const light = isLight();
     switch(id) {
-      case 'bg-circuit':    animCircuit();    break;
-      case 'bg-etoile':     animEtoile();     break;
-      case 'bg-particules': animParticules();  break;
-      case 'bg-pluie':      animPluie();      break;
-      case 'bg-vagues':     animVagues();     break;
-      case 'bg-synthwave':  animSynthwave();  break;
-      case 'bg-nebuleuse':  animNebuleuse();  break;
-      case 'bg-aurores':    animAurores();    break;
-      case 'bg-galaxie':    animGalaxie();    break;
-      case 'bg-tempete':    animTempete();    break;
-      case 'bg-hologramme': animHologramme(); break;
+      case 'bg-circuit':    animCircuit(light);    break;
+      case 'bg-etoile':     animEtoile(light);     break;
+      case 'bg-particules': animParticules(light);  break;
+      case 'bg-pluie':      animPluie(light);      break;
+      case 'bg-vagues':     animVagues(light);     break;
+      case 'bg-synthwave':  animSynthwave(light);  break;
+      case 'bg-nebuleuse':  animNebuleuse(light);  break;
+      case 'bg-aurores':    animAurores(light);    break;
+      case 'bg-galaxie':    animGalaxie(light);    break;
+      case 'bg-tempete':    animTempete(light);    break;
+      case 'bg-hologramme': animHologramme(light); break;
     }
   }
 
-  function animCircuit() {
+  function isLight() { return document.documentElement.classList.contains('light'); }
+
+  function animCircuit(light) {
+    const lineCol = light ? '4,120,87' : '0,255,136';
+    const dotCol  = light ? '#047857'  : '#00ff88';
     const grid = 40;
     const nodes = [], lines = [];
     function init() {
@@ -5582,24 +5591,25 @@ const BGManager = (() => {
       for (const l of lines) {
         l.p = (l.p + l.sp) % 1;
         if (l.x2 > W || l.y2 > H) continue;
-        ctx.strokeStyle = '#00ff8822'; ctx.lineWidth = 1;
+        ctx.strokeStyle = `rgba(${lineCol},.13)`; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(l.x1,l.y1); ctx.lineTo(l.x2,l.y2); ctx.stroke();
         const px = l.x1 + (l.x2-l.x1)*l.p, py = l.y1 + (l.y2-l.y1)*l.p;
         ctx.beginPath(); ctx.arc(px,py,2.5,0,Math.PI*2);
-        ctx.fillStyle='#00ff88'; ctx.fill();
+        ctx.fillStyle=dotCol; ctx.fill();
       }
       for (const n of nodes) {
         if (n.x > W || n.y > H) continue;
         const a = .3+.7*(.5+.5*Math.sin(t*1.5+n.phase));
         ctx.beginPath(); ctx.arc(n.x,n.y,2,0,Math.PI*2);
-        ctx.fillStyle=`rgba(0,255,136,${a})`; ctx.fill();
+        ctx.fillStyle=`rgba(${lineCol},${a})`; ctx.fill();
       }
       animId = requestAnimationFrame(frame);
     }
     frame();
   }
 
-  function animEtoile() {
+  function animEtoile(light) {
+    const starCol = light ? '30,41,59' : '255,255,255';
     const stars = Array.from({length:250},()=>({
       x:Math.random()*canvas.width, y:Math.random()*canvas.height,
       r:Math.random()*1.4+.3, phase:Math.random()*Math.PI*2, sp:Math.random()*.04+.01
@@ -5612,15 +5622,17 @@ const BGManager = (() => {
       for(const s of stars){
         const a=.35+.65*(.5+.5*Math.sin(t*s.sp*60+s.phase));
         ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-        ctx.fillStyle=`rgba(255,255,255,${a})`; ctx.fill();
+        ctx.fillStyle=`rgba(${starCol},${a})`; ctx.fill();
       }
       animId=requestAnimationFrame(frame);
     }
     frame();
   }
 
-  function animParticules() {
-    const cols=['#4fc3f7','#7c4dff','#00e5ff','#69f0ae','#ff6b6b','#ffd740'];
+  function animParticules(light) {
+    const cols = light
+      ? ['#0277bd','#512da8','#00838f','#2e7d32','#c62828','#f9a825']
+      : ['#4fc3f7','#7c4dff','#00e5ff','#69f0ae','#ff6b6b','#ffd740'];
     const pts = Array.from({length:80},()=>({
       x:Math.random()*canvas.width, y:Math.random()*canvas.height,
       r:Math.random()*3+.8, vx:(Math.random()-.5)*.5, vy:-(Math.random()*.6+.2),
@@ -5641,13 +5653,16 @@ const BGManager = (() => {
     frame();
   }
 
-  function animPluie() {
+  function animPluie(light) {
     const W=canvas.width, H=canvas.height;
     const fontSize=14, cols2=Math.floor(W/fontSize);
     const drops=Array.from({length:cols2},()=>Math.random()*(H/fontSize));
-    const neonCols=['#00ff88','#00ffff','#ff00ff','#ff0088','#ffff00'];
+    const neonCols = light
+      ? ['#0d9488','#0891b2','#be185d','#c2410c','#ca8a04']
+      : ['#00ff88','#00ffff','#ff00ff','#ff0088','#ffff00'];
+    const trailFill = light ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
     function frame() {
-      ctx.fillStyle='rgba(0,0,0,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle=trailFill; ctx.fillRect(0,0,canvas.width,canvas.height);
       for(let i=0;i<drops.length;i++){
         ctx.fillStyle=neonCols[i%neonCols.length]; ctx.font=`${fontSize}px monospace`;
         ctx.fillText(String.fromCharCode(0x30A0+Math.random()*96),i*fontSize,drops[i]*fontSize);
@@ -5659,8 +5674,12 @@ const BGManager = (() => {
     frame();
   }
 
-  function animVagues() {
-    const waves=[
+  function animVagues(light) {
+    const waves = light ? [
+      {c:'#0277bd',a:35,f:.018,sp:.025,y:.5},
+      {c:'#512da8',a:45,f:.013,sp:.018,y:.62},
+      {c:'#00838f',a:28,f:.022,sp:.032,y:.56},
+    ] : [
       {c:'#4fc3f7',a:35,f:.018,sp:.025,y:.5},
       {c:'#7c4dff',a:45,f:.013,sp:.018,y:.62},
       {c:'#00e5ff',a:28,f:.022,sp:.032,y:.56},
@@ -5686,8 +5705,13 @@ const BGManager = (() => {
     frame();
   }
 
-  function animSynthwave() {
+  function animSynthwave(light) {
     let t=0;
+    const skyStops   = light ? ['#bbdefb','#f8bbd0'] : ['#0a0018','#3d0050'];
+    const sunStops   = light ? ['#fff176','#ff8a65','transparent'] : ['#ff8800','#ff2d78','transparent'];
+    const sunBandCol = light ? '#f8bbd0' : '#3d0050';
+    const floorStops = light ? ['#ffe0b2','#fff3e0'] : ['#220030','#080010'];
+    const gridLine   = light ? '219,39,119' : '255,20,200';
     function frame() {
       const W=canvas.width,H=canvas.height;
       ctx.clearRect(0,0,W,H);
@@ -5695,26 +5719,26 @@ const BGManager = (() => {
       const hz=H*.52;
       // Sky
       const sky=ctx.createLinearGradient(0,0,0,hz);
-      sky.addColorStop(0,'#0a0018'); sky.addColorStop(1,'#3d0050');
+      sky.addColorStop(0,skyStops[0]); sky.addColorStop(1,skyStops[1]);
       ctx.fillStyle=sky; ctx.fillRect(0,0,W,hz);
       // Sun
       const sr=Math.min(W,H)*.13;
       ctx.save(); ctx.beginPath(); ctx.rect(0,0,W,hz); ctx.clip();
       const sg=ctx.createRadialGradient(W/2,hz,0,W/2,hz,sr*1.3);
-      sg.addColorStop(0,'#ff8800'); sg.addColorStop(.45,'#ff2d78'); sg.addColorStop(1,'transparent');
+      sg.addColorStop(0,sunStops[0]); sg.addColorStop(.45,sunStops[1]); sg.addColorStop(1,sunStops[2]);
       ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(W/2,hz,sr*1.3,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle='#3d0050';
+      ctx.fillStyle=sunBandCol;
       for(let i=0;i<7;i++){const sy=hz-sr*.1-i*sr*.14; if(sy<hz-sr*1.2) break; ctx.fillRect(W/2-sr*1.3,sy,sr*2.6,sr*.07);}
       ctx.restore();
       // Floor
       const fl=ctx.createLinearGradient(0,hz,0,H);
-      fl.addColorStop(0,'#220030'); fl.addColorStop(1,'#080010');
+      fl.addColorStop(0,floorStops[0]); fl.addColorStop(1,floorStops[1]);
       ctx.fillStyle=fl; ctx.fillRect(0,hz,W,H-hz);
       // Vertical lines
       const vn=14;
       for(let i=0;i<=vn;i++){
         const x=(i/vn)*W, a=.55*(1-Math.abs(i/vn-.5)*1.6);
-        ctx.strokeStyle=`rgba(255,20,200,${Math.max(.04,a)})`; ctx.lineWidth=1;
+        ctx.strokeStyle=`rgba(${gridLine},${Math.max(.04,a)})`; ctx.lineWidth=1;
         ctx.beginPath(); ctx.moveTo(W/2,hz); ctx.lineTo(x,H); ctx.stroke();
       }
       // Scrolling horizontal lines
@@ -5722,7 +5746,7 @@ const BGManager = (() => {
       for(let i=0;i<hn;i++){
         const prog=((i+scroll)/hn), y=hz+(H-hz)*Math.pow(prog,1.8);
         const a=Math.min(.75,prog*2.5);
-        ctx.strokeStyle=`rgba(255,20,200,${a})`; ctx.lineWidth=Math.max(.5,2*prog);
+        ctx.strokeStyle=`rgba(${gridLine},${a})`; ctx.lineWidth=Math.max(.5,2*prog);
         ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
       }
       animId=requestAnimationFrame(frame);
@@ -5730,8 +5754,12 @@ const BGManager = (() => {
     frame();
   }
 
-  function animNebuleuse() {
-    const blobs=[
+  function animNebuleuse(light) {
+    const blobs = light ? [
+      {xf:.3,yf:.4,r:.32,c:'#b39ddb',ph:0},
+      {xf:.7,yf:.6,r:.26,c:'#f48fb1',ph:2.1},
+      {xf:.5,yf:.5,r:.22,c:'#90a4ae',ph:4.2},
+    ] : [
       {xf:.3,yf:.4,r:.32,c:'#7c4dff',ph:0},
       {xf:.7,yf:.6,r:.26,c:'#e91e63',ph:2.1},
       {xf:.5,yf:.5,r:.22,c:'#3d5afe',ph:4.2},
@@ -5756,8 +5784,12 @@ const BGManager = (() => {
     frame();
   }
 
-  function animAurores() {
-    const bands=[
+  function animAurores(light) {
+    const bands = light ? [
+      {c:'#00897b',w:.14,yf:.22,ph:0},
+      {c:'#0277bd',w:.11,yf:.36,ph:1.5},
+      {c:'#5e35b1',w:.09,yf:.29,ph:3.0},
+    ] : [
       {c:'#00e676',w:.14,yf:.22,ph:0},
       {c:'#40c4ff',w:.11,yf:.36,ph:1.5},
       {c:'#7c4dff',w:.09,yf:.29,ph:3.0},
@@ -5792,7 +5824,7 @@ const BGManager = (() => {
     frame();
   }
 
-  function animGalaxie() {
+  function animGalaxie(light) {
     const stars=Array.from({length:350},()=>{
       const dist=Math.random()*Math.min(canvas.width,canvas.height)*.46;
       const arm=Math.floor(Math.random()*2)*Math.PI;
@@ -5800,7 +5832,9 @@ const BGManager = (() => {
       return {
         x:Math.cos(sp)*dist, y:Math.sin(sp)*dist,
         r:Math.random()*1.6+.3,
-        c:`hsl(${200+Math.random()*150},70%,${60+Math.random()*30}%)`
+        c: light
+          ? `hsl(${200+Math.random()*150},65%,${28+Math.random()*22}%)`
+          : `hsl(${200+Math.random()*150},70%,${60+Math.random()*30}%)`
       };
     });
     let rot=0;
@@ -5819,9 +5853,9 @@ const BGManager = (() => {
     frame();
   }
 
-  function animTempete() {
+  function animTempete(light) {
     const bolts=[];
-    const nCols=['#ff00ff','#00ffff','#ff4400'];
+    const nCols = light ? ['#c2185b','#0097a7','#e64a19'] : ['#ff00ff','#00ffff','#ff4400'];
     const pts2=Array.from({length:100},()=>({
       x:Math.random()*canvas.width, y:Math.random()*canvas.height,
       vx:(Math.random()-.5)*4, vy:(Math.random()-.5)*4,
@@ -5862,31 +5896,33 @@ const BGManager = (() => {
     frame();
   }
 
-  function animHologramme() {
+  function animHologramme(light) {
     let t=0, glitch=0;
+    const gridCol = light ? '0,131,143'  : '0,200,255';
+    const scanCol = light ? '0,151,167'  : '0,255,255';
     function frame() {
       const W=canvas.width,H=canvas.height;
       ctx.clearRect(0,0,W,H);
       t++;
       // Grid
-      ctx.strokeStyle='rgba(0,200,255,0.09)'; ctx.lineWidth=.5;
+      ctx.strokeStyle=`rgba(${gridCol},0.15)`; ctx.lineWidth=.5;
       for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
       for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
       // Scanlines
       for(let y=0;y<H;y+=4){
-        ctx.fillStyle=`rgba(0,200,255,${.025+.015*Math.sin(y*.08+t*.04)})`;
+        ctx.fillStyle=`rgba(${gridCol},${.025+.015*Math.sin(y*.08+t*.04)})`;
         ctx.fillRect(0,y,W,2);
       }
       // Moving scan line
       const sy=(t*2.5)%H;
       const sg=ctx.createLinearGradient(0,sy-25,0,sy+25);
-      sg.addColorStop(0,'transparent'); sg.addColorStop(.5,'rgba(0,255,255,0.14)'); sg.addColorStop(1,'transparent');
+      sg.addColorStop(0,'transparent'); sg.addColorStop(.5,`rgba(${scanCol},0.18)`); sg.addColorStop(1,'transparent');
       ctx.fillStyle=sg; ctx.fillRect(0,sy-25,W,50);
       // Glitch
       glitch--;
       if(glitch<=0&&Math.random()<.004){glitch=12;
         for(let i=0;i<4;i++){const gy=Math.random()*H,gh=Math.random()*18+2;
-          ctx.fillStyle=`rgba(0,255,255,${Math.random()*.25})`;ctx.fillRect(0,gy,W,gh);}
+          ctx.fillStyle=`rgba(${scanCol},${Math.random()*.3})`;ctx.fillRect(0,gy,W,gh);}
       }
       animId=requestAnimationFrame(frame);
     }
