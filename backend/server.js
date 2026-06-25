@@ -964,16 +964,22 @@ io.on('connection', (socket) => {
     socket.join(key);
 
     socket.emit('reconnect-success', {
-      gameType:   room.gameType,
-      state:      room.state,
-      yourPlayer: player,
-      status:     room.status,
-      winner:     room.winner,
-      roomCode:   room.code,
+      gameType:     room.gameType,
+      state:        room.state,
+      yourPlayer:   player,
+      status:       room.status,
+      winner:       room.winner,
+      roomCode:     room.code,
+      vsBot:        room.vsBot || false,
+      botDifficulty: room.botDifficulty || null,
     });
 
+    if (room.vsBot && room.status === 'playing' && room.state.currentPlayer === 'Y') {
+      scheduleBotMove(roomCode);
+    }
+
     const other = player === 'R' ? 'Y' : 'R';
-    if (room.players[other]) io.to(room.players[other]).emit('opponent-reconnected');
+    if (room.players[other] && room.players[other] !== 'bot') io.to(room.players[other]).emit('opponent-reconnected');
   });
 
   // ── Jouer un coup ───────────────────────────────────────────────────────

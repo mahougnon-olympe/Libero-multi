@@ -1140,6 +1140,19 @@ function applyLang() {
   });
   renderHelp();
 
+  // Honour modal button
+  const bhra = $('btn-honor-reward-accept'); if (bhra) bhra.textContent = d.honorModalBtn;
+
+  // Snake vote modal (if open)
+  const svt  = $('snake-vote-title');    if (svt)  svt.textContent  = d.snakeVoteTitle;
+  const svsu = $('snake-vote-subtitle'); if (svsu) svsu.textContent = d.snakeVoteSubtitle;
+  const vyl  = $('vote-yes-label');      if (vyl)  vyl.textContent  = d.snakeVoteYes;
+  const vnl  = $('vote-no-label');       if (vnl)  vnl.textContent  = d.snakeVoteNo;
+
+  // Shop header (if open)
+  const smt = $('shop-modal-title');  if (smt) smt.textContent  = d.shopTitle;
+  const sbl = $('shop-balance-label'); if (sbl) sbl.textContent = d.shopBalanceLabel;
+
   // Libs : mettre à jour le bouton boost hint si affiché
   _updateBoostHintBtn();
 
@@ -1149,11 +1162,12 @@ function applyLang() {
   // Rebuild trivia themes (garde les sélections actives)
   $('trivia-themes').innerHTML = '';
 
-  // Re-render classements pour mettre a jour titres et badges traduits
-  if (_glbData.length)       _paintGlobalLb();
-  if (_classicLbData.length) renderLeaderboard(_classicLbData);
-  if (_snakeLbData.length)   renderSnakeLeaderboard(_snakeLbData);
-  if (_triviaLbData.length)  renderTriviaLeaderboard(_triviaLbData);
+  // Re-render classements (messages vides traduits meme si liste vide)
+  if (_glbData.length) _paintGlobalLb();
+  else { const gl = $('global-lb-list'); if (gl) gl.innerHTML = `<p class="lb-empty">${d.globalLbEmpty}</p>`; }
+  renderLeaderboard(_classicLbData);
+  renderSnakeLeaderboard(_snakeLbData);
+  renderTriviaLeaderboard(_triviaLbData);
 
   // Mettre à jour le panneau Paramètres si ouvert
   _updateSettingsPanel();
@@ -2720,11 +2734,17 @@ socket.on('game-start', ({ gameType, state, yourPlayer, vsBot, botDifficulty }) 
   showScreen('game');
 });
 
-socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, roomCode }) => {
+socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, roomCode, vsBot, botDifficulty }) => {
   currentRoomCode = roomCode;
+  isBotGame = !!vsBot;
   saveSession(roomCode, yourPlayer);
   hideOverlay();
   applyGameState({ gameType, state, yourPlayer, status, winner });
+  $('chat').classList.toggle('hidden', isBotGame);
+  if (isBotGame) {
+    const diffLabel = t().diffLabels[botDifficulty] || '';
+    $('label-y').textContent = diffLabel ? `🤖 Robot (${diffLabel})` : '🤖 Robot';
+  }
   showScreen('game');
 });
 
