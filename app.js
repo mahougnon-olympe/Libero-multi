@@ -5159,7 +5159,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
 
   // ── Thèmes de map (jour / nuit / saisons) ───────────────────────────────────
   // La map change de thème tous les THEME_SCORE_STEP points, en boucle.
-  const THEME_SCORE_STEP = 150;
+  const THEME_SCORE_STEP = 1000;
   const THEMES = [
     { id: 'day',    skyTop: '#7ec8e3', skyBot: '#bfe8f0', ground: '#1a2a1a', groundLine: 'rgba(255,255,255,.18)', particle: 'cloud' },
     { id: 'night',  skyTop: '#0c1330', skyBot: '#1e2a55', ground: '#0d1410', groundLine: 'rgba(255,255,255,.10)', particle: 'star',
