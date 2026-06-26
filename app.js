@@ -5059,6 +5059,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
 // ── Luffy Runner (jeu communautaire) ────────────────────────────────────────
 (() => {
   const HS_KEY   = 'libero_luffy_hs';
+  const SESS_KEY = 'libero_luffy_session';
 
   // Tout le jeu se simule dans un repère logique fixe 600×220, mis à l'échelle
   // au dessin selon la taille réelle du canvas (cf. resizeCanvas / draw).
@@ -5151,6 +5152,8 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     { id: 'marineoiseau', w: 42, h: 35, draw: (c, x, y, w, h) => drawSprite(c, SPR.marineAigle, x, y, w, h, true) },
   ];
   const POWERUP_DEF = { id: 'tonneauP', w: 25, h: 30, draw: (c, x, y, w, h) => drawSprite(c, SPR.tonneauP, x, y, w, h, false) };
+  const ALL_DEFS = {};
+  [...GROUND_OBS, ...FLY_OBS, POWERUP_DEF].forEach(d => { ALL_DEFS[d.id] = d; });
   const FLY_TOP = GROUND_Y - 60, FLY_H = 22; // bande basse : oblige à s'accroupir
   const INVINCIBILITY_MS = 6000;
 
@@ -5355,7 +5358,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
 
   function frame(now) {
     if (!running || paused) return;
-    const dt = Math.min(0.05, (now - lastT) / 1000);
+    const dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000)); // jamais négatif (sécurité timing)
     lastT = now;
     update(dt, now);
     if (!running) return; // endGame a pu être déclenché dans update()
@@ -5363,7 +5366,20 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     raf = requestAnimationFrame(frame);
   }
 
+  function saveLuffySession() {
+    if (!running) return;
+    sessionStorage.setItem(SESS_KEY, JSON.stringify({
+      distance, speed, score,
+      luffyY, luffyVy, jumping, ducking,
+      obstacles: obstacles.map(o => ({ id: o.def.id, kind: o.kind, arriveDist: o.arriveDist })),
+      nextSpawnDist, lastSpawnType,
+    }));
+  }
+  function clearLuffySession() { sessionStorage.removeItem(SESS_KEY); }
+
   function startGame() {
+    clearLuffySession();
+    cancelAnimationFrame(raf); // évite toute boucle de jeu fantôme si startGame est rappelé trop vite (double-clic)
     canvas = document.getElementById('luffy-canvas');
     ctx    = canvas.getContext('2d');
     resizeCanvas();
@@ -5386,6 +5402,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   function endGame() {
     running = false;
     cancelAnimationFrame(raf);
+    clearLuffySession();
     SFX.snakeOver();
     const isNewHs = score > getHs();
     saveHs(score);
@@ -5445,6 +5462,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   document.getElementById('btn-back-luffy')?.addEventListener('click', () => {
     cancelAnimationFrame(raf);
     running = false;
+    clearLuffySession();
     showLuffyIntro();
     showScreen('landing');
   });
@@ -5507,6 +5525,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   document.getElementById('btn-luffy-quit')?.addEventListener('click', () => {
     cancelAnimationFrame(raf);
     running = false;
+    clearLuffySession();
     showLuffyIntro();
     updateHsDisplay();
     socket.emit('get-luffy-leaderboard');
@@ -5536,6 +5555,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   document.getElementById('btn-luffy-pause-quit-luffy')?.addEventListener('click', () => {
     cancelAnimationFrame(raf);
     running = false; paused = false;
+    clearLuffySession();
     document.getElementById('luffy-pause-overlay').classList.add('hidden');
     showLuffyIntro();
     updateHsDisplay();
@@ -5545,6 +5565,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   document.getElementById('btn-luffy-pause-quit-home')?.addEventListener('click', () => {
     cancelAnimationFrame(raf);
     running = false; paused = false;
+    clearLuffySession();
     document.getElementById('luffy-pause-overlay').classList.add('hidden');
     showLuffyIntro();
     showScreen('landing');
@@ -5553,6 +5574,45 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') togglePause();
   });
+
+  // Sauvegarde l'état avant un refresh/fermeture pendant une partie en cours
+  window.addEventListener('beforeunload', () => { if (running) saveLuffySession(); });
+
+  // Restauration après refresh (si une partie était en cours, en pause)
+  (function() {
+    const saved = sessionStorage.getItem(SESS_KEY);
+    if (!saved || sessionStorage.getItem('libero_screen') !== 'luffy') {
+      if (saved) clearLuffySession();
+      return;
+    }
+    try {
+      const data = JSON.parse(saved);
+      if (!Array.isArray(data.obstacles) || data.score === undefined || data.distance === undefined) throw new Error();
+      canvas = document.getElementById('luffy-canvas');
+      ctx    = canvas.getContext('2d');
+      resizeCanvas();
+      distance = data.distance; speed = data.speed; score = data.score; hsShown = getHs();
+      luffyY = data.luffyY; luffyVy = data.luffyVy; jumping = data.jumping; ducking = data.ducking;
+      obstacles = data.obstacles
+        .map(o => ({ def: ALL_DEFS[o.id], kind: o.kind, arriveDist: o.arriveDist }))
+        .filter(o => o.def);
+      nextSpawnDist = data.nextSpawnDist; lastSpawnType = data.lastSpawnType;
+      invincibleUntil = 0;
+      resetAirship();
+      running = true; paused = true;
+      document.getElementById('luffy-score-val').textContent = score;
+      document.getElementById('luffy-hs-val').textContent    = getHs();
+      document.getElementById('luffy-intro').classList.add('hidden');
+      document.getElementById('luffy-lb-card').classList.add('hidden');
+      document.getElementById('luffy-over-overlay').classList.add('hidden');
+      document.getElementById('luffy-game-wrap').classList.remove('hidden');
+      document.getElementById('luffy-pause-overlay').classList.remove('hidden');
+      document.getElementById('btn-luffy-pause').textContent = '▶';
+      draw(performance.now());
+    } catch {
+      clearLuffySession();
+    }
+  })();
 })();
 
 // ── Pluie d'émojis au chargement ──────────────────────────────────────────────

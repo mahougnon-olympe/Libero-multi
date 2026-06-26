@@ -45,7 +45,8 @@ html.restoring[data-restore="waiting"]       #screen-waiting,
 html.restoring[data-restore="trivia-home"]   #screen-trivia-home,
 html.restoring[data-restore="trivia-game"]   #screen-trivia-game,
 html.restoring[data-restore="trivia-waiting"] #screen-trivia-waiting,
-html.restoring[data-restore="events"]        #screen-events { display: flex !important; }
+html.restoring[data-restore="events"]        #screen-events,
+html.restoring[data-restore="luffy"]         #screen-luffy { display: flex !important; }
 
 .screen[data-restored] { animation: none !important; }
 
