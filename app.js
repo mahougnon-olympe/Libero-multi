@@ -5077,11 +5077,29 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   let distance, speed, score, hsShown;
   let luffyY, luffyVy, jumping, ducking;
   let obstacles, nextSpawnDist, lastSpawnType;
+  let invincibleUntil, nextPowerupDist, airshipX, airshipY;
 
-  const luffyImg = new Image();
-  luffyImg.src = 'Luffy.png';
-  const SPR_FRONT = { sx: 205, sy: 126, sw: 331, sh: 492 };
-  const SPR_SIDE  = { sx: 868, sy: 126, sw: 330, sh: 492 };
+  // ── Sprites (pixel art) ──────────────────────────────────────────────────
+  const SPRITE_DIR = 'luffy-sprites/';
+  function loadSprite(name) { const img = new Image(); img.src = SPRITE_DIR + name; return img; }
+  const RUN_FRAMES = [1, 2, 3, 4].map(n => loadSprite(`luffy-run-${n}.png`));
+  const SPR = {
+    canon:        loadSprite('canon.png'),
+    boulet:       loadSprite('boulet-canon.png'),
+    tonneauP:     loadSprite('tonneau-powerup.png'),
+    rocher:       loadSprite('rocher.png'),
+    recif:        loadSprite('recif.png'),
+    crabe:        loadSprite('crabe.png'),
+    meduse:       loadSprite('meduse.png'),
+    dendenmushi:  loadSprite('dendenmushi.png'),
+    tonneau:      loadSprite('tonneau.png'),
+    dirigeable:   loadSprite('dirigeable.png'),
+    marine1:      loadSprite('marine-1.png'),
+    marine2:      loadSprite('marine-2.png'),
+    mouette:      loadSprite('mouette.png'),
+    oiseau:       loadSprite('oiseau.png'),
+    marineAigle:  loadSprite('marine-aigle.png'),
+  };
 
   function getHs()   { return parseInt(localStorage.getItem(HS_KEY) || '0', 10); }
   function saveHs(n) {
@@ -5099,78 +5117,72 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   }
 
   // ── Obstacles ────────────────────────────────────────────────────────────
-  function drawEmoji(c, emoji, x, y, w, h, filter) {
+  function drawSprite(c, img, x, y, w, h, flip, filter) {
+    if (!img.complete || !img.naturalWidth) return;
     c.save();
     if (filter) c.filter = filter;
-    c.font = `${Math.round(h)}px serif`;
-    c.textAlign = 'center'; c.textBaseline = 'middle';
-    c.fillText(emoji, x + w / 2, y + h / 2 + 1);
-    c.restore();
-  }
-  function drawCanon(c, x, y, w, h) {
-    c.save();
-    c.fillStyle = '#3a3a42';
-    c.beginPath(); c.roundRect(x, y + h * .3, w, h * .42, 4); c.fill();
-    c.beginPath(); c.arc(x + w * .24, y + h * .88, w * .22, 0, Math.PI * 2); c.fill();
-    c.beginPath(); c.arc(x + w * .76, y + h * .88, w * .22, 0, Math.PI * 2); c.fill();
-    c.restore();
-  }
-  function drawCannonball(c, x, y, w, h) {
-    c.save();
-    const r = Math.min(w, h) / 2, cx = x + w / 2, cy = y + h / 2;
-    const grad = c.createRadialGradient(cx - r * .3, cy - r * .3, 1, cx, cy, r);
-    grad.addColorStop(0, '#666'); grad.addColorStop(1, '#0e0e0e');
-    c.fillStyle = grad;
-    c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.fill();
-    c.restore();
-  }
-  function drawAirship(c, x, y, w, h) {
-    c.save();
-    c.fillStyle = '#c0392b';
-    c.beginPath(); c.ellipse(x + w / 2, y + h * .38, w / 2, h * .38, 0, 0, Math.PI * 2); c.fill();
-    c.fillStyle = '#5a3a22';
-    c.fillRect(x + w * .35, y + h * .68, w * .3, h * .24);
+    if (flip) {
+      c.translate(x + w, y);
+      c.scale(-1, 1);
+      c.drawImage(img, 0, 0, w, h);
+    } else {
+      c.drawImage(img, x, y, w, h);
+    }
     c.restore();
   }
 
+  // w/h calculés à partir du ratio naturel de chaque sprite pour éviter toute déformation.
   const GROUND_OBS = [
-    { id: 'tonneau',     w: 28, h: 32, draw: (c, x, y, w, h) => drawEmoji(c, '🛢️', x, y, w, h) },
-    { id: 'baril',       w: 28, h: 32, draw: (c, x, y, w, h) => drawEmoji(c, '🛢️', x, y, w, h, 'hue-rotate(160deg) brightness(.7)') },
-    { id: 'canon',       w: 36, h: 28, draw: drawCanon },
-    { id: 'rocher',      w: 32, h: 30, draw: (c, x, y, w, h) => drawEmoji(c, '🪨', x, y, w, h) },
-    { id: 'crabe',       w: 24, h: 20, draw: (c, x, y, w, h) => drawEmoji(c, '🦀', x, y, w, h) },
-    { id: 'meduse',      w: 24, h: 24, draw: (c, x, y, w, h) => drawEmoji(c, '🪼', x, y, w, h) },
-    { id: 'dendenmushi', w: 26, h: 20, draw: (c, x, y, w, h) => drawEmoji(c, '🐌', x, y, w, h) },
-    { id: 'marine',      w: 26, h: 38, draw: (c, x, y, w, h) => drawEmoji(c, '💂', x, y, w, h, 'hue-rotate(200deg) saturate(1.4)') },
+    { id: 'tonneau',     w: 25, h: 30, draw: (c, x, y, w, h) => drawSprite(c, SPR.tonneau, x, y, w, h, false) },
+    { id: 'baril',       w: 25, h: 30, draw: (c, x, y, w, h) => drawSprite(c, SPR.tonneau, x, y, w, h, false, 'hue-rotate(160deg) brightness(.7)') },
+    { id: 'canon',       w: 63, h: 30, draw: (c, x, y, w, h) => drawSprite(c, SPR.canon, x, y, w, h, true) },
+    { id: 'rocher',      w: 36, h: 28, draw: (c, x, y, w, h) => drawSprite(c, SPR.rocher, x, y, w, h, false) },
+    { id: 'recif',       w: 35, h: 28, draw: (c, x, y, w, h) => drawSprite(c, SPR.recif, x, y, w, h, false) },
+    { id: 'crabe',       w: 32, h: 20, draw: (c, x, y, w, h) => drawSprite(c, SPR.crabe, x, y, w, h, false) },
+    { id: 'meduse',      w: 32, h: 24, draw: (c, x, y, w, h) => drawSprite(c, SPR.meduse, x, y, w, h, false) },
+    { id: 'dendenmushi', w: 23, h: 20, draw: (c, x, y, w, h) => drawSprite(c, SPR.dendenmushi, x, y, w, h, false) },
+    { id: 'marine1',     w: 32, h: 40, draw: (c, x, y, w, h) => drawSprite(c, SPR.marine1, x, y, w, h, true) },
+    { id: 'marine2',     w: 38, h: 40, draw: (c, x, y, w, h) => drawSprite(c, SPR.marine2, x, y, w, h, true) },
   ];
   const FLY_OBS = [
-    { id: 'mouette',      w: 30, h: 22, draw: (c, x, y, w, h) => drawEmoji(c, '🕊️', x, y, w, h) },
-    { id: 'oiseau',       w: 28, h: 22, draw: (c, x, y, w, h) => drawEmoji(c, '🐦', x, y, w, h) },
-    { id: 'boulet',       w: 22, h: 22, draw: drawCannonball },
-    { id: 'marineoiseau', w: 32, h: 26, draw: (c, x, y, w, h) => drawEmoji(c, '🦅', x, y, w, h, 'hue-rotate(200deg)') },
-    { id: 'dirigeable',   w: 46, h: 26, draw: drawAirship },
+    { id: 'mouette',      w: 34, h: 16, draw: (c, x, y, w, h) => drawSprite(c, SPR.mouette, x, y, w, h, true) },
+    { id: 'oiseau',       w: 26, h: 20, draw: (c, x, y, w, h) => drawSprite(c, SPR.oiseau, x, y, w, h, true) },
+    { id: 'boulet',       w: 22, h: 21, draw: (c, x, y, w, h) => drawSprite(c, SPR.boulet, x, y, w, h, false) },
+    { id: 'marineoiseau', w: 42, h: 35, draw: (c, x, y, w, h) => drawSprite(c, SPR.marineAigle, x, y, w, h, true) },
   ];
+  const POWERUP_DEF = { id: 'tonneauP', w: 25, h: 30, draw: (c, x, y, w, h) => drawSprite(c, SPR.tonneauP, x, y, w, h, false) };
   const FLY_TOP = GROUND_Y - 60, FLY_H = 22; // bande basse : oblige à s'accroupir
+  const INVINCIBILITY_MS = 6000;
 
   function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
   function spawnObstacle() {
-    const flying = score >= FLY_MIN_SCORE && Math.random() < 0.4;
-    const def = flying ? rnd(FLY_OBS) : rnd(GROUND_OBS);
-    const sameType = lastSpawnType === (flying ? 'fly' : 'ground');
+    const kind = score >= FLY_MIN_SCORE && Math.random() < 0.4 ? 'fly' : 'ground';
+    const def = kind === 'fly' ? rnd(FLY_OBS) : rnd(GROUND_OBS);
+    const sameType = lastSpawnType === kind;
     const gapSeconds = (lastSpawnType === null)
       ? 1.4
       : (sameType ? 1.1 + Math.random() * 0.7 : 1.8 + Math.random() * 0.8);
     nextSpawnDist = distance + speed * gapSeconds;
     obstacles.push({
-      def, flying,
+      def, kind,
       arriveDist: distance + (REF_W - LUFFY_X), // distance à laquelle l'obstacle atteint Luffy
     });
-    lastSpawnType = flying ? 'fly' : 'ground';
+    lastSpawnType = kind;
+  }
+
+  function spawnPowerup() {
+    nextPowerupDist = distance + speed * (18 + Math.random() * 14);
+    obstacles.push({ def: POWERUP_DEF, kind: 'powerup', arriveDist: distance + (REF_W - LUFFY_X) });
   }
 
   function obstacleX(o) {
     return LUFFY_X + (o.arriveDist - distance);
+  }
+
+  function resetAirship() {
+    airshipX = REF_W + Math.random() * 150;
+    airshipY = 20 + Math.random() * 28;
   }
 
   // ── Boucle de jeu ──────────────────────────────────────────────────────
@@ -5191,13 +5203,31 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     return { x: LUFFY_X, w: STAND_W, top: GROUND_Y - STAND_H, bottom: GROUND_Y };
   }
 
-  function checkCollisions() {
+  function checkPowerupPickup() {
+    const lb = luffyBox();
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      const o = obstacles[i];
+      if (o.kind !== 'powerup') continue;
+      const x = obstacleX(o), w = o.def.w, h = o.def.h;
+      const oTop = GROUND_Y - h, oBottom = GROUND_Y;
+      const overlapX = x < lb.x + lb.w && x + w > lb.x;
+      const overlapY = oTop < lb.bottom && oBottom > lb.top;
+      if (overlapX && overlapY) {
+        obstacles.splice(i, 1);
+        invincibleUntil = performance.now() + INVINCIBILITY_MS;
+        SFX.quizOk();
+      }
+    }
+  }
+
+  function checkHazardCollision() {
     const lb = luffyBox();
     for (const o of obstacles) {
+      if (o.kind === 'powerup') continue;
       const x = obstacleX(o);
       const w = o.def.w;
-      const oTop = o.flying ? FLY_TOP : GROUND_Y - o.def.h;
-      const oBottom = o.flying ? FLY_TOP + FLY_H : GROUND_Y;
+      const oTop = o.kind === 'fly' ? FLY_TOP : GROUND_Y - o.def.h;
+      const oBottom = o.kind === 'fly' ? FLY_TOP + FLY_H : GROUND_Y;
       const overlapX = x < lb.x + lb.w && x + w > lb.x;
       const overlapY = oTop < lb.bottom && oBottom > lb.top;
       if (overlapX && overlapY) return true;
@@ -5205,7 +5235,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     return false;
   }
 
-  function update(dt) {
+  function update(dt, now) {
     distance += speed * dt;
     score = Math.floor(distance / 8);
     speed = Math.min(MAX_SPEED, BASE_SPEED + score * SPEED_PER_POINT);
@@ -5216,10 +5246,17 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
       if (luffyY <= 0) { luffyY = 0; luffyVy = 0; jumping = false; }
     }
 
-    if (distance >= nextSpawnDist) spawnObstacle();
-    obstacles = obstacles.filter(o => obstacleX(o) > -80);
+    airshipX -= 18 * dt; // décor de fond, vitesse de parallaxe indépendante du jeu
+    if (airshipX < -100) resetAirship();
 
-    if (checkCollisions()) { endGame(); return; }
+    if (distance >= nextSpawnDist) spawnObstacle();
+    if (distance >= nextPowerupDist) spawnPowerup();
+    obstacles = obstacles.filter(o => obstacleX(o) > -90);
+
+    checkPowerupPickup();
+
+    const invincible = now < invincibleUntil;
+    if (!invincible && checkHazardCollision()) { endGame(); return; }
 
     const sv = document.getElementById('luffy-score-val');
     if (sv) sv.textContent = score;
@@ -5252,12 +5289,25 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     }
   }
 
-  function drawLuffy(c) {
+  const RUN_FRAME_DIST = 18; // distance logique entre deux frames de course
+  function currentRunFrame() {
+    return RUN_FRAMES[Math.floor(distance / RUN_FRAME_DIST) % RUN_FRAMES.length];
+  }
+
+  function drawLuffy(c, now) {
     const lb = luffyBox();
-    const sprite = jumping ? SPR_FRONT : SPR_SIDE;
+    const img = jumping ? RUN_FRAMES[1] : ducking ? RUN_FRAMES[2] : currentRunFrame();
     c.save();
-    if (luffyImg.complete && luffyImg.naturalWidth) {
-      c.drawImage(luffyImg, sprite.sx, sprite.sy, sprite.sw, sprite.sh, lb.x, lb.top, lb.w, lb.bottom - lb.top);
+    if (now < invincibleUntil) {
+      c.globalAlpha = 0.55 + 0.45 * Math.sin(now / 60);
+      c.shadowColor = '#ffd23f';
+      c.shadowBlur = 14;
+    }
+    if (img.complete && img.naturalWidth) {
+      const h = lb.bottom - lb.top;
+      const w = h * img.naturalWidth / img.naturalHeight;
+      const cx = lb.x + lb.w / 2;
+      c.drawImage(img, cx - w / 2, lb.top, w, h);
     } else {
       c.fillStyle = '#c0392b';
       c.fillRect(lb.x, lb.top, lb.w, lb.bottom - lb.top);
@@ -5265,7 +5315,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     c.restore();
   }
 
-  function draw() {
+  function draw(now) {
     ctx.save();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.scale(scale, scale);
@@ -5276,15 +5326,29 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     ctx.fillRect(0, 0, REF_W, GROUND_Y);
 
     drawClouds(ctx);
+    drawSprite(ctx, SPR.dirigeable, airshipX, airshipY, 70, 65, true); // décor de fond
     drawGround(ctx);
-    drawLuffy(ctx);
+    drawLuffy(ctx, now);
 
     obstacles.forEach(o => {
       const x = obstacleX(o);
-      const y = o.flying ? FLY_TOP : GROUND_Y - o.def.h;
-      const h = o.flying ? FLY_H : o.def.h;
-      o.def.draw(ctx, x, y, o.def.w, h);
+      if (o.kind === 'fly') {
+        const h = o.def.h, w = o.def.w;
+        const y = FLY_TOP + FLY_H / 2 - h / 2;
+        o.def.draw(ctx, x, y, w, h);
+      } else {
+        o.def.draw(ctx, x, GROUND_Y - o.def.h, o.def.w, o.def.h);
+      }
     });
+
+    if (now < invincibleUntil) {
+      ctx.save();
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#ffd23f';
+      ctx.fillText('⭐ INVINCIBLE', REF_W / 2, 18);
+      ctx.restore();
+    }
 
     ctx.restore();
   }
@@ -5293,9 +5357,9 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     if (!running || paused) return;
     const dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
-    update(dt);
+    update(dt, now);
     if (!running) return; // endGame a pu être déclenché dans update()
-    draw();
+    draw(now);
     raf = requestAnimationFrame(frame);
   }
 
@@ -5306,14 +5370,16 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     distance = 0; speed = BASE_SPEED; score = 0; hsShown = getHs();
     luffyY = 0; luffyVy = 0; jumping = false; ducking = false;
     obstacles = []; nextSpawnDist = 0; lastSpawnType = null;
+    invincibleUntil = 0; nextPowerupDist = distance + speed * (14 + Math.random() * 10);
+    resetAirship();
     running = true; paused = false;
     document.getElementById('luffy-score-val').textContent = 0;
     document.getElementById('luffy-hs-val').textContent    = getHs();
     document.getElementById('luffy-over-overlay').classList.add('hidden');
     document.getElementById('luffy-pause-overlay').classList.add('hidden');
     spawnObstacle();
-    draw();
     lastT = performance.now();
+    draw(lastT);
     raf = requestAnimationFrame(frame);
   }
 
@@ -5329,7 +5395,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     if (newHsEl) newHsEl.classList.toggle('hidden', !isNewHs);
     document.getElementById('luffy-over-score').textContent = t().snakeOverScore(score, getHs());
     document.getElementById('luffy-over-overlay').classList.remove('hidden');
-    draw();
+    draw(performance.now());
   }
 
   // ── Contrôles ────────────────────────────────────────────────────────────
