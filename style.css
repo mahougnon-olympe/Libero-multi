@@ -1009,7 +1009,6 @@ html.light .news-star { background: rgba(234,179,8,.08); }
   transition: box-shadow .18s, opacity .18s;
 }
 .landing-card--community:hover { box-shadow: 0 0 12px 2px var(--accent-glow, rgba(99,102,241,.35)); }
-.landing-icon--big { font-size: 3rem; font-weight: 900; color: var(--accent); }
 
 /* ── Modal Communauté ── */
 .community-modal {
@@ -1159,6 +1158,22 @@ body.screen-events-active .btn-comment-float { display: none !important; }
   transition: background .1s, transform .1s;
 }
 .dpad-btn:active { background: rgba(99,102,241,.22); transform: scale(.9); }
+
+/* ── Écran Luffy Runner ── */
+#luffy-canvas { display: block; max-width: 100%; }
+.luffy-suggest-link {
+  background: none; border: none; color: var(--muted);
+  font-size: .76rem; text-decoration: underline;
+  cursor: pointer; padding: 0; margin-top: -4px;
+}
+.luffy-suggest-link:hover { color: var(--accent); }
+.luffy-controls {
+  display: none; gap: 14px; margin-top: 4px;
+}
+@media (max-width: 600px) { .luffy-controls { display: flex; } }
+.luffy-ctrl-btn { width: 64px; height: 64px; font-size: 1.6rem; }
+body.screen-luffy-active .btn-help-float,
+body.screen-luffy-active .btn-comment-float { display: none !important; }
 
 /* ── Classement Global (landing) ── */
 .global-lb-card {

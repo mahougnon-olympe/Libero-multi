@@ -26,6 +26,7 @@ const leaderboard     = new Map();
 const triviaRooms     = new Map();
 const triviaLeaderboard = new Map();
 const snakeLeaderboard  = new Map();
+const luffyLeaderboard  = new Map();
 const snakeVotes        = new Map(); // playerId -> 'yes'|'no'
 const comments        = [];
 const libs            = new Map();
@@ -61,11 +62,12 @@ async function connectDB() {
 
 async function loadData() {
   if (!db) return;
-  const [lbDocs, tlbDocs, cmtDocs, slbDocs, libsDocs, aliasDocs, configDocs, voteDocs] = await Promise.all([
+  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs] = await Promise.all([
     db.collection('leaderboard').find().toArray(),
     db.collection('trivia_leaderboard').find().toArray(),
     db.collection('comments').find().sort({ date: 1 }).toArray(),
     db.collection('snake_leaderboard').find().toArray(),
+    db.collection('luffy_leaderboard').find().toArray(),
     db.collection('libs').find().toArray(),
     db.collection('player_aliases').find().toArray(),
     db.collection('server_config').find().toArray(),
@@ -75,6 +77,7 @@ async function loadData() {
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
   cmtDocs.forEach(d => comments.push({ _id: d._id, pseudo: d.pseudo, message: d.message, date: d.date }));
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
+  llbDocs.forEach(d => luffyLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
@@ -84,7 +87,7 @@ async function loadData() {
   if (streakDoc) rank1StreakSince = streakDoc.value;
   const rank1NameDoc = configDocs.find(d => d._id === 'rank1GlobalName');
   if (rank1NameDoc) rank1Global = rank1NameDoc.value;
-  console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias, ${voteDocs.length} votes snake.`);
+  console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${llbDocs.length} luffy, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias, ${voteDocs.length} votes snake.`);
 }
 
 function dbUpsertLeaderboard(id, entry) {
@@ -106,6 +109,13 @@ function dbUpsertSnakeLeaderboard(id, entry) {
   db.collection('snake_leaderboard')
     .updateOne({ _id: id }, { $set: { name: entry.name, hs: entry.hs } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde classement snake:', e));
+}
+
+function dbUpsertLuffyLeaderboard(id, entry) {
+  if (!db) return;
+  db.collection('luffy_leaderboard')
+    .updateOne({ _id: id }, { $set: { name: entry.name, hs: entry.hs } }, { upsert: true })
+    .catch(e => console.error('Erreur sauvegarde classement luffy:', e));
 }
 
 function safePlayerId(id) {
@@ -547,6 +557,7 @@ function distributeLibs() {
     for (const [id, e] of leaderboard.entries())       { if (e.name === rankEntry.name) matchingIds.add(id); }
     for (const [id, e] of triviaLeaderboard.entries()) { if (e.name === rankEntry.name) matchingIds.add(id); }
     for (const [id, e] of snakeLeaderboard.entries())  { if (e.name === rankEntry.name) matchingIds.add(id); }
+    for (const [id, e] of luffyLeaderboard.entries())  { if (e.name === rankEntry.name) matchingIds.add(id); }
     for (const id of matchingIds) {
       const entry = getLibsEntry(id);
       entry.name    = rankEntry.name;
@@ -680,23 +691,51 @@ function getSnakeLeaderboardData() {
     .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), honorTitle: getHonorTitleByName(e.name), avatar: getAvatarByName(e.name), cursorSnake: getCursorSnakeByName(e.name) }));
 }
 
+function updateLuffyLeaderboard(id, name, hs) {
+  if (!id) return false;
+  const isNew = !luffyLeaderboard.has(id);
+  const existing = luffyLeaderboard.get(id) || { name, hs: 0 };
+  existing.name = name;
+  const improved = hs > existing.hs;
+  if (improved) existing.hs = hs;
+  luffyLeaderboard.set(id, existing);
+  if (improved || isNew) { dbUpsertLuffyLeaderboard(id, existing); refreshAllHonorTitles(); }
+  return improved ? 'improved' : isNew ? 'registered' : false;
+}
+
+function getLuffyLeaderboardData() {
+  const byName = new Map();
+  for (const [id, s] of luffyLeaderboard.entries()) {
+    if (s.hs <= 0) continue;
+    const displayName = s.name || id;
+    const existing = byName.get(displayName);
+    if (!existing || s.hs > existing.hs) byName.set(displayName, { name: displayName, hs: s.hs });
+  }
+  return [...byName.values()]
+    .sort((a, b) => b.hs - a.hs || a.name.localeCompare(b.name))
+    .slice(0, 10)
+    .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), honorTitle: getHonorTitleByName(e.name), avatar: getAvatarByName(e.name), cursorSnake: getCursorSnakeByName(e.name) }));
+}
+
 function getGlobalLeaderboardData() {
-  const ids = new Set([...leaderboard.keys(), ...triviaLeaderboard.keys(), ...snakeLeaderboard.keys()]);
+  const ids = new Set([...leaderboard.keys(), ...triviaLeaderboard.keys(), ...snakeLeaderboard.keys(), ...luffyLeaderboard.keys()]);
   const byName = new Map();
   for (const id of ids) {
     const c  = leaderboard.get(id)       || { name: '', wins: 0 };
     const tr = triviaLeaderboard.get(id) || { name: '', points: 0 };
     const sk = snakeLeaderboard.get(id)  || { name: '', hs: 0 };
-    const name = c.name || tr.name || sk.name;
+    const lf = luffyLeaderboard.get(id)  || { name: '', hs: 0 };
+    const name = c.name || tr.name || sk.name || lf.name;
     if (!name) continue;
-    const existing = byName.get(name) || { name, wins: 0, triviaPoints: 0, snakeHs: 0 };
+    const existing = byName.get(name) || { name, wins: 0, triviaPoints: 0, snakeHs: 0, luffyHs: 0 };
     existing.wins         = Math.max(existing.wins, c.wins || 0);
     existing.triviaPoints = Math.max(existing.triviaPoints, tr.points || 0);
     existing.snakeHs      = Math.max(existing.snakeHs, sk.hs || 0);
+    existing.luffyHs      = Math.max(existing.luffyHs, lf.hs || 0);
     byName.set(name, existing);
   }
   return [...byName.values()]
-    .map(e => ({ ...e, globalScore: e.wins * 10 + e.triviaPoints + e.snakeHs * 10 }))
+    .map(e => ({ ...e, globalScore: e.wins * 10 + e.triviaPoints + e.snakeHs * 10 + e.luffyHs * 10 }))
     .filter(e => e.globalScore > 0)
     .sort((a, b) => b.globalScore - a.globalScore || a.name.localeCompare(b.name))
     .slice(0, 50)
@@ -1129,6 +1168,10 @@ io.on('connection', (socket) => {
     socket.emit('snake-leaderboard-update', getSnakeLeaderboardData());
   });
 
+  socket.on('get-luffy-leaderboard', () => {
+    socket.emit('luffy-leaderboard-update', getLuffyLeaderboardData());
+  });
+
   socket.on('check-pseudo', ({ name, playerId } = {}) => {
     const cleanName = String(name || '').trim().slice(0, 20);
     const id = safePlayerId(playerId);
@@ -1136,7 +1179,7 @@ io.on('connection', (socket) => {
       socket.emit('pseudo-check-result', { taken: false });
       return;
     }
-    const taken = [leaderboard, triviaLeaderboard, snakeLeaderboard].some(map => {
+    const taken = [leaderboard, triviaLeaderboard, snakeLeaderboard, luffyLeaderboard].some(map => {
       for (const [k, v] of map.entries()) {
         if (v.name === cleanName && k !== id) return true;
       }
@@ -1152,7 +1195,7 @@ io.on('connection', (socket) => {
       socket.emit('rename-result', { ok: false, error: 'invalid' });
       return;
     }
-    const taken = [leaderboard, triviaLeaderboard, snakeLeaderboard].some(map => {
+    const taken = [leaderboard, triviaLeaderboard, snakeLeaderboard, luffyLeaderboard].some(map => {
       for (const [k, v] of map.entries()) {
         if (v.name === newName && k !== id) return true;
       }
@@ -1161,7 +1204,7 @@ io.on('connection', (socket) => {
     if (taken) { socket.emit('rename-result', { ok: false, error: 'taken' }); return; }
     let changed = false;
     [[leaderboard, dbUpsertLeaderboard], [triviaLeaderboard, dbUpsertTriviaLeaderboard],
-     [snakeLeaderboard, dbUpsertSnakeLeaderboard], [libs, dbUpsertLibs]].forEach(([map, upsert]) => {
+     [snakeLeaderboard, dbUpsertSnakeLeaderboard], [luffyLeaderboard, dbUpsertLuffyLeaderboard], [libs, dbUpsertLibs]].forEach(([map, upsert]) => {
       const entry = map.get(id);
       if (entry) { entry.name = newName; map.set(id, entry); upsert(id, entry); changed = true; }
     });
@@ -1171,6 +1214,7 @@ io.on('connection', (socket) => {
       io.emit('global-leaderboard-update', getGlobalLeaderboardData());
       io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
       io.emit('snake-leaderboard-update', getSnakeLeaderboardData());
+      io.emit('luffy-leaderboard-update', getLuffyLeaderboardData());
     }
     socket.emit('rename-result', { ok: true });
   });
@@ -1186,6 +1230,17 @@ io.on('connection', (socket) => {
       io.emit('global-leaderboard-update', getGlobalLeaderboardData());
     } else if (result === 'registered') {
       io.emit('global-leaderboard-update', getGlobalLeaderboardData());
+    }
+  });
+
+  socket.on('submit-luffy-score', ({ name, hs, playerId } = {}) => {
+    const playerName = String(name || '').trim().slice(0, 20);
+    if (!playerName || typeof hs !== 'number') return;
+    const id = safePlayerId(playerId) || playerName;
+    const result = updateLuffyLeaderboard(id, playerName, Math.max(0, Math.floor(hs)));
+    updateLastActive(id, playerName);
+    if (result === 'improved' || result === 'registered') {
+      io.emit('luffy-leaderboard-update', getLuffyLeaderboardData());
     }
   });
 
@@ -1814,18 +1869,21 @@ app.get('/admin/reset', async (req, res) => {
   leaderboard.clear();
   triviaLeaderboard.clear();
   snakeLeaderboard.clear();
+  luffyLeaderboard.clear();
   libs.clear();
   if (db) {
     await Promise.all([
       db.collection('leaderboard').deleteMany({}),
       db.collection('trivia_leaderboard').deleteMany({}),
       db.collection('snake_leaderboard').deleteMany({}),
+      db.collection('luffy_leaderboard').deleteMany({}),
       db.collection('libs').deleteMany({}),
     ]);
   }
   io.emit('leaderboard-update', []);
   io.emit('trivia-leaderboard-update', []);
   io.emit('snake-leaderboard-update', []);
+  io.emit('luffy-leaderboard-update', []);
   io.emit('global-leaderboard-update', []);
   io.emit('libs-update', { balance: 0, pendingBoostHint: 0 });
   res.json({ ok: true, message: 'Classements réinitialisés.' });
@@ -1877,6 +1935,13 @@ async function mergeDuplicateNames() {
     entries.sort((a, b) => b[1].hs - a[1].hs);
     const [canonId, canon] = entries[0];
     dbUpsertSnakeLeaderboard(canonId, canon);
+    return [canonId, canon];
+  });
+
+  await mergeMap(luffyLeaderboard, 'luffy_leaderboard', entries => {
+    entries.sort((a, b) => b[1].hs - a[1].hs);
+    const [canonId, canon] = entries[0];
+    dbUpsertLuffyLeaderboard(canonId, canon);
     return [canonId, canon];
   });
 

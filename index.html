@@ -49,7 +49,8 @@
         <p id="event-card-countdown" class="event-card-countdown"></p>
       </button>
       <button class="landing-card landing-card--community" id="btn-go-community">
-        <span class="landing-icon landing-icon--big">?</span>
+        <span class="landing-icon">🏴‍☠️</span>
+        <h2 id="luffy-card-title">Luffy Runner</h2>
         <p id="community-card-text">Pour la communauté</p>
       </button>
     </div>
@@ -375,12 +376,82 @@
     </div>
   </div>
 
+  <!-- ── Écran Luffy Runner ── -->
+  <div id="screen-luffy" class="screen">
+    <button class="btn-back" id="btn-back-luffy">← Retour</button>
+    <div class="logo">
+      <h1 id="luffy-screen-title">🏴‍☠️ Luffy Runner</h1>
+      <p class="subtitle" id="luffy-screen-sub">Pour la communauté</p>
+    </div>
+    <div class="event-intro" id="luffy-intro">
+      <div class="event-badge">🏃</div>
+      <h2 id="luffy-challenge-title">Luffy Runner</h2>
+      <p id="luffy-challenge-desc">Aide Luffy à fuir la Marine ! Saute par-dessus les obstacles au sol, accroupis-toi sous ceux qui volent.</p>
+      <div class="event-hs-display" id="luffy-hs-display"></div>
+      <button id="btn-luffy-play" class="btn btn-primary">Jouer</button>
+      <button id="btn-luffy-suggest" class="luffy-suggest-link">💬 Proposer un jeu pour cette section</button>
+    </div>
+    <!-- Formulaire pseudo (obligatoire avant de jouer) -->
+    <div class="snake-name-form hidden" id="luffy-name-form">
+      <div class="snake-name-card">
+        <p class="snake-name-title" id="luffy-name-title-el">🏴‍☠️ Ton pseudo</p>
+        <p class="snake-name-sub" id="luffy-name-sub-el">Choisis un pseudo pour figurer dans le classement.</p>
+        <input type="text" id="luffy-pseudo-input" class="snake-pseudo-input" placeholder="Ton pseudo" maxlength="20" autocomplete="off">
+        <p class="snake-name-error hidden" id="luffy-name-error">Entre un pseudo pour continuer.</p>
+        <p class="pseudo-warning hidden" id="luffy-pseudo-warning"></p>
+        <div class="snake-name-actions">
+          <button class="btn btn-primary" id="btn-luffy-confirm-name">C'est parti !</button>
+          <button class="btn btn-secondary" id="btn-luffy-cancel-name">Annuler</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="snake-lb-card" id="luffy-lb-card">
+      <div class="snake-lb-header">
+        <span>🏆</span>
+        <span id="luffy-lb-title-span">Classement Luffy Runner</span>
+      </div>
+      <div id="luffy-lb-list" class="snake-lb-list">
+        <p class="lb-empty">Aucun score enregistré.</p>
+      </div>
+    </div>
+
+    <div class="snake-game-wrap hidden" id="luffy-game-wrap">
+      <div class="snake-hud" id="luffy-hud">
+        <span><span id="luffy-score-text">Score&nbsp;: </span><strong id="luffy-score-val">0</strong></span>
+        <button id="btn-luffy-pause" class="snake-pause-btn" title="Pause">⏸</button>
+        <span><span id="luffy-best-text">Meilleur&nbsp;: </span><strong id="luffy-hs-val">0</strong></span>
+      </div>
+      <div class="snake-canvas-wrap">
+        <canvas id="luffy-canvas" width="600" height="220"></canvas>
+        <div class="snake-over-overlay hidden" id="luffy-over-overlay">
+          <p class="snake-over-text" id="luffy-game-over-text">Game Over</p>
+          <p class="snake-new-hs hidden" id="luffy-new-hs">🏆 Nouveau record !</p>
+          <p id="luffy-over-score"></p>
+          <button id="btn-luffy-restart" class="btn btn-primary">Rejouer</button>
+          <button id="btn-luffy-quit" class="btn btn-secondary">Quitter</button>
+        </div>
+        <div class="snake-pause-overlay hidden" id="luffy-pause-overlay">
+          <p class="snake-over-text" id="luffy-pause-text">⏸ Pause</p>
+          <button id="btn-luffy-resume" class="btn btn-primary">▶ Reprendre</button>
+          <button id="btn-luffy-pause-quit-luffy" class="btn btn-secondary">← Retour</button>
+          <button id="btn-luffy-pause-quit-home" class="btn btn-secondary">🏠 Quitter</button>
+        </div>
+      </div>
+      <p class="snake-hint" id="luffy-hint-text">↑ / Espace pour sauter · ↓ pour t'accroupir</p>
+      <div class="luffy-controls" id="luffy-controls">
+        <button class="dpad-btn luffy-ctrl-btn" id="luffy-btn-jump">⬆️</button>
+        <button class="dpad-btn luffy-ctrl-btn" id="luffy-btn-duck">⬇️</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Cadre News (fixe, haut gauche) ── -->
   <div id="news-card" class="news-card">
     <span class="news-handle">📰</span>
     <p class="news-title" id="news-title-el">📰 News</p>
     <p id="news-event-msg" class="news-msg">🐍 <strong>Évent ce week-end</strong> : Snake Challenge ! Nourris ton serpent pour le faire grandir sur tout le site.</p>
-    <p id="news-community-msg" class="news-msg news-msg-sep">💬 <strong>Tu as une idée de jeu ?</strong> Glisse un message dans la section <strong>?</strong> en bas de l'accueil — ta voix compte !</p>
+    <p id="news-community-msg" class="news-msg news-msg-sep">💬 <strong>Tu as une idée de jeu ?</strong> Propose-la dans la section <strong>Luffy Runner</strong> en bas de l'accueil — ta voix compte !</p>
     <div id="news-star" class="news-star hidden"></div>
     <div id="news-comments" class="news-comments"></div>
   </div>

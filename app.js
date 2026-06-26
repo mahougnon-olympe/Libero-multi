@@ -46,6 +46,7 @@ let _nextDistAt        = 0;
 let _globalLbData      = [];
 let _classicLbData     = [];
 let _snakeLbData       = [];
+let _luffyLbData       = [];
 let _triviaLbData      = [];
 let _nameTaken         = false;
 let _renameTimer       = null;
@@ -447,7 +448,7 @@ const DICT = {
     eventsLockedCard: days => `📅 Dans ${days} j`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> <u style="cursor:pointer">vote ici</u> !`,
     eventActiveMsg:   '🐍 <strong>Évent ce week-end</strong> : Snake Challenge ! Nourris ton serpent pour le faire grandir sur tout le site.',
-    newsCommunityMsg: '💬 <strong>Tu as une idée de jeu ?</strong> Glisse un message dans la section <strong>?</strong> en bas de l\'accueil — ta voix compte !',
+    newsCommunityMsg: '💬 <strong>Tu as une idée de jeu ?</strong> Propose-la dans la section <strong>Luffy Runner</strong> en bas de l\'accueil — ta voix compte !',
     snakeVoteTitle:'Snake Challenge',
     snakeVoteSubtitle:'Veux-tu voir le Snake Challenge revenir ?',
     snakeVoteYes:'Oui, ramène-le !',
@@ -477,6 +478,12 @@ const DICT = {
     snakePause:'⏸ Pause', btnSnakeResume:'▶ Reprendre',
     btnSnakeBack:'← Retour', btnSnakeHome:'🏠 Quitter',
     snakeHint:'↑ ↓ ← → ou glisser sur mobile',
+    luffyChallengeDesc:'Aide Luffy à fuir la Marine ! Saute par-dessus les obstacles au sol, accroupis-toi sous ceux qui volent.',
+    luffyNameTitle:'🏴‍☠️ Ton pseudo',
+    luffyLbTitle:'Classement Luffy Runner',
+    luffyHsDisplay:n => `🏆 Ton record : ${n} pts`,
+    luffyHint:'↑ / Espace pour sauter · ↓ pour t\'accroupir',
+    luffySuggestLink:'💬 Proposer un jeu pour cette section',
     triviaResumeBtn:'▶ Reprendre', triviaBackToQuiz:'← Retour au Quiz', triviaQuitHome:'🏠 Quitter',
     communityTitle:'? Pour la communauté',
     communityIntro:'Cette section est réservée à un <strong>jeu choisi par vous</strong>, les joueurs de Libero.',
@@ -496,7 +503,7 @@ const DICT = {
     snakeOverScore:(score, hs) => `Score : ${score} · Meilleur : ${hs}`,
     helpContent:{
       general:[
-        { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (vote pour le prochain jeu à ajouter sur le site). Chaque section a son propre classement." },
+        { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Luffy Runner</strong> + suggestions de jeu). Chaque section a son propre classement." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> — nourris ton serpent avec les 🍎, les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile." },
         { icon:'🤖', title:'Mode Solo (vs Bot)', desc:"Joue seul contre un robot. <em>Facile</em> : le bot joue au hasard. <em>Moyen</em> : le bot bloque et attaque. <em>Difficile</em> : le bot joue de manière optimale. Les parties <strong>Moyen et Difficile</strong> comptent dans le classement classique." },
@@ -504,10 +511,10 @@ const DICT = {
         { icon:'💬', title:'Chat', desc:"Envoie des messages à ton adversaire pendant une partie classique. Le bouton <em>Vider</em> efface l'historique côté local uniquement." },
         { icon:'🔄', title:'Reconnexion', desc:"Si tu recharges la page, tu retrouves automatiquement ta partie classique en cours. L'adversaire a <strong>30 secondes</strong> pour se reconnecter, sinon la partie est annulée." },
         { icon:'🔁', title:'Rejouer', desc:"En fin de partie classique, clique <em>Rejouer</em>. La partie redémarre uniquement si les deux joueurs acceptent." },
-        { icon:'🌍', title:'Classement Global', desc:"Visible dès la page d'accueil, il regroupe <strong>tous les joueurs ayant au moins un point</strong>. Score = victoires classiques (×10) + points Quiz + meilleur score Snake (×10). Mis à jour en temps réel." },
+        { icon:'🌍', title:'Classement Global', desc:"Visible dès la page d'accueil, il regroupe <strong>tous les joueurs ayant au moins un point</strong>. Score = victoires classiques (×10) + points Quiz + meilleur score Snake (×10) + meilleur score Luffy Runner (×10). Mis à jour en temps réel." },
         { icon:'🏆', title:'Classements par section', desc:"Chaque section garde aussi son propre classement : victoires/défaites/nuls pour les Jeux Classiques, total de points pour le Quiz." },
-        { icon:'?', title:'Pour la communauté', desc:"Cette section te permet de voter pour le prochain jeu ajouté sur Libero. Propose ton idée via le bouton <strong>✉️</strong> en bas à gauche, les suggestions les plus mentionnées seront soumises au vote, le jeu le plus voté sera développé et intégré au site." },
-        { icon:'📰', title:'News', desc:"La carte News est repliée dans le <strong>coin en haut à gauche</strong>. <strong>Clique dessus</strong> pour l'ouvrir : elle affiche l'état de l'évent en cours (ou le compte à rebours jusqu'au prochain) et un rappel pour participer à la section <strong>?</strong> Communauté. Reclique pour la refermer." },
+        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Aide Luffy à fuir la Marine dans ce clone du jeu du dinosaure ! Saute (<strong>↑</strong> / Espace) par-dessus les obstacles au sol (tonneaux, canons, crabes…) et accroupis-toi (<strong>↓</strong>) sous les obstacles volants (mouettes, boulets de canon…). Ton meilleur score <strong>persiste</strong> entre les sessions et alimente un classement dédié. Tu peux aussi <strong>proposer un jeu</strong> pour cette section via le bouton dans l'écran de jeu." },
+        { icon:'📰', title:'News', desc:"La carte News est repliée dans le <strong>coin en haut à gauche</strong>. <strong>Clique dessus</strong> pour l'ouvrir : elle affiche l'état de l'évent en cours (ou le compte à rebours jusqu'au prochain) et un rappel pour participer à la section <strong>Luffy Runner</strong>. Reclique pour la refermer." },
         { icon:'⚙️', title:'Paramètres', desc:"Le bouton <strong>⚙️</strong> en <em>haut à droite</em> regroupe tous les réglages : <strong>Langue</strong>, <strong>Thème</strong>, <strong>Serpent</strong>, <strong>Sons</strong> (effets sonores + volume), <strong>Musique</strong> (fond musical + volume) et <strong>Cartes de remboursement</strong>. Tout est mémorisé entre les sessions." },
         { icon:'🔊', title:'Sons & Musique', desc:"<strong>Sons</strong> : des effets sonores accompagnent chaque action (poser une pièce, victoire, quiz, chat, boutique, Snake…). Active/désactive-les via <strong>⚙️ → Sons</strong> et règle le volume.<br><strong>Musique</strong> : une musique ambiante joue en fond. Active/désactive-la via <strong>⚙️ → Musique</strong> avec son propre curseur de volume. Les deux se gèrent indépendamment." },
         { icon:'🐍', title:'Serpent', desc:"Un petit serpent suit ton curseur. Il <strong>grandit et change de couleur</strong> selon ton score global 🌍 : or (1er), bleu (2e), bronze (3e). Joue et grimpe dans le classement pour l'allonger ! Active ou désactive-le via le bouton <strong>⚙️</strong> en haut à droite → <strong>Serpent</strong>." },
@@ -577,11 +584,12 @@ const DICT = {
     ],
     tutoSteps:{
       landing_news:'📰 Le cadre <strong>News</strong> est replié dans le coin <strong>en haut à gauche</strong>. <strong>Clique dessus</strong> pour l\'ouvrir : il affiche les dernières actualités, nouvelles fonctionnalités, annonces et commentaires de joueurs. Reclique pour le refermer.',
-      landing_cats:'👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose quatre sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> (mini-jeux du week-end) et <strong>Pour la communauté</strong> (vote pour le prochain jeu). Clique sur une carte pour commencer.',
-      landing_lb:'🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10. Plus tu montes, plus ton serpent 🐍 grandit !',
+      landing_cats:'👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose quatre sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> (mini-jeux du week-end) et <strong>Pour la communauté</strong> (le mini-jeu <strong>Luffy Runner</strong>). Clique sur une carte pour commencer.',
+      landing_lb:'🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10 + meilleur score Luffy Runner ×10. Plus tu montes, plus ton serpent 🐍 grandit !',
       landing_btns:'⚙️ Des boutons permanents sont disponibles :<br>▶ <strong>En haut à droite</strong> : le bouton <strong>⚙️</strong> ouvre les <strong>Paramètres</strong> (thème, langue, serpent, cartes de remboursement).<br>▶ <strong>En bas à droite</strong> : ❓ <strong>Aide</strong> · ✉️ <strong>Commentaire</strong>',
       landing_libs:'⚡ <strong>Libs</strong> : une monnaie virtuelle gagnée par les meilleurs joueurs. Les top 3 du classement Global reçoivent automatiquement des Libs toutes les 5h (1er : +10 ⚡, 2e : +5 ⚡, 3e : +3 ⚡). Dépense-les dans la <strong>boutique</strong> pour obtenir des boosts quiz !',
       events_snake:'🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les 🍎 pour grandir (les bords sont traversables, tu ressors de l\'autre côté !). Ton meilleur score <strong>persiste</strong> entre les sessions.',
+      luffy_runner:'🏴‍☠️ <strong>Luffy Runner</strong> : aide Luffy à fuir la Marine ! Saute (↑ / Espace) par-dessus les obstacles au sol, accroupis-toi (↓) sous les obstacles volants. Ton meilleur score alimente un classement dédié.',
       home_games:'🎮 Choisis ton jeu en haut : <strong>Puissance 4</strong>, <strong>Morpion</strong> ou <strong>Échecs</strong>. Le classement est partagé entre les trois jeux.',
       home_bot:'🤖 <strong>Mode Solo</strong> : joue contre le bot à 3 niveaux de difficulté : Facile, Moyen ou Difficile. Tes victoires et défaites sont comptées dans le classement !',
       home_multi:'👥 <strong>Mode Multijoueur</strong> : entre ton pseudo (optionnel), puis clique sur <em>Créer une partie</em> pour générer un code, ou entre le code d\'un ami pour le rejoindre.',
@@ -775,7 +783,7 @@ const DICT = {
     eventsLockedCard: days => `📅 In ${days}d`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> <u style="cursor:pointer">vote here</u>!`,
     eventActiveMsg:   '🐍 <strong>Event this weekend</strong>: Snake Challenge! Feed your snake to make it grow across the site.',
-    newsCommunityMsg: '💬 <strong>Got a game idea?</strong> Drop a message in the <strong>?</strong> section at the bottom of the home screen — your voice matters!',
+    newsCommunityMsg: '💬 <strong>Got a game idea?</strong> Suggest it in the <strong>Luffy Runner</strong> section at the bottom of the home screen — your voice matters!',
     snakeVoteTitle:'Snake Challenge',
     snakeVoteSubtitle:'Do you want the Snake Challenge to come back?',
     snakeVoteYes:'Yes, bring it back!',
@@ -805,6 +813,12 @@ const DICT = {
     snakePause:'⏸ Pause', btnSnakeResume:'▶ Resume',
     btnSnakeBack:'← Back', btnSnakeHome:'🏠 Quit',
     snakeHint:'↑ ↓ ← → or swipe on mobile',
+    luffyChallengeDesc:'Help Luffy escape the Marines! Jump over ground obstacles, duck under flying ones.',
+    luffyNameTitle:'🏴‍☠️ Your username',
+    luffyLbTitle:'Luffy Runner Leaderboard',
+    luffyHsDisplay:n => `🏆 Your record: ${n} pts`,
+    luffyHint:'↑ / Space to jump · ↓ to duck',
+    luffySuggestLink:'💬 Suggest a game for this section',
     triviaResumeBtn:'▶ Resume', triviaBackToQuiz:'← Back to Quiz', triviaQuitHome:'🏠 Quit',
     communityTitle:'? Community',
     communityIntro:'This section is dedicated to a <strong>game chosen by you</strong>, the Libero players.',
@@ -824,7 +838,7 @@ const DICT = {
     snakeOverScore:(score, hs) => `Score: ${score} · Best: ${hs}`,
     helpContent:{
       general:[
-        { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (vote for the next game). Each section has its own leaderboard." },
+        { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Luffy Runner</strong> mini-game + game suggestions). Each section has its own leaderboard." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> — feed your snake with 🍎, walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
         { icon:'🎮', title:'Create a classic game', desc:"Choose a game, enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent. You can also play <strong>Solo vs the bot</strong> by choosing a difficulty: Easy, Medium or Hard." },
         { icon:'🤖', title:'Solo mode (vs Bot)', desc:"Play alone against a robot. <em>Easy</em>: plays randomly. <em>Medium</em>: blocks and attacks. <em>Hard</em>: plays optimally. <strong>Medium and Hard</strong> games count in the classic leaderboard." },
@@ -832,10 +846,10 @@ const DICT = {
         { icon:'💬', title:'Chat', desc:"Send messages to your opponent during a classic game. The <em>Clear</em> button erases the history on your side only." },
         { icon:'🔄', title:'Reconnection', desc:"If you reload the page, you automatically rejoin your ongoing classic game. The opponent has <strong>30 seconds</strong> to reconnect, otherwise the game is cancelled." },
         { icon:'🔁', title:'Play again', desc:"At the end of a classic game, click <em>Play again</em>. The game restarts only if both players agree." },
-        { icon:'🌍', title:'Global leaderboard', desc:"Visible from the home page, it gathers <strong>all players with at least one point</strong>. Score = classic wins (×10) + Quiz points + best Snake score (×10). Updated in real time." },
+        { icon:'🌍', title:'Global leaderboard', desc:"Visible from the home page, it gathers <strong>all players with at least one point</strong>. Score = classic wins (×10) + Quiz points + best Snake score (×10) + best Luffy Runner score (×10). Updated in real time." },
         { icon:'🏆', title:'Section leaderboards', desc:"Each section also keeps its own leaderboard: wins/losses/draws for Classic Games, total points for Quiz." },
-        { icon:'?', title:'Community', desc:"This section lets you vote for the next game added to Libero. Suggest your idea via the <strong>✉️</strong> button in the bottom left, the most mentioned suggestions will be put to a vote, and the most voted game will be developed and added to the site." },
-        { icon:'📰', title:'News', desc:"The News card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the current event status (or a countdown to the next one) and a nudge to join the <strong>?</strong> Community section. Click again to close it." },
+        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Help Luffy escape the Marines in this dinosaur-game clone! Jump (<strong>↑</strong> / Space) over ground obstacles (barrels, cannons, crabs…) and duck (<strong>↓</strong>) under flying ones (seagulls, cannonballs…). Your best score <strong>persists</strong> between sessions and feeds its own leaderboard. You can also <strong>suggest a game</strong> for this section via the button on the game screen." },
+        { icon:'📰', title:'News', desc:"The News card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the current event status (or a countdown to the next one) and a nudge to check out the <strong>Luffy Runner</strong> section. Click again to close it." },
         { icon:'⚙️', title:'Settings', desc:"The <strong>⚙️</strong> button in the <em>top right</em> groups all settings: <strong>Language</strong>, <strong>Theme</strong>, <strong>Snake</strong>, <strong>Sound</strong> (SFX + volume), <strong>Music</strong> (background music + volume) and <strong>Refund cards</strong>. Everything is saved between sessions." },
         { icon:'🔊', title:'Sound & Music', desc:"<strong>Sound</strong>: sound effects play on every action (placing a piece, win, quiz, chat, shop, Snake…). Toggle via <strong>⚙️ → Sound</strong> and adjust the volume.<br><strong>Music</strong>: ambient background music plays while you browse. Toggle via <strong>⚙️ → Music</strong> with its own volume slider. Both are controlled independently." },
         { icon:'🐍', title:'Snake', desc:"A little snake follows your cursor. It <strong>grows and changes colour</strong> based on your global score 🌍: gold (1st), blue (2nd), bronze (3rd). Play and climb the leaderboard to make it longer! Enable or disable it via the <strong>⚙️</strong> button (top right) → <strong>Snake</strong>." },
@@ -905,11 +919,12 @@ const DICT = {
     ],
     tutoSteps:{
       landing_news:'📰 The <strong>News</strong> card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the latest news, updates, announcements and player comments. Click again to close it.',
-      landing_cats:'👋 Welcome to <strong>Libero\'s Multi</strong>! The home screen offers four sections: <strong>Classic Games</strong>, <strong>General Knowledge</strong>, <strong>Events</strong> (weekend mini-games) and <strong>Community</strong> (vote for the next game). Click a card to get started.',
-      landing_lb:'🌍 The <strong>Global Leaderboard</strong> brings together <em>all</em> players with at least one point. Score = classic wins ×10 + Quiz points + best Snake score ×10. The higher you climb, the longer your snake 🐍 grows!',
+      landing_cats:'👋 Welcome to <strong>Libero\'s Multi</strong>! The home screen offers four sections: <strong>Classic Games</strong>, <strong>General Knowledge</strong>, <strong>Events</strong> (weekend mini-games) and <strong>Community</strong> (the <strong>Luffy Runner</strong> mini-game). Click a card to get started.',
+      landing_lb:'🌍 The <strong>Global Leaderboard</strong> brings together <em>all</em> players with at least one point. Score = classic wins ×10 + Quiz points + best Snake score ×10 + best Luffy Runner score ×10. The higher you climb, the longer your snake 🐍 grows!',
       landing_btns:'⚙️ Permanent buttons are available:<br>▶ <strong>Top right</strong>: the <strong>⚙️</strong> button opens <strong>Settings</strong> (day/night theme, language, snake, refund cards).<br>▶ <strong>Bottom right</strong>: ❓ <strong>Help</strong> · ✉️ <strong>Comment</strong>',
       landing_libs:'⚡ <strong>Libs</strong>: a virtual currency earned by the best players. The top 3 in the Global Leaderboard automatically receive Libs every 5 hours (1st: +5 ⚡, 2nd: +3 ⚡, 3rd: +2 ⚡). Spend them in the <strong>shop</strong> to get quiz boosts!',
       events_snake:'🐍 This weekend\'s event: <strong>Snake Challenge</strong>! Click <em>Play</em>, your snake enters the arena. Eat the 🍎 to grow (walls wrap around — you reappear on the other side!). Your best score <strong>persists</strong> between sessions.',
+      luffy_runner:'🏴‍☠️ <strong>Luffy Runner</strong>: help Luffy escape the Marines! Jump (↑ / Space) over ground obstacles, duck (↓) under flying ones. Your best score feeds a dedicated leaderboard.',
       home_games:'🎮 Choose your game at the top: <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong> or <strong>Chess</strong>. The leaderboard is shared across all three games.',
       home_bot:'🤖 <strong>Solo mode</strong>: play against the bot at 3 difficulty levels: Easy, Medium or Hard. Your wins and losses count in the leaderboard!',
       home_multi:'👥 <strong>Multiplayer mode</strong>: enter your username (optional), then click <em>Create a game</em> to generate a code, or enter a friend\'s code to join them.',
@@ -1096,6 +1111,30 @@ function applyLang() {
   const bsph = $('btn-snake-pause-quit-home');   if (bsph) bsph.textContent = d.btnSnakeHome;
   const sht  = $('snake-hint-text');     if (sht)  sht.textContent  = d.snakeHint;
 
+  // Luffy Runner screen
+  const lss  = $('luffy-screen-sub');    if (lss)  lss.textContent  = d.communityCard;
+  const lcd  = $('luffy-challenge-desc'); if (lcd) lcd.textContent  = d.luffyChallengeDesc;
+  const bls  = $('btn-luffy-play');      if (bls)  bls.textContent  = d.btnPlay;
+  const blsg = $('btn-luffy-suggest');   if (blsg) blsg.textContent = d.luffySuggestLink;
+  const lnt  = $('luffy-name-title-el'); if (lnt)  lnt.textContent  = d.luffyNameTitle;
+  const lns  = $('luffy-name-sub-el');   if (lns)  lns.textContent  = d.snakeNameSub;
+  const lpi  = $('luffy-pseudo-input');  if (lpi)  lpi.placeholder  = d.snakeNamePh;
+  const lne  = $('luffy-name-error');    if (lne)  lne.textContent  = d.snakeNameErr;
+  const blcn = $('btn-luffy-confirm-name'); if (blcn) blcn.textContent = d.btnSnakeConfirm;
+  const blca = $('btn-luffy-cancel-name');  if (blca) blca.textContent = d.btnSnakeCancel;
+  const llts = $('luffy-lb-title-span'); if (llts) llts.textContent = d.luffyLbTitle;
+  const lst  = $('luffy-score-text');    if (lst)  lst.textContent  = d.snakeScoreLabel + ' : ';
+  const lbt  = $('luffy-best-text');     if (lbt)  lbt.textContent  = d.snakeBestLabel  + ' : ';
+  const lgot = $('luffy-game-over-text'); if (lgot) lgot.textContent = d.snakeGameOver;
+  const lnhs = $('luffy-new-hs');        if (lnhs) lnhs.textContent = d.snakeNewRecord;
+  const blr  = $('btn-luffy-restart');   if (blr)  blr.textContent  = d.btnSnakeRestart;
+  const blq  = $('btn-luffy-quit');      if (blq)  blq.textContent  = d.btnSnakeQuit;
+  const lpt  = $('luffy-pause-text');    if (lpt)  lpt.textContent  = d.snakePause;
+  const blrr = $('btn-luffy-resume');    if (blrr) blrr.textContent = d.btnSnakeResume;
+  const blpl = $('btn-luffy-pause-quit-luffy'); if (blpl) blpl.textContent = d.btnSnakeBack;
+  const blph = $('btn-luffy-pause-quit-home');  if (blph) blph.textContent = d.btnSnakeHome;
+  const lht  = $('luffy-hint-text');     if (lht)  lht.textContent  = d.luffyHint;
+
   // Trivia pause
   const tpt  = $('trivia-pause-text');   if (tpt)  tpt.textContent  = d.snakePause;
   const btr  = $('btn-trivia-resume');   if (btr)  btr.textContent  = d.triviaResumeBtn;
@@ -1215,6 +1254,7 @@ function showScreen(name) {
     el.classList.add('active');
   }
   document.body.classList.toggle('screen-events-active', name === 'events');
+  document.body.classList.toggle('screen-luffy-active', name === 'luffy');
   const nc = document.getElementById('news-card');
   if (nc) nc.style.display = name === 'landing' ? '' : 'none';
   if (name === 'landing') { _scheduleNewsCollapse(); }
@@ -2141,6 +2181,31 @@ function renderSnakeLeaderboard(data) {
   });
 }
 
+function renderLuffyLeaderboard(data) {
+  const el = document.getElementById('luffy-lb-list');
+  if (!el) return;
+  if (!data || data.length === 0) {
+    el.innerHTML = `<p class="lb-empty">${t().snakeLbEmpty}</p>`;
+    return;
+  }
+  const medals = ['🥇', '🥈', '🥉'];
+  el.innerHTML = data.map((e, i) => `
+    <div class="lb-row lb-row-clickable" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
+      <span class="lb-rank">${medals[i] || i + 1}</span>
+      <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
+      <span class="lb-score-snake">${e.hs} 🏃</span>
+    </div>
+  `).join('');
+  el.querySelectorAll('.lb-row-clickable').forEach(row => {
+    row.addEventListener('click', () => {
+      const _av = row.dataset.avatar;
+      if (_av && AVATAR_ICONS[_av]) { _shopFocusItem(_av); return; }
+      const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
+      if (ids.length) _shopFocusItems(ids); else openShop();
+    });
+  });
+}
+
 // ── Trivia : utilitaires ──────────────────────────────────────────────────────
 function shuffle(arr) {
   const a = [...arr];
@@ -2655,6 +2720,7 @@ socket.on('connect', () => {
   socket.emit('get-global-leaderboard');
   socket.emit('get-libs', { playerId: getPlayerId() });
   if (sessionStorage.getItem('libero_screen') === 'events') socket.emit('get-snake-leaderboard');
+  if (sessionStorage.getItem('libero_screen') === 'luffy')  socket.emit('get-luffy-leaderboard');
 
   // Jeu classique
   const saved = sessionStorage.getItem('p4session');
@@ -2815,7 +2881,7 @@ socket.on('global-leaderboard-update', (data) => {
   if (idx !== -1) {
     const rank     = idx + 1;
     const entry    = data[idx];
-    const rawSum   = (entry.wins || 0) + (entry.triviaPoints || 0) + (entry.snakeHs || 0);
+    const rawSum   = (entry.wins || 0) + (entry.triviaPoints || 0) + (entry.snakeHs || 0) + (entry.luffyHs || 0);
     const len      = 4 + Math.min(14, Math.floor(rawSum / 5));
     cursorSnake.update(len, rank);
   }
@@ -2823,6 +2889,7 @@ socket.on('global-leaderboard-update', (data) => {
 });
 
 socket.on('snake-leaderboard-update', (data) => { _snakeLbData = data || []; renderSnakeLeaderboard(data); });
+socket.on('luffy-leaderboard-update', (data) => { _luffyLbData = data || []; renderLuffyLeaderboard(data); });
 
 socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
   if (!id) return;
@@ -4989,6 +5056,439 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   })();
 })();
 
+// ── Luffy Runner (jeu communautaire) ────────────────────────────────────────
+(() => {
+  const HS_KEY   = 'libero_luffy_hs';
+
+  // Tout le jeu se simule dans un repère logique fixe 600×220, mis à l'échelle
+  // au dessin selon la taille réelle du canvas (cf. resizeCanvas / draw).
+  const REF_W = 600, REF_H = 220;
+  const GROUND_Y   = 190;
+  const GRAVITY    = 2400;
+  const JUMP_VEL   = 760;
+  const LUFFY_X    = 60;
+  const STAND_W = 40, STAND_H = 62;
+  const DUCK_W  = 54, DUCK_H  = 32;
+  const BASE_SPEED = 260, MAX_SPEED = 560, SPEED_PER_POINT = 0.21; // px/s logiques par point de score
+  const FLY_MIN_SCORE = 200;
+
+  let canvas, ctx, raf, lastT, scale = 1;
+  let running = false, paused = false;
+  let distance, speed, score, hsShown;
+  let luffyY, luffyVy, jumping, ducking;
+  let obstacles, nextSpawnDist, lastSpawnType;
+
+  const luffyImg = new Image();
+  luffyImg.src = 'Luffy.png';
+  const SPR_FRONT = { sx: 205, sy: 126, sw: 331, sh: 492 };
+  const SPR_SIDE  = { sx: 868, sy: 126, sw: 330, sh: 492 };
+
+  function getHs()   { return parseInt(localStorage.getItem(HS_KEY) || '0', 10); }
+  function saveHs(n) {
+    if (n > getHs()) {
+      localStorage.setItem(HS_KEY, String(n));
+      const name = localStorage.getItem('playerName');
+      if (name) socket.emit('submit-luffy-score', { name, hs: n, playerId: getPlayerId() });
+    }
+  }
+  function updateHsDisplay() {
+    const el = document.getElementById('luffy-hs-display');
+    if (!el) return;
+    const h = getHs();
+    el.textContent = h > 0 ? t().luffyHsDisplay(h) : '';
+  }
+
+  // ── Obstacles ────────────────────────────────────────────────────────────
+  function drawEmoji(c, emoji, x, y, w, h, filter) {
+    c.save();
+    if (filter) c.filter = filter;
+    c.font = `${Math.round(h)}px serif`;
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText(emoji, x + w / 2, y + h / 2 + 1);
+    c.restore();
+  }
+  function drawCanon(c, x, y, w, h) {
+    c.save();
+    c.fillStyle = '#3a3a42';
+    c.beginPath(); c.roundRect(x, y + h * .3, w, h * .42, 4); c.fill();
+    c.beginPath(); c.arc(x + w * .24, y + h * .88, w * .22, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.arc(x + w * .76, y + h * .88, w * .22, 0, Math.PI * 2); c.fill();
+    c.restore();
+  }
+  function drawCannonball(c, x, y, w, h) {
+    c.save();
+    const r = Math.min(w, h) / 2, cx = x + w / 2, cy = y + h / 2;
+    const grad = c.createRadialGradient(cx - r * .3, cy - r * .3, 1, cx, cy, r);
+    grad.addColorStop(0, '#666'); grad.addColorStop(1, '#0e0e0e');
+    c.fillStyle = grad;
+    c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.fill();
+    c.restore();
+  }
+  function drawAirship(c, x, y, w, h) {
+    c.save();
+    c.fillStyle = '#c0392b';
+    c.beginPath(); c.ellipse(x + w / 2, y + h * .38, w / 2, h * .38, 0, 0, Math.PI * 2); c.fill();
+    c.fillStyle = '#5a3a22';
+    c.fillRect(x + w * .35, y + h * .68, w * .3, h * .24);
+    c.restore();
+  }
+
+  const GROUND_OBS = [
+    { id: 'tonneau',     w: 28, h: 32, draw: (c, x, y, w, h) => drawEmoji(c, '🛢️', x, y, w, h) },
+    { id: 'baril',       w: 28, h: 32, draw: (c, x, y, w, h) => drawEmoji(c, '🛢️', x, y, w, h, 'hue-rotate(160deg) brightness(.7)') },
+    { id: 'canon',       w: 36, h: 28, draw: drawCanon },
+    { id: 'rocher',      w: 32, h: 30, draw: (c, x, y, w, h) => drawEmoji(c, '🪨', x, y, w, h) },
+    { id: 'crabe',       w: 24, h: 20, draw: (c, x, y, w, h) => drawEmoji(c, '🦀', x, y, w, h) },
+    { id: 'meduse',      w: 24, h: 24, draw: (c, x, y, w, h) => drawEmoji(c, '🪼', x, y, w, h) },
+    { id: 'dendenmushi', w: 26, h: 20, draw: (c, x, y, w, h) => drawEmoji(c, '🐌', x, y, w, h) },
+    { id: 'marine',      w: 26, h: 38, draw: (c, x, y, w, h) => drawEmoji(c, '💂', x, y, w, h, 'hue-rotate(200deg) saturate(1.4)') },
+  ];
+  const FLY_OBS = [
+    { id: 'mouette',      w: 30, h: 22, draw: (c, x, y, w, h) => drawEmoji(c, '🕊️', x, y, w, h) },
+    { id: 'oiseau',       w: 28, h: 22, draw: (c, x, y, w, h) => drawEmoji(c, '🐦', x, y, w, h) },
+    { id: 'boulet',       w: 22, h: 22, draw: drawCannonball },
+    { id: 'marineoiseau', w: 32, h: 26, draw: (c, x, y, w, h) => drawEmoji(c, '🦅', x, y, w, h, 'hue-rotate(200deg)') },
+    { id: 'dirigeable',   w: 46, h: 26, draw: drawAirship },
+  ];
+  const FLY_TOP = GROUND_Y - 60, FLY_H = 22; // bande basse : oblige à s'accroupir
+
+  function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function spawnObstacle() {
+    const flying = score >= FLY_MIN_SCORE && Math.random() < 0.4;
+    const def = flying ? rnd(FLY_OBS) : rnd(GROUND_OBS);
+    const sameType = lastSpawnType === (flying ? 'fly' : 'ground');
+    const gapSeconds = (lastSpawnType === null)
+      ? 1.4
+      : (sameType ? 1.1 + Math.random() * 0.7 : 1.8 + Math.random() * 0.8);
+    nextSpawnDist = distance + speed * gapSeconds;
+    obstacles.push({
+      def, flying,
+      arriveDist: distance + (REF_W - LUFFY_X), // distance à laquelle l'obstacle atteint Luffy
+    });
+    lastSpawnType = flying ? 'fly' : 'ground';
+  }
+
+  function obstacleX(o) {
+    return LUFFY_X + (o.arriveDist - distance);
+  }
+
+  // ── Boucle de jeu ──────────────────────────────────────────────────────
+  function resizeCanvas() {
+    const maxW = Math.min(REF_W, window.innerWidth - 32);
+    canvas.width  = Math.round(maxW);
+    canvas.height = Math.round(maxW * REF_H / REF_W);
+    scale = canvas.width / REF_W;
+  }
+
+  function luffyBox() {
+    if (jumping) {
+      return { x: LUFFY_X, w: STAND_W, top: GROUND_Y - luffyY - STAND_H, bottom: GROUND_Y - luffyY };
+    }
+    if (ducking) {
+      return { x: LUFFY_X, w: DUCK_W, top: GROUND_Y - DUCK_H, bottom: GROUND_Y };
+    }
+    return { x: LUFFY_X, w: STAND_W, top: GROUND_Y - STAND_H, bottom: GROUND_Y };
+  }
+
+  function checkCollisions() {
+    const lb = luffyBox();
+    for (const o of obstacles) {
+      const x = obstacleX(o);
+      const w = o.def.w;
+      const oTop = o.flying ? FLY_TOP : GROUND_Y - o.def.h;
+      const oBottom = o.flying ? FLY_TOP + FLY_H : GROUND_Y;
+      const overlapX = x < lb.x + lb.w && x + w > lb.x;
+      const overlapY = oTop < lb.bottom && oBottom > lb.top;
+      if (overlapX && overlapY) return true;
+    }
+    return false;
+  }
+
+  function update(dt) {
+    distance += speed * dt;
+    score = Math.floor(distance / 8);
+    speed = Math.min(MAX_SPEED, BASE_SPEED + score * SPEED_PER_POINT);
+
+    if (jumping) {
+      luffyY += luffyVy * dt;
+      luffyVy -= GRAVITY * dt;
+      if (luffyY <= 0) { luffyY = 0; luffyVy = 0; jumping = false; }
+    }
+
+    if (distance >= nextSpawnDist) spawnObstacle();
+    obstacles = obstacles.filter(o => obstacleX(o) > -80);
+
+    if (checkCollisions()) { endGame(); return; }
+
+    const sv = document.getElementById('luffy-score-val');
+    if (sv) sv.textContent = score;
+    if (score > hsShown) {
+      hsShown = score;
+      const hv = document.getElementById('luffy-hs-val'); if (hv) hv.textContent = hsShown;
+    }
+  }
+
+  function drawGround(c) {
+    c.fillStyle = '#1a2a1a';
+    c.fillRect(0, GROUND_Y, REF_W, REF_H - GROUND_Y);
+    c.strokeStyle = 'rgba(255,255,255,.18)';
+    c.lineWidth = 2;
+    const tickOffset = -(distance % 24);
+    for (let x = tickOffset; x < REF_W; x += 24) {
+      c.beginPath(); c.moveTo(x, GROUND_Y + 1); c.lineTo(x + 12, GROUND_Y + 1); c.stroke();
+    }
+  }
+
+  function drawClouds(c) {
+    c.fillStyle = 'rgba(255,255,255,.55)';
+    const cloudOffset = -(distance * 0.25 % 260);
+    for (let i = 0; i < 3; i++) {
+      const cx = cloudOffset + i * 220 + 40;
+      const cy = 36 + (i % 2) * 18;
+      [0, 16, 32].forEach((dx, j) => {
+        c.beginPath(); c.arc(cx + dx, cy - (j === 1 ? 6 : 0), 13, 0, Math.PI * 2); c.fill();
+      });
+    }
+  }
+
+  function drawLuffy(c) {
+    const lb = luffyBox();
+    const sprite = jumping ? SPR_FRONT : SPR_SIDE;
+    c.save();
+    if (luffyImg.complete && luffyImg.naturalWidth) {
+      c.drawImage(luffyImg, sprite.sx, sprite.sy, sprite.sw, sprite.sh, lb.x, lb.top, lb.w, lb.bottom - lb.top);
+    } else {
+      c.fillStyle = '#c0392b';
+      c.fillRect(lb.x, lb.top, lb.w, lb.bottom - lb.top);
+    }
+    c.restore();
+  }
+
+  function draw() {
+    ctx.save();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.scale(scale, scale);
+
+    const sky = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+    sky.addColorStop(0, '#7ec8e3'); sky.addColorStop(1, '#bfe8f0');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, REF_W, GROUND_Y);
+
+    drawClouds(ctx);
+    drawGround(ctx);
+    drawLuffy(ctx);
+
+    obstacles.forEach(o => {
+      const x = obstacleX(o);
+      const y = o.flying ? FLY_TOP : GROUND_Y - o.def.h;
+      const h = o.flying ? FLY_H : o.def.h;
+      o.def.draw(ctx, x, y, o.def.w, h);
+    });
+
+    ctx.restore();
+  }
+
+  function frame(now) {
+    if (!running || paused) return;
+    const dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    update(dt);
+    if (!running) return; // endGame a pu être déclenché dans update()
+    draw();
+    raf = requestAnimationFrame(frame);
+  }
+
+  function startGame() {
+    canvas = document.getElementById('luffy-canvas');
+    ctx    = canvas.getContext('2d');
+    resizeCanvas();
+    distance = 0; speed = BASE_SPEED; score = 0; hsShown = getHs();
+    luffyY = 0; luffyVy = 0; jumping = false; ducking = false;
+    obstacles = []; nextSpawnDist = 0; lastSpawnType = null;
+    running = true; paused = false;
+    document.getElementById('luffy-score-val').textContent = 0;
+    document.getElementById('luffy-hs-val').textContent    = getHs();
+    document.getElementById('luffy-over-overlay').classList.add('hidden');
+    document.getElementById('luffy-pause-overlay').classList.add('hidden');
+    spawnObstacle();
+    draw();
+    lastT = performance.now();
+    raf = requestAnimationFrame(frame);
+  }
+
+  function endGame() {
+    running = false;
+    cancelAnimationFrame(raf);
+    SFX.snakeOver();
+    const isNewHs = score > getHs();
+    saveHs(score);
+    const _name = localStorage.getItem('playerName');
+    if (_name && getHs() === 0) socket.emit('submit-luffy-score', { name: _name, hs: 0, playerId: getPlayerId() });
+    const newHsEl = document.getElementById('luffy-new-hs');
+    if (newHsEl) newHsEl.classList.toggle('hidden', !isNewHs);
+    document.getElementById('luffy-over-score').textContent = t().snakeOverScore(score, getHs());
+    document.getElementById('luffy-over-overlay').classList.remove('hidden');
+    draw();
+  }
+
+  // ── Contrôles ────────────────────────────────────────────────────────────
+  function doJump() {
+    if (!running || paused || jumping || ducking) return;
+    jumping = true; luffyVy = JUMP_VEL;
+  }
+  function setDuck(v) {
+    if (!running || paused || jumping) return;
+    ducking = v;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (!running || paused) return;
+    if (e.key === 'ArrowUp' || e.key === ' ' || e.key === 'w' || e.key === 'W') { e.preventDefault(); doJump(); }
+    else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') { e.preventDefault(); setDuck(true); }
+  });
+  document.addEventListener('keyup', e => {
+    if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') setDuck(false);
+  });
+
+  document.getElementById('luffy-btn-jump')?.addEventListener('touchstart', e => { e.preventDefault(); doJump(); }, { passive: false });
+  document.getElementById('luffy-btn-jump')?.addEventListener('click', doJump);
+  document.getElementById('luffy-btn-duck')?.addEventListener('touchstart', e => { e.preventDefault(); setDuck(true); }, { passive: false });
+  document.getElementById('luffy-btn-duck')?.addEventListener('touchend',   e => { e.preventDefault(); setDuck(false); }, { passive: false });
+  document.getElementById('luffy-btn-duck')?.addEventListener('mousedown', () => setDuck(true));
+  document.getElementById('luffy-btn-duck')?.addEventListener('mouseup',   () => setDuck(false));
+
+  // ── Navigation ───────────────────────────────────────────────────────────
+  document.getElementById('btn-go-community')?.addEventListener('click', () => {
+    showScreen('luffy');
+    updateHsDisplay();
+    socket.emit('get-luffy-leaderboard');
+  });
+
+  document.getElementById('btn-luffy-suggest')?.addEventListener('click', () => {
+    document.getElementById('overlay-community')?.classList.remove('hidden');
+  });
+
+  function showLuffyIntro() {
+    document.getElementById('luffy-game-wrap').classList.add('hidden');
+    document.getElementById('luffy-name-form').classList.add('hidden');
+    document.getElementById('luffy-intro').classList.remove('hidden');
+    document.getElementById('luffy-lb-card').classList.remove('hidden');
+  }
+
+  document.getElementById('btn-back-luffy')?.addEventListener('click', () => {
+    cancelAnimationFrame(raf);
+    running = false;
+    showLuffyIntro();
+    showScreen('landing');
+  });
+
+  function launchLuffyGame() {
+    const _hs = getHs(), _name = localStorage.getItem('playerName');
+    if (_hs > 0 && _name) socket.emit('submit-luffy-score', { name: _name, hs: _hs, playerId: getPlayerId() });
+    document.getElementById('luffy-intro').classList.add('hidden');
+    document.getElementById('luffy-lb-card').classList.add('hidden');
+    document.getElementById('luffy-game-wrap').classList.remove('hidden');
+    requestAnimationFrame(startGame);
+  }
+
+  document.getElementById('btn-luffy-play')?.addEventListener('click', () => {
+    const name = (localStorage.getItem('playerName') || '').trim();
+    if (!name) {
+      document.getElementById('luffy-intro').classList.add('hidden');
+      document.getElementById('luffy-lb-card').classList.add('hidden');
+      const input = document.getElementById('luffy-pseudo-input');
+      document.getElementById('luffy-name-form').classList.remove('hidden');
+      document.getElementById('luffy-name-error').classList.add('hidden');
+      input.value = '';
+      input.focus();
+      return;
+    }
+    launchLuffyGame();
+  });
+
+  document.getElementById('btn-luffy-confirm-name')?.addEventListener('click', () => {
+    const input = document.getElementById('luffy-pseudo-input');
+    const val   = input.value.trim();
+    if (!val) {
+      document.getElementById('luffy-name-error').classList.remove('hidden');
+      input.focus();
+      return;
+    }
+    localStorage.setItem('playerName', val);
+    const n = $('input-name');        if (n)  n.value  = val;
+    const tn = $('input-trivia-name'); if (tn) tn.value = val;
+    const counter = $('libs-counter');
+    if (counter) counter.classList.toggle('hidden', !val || val === 'Anonyme');
+    socket.emit('get-libs', { playerId: getPlayerId() });
+    document.getElementById('luffy-name-form').classList.add('hidden');
+    launchLuffyGame();
+  });
+
+  document.getElementById('luffy-pseudo-input')?.addEventListener('input', (e) => {
+    checkPseudo(e.target.value.trim(), 'luffy-pseudo-warning');
+  });
+  document.getElementById('luffy-pseudo-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('btn-luffy-confirm-name')?.click();
+  });
+
+  document.getElementById('btn-luffy-cancel-name')?.addEventListener('click', () => {
+    showLuffyIntro();
+  });
+
+  document.getElementById('btn-luffy-restart')?.addEventListener('click', startGame);
+
+  document.getElementById('btn-luffy-quit')?.addEventListener('click', () => {
+    cancelAnimationFrame(raf);
+    running = false;
+    showLuffyIntro();
+    updateHsDisplay();
+    socket.emit('get-luffy-leaderboard');
+  });
+
+  // ── Pause ─────────────────────────────────────────────────────────────────
+  function togglePause() {
+    if (!running) return;
+    paused = !paused;
+    const overlay = document.getElementById('luffy-pause-overlay');
+    const btn     = document.getElementById('btn-luffy-pause');
+    if (paused) {
+      cancelAnimationFrame(raf);
+      overlay.classList.remove('hidden');
+      btn.textContent = '▶';
+    } else {
+      overlay.classList.add('hidden');
+      btn.textContent = '⏸';
+      lastT = performance.now();
+      raf = requestAnimationFrame(frame);
+    }
+  }
+
+  document.getElementById('btn-luffy-pause')?.addEventListener('click', togglePause);
+  document.getElementById('btn-luffy-resume')?.addEventListener('click', togglePause);
+
+  document.getElementById('btn-luffy-pause-quit-luffy')?.addEventListener('click', () => {
+    cancelAnimationFrame(raf);
+    running = false; paused = false;
+    document.getElementById('luffy-pause-overlay').classList.add('hidden');
+    showLuffyIntro();
+    updateHsDisplay();
+    socket.emit('get-luffy-leaderboard');
+  });
+
+  document.getElementById('btn-luffy-pause-quit-home')?.addEventListener('click', () => {
+    cancelAnimationFrame(raf);
+    running = false; paused = false;
+    document.getElementById('luffy-pause-overlay').classList.add('hidden');
+    showLuffyIntro();
+    showScreen('landing');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') togglePause();
+  });
+})();
+
 // ── Pluie d'émojis au chargement ──────────────────────────────────────────────
 (() => {
   const _sc = sessionStorage.getItem('libero_screen');
@@ -5107,9 +5607,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
 
   // ── Modal Communauté ──
   const communityOverlay = $('overlay-community');
-  function openCommunity() { communityOverlay.classList.remove('hidden'); }
   function closeCommunity() { communityOverlay.classList.add('hidden'); }
-  $('btn-go-community').addEventListener('click', openCommunity);
   $('btn-community-close').addEventListener('click', closeCommunity);
   communityOverlay.addEventListener('click', e => { if (e.target === communityOverlay) closeCommunity(); });
   $('btn-community-open-comment').addEventListener('click', () => {
@@ -5265,13 +5763,13 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'landing_cats',
       screen: 'landing',
-      text: '👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose quatre sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> (mini-jeux du week-end) et <strong>Pour la communauté</strong> (vote pour le prochain jeu). Clique sur une carte pour commencer.',
+      text: '👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose quatre sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> (mini-jeux du week-end) et <strong>Pour la communauté</strong> (le mini-jeu <strong>Luffy Runner</strong>). Clique sur une carte pour commencer.',
       target: '.landing-grid',
     },
     {
       id: 'landing_lb',
       screen: 'landing',
-      text: '🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10. Plus tu montes, plus ton serpent 🐍 grandit !',
+      text: '🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10 + meilleur score Luffy Runner ×10. Plus tu montes, plus ton serpent 🐍 grandit !',
       target: '.global-lb-card',
     },
     {
@@ -5293,6 +5791,14 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
       screen: 'events',
       text: '🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les 🍎 pour grandir (les bords sont traversables, tu ressors de l\'autre côté !). Ton meilleur score <strong>persiste</strong> entre les sessions.',
       target: '.event-intro',
+    },
+
+    // ── Pour la communauté ──
+    {
+      id: 'luffy_runner',
+      screen: 'luffy',
+      text: '🏴‍☠️ <strong>Luffy Runner</strong> : aide Luffy à fuir la Marine ! Saute (↑ / Espace) par-dessus les obstacles au sol, accroupis-toi (↓) sous les obstacles volants. Ton meilleur score alimente un classement dédié.',
+      target: '#luffy-intro',
     },
 
     // ── Jeux classiques ──
@@ -5458,6 +5964,9 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     STEPS.filter(s => s.screen === 'landing').forEach(s => markDone(s.id));
   });
   document.getElementById('btn-go-events')?.addEventListener('click', () => {
+    STEPS.filter(s => s.screen === 'landing').forEach(s => markDone(s.id));
+  });
+  document.getElementById('btn-go-community')?.addEventListener('click', () => {
     STEPS.filter(s => s.screen === 'landing').forEach(s => markDone(s.id));
   });
 
