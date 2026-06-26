@@ -1005,7 +1005,6 @@ html.light .news-star { background: rgba(234,179,8,.08); }
   opacity: 1;
   cursor: pointer;
   pointer-events: auto;
-  border: 1.5px dashed var(--accent);
   position: relative;
   transition: box-shadow .18s, opacity .18s;
 }

@@ -5402,12 +5402,14 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   function endGame() {
     running = false;
     cancelAnimationFrame(raf);
-    clearLuffySession();
     SFX.snakeOver();
     const isNewHs = score > getHs();
     saveHs(score);
     const _name = localStorage.getItem('playerName');
     if (_name && getHs() === 0) socket.emit('submit-luffy-score', { name: _name, hs: 0, playerId: getPlayerId() });
+    // Garde l'écran de fin de partie en mémoire : un refresh involontaire ici
+    // doit retomber sur ce même écran plutôt que sur l'intro.
+    sessionStorage.setItem(SESS_KEY, JSON.stringify({ gameOver: true, score, isNewHs }));
     const newHsEl = document.getElementById('luffy-new-hs');
     if (newHsEl) newHsEl.classList.toggle('hidden', !isNewHs);
     document.getElementById('luffy-over-score').textContent = t().snakeOverScore(score, getHs());
@@ -5587,10 +5589,33 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     }
     try {
       const data = JSON.parse(saved);
-      if (!Array.isArray(data.obstacles) || data.score === undefined || data.distance === undefined) throw new Error();
       canvas = document.getElementById('luffy-canvas');
       ctx    = canvas.getContext('2d');
       resizeCanvas();
+
+      if (data.gameOver) {
+        if (data.score === undefined) throw new Error();
+        score = data.score; hsShown = getHs();
+        distance = score * 8; speed = BASE_SPEED;
+        luffyY = 0; luffyVy = 0; jumping = false; ducking = false;
+        obstacles = []; nextSpawnDist = 0; lastSpawnType = null; invincibleUntil = 0;
+        resetAirship();
+        running = false; paused = false;
+        document.getElementById('luffy-score-val').textContent = score;
+        document.getElementById('luffy-hs-val').textContent    = getHs();
+        document.getElementById('luffy-intro').classList.add('hidden');
+        document.getElementById('luffy-lb-card').classList.add('hidden');
+        document.getElementById('luffy-game-wrap').classList.remove('hidden');
+        document.getElementById('luffy-pause-overlay').classList.add('hidden');
+        const newHsEl = document.getElementById('luffy-new-hs');
+        if (newHsEl) newHsEl.classList.toggle('hidden', !data.isNewHs);
+        document.getElementById('luffy-over-score').textContent = t().snakeOverScore(score, getHs());
+        document.getElementById('luffy-over-overlay').classList.remove('hidden');
+        draw(performance.now());
+        return;
+      }
+
+      if (!Array.isArray(data.obstacles) || data.score === undefined || data.distance === undefined) throw new Error();
       distance = data.distance; speed = data.speed; score = data.score; hsShown = getHs();
       luffyY = data.luffyY; luffyVy = data.luffyVy; jumping = data.jumping; ducking = data.ducking;
       obstacles = data.obstacles
