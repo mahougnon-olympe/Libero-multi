@@ -5157,6 +5157,20 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
   const FLY_TOP = GROUND_Y - 60, FLY_H = 22; // bande basse : oblige à s'accroupir
   const INVINCIBILITY_MS = 6000;
 
+  // ── Thèmes de map (jour / nuit / saisons) ───────────────────────────────────
+  // La map change de thème tous les THEME_SCORE_STEP points, en boucle.
+  const THEME_SCORE_STEP = 150;
+  const THEMES = [
+    { id: 'day',    skyTop: '#7ec8e3', skyBot: '#bfe8f0', ground: '#1a2a1a', groundLine: 'rgba(255,255,255,.18)', particle: 'cloud' },
+    { id: 'night',  skyTop: '#0c1330', skyBot: '#1e2a55', ground: '#0d1410', groundLine: 'rgba(255,255,255,.10)', particle: 'star',
+      overlay: 'rgba(20,30,70,.35)' },
+    { id: 'autumn', skyTop: '#d9874a', skyBot: '#f3c98b', ground: '#3a2415', groundLine: 'rgba(255,255,255,.14)', particle: 'leaf',
+      overlay: 'rgba(220,140,60,.12)' },
+    { id: 'winter', skyTop: '#9fb8c8', skyBot: '#eef3f6', ground: '#cfd8de', groundLine: 'rgba(70,80,95,.25)', particle: 'snow',
+      overlay: 'rgba(210,225,235,.18)' },
+  ];
+  function currentTheme() { return THEMES[Math.floor(score / THEME_SCORE_STEP) % THEMES.length]; }
+
   function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
   function spawnObstacle() {
@@ -5269,10 +5283,10 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     }
   }
 
-  function drawGround(c) {
-    c.fillStyle = '#1a2a1a';
+  function drawGround(c, theme) {
+    c.fillStyle = theme.ground;
     c.fillRect(0, GROUND_Y, REF_W, REF_H - GROUND_Y);
-    c.strokeStyle = 'rgba(255,255,255,.18)';
+    c.strokeStyle = theme.groundLine;
     c.lineWidth = 2;
     const tickOffset = -(distance % 24);
     for (let x = tickOffset; x < REF_W; x += 24) {
@@ -5280,16 +5294,57 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     }
   }
 
-  function drawClouds(c) {
-    c.fillStyle = 'rgba(255,255,255,.55)';
-    const cloudOffset = -(distance * 0.25 % 260);
-    for (let i = 0; i < 3; i++) {
-      const cx = cloudOffset + i * 220 + 40;
-      const cy = 36 + (i % 2) * 18;
-      [0, 16, 32].forEach((dx, j) => {
-        c.beginPath(); c.arc(cx + dx, cy - (j === 1 ? 6 : 0), 13, 0, Math.PI * 2); c.fill();
-      });
+  function drawAmbience(c, theme, now) {
+    if (theme.particle === 'cloud') {
+      c.fillStyle = 'rgba(255,255,255,.55)';
+      const cloudOffset = -(distance * 0.25 % 260);
+      for (let i = 0; i < 3; i++) {
+        const cx = cloudOffset + i * 220 + 40;
+        const cy = 36 + (i % 2) * 18;
+        [0, 16, 32].forEach((dx, j) => {
+          c.beginPath(); c.arc(cx + dx, cy - (j === 1 ? 6 : 0), 13, 0, Math.PI * 2); c.fill();
+        });
+      }
+    } else if (theme.particle === 'star') {
+      c.fillStyle = '#f4f1de';
+      c.beginPath(); c.arc(REF_W - 60, 38, 15, 0, Math.PI * 2); c.fill();
+      for (let i = 0; i < 16; i++) {
+        const sx = (i * 53 + 17) % REF_W;
+        const sy = (i * 31 + 5) % (GROUND_Y - 30) + 6;
+        const tw = 0.35 + 0.55 * Math.abs(Math.sin(now / 500 + i));
+        c.fillStyle = `rgba(255,255,255,${tw.toFixed(2)})`;
+        c.fillRect(sx, sy, 2, 2);
+      }
+    } else if (theme.particle === 'leaf' || theme.particle === 'snow') {
+      const isLeaf = theme.particle === 'leaf';
+      const count = isLeaf ? 16 : 26;
+      const fallSpeed = isLeaf ? 30 : 50;
+      for (let i = 0; i < count; i++) {
+        const seed = i * 137.5;
+        const px = ((seed * 5 + distance * 0.3 + now * 0.012) % (REF_W + 30)) - 15 + Math.sin(now / 650 + i) * (isLeaf ? 12 : 6);
+        const py = ((seed * 2.3 + now * fallSpeed / 1000) % (GROUND_Y + 10)) - 5;
+        if (isLeaf) {
+          c.save();
+          c.translate(px, py);
+          c.rotate(now / 800 + i);
+          c.fillStyle = i % 2 === 0 ? '#c9692f' : '#d9a13b';
+          c.fillRect(-3, -2, 6, 4);
+          c.restore();
+        } else {
+          c.fillStyle = 'rgba(255,255,255,.9)';
+          c.beginPath(); c.arc(px, py, 1.8, 0, Math.PI * 2); c.fill();
+        }
+      }
     }
+  }
+
+  function applyThemeOverlay(c, theme) {
+    if (!theme.overlay) return;
+    c.save();
+    c.globalCompositeOperation = 'multiply';
+    c.fillStyle = theme.overlay;
+    c.fillRect(0, 0, REF_W, REF_H);
+    c.restore();
   }
 
   const RUN_FRAME_DIST = 18; // distance logique entre deux frames de course
@@ -5323,14 +5378,16 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.scale(scale, scale);
 
+    const theme = currentTheme();
+
     const sky = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
-    sky.addColorStop(0, '#7ec8e3'); sky.addColorStop(1, '#bfe8f0');
+    sky.addColorStop(0, theme.skyTop); sky.addColorStop(1, theme.skyBot);
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, REF_W, GROUND_Y);
 
-    drawClouds(ctx);
+    drawAmbience(ctx, theme, now);
     drawSprite(ctx, SPR.dirigeable, airshipX, airshipY, 70, 65, true); // décor de fond
-    drawGround(ctx);
+    drawGround(ctx, theme);
     drawLuffy(ctx, now);
 
     obstacles.forEach(o => {
@@ -5343,6 +5400,8 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
         o.def.draw(ctx, x, GROUND_Y - o.def.h, o.def.w, o.def.h);
       }
     });
+
+    applyThemeOverlay(ctx, theme);
 
     if (now < invincibleUntil) {
       ctx.save();
