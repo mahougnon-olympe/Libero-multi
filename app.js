@@ -448,7 +448,7 @@ const DICT = {
     eventsLockedCard: days => `📅 Dans ${days} j`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> <u style="cursor:pointer">vote ici</u> !`,
     eventActiveMsg:   '🐍 <strong>Évent ce week-end</strong> : Snake Challenge ! Nourris ton serpent pour le faire grandir sur tout le site.',
-    newsCommunityMsg: '💬 <strong>Tu as une idée de jeu ?</strong> Propose-la dans la section <strong>Luffy Runner</strong> en bas de l\'accueil — ta voix compte !',
+    newsCommunityMsg: '💬 <strong>Luffy Runner</strong> : regarde une idée de la communauté reprise par le créateur ! Toi aussi, si tu veux que la tienne soit prise en compte, laisse un commentaire — ta voix compte !',
     snakeVoteTitle:'Snake Challenge',
     snakeVoteSubtitle:'Veux-tu voir le Snake Challenge revenir ?',
     snakeVoteYes:'Oui, ramène-le !',
@@ -503,7 +503,7 @@ const DICT = {
     snakeOverScore:(score, hs) => `Score : ${score} · Meilleur : ${hs}`,
     helpContent:{
       general:[
-        { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Luffy Runner</strong> + suggestions de jeu). Chaque section a son propre classement." },
+        { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Luffy Runner</strong>, une idée de joueur reprise par le créateur). Chaque section a son propre classement." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> — nourris ton serpent avec les 🍎, les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile." },
         { icon:'🤖', title:'Mode Solo (vs Bot)', desc:"Joue seul contre un robot. <em>Facile</em> : le bot joue au hasard. <em>Moyen</em> : le bot bloque et attaque. <em>Difficile</em> : le bot joue de manière optimale. Les parties <strong>Moyen et Difficile</strong> comptent dans le classement classique." },
@@ -511,9 +511,9 @@ const DICT = {
         { icon:'💬', title:'Chat', desc:"Envoie des messages à ton adversaire pendant une partie classique. Le bouton <em>Vider</em> efface l'historique côté local uniquement." },
         { icon:'🔄', title:'Reconnexion', desc:"Si tu recharges la page, tu retrouves automatiquement ta partie classique en cours. L'adversaire a <strong>30 secondes</strong> pour se reconnecter, sinon la partie est annulée." },
         { icon:'🔁', title:'Rejouer', desc:"En fin de partie classique, clique <em>Rejouer</em>. La partie redémarre uniquement si les deux joueurs acceptent." },
-        { icon:'🌍', title:'Classement Global', desc:"Visible dès la page d'accueil, il regroupe <strong>tous les joueurs ayant au moins un point</strong>. Score = victoires classiques (×10) + points Quiz + meilleur score Snake (×10) + meilleur score Luffy Runner (×10). Mis à jour en temps réel." },
+        { icon:'🌍', title:'Classement Global', desc:"Visible dès la page d'accueil, il regroupe <strong>tous les joueurs ayant au moins un point</strong>. Score = victoires classiques (×10) + points Quiz + meilleur score Snake (×10) + meilleur score Luffy Runner (÷10). Mis à jour en temps réel." },
         { icon:'🏆', title:'Classements par section', desc:"Chaque section garde aussi son propre classement : victoires/défaites/nuls pour les Jeux Classiques, total de points pour le Quiz." },
-        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Aide Luffy à fuir la Marine dans ce clone du jeu du dinosaure ! Saute (<strong>↑</strong> / Espace) par-dessus les obstacles au sol (tonneaux, canons, crabes…) et accroupis-toi (<strong>↓</strong>) sous les obstacles volants (mouettes, boulets de canon…). Ton meilleur score <strong>persiste</strong> entre les sessions et alimente un classement dédié. Tu peux aussi <strong>proposer un jeu</strong> pour cette section via le bouton dans l'écran de jeu." },
+        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Aide Luffy à fuir la Marine dans ce clone du jeu du dinosaure ! Saute (<strong>↑</strong> / Espace) par-dessus les obstacles au sol (tonneaux, canons, crabes…) et accroupis-toi (<strong>↓</strong>) sous les obstacles volants (mouettes, boulets de canon…). Ton meilleur score <strong>persiste</strong> entre les sessions et alimente un classement dédié. C'est d'ailleurs une <strong>idée de la communauté</strong> reprise par le créateur — si tu veux que la tienne soit prise en compte, laisse un commentaire via le bouton dans l'écran de jeu." },
         { icon:'📰', title:'News', desc:"La carte News est repliée dans le <strong>coin en haut à gauche</strong>. <strong>Clique dessus</strong> pour l'ouvrir : elle affiche l'état de l'évent en cours (ou le compte à rebours jusqu'au prochain) et un rappel pour participer à la section <strong>Luffy Runner</strong>. Reclique pour la refermer." },
         { icon:'⚙️', title:'Paramètres', desc:"Le bouton <strong>⚙️</strong> en <em>haut à droite</em> regroupe tous les réglages : <strong>Langue</strong>, <strong>Thème</strong>, <strong>Serpent</strong>, <strong>Sons</strong> (effets sonores + volume), <strong>Musique</strong> (fond musical + volume) et <strong>Cartes de remboursement</strong>. Tout est mémorisé entre les sessions." },
         { icon:'🔊', title:'Sons & Musique', desc:"<strong>Sons</strong> : des effets sonores accompagnent chaque action (poser une pièce, victoire, quiz, chat, boutique, Snake…). Active/désactive-les via <strong>⚙️ → Sons</strong> et règle le volume.<br><strong>Musique</strong> : une musique ambiante joue en fond. Active/désactive-la via <strong>⚙️ → Musique</strong> avec son propre curseur de volume. Les deux se gèrent indépendamment." },
@@ -585,7 +585,7 @@ const DICT = {
     tutoSteps:{
       landing_news:'📰 Le cadre <strong>News</strong> est replié dans le coin <strong>en haut à gauche</strong>. <strong>Clique dessus</strong> pour l\'ouvrir : il affiche les dernières actualités, nouvelles fonctionnalités, annonces et commentaires de joueurs. Reclique pour le refermer.',
       landing_cats:'👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose quatre sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> (mini-jeux du week-end) et <strong>Pour la communauté</strong> (le mini-jeu <strong>Luffy Runner</strong>). Clique sur une carte pour commencer.',
-      landing_lb:'🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10 + meilleur score Luffy Runner ×10. Plus tu montes, plus ton serpent 🐍 grandit !',
+      landing_lb:'🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10 + meilleur score Luffy Runner ÷10. Plus tu montes, plus ton serpent 🐍 grandit !',
       landing_btns:'⚙️ Des boutons permanents sont disponibles :<br>▶ <strong>En haut à droite</strong> : le bouton <strong>⚙️</strong> ouvre les <strong>Paramètres</strong> (thème, langue, serpent, cartes de remboursement).<br>▶ <strong>En bas à droite</strong> : ❓ <strong>Aide</strong> · ✉️ <strong>Commentaire</strong>',
       landing_libs:'⚡ <strong>Libs</strong> : une monnaie virtuelle gagnée par les meilleurs joueurs. Les top 3 du classement Global reçoivent automatiquement des Libs toutes les 5h (1er : +10 ⚡, 2e : +5 ⚡, 3e : +3 ⚡). Dépense-les dans la <strong>boutique</strong> pour obtenir des boosts quiz !',
       events_snake:'🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les 🍎 pour grandir (les bords sont traversables, tu ressors de l\'autre côté !). Ton meilleur score <strong>persiste</strong> entre les sessions.',
@@ -783,7 +783,7 @@ const DICT = {
     eventsLockedCard: days => `📅 In ${days}d`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> <u style="cursor:pointer">vote here</u>!`,
     eventActiveMsg:   '🐍 <strong>Event this weekend</strong>: Snake Challenge! Feed your snake to make it grow across the site.',
-    newsCommunityMsg: '💬 <strong>Got a game idea?</strong> Suggest it in the <strong>Luffy Runner</strong> section at the bottom of the home screen — your voice matters!',
+    newsCommunityMsg: '💬 <strong>Luffy Runner</strong>: check out a community idea the creator brought to life! Want yours considered too? Leave a comment — your voice matters!',
     snakeVoteTitle:'Snake Challenge',
     snakeVoteSubtitle:'Do you want the Snake Challenge to come back?',
     snakeVoteYes:'Yes, bring it back!',
@@ -838,7 +838,7 @@ const DICT = {
     snakeOverScore:(score, hs) => `Score: ${score} · Best: ${hs}`,
     helpContent:{
       general:[
-        { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Luffy Runner</strong> mini-game + game suggestions). Each section has its own leaderboard." },
+        { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Luffy Runner</strong> mini-game, a player idea brought to life by the creator). Each section has its own leaderboard." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> — feed your snake with 🍎, walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
         { icon:'🎮', title:'Create a classic game', desc:"Choose a game, enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent. You can also play <strong>Solo vs the bot</strong> by choosing a difficulty: Easy, Medium or Hard." },
         { icon:'🤖', title:'Solo mode (vs Bot)', desc:"Play alone against a robot. <em>Easy</em>: plays randomly. <em>Medium</em>: blocks and attacks. <em>Hard</em>: plays optimally. <strong>Medium and Hard</strong> games count in the classic leaderboard." },
@@ -846,9 +846,9 @@ const DICT = {
         { icon:'💬', title:'Chat', desc:"Send messages to your opponent during a classic game. The <em>Clear</em> button erases the history on your side only." },
         { icon:'🔄', title:'Reconnection', desc:"If you reload the page, you automatically rejoin your ongoing classic game. The opponent has <strong>30 seconds</strong> to reconnect, otherwise the game is cancelled." },
         { icon:'🔁', title:'Play again', desc:"At the end of a classic game, click <em>Play again</em>. The game restarts only if both players agree." },
-        { icon:'🌍', title:'Global leaderboard', desc:"Visible from the home page, it gathers <strong>all players with at least one point</strong>. Score = classic wins (×10) + Quiz points + best Snake score (×10) + best Luffy Runner score (×10). Updated in real time." },
+        { icon:'🌍', title:'Global leaderboard', desc:"Visible from the home page, it gathers <strong>all players with at least one point</strong>. Score = classic wins (×10) + Quiz points + best Snake score (×10) + best Luffy Runner score (÷10). Updated in real time." },
         { icon:'🏆', title:'Section leaderboards', desc:"Each section also keeps its own leaderboard: wins/losses/draws for Classic Games, total points for Quiz." },
-        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Help Luffy escape the Marines in this dinosaur-game clone! Jump (<strong>↑</strong> / Space) over ground obstacles (barrels, cannons, crabs…) and duck (<strong>↓</strong>) under flying ones (seagulls, cannonballs…). Your best score <strong>persists</strong> between sessions and feeds its own leaderboard. You can also <strong>suggest a game</strong> for this section via the button on the game screen." },
+        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Help Luffy escape the Marines in this dinosaur-game clone! Jump (<strong>↑</strong> / Space) over ground obstacles (barrels, cannons, crabs…) and duck (<strong>↓</strong>) under flying ones (seagulls, cannonballs…). Your best score <strong>persists</strong> between sessions and feeds its own leaderboard. It's actually a <strong>community idea</strong> brought to life by the creator — if you want yours considered too, leave a comment via the button on the game screen." },
         { icon:'📰', title:'News', desc:"The News card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the current event status (or a countdown to the next one) and a nudge to check out the <strong>Luffy Runner</strong> section. Click again to close it." },
         { icon:'⚙️', title:'Settings', desc:"The <strong>⚙️</strong> button in the <em>top right</em> groups all settings: <strong>Language</strong>, <strong>Theme</strong>, <strong>Snake</strong>, <strong>Sound</strong> (SFX + volume), <strong>Music</strong> (background music + volume) and <strong>Refund cards</strong>. Everything is saved between sessions." },
         { icon:'🔊', title:'Sound & Music', desc:"<strong>Sound</strong>: sound effects play on every action (placing a piece, win, quiz, chat, shop, Snake…). Toggle via <strong>⚙️ → Sound</strong> and adjust the volume.<br><strong>Music</strong>: ambient background music plays while you browse. Toggle via <strong>⚙️ → Music</strong> with its own volume slider. Both are controlled independently." },
@@ -920,7 +920,7 @@ const DICT = {
     tutoSteps:{
       landing_news:'📰 The <strong>News</strong> card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the latest news, updates, announcements and player comments. Click again to close it.',
       landing_cats:'👋 Welcome to <strong>Libero\'s Multi</strong>! The home screen offers four sections: <strong>Classic Games</strong>, <strong>General Knowledge</strong>, <strong>Events</strong> (weekend mini-games) and <strong>Community</strong> (the <strong>Luffy Runner</strong> mini-game). Click a card to get started.',
-      landing_lb:'🌍 The <strong>Global Leaderboard</strong> brings together <em>all</em> players with at least one point. Score = classic wins ×10 + Quiz points + best Snake score ×10 + best Luffy Runner score ×10. The higher you climb, the longer your snake 🐍 grows!',
+      landing_lb:'🌍 The <strong>Global Leaderboard</strong> brings together <em>all</em> players with at least one point. Score = classic wins ×10 + Quiz points + best Snake score ×10 + best Luffy Runner score ÷10. The higher you climb, the longer your snake 🐍 grows!',
       landing_btns:'⚙️ Permanent buttons are available:<br>▶ <strong>Top right</strong>: the <strong>⚙️</strong> button opens <strong>Settings</strong> (day/night theme, language, snake, refund cards).<br>▶ <strong>Bottom right</strong>: ❓ <strong>Help</strong> · ✉️ <strong>Comment</strong>',
       landing_libs:'⚡ <strong>Libs</strong>: a virtual currency earned by the best players. The top 3 in the Global Leaderboard automatically receive Libs every 5 hours (1st: +5 ⚡, 2nd: +3 ⚡, 3rd: +2 ⚡). Spend them in the <strong>shop</strong> to get quiz boosts!',
       events_snake:'🐍 This weekend\'s event: <strong>Snake Challenge</strong>! Click <em>Play</em>, your snake enters the arena. Eat the 🍎 to grow (walls wrap around — you reappear on the other side!). Your best score <strong>persists</strong> between sessions.',
@@ -2881,7 +2881,7 @@ socket.on('global-leaderboard-update', (data) => {
   if (idx !== -1) {
     const rank     = idx + 1;
     const entry    = data[idx];
-    const rawSum   = (entry.wins || 0) + (entry.triviaPoints || 0) + (entry.snakeHs || 0) + (entry.luffyHs || 0);
+    const rawSum   = (entry.wins || 0) + (entry.triviaPoints || 0) + (entry.snakeHs || 0) + Math.round((entry.luffyHs || 0) / 10);
     const len      = 4 + Math.min(14, Math.floor(rawSum / 5));
     cursorSnake.update(len, rank);
   }

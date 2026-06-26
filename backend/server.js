@@ -735,7 +735,7 @@ function getGlobalLeaderboardData() {
     byName.set(name, existing);
   }
   return [...byName.values()]
-    .map(e => ({ ...e, globalScore: e.wins * 10 + e.triviaPoints + e.snakeHs * 10 + e.luffyHs * 10 }))
+    .map(e => ({ ...e, globalScore: e.wins * 10 + e.triviaPoints + e.snakeHs * 10 + Math.round(e.luffyHs / 10) }))
     .filter(e => e.globalScore > 0)
     .sort((a, b) => b.globalScore - a.globalScore || a.name.localeCompare(b.name))
     .slice(0, 50)
