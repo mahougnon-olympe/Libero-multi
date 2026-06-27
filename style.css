@@ -860,6 +860,7 @@ html.light .news-star { background: rgba(234,179,8,.08); }
   backdrop-filter: blur(8px);
 }
 .main-nav.hidden { display: none !important; }
+body.shop-open .main-nav { display: none !important; } /* pas de barre de nav dans la boutique */
 .nav-tab {
   display: flex; align-items: center; gap: 6px;
   padding: 7px 18px;

@@ -3295,6 +3295,7 @@ function openShop() {
   _renderShopItems();
   socket.emit('get-libs', { playerId: getPlayerId() });
   $('overlay-shop').classList.remove('hidden');
+  document.body.classList.add('shop-open'); // masque la barre de navigation pendant la boutique
 }
 
 function _shopFocusItem(itemId) {
@@ -4289,6 +4290,7 @@ document.addEventListener('click', e => {
 $('libs-counter').addEventListener('click', openShop);
 $('btn-shop-close').addEventListener('click', () => {
   $('overlay-shop').classList.add('hidden');
+  document.body.classList.remove('shop-open');
   sessionStorage.removeItem('shopState');
   const dp = $('shop-detail-panel');
   if (dp) dp.classList.add('hidden');
