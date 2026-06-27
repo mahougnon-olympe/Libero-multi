@@ -265,6 +265,8 @@ const TRIVIA_API_CAT_MAP = {
 const DICT = {
   fr: {
     siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisissez votre catégorie',
+    navHome:'Accueil', navFeed:'Vidéos',
+    feedLoading:'Chargement des vidéos…', feedEmpty:'Aucune vidéo pour le moment.', feedError:'Impossible de charger les vidéos.',
     classicTitle:'Jeux Classiques', classicDesc:'Puissance 4 · Morpion · Échecs',
     triviaTitle:'Culture Générale', triviaDesc:'Quiz par thèmes · Solo & Multi',
     homeSubtitle:'2 joueurs • Temps réel',
@@ -601,6 +603,8 @@ const DICT = {
   },
   en: {
     siteTitle:'Multiplayer Games', siteSubtitle:'Choose your category',
+    navHome:'Home', navFeed:'Videos',
+    feedLoading:'Loading videos…', feedEmpty:'No videos yet.', feedError:'Could not load videos.',
     classicTitle:'Classic Games', classicDesc:'Connect 4 · Tic Tac Toe · Chess',
     triviaTitle:'General Knowledge', triviaDesc:'Themed quizzes · Solo & Multi',
     homeSubtitle:'2 players • Real time',
@@ -1005,6 +1009,10 @@ function applyLang() {
   const btm = $('btn-theme-toggle'); if (btm) btm.title = d.themeToggle;
   const ll = $('landing-logo'); if (ll) ll.src = currentLang === 'en' ? 'logo-full-en.svg' : 'logo-full.svg';
 
+  // Barre de navigation principale
+  const nth = $('nav-tab-home-label'); if (nth) nth.textContent = d.navHome;
+  const ntf = $('nav-tab-feed-label'); if (ntf) ntf.textContent = d.navFeed;
+
   // Landing
   const ls = $('landing-subtitle'); if (ls) ls.textContent = d.siteSubtitle;
   const glbt = $('global-lb-title'); if (glbt) glbt.textContent = d.globalLbTitle;
@@ -1257,6 +1265,25 @@ function showScreen(name) {
   }
   document.body.classList.toggle('screen-events-active', name === 'events');
   document.body.classList.toggle('screen-luffy-active', name === 'luffy');
+  document.body.classList.toggle('screen-feed-active', name === 'feed');
+
+  // Barre de navigation principale : visible sur les écrans de premier niveau,
+  // onglet actif synchronisé avec l'écran courant.
+  const nav = document.getElementById('main-nav');
+  if (nav) {
+    const onTopLevel = (name === 'landing' || name === 'feed');
+    nav.classList.toggle('hidden', !onTopLevel);
+    const homeTab = document.getElementById('nav-tab-home');
+    const feedTab = document.getElementById('nav-tab-feed');
+    if (homeTab) { homeTab.classList.toggle('active', name === 'landing'); homeTab.setAttribute('aria-selected', String(name === 'landing')); }
+    if (feedTab) { feedTab.classList.toggle('active', name === 'feed');    feedTab.setAttribute('aria-selected', String(name === 'feed')); }
+  }
+  // Lecture / pause du feed vidéo selon qu'on entre ou quitte l'onglet Vidéos.
+  if (window._videoFeed) {
+    if (name === 'feed') window._videoFeed.load();
+    else                 window._videoFeed.pauseAll();
+  }
+
   const nc = document.getElementById('news-card');
   if (nc) nc.style.display = name === 'landing' ? '' : 'none';
   if (name === 'landing') { _scheduleNewsCollapse(); }
@@ -6252,6 +6279,127 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
   // Affiche le step initial
   window._tutoOnScreen('landing');
 })();
+
+// ── Feed Vidéos (façon TikTok) ───────────────────────────────────────────────
+const VideoFeed = (() => {
+  const container = document.getElementById('feed-container');
+  let loaded   = false;
+  let observer = null;
+  let videos   = [];
+  let muted    = true; // l'autoplay n'est autorisé que muet ; tap pour activer le son
+
+  function setStatus(msg) {
+    if (container) container.innerHTML = `<p class="feed-status">${msg}</p>`;
+  }
+
+  async function load(force = false) {
+    if (!container) return;
+    if (loaded && !force) { playVisible(); return; }
+    setStatus(t().feedLoading);
+    try {
+      const res = await fetch(`${window.BACKEND_URL}/api/feed-videos`);
+      if (!res.ok) throw new Error('http ' + res.status);
+      videos = await res.json();
+    } catch {
+      setStatus(t().feedError);
+      return;
+    }
+    loaded = true;
+    if (!Array.isArray(videos) || videos.length === 0) { setStatus(t().feedEmpty); return; }
+    render();
+  }
+
+  function render() {
+    container.innerHTML = '';
+    if (observer) observer.disconnect();
+
+    videos.forEach((v, i) => {
+      const slide = document.createElement('div');
+      slide.className = 'feed-slide';
+
+      const video = document.createElement('video');
+      video.className = 'feed-video';
+      video.loop = true;
+      video.muted = muted;
+      video.playsInline = true;
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
+      video.preload = i === 0 ? 'auto' : 'none'; // chargement progressif
+      video.dataset.src = v.url;
+      if (i === 0) video.src = v.url;            // seule la 1re vidéo est préchargée
+
+      const overlay = document.createElement('div');
+      overlay.className = 'feed-overlay';
+      if (v.titre) {
+        const tl = document.createElement('p');
+        tl.className = 'feed-overlay-title';
+        tl.textContent = v.titre;
+        overlay.appendChild(tl);
+      }
+
+      slide.appendChild(video);
+      slide.appendChild(overlay);
+      container.appendChild(slide);
+    });
+
+    observer = new IntersectionObserver(onIntersect, { root: container, threshold: [0, 0.6, 1] });
+    container.querySelectorAll('.feed-slide').forEach(s => observer.observe(s));
+
+    // Tap sur le feed : active / coupe le son de toutes les vidéos.
+    container.onclick = () => {
+      muted = !muted;
+      container.querySelectorAll('video').forEach(vd => { vd.muted = muted; });
+    };
+  }
+
+  function onIntersect(entries) {
+    entries.forEach(e => {
+      const video = e.target.querySelector('video');
+      if (!video) return;
+      if (e.isIntersecting && e.intersectionRatio >= 0.6) {
+        if (!video.src && video.dataset.src) video.src = video.dataset.src;
+        // précharge la slide suivante pour un défilement fluide
+        const next = e.target.nextElementSibling?.querySelector('video');
+        if (next && !next.src && next.dataset.src) { next.preload = 'auto'; next.src = next.dataset.src; }
+        video.muted = muted;
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }
+
+  function playVisible() {
+    if (!container) return;
+    const slides = container.querySelectorAll('.feed-slide');
+    slides.forEach(s => {
+      const video = s.querySelector('video');
+      if (!video) return;
+      const r = s.getBoundingClientRect();
+      const cr = container.getBoundingClientRect();
+      const mid = cr.top + cr.height / 2;
+      const visible = r.top <= mid && r.bottom >= mid;
+      if (visible) { if (!video.src && video.dataset.src) video.src = video.dataset.src; video.muted = muted; video.play().catch(() => {}); }
+      else video.pause();
+    });
+  }
+
+  function pauseAll() {
+    container?.querySelectorAll('video').forEach(v => v.pause());
+  }
+
+  return { load, pauseAll, playVisible };
+})();
+window._videoFeed = VideoFeed;
+
+document.getElementById('nav-tab-home')?.addEventListener('click', () => {
+  if (sessionStorage.getItem('libero_screen') === 'landing') return;
+  showScreen('landing');
+});
+document.getElementById('nav-tab-feed')?.addEventListener('click', () => {
+  if (sessionStorage.getItem('libero_screen') === 'feed') { VideoFeed.playVisible(); return; }
+  showScreen('feed');
+});
 
 // ── Restauration d'écran après refresh ───────────────────────────────────────
 (function() {

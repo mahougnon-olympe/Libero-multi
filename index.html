@@ -24,6 +24,16 @@
 <div id="bg-layer" aria-hidden="true"></div>
 <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
+  <!-- ── Barre de navigation principale (fixe, en haut) ── -->
+  <nav id="main-nav" class="main-nav" role="tablist" aria-label="Navigation principale">
+    <button id="nav-tab-home" class="nav-tab active" role="tab" aria-selected="true">
+      <span class="nav-tab-icon">🏠</span><span id="nav-tab-home-label">Accueil</span>
+    </button>
+    <button id="nav-tab-feed" class="nav-tab" role="tab" aria-selected="false">
+      <span class="nav-tab-icon">📺</span><span id="nav-tab-feed-label">Vidéos</span>
+    </button>
+  </nav>
+
   <!-- ── Écran 0 : Landing ── -->
   <div id="screen-landing" class="screen active">
     <div class="logo">
@@ -443,6 +453,13 @@
         <button class="dpad-btn luffy-ctrl-btn" id="luffy-btn-jump">⬆️</button>
         <button class="dpad-btn luffy-ctrl-btn" id="luffy-btn-duck">⬇️</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ── Écran Vidéos : feed vertical façon TikTok ── -->
+  <div id="screen-feed" class="screen screen-feed">
+    <div id="feed-container" class="feed-container">
+      <p id="feed-status" class="feed-status">Chargement des vidéos…</p>
     </div>
   </div>
 

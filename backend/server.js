@@ -29,6 +29,7 @@ const snakeLeaderboard  = new Map();
 const luffyLeaderboard  = new Map();
 const snakeVotes        = new Map(); // playerId -> 'yes'|'no'
 const comments        = [];
+const feedVideos      = []; // [{ _id, url, titre, ordre, actif, createdAt }]
 const libs            = new Map();
 const MAX_BALANCE              = 19999;
 const REFUND_CARD_MAX          = 2;
@@ -62,7 +63,7 @@ async function connectDB() {
 
 async function loadData() {
   if (!db) return;
-  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs] = await Promise.all([
+  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs, feedDocs] = await Promise.all([
     db.collection('leaderboard').find().toArray(),
     db.collection('trivia_leaderboard').find().toArray(),
     db.collection('comments').find().sort({ date: 1 }).toArray(),
@@ -72,6 +73,7 @@ async function loadData() {
     db.collection('player_aliases').find().toArray(),
     db.collection('server_config').find().toArray(),
     db.collection('snake_votes').find().toArray(),
+    db.collection('feed_videos').find().toArray(),
   ]);
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
@@ -81,13 +83,14 @@ async function loadData() {
   libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
+  feedDocs.forEach(d => feedVideos.push({ _id: d._id, url: d.url, titre: d.titre || '', ordre: d.ordre || 0, actif: d.actif !== false, createdAt: d.createdAt || Date.now() }));
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
   const streakDoc = configDocs.find(d => d._id === 'rank1StreakSince');
   if (streakDoc) rank1StreakSince = streakDoc.value;
   const rank1NameDoc = configDocs.find(d => d._id === 'rank1GlobalName');
   if (rank1NameDoc) rank1Global = rank1NameDoc.value;
-  console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${llbDocs.length} luffy, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias, ${voteDocs.length} votes snake.`);
+  console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${llbDocs.length} luffy, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias, ${voteDocs.length} votes snake, ${feedDocs.length} vidéos feed.`);
 }
 
 function dbUpsertLeaderboard(id, entry) {
@@ -136,6 +139,20 @@ function dbInsertComment(comment) {
   db.collection('comments')
     .insertOne(comment)
     .catch(e => console.error('Erreur sauvegarde commentaire:', e));
+}
+
+function dbInsertFeedVideo(video) {
+  if (!db) return;
+  db.collection('feed_videos')
+    .insertOne(video)
+    .catch(e => console.error('Erreur sauvegarde vidéo feed:', e));
+}
+
+function dbDeleteFeedVideo(id) {
+  if (!db) return;
+  db.collection('feed_videos')
+    .deleteOne({ _id: id })
+    .catch(e => console.error('Erreur suppression vidéo feed:', e));
 }
 
 function dbUpsertLibs(id, entry) {
@@ -1863,6 +1880,58 @@ app.get('/admin/comments', (req, res) => {
   res.json(comments.slice().reverse()); // plus récent en premier
 });
 
+// ── Feed vidéos (façon TikTok) ──────────────────────────────────────────────
+// MongoDB ne stocke que les URLs + métadonnées : les fichiers vidéo sont hébergés
+// en externe (Bunny.net / Cloudinary / …).
+function _activeFeedVideos() {
+  return feedVideos
+    .filter(v => v.actif)
+    .sort((a, b) => (a.ordre - b.ordre) || (a.createdAt - b.createdAt))
+    .map(v => ({ id: v._id, url: v.url, titre: v.titre, ordre: v.ordre }));
+}
+
+// Public : liste des vidéos actives, triées par ordre.
+app.get('/api/feed-videos', (_req, res) => res.json(_activeFeedVideos()));
+
+// Admin : ajoute une vidéo (url + titre).
+app.post('/admin/feed-video', (req, res) => {
+  const adminKey = process.env.ADMIN_KEY;
+  if (!adminKey || req.query.key !== adminKey) {
+    return res.status(401).json({ error: 'Clé invalide.' });
+  }
+  const { url, titre, ordre, actif } = req.body || {};
+  if (!url || typeof url !== 'string' || !/^https?:\/\//i.test(url.trim())) {
+    return res.status(400).json({ error: 'URL invalide (http/https requis).' });
+  }
+  const maxOrdre = feedVideos.reduce((m, v) => Math.max(m, v.ordre || 0), 0);
+  const video = {
+    _id:       'fv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    url:       url.trim(),
+    titre:     (titre || '').toString().trim().slice(0, 200),
+    ordre:     Number.isFinite(+ordre) ? +ordre : maxOrdre + 1,
+    actif:     actif !== false,
+    createdAt: Date.now(),
+  };
+  feedVideos.push(video);
+  dbInsertFeedVideo(video);
+  console.log(`[🎬] Vidéo feed ajoutée : ${video.titre || '(sans titre)'} → ${video.url}`);
+  res.json({ ok: true, video: { id: video._id, url: video.url, titre: video.titre, ordre: video.ordre } });
+});
+
+// Admin : supprime une vidéo.
+app.delete('/admin/feed-video/:id', (req, res) => {
+  const adminKey = process.env.ADMIN_KEY;
+  if (!adminKey || req.query.key !== adminKey) {
+    return res.status(401).json({ error: 'Clé invalide.' });
+  }
+  const idx = feedVideos.findIndex(v => v._id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Vidéo introuvable.' });
+  const [removed] = feedVideos.splice(idx, 1);
+  dbDeleteFeedVideo(removed._id);
+  console.log(`[🗑️] Vidéo feed supprimée : ${removed.titre || '(sans titre)'}`);
+  res.json({ ok: true });
+});
+
 app.get('/admin/reset', async (req, res) => {
   const adminKey = process.env.ADMIN_KEY;
   if (!adminKey || req.query.key !== adminKey) {
@@ -1873,6 +1942,7 @@ app.get('/admin/reset', async (req, res) => {
   snakeLeaderboard.clear();
   luffyLeaderboard.clear();
   libs.clear();
+  feedVideos.length = 0;
   if (db) {
     await Promise.all([
       db.collection('leaderboard').deleteMany({}),
@@ -1880,6 +1950,7 @@ app.get('/admin/reset', async (req, res) => {
       db.collection('snake_leaderboard').deleteMany({}),
       db.collection('luffy_leaderboard').deleteMany({}),
       db.collection('libs').deleteMany({}),
+      db.collection('feed_videos').deleteMany({}),
     ]);
   }
   io.emit('leaderboard-update', []);

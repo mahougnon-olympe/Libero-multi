@@ -46,7 +46,8 @@ html.restoring[data-restore="trivia-home"]   #screen-trivia-home,
 html.restoring[data-restore="trivia-game"]   #screen-trivia-game,
 html.restoring[data-restore="trivia-waiting"] #screen-trivia-waiting,
 html.restoring[data-restore="events"]        #screen-events,
-html.restoring[data-restore="luffy"]         #screen-luffy { display: flex !important; }
+html.restoring[data-restore="luffy"]         #screen-luffy,
+html.restoring[data-restore="feed"]          #screen-feed { display: flex !important; }
 
 .screen[data-restored] { animation: none !important; }
 
@@ -844,6 +845,90 @@ html.light .news-star { background: rgba(234,179,8,.08); }
 }
 .cursor-snake-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+/* ── Barre de navigation principale (Accueil / Vidéos) ── */
+.main-nav {
+  position: fixed;
+  top: 12px; left: 50%; transform: translateX(-50%);
+  z-index: 901;
+  display: flex; gap: 4px;
+  padding: 4px;
+  background: var(--card);
+  border: 1px solid rgba(99,102,241,.3);
+  border-radius: 999px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.main-nav.hidden { display: none !important; }
+.nav-tab {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 18px;
+  border: none; border-radius: 999px;
+  background: transparent; color: var(--muted);
+  font-size: .9rem; font-weight: 700; cursor: pointer;
+  transition: background .18s, color .18s, box-shadow .18s;
+  white-space: nowrap;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active {
+  background: var(--board); color: #fff;
+  box-shadow: 0 2px 12px rgba(99,102,241,.5);
+}
+.nav-tab-icon { font-size: 1rem; line-height: 1; }
+@media (max-width: 600px) {
+  .main-nav { top: 8px; padding: 3px; gap: 3px; }
+  .nav-tab  { padding: 6px 13px; font-size: .82rem; }
+}
+
+/* ── Écran Vidéos : feed vertical façon TikTok ── */
+.screen-feed {
+  padding: 0 !important;
+  justify-content: stretch;
+  align-items: stretch;
+  gap: 0;
+}
+.feed-container {
+  width: 100%;
+  height: 100dvh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior-y: contain;          /* bloque le pull-to-refresh mobile */
+  scrollbar-width: none;                    /* Firefox */
+  background: #000;
+}
+.feed-container::-webkit-scrollbar { display: none; } /* WebKit */
+.feed-slide {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex; align-items: center; justify-content: center;
+  background: #000;
+  overflow: hidden;
+}
+.feed-video {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+.feed-overlay {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 90px 18px 26px;
+  background: linear-gradient(to top, rgba(0,0,0,.72), rgba(0,0,0,0));
+  color: #fff;
+  pointer-events: none;
+}
+.feed-overlay-title { font-size: 1.05rem; font-weight: 700; margin: 0; line-height: 1.35; }
+.feed-status {
+  margin: auto;
+  color: rgba(255,255,255,.75);
+  text-align: center;
+  font-size: .95rem; font-weight: 600;
+  padding: 24px;
+}
+
 .sp-divider {
   height: 1px;
   background: rgba(99,102,241,.18);
@@ -1186,6 +1271,9 @@ body.screen-events-active .btn-comment-float { display: none !important; }
 .luffy-ctrl-btn { width: 64px; height: 64px; font-size: 1.6rem; }
 body.screen-luffy-active .btn-help-float,
 body.screen-luffy-active .btn-comment-float { display: none !important; }
+
+body.screen-feed-active .btn-help-float,
+body.screen-feed-active .btn-comment-float { display: none !important; }
 
 /* ── Classement Global (landing) ── */
 .global-lb-card {
