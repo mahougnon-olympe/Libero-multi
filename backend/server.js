@@ -545,10 +545,12 @@ function refreshAllHonorTitles() {
 function distributeLibs() {
   nextDistributionAt = Date.now() + 5 * 3_600_000;
   dbSaveNextDistributionAt();
-  const top3 = getGlobalLeaderboardData().slice(0, 3);
-  top3.forEach((rankEntry, i) => {
+  const ranked = getGlobalLeaderboardData();
+  ranked.forEach((rankEntry, i) => {
     if (!rankEntry.name || rankEntry.name === 'Anonyme') return;
-    let reward = LIBS_REWARDS[i];
+    // Top 3 : récompense pleine. Rangs 4 à 10 : lot de consolation de 2 Libs.
+    // Tous les autres membres du classement global : 1 Lib.
+    let reward = i < 3 ? LIBS_REWARDS[i] : (i < 10 ? 2 : 1);
     if (i === 0 && rank1StreakSince) {
       const streakDays = (Date.now() - rank1StreakSince) / 86400000;
       reward += Math.floor(streakDays / 3) * 5;
