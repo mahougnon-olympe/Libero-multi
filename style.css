@@ -876,8 +876,12 @@ html.light .news-star { background: rgba(234,179,8,.08); }
 }
 .nav-tab-icon { font-size: 1rem; line-height: 1; }
 @media (max-width: 600px) {
-  .main-nav { top: 8px; padding: 3px; gap: 3px; }
-  .nav-tab  { padding: 6px 13px; font-size: .82rem; }
+  /* En haut, la barre chevaucherait le compteur Libs et la roue Paramètres :
+     on la place en bas au centre (entre les boutons flottants aide/commentaire). */
+  .main-nav { top: auto; bottom: 16px; padding: 3px; gap: 3px; }
+  .nav-tab  { padding: 7px 15px; font-size: .82rem; }
+  /* Remonte le titre de la vidéo pour qu'il ne passe pas sous la barre du bas. */
+  .feed-overlay { padding-bottom: 78px; }
 }
 
 /* ── Écran Vidéos : feed vertical façon TikTok ── */
@@ -1287,7 +1291,9 @@ body.screen-luffy-active .btn-help-float,
 body.screen-luffy-active .btn-comment-float { display: none !important; }
 
 body.screen-feed-active .btn-help-float,
-body.screen-feed-active .btn-comment-float { display: none !important; }
+body.screen-feed-active .btn-comment-float,
+body.screen-feed-active #libs-counter,
+body.screen-feed-active .btn-settings-float { display: none !important; }
 
 /* ── Classement Global (landing) ── */
 .global-lb-card {
