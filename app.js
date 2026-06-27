@@ -423,7 +423,8 @@ const DICT = {
     shopDailyBadge:'Quotidien',
     settingsTitle:'⚙️ Paramètres',
     settingsLang:'Langue', settingsTheme:'Thème', settingsSnake:'Serpent',
-    settingsSnakeOn:'Activé', settingsSnakeOff:'Désactivé',
+    settingsSnakeOn:'Activé', settingsSnakeOff:'Désactivé', settingsSnakeInGame:'🐍 En Game',
+    snakeBusyInGame:'🐍 Le serpent est en Game !',
     settingsSfx:'Sons', settingsSfxOn:'Activé', settingsSfxOff:'Désactivé', settingsSfxVol:'Volume',
     settingsBgm:'Musique', settingsBgmOn:'Activée', settingsBgmOff:'Désactivée', settingsBgmVol:'Vol. musique',
     settingsRefundTitle:'Cartes de remboursement',
@@ -758,7 +759,8 @@ const DICT = {
     shopDailyBadge:'Daily',
     settingsTitle:'⚙️ Settings',
     settingsLang:'Language', settingsTheme:'Theme', settingsSnake:'Snake',
-    settingsSnakeOn:'Enabled', settingsSnakeOff:'Disabled',
+    settingsSnakeOn:'Enabled', settingsSnakeOff:'Disabled', settingsSnakeInGame:'🐍 In Game',
+    snakeBusyInGame:'🐍 The snake is in Game!',
     settingsSfx:'Sound', settingsSfxOn:'Enabled', settingsSfxOff:'Disabled', settingsSfxVol:'Volume',
     settingsBgm:'Music', settingsBgmOn:'Enabled', settingsBgmOff:'Disabled', settingsBgmVol:'Music vol.',
     settingsRefundTitle:'Refund cards',
@@ -4141,9 +4143,17 @@ function _updateSettingsPanel() {
 
   const snakeBtn = document.getElementById('sp-snake-btn');
   if (snakeBtn) {
-    const snakeOff = document.getElementById('btn-snake-toggle')?.classList.contains('off');
-    snakeBtn.textContent = snakeOff ? d.settingsSnakeOff : d.settingsSnakeOn;
-    snakeBtn.classList.toggle('sp-off', !!snakeOff);
+    if (cursorSnake.isInGame()) {
+      // Le serpent joue dans le Snake Challenge : on l'indique au lieu de l'état on/off.
+      snakeBtn.textContent = d.settingsSnakeInGame;
+      snakeBtn.classList.remove('sp-off');
+      snakeBtn.classList.add('sp-ingame');
+    } else {
+      const snakeOff = document.getElementById('btn-snake-toggle')?.classList.contains('off');
+      snakeBtn.textContent = snakeOff ? d.settingsSnakeOff : d.settingsSnakeOn;
+      snakeBtn.classList.toggle('sp-off', !!snakeOff);
+      snakeBtn.classList.remove('sp-ingame');
+    }
   }
 
   const sfxBtn = document.getElementById('sp-sfx-btn');
@@ -4503,6 +4513,7 @@ const cursorSnake = (() => {
   let _overrideMx = null, _overrideMy = null;
   let _flySpeed   = 0.18;
   let _hidden     = false;
+  let _gameActive = false; // true quand le serpent "joue" dans le Snake Challenge
   let _eventBonus = Math.min(8, Math.floor(parseInt(localStorage.getItem('libero_snake_event_hs') || '0', 10) / 2));
 
   function hueFor(rank) {
@@ -4645,12 +4656,51 @@ const cursorSnake = (() => {
       const n = Math.min(MAX, Math.max(MIN, pendingLen + _eventBonus));
       build(n, hueFor(pendingRank));
     },
+    // Style d'un segment pour le rendu canvas du jeu Snake : reprend le skin de
+    // curseur équipé (le même serpent que celui qui suit la souris), sinon la
+    // couleur de rang. p = 0 (tête) → 1 (queue).
+    gameStyle(p) {
+      const skin = CURSOR_SNAKE_SKINS[equippedCursorSnake];
+      if (skin) {
+        const s = skin(p);
+        const glow = (s.shadow && (s.shadow.match(/#[0-9a-fA-F]{3,8}|hsl\([^)]*\)/) || [])[0]) || s.bg;
+        return { fill: s.bg, glow };
+      }
+      const l = Math.round(58 - p * 22), sat = Math.round(80 - p * 20), a = (1 - p * 0.6).toFixed(2);
+      return { fill: `hsla(${curHue},${sat}%,${l}%,${a})`, glow: `hsl(${curHue},80%,65%)` };
+    },
+    // Le serpent est « en Game » : il joue dans le Snake Challenge.
+    enterGame() { _gameActive = true; },
+    leaveGame() { _gameActive = false; },
+    isInGame()  { return _gameActive; },
   };
 })();
 
 document.getElementById('btn-snake-toggle').addEventListener('click', () => {
+  // Le serpent est en pleine partie de Snake : on ne peut pas le « rappeler »
+  // pour suivre le curseur, il est occupé à jouer.
+  if (cursorSnake.isInGame()) {
+    showCursorSnakeToast(t().snakeBusyInGame);
+    return;
+  }
   cursorSnake.toggle();
 });
+
+// Petit toast flottant pour signaler que le serpent est « en Game ».
+let _cursorToastTimer = null;
+function showCursorSnakeToast(msg) {
+  let el = document.getElementById('cursor-snake-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'cursor-snake-toast';
+    el.className = 'cursor-snake-toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_cursorToastTimer);
+  _cursorToastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
 
 // ── Évents : Snake Challenge ──────────────────────────────────────────────────
 (function () {
@@ -4714,6 +4764,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     score  = 0;
     running = true;
     paused  = false;
+    cursorSnake.enterGame(); // le serpent est désormais « en Game »
     document.getElementById('snake-score-val').textContent = 0;
     document.getElementById('snake-hs-val').textContent    = getHs();
     document.getElementById('snake-over-overlay').classList.add('hidden');
@@ -4758,7 +4809,6 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
 
   function draw() {
     if (!ctx) return;
-    const hue = cursorSnake.getHue();
     const skin = SNAKE_SKINS[equippedSnakeSkin];
     _skinTick = (_skinTick + 1) % 360;
 
@@ -4792,9 +4842,11 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
         ctx.fillStyle = skin.bg(_skinTick, p);
         if (i === 0) { ctx.shadowColor = skin.glow(_skinTick); ctx.shadowBlur = 10; }
       } else {
-        const l = Math.round(58 - p * 22), s = Math.round(80 - p * 20), a = (1 - p * 0.6).toFixed(2);
-        ctx.fillStyle = `hsla(${hue},${s}%,${l}%,${a})`;
-        if (i === 0) { ctx.shadowColor = `hsl(${hue},80%,65%)`; ctx.shadowBlur = 7; }
+        // Pas de skin Snake dédié : on rend le serpent avec le skin de curseur
+        // équipé (le même serpent que celui qui suit la souris), sinon la couleur de rang.
+        const gs = cursorSnake.gameStyle(p);
+        ctx.fillStyle = gs.fill;
+        if (i === 0) { ctx.shadowColor = gs.glow; ctx.shadowBlur = 7; }
       }
       ctx.beginPath();
       ctx.roundRect(x, y, w, h, r);
@@ -4886,6 +4938,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     running = false;
     clearSnakeSession();
     showEventIntro();
+    cursorSnake.leaveGame();
     cursorSnake.show();
     showScreen('landing');
   });
@@ -4961,6 +5014,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     running = false;
     clearSnakeSession();
     showEventIntro();
+    cursorSnake.leaveGame();
     cursorSnake.show();
     updateHsDisplay();
     socket.emit('get-snake-leaderboard');
@@ -4993,6 +5047,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     clearSnakeSession();
     document.getElementById('snake-pause-overlay').classList.add('hidden');
     showEventIntro();
+    cursorSnake.leaveGame();
     cursorSnake.show();
     updateHsDisplay();
     socket.emit('get-snake-leaderboard');
@@ -5005,6 +5060,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
     clearSnakeSession();
     document.getElementById('snake-pause-overlay').classList.add('hidden');
     showEventIntro();
+    cursorSnake.leaveGame();
     cursorSnake.show();
     showScreen('landing');
   });
@@ -5048,6 +5104,7 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
       document.getElementById('snake-game-wrap').classList.remove('hidden');
       document.getElementById('snake-pause-overlay').classList.remove('hidden');
       document.getElementById('btn-snake-pause').textContent = '▶';
+      cursorSnake.enterGame();
       cursorSnake.hide();
       draw();
     } catch {

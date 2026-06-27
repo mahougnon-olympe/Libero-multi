@@ -831,6 +831,18 @@ html.light .news-star { background: rgba(234,179,8,.08); }
 }
 .sp-toggle:hover    { background: rgba(99,102,241,.22); border-color: rgba(99,102,241,.7); }
 .sp-toggle.sp-off   { background: rgba(100,100,100,.12); border-color: rgba(130,130,130,.3); color: var(--muted); }
+.sp-toggle.sp-ingame { background: rgba(74,222,128,.16); border-color: rgba(74,222,128,.5); color: #4ade80; cursor: default; }
+
+/* Toast « le serpent est en Game » */
+.cursor-snake-toast {
+  position: fixed; left: 50%; bottom: 88px; transform: translateX(-50%) translateY(10px);
+  background: rgba(16,16,28,.96); border: 1px solid rgba(74,222,128,.45);
+  color: #eafff2; border-radius: 12px; padding: 11px 22px;
+  font-size: .9rem; font-weight: 700; white-space: nowrap;
+  pointer-events: none; z-index: 9999; opacity: 0;
+  transition: opacity .2s, transform .2s;
+}
+.cursor-snake-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 .sp-divider {
   height: 1px;
