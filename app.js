@@ -4903,10 +4903,10 @@ document.getElementById('btn-snake-toggle').addEventListener('click', () => {
       const r  = c.getBoundingClientRect();
       const cx = r.left + r.width  / 2;
       const cy = r.top  + r.height / 2;
-      cursorSnake.flyTo(cx, cy, () => {
-        cursorSnake.hide();
-        setTimeout(startGame, 120);
-      });
+      // L'animation du curseur-serpent qui vole vers le canvas est purement
+      // décorative : elle ne doit plus bloquer le lancement de la partie.
+      cursorSnake.flyTo(cx, cy, () => cursorSnake.hide());
+      startGame();
     });
   }
 
