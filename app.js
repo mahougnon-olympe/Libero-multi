@@ -5290,7 +5290,9 @@ function showCursorSnakeToast(msg) {
 
   // ── Boucle de jeu ──────────────────────────────────────────────────────
   function resizeCanvas() {
-    const maxW = Math.min(REF_W, window.innerWidth - 32);
+    // Sur mobile, on grignote moins de marge pour une map aussi grande que possible.
+    const margin  = window.innerWidth < 600 ? 8 : 32;
+    const maxW = Math.min(REF_W, window.innerWidth - margin);
     canvas.width  = Math.round(maxW);
     canvas.height = Math.round(maxW * REF_H / REF_W);
     scale = canvas.width / REF_W;

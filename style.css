@@ -1291,6 +1291,25 @@ body.screen-events-active .btn-comment-float { display: none !important; }
 body.screen-luffy-active .btn-help-float,
 body.screen-luffy-active .btn-comment-float { display: none !important; }
 
+/* Sur mobile, la map est une bande courte : les overlays pause / game over
+   sont passés en plein écran pour que tous les boutons restent visibles
+   (au lieu d'être rognés par la faible hauteur du canvas). */
+@media (max-width: 600px) {
+  .snake-pause-overlay,
+  .snake-over-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    gap: 16px;
+    padding: 24px;
+  }
+  .snake-pause-overlay .btn,
+  .snake-over-overlay .btn { min-width: 200px; }
+  /* Réduit la marge latérale pendant le jeu pour agrandir la map. */
+  body.screen-luffy-active  #screen-luffy,
+  body.screen-events-active #screen-events { padding-left: 4px; padding-right: 4px; }
+}
+
 body.screen-feed-active .btn-help-float,
 body.screen-feed-active .btn-comment-float,
 body.screen-feed-active #libs-counter,
