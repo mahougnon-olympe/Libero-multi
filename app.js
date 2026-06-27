@@ -266,7 +266,7 @@ const DICT = {
   fr: {
     siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisissez votre catégorie',
     navHome:'Accueil', navFeed:'Vidéos',
-    feedLoading:'Chargement des vidéos…', feedEmpty:'Aucune vidéo pour le moment.', feedError:'Impossible de charger les vidéos.',
+    feedLoading:'Chargement des vidéos…', feedEmpty:'Cette section est en cours de développement.\nReviens bientôt pour découvrir les vidéos !', feedError:'Cette section est en cours de développement.\nReviens bientôt pour découvrir les vidéos !',
     classicTitle:'Jeux Classiques', classicDesc:'Puissance 4 · Morpion · Échecs',
     triviaTitle:'Culture Générale', triviaDesc:'Quiz par thèmes · Solo & Multi',
     homeSubtitle:'2 joueurs • Temps réel',
@@ -604,7 +604,7 @@ const DICT = {
   en: {
     siteTitle:'Multiplayer Games', siteSubtitle:'Choose your category',
     navHome:'Home', navFeed:'Videos',
-    feedLoading:'Loading videos…', feedEmpty:'No videos yet.', feedError:'Could not load videos.',
+    feedLoading:'Loading videos…', feedEmpty:'This section is under development.\nCheck back soon for videos!', feedError:'This section is under development.\nCheck back soon for videos!',
     classicTitle:'Classic Games', classicDesc:'Connect 4 · Tic Tac Toe · Chess',
     triviaTitle:'General Knowledge', triviaDesc:'Themed quizzes · Solo & Multi',
     homeSubtitle:'2 players • Real time',
@@ -6289,7 +6289,14 @@ const VideoFeed = (() => {
   let muted    = true; // l'autoplay n'est autorisé que muet ; tap pour activer le son
 
   function setStatus(msg) {
-    if (container) container.innerHTML = `<p class="feed-status">${msg}</p>`;
+    if (!container) return;
+    container.classList.add('feed-status-mode'); // fond transparent : laisse voir le décor du site
+    const lines = String(msg).split('\n').map(l => `<span>${l}</span>`).join('');
+    container.innerHTML =
+      `<div class="feed-status">
+         <span class="feed-status-icon">🚧</span>
+         <p class="feed-status-text">${lines}</p>
+       </div>`;
   }
 
   async function load(force = false) {
@@ -6310,6 +6317,7 @@ const VideoFeed = (() => {
   }
 
   function render() {
+    container.classList.remove('feed-status-mode'); // restaure le fond noir pour les vidéos
     container.innerHTML = '';
     if (observer) observer.disconnect();
 
