@@ -267,6 +267,13 @@ const DICT = {
     siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisissez votre catégorie',
     navHome:'Accueil', navFeed:'Vidéos',
     feedLoading:'Chargement des vidéos…', feedEmpty:'Cette section est en cours de développement.\nReviens bientôt pour découvrir les vidéos !', feedError:'Cette section est en cours de développement.\nReviens bientôt pour découvrir les vidéos !',
+    navRead:'Lecture',
+    readLoading:'Chargement des livres…',
+    readEmpty:'Cette section est en cours de développement.\nReviens bientôt pour découvrir des livres !',
+    readError:'Cette section est en cours de développement.\nReviens bientôt pour découvrir des livres !',
+    readSearch:'Rechercher un titre ou un auteur...',
+    readAll:'Tous', readBtn:'📖 Lire', readBack:'Retour',
+    readNoResult:'Aucun livre ne correspond à ta recherche.',
     classicTitle:'Jeux Classiques', classicDesc:'Puissance 4 · Morpion · Échecs',
     triviaTitle:'Culture Générale', triviaDesc:'Quiz par thèmes · Solo & Multi',
     homeSubtitle:'2 joueurs • Temps réel',
@@ -508,6 +515,7 @@ const DICT = {
       general:[
         { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Luffy Runner</strong>, une idée de joueur reprise par le créateur). Chaque section a son propre classement." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> — nourris ton serpent avec les 🍎, les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
+        { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> de la barre de navigation ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic avec un bouton <strong>📖 Lire</strong> qui ouvre le livre dans un nouvel onglet." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile." },
         { icon:'🤖', title:'Mode Solo (vs Bot)', desc:"Joue seul contre un robot. <em>Facile</em> : le bot joue au hasard. <em>Moyen</em> : le bot bloque et attaque. <em>Difficile</em> : le bot joue de manière optimale. Les parties <strong>Moyen et Difficile</strong> comptent dans le classement classique." },
         { icon:'🔗', title:'Rejoindre', desc:"Entre le code à 4 lettres reçu et clique <em>Rejoindre</em>. La partie démarre automatiquement dès que les deux joueurs sont connectés." },
@@ -605,6 +613,13 @@ const DICT = {
     siteTitle:'Multiplayer Games', siteSubtitle:'Choose your category',
     navHome:'Home', navFeed:'Videos',
     feedLoading:'Loading videos…', feedEmpty:'This section is under development.\nCheck back soon for videos!', feedError:'This section is under development.\nCheck back soon for videos!',
+    navRead:'Reading',
+    readLoading:'Loading books…',
+    readEmpty:'This section is under development.\nCheck back soon for books!',
+    readError:'This section is under development.\nCheck back soon for books!',
+    readSearch:'Search a title or author...',
+    readAll:'All', readBtn:'📖 Read', readBack:'Back',
+    readNoResult:'No book matches your search.',
     classicTitle:'Classic Games', classicDesc:'Connect 4 · Tic Tac Toe · Chess',
     triviaTitle:'General Knowledge', triviaDesc:'Themed quizzes · Solo & Multi',
     homeSubtitle:'2 players • Real time',
@@ -846,6 +861,7 @@ const DICT = {
       general:[
         { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Luffy Runner</strong> mini-game, a player idea brought to life by the creator). Each section has its own leaderboard." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> — feed your snake with 🍎, walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
+        { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab in the navigation bar opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet with a <strong>📖 Read</strong> button that opens the book in a new tab." },
         { icon:'🎮', title:'Create a classic game', desc:"Choose a game, enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent. You can also play <strong>Solo vs the bot</strong> by choosing a difficulty: Easy, Medium or Hard." },
         { icon:'🤖', title:'Solo mode (vs Bot)', desc:"Play alone against a robot. <em>Easy</em>: plays randomly. <em>Medium</em>: blocks and attacks. <em>Hard</em>: plays optimally. <strong>Medium and Hard</strong> games count in the classic leaderboard." },
         { icon:'🔗', title:'Join', desc:"Enter the 4-letter code you received and click <em>Join</em>. The game starts automatically as soon as both players are connected." },
@@ -1012,6 +1028,12 @@ function applyLang() {
   // Barre de navigation principale
   const nth = $('nav-tab-home-label'); if (nth) nth.textContent = d.navHome;
   const ntf = $('nav-tab-feed-label'); if (ntf) ntf.textContent = d.navFeed;
+  const ntr = $('nav-tab-read-label'); if (ntr) ntr.textContent = d.navRead;
+
+  // Lecture
+  const rt = $('read-title');        if (rt) rt.textContent  = d.navRead;
+  const rs = $('read-search-input'); if (rs) rs.placeholder  = d.readSearch;
+  if (window._readFeed) window._readFeed.retexte();
 
   // Landing
   const ls = $('landing-subtitle'); if (ls) ls.textContent = d.siteSubtitle;
@@ -1266,23 +1288,27 @@ function showScreen(name) {
   document.body.classList.toggle('screen-events-active', name === 'events');
   document.body.classList.toggle('screen-luffy-active', name === 'luffy');
   document.body.classList.toggle('screen-feed-active', name === 'feed');
+  document.body.classList.toggle('screen-read-active', name === 'read');
 
   // Barre de navigation principale : visible sur les écrans de premier niveau,
   // onglet actif synchronisé avec l'écran courant.
   const nav = document.getElementById('main-nav');
   if (nav) {
-    const onTopLevel = (name === 'landing' || name === 'feed');
+    const onTopLevel = (name === 'landing' || name === 'feed' || name === 'read');
     nav.classList.toggle('hidden', !onTopLevel);
     const homeTab = document.getElementById('nav-tab-home');
     const feedTab = document.getElementById('nav-tab-feed');
+    const readTab = document.getElementById('nav-tab-read');
     if (homeTab) { homeTab.classList.toggle('active', name === 'landing'); homeTab.setAttribute('aria-selected', String(name === 'landing')); }
     if (feedTab) { feedTab.classList.toggle('active', name === 'feed');    feedTab.setAttribute('aria-selected', String(name === 'feed')); }
+    if (readTab) { readTab.classList.toggle('active', name === 'read');    readTab.setAttribute('aria-selected', String(name === 'read')); }
   }
   // Lecture / pause du feed vidéo selon qu'on entre ou quitte l'onglet Vidéos.
   if (window._videoFeed) {
     if (name === 'feed') window._videoFeed.load();
     else                 window._videoFeed.pauseAll();
   }
+  if (window._readFeed && name === 'read') window._readFeed.load();
 
   const nc = document.getElementById('news-card');
   if (nc) nc.style.display = name === 'landing' ? '' : 'none';
@@ -6404,6 +6430,120 @@ const VideoFeed = (() => {
 })();
 window._videoFeed = VideoFeed;
 
+// ── Lecture (catalogue de livres) ────────────────────────────────────────────
+const ReadFeed = (() => {
+  const wrap    = () => document.getElementById('read-grid');
+  const catsEl  = () => document.getElementById('read-cats');
+  const overlay = () => document.getElementById('read-overlay');
+  const sheet   = () => document.getElementById('read-sheet');
+  const input   = () => document.getElementById('read-search-input');
+
+  let loaded = false, books = [], activeCat = null, query = '';
+
+  // Couvertures de secours quand un livre n'a pas d'image.
+  const GRADS = [
+    'linear-gradient(135deg,#7c5cff,#22d3ee)', 'linear-gradient(135deg,#ff4d9d,#ff8a3d)',
+    'linear-gradient(135deg,#22d3ee,#34d399)', 'linear-gradient(135deg,#a78bff,#ff4d9d)',
+    'linear-gradient(135deg,#5b8cff,#7c5cff)', 'linear-gradient(135deg,#ffce3a,#ff5a6e)',
+  ];
+  const grad = i => GRADS[i % GRADS.length];
+  const esc  = s => String(s || '').replace(/[<>&"']/g, c => ({ '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;', "'":'&#39;' }[c]));
+  // Seules les URLs http(s) sont injectées dans le HTML (href / background).
+  const safeUrl = s => (/^https?:\/\//i.test(String(s || '').trim()) ? String(s).trim() : '');
+
+  function setStatus(msg) {
+    const g = wrap(); if (!g) return;
+    catsEl().innerHTML = '';
+    const lines = String(msg).split('\n').map(l => `<span>${esc(l)}</span>`).join('');
+    g.innerHTML = `<div class="read-status"><span class="feed-status-icon">📚</span><p class="feed-status-text">${lines}</p></div>`;
+  }
+
+  async function load(force = false) {
+    if (!wrap()) return;
+    if (loaded && !force) { render(); return; }
+    setStatus(t().readLoading);
+    try {
+      const res = await fetch(`${window.BACKEND_URL}/api/feed-books`);
+      if (!res.ok) throw new Error('http ' + res.status);
+      books = await res.json();
+    } catch { setStatus(t().readError); return; }
+    loaded = true;
+    if (!Array.isArray(books) || books.length === 0) { setStatus(t().readEmpty); return; }
+    activeCat = activeCat || t().readAll;
+    buildCats(); render();
+  }
+
+  function buildCats() {
+    const cats = [t().readAll, ...[...new Set(books.map(b => b.categorie).filter(Boolean))]];
+    catsEl().innerHTML = '';
+    cats.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'read-cat' + (c === activeCat ? ' active' : '');
+      btn.textContent = c;
+      btn.onclick = () => { activeCat = c; buildCats(); render(); };
+      catsEl().appendChild(btn);
+    });
+  }
+
+  function coverHTML(b, i) {
+    const cover = safeUrl(b.couverture);
+    return `<div class="read-cover" style="background:${cover ? `center/cover url('${esc(cover)}')` : grad(i)}">
+      ${cover ? '' : `<span class="read-cover-emoji">📖</span><span class="read-cover-t">${esc(b.titre)}</span>`}</div>`;
+  }
+
+  function render() {
+    const g = wrap(); if (!g) return;
+    const all = t().readAll;
+    const list = books.filter(b =>
+      (activeCat === all || b.categorie === activeCat) &&
+      ((b.titre || '').toLowerCase().includes(query) || (b.auteur || '').toLowerCase().includes(query))
+    );
+    if (!list.length) { g.innerHTML = `<p class="read-empty">${esc(t().readNoResult)}</p>`; return; }
+    g.innerHTML = '';
+    list.forEach((b, i) => {
+      const card = document.createElement('div');
+      card.className = 'read-book';
+      card.innerHTML = coverHTML(b, i) +
+        `${b.categorie ? `<span class="read-book-cat">${esc(b.categorie)}</span>` : ''}
+         <p class="read-book-title">${esc(b.titre)}</p>
+         ${b.auteur ? `<p class="read-book-author">${esc(b.auteur)}</p>` : ''}`;
+      card.onclick = () => openSheet(b, i);
+      g.appendChild(card);
+    });
+  }
+
+  function openSheet(b, i) {
+    const link = safeUrl(b.url);
+    sheet().innerHTML = coverHTML(b, i) +
+      `<div class="read-sheet-info">
+         ${b.categorie ? `<span class="read-book-cat">${esc(b.categorie)}</span>` : ''}
+         <h2>${esc(b.titre)}</h2>
+         ${b.auteur ? `<p class="read-sheet-author">${esc(b.auteur)}</p>` : ''}
+         ${b.description ? `<p class="read-sheet-desc">${esc(b.description)}</p>` : ''}
+         <div class="read-sheet-actions">
+           ${link ? `<a class="btn btn-primary" href="${esc(link)}" target="_blank" rel="noopener noreferrer">${t().readBtn}</a>` : ''}
+           <button class="btn btn-secondary" id="read-sheet-close">${esc(t().readBack)}</button>
+         </div>
+       </div>`;
+    overlay().classList.add('open');
+    document.getElementById('read-sheet-close').onclick = closeSheet;
+  }
+  function closeSheet() { overlay().classList.remove('open'); }
+
+  function retexte() { // rafraîchit les libellés au changement de langue
+    if (!loaded) return;
+    if (activeCat) activeCat = books.some(b => b.categorie === activeCat) ? activeCat : t().readAll;
+    buildCats(); render();
+  }
+
+  // Recherche + fermeture de la fiche en cliquant hors de celle-ci
+  document.addEventListener('input', e => { if (e.target === input()) { query = e.target.value.toLowerCase(); render(); } });
+  document.addEventListener('click', e => { if (e.target === overlay()) closeSheet(); });
+
+  return { load, retexte };
+})();
+window._readFeed = ReadFeed;
+
 document.getElementById('nav-tab-home')?.addEventListener('click', () => {
   if (sessionStorage.getItem('libero_screen') === 'landing') return;
   showScreen('landing');
@@ -6411,6 +6551,10 @@ document.getElementById('nav-tab-home')?.addEventListener('click', () => {
 document.getElementById('nav-tab-feed')?.addEventListener('click', () => {
   if (sessionStorage.getItem('libero_screen') === 'feed') { VideoFeed.playVisible(); return; }
   showScreen('feed');
+});
+document.getElementById('nav-tab-read')?.addEventListener('click', () => {
+  if (sessionStorage.getItem('libero_screen') === 'read') return;
+  showScreen('read');
 });
 
 // ── Restauration d'écran après refresh ───────────────────────────────────────

@@ -1,4 +1,5 @@
 require('dotenv').config();
+const crypto       = require('crypto');
 const express      = require('express');
 const http         = require('http');
 const { Server }   = require('socket.io');
@@ -12,12 +13,16 @@ const bots       = require('./game-bots');
 const app = express();
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  // En-têtes de sécurité de base
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'no-referrer');
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
-app.use(express.json());
+app.use(express.json({ limit: '100kb' }));
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
@@ -30,6 +35,7 @@ const luffyLeaderboard  = new Map();
 const snakeVotes        = new Map(); // playerId -> 'yes'|'no'
 const comments        = [];
 const feedVideos      = []; // [{ _id, url, titre, ordre, actif, createdAt }]
+const feedBooks       = []; // [{ _id, titre, auteur, categorie, couverture, url, description, ordre, actif, createdAt }]
 const libs            = new Map();
 const MAX_BALANCE              = 19999;
 const REFUND_CARD_MAX          = 2;
@@ -63,7 +69,7 @@ async function connectDB() {
 
 async function loadData() {
   if (!db) return;
-  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs, feedDocs] = await Promise.all([
+  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs, feedDocs, bookDocs] = await Promise.all([
     db.collection('leaderboard').find().toArray(),
     db.collection('trivia_leaderboard').find().toArray(),
     db.collection('comments').find().sort({ date: 1 }).toArray(),
@@ -74,6 +80,7 @@ async function loadData() {
     db.collection('server_config').find().toArray(),
     db.collection('snake_votes').find().toArray(),
     db.collection('feed_videos').find().toArray(),
+    db.collection('feed_books').find().toArray(),
   ]);
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
@@ -84,13 +91,18 @@ async function loadData() {
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   feedDocs.forEach(d => feedVideos.push({ _id: d._id, url: d.url, titre: d.titre || '', ordre: d.ordre || 0, actif: d.actif !== false, createdAt: d.createdAt || Date.now() }));
+  bookDocs.forEach(d => feedBooks.push({
+    _id: d._id, titre: d.titre || '', auteur: d.auteur || '', categorie: d.categorie || '',
+    couverture: d.couverture || '', url: d.url || '', description: d.description || '',
+    ordre: d.ordre || 0, actif: d.actif !== false, createdAt: d.createdAt || Date.now(),
+  }));
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
   const streakDoc = configDocs.find(d => d._id === 'rank1StreakSince');
   if (streakDoc) rank1StreakSince = streakDoc.value;
   const rank1NameDoc = configDocs.find(d => d._id === 'rank1GlobalName');
   if (rank1NameDoc) rank1Global = rank1NameDoc.value;
-  console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${llbDocs.length} luffy, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias, ${voteDocs.length} votes snake, ${feedDocs.length} vidéos feed.`);
+  console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${llbDocs.length} luffy, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias, ${voteDocs.length} votes snake, ${feedDocs.length} vidéos feed, ${bookDocs.length} livres.`);
 }
 
 function dbUpsertLeaderboard(id, entry) {
@@ -153,6 +165,20 @@ function dbDeleteFeedVideo(id) {
   db.collection('feed_videos')
     .deleteOne({ _id: id })
     .catch(e => console.error('Erreur suppression vidéo feed:', e));
+}
+
+function dbInsertFeedBook(book) {
+  if (!db) return;
+  db.collection('feed_books')
+    .insertOne(book)
+    .catch(e => console.error('Erreur sauvegarde livre:', e));
+}
+
+function dbDeleteFeedBook(id) {
+  if (!db) return;
+  db.collection('feed_books')
+    .deleteOne({ _id: id })
+    .catch(e => console.error('Erreur suppression livre:', e));
 }
 
 function dbUpsertLibs(id, entry) {
@@ -1872,11 +1898,26 @@ app.post('/api/comment', (req, res) => {
   res.json({ ok: true });
 });
 
-app.get('/admin/comments', (req, res) => {
+// ── Contrôle d'accès admin ──────────────────────────────────────────────────
+// Comparaison à temps constant + limite anti-brute-force par IP.
+const adminAttempts = new Map(); // ip -> [timestamps des échecs]
+function isAdmin(req) {
   const adminKey = process.env.ADMIN_KEY;
-  if (adminKey && req.query.key !== adminKey) {
-    return res.status(401).json({ error: 'Clé invalide.' });
-  }
+  if (!adminKey) return false; // fail closed : pas de clé configurée = pas d'accès
+  const ip  = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown').trim();
+  const now = Date.now();
+  const fails = (adminAttempts.get(ip) || []).filter(ts => now - ts < 15 * 60_000);
+  if (fails.length >= 10) { adminAttempts.set(ip, fails); return false; } // 10 échecs / 15 min
+  const given    = Buffer.from(String(req.query.key || ''));
+  const expected = Buffer.from(adminKey);
+  const ok = given.length === expected.length && crypto.timingSafeEqual(given, expected);
+  if (!ok) { fails.push(now); adminAttempts.set(ip, fails); }
+  else adminAttempts.delete(ip);
+  return ok;
+}
+
+app.get('/admin/comments', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   res.json(comments.slice().reverse()); // plus récent en premier
 });
 
@@ -1895,10 +1936,7 @@ app.get('/api/feed-videos', (_req, res) => res.json(_activeFeedVideos()));
 
 // Admin : ajoute une vidéo (url + titre).
 app.post('/admin/feed-video', (req, res) => {
-  const adminKey = process.env.ADMIN_KEY;
-  if (!adminKey || req.query.key !== adminKey) {
-    return res.status(401).json({ error: 'Clé invalide.' });
-  }
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   const { url, titre, ordre, actif } = req.body || {};
   if (!url || typeof url !== 'string' || !/^https?:\/\//i.test(url.trim())) {
     return res.status(400).json({ error: 'URL invalide (http/https requis).' });
@@ -1920,10 +1958,7 @@ app.post('/admin/feed-video', (req, res) => {
 
 // Admin : supprime une vidéo.
 app.delete('/admin/feed-video/:id', (req, res) => {
-  const adminKey = process.env.ADMIN_KEY;
-  if (!adminKey || req.query.key !== adminKey) {
-    return res.status(401).json({ error: 'Clé invalide.' });
-  }
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   const idx = feedVideos.findIndex(v => v._id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Vidéo introuvable.' });
   const [removed] = feedVideos.splice(idx, 1);
@@ -1932,17 +1967,73 @@ app.delete('/admin/feed-video/:id', (req, res) => {
   res.json({ ok: true });
 });
 
-app.get('/admin/reset', async (req, res) => {
-  const adminKey = process.env.ADMIN_KEY;
-  if (!adminKey || req.query.key !== adminKey) {
-    return res.status(401).json({ error: 'Clé invalide.' });
+// ── Lecture (catalogue de livres) ───────────────────────────────────────────
+// Même modèle que le feed vidéos : MongoDB ne stocke que les métadonnées et
+// URLs, les fichiers (couvertures, PDF) sont hébergés en externe.
+const _isHttpUrl = s => /^https?:\/\//i.test(s);
+
+function _activeFeedBooks() {
+  return feedBooks
+    .filter(b => b.actif)
+    .sort((a, b) => (a.ordre - b.ordre) || (a.createdAt - b.createdAt))
+    .map(b => ({ id: b._id, titre: b.titre, auteur: b.auteur, categorie: b.categorie,
+      couverture: b.couverture, url: b.url, description: b.description, ordre: b.ordre }));
+}
+
+// Public : liste des livres actifs, triés par ordre.
+app.get('/api/feed-books', (_req, res) => res.json(_activeFeedBooks()));
+
+// Admin : ajoute un livre.
+app.post('/admin/feed-book', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const { titre, auteur, categorie, couverture, url, description, ordre, actif } = req.body || {};
+  if (!titre || typeof titre !== 'string' || !titre.trim()) {
+    return res.status(400).json({ error: 'Titre requis.' });
   }
+  // Les URLs doivent être http(s) : évite l'injection de liens javascript: dans la fiche.
+  const cover = (couverture || '').toString().trim();
+  const link  = (url || '').toString().trim();
+  if (cover && !_isHttpUrl(cover)) return res.status(400).json({ error: 'URL de couverture invalide (http/https requis).' });
+  if (link  && !_isHttpUrl(link))  return res.status(400).json({ error: 'URL de lecture invalide (http/https requis).' });
+  const maxOrdre = feedBooks.reduce((m, b) => Math.max(m, b.ordre || 0), 0);
+  const book = {
+    _id:         'fb_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    titre:       titre.trim().slice(0, 200),
+    auteur:      (auteur || '').toString().trim().slice(0, 120),
+    categorie:   (categorie || '').toString().trim().slice(0, 60),
+    couverture:  cover.slice(0, 500),
+    url:         link.slice(0, 500),
+    description: (description || '').toString().trim().slice(0, 1000),
+    ordre:       Number.isFinite(+ordre) ? +ordre : maxOrdre + 1,
+    actif:       actif !== false,
+    createdAt:   Date.now(),
+  };
+  feedBooks.push(book);
+  dbInsertFeedBook(book);
+  console.log(`[📚] Livre ajouté : ${book.titre}${book.auteur ? ' — ' + book.auteur : ''}`);
+  res.json({ ok: true, book: { id: book._id, titre: book.titre, auteur: book.auteur, categorie: book.categorie, couverture: book.couverture, url: book.url, description: book.description, ordre: book.ordre } });
+});
+
+// Admin : supprime un livre.
+app.delete('/admin/feed-book/:id', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const idx = feedBooks.findIndex(b => b._id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Livre introuvable.' });
+  const [removed] = feedBooks.splice(idx, 1);
+  dbDeleteFeedBook(removed._id);
+  console.log(`[🗑️] Livre supprimé : ${removed.titre || '(sans titre)'}`);
+  res.json({ ok: true });
+});
+
+app.get('/admin/reset', async (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   leaderboard.clear();
   triviaLeaderboard.clear();
   snakeLeaderboard.clear();
   luffyLeaderboard.clear();
   libs.clear();
   feedVideos.length = 0;
+  feedBooks.length = 0;
   if (db) {
     await Promise.all([
       db.collection('leaderboard').deleteMany({}),
@@ -1951,6 +2042,7 @@ app.get('/admin/reset', async (req, res) => {
       db.collection('luffy_leaderboard').deleteMany({}),
       db.collection('libs').deleteMany({}),
       db.collection('feed_videos').deleteMany({}),
+      db.collection('feed_books').deleteMany({}),
     ]);
   }
   io.emit('leaderboard-update', []);
@@ -2085,6 +2177,23 @@ async function mergeDuplicateNames() {
     console.log(`[🏆] Commentaire du jour : ${top.pseudo} (${topLikes} ❤️)`);
   }
   setInterval(_celebrateMostLiked, 24 * 60 * 60 * 1000);
+
+  // ── Bot keep-alive ──────────────────────────────────────────────────────────
+  // L'hébergeur (Render free) endort le serveur après ~15 min sans trafic, ce
+  // qui impose un long délai de réveil au premier visiteur. On s'auto-ping via
+  // l'URL publique toutes les 10 min pour compter comme du trafic entrant.
+  const SELF_URL = process.env.RENDER_EXTERNAL_URL || process.env.SELF_URL || '';
+  if (SELF_URL) {
+    const ping = () => {
+      fetch(`${SELF_URL}/health`)
+        .then(r => { if (!r.ok) console.warn(`[⏰] Keep-alive : réponse ${r.status}`); })
+        .catch(e => console.warn('[⏰] Keep-alive échoué :', e.message));
+    };
+    setInterval(ping, 10 * 60 * 1000);
+    console.log(`⏰ Keep-alive activé → ${SELF_URL}/health toutes les 10 min.`);
+  } else {
+    console.log('⏰ Keep-alive inactif (RENDER_EXTERNAL_URL / SELF_URL non définie).');
+  }
 
   const PORT = process.env.PORT || 3001;
   server.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));

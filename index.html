@@ -32,6 +32,9 @@
     <button id="nav-tab-feed" class="nav-tab" role="tab" aria-selected="false">
       <span class="nav-tab-icon">📺</span><span id="nav-tab-feed-label">Vidéos</span>
     </button>
+    <button id="nav-tab-read" class="nav-tab" role="tab" aria-selected="false">
+      <span class="nav-tab-icon">📚</span><span id="nav-tab-read-label">Lecture</span>
+    </button>
   </nav>
 
   <!-- ── Écran 0 : Landing ── -->
@@ -460,6 +463,25 @@
   <div id="screen-feed" class="screen screen-feed">
     <div id="feed-container" class="feed-container">
       <p id="feed-status" class="feed-status">Chargement des vidéos…</p>
+    </div>
+  </div>
+
+  <!-- ── Écran Lecture : catalogue de livres ── -->
+  <div id="screen-read" class="screen screen-read">
+    <div class="read-wrap">
+      <div class="read-head">
+        <h1 id="read-title" class="read-h1">Lecture</h1>
+        <div class="read-search">
+          <span>🔎</span>
+          <input id="read-search-input" type="text" placeholder="Rechercher un titre ou un auteur..." maxlength="120" autocomplete="off">
+        </div>
+      </div>
+      <div id="read-cats" class="read-cats"></div>
+      <div id="read-grid" class="read-grid"></div>
+    </div>
+    <!-- Fiche détaillée -->
+    <div id="read-overlay" class="read-overlay">
+      <div id="read-sheet" class="read-sheet"></div>
     </div>
   </div>
 
