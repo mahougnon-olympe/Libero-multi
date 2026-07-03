@@ -2251,14 +2251,26 @@ html.light .shop-title-tag { background: rgba(99,102,241,.15); border-color: rgb
 .shop-fn-promo-input:focus { outline: none; border-color: rgba(99,102,241,.6); }
 .shop-fn-promo-feedback { font-size: .8rem; min-height: 1.1em; display: block; }
 /* Packs de Libs (argent réel, Maketou) */
-.shop-fn-libspacks { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+.shop-fn-libspacks { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 18px 14px; padding-top: 10px; }
 .shop-libspack-card {
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
   background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.22);
   border-radius: 12px; padding: 18px 14px;
 }
 .shop-libspack-card.unavailable { opacity: .5; }
+.shop-libspack-card.featured {
+  border-color: #fbbf24;
+  box-shadow: 0 0 0 1px rgba(251,191,36,.35), 0 10px 26px rgba(251,191,36,.18);
+}
+.shop-libspack-badge {
+  position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+  background: #fbbf24; color: #1a1200; font-size: .66rem; font-weight: 800;
+  padding: 3px 10px; border-radius: 999px; white-space: nowrap;
+}
+.shop-libspack-name   { font-size: .8rem; font-weight: 700; color: rgba(255,255,255,.8); }
 .shop-libspack-amount { font-size: 1.3rem; font-weight: 900; color: #fbbf24; }
+.shop-libspack-bonus  { font-size: .7rem; font-weight: 700; color: #4ade80; margin-top: -4px; }
 .shop-libspack-price  { font-size: .8rem; color: rgba(255,255,255,.6); }
 .shop-libspack-buy    { font-size: .8rem; padding: 7px 14px; width: 100%; }
 .shop-libspack-buy:disabled { opacity: .5; cursor: default; }
@@ -2277,6 +2289,7 @@ html.light .shop-title-tag { background: rgba(99,102,241,.15); border-color: rgb
 .libs-buy-feedback { font-size: .82rem; min-height: 1.2em; margin: 0; }
 html.light .shop-libspack-card { background: rgba(180,83,9,.05); border-color: rgba(180,83,9,.2); }
 html.light .shop-libspack-price { color: var(--muted); }
+html.light .shop-libspack-name  { color: var(--text); }
 html.light .libs-buy-summary { color: var(--muted); }
 html.light .libs-buy-input { background: rgba(0,0,0,.04); color: var(--text); border-color: rgba(0,0,0,.12); }
 /* Cosmetic preview (standalone, used in tiles & detail) */

@@ -444,6 +444,9 @@ const DICT = {
     shopLibsPacksLoading:'Chargement des packs…',
     shopLibsPacksUnavailable:'Recharge indisponible pour le moment.',
     shopLibsPacksBuy:'Acheter', shopLibsPacksSoon:'Bientôt',
+    shopLibsPackNames:{ decouverte:'Découverte', populaire:'Populaire', pro:'Pro', mega:'Méga', ultime:'Ultime' },
+    shopLibsPacksFeatured:'⭐ Populaire',
+    shopLibsPacksBonus:n => `+${n} offerts`,
     shopLibsBuyTitle:'💳 Recharger tes Libs',
     shopLibsBuySummary:(libs, price) => `⚡ ${libs} Libs — ${price.toLocaleString('fr-FR')} FCFA. Tu seras redirigé vers la page de paiement sécurisée.`,
     shopLibsBuySubmit:'Payer',
@@ -821,6 +824,9 @@ const DICT = {
     shopLibsPacksLoading:'Loading packs…',
     shopLibsPacksUnavailable:'Top-up unavailable right now.',
     shopLibsPacksBuy:'Buy', shopLibsPacksSoon:'Coming soon',
+    shopLibsPackNames:{ decouverte:'Discovery', populaire:'Popular', pro:'Pro', mega:'Mega', ultime:'Ultimate' },
+    shopLibsPacksFeatured:'⭐ Popular',
+    shopLibsPacksBonus:n => `+${n} free`,
     shopLibsBuyTitle:'💳 Top up your Libs',
     shopLibsBuySummary:(libs, price) => `⚡ ${libs} Libs — ${price.toLocaleString('en-US')} FCFA. You'll be redirected to the secure payment page.`,
     shopLibsBuySubmit:'Pay',
@@ -3888,8 +3894,11 @@ function _renderShopItems() {
         : libsPacksCache.length === 0
           ? `<p class="shop-fn-section-desc">${d.shopLibsPacksUnavailable}</p>`
           : `<div class="shop-fn-libspacks">${libsPacksCache.map(p => `
-            <div class="shop-libspack-card${p.available ? '' : ' unavailable'}">
+            <div class="shop-libspack-card${p.available ? '' : ' unavailable'}${p.featured ? ' featured' : ''}">
+              ${p.featured ? `<span class="shop-libspack-badge">${d.shopLibsPacksFeatured}</span>` : ''}
+              <div class="shop-libspack-name">${d.shopLibsPackNames[p.id] || p.id}</div>
               <div class="shop-libspack-amount">⚡ ${p.libs}</div>
+              ${p.bonus ? `<div class="shop-libspack-bonus">${d.shopLibsPacksBonus(p.bonus)}</div>` : ''}
               <div class="shop-libspack-price">${p.priceFCFA.toLocaleString(fr ? 'fr-FR' : 'en-US')} FCFA</div>
               <button class="btn btn-primary shop-libspack-buy" data-pack="${p.id}" data-libs="${p.libs}" data-price="${p.priceFCFA}" ${p.available ? '' : 'disabled'}>
                 ${p.available ? d.shopLibsPacksBuy : d.shopLibsPacksSoon}

@@ -92,9 +92,11 @@ const playerIdAliases = new Map();
 // Le mapping pack → nombre de Libs et l'identifiant produit vivent UNIQUEMENT
 // côté serveur. Le client n'envoie jamais qu'un id de pack, jamais un montant.
 const LIBS_PACKS = {
-  pack50:  { productDocumentId: process.env.MAKETOU_PACK50_ID  || '', libs: 50,  priceFCFA: 500,  label: 'Pack 50 ⚡' },
-  pack120: { productDocumentId: process.env.MAKETOU_PACK120_ID || '', libs: 120, priceFCFA: 1000, label: 'Pack 120 ⚡' },
-  pack300: { productDocumentId: process.env.MAKETOU_PACK300_ID || '', libs: 300, priceFCFA: 2000, label: 'Pack 300 ⚡' },
+  decouverte: { productDocumentId: process.env.MAKETOU_PACK1_ID || '', libs: 250,  bonus: 0,   priceFCFA: 500,  label: 'Pack Découverte : 250 ⚡' },
+  populaire:  { productDocumentId: process.env.MAKETOU_PACK2_ID || '', libs: 525,  bonus: 25,  priceFCFA: 1000, label: 'Pack Populaire : 525 ⚡ (+25)', featured: true },
+  pro:        { productDocumentId: process.env.MAKETOU_PACK3_ID || '', libs: 1100, bonus: 100, priceFCFA: 2000, label: 'Pack Pro : 1100 ⚡ (+100)' },
+  mega:       { productDocumentId: process.env.MAKETOU_PACK4_ID || '', libs: 2300, bonus: 300, priceFCFA: 4000, label: 'Pack Méga : 2300 ⚡ (+300)' },
+  ultime:     { productDocumentId: process.env.MAKETOU_PACK5_ID || '', libs: 4800, bonus: 800, priceFCFA: 8000, label: 'Pack Ultime : 4800 ⚡ (+800)' },
 };
 const libsPurchases = new Map(); // cartId -> { _id, playerId, packId, libsAmount, status, credited, createdAt, updatedAt }
 const libsCheckoutRateMap = new Map(); // ip -> [timestamps]
@@ -2065,7 +2067,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // n'a besoin d'être caché, mais autant ne l'exposer nulle part côté client).
 app.get('/api/libs/packs', (_req, res) => {
   res.json(Object.entries(LIBS_PACKS).map(([id, p]) => ({
-    id, libs: p.libs, label: p.label, priceFCFA: p.priceFCFA, available: !!p.productDocumentId,
+    id, libs: p.libs, bonus: p.bonus || 0, priceFCFA: p.priceFCFA,
+    featured: !!p.featured, available: !!p.productDocumentId,
   })));
 });
 
