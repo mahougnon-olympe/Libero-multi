@@ -6472,6 +6472,14 @@ const ReadFeed = (() => {
   let loaded = false, books = [], activeCat = null, query = '';
   let exclusiveBook = null;   // livre écrit par le créateur, servi par l'API avec chapitres payants
   let readerNum = 0;          // chapitre affiché dans la visionneuse
+  // Un refresh en pleine lecture doit ramener au même chapitre, au même endroit.
+  const READER_SESS = 'libero_book_reader';
+  function saveReaderSession() {
+    if (!readerNum || !reader()?.classList.contains('open')) return;
+    const content = document.getElementById('book-reader-content');
+    sessionStorage.setItem(READER_SESS, JSON.stringify({ num: readerNum, scrollTop: content ? Math.round(content.scrollTop) : 0 }));
+  }
+  function clearReaderSession() { sessionStorage.removeItem(READER_SESS); }
 
   // Couvertures de secours quand un livre n'a pas d'image.
   const GRADS = [
@@ -6508,6 +6516,15 @@ const ReadFeed = (() => {
     if (books.length === 0 && !exclusiveBook) { setStatus(t().readEmpty); return; }
     activeCat = activeCat || t().readAll;
     buildCats(); render();
+
+    // Reprise de lecture : un refresh en plein chapitre rouvre la visionneuse
+    // au même chapitre et à la même position de défilement.
+    const savedReader = (() => { try { return JSON.parse(sessionStorage.getItem(READER_SESS)); } catch { return null; } })();
+    if (savedReader && exclusiveBook && !reader().classList.contains('open')) {
+      const ch = exclusiveBook.chapters.find(c => c.num === savedReader.num);
+      if (ch && ch.unlocked && ch.disponible) openReader(savedReader.num, savedReader.scrollTop || 0);
+      else clearReaderSession();
+    }
   }
 
   // Recharge silencieuse de l'état du livre (après un achat).
@@ -6677,7 +6694,7 @@ const ReadFeed = (() => {
 
   const reader = () => document.getElementById('book-reader');
 
-  async function openReader(num) {
+  async function openReader(num, restoreScroll = 0) {
     const bk = exclusiveBook; if (!bk) return;
     const ch = bk.chapters.find(c => c.num === num);
     if (!ch || !ch.unlocked || !ch.disponible) { showCursorSnakeToast(t().bookChapterLocked); return; }
@@ -6700,11 +6717,14 @@ const ReadFeed = (() => {
     prevB.disabled = !readable(num - 1);
     nextB.disabled = !readable(num + 1);
     reader().classList.add('open');
-    reader().querySelector('.book-reader-content').scrollTop = 0;
+    reader().querySelector('.book-reader-content').scrollTop = restoreScroll;
+    saveReaderSession();
   }
 
   document.getElementById('book-reader-close')?.addEventListener('click', () => {
     reader().classList.remove('open');
+    readerNum = 0;
+    clearReaderSession();
     openBookSheet(); // retour à la fiche du livre
   });
   document.getElementById('book-reader-prev')?.addEventListener('click', () => openReader(readerNum - 1));
@@ -6724,6 +6744,9 @@ const ReadFeed = (() => {
   window.addEventListener('beforeprint', () => {
     if (reader()?.classList.contains('open')) reader().classList.add('no-print');
   });
+
+  // Mémorise la position de lecture juste avant un refresh / une fermeture.
+  window.addEventListener('beforeunload', saveReaderSession);
 
   function retexte() { // rafraîchit les libellés au changement de langue
     if (!loaded) return;
