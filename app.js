@@ -438,7 +438,7 @@ const DICT = {
     shopBundleInsufficientFunds:'Champion, tu n\'as pas assez de Libs.',
     shopBundleError:'Erreur lors de l\'achat.',
     shopBundleNames:{ 'bundle-debutant':'Pack Débutant','bundle-retro':'Pack Rétro','bundle-neon-arcade':'Pack Néon Arcade','bundle-galaxie':'Pack Galaxie','bundle-prestige-or':'Pack Prestige Or','bundle-hologramme':'Pack Hologramme Ultime' },
-    shopNavLabels:{ featured:'À la une', daily:'Quotidien', bundles:'Bundles', libspacks:'Recharger', boosts:'Boosts', colors:'Couleurs', fonts:'Polices', bubbles:'Bulles', bgs:'Fonds', nameeffects:'Effets', titles:'Titres', cursorsnakes:'Curseur', avatars:'Avatars', p4tokens:'P4', ttt:'Morpion', chess:'Échiquier', clickfx:'Particules', emojipacks:'Émojis', victorybans:'Victoire', soundpacks:'Sons', emotes:'Emotes' },
+    shopNavLabels:{ featured:'À la une', daily:'Quotidien', bundles:'Bundles', boosts:'Boosts', colors:'Couleurs', fonts:'Polices', bubbles:'Bulles', bgs:'Fonds', nameeffects:'Effets', titles:'Titres', cursorsnakes:'Curseur', avatars:'Avatars', p4tokens:'P4', ttt:'Morpion', chess:'Échiquier', clickfx:'Particules', emojipacks:'Émojis', victorybans:'Victoire', soundpacks:'Sons', emotes:'Emotes' },
     shopLibsPacksTitle:'💳 Recharger tes Libs',
     shopLibsPacksDesc:'Achète des Libs ⚡ avec de l\'argent réel (mobile money / carte, paiement sécurisé Maketou). Le crédit est vérifié par nos serveurs, jamais instantané côté navigateur.',
     shopLibsPacksLoading:'Chargement des packs…',
@@ -818,7 +818,7 @@ const DICT = {
     shopBundleInsufficientFunds:'Champion, you don\'t have enough Libs.',
     shopBundleError:'Purchase failed.',
     shopBundleNames:{ 'bundle-debutant':'Starter Pack','bundle-retro':'Retro Pack','bundle-neon-arcade':'Neon Arcade Pack','bundle-galaxie':'Galaxy Pack','bundle-prestige-or':'Gold Prestige Pack','bundle-hologramme':'Ultimate Hologram Pack' },
-    shopNavLabels:{ featured:'Featured', daily:'Daily', bundles:'Bundles', libspacks:'Top up', boosts:'Boosts', colors:'Colors', fonts:'Fonts', bubbles:'Bubbles', bgs:'Backgrounds', nameeffects:'Effects', titles:'Titles', cursorsnakes:'Cursor', avatars:'Avatars', p4tokens:'P4', ttt:'Tic-Tac', chess:'Chess', clickfx:'Particles', emojipacks:'Emojis', victorybans:'Victory', soundpacks:'Sounds', emotes:'Emotes' },
+    shopNavLabels:{ featured:'Featured', daily:'Daily', bundles:'Bundles', boosts:'Boosts', colors:'Colors', fonts:'Fonts', bubbles:'Bubbles', bgs:'Backgrounds', nameeffects:'Effects', titles:'Titles', cursorsnakes:'Cursor', avatars:'Avatars', p4tokens:'P4', ttt:'Tic-Tac', chess:'Chess', clickfx:'Particles', emojipacks:'Emojis', victorybans:'Victory', soundpacks:'Sounds', emotes:'Emotes' },
     shopLibsPacksTitle:'💳 Top up your Libs',
     shopLibsPacksDesc:'Buy Libs ⚡ with real money (mobile money / card, secure Maketou checkout). Credit is verified by our servers, never instant on the browser side.',
     shopLibsPacksLoading:'Loading packs…',
@@ -1104,7 +1104,9 @@ function applyLang() {
   const rs = $('read-search-input'); if (rs) rs.placeholder  = d.readSearch;
   if (window._readFeed) window._readFeed.retexte();
 
-  // Formulaire d'achat de Libs (boutique)
+  // Section Recharger + formulaire d'achat de Libs (boutique)
+  const ltb = $('libs-topup-back');    if (ltb) ltb.textContent = `← ${d.backLabel}`;
+  const ltt = $('btn-libs-topup');     if (ltt) ltt.textContent = currentLang === 'fr' ? '💳 Recharger' : '💳 Top up';
   const lbb = $('libs-buy-back');      if (lbb) lbb.textContent = `← ${d.backLabel}`;
   const lbe = $('libs-buy-email');     if (lbe) lbe.placeholder = d.shopLibsBuyEmailPh;
   const lbf = $('libs-buy-firstname'); if (lbf) lbf.placeholder = d.shopLibsBuyFirstPh;
@@ -3406,7 +3408,7 @@ function openShop() {
 }
 
 // Charge une fois la liste des packs de Libs (prix, dispo) puis rafraîchit
-// la boutique si elle est toujours ouverte — même filet que shopRotation.
+// le panneau Recharger s'il est ouvert — même filet que shopRotation.
 async function _loadLibsPacks() {
   if (libsPacksCache) return;
   try {
@@ -3414,29 +3416,96 @@ async function _loadLibsPacks() {
     if (!res.ok) throw new Error();
     libsPacksCache = await res.json();
   } catch { libsPacksCache = []; }
-  if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+  if (!$('libs-topup-panel').classList.contains('hidden')) _renderLibsTopupPanel();
 }
+
+// Fusionne un patch dans l'état persistant de la boutique (sessionStorage) —
+// permet de rouvrir exactement le même panneau (liste des packs / formulaire
+// d'un pack précis, avec les champs déjà saisis) après un refresh accidentel.
+function _saveShopPanelState(patch) {
+  const prev = (() => { try { return JSON.parse(sessionStorage.getItem('shopState')) || {}; } catch { return {}; } })();
+  sessionStorage.setItem('shopState', JSON.stringify({ ...prev, ...patch }));
+}
+
+// ── Section dédiée « Recharger » (bouton à côté du solde, pas mêlée aux articles) ──
+function _renderLibsTopupPanel() {
+  const d  = t();
+  const fr = currentLang === 'fr';
+  $('libs-topup-title').textContent = d.shopLibsPacksTitle;
+  $('libs-topup-desc').textContent  = d.shopLibsPacksDesc;
+  const grid = $('libs-topup-grid');
+  if (!grid) return;
+  grid.innerHTML = !libsPacksCache
+    ? `<p class="shop-fn-section-desc">${d.shopLibsPacksLoading}</p>`
+    : libsPacksCache.length === 0
+      ? `<p class="shop-fn-section-desc">${d.shopLibsPacksUnavailable}</p>`
+      : libsPacksCache.map(p => `
+        <div class="shop-libspack-card${p.available ? '' : ' unavailable'}${p.featured ? ' featured' : ''}">
+          ${p.featured ? `<span class="shop-libspack-badge">${d.shopLibsPacksFeatured}</span>` : ''}
+          <div class="shop-libspack-name">${d.shopLibsPackNames[p.id] || p.id}</div>
+          <div class="shop-libspack-amount">⚡ ${p.libs}</div>
+          ${p.bonus ? `<div class="shop-libspack-bonus">${d.shopLibsPacksBonus(p.bonus)}</div>` : ''}
+          <div class="shop-libspack-price">${p.priceFCFA.toLocaleString(fr ? 'fr-FR' : 'en-US')} FCFA</div>
+          <button class="btn btn-primary shop-libspack-buy" data-pack="${p.id}" data-libs="${p.libs}" data-price="${p.priceFCFA}" ${p.available ? '' : 'disabled'}>
+            ${p.available ? d.shopLibsPacksBuy : d.shopLibsPacksSoon}
+          </button>
+        </div>`).join('');
+  grid.querySelectorAll('.shop-libspack-buy').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _openLibsBuyForm(btn.dataset.pack, parseInt(btn.dataset.libs, 10), parseInt(btn.dataset.price, 10));
+    });
+  });
+}
+
+function _openLibsTopupPanel() {
+  _loadLibsPacks();
+  _renderLibsTopupPanel();
+  $('libs-topup-panel').classList.remove('hidden');
+  _saveShopPanelState({ view: 'topup' });
+}
+
+$('btn-libs-topup')?.addEventListener('click', _openLibsTopupPanel);
+$('libs-topup-back')?.addEventListener('click', () => {
+  $('libs-topup-panel').classList.add('hidden');
+  _saveShopPanelState({ view: 'browse' });
+});
 
 // ── Achat de Libs avec de l'argent réel (Maketou) ───────────────────────────
 let _pendingLibsPack = null;
 
-function _openLibsBuyForm(packId, libsAmount, priceFCFA) {
+function _openLibsBuyForm(packId, libsAmount, priceFCFA, restoreForm) {
   const d = t();
   _pendingLibsPack = { packId, libsAmount, priceFCFA };
   $('libs-buy-title').textContent   = d.shopLibsBuyTitle;
   $('libs-buy-summary').textContent = d.shopLibsBuySummary(libsAmount, priceFCFA);
   const nameParts = (localStorage.getItem('playerName') || '').trim().split(/\s+/).filter(Boolean);
-  $('libs-buy-firstname').value = nameParts[0] || '';
-  $('libs-buy-lastname').value  = nameParts.slice(1).join(' ');
-  $('libs-buy-email').value = localStorage.getItem('libero_buy_email') || '';
-  $('libs-buy-phone').value = '';
+  $('libs-buy-email').value     = restoreForm?.email     ?? (localStorage.getItem('libero_buy_email') || '');
+  $('libs-buy-firstname').value = restoreForm?.firstName ?? (nameParts[0] || '');
+  $('libs-buy-lastname').value  = restoreForm?.lastName  ?? nameParts.slice(1).join(' ');
+  $('libs-buy-phone').value     = restoreForm?.phone     ?? '';
   const fb = $('libs-buy-feedback'); fb.textContent = ''; fb.style.color = '';
   $('libs-buy-submit').disabled = false;
   $('libs-buy-submit').textContent = d.shopLibsBuySubmit;
   $('libs-buy-panel').classList.remove('hidden');
+  _saveShopPanelState({ view: 'buy', pack: { packId, libsAmount, priceFCFA } });
 }
 
-$('libs-buy-back')?.addEventListener('click', () => $('libs-buy-panel').classList.add('hidden'));
+// Persiste la saisie du formulaire en direct : un refresh accidentel en
+// pleine frappe restaure exactement ce qui était tapé, pas seulement l'écran.
+['libs-buy-email', 'libs-buy-firstname', 'libs-buy-lastname', 'libs-buy-phone'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', () => {
+    _saveShopPanelState({ form: {
+      email: $('libs-buy-email').value, firstName: $('libs-buy-firstname').value,
+      lastName: $('libs-buy-lastname').value, phone: $('libs-buy-phone').value,
+    } });
+  });
+});
+
+$('libs-buy-back')?.addEventListener('click', () => {
+  $('libs-buy-panel').classList.add('hidden');
+  _pendingLibsPack = null;
+  _saveShopPanelState({ view: 'topup', form: null });
+});
 
 $('libs-buy-form')?.addEventListener('submit', async e => {
   e.preventDefault();
@@ -3806,7 +3875,6 @@ function _renderShopItems() {
       <button class="shop-fn-nav-btn active" data-section="featured"><span class="shop-nav-icon">⭐</span><span class="shop-nav-label"> ${nav.featured}</span></button>
       <button class="shop-fn-nav-btn" data-section="daily"><span class="shop-nav-icon">📅</span><span class="shop-nav-label"> ${nav.daily}</span></button>
       <button class="shop-fn-nav-btn" data-section="bundles"><span class="shop-nav-icon">🎁</span><span class="shop-nav-label"> ${nav.bundles}</span></button>
-      <button class="shop-fn-nav-btn" data-section="libspacks"><span class="shop-nav-icon">💳</span><span class="shop-nav-label"> ${nav.libspacks}</span></button>
       <button class="shop-fn-nav-btn" data-section="boosts"><span class="shop-nav-icon">💡</span><span class="shop-nav-label"> ${nav.boosts}</span></button>
       <button class="shop-fn-nav-btn" data-section="colors"><span class="shop-nav-icon">🎨</span><span class="shop-nav-label"> ${nav.colors}</span></button>
       <button class="shop-fn-nav-btn" data-section="fonts"><span class="shop-nav-icon">✍️</span><span class="shop-nav-label"> ${nav.fonts}</span></button>
@@ -3884,27 +3952,6 @@ function _renderShopItems() {
       <div class="shop-fn-grid">
         ${colorItems.map(it => tileHtml(it)).join('')}
       </div>
-    </section>
-
-    <section class="shop-fn-section" id="shop-sec-libspacks" data-section-id="libspacks">
-      <h3 class="shop-fn-section-title">${d.shopLibsPacksTitle}</h3>
-      <p class="shop-fn-section-desc">${d.shopLibsPacksDesc}</p>
-      ${!libsPacksCache
-        ? `<p class="shop-fn-section-desc">${d.shopLibsPacksLoading}</p>`
-        : libsPacksCache.length === 0
-          ? `<p class="shop-fn-section-desc">${d.shopLibsPacksUnavailable}</p>`
-          : `<div class="shop-fn-libspacks">${libsPacksCache.map(p => `
-            <div class="shop-libspack-card${p.available ? '' : ' unavailable'}${p.featured ? ' featured' : ''}">
-              ${p.featured ? `<span class="shop-libspack-badge">${d.shopLibsPacksFeatured}</span>` : ''}
-              <div class="shop-libspack-name">${d.shopLibsPackNames[p.id] || p.id}</div>
-              <div class="shop-libspack-amount">⚡ ${p.libs}</div>
-              ${p.bonus ? `<div class="shop-libspack-bonus">${d.shopLibsPacksBonus(p.bonus)}</div>` : ''}
-              <div class="shop-libspack-price">${p.priceFCFA.toLocaleString(fr ? 'fr-FR' : 'en-US')} FCFA</div>
-              <button class="btn btn-primary shop-libspack-buy" data-pack="${p.id}" data-libs="${p.libs}" data-price="${p.priceFCFA}" ${p.available ? '' : 'disabled'}>
-                ${p.available ? d.shopLibsPacksBuy : d.shopLibsPacksSoon}
-              </button>
-            </div>`).join('')}</div>`
-      }
     </section>
 
     <section class="shop-fn-section" id="shop-sec-boosts" data-section-id="boosts">
@@ -4008,12 +4055,6 @@ function _renderShopItems() {
     </section>
     </div>
   `;
-
-  container.querySelectorAll('.shop-libspack-buy').forEach(btn => {
-    btn.addEventListener('click', () => {
-      _openLibsBuyForm(btn.dataset.pack, parseInt(btn.dataset.libs, 10), parseInt(btn.dataset.price, 10));
-    });
-  });
 
   $('btn-buy-boost-hint-10').addEventListener('click', () => {
     socket.emit('buy-boost', { itemId: 'boost_hint_10', playerId: getPlayerId() });
@@ -4546,6 +4587,11 @@ $('btn-shop-close').addEventListener('click', () => {
   sessionStorage.removeItem('shopState');
   const dp = $('shop-detail-panel');
   if (dp) dp.classList.add('hidden');
+  const tp = $('libs-topup-panel');
+  if (tp) tp.classList.add('hidden');
+  const bp = $('libs-buy-panel');
+  if (bp) bp.classList.add('hidden');
+  _pendingLibsPack     = null;
   _shopDetailItem      = null;
   _shopRetainTileId    = null;
   _pendingShopFocus    = null;
@@ -7444,9 +7490,22 @@ const BGManager = (() => {
 // Restore background cosmetic on load
 if (equippedBackground) BGManager.start(equippedBackground);
 
-// Reopen shop after accidental page refresh
+// Reopen shop after accidental page refresh — y compris le panneau Recharger
+// ou le formulaire d'un pack précis (avec la saisie déjà en cours), exactement
+// comme le joueur l'avait laissé.
 if (sessionStorage.getItem('shopState')) {
-  setTimeout(() => openShop(), 150);
+  // Capturé AVANT openShop() : openShop() réécrit shopState en ne gardant que
+  // { open, scrollTop }, donc view/pack/form doivent être lus maintenant.
+  const _savedShopPanel = (() => { try { return JSON.parse(sessionStorage.getItem('shopState')); } catch { return null; } })();
+  setTimeout(() => {
+    openShop();
+    if (_savedShopPanel?.view === 'topup') {
+      _openLibsTopupPanel();
+    } else if (_savedShopPanel?.view === 'buy' && _savedShopPanel.pack) {
+      _openLibsTopupPanel();
+      _openLibsBuyForm(_savedShopPanel.pack.packId, _savedShopPanel.pack.libsAmount, _savedShopPanel.pack.priceFCFA, _savedShopPanel.form);
+    }
+  }, 150);
 }
 
 // Retour d'un paiement Maketou (achat de Libs) : nettoie l'URL puis vérifie

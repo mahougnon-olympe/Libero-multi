@@ -656,13 +656,23 @@
           <div class="shop-fn-balance">
             <span id="shop-balance-label" class="shop-fn-balance-label">Ton solde</span>
             <span id="shop-balance-display" class="shop-fn-balance-amount">⚡ 0 Libs</span>
+            <button id="btn-libs-topup" class="shop-fn-topup-btn">💳 Recharger</button>
           </div>
           <button id="btn-shop-close" class="shop-fn-close-btn">✕</button>
         </div>
       </div>
       <div id="shop-items-list" class="shop-fn-body"></div>
       <div id="shop-detail-panel" class="shop-fn-detail hidden"></div>
-      <!-- Formulaire d'achat de Libs avec de l'argent réel (Maketou) -->
+      <!-- Section dédiée : recharger ses Libs avec de l'argent réel (Maketou) -->
+      <div id="libs-topup-panel" class="shop-fn-detail hidden">
+        <button class="shop-fn-detail-back" id="libs-topup-back">← Retour</button>
+        <div class="libs-buy-wrap">
+          <h3 id="libs-topup-title" class="shop-fn-detail-name">💳 Recharger tes Libs</h3>
+          <p id="libs-topup-desc" class="libs-buy-summary"></p>
+          <div id="libs-topup-grid" class="shop-fn-libspacks"></div>
+        </div>
+      </div>
+      <!-- Formulaire d'achat d'un pack précis -->
       <div id="libs-buy-panel" class="shop-fn-detail hidden">
         <button class="shop-fn-detail-back" id="libs-buy-back">← Retour</button>
         <div class="libs-buy-wrap">

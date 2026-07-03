@@ -2082,6 +2082,14 @@ html.light .shop-fn-promo-input::placeholder { color: var(--muted); }
 }
 .shop-fn-balance-label { font-size: .75rem; color: rgba(255,255,255,.5); }
 .shop-fn-balance-amount { font-weight: 800; color: #fbbf24; font-size: .95rem; }
+.shop-fn-topup-btn {
+  border: none; border-radius: 14px; padding: 6px 12px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1200;
+  font-size: .78rem; font-weight: 800; cursor: pointer; white-space: nowrap;
+  transition: transform .15s, box-shadow .15s;
+}
+.shop-fn-topup-btn:hover { box-shadow: 0 0 14px rgba(251,191,36,.5); }
+.shop-fn-topup-btn:active { transform: scale(.94); }
 .shop-fn-close-btn {
   background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
   color: rgba(255,255,255,.7); border-radius: 50%; width: 36px; height: 36px;
@@ -2305,6 +2313,8 @@ html.light .libs-buy-input { background: rgba(0,0,0,.04); color: var(--text); bo
   .shop-fn-header { padding: 10px 14px; }
   .shop-fn-title  { font-size: 1rem; }
   .shop-fn-balance-label { display: none; }
+  .shop-fn-topup-btn { font-size: 0; padding: 6px 8px; }
+  .shop-fn-topup-btn::before { content: '💳'; font-size: .95rem; }
   .shop-tile-large .shop-tile-img { min-height: 150px; }
   .shop-tile-large .shop-bg-preview { height: 120px; }
   .shop-fn-detail-preview { min-height: 170px; padding: 20px 16px; }
