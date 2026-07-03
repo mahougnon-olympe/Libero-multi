@@ -884,6 +884,10 @@ body.shop-open .main-nav { display: none !important; } /* pas de barre de nav da
   .nav-tab  { padding: 7px 15px; font-size: .82rem; }
   /* Remonte le titre de la vidéo pour qu'il ne passe pas sous la barre du bas. */
   .feed-overlay { padding-bottom: 78px; }
+  /* Quand la barre de nav est en bas, on remonte les boutons flottants
+     (aide / commentaire) au-dessus d'elle pour qu'elle ne les masque plus. */
+  body.nav-bottom-visible .btn-help-float,
+  body.nav-bottom-visible .btn-comment-float { bottom: 74px; }
 }
 
 /* ── Écran Vidéos : feed vertical façon TikTok ── */

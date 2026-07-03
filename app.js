@@ -1296,6 +1296,9 @@ function showScreen(name) {
   if (nav) {
     const onTopLevel = (name === 'landing' || name === 'feed' || name === 'read');
     nav.classList.toggle('hidden', !onTopLevel);
+    // Sur mobile la barre de nav est en bas : on marque ces écrans pour remonter
+    // les boutons flottants (aide / commentaire) au-dessus d'elle.
+    document.body.classList.toggle('nav-bottom-visible', onTopLevel);
     const homeTab = document.getElementById('nav-tab-home');
     const feedTab = document.getElementById('nav-tab-feed');
     const readTab = document.getElementById('nav-tab-read');
@@ -6556,6 +6559,10 @@ document.getElementById('nav-tab-read')?.addEventListener('click', () => {
   if (sessionStorage.getItem('libero_screen') === 'read') return;
   showScreen('read');
 });
+
+// Écran par défaut au chargement = landing (barre de nav visible en bas sur mobile).
+// showScreen() corrigera cette classe si un autre écran est restauré ci-dessous.
+document.body.classList.add('nav-bottom-visible');
 
 // ── Restauration d'écran après refresh ───────────────────────────────────────
 (function() {
