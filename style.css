@@ -2258,7 +2258,7 @@ html.light .shop-title-tag { background: rgba(99,102,241,.15); border-color: rgb
 .shop-fn-promo-input::placeholder { letter-spacing: 1px; font-weight: 400; color: rgba(255,255,255,.28); }
 .shop-fn-promo-input:focus { outline: none; border-color: rgba(99,102,241,.6); }
 .shop-fn-promo-feedback { font-size: .8rem; min-height: 1.1em; display: block; }
-/* Packs de Libs (argent réel, Maketou) */
+/* Packs de Libs (argent réel, FedaPay) */
 .shop-fn-libspacks { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 18px 14px; padding-top: 10px; }
 .shop-libspack-card {
   position: relative;

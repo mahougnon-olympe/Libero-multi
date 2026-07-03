@@ -24,7 +24,9 @@ app.use((req, res, next) => {
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
-app.use(express.json({ limit: '100kb' }));
+// `verify` conserve le corps brut : indispensable pour contrôler la signature
+// HMAC des webhooks FedaPay (le moindre re-encodage JSON invaliderait la signature).
+app.use(express.json({ limit: '100kb', verify: (req, _res, buf) => { req.rawBody = buf; } }));
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
@@ -88,17 +90,17 @@ const REFUND_CARD_COOLDOWN_MS  = 30 * 24 * 3600 * 1000;
 const socketPlayerIds = new Map();
 const playerIdAliases = new Map();
 
-// ── Achat de Libs avec de l'argent réel (Maketou) ───────────────────────────
-// Le mapping pack → nombre de Libs et l'identifiant produit vivent UNIQUEMENT
-// côté serveur. Le client n'envoie jamais qu'un id de pack, jamais un montant.
+// ── Achat de Libs avec de l'argent réel (FedaPay) ───────────────────────────
+// Le mapping pack → nombre de Libs et le prix vivent UNIQUEMENT côté serveur.
+// Le client n'envoie jamais qu'un id de pack, jamais un montant.
 const LIBS_PACKS = {
-  decouverte: { productDocumentId: process.env.MAKETOU_PACK1_ID || '', libs: 250,  bonus: 0,   priceFCFA: 500,  label: 'Pack Découverte : 250 ⚡' },
-  populaire:  { productDocumentId: process.env.MAKETOU_PACK2_ID || '', libs: 525,  bonus: 25,  priceFCFA: 1000, label: 'Pack Populaire : 525 ⚡ (+25)', featured: true },
-  pro:        { productDocumentId: process.env.MAKETOU_PACK3_ID || '', libs: 1100, bonus: 100, priceFCFA: 2000, label: 'Pack Pro : 1100 ⚡ (+100)' },
-  mega:       { productDocumentId: process.env.MAKETOU_PACK4_ID || '', libs: 2300, bonus: 300, priceFCFA: 4000, label: 'Pack Méga : 2300 ⚡ (+300)' },
-  ultime:     { productDocumentId: process.env.MAKETOU_PACK5_ID || '', libs: 4800, bonus: 800, priceFCFA: 8000, label: 'Pack Ultime : 4800 ⚡ (+800)' },
+  decouverte: { libs: 250,  bonus: 0,   priceFCFA: 500,  label: 'Pack Découverte : 250 ⚡' },
+  populaire:  { libs: 525,  bonus: 25,  priceFCFA: 1000, label: 'Pack Populaire : 525 ⚡ (+25)', featured: true },
+  pro:        { libs: 1100, bonus: 100, priceFCFA: 2000, label: 'Pack Pro : 1100 ⚡ (+100)' },
+  mega:       { libs: 2300, bonus: 300, priceFCFA: 4000, label: 'Pack Méga : 2300 ⚡ (+300)' },
+  ultime:     { libs: 4800, bonus: 800, priceFCFA: 8000, label: 'Pack Ultime : 4800 ⚡ (+800)' },
 };
-const libsPurchases = new Map(); // cartId -> { _id, playerId, packId, libsAmount, status, credited, createdAt, updatedAt }
+const libsPurchases = new Map(); // transactionId -> { _id, playerId, packId, libsAmount, status, credited, createdAt, updatedAt }
 const libsCheckoutRateMap = new Map(); // ip -> [timestamps]
 
 let rank1Global      = null;
@@ -263,34 +265,75 @@ function dbUpsertLibs(id, entry) {
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
-// ── Maketou : achat de Libs avec de l'argent réel ───────────────────────────
-// Aucune requête Maketou n'est jamais faite depuis le frontend : la clé API
-// (MAKETOU_API_KEY) reste strictement côté serveur.
-async function createMaketouCheckout({ productDocumentId, email, firstName, lastName, phone, meta }) {
-  const key = process.env.MAKETOU_API_KEY;
-  if (!key) throw new Error('MAKETOU_API_KEY non configurée');
-  const body = { productDocumentId, email, firstName, lastName, meta };
-  if (phone) body.phone = phone;
-  const frontendUrl = process.env.FRONTEND_URL;
-  if (frontendUrl) body.redirectURL = `${frontendUrl.replace(/\/$/, '')}/?libs_return=1`;
-  const res = await fetch('https://api.maketou.net/api/v1/stores/cart/checkout', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) { const err = new Error(data?.error || `Maketou checkout ${res.status}`); err.status = res.status; throw err; }
-  return data; // { cart: { id, status, ... }, redirectUrl }
+// ── FedaPay : achat de Libs avec de l'argent réel ───────────────────────────
+// Aucune requête FedaPay n'est jamais faite depuis le frontend : la clé secrète
+// (FEDAPAY_SECRET_KEY) reste strictement côté serveur. L'environnement (sandbox
+// ou live) se déduit du préfixe de la clé (sk_sandbox_… / sk_live_…).
+function fedapayApiBase() {
+  if (process.env.FEDAPAY_API_BASE) return process.env.FEDAPAY_API_BASE; // tests locaux
+  const key = process.env.FEDAPAY_SECRET_KEY || '';
+  return key.startsWith('sk_live') ? 'https://api.fedapay.com/v1' : 'https://sandbox-api.fedapay.com/v1';
 }
 
-async function fetchMaketouCart(cartId) {
-  const key = process.env.MAKETOU_API_KEY;
-  if (!key) throw new Error('MAKETOU_API_KEY non configurée');
-  const res = await fetch(`https://api.maketou.net/api/v1/stores/cart/${encodeURIComponent(cartId)}`, {
-    headers: { Authorization: `Bearer ${key}` },
+async function fedapayRequest(method, path, body) {
+  const key = process.env.FEDAPAY_SECRET_KEY;
+  if (!key) throw new Error('FEDAPAY_SECRET_KEY non configurée');
+  const res = await fetch(`${fedapayApiBase()}${path}`, {
+    method,
+    headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
   });
-  if (!res.ok) throw new Error(`Maketou GET cart ${res.status}`);
-  return res.json();
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data?.message || `FedaPay ${method} ${path} → ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+// Statuts FedaPay (pending/approved/declined/canceled/…) → statuts internes,
+// pour que le frontend et l'historique d'achats gardent le même vocabulaire
+// qu'avant (waiting_payment/completed/payment_failed/abandoned).
+function normalizeFedapayStatus(status) {
+  switch (status) {
+    case 'approved':    return 'completed';
+    case 'pending':     return 'waiting_payment';
+    case 'declined':    return 'payment_failed';
+    case 'canceled':
+    case 'expired':     return 'abandoned';
+    default:            return status || 'waiting_payment';
+  }
+}
+
+// Crée la transaction FedaPay puis génère le lien de paiement.
+async function createFedapayCheckout({ amountFCFA, description, email, firstName, lastName, phone, meta }) {
+  const frontendUrl = process.env.FRONTEND_URL;
+  const txBody = {
+    description,
+    amount: amountFCFA,
+    currency: { iso: 'XOF' },
+    custom_metadata: meta,
+    customer: {
+      firstname: firstName,
+      lastname:  lastName,
+      email,
+      ...(phone ? { phone_number: { number: phone, country: 'bj' } } : {}),
+    },
+  };
+  if (frontendUrl) txBody.callback_url = `${frontendUrl.replace(/\/$/, '')}/?libs_return=1`;
+  const created = await fedapayRequest('POST', '/transactions', txBody);
+  const tx = created['v1/transaction'] || created.transaction || created;
+  if (!tx?.id) throw new Error('Réponse FedaPay inattendue à la création de transaction');
+  const tokenRes = await fedapayRequest('POST', `/transactions/${tx.id}/token`);
+  const paymentUrl = tokenRes.url || tokenRes['v1/token']?.url;
+  if (!paymentUrl) throw new Error('FedaPay n\'a pas renvoyé d\'URL de paiement');
+  return { transaction: tx, paymentUrl };
+}
+
+async function fetchFedapayTransaction(transactionId) {
+  const data = await fedapayRequest('GET', `/transactions/${encodeURIComponent(transactionId)}`);
+  return data['v1/transaction'] || data.transaction || data;
 }
 
 // Crédit atomique — SEUL point de garde contre le double crédit.
@@ -316,7 +359,7 @@ function creditLibsPurchase(purchase) {
   for (const [sockId, pid] of socketPlayerIds.entries()) {
     if (pid === purchase.playerId) io.to(sockId).emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: purchase.libsAmount, nextAt: nextDistributionAt });
   }
-  console.log(`[💳] +${purchase.libsAmount} Libs crédités (achat Maketou ${purchase._id}) → ${entry.name || purchase.playerId}`);
+  console.log(`[💳] +${purchase.libsAmount} Libs crédités (achat FedaPay ${purchase._id}) → ${entry.name || purchase.playerId}`);
   return true;
 }
 
@@ -2060,19 +2103,21 @@ app.post('/api/comment', (req, res) => {
   res.json({ ok: true });
 });
 
-// ── Achat de Libs avec de l'argent réel (Maketou) ───────────────────────────
+// ── Achat de Libs avec de l'argent réel (FedaPay) ───────────────────────────
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Public : liste des packs disponibles (prix affiché, jamais le productDocumentId
-// n'a besoin d'être caché, mais autant ne l'exposer nulle part côté client).
+// Public : liste des packs. Tous les packs sont disponibles dès que la clé
+// FedaPay est configurée (les transactions sont créées à la volée, plus de
+// produit à déclarer un par un comme avec Maketou).
 app.get('/api/libs/packs', (_req, res) => {
+  const configured = !!process.env.FEDAPAY_SECRET_KEY;
   res.json(Object.entries(LIBS_PACKS).map(([id, p]) => ({
     id, libs: p.libs, bonus: p.bonus || 0, priceFCFA: p.priceFCFA,
-    featured: !!p.featured, available: !!p.productDocumentId,
+    featured: !!p.featured, available: configured,
   })));
 });
 
-// Initie un achat : crée un panier Maketou et renvoie l'URL de paiement.
+// Initie un achat : crée une transaction FedaPay et renvoie l'URL de paiement.
 app.post('/api/libs/checkout', async (req, res) => {
   const { playerId, packId, email, firstName, lastName, phone } = req.body || {};
   const id = safePlayerId(playerId);
@@ -2097,35 +2142,36 @@ app.post('/api/libs/checkout', async (req, res) => {
   if (!firstName || typeof firstName !== 'string' || !firstName.trim()) return res.status(400).json({ error: 'invalid_name' });
   if (!lastName  || typeof lastName  !== 'string' || !lastName.trim())  return res.status(400).json({ error: 'invalid_name' });
 
-  // La disponibilité du pack (productDocumentId configuré) se vérifie en dernier :
-  // un client doit d'abord corriger sa saisie avant d'apprendre que le pack est indisponible.
-  if (!pack.productDocumentId) return res.status(503).json({ error: 'pack_unavailable' });
+  // La disponibilité (clé FedaPay configurée) se vérifie en dernier : un client
+  // doit d'abord corriger sa saisie avant d'apprendre que le pack est indisponible.
+  if (!process.env.FEDAPAY_SECRET_KEY) return res.status(503).json({ error: 'pack_unavailable' });
 
   try {
-    const { cart, redirectUrl } = await createMaketouCheckout({
-      productDocumentId: pack.productDocumentId,
+    const { transaction, paymentUrl } = await createFedapayCheckout({
+      amountFCFA: pack.priceFCFA,
+      description: `Libero's Multi : ${pack.label}`,
       email: email.trim(), firstName: firstName.trim(), lastName: lastName.trim(),
       phone: phone ? String(phone).trim().slice(0, 30) : undefined,
       meta: { playerId: id, packId },
     });
     const purchase = {
-      _id: cart.id, playerId: id, packId, libsAmount: pack.libs,
-      status: cart.status || 'waiting_payment', credited: false,
+      _id: String(transaction.id), playerId: id, packId, libsAmount: pack.libs,
+      status: normalizeFedapayStatus(transaction.status), credited: false,
       createdAt: Date.now(), updatedAt: Date.now(),
     };
     libsPurchases.set(purchase._id, purchase);
     dbUpsertLibsPurchase(purchase._id, purchase);
-    console.log(`[🛒] Panier Maketou créé : ${purchase._id} (${pack.label}) → ${entry.name}`);
-    res.json({ ok: true, cartId: purchase._id, redirectUrl });
+    console.log(`[🛒] Transaction FedaPay créée : ${purchase._id} (${pack.label}) → ${entry.name}`);
+    res.json({ ok: true, cartId: purchase._id, redirectUrl: paymentUrl });
   } catch (e) {
-    console.error('Erreur checkout Maketou:', e.message);
+    console.error('Erreur checkout FedaPay:', e.message);
     res.status(502).json({ error: 'checkout_failed' });
   }
 });
 
-// Vérifie un panier auprès de Maketou et crédite si (et seulement si) le
+// Vérifie une transaction auprès de FedaPay et crédite si (et seulement si) le
 // paiement est confirmé côté serveur. Le retour du navigateur ne prouve rien
-// à lui seul — c'est cette route qui décide, jamais le client.
+// à lui seul — c'est cette route (ou le webhook) qui décide, jamais le client.
 app.post('/api/libs/verify', async (req, res) => {
   const { playerId, cartId } = req.body || {};
   const id = safePlayerId(playerId);
@@ -2135,26 +2181,80 @@ app.post('/api/libs/verify', async (req, res) => {
   if (!purchase || purchase.playerId !== id) return res.status(404).json({ error: 'not_found' });
   if (purchase.credited) return res.json({ status: 'completed', alreadyCredited: true });
 
-  let cart;
-  try { cart = await fetchMaketouCart(cartId); }
-  catch (e) { console.error('Erreur vérif Maketou:', e.message); return res.status(502).json({ error: 'verify_failed' }); }
+  let tx;
+  try { tx = await fetchFedapayTransaction(cartId); }
+  catch (e) { console.error('Erreur vérif FedaPay:', e.message); return res.status(502).json({ error: 'verify_failed' }); }
 
-  if (cart.meta?.playerId && cart.meta.playerId !== id) {
-    console.warn(`[⚠️] meta.playerId Maketou ne correspond pas pour le panier ${cartId}`);
+  const metaPlayerId = tx.custom_metadata?.playerId;
+  if (metaPlayerId && metaPlayerId !== id) {
+    console.warn(`[⚠️] custom_metadata.playerId FedaPay ne correspond pas pour la transaction ${cartId}`);
     return res.status(403).json({ error: 'mismatch' });
   }
 
-  if (cart.status === 'completed') {
+  const status = normalizeFedapayStatus(tx.status);
+  if (status === 'completed') {
     creditLibsPurchase(purchase);
     return res.json({ status: 'completed', libsAdded: purchase.libsAmount, newBalance: libs.get(id).balance });
   }
-  if (cart.status !== purchase.status) {
-    purchase.status = cart.status;
+  if (status !== purchase.status) {
+    purchase.status = status;
     purchase.updatedAt = Date.now();
     libsPurchases.set(cartId, purchase);
     dbUpsertLibsPurchase(cartId, purchase);
   }
-  res.json({ status: cart.status });
+  res.json({ status });
+});
+
+// ── Webhook FedaPay ─────────────────────────────────────────────────────────
+// FedaPay notifie ce endpoint dès qu'une transaction change d'état : le crédit
+// arrive donc même si le joueur ferme l'onglet après avoir payé. La signature
+// HMAC (en-tête x-fedapay-signature, format `t=<timestamp>,s=<hex>`, SHA-256 de
+// `timestamp.corpsBrut`) garantit que la requête vient bien de FedaPay.
+function verifyFedapaySignature(rawBody, header, secret) {
+  if (!rawBody || !header || !secret) return false;
+  let ts = null; const sigs = [];
+  for (const part of String(header).split(',')) {
+    const [k, v] = part.split('=', 2).map(s => s && s.trim());
+    if (k === 't') ts = v;
+    else if (k === 's' && v) sigs.push(v);
+  }
+  if (!ts || !sigs.length) return false;
+  if (Math.abs(Date.now() / 1000 - Number(ts)) > 300) return false; // anti-rejeu : 5 min
+  const expected = crypto.createHmac('sha256', secret).update(`${ts}.${rawBody}`).digest('hex');
+  const expBuf = Buffer.from(expected);
+  return sigs.some(s => {
+    const buf = Buffer.from(s);
+    return buf.length === expBuf.length && crypto.timingSafeEqual(buf, expBuf);
+  });
+}
+
+app.post('/api/libs/webhook', (req, res) => {
+  const secret = process.env.FEDAPAY_WEBHOOK_SECRET;
+  if (!secret) return res.status(503).json({ error: 'webhook_not_configured' });
+  if (!verifyFedapaySignature(req.rawBody, req.headers['x-fedapay-signature'], secret)) {
+    console.warn('[⚠️] Webhook FedaPay rejeté : signature invalide');
+    return res.status(400).json({ error: 'invalid_signature' });
+  }
+
+  const event  = req.body || {};
+  const entity = event.entity || {};
+  const purchase = entity.id != null ? libsPurchases.get(String(entity.id)) : null;
+  // Toujours répondre 200 aux événements qui ne nous concernent pas (autres
+  // entités, transactions inconnues) pour que FedaPay ne les rejoue pas en boucle.
+  if (!purchase) return res.json({ ok: true });
+
+  if (event.name === 'transaction.approved') {
+    creditLibsPurchase(purchase);
+  } else if (['transaction.declined', 'transaction.canceled', 'transaction.updated'].includes(event.name) && !purchase.credited) {
+    const status = normalizeFedapayStatus(entity.status);
+    if (status !== 'completed' && status !== purchase.status) {
+      purchase.status = status;
+      purchase.updatedAt = Date.now();
+      libsPurchases.set(purchase._id, purchase);
+      dbUpsertLibsPurchase(purchase._id, purchase);
+    }
+  }
+  res.json({ ok: true });
 });
 
 // ── Contrôle d'accès admin ──────────────────────────────────────────────────
@@ -2511,25 +2611,27 @@ async function mergeDuplicateNames() {
   }
 
   // ── Filet de sécurité : re-vérification périodique des achats Libs ─────────
-  // Maketou n'a pas de webhook. Si le joueur ferme l'onglet après avoir payé
-  // mais avant le retour sur le site, cet intervalle rattrape le crédit.
+  // Le webhook FedaPay est la voie normale de confirmation ; cet intervalle
+  // rattrape les cas où il aurait été manqué (serveur endormi/redémarré au
+  // moment de la notification, webhook pas encore configuré, etc.).
   async function _recheckPendingLibsPurchases() {
     const cutoff = Date.now() - 48 * 3_600_000;
     const pending = [...libsPurchases.values()].filter(p => !p.credited && p.status === 'waiting_payment' && p.createdAt > cutoff);
     for (const purchase of pending) {
       try {
-        const cart = await fetchMaketouCart(purchase._id);
-        if (cart.meta?.playerId && cart.meta.playerId !== purchase.playerId) continue;
-        if (cart.status === 'completed') {
+        const tx = await fetchFedapayTransaction(purchase._id);
+        if (tx.custom_metadata?.playerId && tx.custom_metadata.playerId !== purchase.playerId) continue;
+        const status = normalizeFedapayStatus(tx.status);
+        if (status === 'completed') {
           creditLibsPurchase(purchase);
-        } else if (cart.status !== purchase.status) {
-          purchase.status = cart.status;
+        } else if (status !== purchase.status) {
+          purchase.status = status;
           purchase.updatedAt = Date.now();
           libsPurchases.set(purchase._id, purchase);
           dbUpsertLibsPurchase(purchase._id, purchase);
         }
       } catch (e) {
-        console.error(`Erreur re-vérif panier Libs ${purchase._id}:`, e.message);
+        console.error(`Erreur re-vérif achat Libs ${purchase._id}:`, e.message);
       }
     }
   }

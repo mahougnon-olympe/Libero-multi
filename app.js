@@ -440,7 +440,7 @@ const DICT = {
     shopBundleNames:{ 'bundle-debutant':'Pack Débutant','bundle-retro':'Pack Rétro','bundle-neon-arcade':'Pack Néon Arcade','bundle-galaxie':'Pack Galaxie','bundle-prestige-or':'Pack Prestige Or','bundle-hologramme':'Pack Hologramme Ultime' },
     shopNavLabels:{ featured:'À la une', daily:'Quotidien', bundles:'Bundles', boosts:'Boosts', colors:'Couleurs', fonts:'Polices', bubbles:'Bulles', bgs:'Fonds', nameeffects:'Effets', titles:'Titres', cursorsnakes:'Curseur', avatars:'Avatars', p4tokens:'P4', ttt:'Morpion', chess:'Échiquier', clickfx:'Particules', emojipacks:'Émojis', victorybans:'Victoire', soundpacks:'Sons', emotes:'Emotes' },
     shopLibsPacksTitle:'💳 Recharger tes Libs',
-    shopLibsPacksDesc:'Achète des Libs ⚡ avec de l\'argent réel (mobile money / carte, paiement sécurisé Maketou). Le crédit est vérifié par nos serveurs, jamais instantané côté navigateur.',
+    shopLibsPacksDesc:'Achète des Libs ⚡ avec de l\'argent réel (mobile money / carte, paiement sécurisé FedaPay). Le crédit est vérifié par nos serveurs, jamais instantané côté navigateur.',
     shopLibsPacksLoading:'Chargement des packs…',
     shopLibsPacksUnavailable:'Recharge indisponible pour le moment.',
     shopLibsPacksBuy:'Acheter', shopLibsPacksSoon:'Bientôt',
@@ -482,7 +482,7 @@ const DICT = {
     helpLibsTitle:'Libs (monnaie)',
     helpLibsDesc:'Les Libs ⚡ sont une monnaie virtuelle. Les joueurs classés <strong>top 3 du classement Global</strong> en gagnent automatiquement toutes les 5 heures (1er : +10 ⚡, 2e : +5 ⚡, 3e : +3 ⚡). Si tu ne joues pas pendant 48 h, ton solde diminue de 10 ⚡ par jour supplémentaire. Clique sur le compteur ⚡ en haut à droite pour ouvrir la boutique. Les joueurs anonymes ne perçoivent pas de Libs.',
     helpLibsBuyTitle:'💳 Recharger avec de l\'argent réel',
-    helpLibsBuyDesc:'Dans la boutique, l\'onglet <strong>💳 Recharger</strong> permet d\'acheter des packs de Libs avec de l\'argent réel (mobile money / carte, paiement sécurisé via Maketou). Après le paiement, tu es redirigé vers le site : tes Libs sont crédités dès que le paiement est confirmé par nos serveurs (généralement quelques secondes). Un email valide est requis pour la confirmation de commande.',
+    helpLibsBuyDesc:'Dans la boutique, l\'onglet <strong>💳 Recharger</strong> permet d\'acheter des packs de Libs avec de l\'argent réel (mobile money / carte, paiement sécurisé via FedaPay). Après le paiement, tu es redirigé vers le site : tes Libs sont crédités dès que le paiement est confirmé par nos serveurs (généralement quelques secondes). Un email valide est requis pour la confirmation de commande.',
     helpBoostTitle:'Boost Indice (quiz)',
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     eventsTitle:'Évents', eventsDesc:'Ven-Dim · Snake Challenge',
@@ -820,7 +820,7 @@ const DICT = {
     shopBundleNames:{ 'bundle-debutant':'Starter Pack','bundle-retro':'Retro Pack','bundle-neon-arcade':'Neon Arcade Pack','bundle-galaxie':'Galaxy Pack','bundle-prestige-or':'Gold Prestige Pack','bundle-hologramme':'Ultimate Hologram Pack' },
     shopNavLabels:{ featured:'Featured', daily:'Daily', bundles:'Bundles', boosts:'Boosts', colors:'Colors', fonts:'Fonts', bubbles:'Bubbles', bgs:'Backgrounds', nameeffects:'Effects', titles:'Titles', cursorsnakes:'Cursor', avatars:'Avatars', p4tokens:'P4', ttt:'Tic-Tac', chess:'Chess', clickfx:'Particles', emojipacks:'Emojis', victorybans:'Victory', soundpacks:'Sounds', emotes:'Emotes' },
     shopLibsPacksTitle:'💳 Top up your Libs',
-    shopLibsPacksDesc:'Buy Libs ⚡ with real money (mobile money / card, secure Maketou checkout). Credit is verified by our servers, never instant on the browser side.',
+    shopLibsPacksDesc:'Buy Libs ⚡ with real money (mobile money / card, secure FedaPay checkout). Credit is verified by our servers, never instant on the browser side.',
     shopLibsPacksLoading:'Loading packs…',
     shopLibsPacksUnavailable:'Top-up unavailable right now.',
     shopLibsPacksBuy:'Buy', shopLibsPacksSoon:'Coming soon',
@@ -862,7 +862,7 @@ const DICT = {
     helpLibsTitle:'Libs (currency)',
     helpLibsDesc:'Libs ⚡ are a virtual currency. Players ranked <strong>top 3 in the Global leaderboard</strong> automatically earn some every 5 hours (1st: +10 ⚡, 2nd: +5 ⚡, 3rd: +3 ⚡). If you don\'t play for 48 h, your balance drops by 10 ⚡ per additional day of inactivity. Click the ⚡ counter in the top-right corner to open the shop. Anonymous players do not receive Libs.',
     helpLibsBuyTitle:'💳 Top up with real money',
-    helpLibsBuyDesc:'In the shop, the <strong>💳 Top up</strong> tab lets you buy Libs packs with real money (mobile money / card, secure checkout via Maketou). After paying, you\'re redirected back to the site: your Libs are credited as soon as the payment is confirmed by our servers (usually within seconds). A valid email is required for order confirmation.',
+    helpLibsBuyDesc:'In the shop, the <strong>💳 Top up</strong> tab lets you buy Libs packs with real money (mobile money / card, secure checkout via FedaPay). After paying, you\'re redirected back to the site: your Libs are credited as soon as the payment is confirmed by our servers (usually within seconds). A valid email is required for order confirmation.',
     helpBoostTitle:'Quiz Hint Boost',
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     eventsTitle:'Events', eventsDesc:'Fri-Sun · Snake Challenge',
@@ -7508,8 +7508,8 @@ if (sessionStorage.getItem('shopState')) {
   }, 150);
 }
 
-// Retour d'un paiement Maketou (achat de Libs) : nettoie l'URL puis vérifie
-// le panier côté serveur — jamais de crédit basé sur ce seul retour navigateur.
+// Retour d'un paiement FedaPay (achat de Libs) : nettoie l'URL puis vérifie
+// la transaction côté serveur — jamais de crédit basé sur ce seul retour navigateur.
 if (window.location.search.includes('libs_return=1') || localStorage.getItem('libero_pending_cart')) {
   const url = new URL(window.location.href);
   if (url.searchParams.has('libs_return')) {
