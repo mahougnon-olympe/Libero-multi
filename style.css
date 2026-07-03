@@ -1027,7 +1027,7 @@ body.shop-open .main-nav { display: none !important; } /* pas de barre de nav da
 .read-book--exclusive:hover { border-color: #fbbf24; box-shadow: 0 18px 50px rgba(251,191,36,.35); }
 .read-book-cat--excl { background: rgba(251,191,36,.15); color: #fbbf24; }
 .book-ch-head { font-size: .8rem; font-weight: 700; color: var(--muted); margin: 4px 0 0; text-transform: uppercase; letter-spacing: .5px; }
-.book-ch-list { display: flex; flex-direction: column; gap: 4px; max-height: 240px; overflow-y: auto; }
+.book-ch-list { display: flex; flex-direction: column; gap: 4px; max-height: 240px; min-height: 110px; overflow-y: auto; flex-shrink: 0; }
 .book-ch {
   display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 8px;
   padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border);

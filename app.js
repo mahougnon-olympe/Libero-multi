@@ -524,7 +524,7 @@ const DICT = {
       general:[
         { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Luffy Runner</strong>, une idée de joueur reprise par le créateur). Chaque section a son propre classement." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> — nourris ton serpent avec les 🍎, les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
-        { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras aussi <strong>⭐ L'Affaire endormie</strong>, le roman exclusif écrit par le créateur : le <strong>chapitre 1 est gratuit</strong>, puis débloque les chapitres 2-5 pour <strong>1000 ⚡ Libs</strong> et les chapitres 6-10 pour <strong>2000 ⚡</strong> — la lecture se fait directement sur le site." },
+        { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras aussi <strong>⭐ L'Affaire endormie — Tome 1</strong>, le roman exclusif écrit par le créateur : le <strong>chapitre 1 est gratuit</strong>, puis débloque les chapitres 2-5 pour <strong>1000 ⚡ Libs</strong> et les chapitres 6-10 pour <strong>2000 ⚡</strong> — la lecture se fait directement sur le site." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile." },
         { icon:'🤖', title:'Mode Solo (vs Bot)', desc:"Joue seul contre un robot. <em>Facile</em> : le bot joue au hasard. <em>Moyen</em> : le bot bloque et attaque. <em>Difficile</em> : le bot joue de manière optimale. Les parties <strong>Moyen et Difficile</strong> comptent dans le classement classique." },
         { icon:'🔗', title:'Rejoindre', desc:"Entre le code à 4 lettres reçu et clique <em>Rejoindre</em>. La partie démarre automatiquement dès que les deux joueurs sont connectés." },
@@ -616,7 +616,7 @@ const DICT = {
       home_lb:'🏆 <strong>Classement</strong> : victoires, défaites et nuls s\'enregistrent automatiquement après chaque partie (bot Moyen / Difficile ou multijoueur).',
       quiz_themes:'🧠 <strong>Quiz Culture Générale</strong> : sélectionne un ou plusieurs thèmes (Histoire, Cinéma, Sciences…), puis joue en <strong>Solo</strong> ou crée un <strong>salon multijoueur</strong> à partager avec tes amis.',
       quiz_lb:'🏆 Le <strong>classement Quiz</strong> est séparé du classement Classique. Les points sont attribués selon ta vitesse de réponse et le nombre de bonnes réponses.',
-      read_catalogue:'📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Le roman <strong>⭐ L\'Affaire endormie</strong>, écrit par le créateur, se lit directement ici : <strong>chapitre 1 gratuit</strong>, puis débloque la suite avec tes <strong>⚡ Libs</strong> (1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10).',
+      read_catalogue:'📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Le roman <strong>⭐ L\'Affaire endormie — Tome 1</strong>, écrit par le créateur, se lit directement ici : <strong>chapitre 1 gratuit</strong>, puis débloque la suite avec tes <strong>⚡ Libs</strong> (1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10).',
     },
   },
   en: {
@@ -880,7 +880,7 @@ const DICT = {
       general:[
         { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Luffy Runner</strong> mini-game, a player idea brought to life by the creator). Each section has its own leaderboard." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> — feed your snake with 🍎, walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
-        { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll also find <strong>⭐ L'Affaire endormie</strong>, the exclusive novel written by the creator: <strong>chapter 1 is free</strong>, then unlock chapters 2-5 for <strong>1000 ⚡ Libs</strong> and chapters 6-10 for <strong>2000 ⚡</strong> — read it right on the site." },
+        { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll also find <strong>⭐ L'Affaire endormie — Tome 1</strong>, the exclusive novel written by the creator: <strong>chapter 1 is free</strong>, then unlock chapters 2-5 for <strong>1000 ⚡ Libs</strong> and chapters 6-10 for <strong>2000 ⚡</strong> — read it right on the site." },
         { icon:'🎮', title:'Create a classic game', desc:"Choose a game, enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent. You can also play <strong>Solo vs the bot</strong> by choosing a difficulty: Easy, Medium or Hard." },
         { icon:'🤖', title:'Solo mode (vs Bot)', desc:"Play alone against a robot. <em>Easy</em>: plays randomly. <em>Medium</em>: blocks and attacks. <em>Hard</em>: plays optimally. <strong>Medium and Hard</strong> games count in the classic leaderboard." },
         { icon:'🔗', title:'Join', desc:"Enter the 4-letter code you received and click <em>Join</em>. The game starts automatically as soon as both players are connected." },
@@ -972,7 +972,7 @@ const DICT = {
       home_lb:'🏆 <strong>Leaderboard</strong>: wins, losses and draws are recorded automatically after each game (Medium/Hard bot or multiplayer).',
       quiz_themes:'🧠 <strong>General Knowledge Quiz</strong>: select one or more themes (History, Movies, Science…), then play <strong>Solo</strong> or create a <strong>multiplayer room</strong> to share with your friends.',
       quiz_lb:'🏆 The <strong>Quiz leaderboard</strong> is separate from the Classic leaderboard. Points are awarded based on your response speed and number of correct answers.',
-      read_catalogue:'📚 Welcome to the <strong>Reading</strong> section! Search a book by title or author, filter by category, and click a cover to open its sheet. The novel <strong>⭐ L\'Affaire endormie</strong>, written by the creator, can be read right here: <strong>chapter 1 is free</strong>, then unlock the rest with your <strong>⚡ Libs</strong> (1000 ⚡ for chapters 2-5, 2000 ⚡ for 6-10).',
+      read_catalogue:'📚 Welcome to the <strong>Reading</strong> section! Search a book by title or author, filter by category, and click a cover to open its sheet. The novel <strong>⭐ L\'Affaire endormie — Tome 1</strong>, written by the creator, can be read right here: <strong>chapter 1 is free</strong>, then unlock the rest with your <strong>⚡ Libs</strong> (1000 ⚡ for chapters 2-5, 2000 ⚡ for 6-10).',
     },
   },
 };
@@ -6187,7 +6187,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'read_catalogue',
       screen: 'read',
-      text: '📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Le roman <strong>⭐ L\'Affaire endormie</strong>, écrit par le créateur, se lit directement ici : <strong>chapitre 1 gratuit</strong>, puis débloque la suite avec tes <strong>⚡ Libs</strong> (1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10).',
+      text: '📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Le roman <strong>⭐ L\'Affaire endormie — Tome 1</strong>, écrit par le créateur, se lit directement ici : <strong>chapitre 1 gratuit</strong>, puis débloque la suite avec tes <strong>⚡ Libs</strong> (1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10).',
       target: '.read-wrap',
     },
 
@@ -6510,6 +6510,7 @@ const ReadFeed = (() => {
     ]);
     books         = booksRes.status === 'fulfilled' && Array.isArray(booksRes.value) ? booksRes.value : null;
     exclusiveBook = exclRes.status  === 'fulfilled' ? exclRes.value : null;
+    if (exclusiveBook) exclusiveBook.couverture = `${window.BACKEND_URL}/api/book/affaire-endormie/couverture`;
     if (books === null && !exclusiveBook) { setStatus(t().readError); return; }
     books = books || [];
     loaded = true;
@@ -6532,7 +6533,10 @@ const ReadFeed = (() => {
     try {
       const pid = encodeURIComponent(getPlayerId() || '');
       const r = await fetch(`${window.BACKEND_URL}/api/book/affaire-endormie?playerId=${pid}`);
-      if (r.ok) exclusiveBook = await r.json();
+      if (r.ok) {
+        exclusiveBook = await r.json();
+        exclusiveBook.couverture = `${window.BACKEND_URL}/api/book/affaire-endormie/couverture`;
+      }
     } catch { /* on garde l'état précédent */ }
   }
 
@@ -6626,7 +6630,8 @@ const ReadFeed = (() => {
     const packBtns = bk.packs.filter(p => !p.owned).map(p => {
       const anyAvail = bk.chapters.some(ch => ch.pack === p.id && ch.disponible);
       const needPrev = p.requires && !bk.packs.find(x => x.id === p.requires)?.owned;
-      const label = anyAvail && !needPrev ? d.bookUnlockFor(p.price) : d.bookComingSoon;
+      // Chapitres non publiés → « À venir » ; publiés mais pack précédent requis → prix affiché, bouton grisé.
+      const label = anyAvail ? d.bookUnlockFor(p.price) : d.bookComingSoon;
       return `<button class="btn btn-primary book-buy-btn" data-pack="${p.id}" ${anyAvail && !needPrev ? '' : 'disabled'}>
         ${esc(d.bookLockedRange(p.from, p.to))} — ${esc(label)}</button>`;
     }).join('');

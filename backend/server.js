@@ -44,10 +44,10 @@ const feedBooks       = []; // [{ _id, titre, auteur, categorie, couverture, url
 // sortent que par l'API, chapitre 1 gratuit, la suite débloquée en Libs.
 const LIBERO_BOOK = {
   id: 'affaire-endormie',
-  titre: "L'Affaire endormie",
+  titre: "L'Affaire endormie — Tome 1",
   auteur: 'Libero',
   categorie: 'Roman',
-  description: "L'agent spécial Yaris Cole, exilé aux archives de Las Vegas, tombe sur un carton d'homicides non résolus qui n'aurait jamais dû respirer à nouveau. Chapitre 1 gratuit — débloque la suite avec tes Libs.",
+  description: "Tome 1 de la série. L'agent spécial Yaris Cole, exilé aux archives de Las Vegas, tombe sur un carton d'homicides non résolus qui n'aurait jamais dû respirer à nouveau. Chapitre 1 gratuit — débloque la suite avec tes Libs.",
   totalChapters: 10,
   copyright: '© 2026 Libero — Tous droits réservés. Toute reproduction, diffusion ou traduction, même partielle, est interdite sans autorisation écrite de l\'auteur.',
   packs: [
@@ -2087,6 +2087,13 @@ app.get('/api/book/:bookId', (req, res) => {
     })),
     chapters,
   });
+});
+
+// Couverture du livre (image publique — c'est la vitrine, pas le contenu payant).
+app.get('/api/book/:bookId/couverture', (req, res) => {
+  if (req.params.bookId !== LIBERO_BOOK.id) return res.status(404).json({ error: 'Livre introuvable.' });
+  const file = path.join(__dirname, 'books', LIBERO_BOOK.id, 'couverture.jpeg');
+  res.sendFile(file, { maxAge: '1d' }, err => { if (err && !res.headersSent) res.status(404).json({ error: 'Couverture introuvable.' }); });
 });
 
 // Contenu d'un chapitre — contrôle d'accès côté serveur.
