@@ -274,6 +274,15 @@ const DICT = {
     readSearch:'Rechercher un titre ou un auteur...',
     readAll:'Tous', readBtn:'📖 Lire', readBack:'Retour',
     readNoResult:'Aucun livre ne correspond à ta recherche.',
+    bookExclusive:'⭐ Exclusif', bookChaptersTitle:'Chapitres', bookFree:'Gratuit',
+    bookComingSoon:'À venir', bookUnlockFor: price => `🔓 Débloquer pour ${price} ⚡`,
+    bookLockedRange: (from,to) => `Chapitres ${from} à ${to}`,
+    bookInsufficient:'Pas assez de Libs ! Joue pour en gagner.',
+    bookNeedName:'Choisis d\'abord un pseudo (dans une section de jeu) pour acheter.',
+    bookNeedPrevious:'Débloque d\'abord les chapitres précédents.',
+    bookUnlocked:'✅ Chapitres débloqués ! Bonne lecture.',
+    bookPrev:'← Précédent', bookNext:'Suivant →', bookReaderClose:'✕',
+    bookChapterLocked:'🔒 Ce chapitre est verrouillé.',
     classicTitle:'Jeux Classiques', classicDesc:'Puissance 4 · Morpion · Échecs',
     triviaTitle:'Culture Générale', triviaDesc:'Quiz par thèmes · Solo & Multi',
     homeSubtitle:'2 joueurs • Temps réel',
@@ -515,7 +524,7 @@ const DICT = {
       general:[
         { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Luffy Runner</strong>, une idée de joueur reprise par le créateur). Chaque section a son propre classement." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> — nourris ton serpent avec les 🍎, les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
-        { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> de la barre de navigation ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic avec un bouton <strong>📖 Lire</strong> qui ouvre le livre dans un nouvel onglet." },
+        { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras aussi <strong>⭐ L'Affaire endormie</strong>, le roman exclusif écrit par le créateur : le <strong>chapitre 1 est gratuit</strong>, puis débloque les chapitres 2-5 pour <strong>1000 ⚡ Libs</strong> et les chapitres 6-10 pour <strong>2000 ⚡</strong> — la lecture se fait directement sur le site." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile." },
         { icon:'🤖', title:'Mode Solo (vs Bot)', desc:"Joue seul contre un robot. <em>Facile</em> : le bot joue au hasard. <em>Moyen</em> : le bot bloque et attaque. <em>Difficile</em> : le bot joue de manière optimale. Les parties <strong>Moyen et Difficile</strong> comptent dans le classement classique." },
         { icon:'🔗', title:'Rejoindre', desc:"Entre le code à 4 lettres reçu et clique <em>Rejoindre</em>. La partie démarre automatiquement dès que les deux joueurs sont connectés." },
@@ -607,6 +616,7 @@ const DICT = {
       home_lb:'🏆 <strong>Classement</strong> : victoires, défaites et nuls s\'enregistrent automatiquement après chaque partie (bot Moyen / Difficile ou multijoueur).',
       quiz_themes:'🧠 <strong>Quiz Culture Générale</strong> : sélectionne un ou plusieurs thèmes (Histoire, Cinéma, Sciences…), puis joue en <strong>Solo</strong> ou crée un <strong>salon multijoueur</strong> à partager avec tes amis.',
       quiz_lb:'🏆 Le <strong>classement Quiz</strong> est séparé du classement Classique. Les points sont attribués selon ta vitesse de réponse et le nombre de bonnes réponses.',
+      read_catalogue:'📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Le roman <strong>⭐ L\'Affaire endormie</strong>, écrit par le créateur, se lit directement ici : <strong>chapitre 1 gratuit</strong>, puis débloque la suite avec tes <strong>⚡ Libs</strong> (1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10).',
     },
   },
   en: {
@@ -620,6 +630,15 @@ const DICT = {
     readSearch:'Search a title or author...',
     readAll:'All', readBtn:'📖 Read', readBack:'Back',
     readNoResult:'No book matches your search.',
+    bookExclusive:'⭐ Exclusive', bookChaptersTitle:'Chapters', bookFree:'Free',
+    bookComingSoon:'Coming soon', bookUnlockFor: price => `🔓 Unlock for ${price} ⚡`,
+    bookLockedRange: (from,to) => `Chapters ${from} to ${to}`,
+    bookInsufficient:'Not enough Libs! Play to earn more.',
+    bookNeedName:'Pick a nickname first (in any game section) to buy.',
+    bookNeedPrevious:'Unlock the previous chapters first.',
+    bookUnlocked:'✅ Chapters unlocked! Enjoy.',
+    bookPrev:'← Previous', bookNext:'Next →', bookReaderClose:'✕',
+    bookChapterLocked:'🔒 This chapter is locked.',
     classicTitle:'Classic Games', classicDesc:'Connect 4 · Tic Tac Toe · Chess',
     triviaTitle:'General Knowledge', triviaDesc:'Themed quizzes · Solo & Multi',
     homeSubtitle:'2 players • Real time',
@@ -861,7 +880,7 @@ const DICT = {
       general:[
         { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Luffy Runner</strong> mini-game, a player idea brought to life by the creator). Each section has its own leaderboard." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> — feed your snake with 🍎, walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
-        { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab in the navigation bar opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet with a <strong>📖 Read</strong> button that opens the book in a new tab." },
+        { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll also find <strong>⭐ L'Affaire endormie</strong>, the exclusive novel written by the creator: <strong>chapter 1 is free</strong>, then unlock chapters 2-5 for <strong>1000 ⚡ Libs</strong> and chapters 6-10 for <strong>2000 ⚡</strong> — read it right on the site." },
         { icon:'🎮', title:'Create a classic game', desc:"Choose a game, enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent. You can also play <strong>Solo vs the bot</strong> by choosing a difficulty: Easy, Medium or Hard." },
         { icon:'🤖', title:'Solo mode (vs Bot)', desc:"Play alone against a robot. <em>Easy</em>: plays randomly. <em>Medium</em>: blocks and attacks. <em>Hard</em>: plays optimally. <strong>Medium and Hard</strong> games count in the classic leaderboard." },
         { icon:'🔗', title:'Join', desc:"Enter the 4-letter code you received and click <em>Join</em>. The game starts automatically as soon as both players are connected." },
@@ -953,6 +972,7 @@ const DICT = {
       home_lb:'🏆 <strong>Leaderboard</strong>: wins, losses and draws are recorded automatically after each game (Medium/Hard bot or multiplayer).',
       quiz_themes:'🧠 <strong>General Knowledge Quiz</strong>: select one or more themes (History, Movies, Science…), then play <strong>Solo</strong> or create a <strong>multiplayer room</strong> to share with your friends.',
       quiz_lb:'🏆 The <strong>Quiz leaderboard</strong> is separate from the Classic leaderboard. Points are awarded based on your response speed and number of correct answers.',
+      read_catalogue:'📚 Welcome to the <strong>Reading</strong> section! Search a book by title or author, filter by category, and click a cover to open its sheet. The novel <strong>⭐ L\'Affaire endormie</strong>, written by the creator, can be read right here: <strong>chapter 1 is free</strong>, then unlock the rest with your <strong>⚡ Libs</strong> (1000 ⚡ for chapters 2-5, 2000 ⚡ for 6-10).',
     },
   },
 };
@@ -6163,6 +6183,14 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
       autoDone: true,
     },
 
+    // ── Lecture ──
+    {
+      id: 'read_catalogue',
+      screen: 'read',
+      text: '📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Le roman <strong>⭐ L\'Affaire endormie</strong>, écrit par le créateur, se lit directement ici : <strong>chapitre 1 gratuit</strong>, puis débloque la suite avec tes <strong>⚡ Libs</strong> (1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10).',
+      target: '.read-wrap',
+    },
+
     // ── Quiz ──
     {
       id: 'quiz_themes',
@@ -6442,6 +6470,8 @@ const ReadFeed = (() => {
   const input   = () => document.getElementById('read-search-input');
 
   let loaded = false, books = [], activeCat = null, query = '';
+  let exclusiveBook = null;   // livre écrit par le créateur, servi par l'API avec chapitres payants
+  let readerNum = 0;          // chapitre affiché dans la visionneuse
 
   // Couvertures de secours quand un livre n'a pas d'image.
   const GRADS = [
@@ -6465,19 +6495,33 @@ const ReadFeed = (() => {
     if (!wrap()) return;
     if (loaded && !force) { render(); return; }
     setStatus(t().readLoading);
-    try {
-      const res = await fetch(`${window.BACKEND_URL}/api/feed-books`);
-      if (!res.ok) throw new Error('http ' + res.status);
-      books = await res.json();
-    } catch { setStatus(t().readError); return; }
+    const pid = encodeURIComponent(getPlayerId() || '');
+    const [booksRes, exclRes] = await Promise.allSettled([
+      fetch(`${window.BACKEND_URL}/api/feed-books`).then(r => { if (!r.ok) throw new Error(); return r.json(); }),
+      fetch(`${window.BACKEND_URL}/api/book/affaire-endormie?playerId=${pid}`).then(r => { if (!r.ok) throw new Error(); return r.json(); }),
+    ]);
+    books         = booksRes.status === 'fulfilled' && Array.isArray(booksRes.value) ? booksRes.value : null;
+    exclusiveBook = exclRes.status  === 'fulfilled' ? exclRes.value : null;
+    if (books === null && !exclusiveBook) { setStatus(t().readError); return; }
+    books = books || [];
     loaded = true;
-    if (!Array.isArray(books) || books.length === 0) { setStatus(t().readEmpty); return; }
+    if (books.length === 0 && !exclusiveBook) { setStatus(t().readEmpty); return; }
     activeCat = activeCat || t().readAll;
     buildCats(); render();
   }
 
+  // Recharge silencieuse de l'état du livre (après un achat).
+  async function reloadExclusive() {
+    try {
+      const pid = encodeURIComponent(getPlayerId() || '');
+      const r = await fetch(`${window.BACKEND_URL}/api/book/affaire-endormie?playerId=${pid}`);
+      if (r.ok) exclusiveBook = await r.json();
+    } catch { /* on garde l'état précédent */ }
+  }
+
   function buildCats() {
-    const cats = [t().readAll, ...[...new Set(books.map(b => b.categorie).filter(Boolean))]];
+    const withExcl = exclusiveBook ? [exclusiveBook.categorie, ...books.map(b => b.categorie)] : books.map(b => b.categorie);
+    const cats = [t().readAll, ...[...new Set(withExcl.filter(Boolean))]];
     catsEl().innerHTML = '';
     cats.forEach(c => {
       const btn = document.createElement('button');
@@ -6494,15 +6538,28 @@ const ReadFeed = (() => {
       ${cover ? '' : `<span class="read-cover-emoji">📖</span><span class="read-cover-t">${esc(b.titre)}</span>`}</div>`;
   }
 
+  function matches(b) {
+    const all = t().readAll;
+    return (activeCat === all || b.categorie === activeCat) &&
+      ((b.titre || '').toLowerCase().includes(query) || (b.auteur || '').toLowerCase().includes(query));
+  }
+
   function render() {
     const g = wrap(); if (!g) return;
-    const all = t().readAll;
-    const list = books.filter(b =>
-      (activeCat === all || b.categorie === activeCat) &&
-      ((b.titre || '').toLowerCase().includes(query) || (b.auteur || '').toLowerCase().includes(query))
-    );
-    if (!list.length) { g.innerHTML = `<p class="read-empty">${esc(t().readNoResult)}</p>`; return; }
+    const list = books.filter(matches);
+    const showExcl = exclusiveBook && matches(exclusiveBook);
+    if (!list.length && !showExcl) { g.innerHTML = `<p class="read-empty">${esc(t().readNoResult)}</p>`; return; }
     g.innerHTML = '';
+    if (showExcl) {
+      const card = document.createElement('div');
+      card.className = 'read-book read-book--exclusive';
+      card.innerHTML = coverHTML(exclusiveBook, 0) +
+        `<span class="read-book-cat read-book-cat--excl">${esc(t().bookExclusive)}</span>
+         <p class="read-book-title">${esc(exclusiveBook.titre)}</p>
+         <p class="read-book-author">${esc(exclusiveBook.auteur)}</p>`;
+      card.onclick = openBookSheet;
+      g.appendChild(card);
+    }
     list.forEach((b, i) => {
       const card = document.createElement('div');
       card.className = 'read-book';
@@ -6532,6 +6589,124 @@ const ReadFeed = (() => {
     document.getElementById('read-sheet-close').onclick = closeSheet;
   }
   function closeSheet() { overlay().classList.remove('open'); }
+
+  // ── Livre exclusif : fiche avec chapitres + déblocage en Libs ──────────────
+  function openBookSheet() {
+    const bk = exclusiveBook; if (!bk) return;
+    const d = t();
+    const rows = bk.chapters.map(ch => {
+      const readable = ch.unlocked && ch.disponible;
+      const state = readable
+        ? (ch.gratuit ? `<span class="book-ch-tag book-ch-tag--free">${esc(d.bookFree)}</span>` : '📖')
+        : (ch.disponible ? '🔒' : `<span class="book-ch-tag">${esc(d.bookComingSoon)}</span>`);
+      return `<button class="book-ch${readable ? '' : ' locked'}" data-num="${ch.num}" ${readable ? '' : 'disabled'}>
+        <span class="book-ch-num">${ch.num}</span>
+        <span class="book-ch-titre">${esc(ch.disponible ? ch.titre : `Chapitre ${ch.num}`)}</span>
+        <span class="book-ch-state">${state}</span>
+      </button>`;
+    }).join('');
+    // Boutons d'achat : un par pack non possédé (désactivé si aucun chapitre publié)
+    const packBtns = bk.packs.filter(p => !p.owned).map(p => {
+      const anyAvail = bk.chapters.some(ch => ch.pack === p.id && ch.disponible);
+      const needPrev = p.requires && !bk.packs.find(x => x.id === p.requires)?.owned;
+      const label = anyAvail && !needPrev ? d.bookUnlockFor(p.price) : d.bookComingSoon;
+      return `<button class="btn btn-primary book-buy-btn" data-pack="${p.id}" ${anyAvail && !needPrev ? '' : 'disabled'}>
+        ${esc(d.bookLockedRange(p.from, p.to))} — ${esc(label)}</button>`;
+    }).join('');
+    sheet().innerHTML = coverHTML(bk, 0) +
+      `<div class="read-sheet-info">
+         <span class="read-book-cat read-book-cat--excl">${esc(d.bookExclusive)}</span>
+         <h2>${esc(bk.titre)}</h2>
+         <p class="read-sheet-author">${esc(bk.auteur)}</p>
+         <p class="read-sheet-desc">${esc(bk.description)}</p>
+         <p class="book-ch-head">${esc(d.bookChaptersTitle)}</p>
+         <div class="book-ch-list">${rows}</div>
+         <div class="read-sheet-actions">
+           ${packBtns}
+           <button class="btn btn-secondary" id="read-sheet-close">${esc(d.readBack)}</button>
+         </div>
+       </div>`;
+    overlay().classList.add('open');
+    document.getElementById('read-sheet-close').onclick = closeSheet;
+    sheet().querySelectorAll('.book-ch:not(.locked)').forEach(b => {
+      b.onclick = () => openReader(parseInt(b.dataset.num, 10));
+    });
+    sheet().querySelectorAll('.book-buy-btn').forEach(b => {
+      b.onclick = () => buyPack(b.dataset.pack);
+    });
+  }
+
+  function buyPack(packId) {
+    const name = (localStorage.getItem('playerName') || '').trim();
+    if (!name) { showCursorSnakeToast(t().bookNeedName); return; }
+    socket.emit('buy-book-pack', { playerId: getPlayerId(), bookId: 'affaire-endormie', packId });
+  }
+
+  socket.on('buy-book-pack-result', async ({ ok, error } = {}) => {
+    const d = t();
+    if (ok) {
+      SFX.btnClick();
+      await reloadExclusive();
+      openBookSheet(); // ré-affiche la fiche avec les chapitres débloqués
+      showCursorSnakeToast(d.bookUnlocked);
+      return;
+    }
+    if (error === 'insufficient')       showCursorSnakeToast(d.bookInsufficient);
+    else if (error === 'anonymous')     showCursorSnakeToast(d.bookNeedName);
+    else if (error === 'requires_previous') showCursorSnakeToast(d.bookNeedPrevious);
+    else                                showCursorSnakeToast(d.bookComingSoon);
+  });
+
+  // ── Visionneuse de chapitre ─────────────────────────────────────────────────
+  // Rendu markdown minimal : le texte est échappé AVANT toute mise en forme.
+  function mdToHtml(md) {
+    return String(md).split(/\n{2,}/).map(block => {
+      const b = block.trim();
+      if (!b) return '';
+      if (/^---+$/.test(b)) return '<hr>';
+      const escd = esc(b)
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+      if (b.startsWith('### ')) return `<h4>${escd.slice(4)}</h4>`;
+      if (b.startsWith('## '))  return `<h3>${escd.slice(3)}</h3>`;
+      if (b.startsWith('# '))   return `<h2>${escd.slice(2)}</h2>`;
+      return `<p>${escd.replace(/\n/g, '<br>')}</p>`;
+    }).join('');
+  }
+
+  const reader = () => document.getElementById('book-reader');
+
+  async function openReader(num) {
+    const bk = exclusiveBook; if (!bk) return;
+    const ch = bk.chapters.find(c => c.num === num);
+    if (!ch || !ch.unlocked || !ch.disponible) { showCursorSnakeToast(t().bookChapterLocked); return; }
+    let data;
+    try {
+      const pid = encodeURIComponent(getPlayerId() || '');
+      const r = await fetch(`${window.BACKEND_URL}/api/book/affaire-endormie/chapitre/${num}?playerId=${pid}`);
+      if (!r.ok) throw new Error();
+      data = await r.json();
+    } catch { showCursorSnakeToast(t().bookChapterLocked); return; }
+    readerNum = num;
+    closeSheet();
+    document.getElementById('book-reader-title').textContent = data.titre;
+    document.getElementById('book-reader-content').innerHTML = mdToHtml(data.content);
+    const prevB = document.getElementById('book-reader-prev');
+    const nextB = document.getElementById('book-reader-next');
+    const readable = n => { const c = bk.chapters.find(x => x.num === n); return c && c.unlocked && c.disponible; };
+    prevB.textContent = t().bookPrev; nextB.textContent = t().bookNext;
+    prevB.disabled = !readable(num - 1);
+    nextB.disabled = !readable(num + 1);
+    reader().classList.add('open');
+    reader().querySelector('.book-reader-content').scrollTop = 0;
+  }
+
+  document.getElementById('book-reader-close')?.addEventListener('click', () => {
+    reader().classList.remove('open');
+    openBookSheet(); // retour à la fiche du livre
+  });
+  document.getElementById('book-reader-prev')?.addEventListener('click', () => openReader(readerNum - 1));
+  document.getElementById('book-reader-next')?.addEventListener('click', () => openReader(readerNum + 1));
 
   function retexte() { // rafraîchit les libellés au changement de langue
     if (!loaded) return;

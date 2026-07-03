@@ -1,0 +1,5 @@
+# Le backend (code serveur + contenu payant des livres) ne doit jamais être
+# publié sur le site statique Vercel — il est déployé séparément sur Render.
+backend/
+.env
+*.md

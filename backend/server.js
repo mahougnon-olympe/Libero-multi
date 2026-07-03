@@ -1,5 +1,7 @@
 require('dotenv').config();
 const crypto       = require('crypto');
+const fs           = require('fs');
+const path         = require('path');
 const express      = require('express');
 const http         = require('http');
 const { Server }   = require('socket.io');
@@ -36,6 +38,48 @@ const snakeVotes        = new Map(); // playerId -> 'yes'|'no'
 const comments        = [];
 const feedVideos      = []; // [{ _id, url, titre, ordre, actif, createdAt }]
 const feedBooks       = []; // [{ _id, titre, auteur, categorie, couverture, url, description, ordre, actif, createdAt }]
+
+// ── Livre exclusif « L'Affaire endormie » ───────────────────────────────────
+// Les chapitres vivent dans backend/books/ (jamais sur le site statique) et ne
+// sortent que par l'API, chapitre 1 gratuit, la suite débloquée en Libs.
+const LIBERO_BOOK = {
+  id: 'affaire-endormie',
+  titre: "L'Affaire endormie",
+  auteur: 'Libero',
+  categorie: 'Roman',
+  description: "L'agent spécial Yaris Cole, exilé aux archives de Las Vegas, tombe sur un carton d'homicides non résolus qui n'aurait jamais dû respirer à nouveau. Chapitre 1 gratuit — débloque la suite avec tes Libs.",
+  totalChapters: 10,
+  packs: [
+    { id: 'p2', price: 1000, from: 2, to: 5,  requires: null },
+    { id: 'p3', price: 2000, from: 6, to: 10, requires: 'p2' },
+  ],
+};
+const bookChapters = new Map(); // num -> { num, titre, content }
+(function loadBookChapters() {
+  const dir = path.join(__dirname, 'books', LIBERO_BOOK.id);
+  let files = [];
+  try { files = fs.readdirSync(dir).filter(f => /^chapitre-\d+\.md$/.test(f)); }
+  catch { console.warn(`⚠️  Dossier livre introuvable : ${dir}`); return; }
+  for (const f of files) {
+    const num = parseInt(f.match(/(\d+)/)[1], 10);
+    const content = fs.readFileSync(path.join(dir, f), 'utf8');
+    const titleLine = content.split('\n').find(l => /^##\s*Chapitre\s+\d+/i.test(l));
+    const titre = titleLine ? titleLine.replace(/^##\s*/, '').trim() : `Chapitre ${num}`;
+    bookChapters.set(num, { num, titre, content });
+  }
+  console.log(`📖 Livre « ${LIBERO_BOOK.titre} » : ${bookChapters.size} chapitre(s) chargé(s).`);
+})();
+
+function bookPackFor(num) {
+  if (num <= 1) return null; // gratuit
+  return LIBERO_BOOK.packs.find(p => num >= p.from && num <= p.to) || null;
+}
+
+function canReadChapter(entry, num) {
+  const pack = bookPackFor(num);
+  if (!pack) return true;
+  return !!entry && Array.isArray(entry.ownedBooks) && entry.ownedBooks.includes(`${LIBERO_BOOK.id}:${pack.id}`);
+}
 const libs            = new Map();
 const MAX_BALANCE              = 19999;
 const REFUND_CARD_MAX          = 2;
@@ -87,7 +131,7 @@ async function loadData() {
   cmtDocs.forEach(d => comments.push({ _id: d._id, pseudo: d.pseudo, message: d.message, date: d.date }));
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   llbDocs.forEach(d => luffyLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   feedDocs.forEach(d => feedVideos.push({ _id: d._id, url: d.url, titre: d.titre || '', ordre: d.ordre || 0, actif: d.actif !== false, createdAt: d.createdAt || Date.now() }));
@@ -184,7 +228,7 @@ function dbDeleteFeedBook(id) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -517,12 +561,13 @@ function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmotes: [], refundCardsUsedAt: [], honorTitle: null, pendingHonorModal: null };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null };
     libs.set(id, entry);
   }
   if (!entry.usedCodes)          entry.usedCodes          = [];
   if (!entry.ownedCosmetics)     entry.ownedCosmetics     = [];
   if (!entry.refundCardsUsedAt)  entry.refundCardsUsedAt  = [];
+  if (!Array.isArray(entry.ownedBooks)) entry.ownedBooks  = [];
   if (!('equippedCosmetic'    in entry)) entry.equippedCosmetic    = null;
   if (!('equippedFont'        in entry)) entry.equippedFont        = null;
   if (!('equippedBubble'      in entry)) entry.equippedBubble      = null;
@@ -1582,6 +1627,35 @@ io.on('connection', (socket) => {
     socket.emit('buy-cosmetic-result', { ok: true, cosmeticId });
   });
 
+  // Achat d'un pack de chapitres du livre exclusif (même modèle que buy-cosmetic).
+  socket.on('buy-book-pack', ({ playerId, bookId, packId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) { socket.emit('buy-book-pack-result', { ok: false, error: 'invalid' }); return; }
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') { socket.emit('buy-book-pack-result', { ok: false, error: 'anonymous' }); return; }
+    if (bookId !== LIBERO_BOOK.id) { socket.emit('buy-book-pack-result', { ok: false, error: 'invalid' }); return; }
+    const pack = LIBERO_BOOK.packs.find(p => p.id === packId);
+    if (!pack) { socket.emit('buy-book-pack-result', { ok: false, error: 'invalid' }); return; }
+    const key = `${LIBERO_BOOK.id}:${pack.id}`;
+    if (entry.ownedBooks.includes(key)) { socket.emit('buy-book-pack-result', { ok: false, error: 'already_owned' }); return; }
+    // Progression séquentielle : le pack 6-10 exige d'avoir déjà débloqué 2-5.
+    if (pack.requires && !entry.ownedBooks.includes(`${LIBERO_BOOK.id}:${pack.requires}`)) {
+      socket.emit('buy-book-pack-result', { ok: false, error: 'requires_previous' }); return;
+    }
+    // On ne vend pas un pack dont aucun chapitre n'est encore publié.
+    let anyAvailable = false;
+    for (let n = pack.from; n <= pack.to; n++) if (bookChapters.has(n)) { anyAvailable = true; break; }
+    if (!anyAvailable) { socket.emit('buy-book-pack-result', { ok: false, error: 'not_available' }); return; }
+    if (entry.balance < pack.price) { socket.emit('buy-book-pack-result', { ok: false, error: 'insufficient' }); return; }
+    entry.balance -= pack.price;
+    entry.ownedBooks.push(key);
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, nextAt: nextDistributionAt });
+    socket.emit('buy-book-pack-result', { ok: true, packId });
+    console.log(`[📖] ${entry.name} a débloqué ${key} (−${pack.price} Libs)`);
+  });
+
   socket.on('honor-modal-seen', ({ playerId } = {}) => {
     const id = safePlayerId(playerId);
     if (!id) return;
@@ -1982,6 +2056,48 @@ function _activeFeedBooks() {
 
 // Public : liste des livres actifs, triés par ordre.
 app.get('/api/feed-books', (_req, res) => res.json(_activeFeedBooks()));
+
+// ── Livre exclusif : métadonnées + accès aux chapitres ──────────────────────
+// Renvoie la fiche du livre et l'état de déblocage du joueur (jamais le texte).
+app.get('/api/book/:bookId', (req, res) => {
+  if (req.params.bookId !== LIBERO_BOOK.id) return res.status(404).json({ error: 'Livre introuvable.' });
+  const id    = safePlayerId(req.query.playerId);
+  const entry = id ? getLibsEntry(id) : null;
+  const chapters = [];
+  for (let n = 1; n <= LIBERO_BOOK.totalChapters; n++) {
+    const ch   = bookChapters.get(n);
+    const pack = bookPackFor(n);
+    chapters.push({
+      num: n,
+      titre: ch ? ch.titre : `Chapitre ${n}`,
+      disponible: !!ch,                      // écrit et publié ?
+      gratuit: !pack,
+      unlocked: canReadChapter(entry, n),
+      pack: pack ? pack.id : null,
+    });
+  }
+  res.json({
+    id: LIBERO_BOOK.id, titre: LIBERO_BOOK.titre, auteur: LIBERO_BOOK.auteur,
+    categorie: LIBERO_BOOK.categorie, description: LIBERO_BOOK.description,
+    packs: LIBERO_BOOK.packs.map(p => ({
+      id: p.id, price: p.price, from: p.from, to: p.to, requires: p.requires,
+      owned: !!entry && entry.ownedBooks.includes(`${LIBERO_BOOK.id}:${p.id}`),
+    })),
+    chapters,
+  });
+});
+
+// Contenu d'un chapitre — contrôle d'accès côté serveur.
+app.get('/api/book/:bookId/chapitre/:num', (req, res) => {
+  if (req.params.bookId !== LIBERO_BOOK.id) return res.status(404).json({ error: 'Livre introuvable.' });
+  const num = parseInt(req.params.num, 10);
+  const ch  = bookChapters.get(num);
+  if (!ch) return res.status(404).json({ error: 'Chapitre indisponible.' });
+  const id    = safePlayerId(req.query.playerId);
+  const entry = id ? getLibsEntry(id) : null;
+  if (!canReadChapter(entry, num)) return res.status(403).json({ error: 'Chapitre verrouillé.' });
+  res.json({ num: ch.num, titre: ch.titre, content: ch.content });
+});
 
 // Admin : ajoute un livre.
 app.post('/admin/feed-book', (req, res) => {
