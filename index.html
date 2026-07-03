@@ -502,7 +502,8 @@
     <span class="news-handle">📰</span>
     <p class="news-title" id="news-title-el">📰 News</p>
     <p id="news-event-msg" class="news-msg">🐍 <strong>Évent ce week-end</strong> : Snake Challenge ! Nourris ton serpent pour le faire grandir sur tout le site.</p>
-    <p id="news-community-msg" class="news-msg news-msg-sep">💬 <strong>Luffy Runner</strong> : regarde une idée de la communauté reprise par le créateur ! Toi aussi, si tu veux que la tienne soit prise en compte, laisse un commentaire — ta voix compte !</p>
+    <p id="news-community-msg" class="news-msg news-msg-sep">💬 <strong>Luffy Runner</strong> : regarde une idée de la communauté reprise par le créateur ! Toi aussi, si tu veux que la tienne soit prise en compte, laisse un commentaire, ta voix compte !</p>
+    <p id="news-book-msg" class="news-msg news-msg-sep">📚 <strong>Nouveau dans Lecture</strong> : le roman ⭐ L'Affaire endormie, Tome 1, écrit par le créateur ! Chapitre 1 gratuit, la suite se débloque avec tes Libs.</p>
     <div id="news-star" class="news-star hidden"></div>
     <div id="news-comments" class="news-comments"></div>
   </div>
@@ -661,6 +662,24 @@
       </div>
       <div id="shop-items-list" class="shop-fn-body"></div>
       <div id="shop-detail-panel" class="shop-fn-detail hidden"></div>
+      <!-- Formulaire d'achat de Libs avec de l'argent réel (Maketou) -->
+      <div id="libs-buy-panel" class="shop-fn-detail hidden">
+        <button class="shop-fn-detail-back" id="libs-buy-back">← Retour</button>
+        <div class="libs-buy-wrap">
+          <h3 id="libs-buy-title" class="shop-fn-detail-name">Recharger tes Libs</h3>
+          <p id="libs-buy-summary" class="libs-buy-summary"></p>
+          <form id="libs-buy-form" class="libs-buy-form">
+            <input type="email" id="libs-buy-email" class="libs-buy-input" placeholder="Email" required autocomplete="email">
+            <div class="libs-buy-row">
+              <input type="text" id="libs-buy-firstname" class="libs-buy-input" placeholder="Prénom" required autocomplete="given-name" maxlength="60">
+              <input type="text" id="libs-buy-lastname" class="libs-buy-input" placeholder="Nom" required autocomplete="family-name" maxlength="60">
+            </div>
+            <input type="tel" id="libs-buy-phone" class="libs-buy-input" placeholder="Téléphone (optionnel)" autocomplete="tel" maxlength="30">
+            <button type="submit" class="btn btn-primary" id="libs-buy-submit">Payer</button>
+            <p id="libs-buy-feedback" class="libs-buy-feedback"></p>
+          </form>
+        </div>
+      </div>
       <p id="shop-feedback" class="shop-fn-toast hidden" role="status"></p>
     </div>
   </div>

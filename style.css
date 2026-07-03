@@ -2250,6 +2250,35 @@ html.light .shop-title-tag { background: rgba(99,102,241,.15); border-color: rgb
 .shop-fn-promo-input::placeholder { letter-spacing: 1px; font-weight: 400; color: rgba(255,255,255,.28); }
 .shop-fn-promo-input:focus { outline: none; border-color: rgba(99,102,241,.6); }
 .shop-fn-promo-feedback { font-size: .8rem; min-height: 1.1em; display: block; }
+/* Packs de Libs (argent réel, Maketou) */
+.shop-fn-libspacks { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+.shop-libspack-card {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.22);
+  border-radius: 12px; padding: 18px 14px;
+}
+.shop-libspack-card.unavailable { opacity: .5; }
+.shop-libspack-amount { font-size: 1.3rem; font-weight: 900; color: #fbbf24; }
+.shop-libspack-price  { font-size: .8rem; color: rgba(255,255,255,.6); }
+.shop-libspack-buy    { font-size: .8rem; padding: 7px 14px; width: 100%; }
+.shop-libspack-buy:disabled { opacity: .5; cursor: default; }
+/* Formulaire d'achat de Libs */
+.libs-buy-wrap { padding: 24px 24px 48px; display: flex; flex-direction: column; gap: 14px; }
+.libs-buy-summary { font-size: .95rem; color: rgba(255,255,255,.7); margin: 0; }
+.libs-buy-form { display: flex; flex-direction: column; gap: 10px; }
+.libs-buy-row { display: flex; gap: 10px; }
+.libs-buy-input {
+  width: 100%; box-sizing: border-box;
+  padding: 10px 12px; border: 1px solid rgba(99,102,241,.3);
+  border-radius: 8px; background: rgba(0,0,0,.38); color: #fff; font-size: .9rem;
+}
+.libs-buy-input::placeholder { color: rgba(255,255,255,.35); }
+.libs-buy-input:focus { outline: none; border-color: rgba(99,102,241,.6); }
+.libs-buy-feedback { font-size: .82rem; min-height: 1.2em; margin: 0; }
+html.light .shop-libspack-card { background: rgba(180,83,9,.05); border-color: rgba(180,83,9,.2); }
+html.light .shop-libspack-price { color: var(--muted); }
+html.light .libs-buy-summary { color: var(--muted); }
+html.light .libs-buy-input { background: rgba(0,0,0,.04); color: var(--text); border-color: rgba(0,0,0,.12); }
 /* Cosmetic preview (standalone, used in tiles & detail) */
 .shop-cosmetic-preview { font-size: 1rem; font-weight: 800; letter-spacing: .5px; }
 @media (max-width: 580px) {

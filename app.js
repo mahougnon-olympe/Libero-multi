@@ -41,6 +41,7 @@ let _shopCountdownTimer     = null;
 let refundCards             = 2;
 let refundCardsNextRefill   = null;
 let _libsAnimTimer     = null;
+let libsPacksCache     = null; // [{ id, libs, label, priceFCFA, available }] — chargé depuis le serveur
 let _libsDistTimer     = null;
 let _nextDistAt        = 0;
 let _globalLbData      = [];
@@ -437,7 +438,24 @@ const DICT = {
     shopBundleInsufficientFunds:'Champion, tu n\'as pas assez de Libs.',
     shopBundleError:'Erreur lors de l\'achat.',
     shopBundleNames:{ 'bundle-debutant':'Pack Débutant','bundle-retro':'Pack Rétro','bundle-neon-arcade':'Pack Néon Arcade','bundle-galaxie':'Pack Galaxie','bundle-prestige-or':'Pack Prestige Or','bundle-hologramme':'Pack Hologramme Ultime' },
-    shopNavLabels:{ featured:'À la une', daily:'Quotidien', bundles:'Bundles', boosts:'Boosts', colors:'Couleurs', fonts:'Polices', bubbles:'Bulles', bgs:'Fonds', nameeffects:'Effets', titles:'Titres', cursorsnakes:'Curseur', avatars:'Avatars', p4tokens:'P4', ttt:'Morpion', chess:'Échiquier', clickfx:'Particules', emojipacks:'Émojis', victorybans:'Victoire', soundpacks:'Sons', emotes:'Emotes' },
+    shopNavLabels:{ featured:'À la une', daily:'Quotidien', bundles:'Bundles', libspacks:'Recharger', boosts:'Boosts', colors:'Couleurs', fonts:'Polices', bubbles:'Bulles', bgs:'Fonds', nameeffects:'Effets', titles:'Titres', cursorsnakes:'Curseur', avatars:'Avatars', p4tokens:'P4', ttt:'Morpion', chess:'Échiquier', clickfx:'Particules', emojipacks:'Émojis', victorybans:'Victoire', soundpacks:'Sons', emotes:'Emotes' },
+    shopLibsPacksTitle:'💳 Recharger tes Libs',
+    shopLibsPacksDesc:'Achète des Libs ⚡ avec de l\'argent réel (mobile money / carte, paiement sécurisé Maketou). Le crédit est vérifié par nos serveurs, jamais instantané côté navigateur.',
+    shopLibsPacksLoading:'Chargement des packs…',
+    shopLibsPacksUnavailable:'Recharge indisponible pour le moment.',
+    shopLibsPacksBuy:'Acheter', shopLibsPacksSoon:'Bientôt',
+    shopLibsBuyTitle:'💳 Recharger tes Libs',
+    shopLibsBuySummary:(libs, price) => `⚡ ${libs} Libs — ${price.toLocaleString('fr-FR')} FCFA. Tu seras redirigé vers la page de paiement sécurisée.`,
+    shopLibsBuySubmit:'Payer',
+    shopLibsBuyMissing:'Remplis email, prénom et nom pour continuer.',
+    shopLibsBuyBadEmail:'Adresse email invalide.',
+    shopLibsBuyAnon:'Choisis d\'abord un pseudo pour acheter des Libs.',
+    shopLibsBuyRateLimited:'Trop de tentatives. Réessaie dans un moment.',
+    shopLibsBuyError:'Impossible de lancer le paiement. Réessaie plus tard.',
+    shopLibsBuyProcessing:'Redirection vers le paiement…',
+    shopLibsBuyCredited:n => `⚡ +${n} Libs ajoutés ! Merci pour ton achat.`,
+    shopLibsBuyFailed:'Le paiement n\'a pas abouti. Aucune Libs n\'a été débitée.',
+    shopLibsBuyEmailPh:'Email', shopLibsBuyFirstPh:'Prénom', shopLibsBuyLastPh:'Nom', shopLibsBuyPhonePh:'Téléphone (optionnel)',
     shopDailyBadge:'Quotidien',
     settingsTitle:'⚙️ Paramètres',
     settingsLang:'Langue', settingsTheme:'Thème', settingsSnake:'Serpent',
@@ -460,6 +478,8 @@ const DICT = {
     boostHintBtn:'💡 Indice',
     helpLibsTitle:'Libs (monnaie)',
     helpLibsDesc:'Les Libs ⚡ sont une monnaie virtuelle. Les joueurs classés <strong>top 3 du classement Global</strong> en gagnent automatiquement toutes les 5 heures (1er : +10 ⚡, 2e : +5 ⚡, 3e : +3 ⚡). Si tu ne joues pas pendant 48 h, ton solde diminue de 10 ⚡ par jour supplémentaire. Clique sur le compteur ⚡ en haut à droite pour ouvrir la boutique. Les joueurs anonymes ne perçoivent pas de Libs.',
+    helpLibsBuyTitle:'💳 Recharger avec de l\'argent réel',
+    helpLibsBuyDesc:'Dans la boutique, l\'onglet <strong>💳 Recharger</strong> permet d\'acheter des packs de Libs avec de l\'argent réel (mobile money / carte, paiement sécurisé via Maketou). Après le paiement, tu es redirigé vers le site : tes Libs sont crédités dès que le paiement est confirmé par nos serveurs (généralement quelques secondes). Un email valide est requis pour la confirmation de commande.',
     helpBoostTitle:'Boost Indice (quiz)',
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     eventsTitle:'Évents', eventsDesc:'Ven-Dim · Snake Challenge',
@@ -467,7 +487,8 @@ const DICT = {
     eventsLockedCard: days => `📅 Dans ${days} j`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> <u style="cursor:pointer">vote ici</u> !`,
     eventActiveMsg:   '🐍 <strong>Évent ce week-end</strong> : Snake Challenge ! Nourris ton serpent pour le faire grandir sur tout le site.',
-    newsCommunityMsg: '💬 <strong>Luffy Runner</strong> : regarde une idée de la communauté reprise par le créateur ! Toi aussi, si tu veux que la tienne soit prise en compte, laisse un commentaire — ta voix compte !',
+    newsCommunityMsg: '💬 <strong>Luffy Runner</strong> : regarde une idée de la communauté reprise par le créateur ! Toi aussi, si tu veux que la tienne soit prise en compte, laisse un commentaire, ta voix compte !',
+    newsBookMsg: '📚 <strong>Nouveau dans Lecture</strong> : le roman ⭐ L\'Affaire endormie, Tome 1, écrit par le créateur ! Chapitre 1 gratuit, la suite se débloque avec tes Libs.',
     snakeVoteTitle:'Snake Challenge',
     snakeVoteSubtitle:'Veux-tu voir le Snake Challenge revenir ?',
     snakeVoteYes:'Oui, ramène-le !',
@@ -524,7 +545,7 @@ const DICT = {
       general:[
         { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Luffy Runner</strong>, une idée de joueur reprise par le créateur). Chaque section a son propre classement." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> — nourris ton serpent avec les 🍎, les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
-        { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras aussi <strong>⭐ L'Affaire endormie — Tome 1</strong>, le roman exclusif écrit par le créateur : le <strong>chapitre 1 est gratuit</strong>, puis débloque les chapitres 2-5 pour <strong>1000 ⚡ Libs</strong> et les chapitres 6-10 pour <strong>2000 ⚡</strong> — la lecture se fait directement sur le site." },
+        { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras aussi <strong>⭐ L'Affaire endormie · Tome 1</strong>, le roman exclusif écrit par le créateur : le <strong>chapitre 1 est gratuit</strong>, puis débloque les chapitres 2-5 pour <strong>1000 ⚡ Libs</strong> et les chapitres 6-10 pour <strong>2000 ⚡</strong> — la lecture se fait directement sur le site." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile." },
         { icon:'🤖', title:'Mode Solo (vs Bot)', desc:"Joue seul contre un robot. <em>Facile</em> : le bot joue au hasard. <em>Moyen</em> : le bot bloque et attaque. <em>Difficile</em> : le bot joue de manière optimale. Les parties <strong>Moyen et Difficile</strong> comptent dans le classement classique." },
         { icon:'🔗', title:'Rejoindre', desc:"Entre le code à 4 lettres reçu et clique <em>Rejoindre</em>. La partie démarre automatiquement dès que les deux joueurs sont connectés." },
@@ -542,8 +563,9 @@ const DICT = {
         { icon:'🚪', title:'Bouton Quitter', desc:"Pendant une partie, le bouton <em>🚪 Quitter</em> en haut au centre te ramène au menu principal. Si une partie est en cours, tu es averti que tu abandonneras avant de confirmer." },
         { icon:'✉️', title:'Laisser un commentaire', desc:"Clique sur le bouton <strong>✉️</strong> en bas à gauche pour envoyer un message au créateur : avis, idée, bug… Aucune connexion requise. Tu peux laisser un pseudo ou rester anonyme." },
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
+        { icon:'💳', titleKey:'helpLibsBuyTitle', descKey:'helpLibsBuyDesc' },
         { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
-        { icon:'🗂️', title:'Navigation boutique', desc:"À gauche de la boutique, une <strong>barre de catégories</strong> te permet de sauter directement à la section souhaitée : ⭐ À la une, 📅 Quotidien, 🎁 Bundles, 💡 Boosts, 🎨 Couleurs, ✍️ Polices, 💬 Bulles, 🖼️ Fonds. Sur mobile, seuls les icônes sont affichés. Le bouton de la section visible s'allume automatiquement." },
+        { icon:'🗂️', title:'Navigation boutique', desc:"À gauche de la boutique, une <strong>barre de catégories</strong> te permet de sauter directement à la section souhaitée : ⭐ À la une, 📅 Quotidien, 🎁 Bundles, 💳 Recharger, 💡 Boosts, 🎨 Couleurs, ✍️ Polices, 💬 Bulles, 🖼️ Fonds. Sur mobile, seuls les icônes sont affichés. Le bouton de la section visible s'allume automatiquement." },
         { icon:'🎁', title:'Bundles', desc:"La section <strong>Bundles</strong> propose des lots thématiques regroupant plusieurs cosmétiques à prix réduit (−24 % à −28 %). Si tu possèdes déjà certains articles d'un bundle, le prix est <strong>ajusté automatiquement</strong> — tu ne paies que pour ce qu'il te manque. La sélection <strong>⭐ À la une</strong> et <strong>📅 Quotidien</strong> se renouvelle toutes les 24 h — un compte à rebours indique l'heure du prochain renouvellement." },
         { icon:'✨', title:'Effets de pseudo', desc:"Anime l'affichage de ton pseudo dans les classements, le chat, les badges et le podium. Les effets sont <strong>cumulables avec ta couleur de pseudo</strong> : la couleur reste la teinte, l'effet ajoute l'animation par-dessus. Exemples : Clignotement Néon, Glitch, Vague Arc-en-ciel. Rareté : Épique à Légendaire." },
         { icon:'🏷️', title:'Titres', desc:"Ajoute un court texte de statut affiché à côté de ton pseudo dans les classements, badges et chips de salle d'attente. Exemples : Tacticien, Quiz Master, Roi du Snake, Légende Vivante. Rareté : Commun à Épique. Les titres achetés se combinent avec les <strong>titres honorifiques</strong> (voir ci-dessous)." },
@@ -616,7 +638,7 @@ const DICT = {
       home_lb:'🏆 <strong>Classement</strong> : victoires, défaites et nuls s\'enregistrent automatiquement après chaque partie (bot Moyen / Difficile ou multijoueur).',
       quiz_themes:'🧠 <strong>Quiz Culture Générale</strong> : sélectionne un ou plusieurs thèmes (Histoire, Cinéma, Sciences…), puis joue en <strong>Solo</strong> ou crée un <strong>salon multijoueur</strong> à partager avec tes amis.',
       quiz_lb:'🏆 Le <strong>classement Quiz</strong> est séparé du classement Classique. Les points sont attribués selon ta vitesse de réponse et le nombre de bonnes réponses.',
-      read_catalogue:'📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Le roman <strong>⭐ L\'Affaire endormie — Tome 1</strong>, écrit par le créateur, se lit directement ici : <strong>chapitre 1 gratuit</strong>, puis débloque la suite avec tes <strong>⚡ Libs</strong> (1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10).',
+      read_catalogue:'📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Le roman <strong>⭐ L\'Affaire endormie · Tome 1</strong>, écrit par le créateur, se lit directement ici : <strong>chapitre 1 gratuit</strong>, puis débloque la suite avec tes <strong>⚡ Libs</strong> (1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10).',
     },
   },
   en: {
@@ -793,7 +815,24 @@ const DICT = {
     shopBundleInsufficientFunds:'Champion, you don\'t have enough Libs.',
     shopBundleError:'Purchase failed.',
     shopBundleNames:{ 'bundle-debutant':'Starter Pack','bundle-retro':'Retro Pack','bundle-neon-arcade':'Neon Arcade Pack','bundle-galaxie':'Galaxy Pack','bundle-prestige-or':'Gold Prestige Pack','bundle-hologramme':'Ultimate Hologram Pack' },
-    shopNavLabels:{ featured:'Featured', daily:'Daily', bundles:'Bundles', boosts:'Boosts', colors:'Colors', fonts:'Fonts', bubbles:'Bubbles', bgs:'Backgrounds', nameeffects:'Effects', titles:'Titles', cursorsnakes:'Cursor', avatars:'Avatars', p4tokens:'P4', ttt:'Tic-Tac', chess:'Chess', clickfx:'Particles', emojipacks:'Emojis', victorybans:'Victory', soundpacks:'Sounds', emotes:'Emotes' },
+    shopNavLabels:{ featured:'Featured', daily:'Daily', bundles:'Bundles', libspacks:'Top up', boosts:'Boosts', colors:'Colors', fonts:'Fonts', bubbles:'Bubbles', bgs:'Backgrounds', nameeffects:'Effects', titles:'Titles', cursorsnakes:'Cursor', avatars:'Avatars', p4tokens:'P4', ttt:'Tic-Tac', chess:'Chess', clickfx:'Particles', emojipacks:'Emojis', victorybans:'Victory', soundpacks:'Sounds', emotes:'Emotes' },
+    shopLibsPacksTitle:'💳 Top up your Libs',
+    shopLibsPacksDesc:'Buy Libs ⚡ with real money (mobile money / card, secure Maketou checkout). Credit is verified by our servers, never instant on the browser side.',
+    shopLibsPacksLoading:'Loading packs…',
+    shopLibsPacksUnavailable:'Top-up unavailable right now.',
+    shopLibsPacksBuy:'Buy', shopLibsPacksSoon:'Coming soon',
+    shopLibsBuyTitle:'💳 Top up your Libs',
+    shopLibsBuySummary:(libs, price) => `⚡ ${libs} Libs — ${price.toLocaleString('en-US')} FCFA. You'll be redirected to the secure payment page.`,
+    shopLibsBuySubmit:'Pay',
+    shopLibsBuyMissing:'Fill in email, first and last name to continue.',
+    shopLibsBuyBadEmail:'Invalid email address.',
+    shopLibsBuyAnon:'Pick a nickname first to buy Libs.',
+    shopLibsBuyRateLimited:'Too many attempts. Try again in a moment.',
+    shopLibsBuyError:'Could not start the payment. Try again later.',
+    shopLibsBuyProcessing:'Redirecting to payment…',
+    shopLibsBuyCredited:n => `⚡ +${n} Libs added! Thanks for your purchase.`,
+    shopLibsBuyFailed:'The payment did not go through. No Libs were charged.',
+    shopLibsBuyEmailPh:'Email', shopLibsBuyFirstPh:'First name', shopLibsBuyLastPh:'Last name', shopLibsBuyPhonePh:'Phone (optional)',
     shopDailyBadge:'Daily',
     settingsTitle:'⚙️ Settings',
     settingsLang:'Language', settingsTheme:'Theme', settingsSnake:'Snake',
@@ -816,6 +855,8 @@ const DICT = {
     boostHintBtn:'💡 Hint',
     helpLibsTitle:'Libs (currency)',
     helpLibsDesc:'Libs ⚡ are a virtual currency. Players ranked <strong>top 3 in the Global leaderboard</strong> automatically earn some every 5 hours (1st: +10 ⚡, 2nd: +5 ⚡, 3rd: +3 ⚡). If you don\'t play for 48 h, your balance drops by 10 ⚡ per additional day of inactivity. Click the ⚡ counter in the top-right corner to open the shop. Anonymous players do not receive Libs.',
+    helpLibsBuyTitle:'💳 Top up with real money',
+    helpLibsBuyDesc:'In the shop, the <strong>💳 Top up</strong> tab lets you buy Libs packs with real money (mobile money / card, secure checkout via Maketou). After paying, you\'re redirected back to the site: your Libs are credited as soon as the payment is confirmed by our servers (usually within seconds). A valid email is required for order confirmation.',
     helpBoostTitle:'Quiz Hint Boost',
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     eventsTitle:'Events', eventsDesc:'Fri-Sun · Snake Challenge',
@@ -823,7 +864,8 @@ const DICT = {
     eventsLockedCard: days => `📅 In ${days}d`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> <u style="cursor:pointer">vote here</u>!`,
     eventActiveMsg:   '🐍 <strong>Event this weekend</strong>: Snake Challenge! Feed your snake to make it grow across the site.',
-    newsCommunityMsg: '💬 <strong>Luffy Runner</strong>: check out a community idea the creator brought to life! Want yours considered too? Leave a comment — your voice matters!',
+    newsCommunityMsg: '💬 <strong>Luffy Runner</strong>: check out a community idea the creator brought to life! Want yours considered too? Leave a comment, your voice matters!',
+    newsBookMsg: '📚 <strong>New in Reading</strong>: the novel ⭐ L\'Affaire endormie, Tome 1, written by the creator! Chapter 1 is free, unlock the rest with your Libs.',
     snakeVoteTitle:'Snake Challenge',
     snakeVoteSubtitle:'Do you want the Snake Challenge to come back?',
     snakeVoteYes:'Yes, bring it back!',
@@ -880,7 +922,7 @@ const DICT = {
       general:[
         { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Luffy Runner</strong> mini-game, a player idea brought to life by the creator). Each section has its own leaderboard." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> — feed your snake with 🍎, walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
-        { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll also find <strong>⭐ L'Affaire endormie — Tome 1</strong>, the exclusive novel written by the creator: <strong>chapter 1 is free</strong>, then unlock chapters 2-5 for <strong>1000 ⚡ Libs</strong> and chapters 6-10 for <strong>2000 ⚡</strong> — read it right on the site." },
+        { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll also find <strong>⭐ L'Affaire endormie · Tome 1</strong>, the exclusive novel written by the creator: <strong>chapter 1 is free</strong>, then unlock chapters 2-5 for <strong>1000 ⚡ Libs</strong> and chapters 6-10 for <strong>2000 ⚡</strong> — read it right on the site." },
         { icon:'🎮', title:'Create a classic game', desc:"Choose a game, enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent. You can also play <strong>Solo vs the bot</strong> by choosing a difficulty: Easy, Medium or Hard." },
         { icon:'🤖', title:'Solo mode (vs Bot)', desc:"Play alone against a robot. <em>Easy</em>: plays randomly. <em>Medium</em>: blocks and attacks. <em>Hard</em>: plays optimally. <strong>Medium and Hard</strong> games count in the classic leaderboard." },
         { icon:'🔗', title:'Join', desc:"Enter the 4-letter code you received and click <em>Join</em>. The game starts automatically as soon as both players are connected." },
@@ -898,8 +940,9 @@ const DICT = {
         { icon:'🚪', title:'Quit button', desc:"During a game, the <em>🚪 Quit</em> button in the top centre takes you back to the main menu. If a game is in progress, you are warned that you will forfeit before confirming." },
         { icon:'✉️', title:'Leave a comment', desc:"Click the <strong>✉️</strong> button in the bottom left to send a message to the creator: feedback, idea, bug… No account required. You can leave a username or stay anonymous." },
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
+        { icon:'💳', titleKey:'helpLibsBuyTitle', descKey:'helpLibsBuyDesc' },
         { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
-        { icon:'🗂️', title:'Shop navigation', desc:"On the left side of the shop, a <strong>category bar</strong> lets you jump directly to any section: ⭐ Featured, 📅 Daily, 🎁 Bundles, 💡 Boosts, 🎨 Colors, ✍️ Fonts, 💬 Bubbles, 🖼️ Backgrounds. On mobile only icons are shown. The button for the currently visible section lights up automatically." },
+        { icon:'🗂️', title:'Shop navigation', desc:"On the left side of the shop, a <strong>category bar</strong> lets you jump directly to any section: ⭐ Featured, 📅 Daily, 🎁 Bundles, 💳 Top up, 💡 Boosts, 🎨 Colors, ✍️ Fonts, 💬 Bubbles, 🖼️ Backgrounds. On mobile only icons are shown. The button for the currently visible section lights up automatically." },
         { icon:'🎁', title:'Bundles', desc:"The <strong>Bundles</strong> section offers themed packs grouping several cosmetics at a reduced price (−24% to −28%). If you already own some items in a bundle, the price is <strong>automatically adjusted</strong> — you only pay for what you're missing. The <strong>⭐ Featured</strong> and <strong>📅 Daily</strong> picks refresh every 24 hours — a countdown shows the next refresh time." },
         { icon:'✨', title:'Name Effects', desc:"Animate your username display in leaderboards, chat, badges and the podium. Effects <strong>stack with your username color</strong>: the color sets the hue, the effect adds the animation on top. Examples: Neon Blink, Glitch, Rainbow Wave. Rarity: Epic to Legendary." },
         { icon:'🏷️', title:'Titles', desc:"Add a short status text displayed next to your username in leaderboards, player badges and room chips. Examples: Tactician, Quiz Master, Snake King, Living Legend. Rarity: Common to Epic. Shop titles stack with <strong>honorary titles</strong> (see below)." },
@@ -972,7 +1015,7 @@ const DICT = {
       home_lb:'🏆 <strong>Leaderboard</strong>: wins, losses and draws are recorded automatically after each game (Medium/Hard bot or multiplayer).',
       quiz_themes:'🧠 <strong>General Knowledge Quiz</strong>: select one or more themes (History, Movies, Science…), then play <strong>Solo</strong> or create a <strong>multiplayer room</strong> to share with your friends.',
       quiz_lb:'🏆 The <strong>Quiz leaderboard</strong> is separate from the Classic leaderboard. Points are awarded based on your response speed and number of correct answers.',
-      read_catalogue:'📚 Welcome to the <strong>Reading</strong> section! Search a book by title or author, filter by category, and click a cover to open its sheet. The novel <strong>⭐ L\'Affaire endormie — Tome 1</strong>, written by the creator, can be read right here: <strong>chapter 1 is free</strong>, then unlock the rest with your <strong>⚡ Libs</strong> (1000 ⚡ for chapters 2-5, 2000 ⚡ for 6-10).',
+      read_catalogue:'📚 Welcome to the <strong>Reading</strong> section! Search a book by title or author, filter by category, and click a cover to open its sheet. The novel <strong>⭐ L\'Affaire endormie · Tome 1</strong>, written by the creator, can be read right here: <strong>chapter 1 is free</strong>, then unlock the rest with your <strong>⚡ Libs</strong> (1000 ⚡ for chapters 2-5, 2000 ⚡ for 6-10).',
     },
   },
 };
@@ -1054,6 +1097,13 @@ function applyLang() {
   const rt = $('read-title');        if (rt) rt.textContent  = d.navRead;
   const rs = $('read-search-input'); if (rs) rs.placeholder  = d.readSearch;
   if (window._readFeed) window._readFeed.retexte();
+
+  // Formulaire d'achat de Libs (boutique)
+  const lbb = $('libs-buy-back');      if (lbb) lbb.textContent = `← ${d.backLabel}`;
+  const lbe = $('libs-buy-email');     if (lbe) lbe.placeholder = d.shopLibsBuyEmailPh;
+  const lbf = $('libs-buy-firstname'); if (lbf) lbf.placeholder = d.shopLibsBuyFirstPh;
+  const lbl = $('libs-buy-lastname');  if (lbl) lbl.placeholder = d.shopLibsBuyLastPh;
+  const lbp = $('libs-buy-phone');     if (lbp) lbp.placeholder = d.shopLibsBuyPhonePh;
 
   // Landing
   const ls = $('landing-subtitle'); if (ls) ls.textContent = d.siteSubtitle;
@@ -1216,6 +1266,7 @@ function applyLang() {
   // News
   const nte = $('news-title-el'); if (nte) nte.textContent = d.newsTitle;
   const ncm = $('news-community-msg'); if (ncm) ncm.innerHTML = d.newsCommunityMsg;
+  const nbm = $('news-book-msg'); if (nbm) nbm.innerHTML = d.newsBookMsg;
 
   // Floating button tooltips
   const bh = $('btn-help');          if (bh)  bh.title = d.btnHelpTitle;
@@ -3342,9 +3393,127 @@ function openShop() {
   sessionStorage.setItem('shopState', JSON.stringify({ open: true, scrollTop: _prevShopState.scrollTop || 0 }));
   socket.emit('get-shop-rotation', {});
   _renderShopItems();
+  _loadLibsPacks();
   socket.emit('get-libs', { playerId: getPlayerId() });
   $('overlay-shop').classList.remove('hidden');
   document.body.classList.add('shop-open'); // masque la barre de navigation pendant la boutique
+}
+
+// Charge une fois la liste des packs de Libs (prix, dispo) puis rafraîchit
+// la boutique si elle est toujours ouverte — même filet que shopRotation.
+async function _loadLibsPacks() {
+  if (libsPacksCache) return;
+  try {
+    const res = await fetch(`${window.BACKEND_URL}/api/libs/packs`);
+    if (!res.ok) throw new Error();
+    libsPacksCache = await res.json();
+  } catch { libsPacksCache = []; }
+  if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+}
+
+// ── Achat de Libs avec de l'argent réel (Maketou) ───────────────────────────
+let _pendingLibsPack = null;
+
+function _openLibsBuyForm(packId, libsAmount, priceFCFA) {
+  const d = t();
+  _pendingLibsPack = { packId, libsAmount, priceFCFA };
+  $('libs-buy-title').textContent   = d.shopLibsBuyTitle;
+  $('libs-buy-summary').textContent = d.shopLibsBuySummary(libsAmount, priceFCFA);
+  const nameParts = (localStorage.getItem('playerName') || '').trim().split(/\s+/).filter(Boolean);
+  $('libs-buy-firstname').value = nameParts[0] || '';
+  $('libs-buy-lastname').value  = nameParts.slice(1).join(' ');
+  $('libs-buy-email').value = localStorage.getItem('libero_buy_email') || '';
+  $('libs-buy-phone').value = '';
+  const fb = $('libs-buy-feedback'); fb.textContent = ''; fb.style.color = '';
+  $('libs-buy-submit').disabled = false;
+  $('libs-buy-submit').textContent = d.shopLibsBuySubmit;
+  $('libs-buy-panel').classList.remove('hidden');
+}
+
+$('libs-buy-back')?.addEventListener('click', () => $('libs-buy-panel').classList.add('hidden'));
+
+$('libs-buy-form')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!_pendingLibsPack) return;
+  const d = t();
+  const email     = $('libs-buy-email').value.trim();
+  const firstName = $('libs-buy-firstname').value.trim();
+  const lastName  = $('libs-buy-lastname').value.trim();
+  const phone     = $('libs-buy-phone').value.trim();
+  const fb  = $('libs-buy-feedback');
+  const btn = $('libs-buy-submit');
+  if (!email || !firstName || !lastName) {
+    fb.textContent = d.shopLibsBuyMissing; fb.style.color = '#ef4444'; return;
+  }
+  localStorage.setItem('libero_buy_email', email);
+  btn.disabled = true;
+  fb.style.color = ''; fb.textContent = d.shopLibsBuyProcessing;
+  try {
+    const res = await fetch(`${window.BACKEND_URL}/api/libs/checkout`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        playerId: getPlayerId(), packId: _pendingLibsPack.packId,
+        email, firstName, lastName, phone: phone || undefined,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) { const err = new Error(); err.code = data.error; throw err; }
+    // Le crédit ne se fera qu'après vérification serveur au retour du paiement.
+    localStorage.setItem('libero_pending_cart', data.cartId);
+    window.location.href = data.redirectUrl;
+  } catch (err) {
+    btn.disabled = false;
+    const map = {
+      anonymous:        d.shopLibsBuyAnon,
+      invalid_email:    d.shopLibsBuyBadEmail,
+      invalid_name:     d.shopLibsBuyMissing,
+      rate_limited:     d.shopLibsBuyRateLimited,
+      invalid_pack:     d.shopLibsBuyError,
+      pack_unavailable: d.shopLibsBuyError,
+      checkout_failed:  d.shopLibsBuyError,
+    };
+    fb.textContent = map[err?.code] || d.shopLibsBuyError;
+    fb.style.color = '#ef4444';
+  }
+});
+
+// Retour du paiement : c'est le SERVEUR qui confirme via /api/libs/verify,
+// jamais le simple fait de revenir sur le site (falsifiable).
+async function _checkPendingLibsCart() {
+  const cartId = localStorage.getItem('libero_pending_cart');
+  if (!cartId) return;
+  const d = t();
+  let attempts = 0;
+  const maxAttempts = 4;
+  async function attempt() {
+    attempts++;
+    try {
+      const res = await fetch(`${window.BACKEND_URL}/api/libs/verify`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId: getPlayerId(), cartId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (data.status === 'completed') {
+        localStorage.removeItem('libero_pending_cart');
+        showCursorSnakeToast(d.shopLibsBuyCredited(data.libsAdded));
+        return;
+      }
+      if (data.status === 'waiting_payment' && attempts < maxAttempts) {
+        setTimeout(attempt, 5000);
+        return;
+      }
+      if (data.status === 'abandoned' || data.status === 'payment_failed') {
+        localStorage.removeItem('libero_pending_cart');
+        showCursorSnakeToast(d.shopLibsBuyFailed);
+        return;
+      }
+      // Toujours en attente après plusieurs essais : on laisse la relance
+      // serveur (toutes les 10 min) faire le travail, sans harceler le joueur.
+    } catch {
+      if (attempts < maxAttempts) setTimeout(attempt, 5000);
+    }
+  }
+  attempt();
 }
 
 function _shopFocusItem(itemId) {
@@ -3631,6 +3800,7 @@ function _renderShopItems() {
       <button class="shop-fn-nav-btn active" data-section="featured"><span class="shop-nav-icon">⭐</span><span class="shop-nav-label"> ${nav.featured}</span></button>
       <button class="shop-fn-nav-btn" data-section="daily"><span class="shop-nav-icon">📅</span><span class="shop-nav-label"> ${nav.daily}</span></button>
       <button class="shop-fn-nav-btn" data-section="bundles"><span class="shop-nav-icon">🎁</span><span class="shop-nav-label"> ${nav.bundles}</span></button>
+      <button class="shop-fn-nav-btn" data-section="libspacks"><span class="shop-nav-icon">💳</span><span class="shop-nav-label"> ${nav.libspacks}</span></button>
       <button class="shop-fn-nav-btn" data-section="boosts"><span class="shop-nav-icon">💡</span><span class="shop-nav-label"> ${nav.boosts}</span></button>
       <button class="shop-fn-nav-btn" data-section="colors"><span class="shop-nav-icon">🎨</span><span class="shop-nav-label"> ${nav.colors}</span></button>
       <button class="shop-fn-nav-btn" data-section="fonts"><span class="shop-nav-icon">✍️</span><span class="shop-nav-label"> ${nav.fonts}</span></button>
@@ -3708,6 +3878,24 @@ function _renderShopItems() {
       <div class="shop-fn-grid">
         ${colorItems.map(it => tileHtml(it)).join('')}
       </div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-libspacks" data-section-id="libspacks">
+      <h3 class="shop-fn-section-title">${d.shopLibsPacksTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopLibsPacksDesc}</p>
+      ${!libsPacksCache
+        ? `<p class="shop-fn-section-desc">${d.shopLibsPacksLoading}</p>`
+        : libsPacksCache.length === 0
+          ? `<p class="shop-fn-section-desc">${d.shopLibsPacksUnavailable}</p>`
+          : `<div class="shop-fn-libspacks">${libsPacksCache.map(p => `
+            <div class="shop-libspack-card${p.available ? '' : ' unavailable'}">
+              <div class="shop-libspack-amount">⚡ ${p.libs}</div>
+              <div class="shop-libspack-price">${p.priceFCFA.toLocaleString(fr ? 'fr-FR' : 'en-US')} FCFA</div>
+              <button class="btn btn-primary shop-libspack-buy" data-pack="${p.id}" data-libs="${p.libs}" data-price="${p.priceFCFA}" ${p.available ? '' : 'disabled'}>
+                ${p.available ? d.shopLibsPacksBuy : d.shopLibsPacksSoon}
+              </button>
+            </div>`).join('')}</div>`
+      }
     </section>
 
     <section class="shop-fn-section" id="shop-sec-boosts" data-section-id="boosts">
@@ -3811,6 +3999,12 @@ function _renderShopItems() {
     </section>
     </div>
   `;
+
+  container.querySelectorAll('.shop-libspack-buy').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _openLibsBuyForm(btn.dataset.pack, parseInt(btn.dataset.libs, 10), parseInt(btn.dataset.price, 10));
+    });
+  });
 
   $('btn-buy-boost-hint-10').addEventListener('click', () => {
     socket.emit('buy-boost', { itemId: 'boost_hint_10', playerId: getPlayerId() });
@@ -6187,7 +6381,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'read_catalogue',
       screen: 'read',
-      text: '📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Le roman <strong>⭐ L\'Affaire endormie — Tome 1</strong>, écrit par le créateur, se lit directement ici : <strong>chapitre 1 gratuit</strong>, puis débloque la suite avec tes <strong>⚡ Libs</strong> (1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10).',
+      text: '📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Le roman <strong>⭐ L\'Affaire endormie · Tome 1</strong>, écrit par le créateur, se lit directement ici : <strong>chapitre 1 gratuit</strong>, puis débloque la suite avec tes <strong>⚡ Libs</strong> (1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10).',
       target: '.read-wrap',
     },
 
@@ -7244,4 +7438,15 @@ if (equippedBackground) BGManager.start(equippedBackground);
 // Reopen shop after accidental page refresh
 if (sessionStorage.getItem('shopState')) {
   setTimeout(() => openShop(), 150);
+}
+
+// Retour d'un paiement Maketou (achat de Libs) : nettoie l'URL puis vérifie
+// le panier côté serveur — jamais de crédit basé sur ce seul retour navigateur.
+if (window.location.search.includes('libs_return=1') || localStorage.getItem('libero_pending_cart')) {
+  const url = new URL(window.location.href);
+  if (url.searchParams.has('libs_return')) {
+    url.searchParams.delete('libs_return');
+    window.history.replaceState({}, '', url.pathname + (url.search ? url.search : '') + url.hash);
+  }
+  setTimeout(_checkPendingLibsCart, 300);
 }

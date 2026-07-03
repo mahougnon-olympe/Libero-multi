@@ -44,7 +44,7 @@ const feedBooks       = []; // [{ _id, titre, auteur, categorie, couverture, url
 // sortent que par l'API, chapitre 1 gratuit, la suite débloquée en Libs.
 const LIBERO_BOOK = {
   id: 'affaire-endormie',
-  titre: "L'Affaire endormie — Tome 1",
+  titre: "L'Affaire endormie · Tome 1",
   auteur: 'Libero',
   categorie: 'Roman',
   description: "Tome 1 de la série. L'agent spécial Yaris Cole, exilé aux archives de Las Vegas, tombe sur un carton d'homicides non résolus qui n'aurait jamais dû respirer à nouveau. Chapitre 1 gratuit — débloque la suite avec tes Libs.",
@@ -88,6 +88,17 @@ const REFUND_CARD_COOLDOWN_MS  = 30 * 24 * 3600 * 1000;
 const socketPlayerIds = new Map();
 const playerIdAliases = new Map();
 
+// ── Achat de Libs avec de l'argent réel (Maketou) ───────────────────────────
+// Le mapping pack → nombre de Libs et l'identifiant produit vivent UNIQUEMENT
+// côté serveur. Le client n'envoie jamais qu'un id de pack, jamais un montant.
+const LIBS_PACKS = {
+  pack50:  { productDocumentId: process.env.MAKETOU_PACK50_ID  || '', libs: 50,  priceFCFA: 500,  label: 'Pack 50 ⚡' },
+  pack120: { productDocumentId: process.env.MAKETOU_PACK120_ID || '', libs: 120, priceFCFA: 1000, label: 'Pack 120 ⚡' },
+  pack300: { productDocumentId: process.env.MAKETOU_PACK300_ID || '', libs: 300, priceFCFA: 2000, label: 'Pack 300 ⚡' },
+};
+const libsPurchases = new Map(); // cartId -> { _id, playerId, packId, libsAmount, status, credited, createdAt, updatedAt }
+const libsCheckoutRateMap = new Map(); // ip -> [timestamps]
+
 let rank1Global      = null;
 let rank1StreakSince  = 0;
 
@@ -114,7 +125,7 @@ async function connectDB() {
 
 async function loadData() {
   if (!db) return;
-  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs, feedDocs, bookDocs] = await Promise.all([
+  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs, feedDocs, bookDocs, purchaseDocs] = await Promise.all([
     db.collection('leaderboard').find().toArray(),
     db.collection('trivia_leaderboard').find().toArray(),
     db.collection('comments').find().sort({ date: 1 }).toArray(),
@@ -126,6 +137,7 @@ async function loadData() {
     db.collection('snake_votes').find().toArray(),
     db.collection('feed_videos').find().toArray(),
     db.collection('feed_books').find().toArray(),
+    db.collection('libs_purchases').find().toArray(),
   ]);
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
@@ -141,13 +153,18 @@ async function loadData() {
     couverture: d.couverture || '', url: d.url || '', description: d.description || '',
     ordre: d.ordre || 0, actif: d.actif !== false, createdAt: d.createdAt || Date.now(),
   }));
+  purchaseDocs.forEach(d => libsPurchases.set(d._id, {
+    _id: d._id, playerId: d.playerId, packId: d.packId, libsAmount: d.libsAmount || 0,
+    status: d.status || 'waiting_payment', credited: !!d.credited,
+    createdAt: d.createdAt || Date.now(), updatedAt: d.updatedAt || Date.now(),
+  }));
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
   const streakDoc = configDocs.find(d => d._id === 'rank1StreakSince');
   if (streakDoc) rank1StreakSince = streakDoc.value;
   const rank1NameDoc = configDocs.find(d => d._id === 'rank1GlobalName');
   if (rank1NameDoc) rank1Global = rank1NameDoc.value;
-  console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${llbDocs.length} luffy, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias, ${voteDocs.length} votes snake, ${feedDocs.length} vidéos feed, ${bookDocs.length} livres.`);
+  console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${llbDocs.length} luffy, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias, ${voteDocs.length} votes snake, ${feedDocs.length} vidéos feed, ${bookDocs.length} livres, ${purchaseDocs.length} achats Libs.`);
 }
 
 function dbUpsertLeaderboard(id, entry) {
@@ -226,11 +243,79 @@ function dbDeleteFeedBook(id) {
     .catch(e => console.error('Erreur suppression livre:', e));
 }
 
+function dbUpsertLibsPurchase(cartId, purchase) {
+  if (!db) return;
+  db.collection('libs_purchases')
+    .updateOne({ _id: cartId }, { $set: {
+      playerId: purchase.playerId, packId: purchase.packId, libsAmount: purchase.libsAmount,
+      status: purchase.status, credited: purchase.credited,
+      createdAt: purchase.createdAt, updatedAt: purchase.updatedAt,
+    } }, { upsert: true })
+    .catch(e => console.error('Erreur sauvegarde achat Libs:', e));
+}
+
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
     .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
+}
+
+// ── Maketou : achat de Libs avec de l'argent réel ───────────────────────────
+// Aucune requête Maketou n'est jamais faite depuis le frontend : la clé API
+// (MAKETOU_API_KEY) reste strictement côté serveur.
+async function createMaketouCheckout({ productDocumentId, email, firstName, lastName, phone, meta }) {
+  const key = process.env.MAKETOU_API_KEY;
+  if (!key) throw new Error('MAKETOU_API_KEY non configurée');
+  const body = { productDocumentId, email, firstName, lastName, meta };
+  if (phone) body.phone = phone;
+  const frontendUrl = process.env.FRONTEND_URL;
+  if (frontendUrl) body.redirectURL = `${frontendUrl.replace(/\/$/, '')}/?libs_return=1`;
+  const res = await fetch('https://api.maketou.net/api/v1/stores/cart/checkout', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) { const err = new Error(data?.error || `Maketou checkout ${res.status}`); err.status = res.status; throw err; }
+  return data; // { cart: { id, status, ... }, redirectUrl }
+}
+
+async function fetchMaketouCart(cartId) {
+  const key = process.env.MAKETOU_API_KEY;
+  if (!key) throw new Error('MAKETOU_API_KEY non configurée');
+  const res = await fetch(`https://api.maketou.net/api/v1/stores/cart/${encodeURIComponent(cartId)}`, {
+    headers: { Authorization: `Bearer ${key}` },
+  });
+  if (!res.ok) throw new Error(`Maketou GET cart ${res.status}`);
+  return res.json();
+}
+
+// Crédit atomique — SEUL point de garde contre le double crédit.
+// Les appelants (verify + relance périodique) vérifient déjà `credited` avant
+// leur propre appel réseau (await), mais deux vérifications concurrentes du
+// même panier peuvent toutes deux passer ce premier test avant que l'une des
+// deux ne crédite. Comme cette fonction ne contient aucun `await`, elle
+// s'exécute sans céder la main : re-vérifier `credited` ici, en tout premier,
+// ferme cette fenêtre de course — la seconde exécution s'arrête net.
+// Source de vérité unique — jamais déclenché par le simple retour du navigateur.
+function creditLibsPurchase(purchase) {
+  if (purchase.credited) return false;
+  const entry = getLibsEntry(purchase.playerId);
+  if (!entry) return false;
+  entry.balance = Math.min(MAX_BALANCE, entry.balance + purchase.libsAmount);
+  libs.set(purchase.playerId, entry);
+  dbUpsertLibs(purchase.playerId, entry);
+  purchase.credited  = true;
+  purchase.status    = 'completed';
+  purchase.updatedAt = Date.now();
+  libsPurchases.set(purchase._id, purchase);
+  dbUpsertLibsPurchase(purchase._id, purchase);
+  for (const [sockId, pid] of socketPlayerIds.entries()) {
+    if (pid === purchase.playerId) io.to(sockId).emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: purchase.libsAmount, nextAt: nextDistributionAt });
+  }
+  console.log(`[💳] +${purchase.libsAmount} Libs crédités (achat Maketou ${purchase._id}) → ${entry.name || purchase.playerId}`);
+  return true;
 }
 
 function getCosmeticByName(name) {
@@ -1973,6 +2058,102 @@ app.post('/api/comment', (req, res) => {
   res.json({ ok: true });
 });
 
+// ── Achat de Libs avec de l'argent réel (Maketou) ───────────────────────────
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Public : liste des packs disponibles (prix affiché, jamais le productDocumentId
+// n'a besoin d'être caché, mais autant ne l'exposer nulle part côté client).
+app.get('/api/libs/packs', (_req, res) => {
+  res.json(Object.entries(LIBS_PACKS).map(([id, p]) => ({
+    id, libs: p.libs, label: p.label, priceFCFA: p.priceFCFA, available: !!p.productDocumentId,
+  })));
+});
+
+// Initie un achat : crée un panier Maketou et renvoie l'URL de paiement.
+app.post('/api/libs/checkout', async (req, res) => {
+  const { playerId, packId, email, firstName, lastName, phone } = req.body || {};
+  const id = safePlayerId(playerId);
+  if (!id) return res.status(400).json({ error: 'invalid_player' });
+
+  // Limite anti-brute-force en tout premier, avant toute autre vérification :
+  // 5 tentatives d'achat par IP par heure (même modèle que les commentaires).
+  const ip  = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown').trim();
+  const now = Date.now();
+  const times = (libsCheckoutRateMap.get(ip) || []).filter(t => now - t < 3_600_000);
+  if (times.length >= 5) return res.status(429).json({ error: 'rate_limited' });
+  times.push(now);
+  libsCheckoutRateMap.set(ip, times);
+
+  const entry = getLibsEntry(id);
+  if (!entry.name || entry.name === 'Anonyme') return res.status(403).json({ error: 'anonymous' });
+
+  const pack = LIBS_PACKS[packId];
+  if (!pack) return res.status(400).json({ error: 'invalid_pack' });
+
+  if (!email || typeof email !== 'string' || !EMAIL_RE.test(email.trim())) return res.status(400).json({ error: 'invalid_email' });
+  if (!firstName || typeof firstName !== 'string' || !firstName.trim()) return res.status(400).json({ error: 'invalid_name' });
+  if (!lastName  || typeof lastName  !== 'string' || !lastName.trim())  return res.status(400).json({ error: 'invalid_name' });
+
+  // La disponibilité du pack (productDocumentId configuré) se vérifie en dernier :
+  // un client doit d'abord corriger sa saisie avant d'apprendre que le pack est indisponible.
+  if (!pack.productDocumentId) return res.status(503).json({ error: 'pack_unavailable' });
+
+  try {
+    const { cart, redirectUrl } = await createMaketouCheckout({
+      productDocumentId: pack.productDocumentId,
+      email: email.trim(), firstName: firstName.trim(), lastName: lastName.trim(),
+      phone: phone ? String(phone).trim().slice(0, 30) : undefined,
+      meta: { playerId: id, packId },
+    });
+    const purchase = {
+      _id: cart.id, playerId: id, packId, libsAmount: pack.libs,
+      status: cart.status || 'waiting_payment', credited: false,
+      createdAt: Date.now(), updatedAt: Date.now(),
+    };
+    libsPurchases.set(purchase._id, purchase);
+    dbUpsertLibsPurchase(purchase._id, purchase);
+    console.log(`[🛒] Panier Maketou créé : ${purchase._id} (${pack.label}) → ${entry.name}`);
+    res.json({ ok: true, cartId: purchase._id, redirectUrl });
+  } catch (e) {
+    console.error('Erreur checkout Maketou:', e.message);
+    res.status(502).json({ error: 'checkout_failed' });
+  }
+});
+
+// Vérifie un panier auprès de Maketou et crédite si (et seulement si) le
+// paiement est confirmé côté serveur. Le retour du navigateur ne prouve rien
+// à lui seul — c'est cette route qui décide, jamais le client.
+app.post('/api/libs/verify', async (req, res) => {
+  const { playerId, cartId } = req.body || {};
+  const id = safePlayerId(playerId);
+  if (!id || !cartId || typeof cartId !== 'string') return res.status(400).json({ error: 'invalid' });
+
+  const purchase = libsPurchases.get(cartId);
+  if (!purchase || purchase.playerId !== id) return res.status(404).json({ error: 'not_found' });
+  if (purchase.credited) return res.json({ status: 'completed', alreadyCredited: true });
+
+  let cart;
+  try { cart = await fetchMaketouCart(cartId); }
+  catch (e) { console.error('Erreur vérif Maketou:', e.message); return res.status(502).json({ error: 'verify_failed' }); }
+
+  if (cart.meta?.playerId && cart.meta.playerId !== id) {
+    console.warn(`[⚠️] meta.playerId Maketou ne correspond pas pour le panier ${cartId}`);
+    return res.status(403).json({ error: 'mismatch' });
+  }
+
+  if (cart.status === 'completed') {
+    creditLibsPurchase(purchase);
+    return res.json({ status: 'completed', libsAdded: purchase.libsAmount, newBalance: libs.get(id).balance });
+  }
+  if (cart.status !== purchase.status) {
+    purchase.status = cart.status;
+    purchase.updatedAt = Date.now();
+    libsPurchases.set(cartId, purchase);
+    dbUpsertLibsPurchase(cartId, purchase);
+  }
+  res.json({ status: cart.status });
+});
+
 // ── Contrôle d'accès admin ──────────────────────────────────────────────────
 // Comparaison à temps constant + limite anti-brute-force par IP.
 const adminAttempts = new Map(); // ip -> [timestamps des échecs]
@@ -1994,6 +2175,12 @@ function isAdmin(req) {
 app.get('/admin/comments', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   res.json(comments.slice().reverse()); // plus récent en premier
+});
+
+// Consultation des achats de Libs (audit) — jamais purgée par /admin/reset.
+app.get('/admin/libs-purchases', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  res.json([...libsPurchases.values()].sort((a, b) => b.createdAt - a.createdAt));
 });
 
 // ── Feed vidéos (façon TikTok) ──────────────────────────────────────────────
@@ -2319,6 +2506,31 @@ async function mergeDuplicateNames() {
   } else {
     console.log('⏰ Keep-alive inactif (RENDER_EXTERNAL_URL / SELF_URL non définie).');
   }
+
+  // ── Filet de sécurité : re-vérification périodique des achats Libs ─────────
+  // Maketou n'a pas de webhook. Si le joueur ferme l'onglet après avoir payé
+  // mais avant le retour sur le site, cet intervalle rattrape le crédit.
+  async function _recheckPendingLibsPurchases() {
+    const cutoff = Date.now() - 48 * 3_600_000;
+    const pending = [...libsPurchases.values()].filter(p => !p.credited && p.status === 'waiting_payment' && p.createdAt > cutoff);
+    for (const purchase of pending) {
+      try {
+        const cart = await fetchMaketouCart(purchase._id);
+        if (cart.meta?.playerId && cart.meta.playerId !== purchase.playerId) continue;
+        if (cart.status === 'completed') {
+          creditLibsPurchase(purchase);
+        } else if (cart.status !== purchase.status) {
+          purchase.status = cart.status;
+          purchase.updatedAt = Date.now();
+          libsPurchases.set(purchase._id, purchase);
+          dbUpsertLibsPurchase(purchase._id, purchase);
+        }
+      } catch (e) {
+        console.error(`Erreur re-vérif panier Libs ${purchase._id}:`, e.message);
+      }
+    }
+  }
+  setInterval(_recheckPendingLibsPurchases, 10 * 60 * 1000);
 
   const PORT = process.env.PORT || 3001;
   server.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));
