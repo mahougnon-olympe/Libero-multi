@@ -6619,6 +6619,7 @@ const ReadFeed = (() => {
          <h2>${esc(bk.titre)}</h2>
          <p class="read-sheet-author">${esc(bk.auteur)}</p>
          <p class="read-sheet-desc">${esc(bk.description)}</p>
+         ${bk.copyright ? `<p class="book-copyright">${esc(bk.copyright)}</p>` : ''}
          <p class="book-ch-head">${esc(d.bookChaptersTitle)}</p>
          <div class="book-ch-list">${rows}</div>
          <div class="read-sheet-actions">
@@ -6690,7 +6691,8 @@ const ReadFeed = (() => {
     readerNum = num;
     closeSheet();
     document.getElementById('book-reader-title').textContent = data.titre;
-    document.getElementById('book-reader-content').innerHTML = mdToHtml(data.content);
+    document.getElementById('book-reader-content').innerHTML = mdToHtml(data.content) +
+      (data.copyright ? `<p class="book-copyright book-copyright--reader">${esc(data.copyright)}</p>` : '');
     const prevB = document.getElementById('book-reader-prev');
     const nextB = document.getElementById('book-reader-next');
     const readable = n => { const c = bk.chapters.find(x => x.num === n); return c && c.unlocked && c.disponible; };
@@ -6707,6 +6709,21 @@ const ReadFeed = (() => {
   });
   document.getElementById('book-reader-prev')?.addEventListener('click', () => openReader(readerNum - 1));
   document.getElementById('book-reader-next')?.addEventListener('click', () => openReader(readerNum + 1));
+
+  // Protection du texte : dissuade la copie du roman depuis la visionneuse
+  // (copie, clic droit, sélection et impression bloqués — dissuasif, pas absolu).
+  const readerContent = () => document.getElementById('book-reader-content');
+  document.addEventListener('copy', e => {
+    if (reader()?.classList.contains('open') && readerContent()?.contains(document.getSelection()?.anchorNode)) {
+      e.preventDefault();
+    }
+  });
+  document.addEventListener('contextmenu', e => {
+    if (reader()?.classList.contains('open') && e.target.closest('#book-reader-content')) e.preventDefault();
+  });
+  window.addEventListener('beforeprint', () => {
+    if (reader()?.classList.contains('open')) reader().classList.add('no-print');
+  });
 
   function retexte() { // rafraîchit les libellés au changement de langue
     if (!loaded) return;

@@ -49,6 +49,7 @@ const LIBERO_BOOK = {
   categorie: 'Roman',
   description: "L'agent spécial Yaris Cole, exilé aux archives de Las Vegas, tombe sur un carton d'homicides non résolus qui n'aurait jamais dû respirer à nouveau. Chapitre 1 gratuit — débloque la suite avec tes Libs.",
   totalChapters: 10,
+  copyright: '© 2026 Libero — Tous droits réservés. Toute reproduction, diffusion ou traduction, même partielle, est interdite sans autorisation écrite de l\'auteur.',
   packs: [
     { id: 'p2', price: 1000, from: 2, to: 5,  requires: null },
     { id: 'p3', price: 2000, from: 6, to: 10, requires: 'p2' },
@@ -2079,6 +2080,7 @@ app.get('/api/book/:bookId', (req, res) => {
   res.json({
     id: LIBERO_BOOK.id, titre: LIBERO_BOOK.titre, auteur: LIBERO_BOOK.auteur,
     categorie: LIBERO_BOOK.categorie, description: LIBERO_BOOK.description,
+    copyright: LIBERO_BOOK.copyright,
     packs: LIBERO_BOOK.packs.map(p => ({
       id: p.id, price: p.price, from: p.from, to: p.to, requires: p.requires,
       owned: !!entry && entry.ownedBooks.includes(`${LIBERO_BOOK.id}:${p.id}`),
@@ -2096,7 +2098,7 @@ app.get('/api/book/:bookId/chapitre/:num', (req, res) => {
   const id    = safePlayerId(req.query.playerId);
   const entry = id ? getLibsEntry(id) : null;
   if (!canReadChapter(entry, num)) return res.status(403).json({ error: 'Chapitre verrouillé.' });
-  res.json({ num: ch.num, titre: ch.titre, content: ch.content });
+  res.json({ num: ch.num, titre: ch.titre, content: ch.content, copyright: LIBERO_BOOK.copyright });
 });
 
 // Admin : ajoute un livre.

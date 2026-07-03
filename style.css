@@ -1066,6 +1066,24 @@ body.shop-open .main-nav { display: none !important; } /* pas de barre de nav da
   flex: 1; overflow-y: auto; padding: 24px 18px 40px;
   max-width: 680px; margin: 0 auto; width: 100%;
   font-size: 1rem; line-height: 1.8; color: var(--text);
+  /* Dissuade la copie du texte du roman (© auteur) */
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Mention légale de droits d'auteur */
+.book-copyright {
+  font-size: .7rem; color: var(--muted); line-height: 1.5; margin: 4px 0 0;
+  opacity: .85;
+}
+.book-copyright--reader {
+  margin-top: 2.5em; padding-top: 1em; border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+/* Le contenu du roman ne sort pas à l'impression */
+@media print {
+  .book-reader, .book-reader-content { display: none !important; }
 }
 .book-reader-content h2, .book-reader-content h3, .book-reader-content h4 { margin: 1.2em 0 .5em; line-height: 1.3; }
 .book-reader-content p { margin: 0 0 1em; }
