@@ -3470,7 +3470,7 @@ $('libs-topup-back')?.addEventListener('click', () => {
   _saveShopPanelState({ view: 'browse' });
 });
 
-// ── Achat de Libs avec de l'argent réel (Maketou) ───────────────────────────
+// ── Achat de Libs avec de l'argent réel (FedaPay) ───────────────────────────
 let _pendingLibsPack = null;
 
 function _openLibsBuyForm(packId, libsAmount, priceFCFA, restoreForm) {
