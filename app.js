@@ -489,7 +489,7 @@ const DICT = {
     eventsDescLocked:'Week-end prochain',
     eventsLockedCard: days => `📅 Dans ${days} j`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> <u style="cursor:pointer">vote ici</u> !`,
-    eventActiveMsg:   '🐍 <strong>Évent ce week-end</strong> : Snake Challenge ! Nourris ton serpent pour le faire grandir sur tout le site.',
+    eventActiveMsg:   '🐍 <strong>Évent ce week-end</strong> : Snake Challenge ! Ton serpent mange des ⚡ et chaque Lib mangé est ajouté à ton solde.',
     newsCommunityMsg: '💬 <strong>Luffy Runner</strong> : regarde une idée de la communauté reprise par le créateur ! Toi aussi, si tu veux que la tienne soit prise en compte, laisse un commentaire, ta voix compte !',
     newsBookMsg: '📚 <strong>Nouveau dans Lecture</strong> : le roman ⭐ L\'Affaire endormie, Tome 1, écrit par le créateur ! Chapitre 1 gratuit, la suite se débloque avec tes Libs.',
     snakeVoteTitle:'Snake Challenge',
@@ -515,7 +515,8 @@ const DICT = {
     btnSnakeConfirm:"C'est parti !", btnSnakeCancel:'Annuler',
     snakeLbTitle:'Classement Snake', snakeLbEmpty:'Aucun score enregistré.',
     snakeScoreLabel:'Score', snakeBestLabel:'Meilleur',
-    snakeHsDisplay:n => `🏆 Ton record : ${n} pomme${n > 1 ? 's' : ''}`,
+    snakeHsDisplay:n => `🏆 Ton record : ${n} ⚡`,
+    snakeLibsEarned:n => `+${n} ⚡ ajoutés à ton solde !`,
     snakeGameOver:'Game Over', snakeNewRecord:'🏆 Nouveau record !',
     btnSnakeRestart:'Rejouer', btnSnakeQuit:'Quitter',
     snakePause:'⏸ Pause', btnSnakeResume:'▶ Reprendre',
@@ -547,7 +548,7 @@ const DICT = {
     helpContent:{
       general:[
         { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Luffy Runner</strong>, une idée de joueur reprise par le créateur). Chaque section a son propre classement." },
-        { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> — nourris ton serpent avec les 🍎, les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
+        { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> — ton serpent mange des <strong>⚡ Libs</strong> pour grandir, et chaque ⚡ mangé est <strong>ajouté à ton solde</strong> (score 10 = 10 Libs gagnés). Les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
         { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras aussi <strong>⭐ L'Affaire endormie · Tome 1</strong>, le roman exclusif écrit par le créateur : le <strong>chapitre 1 est gratuit</strong>, puis débloque les chapitres 2-5 pour <strong>1000 ⚡ Libs</strong> et les chapitres 6-10 pour <strong>2000 ⚡</strong> — la lecture se fait directement sur le site." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile." },
         { icon:'🤖', title:'Mode Solo (vs Bot)', desc:"Joue seul contre un robot. <em>Facile</em> : le bot joue au hasard. <em>Moyen</em> : le bot bloque et attaque. <em>Difficile</em> : le bot joue de manière optimale. Les parties <strong>Moyen et Difficile</strong> comptent dans le classement classique." },
@@ -578,7 +579,7 @@ const DICT = {
         { icon:'🔴', title:'Jetons Puissance 4', desc:"Restyle tes pions dans la grille 7×6 (motif, texture, lueur). La distinction <strong>rouge / jaune</strong> entre les deux camps est conservée — le skin habille la couleur sans la rendre ambiguë. Tes deux adversaires verront tes jetons. Rareté : Rare à Épique." },
         { icon:'✖️', title:'Symboles Morpion', desc:"Remplace les X / O par une paire de symboles personnalisés sur la grille 3×3. Les deux symboles restent nettement distinguables. Ton adversaire voit ta paire. Exemples : Soleil / Lune ☀️🌙, Cœur / Étoile ❤️⭐. Rareté : Commun à Épique." },
         { icon:'♟️', title:'Thèmes d\'échiquier', desc:"Restyle le plateau et les pièces de l'échiquier. Le contraste cases claires / sombres et la lisibilité des pièces sont toujours garantis. Ton adversaire voit ton thème. Exemples : Cyber Grid, Marbre Royal. Rareté : Épique à Légendaire." },
-        { icon:'🐍', title:'Skins Snake (Évents)', desc:"Modifie l'apparence du serpent, des pommes et du plateau pendant le Snake Challenge. Mode solo uniquement — aucun souci d'équité. Exemples : Serpent Arc-en-ciel, Serpent de Lave, Plateau Galaxie. Rareté : Rare à Légendaire." },
+        { icon:'🐍', title:'Skins Snake (Évents)', desc:"Modifie l'apparence du serpent, des ⚡ et du plateau pendant le Snake Challenge. Mode solo uniquement — aucun souci d'équité. Exemples : Serpent Arc-en-ciel, Serpent de Lave, Plateau Galaxie. Rareté : Rare à Légendaire." },
         { icon:'💥', title:'Particules de clic', desc:"Remplace les particules qui s'affichent lorsque tu cliques sur les boutons et cartes du site. Exemples : Bulles 🫧, Confettis 🎊, Feu d\'Artifice 🎆. Rareté : Commun à Épique." },
         { icon:'🌈', title:'Packs d\'émojis', desc:"Remplace le jeu d'émojis de la pluie animée au premier chargement de la page. Exemples : Pack Fête 🎉, Pack Gaming 🎮, Pack Cosmos 🌌. Rareté : Commun à Rare." },
         { icon:'🏆', title:'Bannières de victoire', desc:"Personnalise le style et l'animation de la bannière de fin de partie (victoire). Visible à l'écran de résultat des jeux classiques et du quiz. Exemples : Triomphe Néon, Flammes de Champion, Couronnement. Rareté : Épique à Légendaire." },
@@ -633,7 +634,7 @@ const DICT = {
       landing_lb:'🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10 + meilleur score Luffy Runner ÷10. Plus tu montes, plus ton serpent 🐍 grandit !',
       landing_btns:'⚙️ Des boutons permanents sont disponibles :<br>▶ <strong>En haut à droite</strong> : le bouton <strong>⚙️</strong> ouvre les <strong>Paramètres</strong> (thème, langue, serpent, cartes de remboursement).<br>▶ <strong>En bas à droite</strong> : ❓ <strong>Aide</strong> · ✉️ <strong>Commentaire</strong>',
       landing_libs:'⚡ <strong>Libs</strong> : une monnaie virtuelle gagnée par les meilleurs joueurs. Les top 3 du classement Global reçoivent automatiquement des Libs toutes les 5h (1er : +10 ⚡, 2e : +5 ⚡, 3e : +3 ⚡). Dépense-les dans la <strong>boutique</strong> pour obtenir des boosts quiz !',
-      events_snake:'🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les 🍎 pour grandir (les bords sont traversables, tu ressors de l\'autre côté !). Ton meilleur score <strong>persiste</strong> entre les sessions.',
+      events_snake:'🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les <strong>⚡ Libs</strong> pour grandir : chaque ⚡ mangé est ajouté à ton solde (score 10 = 10 Libs gagnés). Les bords sont traversables, tu ressors de l\'autre côté ! Ton meilleur score <strong>persiste</strong> entre les sessions.',
       luffy_runner:'🏴‍☠️ <strong>Luffy Runner</strong> : aide Luffy à fuir la Marine ! Saute (↑ / Espace) par-dessus les obstacles au sol, accroupis-toi (↓) sous les obstacles volants. Ton meilleur score alimente un classement dédié.',
       home_games:'🎮 Choisis ton jeu en haut : <strong>Puissance 4</strong>, <strong>Morpion</strong> ou <strong>Échecs</strong>. Le classement est partagé entre les trois jeux.',
       home_bot:'🤖 <strong>Mode Solo</strong> : joue contre le bot à 3 niveaux de difficulté : Facile, Moyen ou Difficile. Tes victoires et défaites sont comptées dans le classement !',
@@ -869,7 +870,7 @@ const DICT = {
     eventsDescLocked:'Next weekend',
     eventsLockedCard: days => `📅 In ${days}d`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> <u style="cursor:pointer">vote here</u>!`,
-    eventActiveMsg:   '🐍 <strong>Event this weekend</strong>: Snake Challenge! Feed your snake to make it grow across the site.',
+    eventActiveMsg:   '🐍 <strong>Event this weekend</strong>: Snake Challenge! Your snake eats ⚡ and every Lib eaten is added to your balance.',
     newsCommunityMsg: '💬 <strong>Luffy Runner</strong>: check out a community idea the creator brought to life! Want yours considered too? Leave a comment, your voice matters!',
     newsBookMsg: '📚 <strong>New in Reading</strong>: the novel ⭐ L\'Affaire endormie, Tome 1, written by the creator! Chapter 1 is free, unlock the rest with your Libs.',
     snakeVoteTitle:'Snake Challenge',
@@ -895,7 +896,8 @@ const DICT = {
     btnSnakeConfirm:"Let's go!", btnSnakeCancel:'Cancel',
     snakeLbTitle:'Snake Leaderboard', snakeLbEmpty:'No scores recorded yet.',
     snakeScoreLabel:'Score', snakeBestLabel:'Best',
-    snakeHsDisplay:n => `🏆 Your record: ${n} apple${n > 1 ? 's' : ''}`,
+    snakeHsDisplay:n => `🏆 Your record: ${n} ⚡`,
+    snakeLibsEarned:n => `+${n} ⚡ added to your balance!`,
     snakeGameOver:'Game Over', snakeNewRecord:'🏆 New record!',
     btnSnakeRestart:'Play again', btnSnakeQuit:'Quit',
     snakePause:'⏸ Pause', btnSnakeResume:'▶ Resume',
@@ -927,7 +929,7 @@ const DICT = {
     helpContent:{
       general:[
         { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Luffy Runner</strong> mini-game, a player idea brought to life by the creator). Each section has its own leaderboard." },
-        { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> — feed your snake with 🍎, walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
+        { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> — your snake eats <strong>⚡ Libs</strong> to grow, and every ⚡ eaten is <strong>added to your balance</strong> (score 10 = 10 Libs earned). Walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
         { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll also find <strong>⭐ L'Affaire endormie · Tome 1</strong>, the exclusive novel written by the creator: <strong>chapter 1 is free</strong>, then unlock chapters 2-5 for <strong>1000 ⚡ Libs</strong> and chapters 6-10 for <strong>2000 ⚡</strong> — read it right on the site." },
         { icon:'🎮', title:'Create a classic game', desc:"Choose a game, enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent. You can also play <strong>Solo vs the bot</strong> by choosing a difficulty: Easy, Medium or Hard." },
         { icon:'🤖', title:'Solo mode (vs Bot)', desc:"Play alone against a robot. <em>Easy</em>: plays randomly. <em>Medium</em>: blocks and attacks. <em>Hard</em>: plays optimally. <strong>Medium and Hard</strong> games count in the classic leaderboard." },
@@ -958,7 +960,7 @@ const DICT = {
         { icon:'🔴', title:'Connect 4 Tokens', desc:"Restyle your tokens in the 7×6 grid (pattern, texture, glow). The <strong>red / yellow</strong> distinction between teams is always preserved. Your opponent will see your tokens. Rarity: Rare to Epic." },
         { icon:'✖️', title:'Tic-Tac-Toe Symbols', desc:"Replace X / O with a custom pair of symbols on the 3×3 grid. Both symbols remain clearly distinguishable. Your opponent sees your pair. Examples: Sun / Moon ☀️🌙, Heart / Star ❤️⭐. Rarity: Common to Epic." },
         { icon:'♟️', title:'Chess Themes', desc:"Restyle the chessboard and pieces. Light/dark square contrast and piece legibility are always guaranteed. Your opponent sees your theme. Examples: Cyber Grid, Royal Marble. Rarity: Epic to Legendary." },
-        { icon:'🐍', title:'Snake Skins (Events)', desc:"Change the appearance of the snake, apples and board during the Snake Challenge. Solo mode only — no fairness concerns. Examples: Rainbow Snake, Lava Snake, Galaxy Board. Rarity: Rare to Legendary." },
+        { icon:'🐍', title:'Snake Skins (Events)', desc:"Change the appearance of the snake, the ⚡ and the board during the Snake Challenge. Solo mode only — no fairness concerns. Examples: Rainbow Snake, Lava Snake, Galaxy Board. Rarity: Rare to Legendary." },
         { icon:'💥', title:'Click Particles', desc:"Replace the particles shown when you click buttons and cards on the site. Examples: Bubbles 🫧, Confetti 🎊, Firework 🎆. Rarity: Common to Epic." },
         { icon:'🌈', title:'Emoji Packs', desc:"Replace the emoji set in the animated emoji rain on the first page load. Examples: Party Pack 🎉, Gaming Pack 🎮, Cosmos Pack 🌌. Rarity: Common to Rare." },
         { icon:'🏆', title:'Victory Banners', desc:"Customize the style and animation of the end-of-game banner (win screen). Shown at the result screen of classic games and quizzes. Examples: Neon Triumph, Champion Flames, Coronation. Rarity: Epic to Legendary." },
@@ -1013,7 +1015,7 @@ const DICT = {
       landing_lb:'🌍 The <strong>Global Leaderboard</strong> brings together <em>all</em> players with at least one point. Score = classic wins ×10 + Quiz points + best Snake score ×10 + best Luffy Runner score ÷10. The higher you climb, the longer your snake 🐍 grows!',
       landing_btns:'⚙️ Permanent buttons are available:<br>▶ <strong>Top right</strong>: the <strong>⚙️</strong> button opens <strong>Settings</strong> (day/night theme, language, snake, refund cards).<br>▶ <strong>Bottom right</strong>: ❓ <strong>Help</strong> · ✉️ <strong>Comment</strong>',
       landing_libs:'⚡ <strong>Libs</strong>: a virtual currency earned by the best players. The top 3 in the Global Leaderboard automatically receive Libs every 5 hours (1st: +5 ⚡, 2nd: +3 ⚡, 3rd: +2 ⚡). Spend them in the <strong>shop</strong> to get quiz boosts!',
-      events_snake:'🐍 This weekend\'s event: <strong>Snake Challenge</strong>! Click <em>Play</em>, your snake enters the arena. Eat the 🍎 to grow (walls wrap around — you reappear on the other side!). Your best score <strong>persists</strong> between sessions.',
+      events_snake:'🐍 This weekend\'s event: <strong>Snake Challenge</strong>! Click <em>Play</em>, your snake enters the arena. Eat the <strong>⚡ Libs</strong> to grow: every ⚡ eaten is added to your balance (score 10 = 10 Libs earned). Walls wrap around — you reappear on the other side! Your best score <strong>persists</strong> between sessions.',
       luffy_runner:'🏴‍☠️ <strong>Luffy Runner</strong>: help Luffy escape the Marines! Jump (↑ / Space) over ground obstacles, duck (↓) under flying ones. Your best score feeds a dedicated leaderboard.',
       home_games:'🎮 Choose your game at the top: <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong> or <strong>Chess</strong>. The leaderboard is shared across all three games.',
       home_bot:'🤖 <strong>Solo mode</strong>: play against the bot at 3 difficulty levels: Easy, Medium or Hard. Your wins and losses count in the leaderboard!',
@@ -2305,7 +2307,7 @@ function renderSnakeLeaderboard(data) {
     <div class="lb-row lb-row-clickable" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
       <span class="lb-rank">${medals[i] || i + 1}</span>
       <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
-      <span class="lb-score-snake">${e.hs} 🍎</span>
+      <span class="lb-score-snake">${e.hs} ⚡</span>
     </div>
   `).join('');
   el.querySelectorAll('.lb-row-clickable').forEach(row => {
@@ -5091,6 +5093,8 @@ function showCursorSnakeToast(msg) {
     score  = 0;
     running = true;
     paused  = false;
+    // Évent : déclare la partie au serveur, qui créditera chaque ⚡ mangé en Libs.
+    socket.emit('snake-game-start', { playerId: getPlayerId() });
     cursorSnake.enterGame(); // le serpent est désormais « en Game »
     document.getElementById('snake-score-val').textContent = 0;
     document.getElementById('snake-hs-val').textContent    = getHs();
@@ -5114,6 +5118,8 @@ function showCursorSnakeToast(msg) {
     if (head.x === food.x && head.y === food.y) {
       score++;
       SFX.snakeEat();
+      // Chaque ⚡ mangé est crédité en direct (le serveur vérifie la plausibilité).
+      socket.emit('snake-eat', { playerId: getPlayerId() });
       saveHs(score);
       document.getElementById('snake-score-val').textContent = score;
       document.getElementById('snake-hs-val').textContent = Math.max(score, getHs());
@@ -5153,7 +5159,7 @@ function showCursorSnakeToast(msg) {
     }
 
     // Pomme / food
-    const foodEmoji = skin ? skin.food : '🍎';
+    const foodEmoji = skin ? skin.food : '⚡'; // évent : le serpent mange des Libs
     ctx.font = `${CELL}px serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(foodEmoji, (food.x + 0.5) * CELL, (food.y + 0.5) * CELL);
@@ -5194,7 +5200,8 @@ function showCursorSnakeToast(msg) {
     if (_snakeName && getHs() === 0) socket.emit('submit-snake-score', { name: _snakeName, hs: 0, playerId: getPlayerId() });
     const newHsEl = document.getElementById('snake-new-hs');
     if (newHsEl) newHsEl.classList.toggle('hidden', !isNewHs);
-    document.getElementById('snake-over-score').textContent = t().snakeOverScore(score, getHs());
+    document.getElementById('snake-over-score').textContent = t().snakeOverScore(score, getHs()) +
+      (score > 0 ? ` · ${t().snakeLibsEarned(score)}` : '');
     document.getElementById('snake-over-overlay').classList.remove('hidden');
   }
 
@@ -5423,6 +5430,9 @@ function showCursorSnakeToast(msg) {
       score   = data.score;
       running = true;
       paused  = true;
+      // Redéclare la partie au serveur (le crédit des ⚡ repart de zéro, les
+      // Libs déjà mangés avant le refresh ont déjà été crédités en direct).
+      socket.emit('snake-game-start', { playerId: getPlayerId() });
       document.getElementById('snake-score-val').textContent = score;
       document.getElementById('snake-hs-val').textContent    = getHs();
       document.getElementById('event-intro').classList.add('hidden');
@@ -5646,7 +5656,13 @@ function showCursorSnakeToast(msg) {
     if (jumping) {
       luffyY += luffyVy * dt;
       luffyVy -= GRAVITY * dt;
-      if (luffyY <= 0) { luffyY = 0; luffyVy = 0; jumping = false; }
+      if (luffyY <= 0) {
+        luffyY = 0; luffyVy = 0; jumping = false;
+        // Touche encore tenue à l'atterrissage : on l'applique, la pression
+        // la plus récente d'abord (maintenir Saut = rebonds enchaînés).
+        if (duckHeld && (lastHeld === 'duck' || !jumpHeld)) ducking = true;
+        else if (jumpHeld) { jumping = true; luffyVy = JUMP_VEL; }
+      }
     }
 
     airshipX -= 18 * dt; // décor de fond, vitesse de parallaxe indépendante du jeu
@@ -5863,30 +5879,51 @@ function showCursorSnakeToast(msg) {
   }
 
   // ── Contrôles ────────────────────────────────────────────────────────────
+  // Sur mobile on peut maintenir les deux boutons à la fois : on mémorise donc
+  // l'état « tenu » de chaque touche et on le réapplique à l'atterrissage, la
+  // pression la plus récente ayant priorité. (Avant : le saut était bloqué
+  // pendant l'accroupissement et inversement, donc maintenir les deux rendait
+  // Luffy inerte face aux obstacles → défaite immédiate.)
+  let jumpHeld = false, duckHeld = false, lastHeld = null; // 'jump' | 'duck'
+
   function doJump() {
-    if (!running || paused || jumping || ducking) return;
+    if (!running || paused || jumping) return;
+    ducking = false; // une pression fraîche sur Saut annule l'accroupissement
     jumping = true; luffyVy = JUMP_VEL;
   }
   function setDuck(v) {
-    if (!running || paused || jumping) return;
+    if (!running || paused || jumping) return; // en l'air : réappliqué à l'atterrissage via duckHeld
     ducking = v;
   }
+  function pressJump()   { jumpHeld = true;  lastHeld = 'jump'; doJump(); }
+  function releaseJump() { jumpHeld = false; if (duckHeld) lastHeld = 'duck'; }
+  function pressDuck()   { duckHeld = true;  lastHeld = 'duck'; setDuck(true); }
+  function releaseDuck() { duckHeld = false; setDuck(false); if (jumpHeld) lastHeld = 'jump'; }
 
   document.addEventListener('keydown', e => {
     if (!running || paused) return;
-    if (e.key === 'ArrowUp' || e.key === ' ' || e.key === 'w' || e.key === 'W') { e.preventDefault(); doJump(); }
-    else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') { e.preventDefault(); setDuck(true); }
+    if (e.key === 'ArrowUp' || e.key === ' ' || e.key === 'w' || e.key === 'W') { e.preventDefault(); if (!e.repeat) pressJump(); }
+    else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') { e.preventDefault(); if (!e.repeat) pressDuck(); }
   });
   document.addEventListener('keyup', e => {
-    if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') setDuck(false);
+    if (e.key === 'ArrowUp' || e.key === ' ' || e.key === 'w' || e.key === 'W') releaseJump();
+    else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') releaseDuck();
   });
 
-  document.getElementById('luffy-btn-jump')?.addEventListener('touchstart', e => { e.preventDefault(); doJump(); }, { passive: false });
-  document.getElementById('luffy-btn-jump')?.addEventListener('click', doJump);
-  document.getElementById('luffy-btn-duck')?.addEventListener('touchstart', e => { e.preventDefault(); setDuck(true); }, { passive: false });
-  document.getElementById('luffy-btn-duck')?.addEventListener('touchend',   e => { e.preventDefault(); setDuck(false); }, { passive: false });
-  document.getElementById('luffy-btn-duck')?.addEventListener('mousedown', () => setDuck(true));
-  document.getElementById('luffy-btn-duck')?.addEventListener('mouseup',   () => setDuck(false));
+  const _jumpBtn = document.getElementById('luffy-btn-jump');
+  const _duckBtn = document.getElementById('luffy-btn-duck');
+  _jumpBtn?.addEventListener('touchstart',  e => { e.preventDefault(); pressJump(); }, { passive: false });
+  _jumpBtn?.addEventListener('touchend',    e => { e.preventDefault(); releaseJump(); }, { passive: false });
+  _jumpBtn?.addEventListener('touchcancel', () => releaseJump());
+  _jumpBtn?.addEventListener('mousedown',   pressJump);
+  _jumpBtn?.addEventListener('mouseup',     releaseJump);
+  _jumpBtn?.addEventListener('mouseleave',  releaseJump);
+  _duckBtn?.addEventListener('touchstart',  e => { e.preventDefault(); pressDuck(); }, { passive: false });
+  _duckBtn?.addEventListener('touchend',    e => { e.preventDefault(); releaseDuck(); }, { passive: false });
+  _duckBtn?.addEventListener('touchcancel', () => releaseDuck());
+  _duckBtn?.addEventListener('mousedown',   pressDuck);
+  _duckBtn?.addEventListener('mouseup',     releaseDuck);
+  _duckBtn?.addEventListener('mouseleave',  releaseDuck);
 
   // ── Navigation ───────────────────────────────────────────────────────────
   document.getElementById('btn-go-community')?.addEventListener('click', () => {
@@ -6396,7 +6433,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'events_snake',
       screen: 'events',
-      text: '🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les 🍎 pour grandir (les bords sont traversables, tu ressors de l\'autre côté !). Ton meilleur score <strong>persiste</strong> entre les sessions.',
+      text: '🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les ⚡ pour grandir : chaque Lib mangé est ajouté à ton solde ! Les bords sont traversables, tu ressors de l\'autre côté. Ton meilleur score <strong>persiste</strong> entre les sessions.',
       target: '.event-intro',
     },
 

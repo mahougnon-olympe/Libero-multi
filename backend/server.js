@@ -147,6 +147,13 @@ const LIBS_PACKS = {
 const libsPurchases = new Map(); // transactionId -> { _id, playerId, packId, libsAmount, status, credited, createdAt, updatedAt }
 const libsCheckoutRateMap = new Map(); // ip -> [timestamps]
 
+// ── Évent Snake du week-end : les ⚡ mangés créditent le solde de Libs ───────
+const snakeLibsGames = new Map(); // socket.id -> { playerId, startedAt, eats, lastEatAt }
+function isSnakeEventDay() {
+  const d = new Date(Date.now() + 3_600_000).getUTCDay(); // heure du Bénin (UTC+1)
+  return d === 5 || d === 6 || d === 0; // vendredi 00:00 → lundi 00:00
+}
+
 let rank1Global      = null;
 let rank1StreakSince  = 0;
 
@@ -1520,6 +1527,38 @@ io.on('connection', (socket) => {
     }
   });
 
+  // ── Évent Snake : chaque ⚡ mangé est crédité en Libs, en direct ──────────
+  // Le crédit se fait au fil de la partie (pas en une fois à la fin) : un
+  // refresh en pleine partie ne perd donc rien. Le serveur ne fait pas
+  // confiance au client : chaque « miam » doit être plausible dans le temps.
+  socket.on('snake-game-start', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id || !isSnakeEventDay()) return;
+    snakeLibsGames.set(socket.id, { playerId: id, startedAt: Date.now(), eats: 0, lastEatAt: 0 });
+  });
+
+  socket.on('snake-eat', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id || !isSnakeEventDay()) return;
+    const game = snakeLibsGames.get(socket.id);
+    if (!game || game.playerId !== id) return; // partie jamais déclarée
+    const now = Date.now();
+    // Plausibilité : atteindre un ⚡ demande de traverser le plateau (≥ 300 ms
+    // entre deux prises, et pas plus d'un ⚡ toutes les ~0,7 s en moyenne),
+    // plafond de 200 ⚡ par partie.
+    if (game.eats >= 200) return;
+    if (now - game.lastEatAt < 300) return;
+    if (game.eats + 1 > (now - game.startedAt) / 700 + 2) return;
+    game.eats++;
+    game.lastEatAt = now;
+    const entry = getLibsEntry(id);
+    if (!entry || entry.balance >= MAX_BALANCE) return;
+    entry.balance = Math.min(MAX_BALANCE, entry.balance + 1);
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: 1, nextAt: nextDistributionAt });
+  });
+
   // ── Quitter la room (retour menu) ───────────────────────────────────────
   socket.on('leave-room', () => {
     const room = rooms.get(roomCode);
@@ -1973,6 +2012,7 @@ io.on('connection', (socket) => {
   // ── Déconnexion ──────────────────────────────────────────────────────────
   socket.on('disconnect', () => {
     socketPlayerIds.delete(socket.id);
+    snakeLibsGames.delete(socket.id);
     // Jeu classique
     if (roomCode) {
       const room = rooms.get(roomCode);
