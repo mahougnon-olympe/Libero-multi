@@ -41,47 +41,68 @@ const comments        = [];
 const feedVideos      = []; // [{ _id, url, titre, ordre, actif, createdAt }]
 const feedBooks       = []; // [{ _id, titre, auteur, categorie, couverture, url, description, ordre, actif, createdAt }]
 
-// ── Livre exclusif « L'Affaire endormie » ───────────────────────────────────
+// ── Livres exclusifs ────────────────────────────────────────────────────────
 // Les chapitres vivent dans backend/books/ (jamais sur le site statique) et ne
-// sortent que par l'API, chapitre 1 gratuit, la suite débloquée en Libs.
-const LIBERO_BOOK = {
-  id: 'affaire-endormie',
-  titre: "L'Affaire endormie · Tome 1",
-  auteur: 'Libero',
-  categorie: 'Roman',
-  description: "Tome 1 de la série. L'agent spécial Yaris Cole, exilé aux archives de Las Vegas, tombe sur un carton d'homicides non résolus qui n'aurait jamais dû respirer à nouveau. Chapitre 1 gratuit — débloque la suite avec tes Libs.",
-  totalChapters: 10,
-  copyright: '© 2026 Libero — Tous droits réservés. Toute reproduction, diffusion ou traduction, même partielle, est interdite sans autorisation écrite de l\'auteur.',
-  packs: [
-    { id: 'p2', price: 1000, from: 2, to: 5,  requires: null },
-    { id: 'p3', price: 2000, from: 6, to: 10, requires: 'p2' },
-  ],
+// sortent que par l'API ; au-delà de `freeChapters`, la suite se débloque en Libs.
+const LIBERO_BOOKS = {
+  'affaire-endormie': {
+    id: 'affaire-endormie',
+    titre: "L'Affaire endormie · Tome 1",
+    auteur: 'Libero',
+    categorie: 'Roman',
+    description: "Tome 1 de la série. L'agent spécial Yaris Cole, exilé aux archives de Las Vegas, tombe sur un carton d'homicides non résolus qui n'aurait jamais dû respirer à nouveau. Chapitre 1 gratuit — débloque la suite avec tes Libs.",
+    totalChapters: 10,
+    freeChapters: 1,
+    copyright: '© 2026 Libero — Tous droits réservés. Toute reproduction, diffusion ou traduction, même partielle, est interdite sans autorisation écrite de l\'auteur.',
+    packs: [
+      { id: 'p2', price: 1000, from: 2, to: 5,  requires: null },
+      { id: 'p3', price: 2000, from: 6, to: 10, requires: 'p2' },
+    ],
+  },
+  'life-of-georgia': {
+    id: 'life-of-georgia',
+    titre: 'Life of Georgia',
+    auteur: "O'Bros",
+    categorie: 'Roman',
+    description: "Une jeune fille d'origine campagnarde découvre, au détour d'une innocente bagarre, des pouvoirs surnaturels qu'elle ignorait. Cette découverte l'attache à quelqu'un qu'elle pourra peut-être changer avec le temps. Débloque le livre entier avec tes Libs.",
+    totalChapters: 5,
+    freeChapters: 0,
+    copyright: '© 2020 O\'Bros — Tous droits réservés. Toute reproduction, diffusion ou traduction, même partielle, est interdite sans autorisation écrite de l\'auteur.',
+    packs: [
+      { id: 'full', price: 2000, from: 1, to: 5, requires: null },
+    ],
+  },
 };
-const bookChapters = new Map(); // num -> { num, titre, content }
+const bookChapters = new Map(); // bookId -> Map(num -> { num, titre, content })
 (function loadBookChapters() {
-  const dir = path.join(__dirname, 'books', LIBERO_BOOK.id);
-  let files = [];
-  try { files = fs.readdirSync(dir).filter(f => /^chapitre-\d+\.md$/.test(f)); }
-  catch { console.warn(`⚠️  Dossier livre introuvable : ${dir}`); return; }
-  for (const f of files) {
-    const num = parseInt(f.match(/(\d+)/)[1], 10);
-    const content = fs.readFileSync(path.join(dir, f), 'utf8');
-    const titleLine = content.split('\n').find(l => /^##\s*Chapitre\s+\d+/i.test(l));
-    const titre = titleLine ? titleLine.replace(/^##\s*/, '').trim() : `Chapitre ${num}`;
-    bookChapters.set(num, { num, titre, content });
+  for (const book of Object.values(LIBERO_BOOKS)) {
+    const dir = path.join(__dirname, 'books', book.id);
+    const chapters = new Map();
+    bookChapters.set(book.id, chapters);
+    book.hasCover = fs.existsSync(path.join(dir, 'couverture.jpeg'));
+    let files = [];
+    try { files = fs.readdirSync(dir).filter(f => /^chapitre-\d+\.md$/.test(f)); }
+    catch { console.warn(`⚠️  Dossier livre introuvable : ${dir}`); continue; }
+    for (const f of files) {
+      const num = parseInt(f.match(/(\d+)/)[1], 10);
+      const content = fs.readFileSync(path.join(dir, f), 'utf8');
+      const titleLine = content.split('\n').find(l => /^#{1,2}\s*Chapitre\s+\d+/i.test(l));
+      const titre = titleLine ? titleLine.replace(/^#{1,2}\s*/, '').trim() : `Chapitre ${num}`;
+      chapters.set(num, { num, titre, content });
+    }
+    console.log(`📖 Livre « ${book.titre} » : ${chapters.size} chapitre(s) chargé(s).`);
   }
-  console.log(`📖 Livre « ${LIBERO_BOOK.titre} » : ${bookChapters.size} chapitre(s) chargé(s).`);
 })();
 
-function bookPackFor(num) {
-  if (num <= 1) return null; // gratuit
-  return LIBERO_BOOK.packs.find(p => num >= p.from && num <= p.to) || null;
+function bookPackFor(book, num) {
+  if (num <= (book.freeChapters || 0)) return null; // gratuit
+  return book.packs.find(p => num >= p.from && num <= p.to) || null;
 }
 
-function canReadChapter(entry, num) {
-  const pack = bookPackFor(num);
+function canReadChapter(book, entry, num) {
+  const pack = bookPackFor(book, num);
   if (!pack) return true;
-  return !!entry && Array.isArray(entry.ownedBooks) && entry.ownedBooks.includes(`${LIBERO_BOOK.id}:${pack.id}`);
+  return !!entry && Array.isArray(entry.ownedBooks) && entry.ownedBooks.includes(`${book.id}:${pack.id}`);
 }
 const libs            = new Map();
 const MAX_BALANCE              = 19999;
@@ -1764,18 +1785,20 @@ io.on('connection', (socket) => {
     if (!id) { socket.emit('buy-book-pack-result', { ok: false, error: 'invalid' }); return; }
     const entry = getLibsEntry(id);
     if (!entry.name || entry.name === 'Anonyme') { socket.emit('buy-book-pack-result', { ok: false, error: 'anonymous' }); return; }
-    if (bookId !== LIBERO_BOOK.id) { socket.emit('buy-book-pack-result', { ok: false, error: 'invalid' }); return; }
-    const pack = LIBERO_BOOK.packs.find(p => p.id === packId);
+    const book = LIBERO_BOOKS[bookId];
+    if (!book) { socket.emit('buy-book-pack-result', { ok: false, error: 'invalid' }); return; }
+    const pack = book.packs.find(p => p.id === packId);
     if (!pack) { socket.emit('buy-book-pack-result', { ok: false, error: 'invalid' }); return; }
-    const key = `${LIBERO_BOOK.id}:${pack.id}`;
+    const key = `${book.id}:${pack.id}`;
     if (entry.ownedBooks.includes(key)) { socket.emit('buy-book-pack-result', { ok: false, error: 'already_owned' }); return; }
-    // Progression séquentielle : le pack 6-10 exige d'avoir déjà débloqué 2-5.
-    if (pack.requires && !entry.ownedBooks.includes(`${LIBERO_BOOK.id}:${pack.requires}`)) {
+    // Progression séquentielle : un pack peut exiger d'avoir débloqué le précédent.
+    if (pack.requires && !entry.ownedBooks.includes(`${book.id}:${pack.requires}`)) {
       socket.emit('buy-book-pack-result', { ok: false, error: 'requires_previous' }); return;
     }
     // On ne vend pas un pack dont aucun chapitre n'est encore publié.
+    const chapters = bookChapters.get(book.id) || new Map();
     let anyAvailable = false;
-    for (let n = pack.from; n <= pack.to; n++) if (bookChapters.has(n)) { anyAvailable = true; break; }
+    for (let n = pack.from; n <= pack.to; n++) if (chapters.has(n)) { anyAvailable = true; break; }
     if (!anyAvailable) { socket.emit('buy-book-pack-result', { ok: false, error: 'not_available' }); return; }
     if (entry.balance < pack.price) { socket.emit('buy-book-pack-result', { ok: false, error: 'insufficient' }); return; }
     entry.balance -= pack.price;
@@ -2348,54 +2371,69 @@ function _activeFeedBooks() {
 // Public : liste des livres actifs, triés par ordre.
 app.get('/api/feed-books', (_req, res) => res.json(_activeFeedBooks()));
 
-// ── Livre exclusif : métadonnées + accès aux chapitres ──────────────────────
-// Renvoie la fiche du livre et l'état de déblocage du joueur (jamais le texte).
-app.get('/api/book/:bookId', (req, res) => {
-  if (req.params.bookId !== LIBERO_BOOK.id) return res.status(404).json({ error: 'Livre introuvable.' });
-  const id    = safePlayerId(req.query.playerId);
-  const entry = id ? getLibsEntry(id) : null;
+// ── Livres exclusifs : métadonnées + accès aux chapitres ────────────────────
+// Renvoie la fiche d'un livre et l'état de déblocage du joueur (jamais le texte).
+function bookFiche(book, entry) {
+  const bookChs  = bookChapters.get(book.id) || new Map();
   const chapters = [];
-  for (let n = 1; n <= LIBERO_BOOK.totalChapters; n++) {
-    const ch   = bookChapters.get(n);
-    const pack = bookPackFor(n);
+  for (let n = 1; n <= book.totalChapters; n++) {
+    const ch   = bookChs.get(n);
+    const pack = bookPackFor(book, n);
     chapters.push({
       num: n,
       titre: ch ? ch.titre : `Chapitre ${n}`,
       disponible: !!ch,                      // écrit et publié ?
       gratuit: !pack,
-      unlocked: canReadChapter(entry, n),
+      unlocked: canReadChapter(book, entry, n),
       pack: pack ? pack.id : null,
     });
   }
-  res.json({
-    id: LIBERO_BOOK.id, titre: LIBERO_BOOK.titre, auteur: LIBERO_BOOK.auteur,
-    categorie: LIBERO_BOOK.categorie, description: LIBERO_BOOK.description,
-    copyright: LIBERO_BOOK.copyright,
-    packs: LIBERO_BOOK.packs.map(p => ({
+  return {
+    id: book.id, titre: book.titre, auteur: book.auteur,
+    categorie: book.categorie, description: book.description,
+    copyright: book.copyright, hasCover: !!book.hasCover,
+    packs: book.packs.map(p => ({
       id: p.id, price: p.price, from: p.from, to: p.to, requires: p.requires,
-      owned: !!entry && entry.ownedBooks.includes(`${LIBERO_BOOK.id}:${p.id}`),
+      owned: !!entry && entry.ownedBooks.includes(`${book.id}:${p.id}`),
     })),
     chapters,
-  });
+  };
+}
+
+// Public : toutes les fiches des livres exclusifs (pour le catalogue).
+app.get('/api/books', (req, res) => {
+  const id    = safePlayerId(req.query.playerId);
+  const entry = id ? getLibsEntry(id) : null;
+  res.json(Object.values(LIBERO_BOOKS).map(book => bookFiche(book, entry)));
+});
+
+app.get('/api/book/:bookId', (req, res) => {
+  const book = LIBERO_BOOKS[req.params.bookId];
+  if (!book) return res.status(404).json({ error: 'Livre introuvable.' });
+  const id    = safePlayerId(req.query.playerId);
+  const entry = id ? getLibsEntry(id) : null;
+  res.json(bookFiche(book, entry));
 });
 
 // Couverture du livre (image publique — c'est la vitrine, pas le contenu payant).
 app.get('/api/book/:bookId/couverture', (req, res) => {
-  if (req.params.bookId !== LIBERO_BOOK.id) return res.status(404).json({ error: 'Livre introuvable.' });
-  const file = path.join(__dirname, 'books', LIBERO_BOOK.id, 'couverture.jpeg');
+  const book = LIBERO_BOOKS[req.params.bookId];
+  if (!book) return res.status(404).json({ error: 'Livre introuvable.' });
+  const file = path.join(__dirname, 'books', book.id, 'couverture.jpeg');
   res.sendFile(file, { maxAge: '1d' }, err => { if (err && !res.headersSent) res.status(404).json({ error: 'Couverture introuvable.' }); });
 });
 
 // Contenu d'un chapitre — contrôle d'accès côté serveur.
 app.get('/api/book/:bookId/chapitre/:num', (req, res) => {
-  if (req.params.bookId !== LIBERO_BOOK.id) return res.status(404).json({ error: 'Livre introuvable.' });
+  const book = LIBERO_BOOKS[req.params.bookId];
+  if (!book) return res.status(404).json({ error: 'Livre introuvable.' });
   const num = parseInt(req.params.num, 10);
-  const ch  = bookChapters.get(num);
+  const ch  = (bookChapters.get(book.id) || new Map()).get(num);
   if (!ch) return res.status(404).json({ error: 'Chapitre indisponible.' });
   const id    = safePlayerId(req.query.playerId);
   const entry = id ? getLibsEntry(id) : null;
-  if (!canReadChapter(entry, num)) return res.status(403).json({ error: 'Chapitre verrouillé.' });
-  res.json({ num: ch.num, titre: ch.titre, content: ch.content, copyright: LIBERO_BOOK.copyright });
+  if (!canReadChapter(book, entry, num)) return res.status(403).json({ error: 'Chapitre verrouillé.' });
+  res.json({ num: ch.num, titre: ch.titre, content: ch.content, copyright: book.copyright });
 });
 
 // Admin : ajoute un livre.

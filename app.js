@@ -6719,14 +6719,16 @@ const ReadFeed = (() => {
   const input   = () => document.getElementById('read-search-input');
 
   let loaded = false, books = [], activeCat = null, query = '';
-  let exclusiveBook = null;   // livre écrit par le créateur, servi par l'API avec chapitres payants
+  let exclusiveBooks = [];    // livres écrits par le créateur, servis par l'API avec chapitres payants
+  let sheetBook = null;       // livre exclusif affiché dans la fiche
+  let readerBook = null;      // livre ouvert dans la visionneuse
   let readerNum = 0;          // chapitre affiché dans la visionneuse
-  // Un refresh en pleine lecture doit ramener au même chapitre, au même endroit.
+  // Un refresh en pleine lecture doit ramener au même livre, même chapitre, même endroit.
   const READER_SESS = 'libero_book_reader';
   function saveReaderSession() {
-    if (!readerNum || !reader()?.classList.contains('open')) return;
+    if (!readerNum || !readerBook || !reader()?.classList.contains('open')) return;
     const content = document.getElementById('book-reader-content');
-    sessionStorage.setItem(READER_SESS, JSON.stringify({ num: readerNum, scrollTop: content ? Math.round(content.scrollTop) : 0 }));
+    sessionStorage.setItem(READER_SESS, JSON.stringify({ bookId: readerBook.id, num: readerNum, scrollTop: content ? Math.round(content.scrollTop) : 0 }));
   }
   function clearReaderSession() { sessionStorage.removeItem(READER_SESS); }
 
@@ -6755,42 +6757,54 @@ const ReadFeed = (() => {
     const pid = encodeURIComponent(getPlayerId() || '');
     const [booksRes, exclRes] = await Promise.allSettled([
       fetch(`${window.BACKEND_URL}/api/feed-books`).then(r => { if (!r.ok) throw new Error(); return r.json(); }),
-      fetch(`${window.BACKEND_URL}/api/book/affaire-endormie?playerId=${pid}`).then(r => { if (!r.ok) throw new Error(); return r.json(); }),
+      fetch(`${window.BACKEND_URL}/api/books?playerId=${pid}`).then(r => { if (!r.ok) throw new Error(); return r.json(); }),
     ]);
-    books         = booksRes.status === 'fulfilled' && Array.isArray(booksRes.value) ? booksRes.value : null;
-    exclusiveBook = exclRes.status  === 'fulfilled' ? exclRes.value : null;
-    if (exclusiveBook) exclusiveBook.couverture = `${window.BACKEND_URL}/api/book/affaire-endormie/couverture`;
-    if (books === null && !exclusiveBook) { setStatus(t().readError); return; }
+    books          = booksRes.status === 'fulfilled' && Array.isArray(booksRes.value) ? booksRes.value : null;
+    exclusiveBooks = exclRes.status  === 'fulfilled' && Array.isArray(exclRes.value)  ? exclRes.value  : [];
+    exclusiveBooks.forEach(_setExclCover);
+    if (books === null && !exclusiveBooks.length) { setStatus(t().readError); return; }
     books = books || [];
     loaded = true;
-    if (books.length === 0 && !exclusiveBook) { setStatus(t().readEmpty); return; }
+    if (books.length === 0 && !exclusiveBooks.length) { setStatus(t().readEmpty); return; }
     activeCat = activeCat || t().readAll;
     buildCats(); render();
 
     // Reprise de lecture : un refresh en plein chapitre rouvre la visionneuse
-    // au même chapitre et à la même position de défilement.
+    // au même livre, même chapitre et même position de défilement.
     const savedReader = (() => { try { return JSON.parse(sessionStorage.getItem(READER_SESS)); } catch { return null; } })();
-    if (savedReader && exclusiveBook && !reader().classList.contains('open')) {
-      const ch = exclusiveBook.chapters.find(c => c.num === savedReader.num);
-      if (ch && ch.unlocked && ch.disponible) openReader(savedReader.num, savedReader.scrollTop || 0);
+    if (savedReader && !reader().classList.contains('open')) {
+      // Les anciennes sessions (avant multi-livres) n'avaient pas de bookId.
+      const bk = exclusiveBooks.find(b => b.id === (savedReader.bookId || 'affaire-endormie'));
+      const ch = bk?.chapters.find(c => c.num === savedReader.num);
+      if (bk && ch && ch.unlocked && ch.disponible) openReader(bk, savedReader.num, savedReader.scrollTop || 0);
       else clearReaderSession();
     }
   }
 
-  // Recharge silencieuse de l'état du livre (après un achat).
-  async function reloadExclusive() {
+  // La couverture ne s'affiche que si le serveur en héberge une : sinon le
+  // dégradé de secours (avec titre) prend le relais.
+  function _setExclCover(bk) {
+    bk.couverture = bk.hasCover ? `${window.BACKEND_URL}/api/book/${bk.id}/couverture` : '';
+  }
+
+  // Recharge silencieuse de l'état d'un livre (après un achat).
+  async function reloadExclusive(bookId) {
     try {
       const pid = encodeURIComponent(getPlayerId() || '');
-      const r = await fetch(`${window.BACKEND_URL}/api/book/affaire-endormie?playerId=${pid}`);
+      const r = await fetch(`${window.BACKEND_URL}/api/book/${encodeURIComponent(bookId)}?playerId=${pid}`);
       if (r.ok) {
-        exclusiveBook = await r.json();
-        exclusiveBook.couverture = `${window.BACKEND_URL}/api/book/affaire-endormie/couverture`;
+        const fresh = await r.json();
+        _setExclCover(fresh);
+        const idx = exclusiveBooks.findIndex(b => b.id === bookId);
+        if (idx !== -1) exclusiveBooks[idx] = fresh; else exclusiveBooks.push(fresh);
+        if (sheetBook?.id === bookId)  sheetBook  = fresh;
+        if (readerBook?.id === bookId) readerBook = fresh;
       }
     } catch { /* on garde l'état précédent */ }
   }
 
   function buildCats() {
-    const withExcl = exclusiveBook ? [exclusiveBook.categorie, ...books.map(b => b.categorie)] : books.map(b => b.categorie);
+    const withExcl = [...exclusiveBooks.map(b => b.categorie), ...books.map(b => b.categorie)];
     const cats = [t().readAll, ...[...new Set(withExcl.filter(Boolean))]];
     catsEl().innerHTML = '';
     cats.forEach(c => {
@@ -6817,19 +6831,19 @@ const ReadFeed = (() => {
   function render() {
     const g = wrap(); if (!g) return;
     const list = books.filter(matches);
-    const showExcl = exclusiveBook && matches(exclusiveBook);
-    if (!list.length && !showExcl) { g.innerHTML = `<p class="read-empty">${esc(t().readNoResult)}</p>`; return; }
+    const exclList = exclusiveBooks.filter(matches);
+    if (!list.length && !exclList.length) { g.innerHTML = `<p class="read-empty">${esc(t().readNoResult)}</p>`; return; }
     g.innerHTML = '';
-    if (showExcl) {
+    exclList.forEach((bk, i) => {
       const card = document.createElement('div');
       card.className = 'read-book read-book--exclusive';
-      card.innerHTML = coverHTML(exclusiveBook, 0) +
+      card.innerHTML = coverHTML(bk, i) +
         `<span class="read-book-cat read-book-cat--excl">${esc(t().bookExclusive)}</span>
-         <p class="read-book-title">${esc(exclusiveBook.titre)}</p>
-         <p class="read-book-author">${esc(exclusiveBook.auteur)}</p>`;
-      card.onclick = openBookSheet;
+         <p class="read-book-title">${esc(bk.titre)}</p>
+         <p class="read-book-author">${esc(bk.auteur)}</p>`;
+      card.onclick = () => openBookSheet(bk);
       g.appendChild(card);
-    }
+    });
     list.forEach((b, i) => {
       const card = document.createElement('div');
       card.className = 'read-book';
@@ -6861,8 +6875,9 @@ const ReadFeed = (() => {
   function closeSheet() { overlay().classList.remove('open'); }
 
   // ── Livre exclusif : fiche avec chapitres + déblocage en Libs ──────────────
-  function openBookSheet() {
-    const bk = exclusiveBook; if (!bk) return;
+  function openBookSheet(bk = sheetBook) {
+    if (!bk) return;
+    sheetBook = bk;
     const d = t();
     const rows = bk.chapters.map(ch => {
       const readable = ch.unlocked && ch.disponible;
@@ -6901,24 +6916,24 @@ const ReadFeed = (() => {
     overlay().classList.add('open');
     document.getElementById('read-sheet-close').onclick = closeSheet;
     sheet().querySelectorAll('.book-ch:not(.locked)').forEach(b => {
-      b.onclick = () => openReader(parseInt(b.dataset.num, 10));
+      b.onclick = () => openReader(bk, parseInt(b.dataset.num, 10));
     });
     sheet().querySelectorAll('.book-buy-btn').forEach(b => {
-      b.onclick = () => buyPack(b.dataset.pack);
+      b.onclick = () => buyPack(bk.id, b.dataset.pack);
     });
   }
 
-  function buyPack(packId) {
+  function buyPack(bookId, packId) {
     const name = (localStorage.getItem('playerName') || '').trim();
     if (!name) { showCursorSnakeToast(t().bookNeedName); return; }
-    socket.emit('buy-book-pack', { playerId: getPlayerId(), bookId: 'affaire-endormie', packId });
+    socket.emit('buy-book-pack', { playerId: getPlayerId(), bookId, packId });
   }
 
   socket.on('buy-book-pack-result', async ({ ok, error } = {}) => {
     const d = t();
     if (ok) {
       SFX.btnClick();
-      await reloadExclusive();
+      if (sheetBook) await reloadExclusive(sheetBook.id);
       openBookSheet(); // ré-affiche la fiche avec les chapitres débloqués
       showCursorSnakeToast(d.bookUnlocked);
       return;
@@ -6948,18 +6963,19 @@ const ReadFeed = (() => {
 
   const reader = () => document.getElementById('book-reader');
 
-  async function openReader(num, restoreScroll = 0) {
-    const bk = exclusiveBook; if (!bk) return;
+  async function openReader(bk, num, restoreScroll = 0) {
+    if (!bk) return;
     const ch = bk.chapters.find(c => c.num === num);
     if (!ch || !ch.unlocked || !ch.disponible) { showCursorSnakeToast(t().bookChapterLocked); return; }
     let data;
     try {
       const pid = encodeURIComponent(getPlayerId() || '');
-      const r = await fetch(`${window.BACKEND_URL}/api/book/affaire-endormie/chapitre/${num}?playerId=${pid}`);
+      const r = await fetch(`${window.BACKEND_URL}/api/book/${encodeURIComponent(bk.id)}/chapitre/${num}?playerId=${pid}`);
       if (!r.ok) throw new Error();
       data = await r.json();
     } catch { showCursorSnakeToast(t().bookChapterLocked); return; }
-    readerNum = num;
+    readerBook = bk;
+    readerNum  = num;
     closeSheet();
     document.getElementById('book-reader-title').textContent = data.titre;
     document.getElementById('book-reader-content').innerHTML = mdToHtml(data.content) +
@@ -6977,12 +6993,14 @@ const ReadFeed = (() => {
 
   document.getElementById('book-reader-close')?.addEventListener('click', () => {
     reader().classList.remove('open');
-    readerNum = 0;
+    const bk = readerBook;
+    readerBook = null;
+    readerNum  = 0;
     clearReaderSession();
-    openBookSheet(); // retour à la fiche du livre
+    openBookSheet(bk); // retour à la fiche du livre
   });
-  document.getElementById('book-reader-prev')?.addEventListener('click', () => openReader(readerNum - 1));
-  document.getElementById('book-reader-next')?.addEventListener('click', () => openReader(readerNum + 1));
+  document.getElementById('book-reader-prev')?.addEventListener('click', () => openReader(readerBook, readerNum - 1));
+  document.getElementById('book-reader-next')?.addEventListener('click', () => openReader(readerBook, readerNum + 1));
 
   // Protection du texte : dissuade la copie du roman depuis la visionneuse
   // (copie, clic droit, sélection et impression bloqués — dissuasif, pas absolu).
