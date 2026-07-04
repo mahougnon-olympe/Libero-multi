@@ -65,11 +65,11 @@ const LIBERO_BOOKS = {
     auteur: "O'Bros",
     categorie: 'Roman',
     description: "Une jeune fille d'origine campagnarde découvre, au détour d'une innocente bagarre, des pouvoirs surnaturels qu'elle ignorait. Cette découverte l'attache à quelqu'un qu'elle pourra peut-être changer avec le temps. Débloque le livre entier avec tes Libs.",
-    totalChapters: 5,
+    totalChapters: 12,
     freeChapters: 0,
     copyright: '© 2020 O\'Bros — Tous droits réservés. Toute reproduction, diffusion ou traduction, même partielle, est interdite sans autorisation écrite de l\'auteur.',
     packs: [
-      { id: 'full', price: 2000, from: 1, to: 5, requires: null },
+      { id: 'full', price: 2000, from: 1, to: 12, requires: null },
     ],
   },
 };
