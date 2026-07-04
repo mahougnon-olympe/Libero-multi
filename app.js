@@ -6286,31 +6286,42 @@ function _renderNewsComments(data) {
     return `<div class="news-comment">
       <div class="news-comment-meta"><strong>${c.pseudo}</strong><span>${_timeAgo(c.date)}</span></div>
       <p class="news-comment-msg">${c.message.slice(0, 140)}</p>
-      <button class="news-like-btn${isLiked ? ' liked' : ''}" data-id="${c.id}" ${isLiked ? 'disabled' : ''}>❤️ ${c.likes}</button>
+      <button class="news-like-btn${isLiked ? ' liked' : ''}" data-id="${c.id}">❤️ ${c.likes}</button>
     </div>`;
   }).join('');
-  container.querySelectorAll('.news-like-btn:not([disabled])').forEach(btn => {
+  // Bouton bascule : un clic like, un second clic retire le like.
+  container.querySelectorAll('.news-like-btn').forEach(btn => {
     btn.addEventListener('click', async e => {
       e.stopPropagation();
       const id = btn.dataset.id;
-      btn.disabled = true;
+      btn.disabled = true; // le temps de la requête seulement
+      // Bascule optimiste : la diffusion socket peut re-rendre la liste avant
+      // la réponse du fetch, elle doit déjà refléter le nouvel état local.
+      const before  = JSON.parse(localStorage.getItem('libero_liked_comments') || '[]');
+      const wasLiked = before.includes(id);
+      const optimist = wasLiked ? before.filter(x => x !== id) : [...before, id];
+      localStorage.setItem('libero_liked_comments', JSON.stringify(optimist));
       try {
         const r      = await fetch(`${window.BACKEND_URL}/api/comment-like`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id }),
+          body: JSON.stringify({ id, playerId: getPlayerId() }),
         });
         const result = await r.json();
         if (result.ok) {
-          const arr = JSON.parse(localStorage.getItem('libero_liked_comments') || '[]');
-          arr.push(id);
+          // Aligne l'état local sur la décision du serveur.
+          const arr = JSON.parse(localStorage.getItem('libero_liked_comments') || '[]').filter(x => x !== id);
+          if (result.liked) arr.push(id);
           localStorage.setItem('libero_liked_comments', JSON.stringify(arr));
           btn.textContent = `❤️ ${result.likes}`;
-          btn.classList.add('liked');
+          btn.classList.toggle('liked', !!result.liked);
         } else {
-          btn.disabled = false;
+          localStorage.setItem('libero_liked_comments', JSON.stringify(before));
         }
-      } catch { btn.disabled = false; }
+      } catch {
+        localStorage.setItem('libero_liked_comments', JSON.stringify(before));
+      }
+      btn.disabled = false;
     });
   });
 }
@@ -6740,6 +6751,9 @@ const ReadFeed = (() => {
   ];
   const grad = i => GRADS[i % GRADS.length];
   const esc  = s => String(s || '').replace(/[<>&"']/g, c => ({ '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;', "'":'&#39;' }[c]));
+  // Version localisée d'un champ de livre (le serveur fournit FR + EN).
+  const loc   = (fr, en) => (currentLang === 'en' && en) ? en : fr;
+  const catOf = b => loc(b.categorie, b.categorieEn);
   // Seules les URLs http(s) sont injectées dans le HTML (href / background).
   const safeUrl = s => (/^https?:\/\//i.test(String(s || '').trim()) ? String(s).trim() : '');
 
@@ -6804,7 +6818,7 @@ const ReadFeed = (() => {
   }
 
   function buildCats() {
-    const withExcl = [...exclusiveBooks.map(b => b.categorie), ...books.map(b => b.categorie)];
+    const withExcl = [...exclusiveBooks.map(catOf), ...books.map(b => b.categorie)];
     const cats = [t().readAll, ...[...new Set(withExcl.filter(Boolean))]];
     catsEl().innerHTML = '';
     cats.forEach(c => {
@@ -6824,7 +6838,7 @@ const ReadFeed = (() => {
 
   function matches(b) {
     const all = t().readAll;
-    return (activeCat === all || b.categorie === activeCat) &&
+    return (activeCat === all || catOf(b) === activeCat) &&
       ((b.titre || '').toLowerCase().includes(query) || (b.auteur || '').toLowerCase().includes(query));
   }
 
@@ -6857,6 +6871,7 @@ const ReadFeed = (() => {
   }
 
   function openSheet(b, i) {
+    sheetBook = null; // fiche classique : ne pas la faire écraser par retexte()
     const link = safeUrl(b.url);
     sheet().innerHTML = coverHTML(b, i) +
       `<div class="read-sheet-info">
@@ -6886,7 +6901,7 @@ const ReadFeed = (() => {
         : (ch.disponible ? '🔒' : `<span class="book-ch-tag">${esc(d.bookComingSoon)}</span>`);
       return `<button class="book-ch${readable ? '' : ' locked'}" data-num="${ch.num}" ${readable ? '' : 'disabled'}>
         <span class="book-ch-num">${ch.num}</span>
-        <span class="book-ch-titre">${esc(ch.disponible ? ch.titre : `Chapitre ${ch.num}`)}</span>
+        <span class="book-ch-titre">${esc(ch.disponible ? loc(ch.titre, ch.titreEn) : loc(`Chapitre ${ch.num}`, `Chapter ${ch.num}`))}</span>
         <span class="book-ch-state">${state}</span>
       </button>`;
     }).join('');
@@ -6904,8 +6919,8 @@ const ReadFeed = (() => {
          <span class="read-book-cat read-book-cat--excl">${esc(d.bookExclusive)}</span>
          <h2>${esc(bk.titre)}</h2>
          <p class="read-sheet-author">${esc(bk.auteur)}</p>
-         <p class="read-sheet-desc">${esc(bk.description)}</p>
-         ${bk.copyright ? `<p class="book-copyright">${esc(bk.copyright)}</p>` : ''}
+         <p class="read-sheet-desc">${esc(loc(bk.description, bk.descriptionEn))}</p>
+         ${bk.copyright ? `<p class="book-copyright">${esc(loc(bk.copyright, bk.copyrightEn))}</p>` : ''}
          <p class="book-ch-head">${esc(d.bookChaptersTitle)}</p>
          <div class="book-ch-list">${rows}</div>
          <div class="read-sheet-actions">
@@ -6977,9 +6992,9 @@ const ReadFeed = (() => {
     readerBook = bk;
     readerNum  = num;
     closeSheet();
-    document.getElementById('book-reader-title').textContent = data.titre;
+    document.getElementById('book-reader-title').textContent = loc(data.titre, data.titreEn);
     document.getElementById('book-reader-content').innerHTML = mdToHtml(data.content) +
-      (data.copyright ? `<p class="book-copyright book-copyright--reader">${esc(data.copyright)}</p>` : '');
+      (data.copyright ? `<p class="book-copyright book-copyright--reader">${esc(loc(data.copyright, data.copyrightEn))}</p>` : '');
     const prevB = document.getElementById('book-reader-prev');
     const nextB = document.getElementById('book-reader-next');
     const readable = n => { const c = bk.chapters.find(x => x.num === n); return c && c.unlocked && c.disponible; };
@@ -7022,8 +7037,11 @@ const ReadFeed = (() => {
 
   function retexte() { // rafraîchit les libellés au changement de langue
     if (!loaded) return;
-    if (activeCat) activeCat = books.some(b => b.categorie === activeCat) ? activeCat : t().readAll;
+    const cats = [...exclusiveBooks.map(catOf), ...books.map(b => b.categorie)];
+    if (activeCat) activeCat = cats.includes(activeCat) ? activeCat : t().readAll;
     buildCats(); render();
+    // La fiche d'un livre exclusif ouverte se re-rend dans la nouvelle langue.
+    if (sheetBook && overlay().classList.contains('open')) openBookSheet(sheetBook);
   }
 
   // Recherche + fermeture de la fiche en cliquant hors de celle-ci

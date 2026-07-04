@@ -50,10 +50,18 @@ const LIBERO_BOOKS = {
     titre: "L'Affaire endormie · Tome 1",
     auteur: 'Libero',
     categorie: 'Roman',
+    categorieEn: 'Novel',
     description: "Tome 1 de la série. L'agent spécial Yaris Cole, exilé aux archives de Las Vegas, tombe sur un carton d'homicides non résolus qui n'aurait jamais dû respirer à nouveau. Chapitre 1 gratuit — débloque la suite avec tes Libs.",
+    descriptionEn: "Volume 1 of the series. Special agent Yaris Cole, exiled to the Las Vegas archives, stumbles upon a box of unsolved homicides that was never meant to breathe again. Chapter 1 is free — unlock the rest with your Libs.",
     totalChapters: 10,
     freeChapters: 1,
     copyright: '© 2026 Libero — Tous droits réservés. Toute reproduction, diffusion ou traduction, même partielle, est interdite sans autorisation écrite de l\'auteur.',
+    copyrightEn: '© 2026 Libero — All rights reserved. Any reproduction, distribution or translation, in whole or in part, is prohibited without the author\'s written permission.',
+    chapterTitlesEn: {
+      1: 'Box No. 7', 2: 'Ten Names on a Wall', 3: 'Widow No. 3', 4: 'Visiting Room',
+      5: 'The Case Breathes', 6: 'False Lead', 7: 'The Class Photo', 8: 'The Eleventh Child',
+      9: 'The Man Who Hands Out the Boxes', 10: 'The List Is Complete',
+    },
     packs: [
       { id: 'p2', price: 1000, from: 2, to: 5,  requires: null },
       { id: 'p3', price: 2000, from: 6, to: 10, requires: 'p2' },
@@ -64,15 +72,30 @@ const LIBERO_BOOKS = {
     titre: 'Life of Georgia',
     auteur: "O'Bros",
     categorie: 'Roman',
+    categorieEn: 'Novel',
     description: "Une jeune fille d'origine campagnarde découvre, au détour d'une innocente bagarre, des pouvoirs surnaturels qu'elle ignorait. Cette découverte l'attache à quelqu'un qu'elle pourra peut-être changer avec le temps. Débloque le livre entier avec tes Libs.",
+    descriptionEn: "A young country girl discovers, in the midst of an innocent fight, supernatural powers she never knew she had. This discovery binds her to someone she may be able to change over time. Unlock the whole book with your Libs.",
     totalChapters: 12,
     freeChapters: 0,
     copyright: '© 2020 O\'Bros — Tous droits réservés. Toute reproduction, diffusion ou traduction, même partielle, est interdite sans autorisation écrite de l\'auteur.',
+    copyrightEn: '© 2020 O\'Bros — All rights reserved. Any reproduction, distribution or translation, in whole or in part, is prohibited without the author\'s written permission.',
+    chapterTitlesEn: {
+      1: 'The Arrival of Georgia', 2: 'The Rape', 3: 'Revenge', 4: 'The Quest for the Fairy Lake',
+      5: 'The Wassa Forest', 6: 'The Three Twin Mountains', 7: 'Kadel\'s Shadow',
+      8: 'The Village of the Forgotten', 9: 'The Words That Had to Be Said',
+      10: 'The Battle of the Lake', 11: 'The Fairies\' Water', 12: 'What We Become',
+    },
     packs: [
       { id: 'full', price: 2000, from: 1, to: 12, requires: null },
     ],
   },
 };
+
+// Titre anglais d'un chapitre (« Chapter N: … »), ou null si pas de traduction.
+function bookChapterTitleEn(book, num) {
+  const t = book.chapterTitlesEn?.[num];
+  return t ? `Chapter ${num}: ${t}` : null;
+}
 const bookChapters = new Map(); // bookId -> Map(num -> { num, titre, content })
 (function loadBookChapters() {
   for (const book of Object.values(LIBERO_BOOKS)) {
@@ -166,7 +189,10 @@ async function loadData() {
   ]);
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
-  cmtDocs.forEach(d => comments.push({ _id: d._id, pseudo: d.pseudo, message: d.message, date: d.date }));
+  cmtDocs.forEach(d => {
+    comments.push({ _id: d._id, pseudo: d.pseudo, message: d.message, date: d.date });
+    if (Array.isArray(d.likedBy) && d.likedBy.length) commentLikeMap.set(d._id.toString(), new Set(d.likedBy));
+  });
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   llbDocs.forEach(d => luffyLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null }));
@@ -238,6 +264,14 @@ function dbInsertComment(comment) {
   db.collection('comments')
     .insertOne(comment)
     .catch(e => console.error('Erreur sauvegarde commentaire:', e));
+}
+
+// Persiste la liste des joueurs ayant liké : les likes survivent aux redémarrages.
+function dbUpdateCommentLikes(commentId, likedBy) {
+  if (!db || !commentId) return;
+  db.collection('comments')
+    .updateOne({ _id: commentId }, { $set: { likedBy } })
+    .catch(e => console.error('Erreur sauvegarde likes commentaire:', e));
 }
 
 function dbInsertFeedVideo(video) {
@@ -2056,9 +2090,9 @@ io.on('connection', (socket) => {
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 // ── Commentaires joueurs ─────────────────────────────────────────────────────
-const commentRateMap    = new Map(); // ip → [timestamps]
-const commentLikeMap    = new Map(); // commentId (string) → Set<ip>
-const commentLikeIpMap  = new Map(); // ip → Set<commentId>
+const commentRateMap     = new Map(); // ip → [timestamps]
+const commentLikeMap     = new Map(); // commentId (string) → Set<playerId>
+const commentLikeRateMap = new Map(); // ip → [timestamps]
 
 function _newsCommentsPayload() {
   return comments.slice(-3).reverse()
@@ -2074,19 +2108,30 @@ function _newsCommentsPayload() {
 
 app.get('/api/comments', (_req, res) => res.json(_newsCommentsPayload()));
 
+// Like/délike d'un commentaire : compté par joueur (pas par IP, plusieurs
+// joueurs partagent souvent la même IP mobile), et re-cliquer retire le like.
 app.post('/api/comment-like', (req, res) => {
-  const ip = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown').trim();
-  const { id } = req.body || {};
-  if (!id || typeof id !== 'string') return res.json({ ok: false });
-  const ipSet = commentLikeIpMap.get(ip) || new Set();
-  if (ipSet.has(id)) return res.json({ ok: false, error: 'already_liked' });
+  const { id, playerId } = req.body || {};
+  const pid = safePlayerId(playerId);
+  if (!id || typeof id !== 'string' || !pid) return res.json({ ok: false });
+
+  // Anti-spam : 60 changements de like par IP par heure.
+  const ip  = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown').trim();
+  const now = Date.now();
+  const times = (commentLikeRateMap.get(ip) || []).filter(t => now - t < 3_600_000);
+  if (times.length >= 60) return res.status(429).json({ ok: false, error: 'rate_limited' });
+  times.push(now);
+  commentLikeRateMap.set(ip, times);
+
+  const comment = comments.find(c => c._id && c._id.toString() === id);
+  if (!comment) return res.json({ ok: false });
   if (!commentLikeMap.has(id)) commentLikeMap.set(id, new Set());
-  commentLikeMap.get(id).add(ip);
-  ipSet.add(id);
-  commentLikeIpMap.set(ip, ipSet);
-  const likes = commentLikeMap.get(id).size;
+  const set   = commentLikeMap.get(id);
+  const liked = !set.has(pid);
+  if (liked) set.add(pid); else set.delete(pid);
+  dbUpdateCommentLikes(comment._id, [...set]);
   io.emit('news-comments-update', _newsCommentsPayload());
-  res.json({ ok: true, likes });
+  res.json({ ok: true, likes: set.size, liked });
 });
 
 app.post('/api/comment', (req, res) => {
@@ -2114,6 +2159,7 @@ app.post('/api/comment', (req, res) => {
   commentRateMap.set(ip, times);
 
   const comment = {
+    _id:     'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
     pseudo:  pseudo?.trim() || 'Anonyme',
     message: message.trim(),
     date:    new Date().toISOString(),
@@ -2382,6 +2428,7 @@ function bookFiche(book, entry) {
     chapters.push({
       num: n,
       titre: ch ? ch.titre : `Chapitre ${n}`,
+      titreEn: bookChapterTitleEn(book, n) || `Chapter ${n}`,
       disponible: !!ch,                      // écrit et publié ?
       gratuit: !pack,
       unlocked: canReadChapter(book, entry, n),
@@ -2390,8 +2437,10 @@ function bookFiche(book, entry) {
   }
   return {
     id: book.id, titre: book.titre, auteur: book.auteur,
-    categorie: book.categorie, description: book.description,
-    copyright: book.copyright, hasCover: !!book.hasCover,
+    categorie: book.categorie, categorieEn: book.categorieEn || book.categorie,
+    description: book.description, descriptionEn: book.descriptionEn || book.description,
+    copyright: book.copyright, copyrightEn: book.copyrightEn || book.copyright,
+    hasCover: !!book.hasCover,
     packs: book.packs.map(p => ({
       id: p.id, price: p.price, from: p.from, to: p.to, requires: p.requires,
       owned: !!entry && entry.ownedBooks.includes(`${book.id}:${p.id}`),
@@ -2433,7 +2482,10 @@ app.get('/api/book/:bookId/chapitre/:num', (req, res) => {
   const id    = safePlayerId(req.query.playerId);
   const entry = id ? getLibsEntry(id) : null;
   if (!canReadChapter(book, entry, num)) return res.status(403).json({ error: 'Chapitre verrouillé.' });
-  res.json({ num: ch.num, titre: ch.titre, content: ch.content, copyright: book.copyright });
+  res.json({
+    num: ch.num, titre: ch.titre, titreEn: bookChapterTitleEn(book, num) || ch.titre,
+    content: ch.content, copyright: book.copyright, copyrightEn: book.copyrightEn || book.copyright,
+  });
 });
 
 // Admin : ajoute un livre.
