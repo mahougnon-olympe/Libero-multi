@@ -1162,7 +1162,9 @@ html.light .read-cats { background: linear-gradient(var(--bg), rgba(240,244,255,
   .screen.game-screen.active ~ .btn-help-float { display: none; }
   .game-screen { padding-top: 72px; }
   .tg-header { padding-right: 52px; }
-  #screen-landing { gap: 12px; padding: 56px 12px 88px; }
+  /* Bas généreux : le classement doit pouvoir défiler au-dessus des boutons
+     flottants (profil/commentaire) et de la barre de nav du bas sur mobile. */
+  #screen-landing { gap: 12px; padding: 56px 12px 190px; }
   .landing-card { padding: 16px 12px; gap: 8px; }
   .landing-icon  { font-size: 2rem; }
   .landing-card h2 { font-size: .92rem; }
