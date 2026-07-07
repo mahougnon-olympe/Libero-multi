@@ -1100,7 +1100,9 @@ body.shop-open .main-nav { display: none !important; } /* pas de barre de nav da
 html.light .read-search { background: rgba(0,0,0,.05); }
 html.light .read-cats { background: linear-gradient(var(--bg), rgba(240,244,255,.6), transparent); }
 @media (max-width: 600px) {
-  .read-wrap { padding-top: 64px; padding-bottom: 84px; } /* barre de nav en bas sur mobile */
+  /* Bas généreux : les livres doivent défiler au-dessus des boutons flottants
+     (profil/commentaire) et de la barre de nav du bas sur mobile. */
+  .read-wrap { padding-top: 64px; padding-bottom: 190px; }
   .read-cats { top: 0; }
 }
 @media (max-width: 520px) {
