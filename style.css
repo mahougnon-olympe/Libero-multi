@@ -888,6 +888,7 @@ body.shop-open .main-nav { display: none !important; } /* pas de barre de nav da
      (aide / commentaire) au-dessus d'elle pour qu'elle ne les masque plus. */
   body.nav-bottom-visible .btn-help-float,
   body.nav-bottom-visible .btn-comment-float { bottom: 74px; }
+  body.nav-bottom-visible .btn-profile-float { bottom: 128px; }
 }
 
 /* ── Écran Vidéos : feed vertical façon TikTok ── */
@@ -2895,7 +2896,7 @@ html.light .honor-reward-title { color: #d97706; }
    Le coin haut-droit est déjà pris par le compteur de Libs et les réglages. */
 .btn-profile-float {
   position: fixed;
-  bottom: 20px; left: 20px;
+  bottom: 74px; left: 20px;
   width: 44px; height: 44px;
   border-radius: 50%; border: none;
   background: linear-gradient(135deg,#7c5cff,#22d3ee); color: #fff;
