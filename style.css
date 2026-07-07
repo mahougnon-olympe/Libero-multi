@@ -453,7 +453,7 @@ h1 {
 .chess-sq.last-move.light { background: #cdd56a; }
 .chess-sq.last-move.dark  { background: #aaa23a; }
 
-/* Pièces d'échecs — blanc ivoire contouré sombre, noir marine contouré doré */
+/* Pièces d'échecs · blanc ivoire contouré sombre, noir marine contouré doré */
 .cp-w {
   color: #f5f0d0;
   text-shadow:
@@ -1766,7 +1766,7 @@ html.light .help-tab:hover:not(.active) { background: rgba(0,0,0,.04); }
 html.light .overlay                { background: rgba(30,27,75,.55); }
 html.light #screen-landing         { background: radial-gradient(ellipse at 50% 5%, rgba(99,102,241,.1) 0%, transparent 65%); }
 
-/* ── Boutique — thème jour ��─ */
+/* ── Boutique · thème jour ��─ */
 html.light #overlay-shop { background: rgba(99,102,241,.18); }
 html.light .shop-fortnite {
   background: linear-gradient(180deg, #eef1ff 0%, #f4f6ff 60%, #e8ecff 100%);
@@ -1785,7 +1785,7 @@ html.light .shop-fn-section-title {
   color: var(--muted);
   border-bottom-color: rgba(0,0,0,.08);
 }
-/* Tiles — backgrounds clairs par rareté */
+/* Tiles · backgrounds clairs par rareté */
 html.light .shop-tile.rarity-commun     { background: linear-gradient(180deg,#e8e8ef 0%,#d4d4e0 100%); border-color: rgba(100,100,100,.25); }
 html.light .shop-tile.rarity-commun:hover  { box-shadow: 0 6px 20px rgba(100,100,100,.2); }
 html.light .shop-tile.rarity-rare       { background: linear-gradient(180deg,#dbeafe 0%,#bfdbfe 100%); border-color: rgba(59,130,246,.4); }
@@ -2176,7 +2176,7 @@ html.light .shop-fn-promo-input::placeholder { color: var(--muted); }
 /* Title preview */
 .shop-title-preview { font-size: 1rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 8px; }
 .shop-title-tag { background: rgba(124,92,255,.25); border: 1px solid rgba(124,92,255,.4); border-radius: 6px; padding: 2px 8px; font-size: .75rem; font-weight: 700; color: #c4b5fd; white-space: nowrap; }
-/* Name effect preview (placeholder — animated styles added per effect) */
+/* Name effect preview (placeholder · animated styles added per effect) */
 .shop-nameeffect-preview { font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; justify-content: center; width: 100%; height: 82px; }
 html.light .shop-title-tag { background: rgba(99,102,241,.15); border-color: rgba(99,102,241,.3); color: #4338ca; }
 /* Detail panel */
@@ -2588,7 +2588,7 @@ body.bg-theme-space    { --board:#3a86ff;--board2:#2176ff;--border:rgba(58,134,2
 body.bg-theme-synthwave{ --board:#ff2d78;--board2:#c9004a;--border:rgba(255,45,120,.2);--glow:rgba(255,45,120,.45); }
 body.bg-theme-void      { --board:#6b7fa8;--board2:#4f6090;--border:rgba(107,127,168,.22);--glow:rgba(107,127,168,.4); }
 
-/* Themes: override CSS vars (version jour — boutons assortis au fond clair) */
+/* Themes: override CSS vars (version jour · boutons assortis au fond clair) */
 html.light body.bg-theme-violet   { --board:#7c3aed;--board2:#6d28d9;--border:rgba(124,58,237,.25);--glow:rgba(124,58,237,.25); }
 html.light body.bg-theme-aurora   { --board:#059669;--board2:#047857;--border:rgba(5,150,105,.25);--glow:rgba(5,150,105,.2); }
 html.light body.bg-theme-cyber    { --board:#0891b2;--board2:#0e7490;--border:rgba(8,145,178,.25);--glow:rgba(8,145,178,.2); }
@@ -2596,7 +2596,7 @@ html.light body.bg-theme-space    { --board:#2563eb;--board2:#1d4ed8;--border:rg
 html.light body.bg-theme-synthwave{ --board:#db2777;--board2:#be185d;--border:rgba(219,39,119,.25);--glow:rgba(219,39,119,.2); }
 html.light body.bg-theme-void      { --board:#475569;--board2:#334155;--border:rgba(71,85,105,.25);--glow:rgba(71,85,105,.18); }
 
-/* Static CSS backgrounds — version nuit */
+/* Static CSS backgrounds · version nuit */
 #bg-layer.bg-nuit,     .shop-bg-preview.bg-nuit     { background:#06060e; }
 #bg-layer.bg-ardoise,  .shop-bg-preview.bg-ardoise   { background:linear-gradient(135deg,#0f1923,#1a2a3a); }
 #bg-layer.bg-brume,    .shop-bg-preview.bg-brume     { background:radial-gradient(ellipse at 50% 30%,#2d0060 0%,#0a0015 65%); }
@@ -2604,7 +2604,7 @@ html.light body.bg-theme-void      { --board:#475569;--board2:#334155;--border:r
 #bg-layer.bg-crepuscule,.shop-bg-preview.bg-crepuscule{ background:linear-gradient(180deg,#0a0018 0%,#2d0050 50%,#3d0040 100%); }
 #bg-layer.bg-cyber,    .shop-bg-preview.bg-cyber     { background-color:#020c12;background-image:linear-gradient(rgba(0,255,200,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,200,.08) 1px,transparent 1px);background-size:40px 40px; }
 #bg-layer.bg-hexagones,.shop-bg-preview.bg-hexagones { background-color:#060c18;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92'%3E%3Cpath d='M40 0L80 23V69L40 92L0 69V23Z' fill='none' stroke='rgba(0%2C200%2C255%2C0.13)' stroke-width='1.5'/%3E%3C/svg%3E");background-size:80px 92px; }
-/* Canvas bg bases (preview only) — version nuit */
+/* Canvas bg bases (preview only) · version nuit */
 #bg-layer.bg-circuit,    .shop-bg-preview.bg-circuit    { background:linear-gradient(135deg,#010e05,#020e08); }
 #bg-layer.bg-etoile,     .shop-bg-preview.bg-etoile     { background:#02040c; }
 #bg-layer.bg-particules, .shop-bg-preview.bg-particules { background:linear-gradient(135deg,#050815,#080520); }
@@ -2617,7 +2617,7 @@ html.light body.bg-theme-void      { --board:#475569;--board2:#334155;--border:r
 #bg-layer.bg-tempete,    .shop-bg-preview.bg-tempete    { background:#030008; }
 #bg-layer.bg-hologramme, .shop-bg-preview.bg-hologramme { background:linear-gradient(135deg,#010d14,#020810); }
 
-/* Static CSS backgrounds — version jour (mode clair) */
+/* Static CSS backgrounds · version jour (mode clair) */
 html.light #bg-layer.bg-nuit,     html.light .shop-bg-preview.bg-nuit     { background:linear-gradient(135deg,#e3f2fd,#bbdefb); }
 html.light #bg-layer.bg-ardoise,  html.light .shop-bg-preview.bg-ardoise   { background:linear-gradient(135deg,#eceff1,#cfd8dc); }
 html.light #bg-layer.bg-brume,    html.light .shop-bg-preview.bg-brume     { background:radial-gradient(ellipse at 50% 30%,#f3e5f5 0%,#e1bee7 65%); }
@@ -2625,7 +2625,7 @@ html.light #bg-layer.bg-aurore-deg,html.light .shop-bg-preview.bg-aurore-deg{ ba
 html.light #bg-layer.bg-crepuscule,html.light .shop-bg-preview.bg-crepuscule{ background:linear-gradient(180deg,#fde7f3 0%,#f3e5f5 50%,#fce4ec 100%); }
 html.light #bg-layer.bg-cyber,    html.light .shop-bg-preview.bg-cyber     { background-color:#e0f7fa;background-image:linear-gradient(rgba(0,131,143,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(0,131,143,.16) 1px,transparent 1px);background-size:40px 40px; }
 html.light #bg-layer.bg-hexagones,html.light .shop-bg-preview.bg-hexagones { background-color:#e8f0fe;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92'%3E%3Cpath d='M40 0L80 23V69L40 92L0 69V23Z' fill='none' stroke='rgba(0%2C120%2C200%2C0.22)' stroke-width='1.5'/%3E%3C/svg%3E");background-size:80px 92px; }
-/* Canvas bg bases (preview only) — version jour */
+/* Canvas bg bases (preview only) · version jour */
 html.light #bg-layer.bg-circuit,    html.light .shop-bg-preview.bg-circuit    { background:linear-gradient(135deg,#e0f2e9,#d7f0e4); }
 html.light #bg-layer.bg-etoile,     html.light .shop-bg-preview.bg-etoile     { background:linear-gradient(135deg,#dbeafe,#e0e7ff); }
 html.light #bg-layer.bg-particules, html.light .shop-bg-preview.bg-particules { background:linear-gradient(135deg,#e3f2fd,#ede7f6); }
@@ -2889,3 +2889,79 @@ html.light .honor-reward-title { color: #d97706; }
   border: 1px solid rgba(99,102,241,.25) !important;
 }
 
+
+/* ── Profil : défis, série, historique ─────────────────────────────────────── */
+.landing-card--profile .landing-icon { filter: drop-shadow(0 0 8px rgba(124,92,255,.5)); }
+.profile-card-badge {
+  position: absolute; top: 8px; right: 10px;
+  min-width: 20px; height: 20px; padding: 0 6px;
+  background: linear-gradient(135deg,#ff4d9d,#ff8a3d); color: #fff;
+  border-radius: 999px; font-size: .72rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(255,77,157,.5);
+}
+.profile-modal {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: calc(100vw - 32px); max-width: 480px; max-height: 88dvh;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.profile-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.06); flex-shrink: 0;
+}
+.profile-modal-title { font-size: 1.15rem; margin: 0; }
+.profile-body { padding: 16px 20px 22px; overflow-y: auto; }
+.profile-section-title { font-size: .95rem; margin: 18px 0 10px; opacity: .9; }
+.profile-section-title:first-of-type { margin-top: 8px; }
+
+.streak-banner {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255,138,61,.18), rgba(255,77,110,.14));
+  border: 1px solid rgba(255,138,61,.35);
+}
+.streak-flame { font-size: 2rem; line-height: 1; filter: drop-shadow(0 0 10px rgba(255,138,61,.6)); }
+.streak-main { font-weight: 700; font-size: 1rem; margin: 0; }
+.streak-sub  { font-size: .8rem; opacity: .75; margin: 2px 0 0; }
+
+.challenges-list { display: flex; flex-direction: column; gap: 10px; }
+.challenge-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: 12px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.06);
+}
+.challenge-row.done { border-color: rgba(52,211,153,.4); background: rgba(52,211,153,.08); }
+.challenge-info { flex: 1; min-width: 0; }
+.challenge-name { font-size: .88rem; font-weight: 600; margin: 0 0 6px; }
+.challenge-bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,.1); overflow: hidden; }
+.challenge-bar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg,#7c5cff,#22d3ee); transition: width .4s ease; }
+.challenge-count { font-size: .72rem; opacity: .65; margin: 5px 0 0; }
+.challenge-claim-btn {
+  border: none; cursor: pointer; white-space: nowrap;
+  padding: 8px 12px; border-radius: 10px; font-size: .8rem; font-weight: 700;
+  background: linear-gradient(135deg,#ffce3a,#ff8a3d); color: #1a1200;
+  box-shadow: 0 2px 10px rgba(255,138,61,.4);
+}
+.challenge-claim-btn:disabled { opacity: .6; cursor: default; }
+.challenge-claimed { color: #34d399; font-size: .8rem; font-weight: 700; white-space: nowrap; }
+.challenge-reward-tag { color: var(--muted); font-size: .8rem; font-weight: 600; white-space: nowrap; }
+
+.history-list { display: flex; flex-direction: column; gap: 7px; }
+.history-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 10px;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.05);
+  font-size: .84rem;
+}
+.history-icon { font-size: 1.05rem; }
+.history-game { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-result { font-weight: 700; font-size: .78rem; }
+.history-result.win  { color: #34d399; }
+.history-result.loss { color: #f87171; }
+.history-result.draw { color: var(--muted); }
+.history-score { font-weight: 600; color: #22d3ee; font-size: .8rem; }
+.history-time { font-size: .72rem; opacity: .55; white-space: nowrap; }
+.history-empty, .profile-anon { font-size: .84rem; opacity: .65; text-align: center; padding: 14px 8px; margin: 0; }

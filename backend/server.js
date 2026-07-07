@@ -12,11 +12,24 @@ const chessGame  = require('./game-chess');
 const triviaGame = require('./game-trivia');
 const bots       = require('./game-bots');
 
+// Origines autorisées : le(s) domaine(s) du site (variable ALLOWED_ORIGINS, liste
+// séparée par des virgules). Si non définie, on retombe sur FRONTEND_URL, sinon
+// '*' (utile en développement local). Restreindre l'origine empêche un site tiers
+// d'agir sur l'API au nom d'un visiteur.
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || process.env.FRONTEND_URL || '')
+  .split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
+function resolveAllowedOrigin(origin) {
+  if (!ALLOWED_ORIGINS.length) return '*';           // dev : pas de restriction
+  if (origin && ALLOWED_ORIGINS.includes(origin.replace(/\/$/, ''))) return origin;
+  return ALLOWED_ORIGINS[0];                          // origine par défaut
+}
+
 const app = express();
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', resolveAllowedOrigin(req.headers.origin));
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
   // En-têtes de sécurité de base
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
@@ -28,7 +41,7 @@ app.use((req, res, next) => {
 // HMAC des webhooks FedaPay (le moindre re-encodage JSON invaliderait la signature).
 app.use(express.json({ limit: '100kb', verify: (req, _res, buf) => { req.rawBody = buf; } }));
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: '*' } });
+const io = new Server(server, { cors: { origin: ALLOWED_ORIGINS.length ? ALLOWED_ORIGINS : '*' } });
 
 const rooms           = new Map();
 const leaderboard     = new Map();
@@ -131,6 +144,26 @@ const libs            = new Map();
 const MAX_BALANCE              = 19999;
 const REFUND_CARD_MAX          = 2;
 const REFUND_CARD_COOLDOWN_MS  = 30 * 24 * 3600 * 1000;
+
+// ── Codes promo ─────────────────────────────────────────────────────────────
+// Définis par la variable d'environnement PROMO_CODES (JSON, ex.
+// {"MONCODE":100}) afin de rester HORS du code source public et de pouvoir être
+// changés sans redéploiement. Repli sur les valeurs historiques si non définie.
+const PROMO_CODES = (() => {
+  try {
+    const parsed = JSON.parse(process.env.PROMO_CODES || '');
+    if (parsed && typeof parsed === 'object') {
+      const out = {};
+      for (const [k, v] of Object.entries(parsed)) {
+        const amt = Math.floor(Number(v));
+        if (k && Number.isFinite(amt) && amt > 0) out[String(k).trim().toUpperCase()] = amt;
+      }
+      if (Object.keys(out).length) return out;
+    }
+  } catch { /* format invalide → repli */ }
+  return { EMAR: 30, NODE: 1000 };
+})();
+const PROMO_FILL_CODE = (process.env.PROMO_FILL_CODE || 'SDFT').trim().toUpperCase();
 const socketPlayerIds = new Map();
 const playerIdAliases = new Map();
 
@@ -150,6 +183,7 @@ const libsCheckoutRateMap = new Map(); // ip -> [timestamps]
 // ── Évent Snake du week-end : les ⚡ mangés créditent le solde de Libs ───────
 const snakeLibsGames = new Map(); // socket.id -> { playerId, startedAt, eats, lastEatAt }
 function isSnakeEventDay() {
+  if (process.env.SNAKE_EVENT_FORCE === '1') return true; // hook de test uniquement
   const d = new Date(Date.now() + 3_600_000).getUTCDay(); // heure du Bénin (UTC+1)
   return d === 5 || d === 6 || d === 0; // vendredi 00:00 → lundi 00:00
 }
@@ -202,7 +236,7 @@ async function loadData() {
   });
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   llbDocs.forEach(d => luffyLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, history: Array.isArray(d.history) ? d.history : [] }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   feedDocs.forEach(d => feedVideos.push({ _id: d._id, url: d.url, titre: d.titre || '', ordre: d.ordre || 0, actif: d.actif !== false, createdAt: d.createdAt || Date.now() }));
@@ -257,6 +291,19 @@ function safePlayerId(id) {
   const raw = typeof id === 'string' && id.trim() ? id.trim().slice(0, 64) : null;
   if (!raw) return null;
   return playerIdAliases.get(raw) || raw;
+}
+
+// Assainit un pseudo AVANT stockage : retire les caractères HTML/contrôle pour
+// qu'aucun nom ne puisse injecter de code dans un classement, un salon ou le chat
+// (défense côté serveur, au point d'entrée unique — les rendus restent sûrs
+// quelle que soit la page).
+function sanitizeName(name, fallback = '') {
+  const cleaned = String(name == null ? '' : name)
+    .replace(/[<>&"'` -]/g, '')
+    .trim()
+    .slice(0, 20)
+    .trim();
+  return cleaned || fallback;
 }
 
 function dbUpsertAlias(from, to) {
@@ -323,7 +370,7 @@ function dbUpsertLibsPurchase(cartId, purchase) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [] } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -423,6 +470,83 @@ function creditLibsPurchase(purchase) {
   }
   console.log(`[💳] +${purchase.libsAmount} Libs crédités (achat FedaPay ${purchase._id}) → ${entry.name || purchase.playerId}`);
   return true;
+}
+
+// ── Défis quotidiens · Série de connexion · Historique de parties ───────────
+// Jour calendaire à l'heure du Bénin (UTC+1), au format AAAA-MM-JJ.
+function _dayKey(offsetDays = 0) {
+  return new Date(Date.now() + 3_600_000 - offsetDays * 86_400_000).toISOString().slice(0, 10);
+}
+
+// Envoie un événement à tous les sockets actifs d'un joueur donné.
+function _emitToPlayer(id, event, payload) {
+  for (const [sockId, pid] of socketPlayerIds.entries()) {
+    if (pid === id) io.to(sockId).emit(event, payload);
+  }
+}
+
+// Trois défis par jour ; les compteurs se réinitialisent chaque jour.
+const DAILY_CHALLENGES = [
+  { id: 'wins',   metric: 'gamesWon',      goal: 3,  reward: 40 },
+  { id: 'trivia', metric: 'triviaCorrect', goal: 5,  reward: 40 },
+  { id: 'snake',  metric: 'snakeEaten',    goal: 30, reward: 50 },
+];
+
+function getChallenges(entry) {
+  const today = _dayKey();
+  if (!entry.challenges || entry.challenges.date !== today) {
+    entry.challenges = { date: today, progress: { gamesWon: 0, triviaCorrect: 0, snakeEaten: 0 }, claimed: [] };
+  }
+  return entry.challenges;
+}
+
+function challengesPayload(entry) {
+  const c = getChallenges(entry);
+  return DAILY_CHALLENGES.map(ch => ({
+    id: ch.id, goal: ch.goal, reward: ch.reward,
+    progress: Math.min(ch.goal, c.progress[ch.metric] || 0),
+    done: (c.progress[ch.metric] || 0) >= ch.goal,
+    claimed: c.claimed.includes(ch.id),
+  }));
+}
+
+// Fait progresser un défi et notifie le joueur (barres de progression en direct).
+function bumpChallenge(id, metric, amount = 1) {
+  if (!id) return;
+  const entry = getLibsEntry(id);
+  if (!entry || !entry.name || entry.name === 'Anonyme') return;
+  const c = getChallenges(entry);
+  if (!(metric in c.progress)) return;
+  c.progress[metric] += amount;
+  libs.set(id, entry);
+  dbUpsertLibs(id, entry);
+  _emitToPlayer(id, 'challenges-update', { challenges: challengesPayload(entry) });
+}
+
+// Met à jour la série de connexion une fois par jour et renvoie le bonus gagné.
+function touchStreak(entry) {
+  const today = _dayKey();
+  let s = (entry.streak && typeof entry.streak === 'object') ? entry.streak : { lastDay: null, count: 0, longest: 0 };
+  if (s.lastDay === today) return { streak: s, bonus: 0 };
+  s.count   = (s.lastDay === _dayKey(1)) ? (s.count || 0) + 1 : 1;
+  s.lastDay = today;
+  s.longest = Math.max(s.longest || 0, s.count);
+  entry.streak = s;
+  const bonus = Math.min(s.count, 7) * 5; // de 5 (jour 1) à 35 (jour 7+) Libs
+  return { streak: s, bonus };
+}
+
+// Ajoute une partie en tête de l'historique (limité aux 20 dernières).
+function pushHistory(id, item) {
+  if (!id) return;
+  const entry = getLibsEntry(id);
+  if (!entry || !entry.name || entry.name === 'Anonyme') return;
+  if (!Array.isArray(entry.history)) entry.history = [];
+  entry.history.unshift({ game: item.game, result: item.result || null, score: item.score ?? null, at: Date.now() });
+  entry.history = entry.history.slice(0, 20);
+  libs.set(id, entry);
+  dbUpsertLibs(id, entry);
+  _emitToPlayer(id, 'history-update', { history: entry.history });
 }
 
 function getCosmeticByName(name) {
@@ -754,7 +878,7 @@ function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null, streak: null, challenges: null, history: [] };
     libs.set(id, entry);
   }
   if (!entry.usedCodes)          entry.usedCodes          = [];
@@ -780,6 +904,9 @@ function getLibsEntry(id) {
   if (!Array.isArray(entry.equippedEmotes)) entry.equippedEmotes = entry.equippedEmote ? [entry.equippedEmote] : [];
   if (!('honorTitle'          in entry)) entry.honorTitle          = null;
   if (!('pendingHonorModal'   in entry)) entry.pendingHonorModal   = null;
+  if (!('streak' in entry) || typeof entry.streak !== 'object') entry.streak = null;
+  if (!('challenges' in entry)) entry.challenges = null;
+  if (!Array.isArray(entry.history)) entry.history = [];
   const prevBal = entry.balance;
   applyDecay(entry);
   if (entry.balance !== prevBal) dbUpsertLibs(id, entry);
@@ -1039,11 +1166,18 @@ function getTriviaRoomState(room) {
   };
 }
 
+// Usage interne uniquement : contient le playerId (secret), ne jamais émettre tel quel.
 function getRoomScores(room) {
   return [...room.players.entries()]
     .filter(([, p]) => !p.disconnected)
     .map(([sid, p]) => ({ socketId: sid, name: p.name, playerId: p.playerId, score: p.score, colorIndex: p.colorIndex }))
     .sort((a, b) => b.score - a.score);
+}
+
+// Projection sûre pour diffusion aux clients : retire le playerId (jeton d'identité
+// secret qui, s'il fuitait, permettrait d'usurper le compte d'un autre joueur).
+function publicScores(room) {
+  return getRoomScores(room).map(({ playerId, ...rest }) => rest);
 }
 
 async function startTriviaGame(code) {
@@ -1079,7 +1213,7 @@ function sendTriviaQuestion(code) {
     question:       q.question,
     choices:        q.choices,
     timeLimit:      20,
-    scores:         getRoomScores(room),
+    scores:         publicScores(room),
   });
   room.timer = setTimeout(() => revealTriviaAnswer(code), TRIVIA_TIME_MS);
 }
@@ -1096,10 +1230,10 @@ function revealTriviaAnswer(code) {
   for (const [sid, choice] of room.answersThisRound) {
     if (choice === correct) {
       const p = room.players.get(sid);
-      if (p) { p.score++; correctSocketIds.push(sid); }
+      if (p) { p.score++; correctSocketIds.push(sid); bumpChallenge(p.playerId, 'triviaCorrect'); }
     }
   }
-  io.to(code).emit('trivia-reveal', { correct, correctSocketIds, scores: getRoomScores(room) });
+  io.to(code).emit('trivia-reveal', { correct, correctSocketIds, scores: publicScores(room) });
   room.revealTimer = setTimeout(() => nextTriviaQuestion(code), 3500);
 }
 
@@ -1120,11 +1254,12 @@ function finishTriviaGame(code) {
   for (const s of scores) {
     updateTriviaLeaderboard(s.playerId || s.name, s.name, s.score);
     updateLastActive(s.playerId, s.name);
+    pushHistory(s.playerId, { game: 'trivia', result: null, score: s.score });
   }
   io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
   io.emit('global-leaderboard-update', getGlobalLeaderboardData());
 
-  io.to(code).emit('trivia-finished', { scores });
+  io.to(code).emit('trivia-finished', { scores: scores.map(({ playerId, ...rest }) => rest) });
   setTimeout(() => triviaRooms.delete(code), 60_000);
 }
 
@@ -1202,13 +1337,26 @@ io.on('connection', (socket) => {
   let myPlayer      = null;
   let triviaRoomCode = null;
 
+  // Anti-abus : limite la cadence des actions économiques sur CE socket, pour
+  // qu'un playerId éventuellement divulgué ne puisse pas être vidé/harcelé en
+  // rafale. Renvoie true si l'action est autorisée maintenant.
+  const _actionTimes = new Map(); // action -> [timestamps]
+  function allowAction(action, max = 12, windowMs = 10_000) {
+    const now = Date.now();
+    const arr = (_actionTimes.get(action) || []).filter(t => now - t < windowMs);
+    if (arr.length >= max) { _actionTimes.set(action, arr); return false; }
+    arr.push(now);
+    _actionTimes.set(action, arr);
+    return true;
+  }
+
   socket.emit('server-announcement', SERVER_ANNOUNCEMENT);
   socket.on('announcement-dismissed', () => {});
 
   // ── Créer une room ──────────────────────────────────────────────────────
   socket.on('create-room', ({ gameType = 'connect4', name = '', vsBot = false, botDifficulty = 'medium', playerId } = {}) => {
     if (!VALID_GAMES.has(gameType)) return;
-    const playerName = String(name).trim().slice(0, 20) || 'Anonyme';
+    const playerName = sanitizeName(name, 'Anonyme');
     const diff = ['easy', 'medium', 'hard'].includes(botDifficulty) ? botDifficulty : 'medium';
 
     const code = generateCode();
@@ -1240,7 +1388,7 @@ io.on('connection', (socket) => {
 
   // ── Rejoindre une room ──────────────────────────────────────────────────
   socket.on('join-room', ({ code, name = '', playerId } = {}) => {
-    const playerName = String(name).trim().slice(0, 20) || 'Anonyme';
+    const playerName = sanitizeName(name, 'Anonyme');
     const key  = (code || '').toUpperCase().trim();
     const room = rooms.get(key);
 
@@ -1365,11 +1513,16 @@ io.on('connection', (socket) => {
           updateLeaderboard(room.playerIds?.[loserRole] || room.playerNames[loserRole], room.playerNames[loserRole], 'loss');
           updateLastActive(room.playerIds?.[winner],    room.playerNames[winner]);
           updateLastActive(room.playerIds?.[loserRole], room.playerNames[loserRole]);
+          pushHistory(room.playerIds?.[winner],    { game: room.gameType, result: 'win' });
+          pushHistory(room.playerIds?.[loserRole], { game: room.gameType, result: 'loss' });
+          bumpChallenge(room.playerIds?.[winner], 'gamesWon');
         } else {
           updateLeaderboard(room.playerIds?.R || room.playerNames.R, room.playerNames.R, 'draw');
           updateLeaderboard(room.playerIds?.Y || room.playerNames.Y, room.playerNames.Y, 'draw');
           updateLastActive(room.playerIds?.R, room.playerNames.R);
           updateLastActive(room.playerIds?.Y, room.playerNames.Y);
+          pushHistory(room.playerIds?.R, { game: room.gameType, result: 'draw' });
+          pushHistory(room.playerIds?.Y, { game: room.gameType, result: 'draw' });
         }
         io.emit('leaderboard-update', getLeaderboardData());
         io.emit('global-leaderboard-update', getGlobalLeaderboardData());
@@ -1379,9 +1532,13 @@ io.on('connection', (socket) => {
         const humanId   = room.playerIds?.R || humanName;
         if (humanName) {
           if (status === 'won') {
-            updateLeaderboard(humanId, humanName, winner === 'R' ? 'win' : 'loss');
+            const humanWon = winner === 'R';
+            updateLeaderboard(humanId, humanName, humanWon ? 'win' : 'loss');
+            pushHistory(room.playerIds?.R, { game: room.gameType, result: humanWon ? 'win' : 'loss' });
+            if (humanWon) bumpChallenge(room.playerIds?.R, 'gamesWon');
           } else {
             updateLeaderboard(humanId, humanName, 'draw');
+            pushHistory(room.playerIds?.R, { game: room.gameType, result: 'draw' });
           }
           updateLastActive(humanId, humanName);
           io.emit('leaderboard-update', getLeaderboardData());
@@ -1456,7 +1613,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('check-pseudo', ({ name, playerId } = {}) => {
-    const cleanName = String(name || '').trim().slice(0, 20);
+    const cleanName = sanitizeName(name);
     const id = safePlayerId(playerId);
     if (!cleanName || cleanName === 'Anonyme' || !id) {
       socket.emit('pseudo-check-result', { taken: false });
@@ -1472,7 +1629,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('rename-player', ({ name, playerId } = {}) => {
-    const newName = String(name || '').trim().slice(0, 20);
+    if (!allowAction('rename', 8, 60_000)) { socket.emit('rename-result', { ok: false, error: 'rate' }); return; }
+    const newName = sanitizeName(name);
     const id = safePlayerId(playerId);
     if (!newName || newName === 'Anonyme' || !id) {
       socket.emit('rename-result', { ok: false, error: 'invalid' });
@@ -1503,7 +1661,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('submit-snake-score', ({ name, hs, playerId } = {}) => {
-    const playerName = String(name || '').trim().slice(0, 20);
+    const playerName = sanitizeName(name);
     if (!playerName || typeof hs !== 'number') return;
     const id = safePlayerId(playerId) || playerName;
     const result = updateSnakeLeaderboard(id, playerName, Math.max(0, Math.floor(hs)));
@@ -1517,7 +1675,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('submit-luffy-score', ({ name, hs, playerId } = {}) => {
-    const playerName = String(name || '').trim().slice(0, 20);
+    const playerName = sanitizeName(name);
     if (!playerName || typeof hs !== 'number') return;
     const id = safePlayerId(playerId) || playerName;
     const result = updateLuffyLeaderboard(id, playerName, Math.max(0, Math.floor(hs)));
@@ -1552,7 +1710,9 @@ io.on('connection', (socket) => {
     game.eats++;
     game.lastEatAt = now;
     const entry = getLibsEntry(id);
-    if (!entry || entry.balance >= MAX_BALANCE) return;
+    if (!entry) return;
+    bumpChallenge(id, 'snakeEaten'); // compte pour le défi même au solde plafonné
+    if (entry.balance >= MAX_BALANCE) return;
     entry.balance = Math.min(MAX_BALANCE, entry.balance + 1);
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
@@ -1583,7 +1743,7 @@ io.on('connection', (socket) => {
   socket.on('create-trivia-room', ({ categories, name = '', lang = 'fr', difficulty = '', amount, playerId } = {}) => {
     const cats = [].concat(categories || []).map(c => parseInt(c)).filter(c => TRIVIA_CATEGORIES[c]);
     if (cats.length === 0) return;
-    const playerName = String(name).trim().slice(0, 20) || 'Anonyme';
+    const playerName = sanitizeName(name, 'Anonyme');
     const roomLang = ['fr', 'en'].includes(lang) ? lang : 'fr';
     const roomDiff = ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : '';
     const rawN = parseInt(amount) || TRIVIA_Q_COUNT;
@@ -1610,7 +1770,7 @@ io.on('connection', (socket) => {
   socket.on('join-trivia-room', ({ code, name = '', playerId } = {}) => {
     const key  = (code || '').toUpperCase().trim();
     const room = triviaRooms.get(key);
-    const playerName = String(name).trim().slice(0, 20) || 'Anonyme';
+    const playerName = sanitizeName(name, 'Anonyme');
     if (!room)                   { socket.emit('trivia-error', { message: 'Salon introuvable. Vérifie le code.' }); return; }
     if (room.status !== 'waiting') { socket.emit('trivia-error', { message: 'La partie a déjà commencé.' });        return; }
     if (room.players.size >= 6)  { socket.emit('trivia-error', { message: 'Le salon est complet (6 joueurs max).' }); return; }
@@ -1687,12 +1847,61 @@ io.on('connection', (socket) => {
 
   // ── Trivia : fin de partie solo ──────────────────────────────────────────
   socket.on('solo-trivia-finished', ({ name, score, playerId } = {}) => {
-    const playerName = String(name || '').trim().slice(0, 20) || 'Anonyme';
+    const playerName = sanitizeName(name, 'Anonyme');
     const id = safePlayerId(playerId) || playerName;
     updateTriviaLeaderboard(id, playerName, score);
     updateLastActive(id, playerName);
+    const pid = safePlayerId(playerId);
+    if (pid && typeof score === 'number') {
+      pushHistory(pid, { game: 'trivia', result: null, score: Math.max(0, Math.floor(score)) });
+      bumpChallenge(pid, 'triviaCorrect', Math.max(0, Math.floor(score)));
+    }
     io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
     io.emit('global-leaderboard-update', getGlobalLeaderboardData());
+  });
+
+  // ── Fin de partie solo (Snake / Luffy) : historique + défis ──────────────
+  socket.on('solo-game-over', ({ playerId, game, score } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    if (!['snake', 'luffy'].includes(game)) return;
+    const sc = Math.max(0, Math.floor(Number(score) || 0));
+    pushHistory(id, { game, result: null, score: sc });
+  });
+
+  // ── Défis quotidiens ──────────────────────────────────────────────────────
+  socket.on('get-challenges', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) { socket.emit('challenges-update', { challenges: [] }); return; }
+    socket.emit('challenges-update', { challenges: challengesPayload(getLibsEntry(id)) });
+  });
+
+  socket.on('claim-challenge', ({ playerId, challengeId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) { socket.emit('claim-challenge-result', { ok: false, error: 'invalid' }); return; }
+    if (!allowAction('claim', 20, 60_000)) { socket.emit('claim-challenge-result', { ok: false, error: 'rate' }); return; }
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') { socket.emit('claim-challenge-result', { ok: false, error: 'anonymous' }); return; }
+    const def = DAILY_CHALLENGES.find(c => c.id === challengeId);
+    if (!def) { socket.emit('claim-challenge-result', { ok: false, error: 'invalid' }); return; }
+    const c = getChallenges(entry);
+    if ((c.progress[def.metric] || 0) < def.goal) { socket.emit('claim-challenge-result', { ok: false, error: 'not_done' }); return; }
+    if (c.claimed.includes(def.id)) { socket.emit('claim-challenge-result', { ok: false, error: 'already' }); return; }
+    c.claimed.push(def.id);
+    entry.balance = Math.min(MAX_BALANCE, entry.balance + def.reward);
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: def.reward, nextAt: nextDistributionAt });
+    socket.emit('challenges-update', { challenges: challengesPayload(entry) });
+    socket.emit('claim-challenge-result', { ok: true, challengeId, reward: def.reward });
+  });
+
+  // ── Historique des parties ────────────────────────────────────────────────
+  socket.on('get-history', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) { socket.emit('history-update', { history: [] }); return; }
+    const entry = getLibsEntry(id);
+    socket.emit('history-update', { history: Array.isArray(entry.history) ? entry.history : [] });
   });
 
   // ── Chat ─────────────────────────────────────────────────────────────────
@@ -1723,8 +1932,24 @@ io.on('connection', (socket) => {
     if (!id) { socket.emit('libs-update', { balance: 0, pendingBoostHint: 0 }); return; }
     socketPlayerIds.set(socket.id, id);
     const entry = getLibsEntry(id);
+
+    // Série de connexion : bonus quotidien croissant, réservé aux joueurs nommés
+    // (empêche le farm avec des identités fraîches anonymes).
+    let streakBonus = 0;
+    if (entry.name && entry.name !== 'Anonyme') {
+      const { streak, bonus } = touchStreak(entry);
+      streakBonus = bonus;
+      if (bonus > 0) {
+        entry.balance = Math.min(MAX_BALANCE, entry.balance + bonus);
+        libs.set(id, entry);
+      }
+      dbUpsertLibs(id, entry);
+      socket.emit('streak-update', { count: streak.count, longest: streak.longest, bonus });
+    }
+
     const { available: refundCards, nextRefill: refundCardsNextRefill } = getRefundCardsInfo(entry);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, delta: streakBonus || undefined });
+    socket.emit('challenges-update', { challenges: challengesPayload(entry) });
   });
 
   socket.on('get-shop', () => {
@@ -1755,6 +1980,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('buy-bundle', ({ playerId, bundleId } = {}) => {
+    if (!allowAction('buy')) { socket.emit('buy-bundle-result', { ok: false, error: 'rate' }); return; }
     const id = safePlayerId(playerId);
     if (!id) { socket.emit('buy-bundle-result', { ok: false, error: 'invalid' }); return; }
     const entry = getLibsEntry(id);
@@ -1790,6 +2016,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('buy-boost', ({ itemId, playerId } = {}) => {
+    if (!allowAction('buy')) { socket.emit('buy-boost-result', { ok: false, error: 'rate' }); return; }
     const id   = safePlayerId(playerId);
     const item = SHOP_ITEMS.find(s => s.id === itemId);
     if (!id || !item) { socket.emit('buy-boost-result', { ok: false, error: 'invalid' }); return; }
@@ -1806,23 +2033,24 @@ io.on('connection', (socket) => {
   });
 
   socket.on('redeem-code', ({ code, playerId, name } = {}) => {
+    if (!allowAction('redeem', 10, 60_000)) { socket.emit('redeem-result', { ok: false, error: 'rate' }); return; }
     const id = safePlayerId(playerId);
     if (!id) { socket.emit('redeem-result', { ok: false, error: 'invalid' }); return; }
     const entry = getLibsEntry(id);
-    const cleanName = String(name || '').trim();
+    const cleanName = sanitizeName(name);
     if (cleanName && cleanName !== 'Anonyme') entry.name = cleanName;
     if (!entry.name || entry.name === 'Anonyme') {
       socket.emit('redeem-result', { ok: false, error: 'anonymous' }); return;
     }
-    const PROMOS = { 'EMAR': 30, 'NODE': 1000 };
     const normalCode = String(code || '').trim().toUpperCase();
     const isLibero   = entry.name === 'Libero';
-    const isFillCode = normalCode === 'SDFT';
-    const reward     = isFillCode ? Math.max(0, MAX_BALANCE - entry.balance) : PROMOS[normalCode];
+    const isFillCode = normalCode === PROMO_FILL_CODE;
+    const reward     = isFillCode ? Math.max(0, MAX_BALANCE - entry.balance) : PROMO_CODES[normalCode];
     if (!reward) {
       socket.emit('redeem-result', { ok: false, error: isFillCode ? 'already_used' : 'invalid' }); return;
     }
-    const unlimited = isLibero && normalCode === 'NODE';
+    // Le propriétaire (Libero) peut rejouer ses codes autant qu'il veut (tests).
+    const unlimited = isLibero && !isFillCode;
     if (!unlimited && entry.usedCodes.includes(normalCode)) {
       socket.emit('redeem-result', { ok: false, error: 'already_used' }); return;
     }
@@ -1835,6 +2063,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('buy-cosmetic', ({ playerId, cosmeticId } = {}) => {
+    if (!allowAction('buy')) { socket.emit('buy-cosmetic-result', { ok: false, error: 'rate' }); return; }
     const id = safePlayerId(playerId);
     if (!id) { socket.emit('buy-cosmetic-result', { ok: false, error: 'invalid' }); return; }
     const entry = getLibsEntry(id);
@@ -1854,6 +2083,7 @@ io.on('connection', (socket) => {
 
   // Achat d'un pack de chapitres du livre exclusif (même modèle que buy-cosmetic).
   socket.on('buy-book-pack', ({ playerId, bookId, packId } = {}) => {
+    if (!allowAction('buy')) { socket.emit('buy-book-pack-result', { ok: false, error: 'rate' }); return; }
     const id = safePlayerId(playerId);
     if (!id) { socket.emit('buy-book-pack-result', { ok: false, error: 'invalid' }); return; }
     const entry = getLibsEntry(id);
@@ -1938,6 +2168,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('refund-cosmetic', ({ playerId, cosmeticId } = {}) => {
+    if (!allowAction('buy')) { socket.emit('refund-cosmetic-result', { ok: false, error: 'rate' }); return; }
     const id = safePlayerId(playerId);
     if (!id) { socket.emit('refund-cosmetic-result', { ok: false, error: 'invalid' }); return; }
     const entry = getLibsEntry(id);
@@ -2105,7 +2336,7 @@ io.on('connection', (socket) => {
     const reconnectData = {
       code: key,
       status:     troom.status,
-      scores:     getRoomScores(troom),
+      scores:     publicScores(troom),
       colorIndex: player.colorIndex,
       hostId:     troom.hostId,
     };
@@ -2118,7 +2349,7 @@ io.on('connection', (socket) => {
         question:       q.question,
         choices:        q.choices,
         timeLimit:      TRIVIA_TIME_MS / 1000,
-        scores:         getRoomScores(troom),
+        scores:         publicScores(troom),
       };
     }
 
@@ -2199,7 +2430,7 @@ app.post('/api/comment', (req, res) => {
   commentRateMap.set(ip, times);
 
   const comment = {
-    _id:     'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    _id:     'c_' + crypto.randomUUID(),
     pseudo:  pseudo?.trim() || 'Anonyme',
     message: message.trim(),
     date:    new Date().toISOString(),
@@ -2376,7 +2607,10 @@ function isAdmin(req) {
   const now = Date.now();
   const fails = (adminAttempts.get(ip) || []).filter(ts => now - ts < 15 * 60_000);
   if (fails.length >= 10) { adminAttempts.set(ip, fails); return false; } // 10 échecs / 15 min
-  const given    = Buffer.from(String(req.query.key || ''));
+  // La clé peut venir d'un en-tête (recommandé, non journalisé) ou du query
+  // string (compat. historique — apparaît dans les logs, à éviter).
+  const provided = req.headers['x-admin-key'] || req.query.key || '';
+  const given    = Buffer.from(String(provided));
   const expected = Buffer.from(adminKey);
   const ok = given.length === expected.length && crypto.timingSafeEqual(given, expected);
   if (!ok) { fails.push(now); adminAttempts.set(ip, fails); }

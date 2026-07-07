@@ -1,8 +1,26 @@
+// ── Échappement HTML (anti-XSS) ───────────────────────────────────────────────
+// Tout contenu venant d'un autre utilisateur (pseudo, message…) DOIT passer par
+// ici avant d'être injecté en innerHTML.
+function _escHtml(s) {
+  return String(s == null ? '' : s).replace(/[<>&"']/g, c =>
+    ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 // ── Identifiant joueur stable ─────────────────────────────────────────────────
+// Identifiant secret servant de clé d'identité : il ne doit jamais être devinable
+// ni divulgué. Généré via l'API cryptographique du navigateur (128 bits).
 function getPlayerId() {
   let id = localStorage.getItem('libero_player_id');
   if (!id) {
-    id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    if (window.crypto?.randomUUID) {
+      id = window.crypto.randomUUID().replace(/-/g, '');
+    } else if (window.crypto?.getRandomValues) {
+      const b = new Uint8Array(16);
+      window.crypto.getRandomValues(b);
+      id = [...b].map(x => x.toString(16).padStart(2, '0')).join('');
+    } else {
+      id = Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    }
     localStorage.setItem('libero_player_id', id);
   }
   return id;
@@ -41,7 +59,7 @@ let _shopCountdownTimer     = null;
 let refundCards             = 2;
 let refundCardsNextRefill   = null;
 let _libsAnimTimer     = null;
-let libsPacksCache     = null; // [{ id, libs, label, priceFCFA, available }] — chargé depuis le serveur
+let libsPacksCache     = null; // [{ id, libs, label, priceFCFA, available }] · chargé depuis le serveur
 let _libsDistTimer     = null;
 let _nextDistAt        = 0;
 let _globalLbData      = [];
@@ -348,7 +366,7 @@ const DICT = {
     shopTitle:'⚡ Boutique', shopBalanceLabel:'Ton solde :',
     shopBoostHintName:'💡 Indice Quiz',
     shopBoostHintDesc:'Élimine une mauvaise réponse. Utilisable jusqu\'à 2 fois par question.',
-    shopBtnBuy10:'10 indices — 3 ⚡', shopBtnBuy20:'20 indices — 5 ⚡',
+    shopBtnBuy10:'10 indices · 3 ⚡', shopBtnBuy20:'20 indices · 5 ⚡',
     shopPending:n => `${n} indice${n > 1 ? 's' : ''} restant${n > 1 ? 's' : ''}`,
     shopInsufficient:'Champion, tu n\'as pas assez de Libs.', shopBuyError:'Erreur lors de l\'achat.',
     shopBuyOk:'Boost acheté !',
@@ -357,7 +375,7 @@ const DICT = {
     shopPromoAlreadyUsed:'Tu as déjà utilisé ce code.', shopPromoInvalid:'Code invalide.', shopPromoAnon:'Les joueurs anonymes ne peuvent pas utiliser de code.',
     shopCosmeticsTitle:'🎨 Cosmétiques de pseudo',
     shopCosmeticNames:{ rainbow:'Arc en ciel', galaxy:'Galaxie', silver:'Argent', bronze:'Bronze', gold:'Or', diamond:'Diamant' },
-    shopCosmeticBuy:p => `Acheter — ${p} ⚡`,
+    shopCosmeticBuy:p => `Acheter · ${p} ⚡`,
     shopCosmeticEquip:'Équiper', shopCosmeticEquipped:'✓ Équipé', shopCosmeticUnequip:'Retirer',
     shopCosmeticPreview:'Libero',
     shopCosmeticBought:'🎨 Cosmétique acheté !',
@@ -405,7 +423,7 @@ const DICT = {
     shopDailyTitle:'📅 Quotidien',
     shopBundlesTitle:'🎁 Bundles',
     shopSectionDescs:{
-      featured:"La sélection de la semaine — se renouvelle toutes les 24h.",
+      featured:"La sélection de la semaine · se renouvelle toutes les 24h.",
       daily:"Des offres à prix réduit, renouvelées chaque jour.",
       bundles:"Packs thématiques à prix réduit. Si tu possèdes déjà certains articles, le prix s'ajuste automatiquement.",
       colors:"Colorie ton pseudo dans les classements et en partie.",
@@ -431,8 +449,8 @@ const DICT = {
     shopBundleItems: n => `${n} article${n>1?'s':''}`,
     shopBundleContains:'🎁 Contenu :',
     shopBundleAlreadyOwned:'Tu possèdes déjà tous les articles de ce bundle.',
-    shopBundlePartialOwned: n => `Tu possèdes déjà ${n} article${n>1?'s':''} — prix ajusté.`,
-    shopBundleBuy: p => `Acheter le bundle — ${p} ⚡`,
+    shopBundlePartialOwned: n => `Tu possèdes déjà ${n} article${n>1?'s':''} · prix ajusté.`,
+    shopBundleBuy: p => `Acheter le bundle · ${p} ⚡`,
     shopBundleBuyOk:'🎁 Bundle acheté !',
     shopBundleAnon:'Les joueurs anonymes ne peuvent pas acheter de bundles.',
     shopBundleInsufficientFunds:'Champion, tu n\'as pas assez de Libs.',
@@ -448,7 +466,7 @@ const DICT = {
     shopLibsPacksFeatured:'⭐ Populaire',
     shopLibsPacksBonus:n => `+${n} offerts`,
     shopLibsBuyTitle:'💳 Recharger tes Libs',
-    shopLibsBuySummary:(libs, price) => `⚡ ${libs} Libs — ${price.toLocaleString('fr-FR')} FCFA. Tu seras redirigé vers la page de paiement sécurisée.`,
+    shopLibsBuySummary:(libs, price) => `⚡ ${libs} Libs · ${price.toLocaleString('fr-FR')} FCFA. Tu seras redirigé vers la page de paiement sécurisée.`,
     shopLibsBuySubmit:'Payer',
     shopLibsBuyMissing:'Remplis email, prénom et nom pour continuer.',
     shopLibsBuyBadEmail:'Adresse email invalide.',
@@ -517,6 +535,22 @@ const DICT = {
     snakeScoreLabel:'Score', snakeBestLabel:'Meilleur',
     snakeHsDisplay:n => `🏆 Ton record : ${n} ⚡`,
     snakeLibsEarned:n => `+${n} ⚡ ajoutés à ton solde !`,
+    profileCardTitle:'Mon profil', profileCardDesc:'Défis · Série · Historique',
+    profileTitle:'Mon profil',
+    challengesTitle:'🎯 Défis du jour', historyTitle:'🕑 Mes dernières parties',
+    profileAnon:'Choisis un pseudo (dans un jeu) pour suivre tes défis, ta série et ton historique !',
+    challengesNames:{ wins:'Gagne 3 parties', trivia:'Réponds bien à 5 questions', snake:'Mange 30 ⚡ au Snake' },
+    challengeClaim:'Réclamer', challengeClaimed:'✓ Réclamé', challengeLocked:'À finir',
+    challengeReward:n => `+${n} ⚡`,
+    challengeClaimToast:n => `Défi réussi ! +${n} ⚡`,
+    streakMain:n => `Série de ${n} jour${n > 1 ? 's' : ''} 🔥`,
+    streakNone:'Commence ta série aujourd\'hui !',
+    streakSub:(l, b) => `Record : ${l} jour${l > 1 ? 's' : ''}${b > 0 ? ` · +${b} ⚡ aujourd'hui` : ''}`,
+    streakBonusToast:(n, b) => `Jour ${n} de connexion · +${b} ⚡ !`,
+    historyEmpty:'Aucune partie pour l\'instant. Lance une partie !',
+    historyGameNames:{ connect4:'Puissance 4', tictactoe:'Morpion', chess:'Échecs', trivia:'Quiz', snake:'Snake', luffy:'Luffy Runner' },
+    historyResults:{ win:'Victoire', loss:'Défaite', draw:'Match nul' },
+    historyScore:n => `${n} pts`,
     snakeGameOver:'Game Over', snakeNewRecord:'🏆 Nouveau record !',
     btnSnakeRestart:'Rejouer', btnSnakeQuit:'Quitter',
     snakePause:'⏸ Pause', btnSnakeResume:'▶ Reprendre',
@@ -548,8 +582,9 @@ const DICT = {
     helpContent:{
       general:[
         { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Luffy Runner</strong>, une idée de joueur reprise par le créateur). Chaque section a son propre classement." },
-        { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> — ton serpent mange des <strong>⚡ Libs</strong> pour grandir, et chaque ⚡ mangé est <strong>ajouté à ton solde</strong> (score 10 = 10 Libs gagnés). Les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
-        { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras aussi <strong>⭐ L'Affaire endormie · Tome 1</strong>, le roman exclusif écrit par le créateur : le <strong>chapitre 1 est gratuit</strong>, puis débloque les chapitres 2-5 pour <strong>1000 ⚡ Libs</strong> et les chapitres 6-10 pour <strong>2000 ⚡</strong> — la lecture se fait directement sur le site." },
+        { icon:'🎯', title:'Mon profil', desc:"La carte <strong>Mon profil</strong> (accueil) regroupe trois choses : tes <strong>défis du jour</strong> (3 objectifs simples comme gagner 3 parties ou manger 30 ⚡, chacun récompensé en ⚡ à réclamer), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. Il faut un pseudo pour en profiter." },
+        { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> · ton serpent mange des <strong>⚡ Libs</strong> pour grandir, et chaque ⚡ mangé est <strong>ajouté à ton solde</strong> (score 10 = 10 Libs gagnés). Les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
+        { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras aussi <strong>⭐ L'Affaire endormie · Tome 1</strong>, le roman exclusif écrit par le créateur : le <strong>chapitre 1 est gratuit</strong>, puis débloque les chapitres 2-5 pour <strong>1000 ⚡ Libs</strong> et les chapitres 6-10 pour <strong>2000 ⚡</strong> · la lecture se fait directement sur le site." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile." },
         { icon:'🤖', title:'Mode Solo (vs Bot)', desc:"Joue seul contre un robot. <em>Facile</em> : le bot joue au hasard. <em>Moyen</em> : le bot bloque et attaque. <em>Difficile</em> : le bot joue de manière optimale. Les parties <strong>Moyen et Difficile</strong> comptent dans le classement classique." },
         { icon:'🔗', title:'Rejoindre', desc:"Entre le code à 4 lettres reçu et clique <em>Rejoindre</em>. La partie démarre automatiquement dès que les deux joueurs sont connectés." },
@@ -558,7 +593,7 @@ const DICT = {
         { icon:'🔁', title:'Rejouer', desc:"En fin de partie classique, clique <em>Rejouer</em>. La partie redémarre uniquement si les deux joueurs acceptent." },
         { icon:'🌍', title:'Classement Global', desc:"Visible dès la page d'accueil, il regroupe <strong>tous les joueurs ayant au moins un point</strong>. Score = victoires classiques (×10) + points Quiz + meilleur score Snake (×10) + meilleur score Luffy Runner (÷10). Mis à jour en temps réel." },
         { icon:'🏆', title:'Classements par section', desc:"Chaque section garde aussi son propre classement : victoires/défaites/nuls pour les Jeux Classiques, total de points pour le Quiz." },
-        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Aide Luffy à fuir la Marine dans ce clone du jeu du dinosaure ! Saute (<strong>↑</strong> / Espace) par-dessus les obstacles au sol (tonneaux, canons, crabes…) et accroupis-toi (<strong>↓</strong>) sous les obstacles volants (mouettes, boulets de canon…). Ton meilleur score <strong>persiste</strong> entre les sessions et alimente un classement dédié. C'est d'ailleurs une <strong>idée de la communauté</strong> reprise par le créateur — si tu veux que la tienne soit prise en compte, laisse un commentaire via le bouton dans l'écran de jeu." },
+        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Aide Luffy à fuir la Marine dans ce clone du jeu du dinosaure ! Saute (<strong>↑</strong> / Espace) par-dessus les obstacles au sol (tonneaux, canons, crabes…) et accroupis-toi (<strong>↓</strong>) sous les obstacles volants (mouettes, boulets de canon…). Ton meilleur score <strong>persiste</strong> entre les sessions et alimente un classement dédié. C'est d'ailleurs une <strong>idée de la communauté</strong> reprise par le créateur · si tu veux que la tienne soit prise en compte, laisse un commentaire via le bouton dans l'écran de jeu." },
         { icon:'📰', title:'News', desc:"La carte News est repliée dans le <strong>coin en haut à gauche</strong>. <strong>Clique dessus</strong> pour l'ouvrir : elle affiche l'état de l'évent en cours (ou le compte à rebours jusqu'au prochain) et un rappel pour participer à la section <strong>Luffy Runner</strong>. Reclique pour la refermer." },
         { icon:'⚙️', title:'Paramètres', desc:"Le bouton <strong>⚙️</strong> en <em>haut à droite</em> regroupe tous les réglages : <strong>Langue</strong>, <strong>Thème</strong>, <strong>Serpent</strong>, <strong>Sons</strong> (effets sonores + volume), <strong>Musique</strong> (fond musical + volume) et <strong>Cartes de remboursement</strong>. Tout est mémorisé entre les sessions." },
         { icon:'🔊', title:'Sons & Musique', desc:"<strong>Sons</strong> : des effets sonores accompagnent chaque action (poser une pièce, victoire, quiz, chat, boutique, Snake…). Active/désactive-les via <strong>⚙️ → Sons</strong> et règle le volume.<br><strong>Musique</strong> : une musique ambiante joue en fond. Active/désactive-la via <strong>⚙️ → Musique</strong> avec son propre curseur de volume. Les deux se gèrent indépendamment." },
@@ -570,16 +605,16 @@ const DICT = {
         { icon:'💳', titleKey:'helpLibsBuyTitle', descKey:'helpLibsBuyDesc' },
         { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
         { icon:'🗂️', title:'Navigation boutique', desc:"À gauche de la boutique, une <strong>barre de catégories</strong> te permet de sauter directement à la section souhaitée : ⭐ À la une, 📅 Quotidien, 🎁 Bundles, 💳 Recharger, 💡 Boosts, 🎨 Couleurs, ✍️ Polices, 💬 Bulles, 🖼️ Fonds. Sur mobile, seuls les icônes sont affichés. Le bouton de la section visible s'allume automatiquement." },
-        { icon:'🎁', title:'Bundles', desc:"La section <strong>Bundles</strong> propose des lots thématiques regroupant plusieurs cosmétiques à prix réduit (−24 % à −28 %). Si tu possèdes déjà certains articles d'un bundle, le prix est <strong>ajusté automatiquement</strong> — tu ne paies que pour ce qu'il te manque. La sélection <strong>⭐ À la une</strong> et <strong>📅 Quotidien</strong> se renouvelle toutes les 24 h — un compte à rebours indique l'heure du prochain renouvellement." },
+        { icon:'🎁', title:'Bundles', desc:"La section <strong>Bundles</strong> propose des lots thématiques regroupant plusieurs cosmétiques à prix réduit (−24 % à −28 %). Si tu possèdes déjà certains articles d'un bundle, le prix est <strong>ajusté automatiquement</strong> · tu ne paies que pour ce qu'il te manque. La sélection <strong>⭐ À la une</strong> et <strong>📅 Quotidien</strong> se renouvelle toutes les 24 h · un compte à rebours indique l'heure du prochain renouvellement." },
         { icon:'✨', title:'Effets de pseudo', desc:"Anime l'affichage de ton pseudo dans les classements, le chat, les badges et le podium. Les effets sont <strong>cumulables avec ta couleur de pseudo</strong> : la couleur reste la teinte, l'effet ajoute l'animation par-dessus. Exemples : Clignotement Néon, Glitch, Vague Arc-en-ciel. Rareté : Épique à Légendaire." },
         { icon:'🏷️', title:'Titres', desc:"Ajoute un court texte de statut affiché à côté de ton pseudo dans les classements, badges et chips de salle d'attente. Exemples : Tacticien, Quiz Master, Roi du Snake, Légende Vivante. Rareté : Commun à Épique. Les titres achetés se combinent avec les <strong>titres honorifiques</strong> (voir ci-dessous)." },
-        { icon:'🥇', title:'Titres honorifiques', desc:"Si tu atteins la <strong>1re place</strong> du classement global, tu reçois automatiquement le titre honorifique <em>N°1 Global</em>. Un message de félicitations apparait lors de ta prochaine visite — clique <em>Accepter</em> pour le valider. Le titre est retiré si tu es détrôné. Il est visible en boutique mais ne peut pas être acheté." },
+        { icon:'🥇', title:'Titres honorifiques', desc:"Si tu atteins la <strong>1re place</strong> du classement global, tu reçois automatiquement le titre honorifique <em>N°1 Global</em>. Un message de félicitations apparait lors de ta prochaine visite · clique <em>Accepter</em> pour le valider. Le titre est retiré si tu es détrôné. Il est visible en boutique mais ne peut pas être acheté." },
         { icon:'🖱️', title:'Skins de curseur', desc:"Remplace l'apparence du serpent qui suit ton curseur (couleur, motif, traînée, forme de tête). Le skin prend le pas sur la couleur de rang quand il est équipé. Visible uniquement si le <strong>Serpent</strong> est activé dans les paramètres. Rareté : Rare à Légendaire." },
         { icon:'🎭', title:'Avatars', desc:"Remplace l'icône affichée dans ton badge joueur en partie et dans les classements. Exemples : Manette 🎮, Chat Pixel 🐱, Fusée 🚀, Couronne 👑. Rareté : Commun à Épique." },
-        { icon:'🔴', title:'Jetons Puissance 4', desc:"Restyle tes pions dans la grille 7×6 (motif, texture, lueur). La distinction <strong>rouge / jaune</strong> entre les deux camps est conservée — le skin habille la couleur sans la rendre ambiguë. Tes deux adversaires verront tes jetons. Rareté : Rare à Épique." },
+        { icon:'🔴', title:'Jetons Puissance 4', desc:"Restyle tes pions dans la grille 7×6 (motif, texture, lueur). La distinction <strong>rouge / jaune</strong> entre les deux camps est conservée · le skin habille la couleur sans la rendre ambiguë. Tes deux adversaires verront tes jetons. Rareté : Rare à Épique." },
         { icon:'✖️', title:'Symboles Morpion', desc:"Remplace les X / O par une paire de symboles personnalisés sur la grille 3×3. Les deux symboles restent nettement distinguables. Ton adversaire voit ta paire. Exemples : Soleil / Lune ☀️🌙, Cœur / Étoile ❤️⭐. Rareté : Commun à Épique." },
         { icon:'♟️', title:'Thèmes d\'échiquier', desc:"Restyle le plateau et les pièces de l'échiquier. Le contraste cases claires / sombres et la lisibilité des pièces sont toujours garantis. Ton adversaire voit ton thème. Exemples : Cyber Grid, Marbre Royal. Rareté : Épique à Légendaire." },
-        { icon:'🐍', title:'Skins Snake (Évents)', desc:"Modifie l'apparence du serpent, des ⚡ et du plateau pendant le Snake Challenge. Mode solo uniquement — aucun souci d'équité. Exemples : Serpent Arc-en-ciel, Serpent de Lave, Plateau Galaxie. Rareté : Rare à Légendaire." },
+        { icon:'🐍', title:'Skins Snake (Évents)', desc:"Modifie l'apparence du serpent, des ⚡ et du plateau pendant le Snake Challenge. Mode solo uniquement · aucun souci d'équité. Exemples : Serpent Arc-en-ciel, Serpent de Lave, Plateau Galaxie. Rareté : Rare à Légendaire." },
         { icon:'💥', title:'Particules de clic', desc:"Remplace les particules qui s'affichent lorsque tu cliques sur les boutons et cartes du site. Exemples : Bulles 🫧, Confettis 🎊, Feu d\'Artifice 🎆. Rareté : Commun à Épique." },
         { icon:'🌈', title:'Packs d\'émojis', desc:"Remplace le jeu d'émojis de la pluie animée au premier chargement de la page. Exemples : Pack Fête 🎉, Pack Gaming 🎮, Pack Cosmos 🌌. Rareté : Commun à Rare." },
         { icon:'🏆', title:'Bannières de victoire', desc:"Personnalise le style et l'animation de la bannière de fin de partie (victoire). Visible à l'écran de résultat des jeux classiques et du quiz. Exemples : Triomphe Néon, Flammes de Champion, Couronnement. Rareté : Épique à Légendaire." },
@@ -729,7 +764,7 @@ const DICT = {
     shopTitle:'⚡ Shop', shopBalanceLabel:'Your balance:',
     shopBoostHintName:'💡 Quiz Hint',
     shopBoostHintDesc:'Eliminates a wrong answer. Usable up to 2 times per question.',
-    shopBtnBuy10:'10 hints — 3 ⚡', shopBtnBuy20:'20 hints — 5 ⚡',
+    shopBtnBuy10:'10 hints · 3 ⚡', shopBtnBuy20:'20 hints · 5 ⚡',
     shopPending:n => `${n} hint${n > 1 ? 's' : ''} remaining`,
     shopInsufficient:'Champion, you don\'t have enough Libs.', shopBuyError:'Purchase failed.',
     shopBuyOk:'Boost purchased!',
@@ -738,7 +773,7 @@ const DICT = {
     shopPromoAlreadyUsed:'You have already used this code.', shopPromoInvalid:'Invalid code.', shopPromoAnon:'Anonymous players cannot use codes.',
     shopCosmeticsTitle:'🎨 Pseudo cosmetics',
     shopCosmeticNames:{ rainbow:'Rainbow', galaxy:'Galaxy', silver:'Silver', bronze:'Bronze', gold:'Gold', diamond:'Diamond' },
-    shopCosmeticBuy:p => `Buy — ${p} ⚡`,
+    shopCosmeticBuy:p => `Buy · ${p} ⚡`,
     shopCosmeticEquip:'Equip', shopCosmeticEquipped:'✓ Equipped', shopCosmeticUnequip:'Remove',
     shopCosmeticPreview:'Libero',
     shopCosmeticBought:'🎨 Cosmetic purchased!',
@@ -786,7 +821,7 @@ const DICT = {
     shopDailyTitle:'📅 Daily',
     shopBundlesTitle:'🎁 Bundles',
     shopSectionDescs:{
-      featured:"This week's picks — refreshes every 24h.",
+      featured:"This week's picks · refreshes every 24h.",
       daily:"Discounted deals, refreshed every day.",
       bundles:"Themed packs at a reduced price. Already own some items? The price adjusts automatically.",
       colors:"Color your username across leaderboards and matches.",
@@ -812,8 +847,8 @@ const DICT = {
     shopBundleItems: n => `${n} item${n>1?'s':''}`,
     shopBundleContains:'🎁 Contents:',
     shopBundleAlreadyOwned:'You already own all items in this bundle.',
-    shopBundlePartialOwned: n => `You already own ${n} item${n>1?'s':''} — price adjusted.`,
-    shopBundleBuy: p => `Buy bundle — ${p} ⚡`,
+    shopBundlePartialOwned: n => `You already own ${n} item${n>1?'s':''} · price adjusted.`,
+    shopBundleBuy: p => `Buy bundle · ${p} ⚡`,
     shopBundleBuyOk:'🎁 Bundle purchased!',
     shopBundleAnon:'Anonymous players cannot buy bundles.',
     shopBundleInsufficientFunds:'Champion, you don\'t have enough Libs.',
@@ -829,7 +864,7 @@ const DICT = {
     shopLibsPacksFeatured:'⭐ Popular',
     shopLibsPacksBonus:n => `+${n} free`,
     shopLibsBuyTitle:'💳 Top up your Libs',
-    shopLibsBuySummary:(libs, price) => `⚡ ${libs} Libs — ${price.toLocaleString('en-US')} FCFA. You'll be redirected to the secure payment page.`,
+    shopLibsBuySummary:(libs, price) => `⚡ ${libs} Libs · ${price.toLocaleString('en-US')} FCFA. You'll be redirected to the secure payment page.`,
     shopLibsBuySubmit:'Pay',
     shopLibsBuyMissing:'Fill in email, first and last name to continue.',
     shopLibsBuyBadEmail:'Invalid email address.',
@@ -898,6 +933,22 @@ const DICT = {
     snakeScoreLabel:'Score', snakeBestLabel:'Best',
     snakeHsDisplay:n => `🏆 Your record: ${n} ⚡`,
     snakeLibsEarned:n => `+${n} ⚡ added to your balance!`,
+    profileCardTitle:'My profile', profileCardDesc:'Challenges · Streak · History',
+    profileTitle:'My profile',
+    challengesTitle:'🎯 Daily challenges', historyTitle:'🕑 My recent games',
+    profileAnon:'Pick a nickname (in a game) to track your challenges, streak and history!',
+    challengesNames:{ wins:'Win 3 games', trivia:'Answer 5 questions right', snake:'Eat 30 ⚡ in Snake' },
+    challengeClaim:'Claim', challengeClaimed:'✓ Claimed', challengeLocked:'In progress',
+    challengeReward:n => `+${n} ⚡`,
+    challengeClaimToast:n => `Challenge complete! +${n} ⚡`,
+    streakMain:n => `${n}-day streak 🔥`,
+    streakNone:'Start your streak today!',
+    streakSub:(l, b) => `Best: ${l} day${l > 1 ? 's' : ''}${b > 0 ? ` · +${b} ⚡ today` : ''}`,
+    streakBonusToast:(n, b) => `Day ${n} streak · +${b} ⚡!`,
+    historyEmpty:'No games yet. Start one!',
+    historyGameNames:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', trivia:'Quiz', snake:'Snake', luffy:'Luffy Runner' },
+    historyResults:{ win:'Win', loss:'Loss', draw:'Draw' },
+    historyScore:n => `${n} pts`,
     snakeGameOver:'Game Over', snakeNewRecord:'🏆 New record!',
     btnSnakeRestart:'Play again', btnSnakeQuit:'Quit',
     snakePause:'⏸ Pause', btnSnakeResume:'▶ Resume',
@@ -918,7 +969,7 @@ const DICT = {
     communityCta:'Have an idea? Let us know!',
     btnSuggestion:'✉️ Leave a suggestion',
     commentTitle:'💬 Leave a comment',
-    commentSub:'Share your thoughts, an idea or a bug report — the creator will receive it by email.',
+    commentSub:'Share your thoughts, an idea or a bug report · the creator will receive it by email.',
     commentPseudoPh:'Your username (optional)',
     commentMsgPh:'Your message…',
     btnSend:'Send ✉️',
@@ -929,8 +980,9 @@ const DICT = {
     helpContent:{
       general:[
         { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Luffy Runner</strong> mini-game, a player idea brought to life by the creator). Each section has its own leaderboard." },
-        { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> — your snake eats <strong>⚡ Libs</strong> to grow, and every ⚡ eaten is <strong>added to your balance</strong> (score 10 = 10 Libs earned). Walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
-        { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll also find <strong>⭐ L'Affaire endormie · Tome 1</strong>, the exclusive novel written by the creator: <strong>chapter 1 is free</strong>, then unlock chapters 2-5 for <strong>1000 ⚡ Libs</strong> and chapters 6-10 for <strong>2000 ⚡</strong> — read it right on the site." },
+        { icon:'🎯', title:'My profile', desc:"The <strong>My profile</strong> card (home) gathers three things: your <strong>daily challenges</strong> (3 simple goals like winning 3 games or eating 30 ⚡, each rewarded in ⚡ to claim), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. A nickname is required." },
+        { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> · your snake eats <strong>⚡ Libs</strong> to grow, and every ⚡ eaten is <strong>added to your balance</strong> (score 10 = 10 Libs earned). Walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
+        { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll also find <strong>⭐ L'Affaire endormie · Tome 1</strong>, the exclusive novel written by the creator: <strong>chapter 1 is free</strong>, then unlock chapters 2-5 for <strong>1000 ⚡ Libs</strong> and chapters 6-10 for <strong>2000 ⚡</strong> · read it right on the site." },
         { icon:'🎮', title:'Create a classic game', desc:"Choose a game, enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent. You can also play <strong>Solo vs the bot</strong> by choosing a difficulty: Easy, Medium or Hard." },
         { icon:'🤖', title:'Solo mode (vs Bot)', desc:"Play alone against a robot. <em>Easy</em>: plays randomly. <em>Medium</em>: blocks and attacks. <em>Hard</em>: plays optimally. <strong>Medium and Hard</strong> games count in the classic leaderboard." },
         { icon:'🔗', title:'Join', desc:"Enter the 4-letter code you received and click <em>Join</em>. The game starts automatically as soon as both players are connected." },
@@ -939,7 +991,7 @@ const DICT = {
         { icon:'🔁', title:'Play again', desc:"At the end of a classic game, click <em>Play again</em>. The game restarts only if both players agree." },
         { icon:'🌍', title:'Global leaderboard', desc:"Visible from the home page, it gathers <strong>all players with at least one point</strong>. Score = classic wins (×10) + Quiz points + best Snake score (×10) + best Luffy Runner score (÷10). Updated in real time." },
         { icon:'🏆', title:'Section leaderboards', desc:"Each section also keeps its own leaderboard: wins/losses/draws for Classic Games, total points for Quiz." },
-        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Help Luffy escape the Marines in this dinosaur-game clone! Jump (<strong>↑</strong> / Space) over ground obstacles (barrels, cannons, crabs…) and duck (<strong>↓</strong>) under flying ones (seagulls, cannonballs…). Your best score <strong>persists</strong> between sessions and feeds its own leaderboard. It's actually a <strong>community idea</strong> brought to life by the creator — if you want yours considered too, leave a comment via the button on the game screen." },
+        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Help Luffy escape the Marines in this dinosaur-game clone! Jump (<strong>↑</strong> / Space) over ground obstacles (barrels, cannons, crabs…) and duck (<strong>↓</strong>) under flying ones (seagulls, cannonballs…). Your best score <strong>persists</strong> between sessions and feeds its own leaderboard. It's actually a <strong>community idea</strong> brought to life by the creator · if you want yours considered too, leave a comment via the button on the game screen." },
         { icon:'📰', title:'News', desc:"The News card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the current event status (or a countdown to the next one) and a nudge to check out the <strong>Luffy Runner</strong> section. Click again to close it." },
         { icon:'⚙️', title:'Settings', desc:"The <strong>⚙️</strong> button in the <em>top right</em> groups all settings: <strong>Language</strong>, <strong>Theme</strong>, <strong>Snake</strong>, <strong>Sound</strong> (SFX + volume), <strong>Music</strong> (background music + volume) and <strong>Refund cards</strong>. Everything is saved between sessions." },
         { icon:'🔊', title:'Sound & Music', desc:"<strong>Sound</strong>: sound effects play on every action (placing a piece, win, quiz, chat, shop, Snake…). Toggle via <strong>⚙️ → Sound</strong> and adjust the volume.<br><strong>Music</strong>: ambient background music plays while you browse. Toggle via <strong>⚙️ → Music</strong> with its own volume slider. Both are controlled independently." },
@@ -951,16 +1003,16 @@ const DICT = {
         { icon:'💳', titleKey:'helpLibsBuyTitle', descKey:'helpLibsBuyDesc' },
         { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
         { icon:'🗂️', title:'Shop navigation', desc:"On the left side of the shop, a <strong>category bar</strong> lets you jump directly to any section: ⭐ Featured, 📅 Daily, 🎁 Bundles, 💳 Top up, 💡 Boosts, 🎨 Colors, ✍️ Fonts, 💬 Bubbles, 🖼️ Backgrounds. On mobile only icons are shown. The button for the currently visible section lights up automatically." },
-        { icon:'🎁', title:'Bundles', desc:"The <strong>Bundles</strong> section offers themed packs grouping several cosmetics at a reduced price (−24% to −28%). If you already own some items in a bundle, the price is <strong>automatically adjusted</strong> — you only pay for what you're missing. The <strong>⭐ Featured</strong> and <strong>📅 Daily</strong> picks refresh every 24 hours — a countdown shows the next refresh time." },
+        { icon:'🎁', title:'Bundles', desc:"The <strong>Bundles</strong> section offers themed packs grouping several cosmetics at a reduced price (−24% to −28%). If you already own some items in a bundle, the price is <strong>automatically adjusted</strong> · you only pay for what you're missing. The <strong>⭐ Featured</strong> and <strong>📅 Daily</strong> picks refresh every 24 hours · a countdown shows the next refresh time." },
         { icon:'✨', title:'Name Effects', desc:"Animate your username display in leaderboards, chat, badges and the podium. Effects <strong>stack with your username color</strong>: the color sets the hue, the effect adds the animation on top. Examples: Neon Blink, Glitch, Rainbow Wave. Rarity: Epic to Legendary." },
         { icon:'🏷️', title:'Titles', desc:"Add a short status text displayed next to your username in leaderboards, player badges and room chips. Examples: Tactician, Quiz Master, Snake King, Living Legend. Rarity: Common to Epic. Shop titles stack with <strong>honorary titles</strong> (see below)." },
-        { icon:'🥇', title:'Honorary Titles', desc:"If you reach <strong>1st place</strong> on the global leaderboard, you automatically receive the honorary title <em>#1 Global</em>. A congratulatory message appears on your next visit — click <em>Accept</em> to confirm. The title is removed if you lose the top spot. It is visible in the shop but cannot be purchased." },
+        { icon:'🥇', title:'Honorary Titles', desc:"If you reach <strong>1st place</strong> on the global leaderboard, you automatically receive the honorary title <em>#1 Global</em>. A congratulatory message appears on your next visit · click <em>Accept</em> to confirm. The title is removed if you lose the top spot. It is visible in the shop but cannot be purchased." },
         { icon:'🖱️', title:'Cursor Skins', desc:"Replace the appearance of the snake following your cursor (color, pattern, trail, head shape). The skin overrides the rank color when equipped. Only visible if <strong>Snake</strong> is enabled in settings. Rarity: Rare to Legendary." },
         { icon:'🎭', title:'Avatars', desc:"Replace the icon shown in your player badge during games and in leaderboards. Examples: Gamepad 🎮, Pixel Cat 🐱, Rocket 🚀, Crown 👑. Rarity: Common to Epic." },
         { icon:'🔴', title:'Connect 4 Tokens', desc:"Restyle your tokens in the 7×6 grid (pattern, texture, glow). The <strong>red / yellow</strong> distinction between teams is always preserved. Your opponent will see your tokens. Rarity: Rare to Epic." },
         { icon:'✖️', title:'Tic-Tac-Toe Symbols', desc:"Replace X / O with a custom pair of symbols on the 3×3 grid. Both symbols remain clearly distinguishable. Your opponent sees your pair. Examples: Sun / Moon ☀️🌙, Heart / Star ❤️⭐. Rarity: Common to Epic." },
         { icon:'♟️', title:'Chess Themes', desc:"Restyle the chessboard and pieces. Light/dark square contrast and piece legibility are always guaranteed. Your opponent sees your theme. Examples: Cyber Grid, Royal Marble. Rarity: Epic to Legendary." },
-        { icon:'🐍', title:'Snake Skins (Events)', desc:"Change the appearance of the snake, the ⚡ and the board during the Snake Challenge. Solo mode only — no fairness concerns. Examples: Rainbow Snake, Lava Snake, Galaxy Board. Rarity: Rare to Legendary." },
+        { icon:'🐍', title:'Snake Skins (Events)', desc:"Change the appearance of the snake, the ⚡ and the board during the Snake Challenge. Solo mode only · no fairness concerns. Examples: Rainbow Snake, Lava Snake, Galaxy Board. Rarity: Rare to Legendary." },
         { icon:'💥', title:'Click Particles', desc:"Replace the particles shown when you click buttons and cards on the site. Examples: Bubbles 🫧, Confetti 🎊, Firework 🎆. Rarity: Common to Epic." },
         { icon:'🌈', title:'Emoji Packs', desc:"Replace the emoji set in the animated emoji rain on the first page load. Examples: Party Pack 🎉, Gaming Pack 🎮, Cosmos Pack 🌌. Rarity: Common to Rare." },
         { icon:'🏆', title:'Victory Banners', desc:"Customize the style and animation of the end-of-game banner (win screen). Shown at the result screen of classic games and quizzes. Examples: Neon Triumph, Champion Flames, Coronation. Rarity: Epic to Legendary." },
@@ -1015,7 +1067,7 @@ const DICT = {
       landing_lb:'🌍 The <strong>Global Leaderboard</strong> brings together <em>all</em> players with at least one point. Score = classic wins ×10 + Quiz points + best Snake score ×10 + best Luffy Runner score ÷10. The higher you climb, the longer your snake 🐍 grows!',
       landing_btns:'⚙️ Permanent buttons are available:<br>▶ <strong>Top right</strong>: the <strong>⚙️</strong> button opens <strong>Settings</strong> (day/night theme, language, snake, refund cards).<br>▶ <strong>Bottom right</strong>: ❓ <strong>Help</strong> · ✉️ <strong>Comment</strong>',
       landing_libs:'⚡ <strong>Libs</strong>: a virtual currency earned by the best players. The top 3 in the Global Leaderboard automatically receive Libs every 5 hours (1st: +5 ⚡, 2nd: +3 ⚡, 3rd: +2 ⚡). Spend them in the <strong>shop</strong> to get quiz boosts!',
-      events_snake:'🐍 This weekend\'s event: <strong>Snake Challenge</strong>! Click <em>Play</em>, your snake enters the arena. Eat the <strong>⚡ Libs</strong> to grow: every ⚡ eaten is added to your balance (score 10 = 10 Libs earned). Walls wrap around — you reappear on the other side! Your best score <strong>persists</strong> between sessions.',
+      events_snake:'🐍 This weekend\'s event: <strong>Snake Challenge</strong>! Click <em>Play</em>, your snake enters the arena. Eat the <strong>⚡ Libs</strong> to grow: every ⚡ eaten is added to your balance (score 10 = 10 Libs earned). Walls wrap around · you reappear on the other side! Your best score <strong>persists</strong> between sessions.',
       luffy_runner:'🏴‍☠️ <strong>Luffy Runner</strong>: help Luffy escape the Marines! Jump (↑ / Space) over ground obstacles, duck (↓) under flying ones. Your best score feeds a dedicated leaderboard.',
       home_games:'🎮 Choose your game at the top: <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong> or <strong>Chess</strong>. The leaderboard is shared across all three games.',
       home_bot:'🤖 <strong>Solo mode</strong>: play against the bot at 3 difficulty levels: Easy, Medium or Hard. Your wins and losses count in the leaderboard!',
@@ -1091,6 +1143,12 @@ function applyLang() {
   const d = t();
   document.documentElement.lang = currentLang;
   document.title = d.siteTitle;
+  const pct = $('profile-card-title'); if (pct) pct.textContent = d.profileCardTitle;
+  const pcd = $('profile-card-desc');  if (pcd) pcd.textContent = d.profileCardDesc;
+  const pmt = $('profile-modal-title'); if (pmt) pmt.textContent = d.profileTitle;
+  const cht = $('challenges-title');   if (cht) cht.textContent = d.challengesTitle;
+  const hit = $('history-title');      if (hit) hit.textContent = d.historyTitle;
+  if (window._profileHub) window._profileHub.retexte();
   const bl = $('btn-lang');
   if (bl) bl.textContent = currentLang === 'fr' ? '🇫🇷 FR ⇄' : '🇬🇧 EN ⇄';
   const btm = $('btn-theme-toggle'); if (btm) btm.title = d.themeToggle;
@@ -3410,7 +3468,7 @@ function openShop() {
 }
 
 // Charge une fois la liste des packs de Libs (prix, dispo) puis rafraîchit
-// le panneau Recharger s'il est ouvert — même filet que shopRotation.
+// le panneau Recharger s'il est ouvert · même filet que shopRotation.
 async function _loadLibsPacks() {
   if (libsPacksCache) return;
   try {
@@ -3421,7 +3479,7 @@ async function _loadLibsPacks() {
   if (!$('libs-topup-panel').classList.contains('hidden')) _renderLibsTopupPanel();
 }
 
-// Fusionne un patch dans l'état persistant de la boutique (sessionStorage) —
+// Fusionne un patch dans l'état persistant de la boutique (sessionStorage) · 
 // permet de rouvrir exactement le même panneau (liste des packs / formulaire
 // d'un pack précis, avec les champs déjà saisis) après un refresh accidentel.
 function _saveShopPanelState(patch) {
@@ -4366,7 +4424,7 @@ function _openShopDetail(item) {
           ${refundBtn}`;
       } else {
         const full = n >= 5;
-        actionHtml = `<p class="shop-fn-emote-slots">${slotStr}${full ? (fr ? ' — barre pleine' : ' — bar full') : ''}</p>
+        actionHtml = `<p class="shop-fn-emote-slots">${slotStr}${full ? (fr ? ' · barre pleine' : ' · bar full') : ''}</p>
           <button class="btn btn-primary shop-detail-action-btn" data-id="${id}" data-action="equip" data-type="${type}" ${full ? 'disabled' : ''}>${d.shopCosmeticEquip}</button>
           ${refundBtn}`;
       }
@@ -5198,6 +5256,7 @@ function showCursorSnakeToast(msg) {
     // Enregistre la participation même si score=0 (premier jeu sans pomme)
     const _snakeName = localStorage.getItem('playerName');
     if (_snakeName && getHs() === 0) socket.emit('submit-snake-score', { name: _snakeName, hs: 0, playerId: getPlayerId() });
+    socket.emit('solo-game-over', { playerId: getPlayerId(), game: 'snake', score });
     const newHsEl = document.getElementById('snake-new-hs');
     if (newHsEl) newHsEl.classList.toggle('hidden', !isNewHs);
     document.getElementById('snake-over-score').textContent = t().snakeOverScore(score, getHs()) +
@@ -5868,6 +5927,7 @@ function showCursorSnakeToast(msg) {
     saveHs(score);
     const _name = localStorage.getItem('playerName');
     if (_name && getHs() === 0) socket.emit('submit-luffy-score', { name: _name, hs: 0, playerId: getPlayerId() });
+    socket.emit('solo-game-over', { playerId: getPlayerId(), game: 'luffy', score });
     // Garde l'écran de fin de partie en mémoire : un refresh involontaire ici
     // doit retomber sur ce même écran plutôt que sur l'intro.
     sessionStorage.setItem(SESS_KEY, JSON.stringify({ gameOver: true, score, isNewHs }));
@@ -6321,9 +6381,9 @@ function _renderNewsComments(data) {
   container.innerHTML = data.map(c => {
     const isLiked = liked.includes(c.id);
     return `<div class="news-comment">
-      <div class="news-comment-meta"><strong>${c.pseudo}</strong><span>${_timeAgo(c.date)}</span></div>
-      <p class="news-comment-msg">${c.message.slice(0, 140)}</p>
-      <button class="news-like-btn${isLiked ? ' liked' : ''}" data-id="${c.id}">❤️ ${c.likes}</button>
+      <div class="news-comment-meta"><strong>${_escHtml(c.pseudo)}</strong><span>${_timeAgo(c.date)}</span></div>
+      <p class="news-comment-msg">${_escHtml(c.message.slice(0, 140))}</p>
+      <button class="news-like-btn${isLiked ? ' liked' : ''}" data-id="${_escHtml(c.id)}">❤️ ${_escHtml(c.likes)}</button>
     </div>`;
   }).join('');
   // Bouton bascule : un clic like, un second clic retire le like.
@@ -6376,7 +6436,7 @@ socket.on('news-comments-update', data => _renderNewsComments(data));
 socket.on('comment-star', ({ pseudo, message, likes }) => {
   const el = document.getElementById('news-star');
   if (!el) return;
-  el.innerHTML = `<span class="news-star-badge">🏆 Commentaire du jour</span><strong>${pseudo}</strong> : "${message.slice(0, 100)}"<span class="news-star-likes"> — ❤️ ${likes}</span>`;
+  el.innerHTML = `<span class="news-star-badge">🏆 Commentaire du jour</span><strong>${_escHtml(pseudo)}</strong> : "${_escHtml(message.slice(0, 100))}"<span class="news-star-likes"> · ❤️ ${_escHtml(likes)}</span>`;
   el.classList.remove('hidden');
   const nc = document.getElementById('news-card');
   if (nc) nc.classList.remove('collapsed');
@@ -6949,7 +7009,7 @@ const ReadFeed = (() => {
       // Chapitres non publiés → « À venir » ; publiés mais pack précédent requis → prix affiché, bouton grisé.
       const label = anyAvail ? d.bookUnlockFor(p.price) : d.bookComingSoon;
       return `<button class="btn btn-primary book-buy-btn" data-pack="${p.id}" ${anyAvail && !needPrev ? '' : 'disabled'}>
-        ${esc(d.bookLockedRange(p.from, p.to))} — ${esc(label)}</button>`;
+        ${esc(d.bookLockedRange(p.from, p.to))} · ${esc(label)}</button>`;
     }).join('');
     sheet().innerHTML = coverHTML(bk, 0) +
       `<div class="read-sheet-info">
@@ -7055,7 +7115,7 @@ const ReadFeed = (() => {
   document.getElementById('book-reader-next')?.addEventListener('click', () => openReader(readerBook, readerNum + 1));
 
   // Protection du texte : dissuade la copie du roman depuis la visionneuse
-  // (copie, clic droit, sélection et impression bloqués — dissuasif, pas absolu).
+  // (copie, clic droit, sélection et impression bloqués · dissuasif, pas absolu).
   const readerContent = () => document.getElementById('book-reader-content');
   document.addEventListener('copy', e => {
     if (reader()?.classList.contains('open') && readerContent()?.contains(document.getSelection()?.anchorNode)) {
@@ -7110,7 +7170,7 @@ document.body.classList.add('nav-bottom-visible');
 (function() {
   const saved = sessionStorage.getItem('libero_screen');
   if (!saved || saved === 'landing') return;
-  // Écrans gérés par la reconnexion socket — ils se restaurent via p4session/triviaSession
+  // Écrans gérés par la reconnexion socket · ils se restaurent via p4session/triviaSession
   if (saved === 'game' || saved === 'waiting') {
     if (!sessionStorage.getItem('p4session')) {
       document.documentElement.classList.remove('restoring');
@@ -7563,7 +7623,7 @@ const BGManager = (() => {
 // Restore background cosmetic on load
 if (equippedBackground) BGManager.start(equippedBackground);
 
-// Reopen shop after accidental page refresh — y compris le panneau Recharger
+// Reopen shop after accidental page refresh · y compris le panneau Recharger
 // ou le formulaire d'un pack précis (avec la saisie déjà en cours), exactement
 // comme le joueur l'avait laissé.
 if (sessionStorage.getItem('shopState')) {
@@ -7582,7 +7642,7 @@ if (sessionStorage.getItem('shopState')) {
 }
 
 // Retour d'un paiement FedaPay (achat de Libs) : nettoie l'URL puis vérifie
-// la transaction côté serveur — jamais de crédit basé sur ce seul retour navigateur.
+// la transaction côté serveur · jamais de crédit basé sur ce seul retour navigateur.
 if (window.location.search.includes('libs_return=1') || localStorage.getItem('libero_pending_cart')) {
   const url = new URL(window.location.href);
   if (url.searchParams.has('libs_return')) {
@@ -7591,3 +7651,126 @@ if (window.location.search.includes('libs_return=1') || localStorage.getItem('li
   }
   setTimeout(_checkPendingLibsCart, 300);
 }
+
+// ── Profil : défis quotidiens, série de connexion, historique ────────────────
+const ProfileHub = (() => {
+  let challenges = [];
+  let streak = null;      // { count, longest, bonus }
+  let history = [];
+  let loadedHistory = false;
+
+  const overlay = () => document.getElementById('overlay-profile');
+  const _named = () => { const n = (localStorage.getItem('playerName') || '').trim(); return n && n !== 'Anonyme'; };
+
+  function open() {
+    const d = t();
+    // Rafraîchit depuis le serveur à l'ouverture.
+    socket.emit('get-challenges', { playerId: getPlayerId() });
+    socket.emit('get-history', { playerId: getPlayerId() });
+    renderAll();
+    overlay().classList.remove('hidden');
+  }
+  function close() { overlay().classList.add('hidden'); }
+
+  function renderAll() { renderStreak(); renderChallenges(); renderHistory(); }
+
+  function renderStreak() {
+    const d = t();
+    const main = document.getElementById('streak-main');
+    const sub  = document.getElementById('streak-sub');
+    if (!main) return;
+    if (streak && streak.count > 0) {
+      main.textContent = d.streakMain(streak.count);
+      sub.textContent  = d.streakSub(streak.longest || streak.count, streak.bonus || 0);
+    } else {
+      main.textContent = d.streakNone;
+      sub.textContent  = '';
+    }
+  }
+
+  function renderChallenges() {
+    const d = t();
+    const list = document.getElementById('challenges-list');
+    if (!list) return;
+    if (!_named()) { list.innerHTML = `<p class="profile-anon">${_escHtml(d.profileAnon)}</p>`; return; }
+    if (!challenges.length) { list.innerHTML = ''; return; }
+    list.innerHTML = challenges.map(ch => {
+      const name = d.challengesNames[ch.id] || ch.id;
+      const pct  = Math.round(100 * Math.min(ch.progress, ch.goal) / ch.goal);
+      let btn;
+      if (ch.claimed)   btn = `<span class="challenge-claimed">${_escHtml(d.challengeClaimed)}</span>`;
+      else if (ch.done) btn = `<button class="challenge-claim-btn" data-cid="${_escHtml(ch.id)}">${_escHtml(d.challengeClaim)} ${_escHtml(d.challengeReward(ch.reward))}</button>`;
+      else              btn = `<span class="challenge-reward-tag">${_escHtml(d.challengeReward(ch.reward))}</span>`;
+      return `<div class="challenge-row${ch.claimed ? ' done' : ''}">
+        <div class="challenge-info">
+          <p class="challenge-name">${_escHtml(name)}</p>
+          <div class="challenge-bar"><span style="width:${pct}%"></span></div>
+          <p class="challenge-count">${ch.progress}/${ch.goal}</p>
+        </div>
+        ${btn}
+      </div>`;
+    }).join('');
+    list.querySelectorAll('.challenge-claim-btn').forEach(b => {
+      b.addEventListener('click', () => {
+        b.disabled = true;
+        socket.emit('claim-challenge', { playerId: getPlayerId(), challengeId: b.dataset.cid });
+      });
+    });
+  }
+
+  function renderHistory() {
+    const d = t();
+    const list = document.getElementById('history-list');
+    if (!list) return;
+    if (!_named()) { list.innerHTML = ''; return; }
+    if (!history.length) { list.innerHTML = `<p class="history-empty">${_escHtml(d.historyEmpty)}</p>`; return; }
+    const icons = { connect4:'🔴', tictactoe:'✕', chess:'♟', trivia:'🧠', snake:'🐍', luffy:'🏴‍☠️' };
+    list.innerHTML = history.map(h => {
+      const gName = d.historyGameNames[h.game] || h.game;
+      let detail;
+      if (h.result) {
+        const cls = h.result === 'win' ? 'win' : h.result === 'loss' ? 'loss' : 'draw';
+        detail = `<span class="history-result ${cls}">${_escHtml(d.historyResults[h.result] || h.result)}</span>`;
+      } else {
+        detail = `<span class="history-score">${_escHtml(d.historyScore(h.score ?? 0))}</span>`;
+      }
+      return `<div class="history-row">
+        <span class="history-icon">${icons[h.game] || '🎮'}</span>
+        <span class="history-game">${_escHtml(gName)}</span>
+        ${detail}
+        <span class="history-time">${_escHtml(_timeAgo(h.at))}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Pastille sur la carte d'accueil quand au moins un défi est réclamable.
+  function updateBadge() {
+    const badge = document.getElementById('profile-card-badge');
+    if (!badge) return;
+    const claimable = challenges.filter(c => c.done && !c.claimed).length;
+    if (claimable > 0 && _named()) { badge.textContent = claimable; badge.classList.remove('hidden'); }
+    else badge.classList.add('hidden');
+  }
+
+  function setChallenges(list) { challenges = Array.isArray(list) ? list : []; renderChallenges(); updateBadge(); }
+  function setStreak(s)        { streak = s; renderStreak(); }
+  function setHistory(list)    { history = Array.isArray(list) ? list : []; loadedHistory = true; renderHistory(); }
+  function retexte()           { if (!overlay()?.classList.contains('hidden')) renderAll(); updateBadge(); }
+
+  document.getElementById('btn-go-profile')?.addEventListener('click', open);
+  document.getElementById('btn-profile-close')?.addEventListener('click', close);
+  overlay()?.addEventListener('click', e => { if (e.target === overlay()) close(); });
+
+  return { open, close, setChallenges, setStreak, setHistory, retexte, updateBadge };
+})();
+window._profileHub = ProfileHub;
+
+socket.on('challenges-update', ({ challenges } = {}) => ProfileHub.setChallenges(challenges));
+socket.on('history-update',    ({ history } = {})    => ProfileHub.setHistory(history));
+socket.on('streak-update',     ({ count, longest, bonus } = {}) => {
+  ProfileHub.setStreak({ count, longest, bonus });
+  if (bonus > 0) showCursorSnakeToast(t().streakBonusToast(count, bonus));
+});
+socket.on('claim-challenge-result', ({ ok, reward } = {}) => {
+  if (ok) { SFX.btnClick?.(); showCursorSnakeToast(t().challengeClaimToast(reward)); }
+});

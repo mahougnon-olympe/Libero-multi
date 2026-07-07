@@ -66,6 +66,12 @@
         <h2 id="luffy-card-title">Luffy Runner</h2>
         <p id="community-card-text">Pour la communauté</p>
       </button>
+      <button class="landing-card landing-card--profile" id="btn-go-profile">
+        <span class="landing-icon">🎯</span>
+        <h2 id="profile-card-title">Mon profil</h2>
+        <p id="profile-card-desc">Défis · Série · Historique</p>
+        <span id="profile-card-badge" class="profile-card-badge hidden"></span>
+      </button>
     </div>
 
     <div class="global-lb-card" id="global-lb-card">
@@ -775,6 +781,34 @@
 
       </div><!-- /.help-body -->
     </div><!-- /.help-modal -->
+  </div>
+
+  <!-- ── Modal Profil : défis quotidiens, série de connexion, historique ── -->
+  <div id="overlay-profile" class="overlay hidden">
+    <div class="profile-modal">
+      <div class="profile-modal-header">
+        <h2 id="profile-modal-title" class="profile-modal-title">Mon profil</h2>
+        <button id="btn-profile-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="profile-body">
+        <!-- Série de connexion -->
+        <div id="streak-banner" class="streak-banner">
+          <span class="streak-flame">🔥</span>
+          <div class="streak-texts">
+            <p id="streak-main" class="streak-main"> · </p>
+            <p id="streak-sub" class="streak-sub"></p>
+          </div>
+        </div>
+
+        <!-- Défis quotidiens -->
+        <h3 id="challenges-title" class="profile-section-title">🎯 Défis du jour</h3>
+        <div id="challenges-list" class="challenges-list"></div>
+
+        <!-- Historique -->
+        <h3 id="history-title" class="profile-section-title">🕑 Mes dernières parties</h3>
+        <div id="history-list" class="history-list"></div>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
