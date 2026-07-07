@@ -2891,10 +2891,11 @@ html.light .honor-reward-title { color: #d97706; }
 
 
 /* ── Profil : défis, série, historique ─────────────────────────────────────── */
-/* Bouton flottant en haut à droite, à gauche de Réglages. */
+/* Bouton flottant en bas à gauche (coin libre, symétrique du bouton d'aide).
+   Le coin haut-droit est déjà pris par le compteur de Libs et les réglages. */
 .btn-profile-float {
   position: fixed;
-  top: 16px; right: 72px;
+  bottom: 20px; left: 20px;
   width: 44px; height: 44px;
   border-radius: 50%; border: none;
   background: linear-gradient(135deg,#7c5cff,#22d3ee); color: #fff;
