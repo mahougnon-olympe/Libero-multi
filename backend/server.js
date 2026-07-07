@@ -167,6 +167,18 @@ const PROMO_FILL_CODE = (process.env.PROMO_FILL_CODE || 'SDFT').trim().toUpperCa
 const socketPlayerIds = new Map();
 const playerIdAliases = new Map();
 
+// ── Lecteurs par livre ──────────────────────────────────────────────────────
+// Ensemble des joueurs distincts ayant ouvert un livre (livre exclusif ou livre
+// du catalogue). Sert à afficher « N lecteurs » sur chaque livre.
+const bookReaders = new Map(); // bookId -> Set(playerId)
+function bookReaderCount(bookId) { return bookReaders.get(bookId)?.size || 0; }
+function dbAddBookReader(bookId, playerId) {
+  if (!db) return;
+  db.collection('book_readers')
+    .updateOne({ _id: bookId }, { $addToSet: { readers: playerId } }, { upsert: true })
+    .catch(e => console.error('Erreur sauvegarde lecteur livre:', e));
+}
+
 // ── Achat de Libs avec de l'argent réel (FedaPay) ───────────────────────────
 // Le mapping pack → nombre de Libs et le prix vivent UNIQUEMENT côté serveur.
 // Le client n'envoie jamais qu'un id de pack, jamais un montant.
@@ -214,7 +226,7 @@ async function connectDB() {
 
 async function loadData() {
   if (!db) return;
-  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs, feedDocs, bookDocs, purchaseDocs] = await Promise.all([
+  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs, feedDocs, bookDocs, purchaseDocs, readerDocs] = await Promise.all([
     db.collection('leaderboard').find().toArray(),
     db.collection('trivia_leaderboard').find().toArray(),
     db.collection('comments').find().sort({ date: 1 }).toArray(),
@@ -227,6 +239,7 @@ async function loadData() {
     db.collection('feed_videos').find().toArray(),
     db.collection('feed_books').find().toArray(),
     db.collection('libs_purchases').find().toArray(),
+    db.collection('book_readers').find().toArray(),
   ]);
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
@@ -250,6 +263,7 @@ async function loadData() {
     status: d.status || 'waiting_payment', credited: !!d.credited,
     createdAt: d.createdAt || Date.now(), updatedAt: d.updatedAt || Date.now(),
   }));
+  readerDocs.forEach(d => bookReaders.set(d._id, new Set(Array.isArray(d.readers) ? d.readers : [])));
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
   const streakDoc = configDocs.find(d => d._id === 'rank1StreakSince');
@@ -1904,6 +1918,19 @@ io.on('connection', (socket) => {
     socket.emit('history-update', { history: Array.isArray(entry.history) ? entry.history : [] });
   });
 
+  // ── Lecteurs par livre : un joueur qui ouvre un livre compte comme lecteur ──
+  socket.on('book-read', ({ playerId, bookId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id || !bookId || typeof bookId !== 'string' || bookId.length > 80) return;
+    if (!allowAction('book-read', 30, 60_000)) return;
+    let set = bookReaders.get(bookId);
+    if (!set) { set = new Set(); bookReaders.set(bookId, set); }
+    if (set.has(id)) return; // déjà comptabilisé
+    set.add(id);
+    dbAddBookReader(bookId, id);
+    io.emit('book-readers-update', { bookId, count: set.size });
+  });
+
   // ── Chat ─────────────────────────────────────────────────────────────────
   socket.on('send-message', ({ text }) => {
     const room = rooms.get(roomCode);
@@ -2685,7 +2712,7 @@ function _activeFeedBooks() {
     .filter(b => b.actif)
     .sort((a, b) => (a.ordre - b.ordre) || (a.createdAt - b.createdAt))
     .map(b => ({ id: b._id, titre: b.titre, auteur: b.auteur, categorie: b.categorie,
-      couverture: b.couverture, url: b.url, description: b.description, ordre: b.ordre }));
+      couverture: b.couverture, url: b.url, description: b.description, ordre: b.ordre, readers: bookReaderCount(b._id) }));
 }
 
 // Public : liste des livres actifs, triés par ordre.
@@ -2714,7 +2741,7 @@ function bookFiche(book, entry) {
     categorie: book.categorie, categorieEn: book.categorieEn || book.categorie,
     description: book.description, descriptionEn: book.descriptionEn || book.description,
     copyright: book.copyright, copyrightEn: book.copyrightEn || book.copyright,
-    hasCover: !!book.hasCover,
+    hasCover: !!book.hasCover, readers: bookReaderCount(book.id),
     packs: book.packs.map(p => ({
       id: p.id, price: p.price, from: p.from, to: p.to, requires: p.requires,
       owned: !!entry && entry.ownedBooks.includes(`${book.id}:${p.id}`),

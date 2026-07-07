@@ -2891,14 +2891,28 @@ html.light .honor-reward-title { color: #d97706; }
 
 
 /* ── Profil : défis, série, historique ─────────────────────────────────────── */
-.landing-card--profile .landing-icon { filter: drop-shadow(0 0 8px rgba(124,92,255,.5)); }
+/* Bouton flottant en haut à droite, à gauche de Réglages. */
+.btn-profile-float {
+  position: fixed;
+  top: 16px; right: 72px;
+  width: 44px; height: 44px;
+  border-radius: 50%; border: none;
+  background: linear-gradient(135deg,#7c5cff,#22d3ee); color: #fff;
+  font-size: 1.2rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 20px rgba(124,92,255,.55);
+  z-index: 52;
+  transition: transform .15s, box-shadow .15s;
+}
+.btn-profile-float:hover { transform: scale(1.08); box-shadow: 0 0 26px rgba(124,92,255,.8); }
 .profile-card-badge {
-  position: absolute; top: 8px; right: 10px;
-  min-width: 20px; height: 20px; padding: 0 6px;
+  position: absolute; top: -4px; right: -4px;
+  min-width: 18px; height: 18px; padding: 0 5px;
   background: linear-gradient(135deg,#ff4d9d,#ff8a3d); color: #fff;
-  border-radius: 999px; font-size: .72rem; font-weight: 700;
+  border-radius: 999px; font-size: .68rem; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 2px 8px rgba(255,77,157,.5);
+  border: 2px solid var(--bg);
 }
 .profile-modal {
   background: var(--card);
@@ -2965,3 +2979,14 @@ html.light .honor-reward-title { color: #d97706; }
 .history-score { font-weight: 600; color: #22d3ee; font-size: .8rem; }
 .history-time { font-size: .72rem; opacity: .55; white-space: nowrap; }
 .history-empty, .profile-anon { font-size: .84rem; opacity: .65; text-align: center; padding: 14px 8px; margin: 0; }
+
+/* Badge « nombre de lecteurs » sur la couverture d'un livre. */
+.read-readers {
+  position: absolute; top: 8px; left: 8px;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: 999px;
+  background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+  color: #fff; font-size: .72rem; font-weight: 700;
+  border: 1px solid rgba(255,255,255,.18);
+  z-index: 2; pointer-events: none;
+}

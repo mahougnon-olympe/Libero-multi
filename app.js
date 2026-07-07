@@ -551,6 +551,7 @@ const DICT = {
     historyGameNames:{ connect4:'Puissance 4', tictactoe:'Morpion', chess:'Échecs', trivia:'Quiz', snake:'Snake', luffy:'Luffy Runner' },
     historyResults:{ win:'Victoire', loss:'Défaite', draw:'Match nul' },
     historyScore:n => `${n} pts`,
+    bookReaders:n => `${n} lecteur${n > 1 ? 's' : ''}`,
     snakeGameOver:'Game Over', snakeNewRecord:'🏆 Nouveau record !',
     btnSnakeRestart:'Rejouer', btnSnakeQuit:'Quitter',
     snakePause:'⏸ Pause', btnSnakeResume:'▶ Reprendre',
@@ -949,6 +950,7 @@ const DICT = {
     historyGameNames:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', trivia:'Quiz', snake:'Snake', luffy:'Luffy Runner' },
     historyResults:{ win:'Win', loss:'Loss', draw:'Draw' },
     historyScore:n => `${n} pts`,
+    bookReaders:n => `${n} reader${n > 1 ? 's' : ''}`,
     snakeGameOver:'Game Over', snakeNewRecord:'🏆 New record!',
     btnSnakeRestart:'Play again', btnSnakeQuit:'Quit',
     snakePause:'⏸ Pause', btnSnakeResume:'▶ Resume',
@@ -1143,8 +1145,7 @@ function applyLang() {
   const d = t();
   document.documentElement.lang = currentLang;
   document.title = d.siteTitle;
-  const pct = $('profile-card-title'); if (pct) pct.textContent = d.profileCardTitle;
-  const pcd = $('profile-card-desc');  if (pcd) pcd.textContent = d.profileCardDesc;
+  const pbtn = $('btn-go-profile'); if (pbtn) pbtn.title = d.profileTitle;
   const pmt = $('profile-modal-title'); if (pmt) pmt.textContent = d.profileTitle;
   const cht = $('challenges-title');   if (cht) cht.textContent = d.challengesTitle;
   const hit = $('history-title');      if (hit) hit.textContent = d.historyTitle;
@@ -6927,10 +6928,17 @@ const ReadFeed = (() => {
     });
   }
 
+  function readersHTML(b) {
+    const n = b && b.readers || 0;
+    if (n <= 0) return '';
+    return `<span class="read-readers" title="${esc(t().bookReaders(n))}">👁 ${n}</span>`;
+  }
+
   function coverHTML(b, i) {
     const cover = safeUrl(b.couverture);
     return `<div class="read-cover" style="background:${cover ? `center/cover url('${esc(cover)}')` : grad(i)}">
-      ${cover ? '' : `<span class="read-cover-emoji">📖</span><span class="read-cover-t">${esc(b.titre)}</span>`}</div>`;
+      ${cover ? '' : `<span class="read-cover-emoji">📖</span><span class="read-cover-t">${esc(b.titre)}</span>`}
+      ${readersHTML(b)}</div>`;
   }
 
   function matches(b) {
@@ -6983,8 +6991,29 @@ const ReadFeed = (() => {
        </div>`;
     overlay().classList.add('open');
     document.getElementById('read-sheet-close').onclick = closeSheet;
+    // Un clic sur « Lire » (lien externe) compte comme une lecture de ce livre.
+    if (link) {
+      const readLink = sheet().querySelector('.read-sheet-actions a');
+      if (readLink) readLink.addEventListener('click', () => _markRead(b.id), { once: true });
+    }
   }
   function closeSheet() { overlay().classList.remove('open'); }
+
+  // Signale au serveur que ce joueur a ouvert ce livre (comptage des lecteurs).
+  function _markRead(bookId) {
+    if (bookId) socket.emit('book-read', { playerId: getPlayerId(), bookId });
+  }
+  // Applique un nouveau total de lecteurs et rafraîchit l'affichage.
+  function setReaders(bookId, count) {
+    let hit = false;
+    for (const arr of [exclusiveBooks, books]) {
+      const b = arr.find(x => x.id === bookId);
+      if (b) { b.readers = count; hit = true; }
+    }
+    if (hit && loaded) render();
+    // Met aussi à jour la fiche exclusive ouverte, le cas échéant.
+    if (sheetBook && sheetBook.id === bookId) sheetBook.readers = count;
+  }
 
   // ── Livre exclusif : fiche avec chapitres + déblocage en Libs ──────────────
   function openBookSheet(bk = sheetBook) {
@@ -7086,6 +7115,7 @@ const ReadFeed = (() => {
       if (!r.ok) throw new Error();
       data = await r.json();
     } catch { showCursorSnakeToast(t().bookChapterLocked); return; }
+    _markRead(bk.id); // ouvrir un chapitre = lire ce livre (comptage des lecteurs)
     readerBook = bk;
     readerNum  = num;
     closeSheet();
@@ -7145,9 +7175,14 @@ const ReadFeed = (() => {
   document.addEventListener('input', e => { if (e.target === input()) { query = e.target.value.toLowerCase(); render(); } });
   document.addEventListener('click', e => { if (e.target === overlay()) closeSheet(); });
 
-  return { load, retexte };
+  return { load, retexte, setReaders };
 })();
 window._readFeed = ReadFeed;
+
+// Mise à jour en direct du nombre de lecteurs d'un livre.
+socket.on('book-readers-update', ({ bookId, count } = {}) => {
+  if (bookId != null && typeof count === 'number') ReadFeed.setReaders(bookId, count);
+});
 
 document.getElementById('nav-tab-home')?.addEventListener('click', () => {
   if (sessionStorage.getItem('libero_screen') === 'landing') return;
