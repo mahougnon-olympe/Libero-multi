@@ -2996,3 +2996,10 @@ html.light .honor-reward-title { color: #d97706; }
   border: 1px solid rgba(255,255,255,.18);
   z-index: 2; pointer-events: none;
 }
+
+/* Note « version originale » quand la traduction n'est pas encore disponible. */
+.book-orig-note {
+  background: rgba(124,92,255,.12); border: 1px solid rgba(124,92,255,.3);
+  border-radius: 10px; padding: 10px 14px; margin: 0 0 18px;
+  font-size: .85rem; color: var(--muted);
+}

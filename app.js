@@ -552,6 +552,7 @@ const DICT = {
     historyResults:{ win:'Victoire', loss:'Défaite', draw:'Match nul' },
     historyScore:n => `${n} pts`,
     bookReaders:n => `${n} lecteur${n > 1 ? 's' : ''}`,
+    bookOriginalOnly:'📖 Traduction anglaise bientôt disponible. Voici la version originale (français).',
     snakeGameOver:'Game Over', snakeNewRecord:'🏆 Nouveau record !',
     btnSnakeRestart:'Rejouer', btnSnakeQuit:'Quitter',
     snakePause:'⏸ Pause', btnSnakeResume:'▶ Reprendre',
@@ -951,6 +952,7 @@ const DICT = {
     historyResults:{ win:'Win', loss:'Loss', draw:'Draw' },
     historyScore:n => `${n} pts`,
     bookReaders:n => `${n} reader${n > 1 ? 's' : ''}`,
+    bookOriginalOnly:'📖 English translation coming soon. Here is the original version (French).',
     snakeGameOver:'Game Over', snakeNewRecord:'🏆 New record!',
     btnSnakeRestart:'Play again', btnSnakeQuit:'Quit',
     snakePause:'⏸ Pause', btnSnakeResume:'▶ Resume',
@@ -7111,7 +7113,7 @@ const ReadFeed = (() => {
     let data;
     try {
       const pid = encodeURIComponent(getPlayerId() || '');
-      const r = await fetch(`${window.BACKEND_URL}/api/book/${encodeURIComponent(bk.id)}/chapitre/${num}?playerId=${pid}`);
+      const r = await fetch(`${window.BACKEND_URL}/api/book/${encodeURIComponent(bk.id)}/chapitre/${num}?playerId=${pid}&lang=${currentLang}`);
       if (!r.ok) throw new Error();
       data = await r.json();
     } catch { showCursorSnakeToast(t().bookChapterLocked); return; }
@@ -7120,7 +7122,9 @@ const ReadFeed = (() => {
     readerNum  = num;
     closeSheet();
     document.getElementById('book-reader-title').textContent = loc(data.titre, data.titreEn);
-    document.getElementById('book-reader-content').innerHTML = mdToHtml(data.content) +
+    // Note affichée si l'anglais est demandé mais que la traduction n'existe pas encore.
+    const noteHtml = data.fallback ? `<p class="book-orig-note">${esc(t().bookOriginalOnly)}</p>` : '';
+    document.getElementById('book-reader-content').innerHTML = noteHtml + mdToHtml(data.content) +
       (data.copyright ? `<p class="book-copyright book-copyright--reader">${esc(loc(data.copyright, data.copyrightEn))}</p>` : '');
     const prevB = document.getElementById('book-reader-prev');
     const nextB = document.getElementById('book-reader-next');
@@ -7169,6 +7173,12 @@ const ReadFeed = (() => {
     buildCats(); render();
     // La fiche d'un livre exclusif ouverte se re-rend dans la nouvelle langue.
     if (sheetBook && overlay().classList.contains('open')) openBookSheet(sheetBook);
+    // Un chapitre en cours de lecture se recharge dans la nouvelle langue
+    // (sert la traduction si elle existe), en gardant la position de lecture.
+    if (readerBook && reader()?.classList.contains('open')) {
+      const scroll = reader().querySelector('.book-reader-content')?.scrollTop || 0;
+      openReader(readerBook, readerNum, scroll);
+    }
   }
 
   // Recherche + fermeture de la fiche en cliquant hors de celle-ci

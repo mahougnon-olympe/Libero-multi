@@ -109,7 +109,7 @@ function bookChapterTitleEn(book, num) {
   const t = book.chapterTitlesEn?.[num];
   return t ? `Chapter ${num}: ${t}` : null;
 }
-const bookChapters = new Map(); // bookId -> Map(num -> { num, titre, content })
+const bookChapters = new Map(); // bookId -> Map(num -> { num, titre, content, contentEn })
 (function loadBookChapters() {
   for (const book of Object.values(LIBERO_BOOKS)) {
     const dir = path.join(__dirname, 'books', book.id);
@@ -117,6 +117,8 @@ const bookChapters = new Map(); // bookId -> Map(num -> { num, titre, content })
     bookChapters.set(book.id, chapters);
     book.hasCover = fs.existsSync(path.join(dir, 'couverture.jpeg'));
     let files = [];
+    // On ne charge que les originaux français ici ; la version anglaise
+    // (chapitre-NN.en.md) est associée juste après si le fichier existe.
     try { files = fs.readdirSync(dir).filter(f => /^chapitre-\d+\.md$/.test(f)); }
     catch { console.warn(`⚠️  Dossier livre introuvable : ${dir}`); continue; }
     for (const f of files) {
@@ -124,9 +126,14 @@ const bookChapters = new Map(); // bookId -> Map(num -> { num, titre, content })
       const content = fs.readFileSync(path.join(dir, f), 'utf8');
       const titleLine = content.split('\n').find(l => /^#{1,2}\s*Chapitre\s+\d+/i.test(l));
       const titre = titleLine ? titleLine.replace(/^#{1,2}\s*/, '').trim() : `Chapitre ${num}`;
-      chapters.set(num, { num, titre, content });
+      // Traduction anglaise du chapitre, si disponible.
+      let contentEn = null;
+      const enPath = path.join(dir, `chapitre-${String(num).padStart(2, '0')}.en.md`);
+      try { if (fs.existsSync(enPath)) contentEn = fs.readFileSync(enPath, 'utf8'); } catch { /* pas de traduction */ }
+      chapters.set(num, { num, titre, content, contentEn });
     }
-    console.log(`📖 Livre « ${book.titre} » : ${chapters.size} chapitre(s) chargé(s).`);
+    const translated = [...chapters.values()].filter(c => c.contentEn).length;
+    console.log(`📖 Livre « ${book.titre} » : ${chapters.size} chapitre(s) chargé(s)${translated ? ` (${translated} traduit·s EN)` : ''}.`);
   }
 })();
 
@@ -2734,6 +2741,7 @@ function bookFiche(book, entry) {
       gratuit: !pack,
       unlocked: canReadChapter(book, entry, n),
       pack: pack ? pack.id : null,
+      hasEn: !!(ch && ch.contentEn),         // traduction anglaise disponible ?
     });
   }
   return {
@@ -2783,9 +2791,16 @@ app.get('/api/book/:bookId/chapitre/:num', (req, res) => {
   const id    = safePlayerId(req.query.playerId);
   const entry = id ? getLibsEntry(id) : null;
   if (!canReadChapter(book, entry, num)) return res.status(403).json({ error: 'Chapitre verrouillé.' });
+  // Langue demandée : 'en' sert la traduction si elle existe, sinon on retombe
+  // sur l'original français en signalant que c'est la version originale.
+  const wantEn   = String(req.query.lang || '').toLowerCase() === 'en';
+  const useEn    = wantEn && !!ch.contentEn;
   res.json({
     num: ch.num, titre: ch.titre, titreEn: bookChapterTitleEn(book, num) || ch.titre,
-    content: ch.content, copyright: book.copyright, copyrightEn: book.copyrightEn || book.copyright,
+    content: useEn ? ch.contentEn : ch.content,
+    lang: useEn ? 'en' : 'fr',
+    fallback: wantEn && !ch.contentEn, // EN demandé mais indisponible → original FR affiché
+    copyright: book.copyright, copyrightEn: book.copyrightEn || book.copyright,
   });
 });
 
