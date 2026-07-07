@@ -341,6 +341,14 @@ function dbInsertComment(comment) {
     .catch(e => console.error('Erreur sauvegarde commentaire:', e));
 }
 
+// Supprime des commentaires (modération admin).
+function dbDeleteComments(ids) {
+  if (!db || !ids.length) return;
+  db.collection('comments')
+    .deleteMany({ _id: { $in: ids } })
+    .catch(e => console.error('Erreur suppression commentaire:', e));
+}
+
 // Persiste la liste des joueurs ayant liké : les likes survivent aux redémarrages.
 function dbUpdateCommentLikes(commentId, likedBy) {
   if (!db || !commentId) return;
@@ -507,23 +515,37 @@ function _emitToPlayer(id, event, payload) {
 }
 
 // Trois défis par jour ; les compteurs se réinitialisent chaque jour.
-const DAILY_CHALLENGES = [
-  { id: 'wins',   metric: 'gamesWon',      goal: 3,  reward: 40 },
-  { id: 'trivia', metric: 'triviaCorrect', goal: 5,  reward: 40 },
-  { id: 'snake',  metric: 'snakeEaten',    goal: 30, reward: 50 },
+// Le 3ᵉ défi dépend du jour : l'évent Snake n'a lieu que le week-end, donc le
+// défi Snake n'est proposé que ces jours-là. En semaine, on le remplace par un
+// défi Luffy Runner (jouable tous les jours).
+const BASE_CHALLENGES = [
+  { id: 'wins',   metric: 'gamesWon',      goal: 3, reward: 40 },
+  { id: 'trivia', metric: 'triviaCorrect', goal: 5, reward: 40 },
 ];
+const SNAKE_CHALLENGE = { id: 'snake', metric: 'snakeEaten', goal: 30,  reward: 50 };
+const LUFFY_CHALLENGE = { id: 'luffy', metric: 'luffyRun',   goal: 400, reward: 50 };
+const CHALLENGE_METRICS = ['gamesWon', 'triviaCorrect', 'snakeEaten', 'luffyRun'];
+
+// Liste des défis actifs du jour (le Snake bascule en Luffy hors week-end).
+function activeChallenges() {
+  return [...BASE_CHALLENGES, isSnakeEventDay() ? SNAKE_CHALLENGE : LUFFY_CHALLENGE];
+}
 
 function getChallenges(entry) {
   const today = _dayKey();
   if (!entry.challenges || entry.challenges.date !== today) {
-    entry.challenges = { date: today, progress: { gamesWon: 0, triviaCorrect: 0, snakeEaten: 0 }, claimed: [] };
+    entry.challenges = { date: today, progress: {}, claimed: [] };
   }
+  // Garantit que tous les compteurs existent (rétro-compat après un déploiement
+  // en cours de journée : sinon un nouveau métrique ne progresserait jamais).
+  const p = entry.challenges.progress;
+  for (const m of CHALLENGE_METRICS) if (!(m in p)) p[m] = 0;
   return entry.challenges;
 }
 
 function challengesPayload(entry) {
   const c = getChallenges(entry);
-  return DAILY_CHALLENGES.map(ch => ({
+  return activeChallenges().map(ch => ({
     id: ch.id, goal: ch.goal, reward: ch.reward,
     progress: Math.min(ch.goal, c.progress[ch.metric] || 0),
     done: (c.progress[ch.metric] || 0) >= ch.goal,
@@ -1888,6 +1910,8 @@ io.on('connection', (socket) => {
     if (!['snake', 'luffy'].includes(game)) return;
     const sc = Math.max(0, Math.floor(Number(score) || 0));
     pushHistory(id, { game, result: null, score: sc });
+    // Défi Luffy Runner (hors week-end) : chaque partie crédite son score.
+    if (game === 'luffy' && sc > 0) bumpChallenge(id, 'luffyRun', sc);
   });
 
   // ── Défis quotidiens ──────────────────────────────────────────────────────
@@ -1903,7 +1927,7 @@ io.on('connection', (socket) => {
     if (!allowAction('claim', 20, 60_000)) { socket.emit('claim-challenge-result', { ok: false, error: 'rate' }); return; }
     const entry = getLibsEntry(id);
     if (!entry.name || entry.name === 'Anonyme') { socket.emit('claim-challenge-result', { ok: false, error: 'anonymous' }); return; }
-    const def = DAILY_CHALLENGES.find(c => c.id === challengeId);
+    const def = activeChallenges().find(c => c.id === challengeId);
     if (!def) { socket.emit('claim-challenge-result', { ok: false, error: 'invalid' }); return; }
     const c = getChallenges(entry);
     if ((c.progress[def.metric] || 0) < def.goal) { socket.emit('claim-challenge-result', { ok: false, error: 'not_done' }); return; }
@@ -2656,6 +2680,38 @@ app.get('/admin/comments', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   res.json(comments.slice().reverse()); // plus récent en premier
 });
+
+// Admin : supprime un commentaire par _id (/admin/comment/:id) ou tous ceux
+// d'un pseudo (/admin/comment?pseudo=sassy). Sert à la modération.
+function _adminDeleteComment(req, res) {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const wantPseudo = typeof req.query.pseudo === 'string' ? req.query.pseudo.trim().toLowerCase() : '';
+  let removed = [];
+  if (req.params.id) {
+    const idx = comments.findIndex(c => c._id && c._id.toString() === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: 'Commentaire introuvable.' });
+    removed = comments.splice(idx, 1);
+  } else if (wantPseudo) {
+    const ids = new Set();
+    for (let i = comments.length - 1; i >= 0; i--) {
+      if ((comments[i].pseudo || '').trim().toLowerCase() === wantPseudo) {
+        ids.add(comments[i]._id);
+        removed.push(comments.splice(i, 1)[0]);
+      }
+    }
+    if (!removed.length) return res.status(404).json({ error: 'Aucun commentaire pour ce pseudo.' });
+  } else {
+    return res.status(400).json({ error: 'Fournir un id (/admin/comment/:id) ou ?pseudo=...' });
+  }
+  const ids = removed.map(c => c._id);
+  for (const id of ids) commentLikeMap.delete(id.toString());
+  dbDeleteComments(ids);
+  io.emit('news-comments-update', _newsCommentsPayload());
+  console.log(`[🗑️] ${removed.length} commentaire(s) supprimé(s) par admin${wantPseudo ? ` (pseudo « ${wantPseudo} »)` : ''}.`);
+  res.json({ ok: true, deleted: removed.length });
+}
+app.delete('/admin/comment/:id', _adminDeleteComment);
+app.delete('/admin/comment',     _adminDeleteComment);
 
 // Consultation des achats de Libs (audit) — jamais purgée par /admin/reset.
 app.get('/admin/libs-purchases', (req, res) => {

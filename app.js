@@ -539,7 +539,7 @@ const DICT = {
     profileTitle:'Mon profil',
     challengesTitle:'🎯 Défis du jour', historyTitle:'🕑 Mes dernières parties',
     profileAnon:'Choisis un pseudo (dans un jeu) pour suivre tes défis, ta série et ton historique !',
-    challengesNames:{ wins:'Gagne 3 parties', trivia:'Réponds bien à 5 questions', snake:'Mange 30 ⚡ au Snake' },
+    challengesNames:{ wins:'Gagne 3 parties', trivia:'Réponds bien à 5 questions', snake:'Mange 30 ⚡ au Snake', luffy:'Cumule 400 pts au Luffy Runner' },
     challengeClaim:'Réclamer', challengeClaimed:'✓ Réclamé', challengeLocked:'À finir',
     challengeReward:n => `+${n} ⚡`,
     challengeClaimToast:n => `Défi réussi ! +${n} ⚡`,
@@ -584,7 +584,7 @@ const DICT = {
     helpContent:{
       general:[
         { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Luffy Runner</strong>, une idée de joueur reprise par le créateur). Chaque section a son propre classement." },
-        { icon:'🎯', title:'Mon profil', desc:"La carte <strong>Mon profil</strong> (accueil) regroupe trois choses : tes <strong>défis du jour</strong> (3 objectifs simples comme gagner 3 parties ou manger 30 ⚡, chacun récompensé en ⚡ à réclamer), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. Il faut un pseudo pour en profiter." },
+        { icon:'🎯', title:'Mon profil', desc:"La carte <strong>Mon profil</strong> (accueil) regroupe trois choses : tes <strong>défis du jour</strong> (3 objectifs simples comme gagner 3 parties, chacun récompensé en ⚡ à réclamer ; le 3ᵉ change selon le jour : Snake le week-end, Luffy Runner en semaine), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. Il faut un pseudo pour en profiter." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> · ton serpent mange des <strong>⚡ Libs</strong> pour grandir, et chaque ⚡ mangé est <strong>ajouté à ton solde</strong> (score 10 = 10 Libs gagnés). Les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
         { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras aussi <strong>⭐ L'Affaire endormie · Tome 1</strong>, le roman exclusif écrit par le créateur : le <strong>chapitre 1 est gratuit</strong>, puis débloque les chapitres 2-5 pour <strong>1000 ⚡ Libs</strong> et les chapitres 6-10 pour <strong>2000 ⚡</strong> · la lecture se fait directement sur le site." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile." },
@@ -939,7 +939,7 @@ const DICT = {
     profileTitle:'My profile',
     challengesTitle:'🎯 Daily challenges', historyTitle:'🕑 My recent games',
     profileAnon:'Pick a nickname (in a game) to track your challenges, streak and history!',
-    challengesNames:{ wins:'Win 3 games', trivia:'Answer 5 questions right', snake:'Eat 30 ⚡ in Snake' },
+    challengesNames:{ wins:'Win 3 games', trivia:'Answer 5 questions right', snake:'Eat 30 ⚡ in Snake', luffy:'Rack up 400 pts in Luffy Runner' },
     challengeClaim:'Claim', challengeClaimed:'✓ Claimed', challengeLocked:'In progress',
     challengeReward:n => `+${n} ⚡`,
     challengeClaimToast:n => `Challenge complete! +${n} ⚡`,
@@ -984,7 +984,7 @@ const DICT = {
     helpContent:{
       general:[
         { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Luffy Runner</strong> mini-game, a player idea brought to life by the creator). Each section has its own leaderboard." },
-        { icon:'🎯', title:'My profile', desc:"The <strong>My profile</strong> card (home) gathers three things: your <strong>daily challenges</strong> (3 simple goals like winning 3 games or eating 30 ⚡, each rewarded in ⚡ to claim), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. A nickname is required." },
+        { icon:'🎯', title:'My profile', desc:"The <strong>My profile</strong> card (home) gathers three things: your <strong>daily challenges</strong> (3 simple goals like winning 3 games, each rewarded in ⚡ to claim; the 3rd one rotates with the day: Snake on weekends, Luffy Runner on weekdays), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. A nickname is required." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> · your snake eats <strong>⚡ Libs</strong> to grow, and every ⚡ eaten is <strong>added to your balance</strong> (score 10 = 10 Libs earned). Walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
         { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll also find <strong>⭐ L'Affaire endormie · Tome 1</strong>, the exclusive novel written by the creator: <strong>chapter 1 is free</strong>, then unlock chapters 2-5 for <strong>1000 ⚡ Libs</strong> and chapters 6-10 for <strong>2000 ⚡</strong> · read it right on the site." },
         { icon:'🎮', title:'Create a classic game', desc:"Choose a game, enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent. You can also play <strong>Solo vs the bot</strong> by choosing a difficulty: Easy, Medium or Hard." },
