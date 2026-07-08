@@ -299,6 +299,9 @@ const DICT = {
     bookInsufficient:'Pas assez de Libs ! Joue pour en gagner.',
     bookNeedName:'Choisis d\'abord un pseudo (dans une section de jeu) pour acheter.',
     bookNeedPrevious:'Débloque d\'abord les chapitres précédents.',
+    bookSequelLocked: titre => `🔒 Suite réservée : débloque « ${titre} » en entier pour lire ce tome.`,
+    bookSequelUnlocked:'✅ Offert avec le tome précédent : bonne lecture !',
+    bookSequelGoto: titre => `📕 Voir « ${titre} »`,
     bookUnlocked:'✅ Chapitres débloqués ! Bonne lecture.',
     bookPrev:'← Précédent', bookNext:'Suivant →', bookReaderClose:'✕',
     bookChapterLocked:'🔒 Ce chapitre est verrouillé.',
@@ -539,7 +542,7 @@ const DICT = {
     profileTitle:'Mon profil',
     challengesTitle:'🎯 Défis du jour', historyTitle:'🕑 Mes dernières parties',
     profileAnon:'Choisis un pseudo (dans un jeu) pour suivre tes défis, ta série et ton historique !',
-    challengesNames:{ wins:'Gagne 3 parties', trivia:'Réponds bien à 5 questions', snake:'Mange 30 ⚡ au Snake', luffy:'Cumule 400 pts au Luffy Runner' },
+    challengesNames:{ wins:'Gagne 3 parties', trivia:'Réponds bien à 5 questions', snake:'Mange 30 ⚡ au Snake', luffy:'Cumule 4000 pts au Luffy Runner' },
     challengeClaim:'Réclamer', challengeClaimed:'✓ Réclamé', challengeLocked:'À finir',
     challengeReward:n => `+${n} ⚡`,
     challengeClaimToast:n => `Défi réussi ! +${n} ⚡`,
@@ -586,7 +589,7 @@ const DICT = {
         { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Luffy Runner</strong>, une idée de joueur reprise par le créateur). Chaque section a son propre classement." },
         { icon:'🎯', title:'Mon profil', desc:"La carte <strong>Mon profil</strong> (accueil) regroupe trois choses : tes <strong>défis du jour</strong> (3 objectifs simples comme gagner 3 parties, chacun récompensé en ⚡ à réclamer ; le 3ᵉ change selon le jour : Snake le week-end, Luffy Runner en semaine), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. Il faut un pseudo pour en profiter." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> · ton serpent mange des <strong>⚡ Libs</strong> pour grandir, et chaque ⚡ mangé est <strong>ajouté à ton solde</strong> (score 10 = 10 Libs gagnés). Les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
-        { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras aussi <strong>⭐ L'Affaire endormie · Tome 1</strong>, le roman exclusif écrit par le créateur : le <strong>chapitre 1 est gratuit</strong>, puis débloque les chapitres 2-5 pour <strong>1000 ⚡ Libs</strong> et les chapitres 6-10 pour <strong>2000 ⚡</strong> · la lecture se fait directement sur le site." },
+        { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras les <strong>romans exclusifs</strong> lisibles directement sur le site (en français ou en anglais selon la langue choisie) : <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, 1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10), <strong>Life of Georgia</strong> (livre entier pour 2000 ⚡) et sa suite <strong>Life of Georgia · Tome 2</strong>, <strong>offerte</strong> à tous ceux qui ont débloqué le Tome 1." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile." },
         { icon:'🤖', title:'Mode Solo (vs Bot)', desc:"Joue seul contre un robot. <em>Facile</em> : le bot joue au hasard. <em>Moyen</em> : le bot bloque et attaque. <em>Difficile</em> : le bot joue de manière optimale. Les parties <strong>Moyen et Difficile</strong> comptent dans le classement classique." },
         { icon:'🔗', title:'Rejoindre', desc:"Entre le code à 4 lettres reçu et clique <em>Rejoindre</em>. La partie démarre automatiquement dès que les deux joueurs sont connectés." },
@@ -595,7 +598,7 @@ const DICT = {
         { icon:'🔁', title:'Rejouer', desc:"En fin de partie classique, clique <em>Rejouer</em>. La partie redémarre uniquement si les deux joueurs acceptent." },
         { icon:'🌍', title:'Classement Global', desc:"Visible dès la page d'accueil, il regroupe <strong>tous les joueurs ayant au moins un point</strong>. Score = victoires classiques (×10) + points Quiz + meilleur score Snake (×10) + meilleur score Luffy Runner (÷10). Mis à jour en temps réel." },
         { icon:'🏆', title:'Classements par section', desc:"Chaque section garde aussi son propre classement : victoires/défaites/nuls pour les Jeux Classiques, total de points pour le Quiz." },
-        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Aide Luffy à fuir la Marine dans ce clone du jeu du dinosaure ! Saute (<strong>↑</strong> / Espace) par-dessus les obstacles au sol (tonneaux, canons, crabes…) et accroupis-toi (<strong>↓</strong>) sous les obstacles volants (mouettes, boulets de canon…). Ton meilleur score <strong>persiste</strong> entre les sessions et alimente un classement dédié. C'est d'ailleurs une <strong>idée de la communauté</strong> reprise par le créateur · si tu veux que la tienne soit prise en compte, laisse un commentaire via le bouton dans l'écran de jeu." },
+        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Aide Luffy à fuir la Marine dans ce clone du jeu du dinosaure ! Saute (<strong>↑</strong> / Espace) par-dessus les obstacles au sol (tonneaux, canons, crabes…) et accroupis-toi (<strong>↓</strong>) sous les obstacles volants (mouettes, boulets de canon…). Attrape l'<strong>⭐ étoile brillante</strong> pour devenir invincible quelques secondes : un compte à rebours affiche le temps restant. Ton meilleur score <strong>persiste</strong> entre les sessions et alimente un classement dédié. C'est d'ailleurs une <strong>idée de la communauté</strong> reprise par le créateur · si tu veux que la tienne soit prise en compte, laisse un commentaire via le bouton dans l'écran de jeu." },
         { icon:'📰', title:'News', desc:"La carte News est repliée dans le <strong>coin en haut à gauche</strong>. <strong>Clique dessus</strong> pour l'ouvrir : elle affiche l'état de l'évent en cours (ou le compte à rebours jusqu'au prochain) et un rappel pour participer à la section <strong>Luffy Runner</strong>. Reclique pour la refermer." },
         { icon:'⚙️', title:'Paramètres', desc:"Le bouton <strong>⚙️</strong> en <em>haut à droite</em> regroupe tous les réglages : <strong>Langue</strong>, <strong>Thème</strong>, <strong>Serpent</strong>, <strong>Sons</strong> (effets sonores + volume), <strong>Musique</strong> (fond musical + volume) et <strong>Cartes de remboursement</strong>. Tout est mémorisé entre les sessions." },
         { icon:'🔊', title:'Sons & Musique', desc:"<strong>Sons</strong> : des effets sonores accompagnent chaque action (poser une pièce, victoire, quiz, chat, boutique, Snake…). Active/désactive-les via <strong>⚙️ → Sons</strong> et règle le volume.<br><strong>Musique</strong> : une musique ambiante joue en fond. Active/désactive-la via <strong>⚙️ → Musique</strong> avec son propre curseur de volume. Les deux se gèrent indépendamment." },
@@ -679,7 +682,7 @@ const DICT = {
       home_lb:'🏆 <strong>Classement</strong> : victoires, défaites et nuls s\'enregistrent automatiquement après chaque partie (bot Moyen / Difficile ou multijoueur).',
       quiz_themes:'🧠 <strong>Quiz Culture Générale</strong> : sélectionne un ou plusieurs thèmes (Histoire, Cinéma, Sciences…), puis joue en <strong>Solo</strong> ou crée un <strong>salon multijoueur</strong> à partager avec tes amis.',
       quiz_lb:'🏆 Le <strong>classement Quiz</strong> est séparé du classement Classique. Les points sont attribués selon ta vitesse de réponse et le nombre de bonnes réponses.',
-      read_catalogue:'📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Le roman <strong>⭐ L\'Affaire endormie · Tome 1</strong>, écrit par le créateur, se lit directement ici : <strong>chapitre 1 gratuit</strong>, puis débloque la suite avec tes <strong>⚡ Libs</strong> (1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10).',
+      read_catalogue:'📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Les <strong>romans exclusifs</strong> se lisent directement ici : <strong>⭐ L\'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, puis 1000 ⚡ et 2000 ⚡), <strong>Life of Georgia</strong> (2000 ⚡ le livre entier) et <strong>Life of Georgia · Tome 2</strong>, offert à ceux qui possèdent le Tome 1.',
     },
   },
   en: {
@@ -699,6 +702,9 @@ const DICT = {
     bookInsufficient:'Not enough Libs! Play to earn more.',
     bookNeedName:'Pick a nickname first (in any game section) to buy.',
     bookNeedPrevious:'Unlock the previous chapters first.',
+    bookSequelLocked: titre => `🔒 Sequel reserved: unlock all of "${titre}" to read this volume.`,
+    bookSequelUnlocked:'✅ Included with the previous volume: enjoy!',
+    bookSequelGoto: titre => `📕 View "${titre}"`,
     bookUnlocked:'✅ Chapters unlocked! Enjoy.',
     bookPrev:'← Previous', bookNext:'Next →', bookReaderClose:'✕',
     bookChapterLocked:'🔒 This chapter is locked.',
@@ -939,7 +945,7 @@ const DICT = {
     profileTitle:'My profile',
     challengesTitle:'🎯 Daily challenges', historyTitle:'🕑 My recent games',
     profileAnon:'Pick a nickname (in a game) to track your challenges, streak and history!',
-    challengesNames:{ wins:'Win 3 games', trivia:'Answer 5 questions right', snake:'Eat 30 ⚡ in Snake', luffy:'Rack up 400 pts in Luffy Runner' },
+    challengesNames:{ wins:'Win 3 games', trivia:'Answer 5 questions right', snake:'Eat 30 ⚡ in Snake', luffy:'Rack up 4000 pts in Luffy Runner' },
     challengeClaim:'Claim', challengeClaimed:'✓ Claimed', challengeLocked:'In progress',
     challengeReward:n => `+${n} ⚡`,
     challengeClaimToast:n => `Challenge complete! +${n} ⚡`,
@@ -986,7 +992,7 @@ const DICT = {
         { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Luffy Runner</strong> mini-game, a player idea brought to life by the creator). Each section has its own leaderboard." },
         { icon:'🎯', title:'My profile', desc:"The <strong>My profile</strong> card (home) gathers three things: your <strong>daily challenges</strong> (3 simple goals like winning 3 games, each rewarded in ⚡ to claim; the 3rd one rotates with the day: Snake on weekends, Luffy Runner on weekdays), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. A nickname is required." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> · your snake eats <strong>⚡ Libs</strong> to grow, and every ⚡ eaten is <strong>added to your balance</strong> (score 10 = 10 Libs earned). Walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
-        { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll also find <strong>⭐ L'Affaire endormie · Tome 1</strong>, the exclusive novel written by the creator: <strong>chapter 1 is free</strong>, then unlock chapters 2-5 for <strong>1000 ⚡ Libs</strong> and chapters 6-10 for <strong>2000 ⚡</strong> · read it right on the site." },
+        { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll find the <strong>exclusive novels</strong> readable right on the site (in French or English, following the site language): <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapter 1 free, 1000 ⚡ for chapters 2-5, 2000 ⚡ for 6-10), <strong>Life of Georgia</strong> (whole book for 2000 ⚡) and its sequel <strong>Life of Georgia · Volume 2</strong>, <strong>free</strong> for everyone who unlocked Volume 1." },
         { icon:'🎮', title:'Create a classic game', desc:"Choose a game, enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent. You can also play <strong>Solo vs the bot</strong> by choosing a difficulty: Easy, Medium or Hard." },
         { icon:'🤖', title:'Solo mode (vs Bot)', desc:"Play alone against a robot. <em>Easy</em>: plays randomly. <em>Medium</em>: blocks and attacks. <em>Hard</em>: plays optimally. <strong>Medium and Hard</strong> games count in the classic leaderboard." },
         { icon:'🔗', title:'Join', desc:"Enter the 4-letter code you received and click <em>Join</em>. The game starts automatically as soon as both players are connected." },
@@ -995,7 +1001,7 @@ const DICT = {
         { icon:'🔁', title:'Play again', desc:"At the end of a classic game, click <em>Play again</em>. The game restarts only if both players agree." },
         { icon:'🌍', title:'Global leaderboard', desc:"Visible from the home page, it gathers <strong>all players with at least one point</strong>. Score = classic wins (×10) + Quiz points + best Snake score (×10) + best Luffy Runner score (÷10). Updated in real time." },
         { icon:'🏆', title:'Section leaderboards', desc:"Each section also keeps its own leaderboard: wins/losses/draws for Classic Games, total points for Quiz." },
-        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Help Luffy escape the Marines in this dinosaur-game clone! Jump (<strong>↑</strong> / Space) over ground obstacles (barrels, cannons, crabs…) and duck (<strong>↓</strong>) under flying ones (seagulls, cannonballs…). Your best score <strong>persists</strong> between sessions and feeds its own leaderboard. It's actually a <strong>community idea</strong> brought to life by the creator · if you want yours considered too, leave a comment via the button on the game screen." },
+        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Help Luffy escape the Marines in this dinosaur-game clone! Jump (<strong>↑</strong> / Space) over ground obstacles (barrels, cannons, crabs…) and duck (<strong>↓</strong>) under flying ones (seagulls, cannonballs…). Grab the <strong>⭐ shining star</strong> to become invincible for a few seconds: a countdown shows the time left. Your best score <strong>persists</strong> between sessions and feeds its own leaderboard. It's actually a <strong>community idea</strong> brought to life by the creator · if you want yours considered too, leave a comment via the button on the game screen." },
         { icon:'📰', title:'News', desc:"The News card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the current event status (or a countdown to the next one) and a nudge to check out the <strong>Luffy Runner</strong> section. Click again to close it." },
         { icon:'⚙️', title:'Settings', desc:"The <strong>⚙️</strong> button in the <em>top right</em> groups all settings: <strong>Language</strong>, <strong>Theme</strong>, <strong>Snake</strong>, <strong>Sound</strong> (SFX + volume), <strong>Music</strong> (background music + volume) and <strong>Refund cards</strong>. Everything is saved between sessions." },
         { icon:'🔊', title:'Sound & Music', desc:"<strong>Sound</strong>: sound effects play on every action (placing a piece, win, quiz, chat, shop, Snake…). Toggle via <strong>⚙️ → Sound</strong> and adjust the volume.<br><strong>Music</strong>: ambient background music plays while you browse. Toggle via <strong>⚙️ → Music</strong> with its own volume slider. Both are controlled independently." },
@@ -1079,7 +1085,7 @@ const DICT = {
       home_lb:'🏆 <strong>Leaderboard</strong>: wins, losses and draws are recorded automatically after each game (Medium/Hard bot or multiplayer).',
       quiz_themes:'🧠 <strong>General Knowledge Quiz</strong>: select one or more themes (History, Movies, Science…), then play <strong>Solo</strong> or create a <strong>multiplayer room</strong> to share with your friends.',
       quiz_lb:'🏆 The <strong>Quiz leaderboard</strong> is separate from the Classic leaderboard. Points are awarded based on your response speed and number of correct answers.',
-      read_catalogue:'📚 Welcome to the <strong>Reading</strong> section! Search a book by title or author, filter by category, and click a cover to open its sheet. The novel <strong>⭐ L\'Affaire endormie · Tome 1</strong>, written by the creator, can be read right here: <strong>chapter 1 is free</strong>, then unlock the rest with your <strong>⚡ Libs</strong> (1000 ⚡ for chapters 2-5, 2000 ⚡ for 6-10).',
+      read_catalogue:'📚 Welcome to the <strong>Reading</strong> section! Search a book by title or author, filter by category, and click a cover to open its sheet. The <strong>exclusive novels</strong> can be read right here: <strong>⭐ L\'Affaire endormie · Tome 1</strong> (chapter 1 free, then 1000 ⚡ and 2000 ⚡), <strong>Life of Georgia</strong> (2000 ⚡ for the whole book) and <strong>Life of Georgia · Volume 2</strong>, free for owners of Volume 1.',
     },
   },
 };
@@ -5543,7 +5549,6 @@ function showCursorSnakeToast(msg) {
   const SPR = {
     canon:        loadSprite('canon.png'),
     boulet:       loadSprite('boulet-canon.png'),
-    tonneauP:     loadSprite('tonneau-powerup.png'),
     rocher:       loadSprite('rocher.png'),
     recif:        loadSprite('recif.png'),
     crabe:        loadSprite('crabe.png'),
@@ -5607,7 +5612,44 @@ function showCursorSnakeToast(msg) {
     { id: 'boulet',       w: 22, h: 21, draw: (c, x, y, w, h) => drawSprite(c, SPR.boulet, x, y, w, h, false) },
     { id: 'marineoiseau', w: 42, h: 35, draw: (c, x, y, w, h) => drawSprite(c, SPR.marineAigle, x, y, w, h, true) },
   ];
-  const POWERUP_DEF = { id: 'tonneauP', w: 25, h: 30, draw: (c, x, y, w, h) => drawSprite(c, SPR.tonneauP, x, y, w, h, false) };
+  // Bonus d'invincibilité : une étoile brillante dessinée au canvas (pas de
+  // sprite) — bien plus visible que l'ancien tonneau, avec halo pulsé et rayons.
+  function drawStarShape(c, cx, cy, r) {
+    c.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const rad = i % 2 === 0 ? r : r * 0.45;
+      const a = -Math.PI / 2 + i * Math.PI / 5;
+      c[i === 0 ? 'moveTo' : 'lineTo'](cx + rad * Math.cos(a), cy + rad * Math.sin(a));
+    }
+    c.closePath();
+  }
+  const POWERUP_DEF = { id: 'tonneauP', w: 28, h: 30, draw: (c, x, y, w, h) => {
+    const now = performance.now();
+    const cx = x + w / 2, cy = y + h / 2;
+    const pulse = 0.85 + 0.15 * Math.sin(now / 120); // scintillement
+    c.save();
+    // Rayons tournants derrière l'étoile
+    c.translate(cx, cy);
+    c.rotate(now / 900);
+    c.strokeStyle = 'rgba(255,225,90,.55)';
+    c.lineWidth = 2;
+    for (let i = 0; i < 4; i++) {
+      c.rotate(Math.PI / 4);
+      c.beginPath(); c.moveTo(0, -h * 0.75 * pulse); c.lineTo(0, -h * 0.45); c.stroke();
+    }
+    c.restore();
+    // Étoile dorée avec halo lumineux
+    c.save();
+    c.shadowColor = '#ffe14d';
+    c.shadowBlur = 16 * pulse;
+    drawStarShape(c, cx, cy, (w / 2) * pulse);
+    const g = c.createRadialGradient(cx, cy - 3, 1, cx, cy, w / 2);
+    g.addColorStop(0, '#fffbe0'); g.addColorStop(0.55, '#ffd93b'); g.addColorStop(1, '#f5a623');
+    c.fillStyle = g;
+    c.fill();
+    c.strokeStyle = '#b8860b'; c.lineWidth = 1; c.stroke();
+    c.restore();
+  } };
   const ALL_DEFS = {};
   [...GROUND_OBS, ...FLY_OBS, POWERUP_DEF].forEach(d => { ALL_DEFS[d.id] = d; });
   const FLY_TOP = GROUND_Y - 60, FLY_H = 22; // bande basse : oblige à s'accroupir
@@ -5868,11 +5910,23 @@ function showCursorSnakeToast(msg) {
     applyThemeOverlay(ctx, theme);
 
     if (now < invincibleUntil) {
+      // Compte à rebours d'invincibilité : secondes restantes + barre qui se
+      // vide, et clignotement sur la dernière seconde et demie pour prévenir.
+      const leftMs  = invincibleUntil - now;
+      const leftSec = (leftMs / 1000).toFixed(1);
+      const frac    = Math.max(0, Math.min(1, leftMs / INVINCIBILITY_MS));
+      const blink   = leftMs < 1500 && Math.floor(now / 150) % 2 === 0;
       ctx.save();
+      ctx.globalAlpha = blink ? 0.35 : 1;
       ctx.font = 'bold 14px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#ffd23f';
-      ctx.fillText('⭐ INVINCIBLE', REF_W / 2, 18);
+      ctx.fillText(`⭐ INVINCIBLE · ${leftSec}s`, REF_W / 2, 18);
+      const barW = 110, barH = 5, bx = REF_W / 2 - barW / 2, by = 24;
+      ctx.fillStyle = 'rgba(0,0,0,.35)';
+      ctx.fillRect(bx, by, barW, barH);
+      ctx.fillStyle = leftMs < 1500 ? '#ff8c42' : '#ffd23f';
+      ctx.fillRect(bx, by, barW * frac, barH);
       ctx.restore();
     }
 
@@ -7034,7 +7088,7 @@ const ReadFeed = (() => {
       </button>`;
     }).join('');
     // Boutons d'achat : un par pack non possédé (désactivé si aucun chapitre publié)
-    const packBtns = bk.packs.filter(p => !p.owned).map(p => {
+    let packBtns = bk.packs.filter(p => !p.owned).map(p => {
       const anyAvail = bk.chapters.some(ch => ch.pack === p.id && ch.disponible);
       const needPrev = p.requires && !bk.packs.find(x => x.id === p.requires)?.owned;
       // Chapitres non publiés → « À venir » ; publiés mais pack précédent requis → prix affiché, bouton grisé.
@@ -7042,6 +7096,14 @@ const ReadFeed = (() => {
       return `<button class="btn btn-primary book-buy-btn" data-pack="${p.id}" ${anyAvail && !needPrev ? '' : 'disabled'}>
         ${esc(d.bookLockedRange(p.from, p.to))} · ${esc(label)}</button>`;
     }).join('');
+    // Suite réservée (ex. tome 2) : pas de pack à acheter, l'accès vient d'un
+    // autre livre. On explique la condition et on renvoie vers le tome requis.
+    if (bk.accessVia) {
+      packBtns = bk.accessVia.owned
+        ? `<p class="book-sequel-note book-sequel-note--ok">${esc(d.bookSequelUnlocked)}</p>`
+        : `<p class="book-sequel-note">${esc(d.bookSequelLocked(bk.accessVia.titre))}</p>
+           <button class="btn btn-primary" id="book-sequel-goto">${esc(d.bookSequelGoto(bk.accessVia.titre))}</button>`;
+    }
     sheet().innerHTML = coverHTML(bk, 0) +
       `<div class="read-sheet-info">
          <span class="read-book-cat read-book-cat--excl">${esc(d.bookExclusive)}</span>
@@ -7064,6 +7126,14 @@ const ReadFeed = (() => {
     sheet().querySelectorAll('.book-buy-btn').forEach(b => {
       b.onclick = () => buyPack(bk.id, b.dataset.pack);
     });
+    // « Voir le tome requis » : ouvre la fiche du livre qui débloque celui-ci.
+    const gotoBtn = document.getElementById('book-sequel-goto');
+    if (gotoBtn && bk.accessVia) {
+      gotoBtn.onclick = () => {
+        const req = exclusiveBooks.find(b => b.id === bk.accessVia.bookId);
+        if (req) openBookSheet(req);
+      };
+    }
   }
 
   function buyPack(bookId, packId) {
@@ -7076,7 +7146,13 @@ const ReadFeed = (() => {
     const d = t();
     if (ok) {
       SFX.btnClick();
-      if (sheetBook) await reloadExclusive(sheetBook.id);
+      if (sheetBook) {
+        await reloadExclusive(sheetBook.id);
+        // Un achat peut débloquer une suite (ex. tome 1 acheté → tome 2 offert) :
+        // on rafraîchit aussi les livres dont l'accès dépend de celui-ci.
+        const dependents = exclusiveBooks.filter(b => b.accessVia?.bookId === sheetBook.id);
+        await Promise.all(dependents.map(b => reloadExclusive(b.id)));
+      }
       openBookSheet(); // ré-affiche la fiche avec les chapitres débloqués
       showCursorSnakeToast(d.bookUnlocked);
       return;

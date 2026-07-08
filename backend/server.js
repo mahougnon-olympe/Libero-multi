@@ -102,6 +102,33 @@ const LIBERO_BOOKS = {
       { id: 'full', price: 2000, from: 1, to: 12, requires: null },
     ],
   },
+  'life-of-georgia-2': {
+    id: 'life-of-georgia-2',
+    dir: 'life-of-georgia/tome-2',        // les chapitres vivent dans un sous-dossier du tome 1
+    titre: "Life of Georgia · Tome 2 : L'Héritière d'Aboula",
+    auteur: "O'Bros",
+    categorie: 'Roman',
+    categorieEn: 'Novel',
+    description: "Quinze ans après la chute de Kadel, Georgia a disparu. Naya, seize ans, fuit un mariage arrangé avec un don que personne ne comprend : elle voit la magie, les mensonges et les marques invisibles. Et ce qu'elle voit revenir sur les routes la terrifie. Réservé aux lecteurs qui ont débloqué le Tome 1.",
+    descriptionEn: "Fifteen years after Kadel's fall, Georgia has vanished. Naya, sixteen, flees an arranged marriage with a gift nobody understands: she sees magic, lies and invisible marks. And what she sees returning along the roads terrifies her. Reserved for readers who unlocked Volume 1.",
+    firstChapter: 13,
+    totalChapters: 20,
+    freeChapters: 0,
+    copyright: '© 2026 O\'Bros · Tous droits réservés. Toute reproduction, diffusion ou traduction, même partielle, est interdite sans autorisation écrite de l\'auteur.',
+    copyrightEn: '© 2026 O\'Bros · All rights reserved. Any reproduction, distribution or translation, in whole or in part, is prohibited without the author\'s written permission.',
+    chapterTitlesEn: {
+      13: 'The Girl Who Saw Too Much', 14: 'The Arranged Marriage', 15: 'The Road and the Mark',
+      16: 'Aboula Without Georgia', 17: 'What the Old Witch Knew', 18: 'The Weary Prince',
+      19: 'The Stone Prison', 20: "Nobody's Student", 21: 'The Villages That Fell Silent',
+      22: 'The Return to Toko', 23: 'The Silent Lake', 24: "Georgia's Trail",
+      25: 'The Trap in the Ruins', 26: "Sètondji's Offer", 27: 'The Army of the Marked',
+      28: 'The Words That Had to Be Heard', 29: 'The Flaw', 30: 'The Girl Without Magic',
+      31: 'The Trial of the Builder', 32: 'What We Pass On',
+    },
+    // Pas de pack à acheter : l'accès est offert à ceux qui possèdent le tome 1.
+    accessVia: { bookId: 'life-of-georgia', packId: 'full' },
+    packs: [],
+  },
 };
 
 // Titre anglais d'un chapitre (« Chapter N: … »), ou null si pas de traduction.
@@ -112,7 +139,7 @@ function bookChapterTitleEn(book, num) {
 const bookChapters = new Map(); // bookId -> Map(num -> { num, titre, content, contentEn })
 (function loadBookChapters() {
   for (const book of Object.values(LIBERO_BOOKS)) {
-    const dir = path.join(__dirname, 'books', book.id);
+    const dir = path.join(__dirname, 'books', book.dir || book.id);
     const chapters = new Map();
     bookChapters.set(book.id, chapters);
     book.hasCover = fs.existsSync(path.join(dir, 'couverture.jpeg'));
@@ -143,6 +170,12 @@ function bookPackFor(book, num) {
 }
 
 function canReadChapter(book, entry, num) {
+  // Suite réservée : le livre entier n'est lisible que par les détenteurs d'un
+  // pack d'un AUTRE livre (ex. le tome 2 est offert aux acheteurs du tome 1).
+  if (book.accessVia) {
+    const key = `${book.accessVia.bookId}:${book.accessVia.packId}`;
+    return !!entry && Array.isArray(entry.ownedBooks) && entry.ownedBooks.includes(key);
+  }
   const pack = bookPackFor(book, num);
   if (!pack) return true;
   return !!entry && Array.isArray(entry.ownedBooks) && entry.ownedBooks.includes(`${book.id}:${pack.id}`);
@@ -523,7 +556,7 @@ const BASE_CHALLENGES = [
   { id: 'trivia', metric: 'triviaCorrect', goal: 5, reward: 40 },
 ];
 const SNAKE_CHALLENGE = { id: 'snake', metric: 'snakeEaten', goal: 30,  reward: 50 };
-const LUFFY_CHALLENGE = { id: 'luffy', metric: 'luffyRun',   goal: 400, reward: 50 };
+const LUFFY_CHALLENGE = { id: 'luffy', metric: 'luffyRun',   goal: 4000, reward: 50 };
 const CHALLENGE_METRICS = ['gamesWon', 'triviaCorrect', 'snakeEaten', 'luffyRun'];
 
 // Liste des défis actifs du jour (le Snake bascule en Luffy hors week-end).
@@ -2786,7 +2819,9 @@ app.get('/api/feed-books', (_req, res) => res.json(_activeFeedBooks()));
 function bookFiche(book, entry) {
   const bookChs  = bookChapters.get(book.id) || new Map();
   const chapters = [];
-  for (let n = 1; n <= book.totalChapters; n++) {
+  // Un tome peut ne pas commencer au chapitre 1 (le tome 2 reprend au 13).
+  const first = book.firstChapter || 1;
+  for (let n = first; n < first + book.totalChapters; n++) {
     const ch   = bookChs.get(n);
     const pack = bookPackFor(book, n);
     chapters.push({
@@ -2794,13 +2829,21 @@ function bookFiche(book, entry) {
       titre: ch ? ch.titre : `Chapitre ${n}`,
       titreEn: bookChapterTitleEn(book, n) || `Chapter ${n}`,
       disponible: !!ch,                      // écrit et publié ?
-      gratuit: !pack,
+      gratuit: !pack && !book.accessVia,
       unlocked: canReadChapter(book, entry, n),
       pack: pack ? pack.id : null,
       hasEn: !!(ch && ch.contentEn),         // traduction anglaise disponible ?
     });
   }
+  // Condition d'accès inter-livres (fiche : le front explique comment débloquer).
+  const accessVia = book.accessVia ? {
+    bookId: book.accessVia.bookId,
+    titre:  LIBERO_BOOKS[book.accessVia.bookId]?.titre || book.accessVia.bookId,
+    owned:  !!entry && Array.isArray(entry.ownedBooks) &&
+            entry.ownedBooks.includes(`${book.accessVia.bookId}:${book.accessVia.packId}`),
+  } : null;
   return {
+    accessVia,
     id: book.id, titre: book.titre, auteur: book.auteur,
     categorie: book.categorie, categorieEn: book.categorieEn || book.categorie,
     description: book.description, descriptionEn: book.descriptionEn || book.description,
@@ -2833,7 +2876,7 @@ app.get('/api/book/:bookId', (req, res) => {
 app.get('/api/book/:bookId/couverture', (req, res) => {
   const book = LIBERO_BOOKS[req.params.bookId];
   if (!book) return res.status(404).json({ error: 'Livre introuvable.' });
-  const file = path.join(__dirname, 'books', book.id, 'couverture.jpeg');
+  const file = path.join(__dirname, 'books', book.dir || book.id, 'couverture.jpeg');
   res.sendFile(file, { maxAge: '1d' }, err => { if (err && !res.headersSent) res.status(404).json({ error: 'Couverture introuvable.' }); });
 });
 

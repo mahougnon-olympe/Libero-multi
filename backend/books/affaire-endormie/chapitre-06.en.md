@@ -22,7 +22,7 @@ He frowns. He looks sincerely, deeply baffled.
 
 The silence that follows has a particular texture. Brennan taps at his keyboard, opens the internal portal, and the ceremony photo appears on his screen: Friday, time-stamped 4:47 p.m., Rourke on the platform, a medal in hand, sixty witnesses seated before him.
 
-"Then the register is lying," I say, and I hear my own voice decide on its own to keep going. "Someone wrote your name to muddy the trail, which proves precisely that the documents were—"
+"Then the register is lying," I say, and I hear my own voice decide on its own to keep going. "Someone wrote your name to muddy the trail, which proves precisely that the documents were..."
 
 "Or else," Brennan cuts in without raising his voice, which is worse, "someone who spends his days alone in that cellar wrote the name himself."
 
