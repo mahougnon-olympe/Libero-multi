@@ -556,7 +556,7 @@ const BASE_CHALLENGES = [
   { id: 'trivia', metric: 'triviaCorrect', goal: 5, reward: 40 },
 ];
 const SNAKE_CHALLENGE = { id: 'snake', metric: 'snakeEaten', goal: 30,  reward: 50 };
-const LUFFY_CHALLENGE = { id: 'luffy', metric: 'luffyRun',   goal: 4000, reward: 50 };
+const LUFFY_CHALLENGE = { id: 'luffy', metric: 'luffyRun',   goal: 12000, reward: 50 };
 const CHALLENGE_METRICS = ['gamesWon', 'triviaCorrect', 'snakeEaten', 'luffyRun'];
 
 // Liste des défis actifs du jour (le Snake bascule en Luffy hors week-end).
