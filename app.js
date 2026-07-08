@@ -542,7 +542,14 @@ const DICT = {
     profileTitle:'Mon profil',
     challengesTitle:'🎯 Défis du jour', historyTitle:'🕑 Mes dernières parties',
     profileAnon:'Choisis un pseudo (dans un jeu) pour suivre tes défis, ta série et ton historique !',
-    challengesNames:{ wins:'Gagne 3 parties', trivia:'Réponds bien à 5 questions', snake:'Mange 30 ⚡ au Snake', luffy:'Cumule 12000 pts au Luffy Runner' },
+    challengesNames:{
+      wins3:'Gagne 3 parties', play5:'Joue 5 parties (peu importe le jeu)',
+      trivia5:'Réponds bien à 5 questions de quiz', trivia12:'Réponds bien à 12 questions de quiz', quiz2:'Termine 2 quiz',
+      snake30:'Mange 30 ⚡ au Snake', snake60:'Mange 60 ⚡ au Snake',
+      luffy12000:'Cumule 12000 pts au Luffy Runner', luffyGames3:'Fais 3 parties de Luffy Runner',
+    },
+    challengePerfectDay: bonus => `🎉 Journée parfaite ! Les 3 défis réclamés : +${bonus} ⚡ bonus`,
+    triviaSkip:'⏭ Passer',
     challengeClaim:'Réclamer', challengeClaimed:'✓ Réclamé', challengeLocked:'À finir',
     challengeReward:n => `+${n} ⚡`,
     challengeClaimToast:n => `Défi réussi ! +${n} ⚡`,
@@ -587,7 +594,7 @@ const DICT = {
     helpContent:{
       general:[
         { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Luffy Runner</strong>, une idée de joueur reprise par le créateur). Chaque section a son propre classement." },
-        { icon:'🎯', title:'Mon profil', desc:"La carte <strong>Mon profil</strong> (accueil) regroupe trois choses : tes <strong>défis du jour</strong> (3 objectifs simples comme gagner 3 parties, chacun récompensé en ⚡ à réclamer ; le 3ᵉ change selon le jour : Snake le week-end, Luffy Runner en semaine), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. Il faut un pseudo pour en profiter." },
+        { icon:'🎯', title:'Mon profil', desc:"La carte <strong>Mon profil</strong> (accueil) regroupe trois choses : tes <strong>défis du jour</strong> (3 objectifs qui <strong>changent chaque jour</strong> : jamais le même défi deux jours de suite, avec le Snake le week-end et Luffy Runner en semaine ; réclame les 3 pour un <strong>bonus « journée parfaite » +30 ⚡</strong>), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. Il faut un pseudo pour en profiter." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> · ton serpent mange des <strong>⚡ Libs</strong> pour grandir, et chaque ⚡ mangé est <strong>ajouté à ton solde</strong> (score 10 = 10 Libs gagnés). Les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
         { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras les <strong>romans exclusifs</strong> lisibles directement sur le site (en français ou en anglais selon la langue choisie) : <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, 1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10), <strong>Life of Georgia</strong> (livre entier pour 2000 ⚡) et sa suite <strong>Life of Georgia · Tome 2</strong>, <strong>offerte</strong> à tous ceux qui ont débloqué le Tome 1." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile." },
@@ -632,7 +639,7 @@ const DICT = {
         { icon:'🌐', title:'Langue', desc:"Change la langue via le bouton <strong>⚙️</strong> en haut à droite → <strong>Langue</strong>. En mode <strong>FR</strong>, les questions sont traduites en français (les termes techniques restent en anglais si nécessaire). En mode <strong>EN</strong>, les questions sont en anglais d'origine. Le site détecte automatiquement ta langue au premier lancement." },
         { icon:'▶', title:'Mode Solo', desc:"Sélectionne un ou plusieurs thèmes et clique <em>Solo</em>. Tu joues seul à ton rythme. Ton score est automatiquement ajouté au classement à la fin." },
         { icon:'👥', title:'Mode Multijoueur', desc:"Clique <em>Créer un salon</em> (2 à 6 joueurs). Partage le code à 4 lettres. L'hôte lance la partie quand tout le monde est prêt. Tout le monde voit les mêmes questions en même temps." },
-        { icon:'⏱', title:'Chrono', desc:"Tu as <strong>20 secondes</strong> par question. Le chrono passe en rouge sous les 5 secondes. Sans réponse dans le temps imparti, la question est perdue." },
+        { icon:'⏱', title:'Chrono', desc:"Tu as <strong>30 secondes</strong> par question. Le chrono passe en rouge sous les 5 secondes. Sans réponse dans le temps imparti, la question est perdue. Tu peux aussi <strong>⏭ passer</strong> une question qui te bloque : aucun point, mais tu ne perds pas de temps." },
         { icon:'✅', title:'Correction', desc:"Après chaque réponse (ou expiration du temps), la bonne réponse s'affiche en vert et les mauvaises en rouge. En multi, tu vois aussi le score de chaque joueur." },
         { icon:'🏆', title:'Classement Quiz', desc:"1 point par bonne réponse. Les points s'accumulent quiz après quiz, qu'on joue en solo ou en groupe. Le classement affiche le total de points et le nombre de quiz joués." },
       ],
@@ -945,7 +952,14 @@ const DICT = {
     profileTitle:'My profile',
     challengesTitle:'🎯 Daily challenges', historyTitle:'🕑 My recent games',
     profileAnon:'Pick a nickname (in a game) to track your challenges, streak and history!',
-    challengesNames:{ wins:'Win 3 games', trivia:'Answer 5 questions right', snake:'Eat 30 ⚡ in Snake', luffy:'Rack up 12000 pts in Luffy Runner' },
+    challengesNames:{
+      wins3:'Win 3 games', play5:'Play 5 games (any game)',
+      trivia5:'Answer 5 quiz questions right', trivia12:'Answer 12 quiz questions right', quiz2:'Finish 2 quizzes',
+      snake30:'Eat 30 ⚡ in Snake', snake60:'Eat 60 ⚡ in Snake',
+      luffy12000:'Rack up 12000 pts in Luffy Runner', luffyGames3:'Play 3 Luffy Runner games',
+    },
+    challengePerfectDay: bonus => `🎉 Perfect day! All 3 challenges claimed: +${bonus} ⚡ bonus`,
+    triviaSkip:'⏭ Skip',
     challengeClaim:'Claim', challengeClaimed:'✓ Claimed', challengeLocked:'In progress',
     challengeReward:n => `+${n} ⚡`,
     challengeClaimToast:n => `Challenge complete! +${n} ⚡`,
@@ -990,7 +1004,7 @@ const DICT = {
     helpContent:{
       general:[
         { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Luffy Runner</strong> mini-game, a player idea brought to life by the creator). Each section has its own leaderboard." },
-        { icon:'🎯', title:'My profile', desc:"The <strong>My profile</strong> card (home) gathers three things: your <strong>daily challenges</strong> (3 simple goals like winning 3 games, each rewarded in ⚡ to claim; the 3rd one rotates with the day: Snake on weekends, Luffy Runner on weekdays), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. A nickname is required." },
+        { icon:'🎯', title:'My profile', desc:"The <strong>My profile</strong> card (home) gathers three things: your <strong>daily challenges</strong> (3 goals that <strong>change every day</strong>: never the same challenge two days in a row, with Snake on weekends and Luffy Runner on weekdays; claim all 3 for a <strong>'perfect day' +30 ⚡ bonus</strong>), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. A nickname is required." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> · your snake eats <strong>⚡ Libs</strong> to grow, and every ⚡ eaten is <strong>added to your balance</strong> (score 10 = 10 Libs earned). Walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
         { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll find the <strong>exclusive novels</strong> readable right on the site (in French or English, following the site language): <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapter 1 free, 1000 ⚡ for chapters 2-5, 2000 ⚡ for 6-10), <strong>Life of Georgia</strong> (whole book for 2000 ⚡) and its sequel <strong>Life of Georgia · Volume 2</strong>, <strong>free</strong> for everyone who unlocked Volume 1." },
         { icon:'🎮', title:'Create a classic game', desc:"Choose a game, enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent. You can also play <strong>Solo vs the bot</strong> by choosing a difficulty: Easy, Medium or Hard." },
@@ -1035,7 +1049,7 @@ const DICT = {
         { icon:'🌐', title:'Language', desc:"Change the language via the <strong>⚙️</strong> button (top right) → <strong>Language</strong>. In <strong>FR</strong> mode, questions are translated into French (technical terms may stay in English). In <strong>EN</strong> mode, questions are in their original English. The site auto-detects your language on first load." },
         { icon:'▶', title:'Solo mode', desc:"Select one or more themes and click <em>Solo</em>. You play at your own pace. Your score is automatically added to the leaderboard at the end." },
         { icon:'👥', title:'Multiplayer mode', desc:"Click <em>Create a room</em> (2 to 6 players). Share the 4-letter code. The host starts the game when everyone is ready. All players see the same questions at the same time." },
-        { icon:'⏱', title:'Timer', desc:"You have <strong>20 seconds</strong> per question. The timer turns red under 5 seconds. If you don't answer in time, the question is lost." },
+        { icon:'⏱', title:'Timer', desc:"You have <strong>30 seconds</strong> per question. The timer turns red under 5 seconds. If you don't answer in time, the question is lost. You can also <strong>⏭ skip</strong> a question that blocks you: no point, but no wasted time." },
         { icon:'✅', title:'Answer reveal', desc:"After each answer (or when time runs out), the correct answer is shown in green and wrong answers in red. In multiplayer, you also see each player's score." },
         { icon:'🏆', title:'Quiz leaderboard', desc:"1 point per correct answer. Points accumulate quiz after quiz. The leaderboard shows total points and number of quizzes played." },
       ],
@@ -2525,7 +2539,7 @@ $('btn-solo-trivia').addEventListener('click', () => {
   clearTriviaError();
   $('btn-solo-trivia').disabled = true;
   $('btn-solo-trivia').textContent = t().soloLoading;
-  socket.emit('fetch-trivia-solo', { categories: selectedTriviaCategories, amount: getTriviaQCount(), lang: currentLang, difficulty: selectedTriviaDifficulty });
+  socket.emit('fetch-trivia-solo', { categories: selectedTriviaCategories, amount: getTriviaQCount(), lang: currentLang, difficulty: selectedTriviaDifficulty, playerId: getPlayerId() });
 });
 
 $('btn-create-trivia').addEventListener('click', () => {
@@ -2609,12 +2623,31 @@ function showTriviaQuestion({ questionNum, totalQuestions, question, choices, ti
   $('tg-choices').querySelectorAll('.tg-choice').forEach(btn => {
     btn.addEventListener('click', () => onTriviaChoice(btn.dataset.choice, btn));
   });
+  const skip = $('tg-skip');
+  if (skip) { skip.textContent = t().triviaSkip; skip.classList.remove('hidden'); skip.disabled = false; }
   startTriviaTimer(timeLimit, () => onTriviaTimeUp());
+}
+
+// Passer la question : aucun point, on file à la suite (solo) ou on signale
+// au serveur qu'on a « répondu » pour ne pas retenir les autres (multi).
+function onTriviaSkip() {
+  if (triviaAnsweredThis) return;
+  triviaAnsweredThis = true;
+  $('tg-choices').querySelectorAll('.tg-choice').forEach(b => b.disabled = true);
+  const skip = $('tg-skip');
+  if (skip) skip.disabled = true;
+  if (triviaIsSolo) {
+    stopTriviaTimer();
+    soloReveal(null);
+  } else {
+    socket.emit('trivia-answer', { choice: '__skip__' });
+  }
 }
 
 function onTriviaChoice(choice, btn) {
   if (triviaAnsweredThis) return;
   triviaAnsweredThis = true; triviaChoiceSelected = choice;
+  const _sk = $('tg-skip'); if (_sk) _sk.disabled = true;
   $('tg-choices').querySelectorAll('.tg-choice').forEach(b => b.disabled = true);
   btn.classList.add('wrong'); // will be corrected at reveal
   if (triviaIsSolo) {
@@ -2628,12 +2661,14 @@ function onTriviaChoice(choice, btn) {
 function onTriviaTimeUp() {
   if (triviaAnsweredThis) return;
   triviaAnsweredThis = true;
+  const _sk = $('tg-skip'); if (_sk) _sk.disabled = true;
   $('tg-choices').querySelectorAll('.tg-choice').forEach(b => b.disabled = true);
   if (triviaIsSolo) soloReveal(null);
 }
 
 function showTriviaReveal({ correct, correctSocketIds, scores, myChoice }) {
   stopTriviaTimer();
+  const _skip = $('tg-skip'); if (_skip) _skip.classList.add('hidden');
   $('tg-choices').querySelectorAll('.tg-choice').forEach(btn => {
     const c = btn.dataset.choice;
     btn.classList.remove('wrong');
@@ -2660,6 +2695,7 @@ function renderTriviaScores(scores) {
 
 function showTriviaFinished(scores) {
   stopTriviaTimer();
+  const _skip = $('tg-skip'); if (_skip) _skip.classList.add('hidden');
   $('tg-choices').innerHTML = '';
   $('tg-reveal').classList.add('hidden');
   const medals = ['🥇','🥈','🥉'];
@@ -2675,6 +2711,7 @@ function showTriviaFinished(scores) {
 
 $('btn-leave-trivia-game').addEventListener('click', goToTriviaHome);
 $('btn-quit-trivia').addEventListener('click', goToTriviaHome);
+$('tg-skip')?.addEventListener('click', onTriviaSkip);
 
 // ── Trivia : pause (solo uniquement) ─────────────────────────────────────────
 let triviaPaused = false;
@@ -2729,7 +2766,7 @@ function soloNextQuestion() {
     return;
   }
   const q = triviaQuestions[triviaCurrentQ];
-  showTriviaQuestion({ questionNum: triviaCurrentQ + 1, totalQuestions: triviaQuestions.length, question: q.question, choices: q.choices, timeLimit: 20, scores: null });
+  showTriviaQuestion({ questionNum: triviaCurrentQ + 1, totalQuestions: triviaQuestions.length, question: q.question, choices: q.choices, timeLimit: 30, scores: null });
 }
 
 function soloReveal(myChoice) {
@@ -7892,6 +7929,10 @@ socket.on('streak-update',     ({ count, longest, bonus } = {}) => {
   ProfileHub.setStreak({ count, longest, bonus });
   if (bonus > 0) showCursorSnakeToast(t().streakBonusToast(count, bonus));
 });
-socket.on('claim-challenge-result', ({ ok, reward } = {}) => {
-  if (ok) { SFX.btnClick?.(); showCursorSnakeToast(t().challengeClaimToast(reward)); }
+socket.on('claim-challenge-result', ({ ok, reward, allDoneBonus } = {}) => {
+  if (!ok) return;
+  SFX.btnClick?.();
+  showCursorSnakeToast(t().challengeClaimToast(reward));
+  // Journée parfaite : les 3 défis réclamés → petit bonus + toast dédié.
+  if (allDoneBonus > 0) setTimeout(() => showCursorSnakeToast(t().challengePerfectDay(allDoneBonus)), 1800);
 });

@@ -1640,6 +1640,9 @@ body.screen-feed-active .btn-settings-float { display: none !important; }
 .tg-question { font-size: 1rem; font-weight: 600; line-height: 1.5; margin: 0; color: var(--text); }
 
 .tg-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+/* Bouton « Passer » du quiz : discret, sous les choix */
+.tg-skip { margin: 10px auto 0; display: block; font-size: .9rem; padding: 8px 22px; opacity: .85; }
+.tg-skip:disabled { opacity: .35; }
 .tg-choice {
   display: flex; align-items: center; gap: 10px;
   padding: 12px 14px; border-radius: 12px;

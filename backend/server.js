@@ -548,20 +548,41 @@ function _emitToPlayer(id, event, payload) {
 }
 
 // Trois défis par jour ; les compteurs se réinitialisent chaque jour.
-// Le 3ᵉ défi dépend du jour : l'évent Snake n'a lieu que le week-end, donc le
-// défi Snake n'est proposé que ces jours-là. En semaine, on le remplace par un
-// défi Luffy Runner (jouable tous les jours).
-const BASE_CHALLENGES = [
-  { id: 'wins',   metric: 'gamesWon',      goal: 3, reward: 40 },
-  { id: 'trivia', metric: 'triviaCorrect', goal: 5, reward: 40 },
-];
-const SNAKE_CHALLENGE = { id: 'snake', metric: 'snakeEaten', goal: 30,  reward: 50 };
-const LUFFY_CHALLENGE = { id: 'luffy', metric: 'luffyRun',   goal: 12000, reward: 50 };
-const CHALLENGE_METRICS = ['gamesWon', 'triviaCorrect', 'snakeEaten', 'luffyRun'];
+// Chaque « slot » possède plusieurs variantes qui tournent avec le jour :
+// un joueur ne refait donc jamais le même défi deux jours de suite.
+// Le 3ᵉ slot dépend du jour : Snake le week-end (évent), Luffy Runner en semaine.
+const CHALLENGE_POOL = {
+  A: [ // parties classiques
+    { id: 'wins3', metric: 'gamesWon',    goal: 3, reward: 40 },
+    { id: 'play5', metric: 'gamesPlayed', goal: 5, reward: 35 },
+  ],
+  B: [ // quiz culture générale
+    { id: 'trivia5',  metric: 'triviaCorrect', goal: 5,  reward: 40 },
+    { id: 'trivia12', metric: 'triviaCorrect', goal: 12, reward: 60 },
+    { id: 'quiz2',    metric: 'triviaGames',   goal: 2,  reward: 35 },
+  ],
+  WEEKEND: [ // évent Snake
+    { id: 'snake30', metric: 'snakeEaten', goal: 30, reward: 50 },
+    { id: 'snake60', metric: 'snakeEaten', goal: 60, reward: 80 },
+  ],
+  WEEKDAY: [ // Luffy Runner
+    { id: 'luffy12000', metric: 'luffyRun',   goal: 12000, reward: 50 },
+    { id: 'luffyGames3', metric: 'luffyGames', goal: 3,    reward: 35 },
+  ],
+};
+const CHALLENGE_METRICS = ['gamesWon', 'gamesPlayed', 'triviaCorrect', 'triviaGames', 'snakeEaten', 'luffyRun', 'luffyGames'];
+const CHALLENGE_ALL_DONE_BONUS = 30; // bonus « journée parfaite » quand les 3 défis sont réclamés
 
-// Liste des défis actifs du jour (le Snake bascule en Luffy hors week-end).
+// Liste des défis actifs du jour : la variante de chaque slot tourne avec le
+// numéro du jour (heure du Bénin), donc change forcément d'un jour à l'autre.
 function activeChallenges() {
-  return [...BASE_CHALLENGES, isSnakeEventDay() ? SNAKE_CHALLENGE : LUFFY_CHALLENGE];
+  const dayNum = Math.floor((Date.now() + 3_600_000) / 86_400_000);
+  const slotC  = isSnakeEventDay() ? CHALLENGE_POOL.WEEKEND : CHALLENGE_POOL.WEEKDAY;
+  return [
+    CHALLENGE_POOL.A[dayNum % CHALLENGE_POOL.A.length],
+    CHALLENGE_POOL.B[dayNum % CHALLENGE_POOL.B.length],
+    slotC[dayNum % slotC.length],
+  ];
 }
 
 function getChallenges(entry) {
@@ -623,6 +644,8 @@ function pushHistory(id, item) {
   libs.set(id, entry);
   dbUpsertLibs(id, entry);
   _emitToPlayer(id, 'history-update', { history: entry.history });
+  // Toute partie inscrite à l'historique compte pour le défi « jouer N parties ».
+  bumpChallenge(id, 'gamesPlayed');
 }
 
 function getCosmeticByName(name) {
@@ -1071,7 +1094,7 @@ const TRIVIA_CATEGORIES = {
 };
 const TRIVIA_COLORS = ['#2563eb','#dc2626','#16a34a','#9333ea','#ea580c','#0891b2'];
 const TRIVIA_Q_COUNT = 10;
-const TRIVIA_TIME_MS = 20_000;
+const TRIVIA_TIME_MS = 30_000;
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -1256,16 +1279,44 @@ function publicScores(room) {
   return getRoomScores(room).map(({ playerId, ...rest }) => rest);
 }
 
-async function startTriviaGame(code) {
+// Anti-répétition : ids des questions déjà servies à chaque joueur (mémoire
+// process, plafonné). Un joueur ne revoit une question que si tout son pool
+// sur le thème/difficulté demandés a déjà été vu.
+const triviaSeen = new Map(); // playerId -> { set: Set<qid>, order: [qid] }
+const TRIVIA_SEEN_MAX = 500;
+function triviaSeenFor(playerId) {
+  if (!playerId) return null;
+  let e = triviaSeen.get(playerId);
+  if (!e) { e = { set: new Set(), order: [] }; triviaSeen.set(playerId, e); }
+  return e;
+}
+function markTriviaSeen(playerIds, questions) {
+  for (const pid of playerIds) {
+    const e = triviaSeenFor(pid);
+    if (!e) continue;
+    for (const q of questions) {
+      if (!q.id || e.set.has(q.id)) continue;
+      e.set.add(q.id);
+      e.order.push(q.id);
+    }
+    while (e.order.length > TRIVIA_SEEN_MAX) e.set.delete(e.order.shift());
+  }
+}
+
+function startTriviaGame(code) {
   const room = triviaRooms.get(code);
   if (!room) return;
   try {
     const cats = room.categories || [room.category];
     const lang = room.lang || 'fr';
     const diff = room.difficulty || '';
-    room.questions = cats.length === 1
-      ? await triviaGame.fetchQuestions(cats[0], room.totalQ, lang, diff)
-      : await triviaGame.fetchQuestionsMulti(cats, room.totalQ, lang, diff);
+    // Union des questions déjà vues par les joueurs du salon : personne ne revoit les siennes.
+    const seen = new Set();
+    const pids = [...room.players.values()].map(p => p.playerId).filter(Boolean);
+    for (const pid of pids) for (const id of (triviaSeen.get(pid)?.set || [])) seen.add(id);
+    room.questions = triviaGame.pickQuestions({ cats, amount: room.totalQ, lang, diff, seen });
+    room.totalQ = room.questions.length; // au cas où le pool serait plus court que demandé
+    markTriviaSeen(pids, room.questions);
   } catch {
     io.to(code).emit('trivia-error', { message: 'Impossible de charger les questions. Réessaie.' });
     room.status = 'waiting';
@@ -1288,7 +1339,7 @@ function sendTriviaQuestion(code) {
     totalQuestions: room.totalQ,
     question:       q.question,
     choices:        q.choices,
-    timeLimit:      20,
+    timeLimit:      TRIVIA_TIME_MS / 1000,
     scores:         publicScores(room),
   });
   room.timer = setTimeout(() => revealTriviaAnswer(code), TRIVIA_TIME_MS);
@@ -1331,6 +1382,7 @@ function finishTriviaGame(code) {
     updateTriviaLeaderboard(s.playerId || s.name, s.name, s.score);
     updateLastActive(s.playerId, s.name);
     pushHistory(s.playerId, { game: 'trivia', result: null, score: s.score });
+    bumpChallenge(s.playerId, 'triviaGames'); // défi « termine N quiz »
   }
   io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
   io.emit('global-leaderboard-update', getGlobalLeaderboardData());
@@ -1901,17 +1953,17 @@ io.on('connection', (socket) => {
   });
 
   // ── Trivia : fetch questions solo (proxy pour éviter le CORS côté client) ────
-  socket.on('fetch-trivia-solo', async ({ categories = [], amount = 10, lang = 'fr', difficulty = '' } = {}) => {
+  socket.on('fetch-trivia-solo', ({ categories = [], amount = 10, lang = 'fr', difficulty = '', playerId } = {}) => {
     const cats = [].concat(categories).map(c => parseInt(c)).filter(c => TRIVIA_CATEGORIES[c]);
     if (!cats.length) { socket.emit('trivia-solo-error'); return; }
     const l = ['fr', 'en'].includes(lang) ? lang : 'fr';
     const rawN = parseInt(amount) || 10;
     const n = Math.round(Math.min(40, Math.max(10, rawN)) / 5) * 5;
     const d = ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : '';
+    const pid = safePlayerId(playerId);
     try {
-      const qs = cats.length === 1
-        ? await triviaGame.fetchQuestions(cats[0], n, l, d)
-        : await triviaGame.fetchQuestionsMulti(cats, n, l, d);
+      const qs = triviaGame.pickQuestions({ cats, amount: n, lang: l, diff: d, seen: triviaSeen.get(pid)?.set });
+      if (pid) markTriviaSeen([pid], qs);
       socket.emit('trivia-solo-questions', qs);
     } catch { socket.emit('trivia-solo-error'); }
   });
@@ -1931,6 +1983,7 @@ io.on('connection', (socket) => {
     if (pid && typeof score === 'number') {
       pushHistory(pid, { game: 'trivia', result: null, score: Math.max(0, Math.floor(score)) });
       bumpChallenge(pid, 'triviaCorrect', Math.max(0, Math.floor(score)));
+      bumpChallenge(pid, 'triviaGames'); // défi « termine N quiz »
     }
     io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
     io.emit('global-leaderboard-update', getGlobalLeaderboardData());
@@ -1943,8 +1996,9 @@ io.on('connection', (socket) => {
     if (!['snake', 'luffy'].includes(game)) return;
     const sc = Math.max(0, Math.floor(Number(score) || 0));
     pushHistory(id, { game, result: null, score: sc });
-    // Défi Luffy Runner (hors week-end) : chaque partie crédite son score.
+    // Défis Luffy Runner (hors week-end) : score cumulé + nombre de parties.
     if (game === 'luffy' && sc > 0) bumpChallenge(id, 'luffyRun', sc);
+    if (game === 'luffy') bumpChallenge(id, 'luffyGames');
   });
 
   // ── Défis quotidiens ──────────────────────────────────────────────────────
@@ -1966,12 +2020,16 @@ io.on('connection', (socket) => {
     if ((c.progress[def.metric] || 0) < def.goal) { socket.emit('claim-challenge-result', { ok: false, error: 'not_done' }); return; }
     if (c.claimed.includes(def.id)) { socket.emit('claim-challenge-result', { ok: false, error: 'already' }); return; }
     c.claimed.push(def.id);
-    entry.balance = Math.min(MAX_BALANCE, entry.balance + def.reward);
+    // Bonus « journée parfaite » : les 3 défis du jour réclamés → +30 ⚡ offerts.
+    const todays  = activeChallenges();
+    const allDone = todays.every(ch => c.claimed.includes(ch.id));
+    const bonus   = allDone ? CHALLENGE_ALL_DONE_BONUS : 0;
+    entry.balance = Math.min(MAX_BALANCE, entry.balance + def.reward + bonus);
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: def.reward, nextAt: nextDistributionAt });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: def.reward + bonus, nextAt: nextDistributionAt });
     socket.emit('challenges-update', { challenges: challengesPayload(entry) });
-    socket.emit('claim-challenge-result', { ok: true, challengeId, reward: def.reward });
+    socket.emit('claim-challenge-result', { ok: true, challengeId, reward: def.reward, allDoneBonus: bonus });
   });
 
   // ── Historique des parties ────────────────────────────────────────────────

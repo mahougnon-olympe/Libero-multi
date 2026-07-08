@@ -1,4 +1,9 @@
-const https = require('https');
+// ── Quiz culture générale : banque de questions locale ───────────────────────
+// Les questions vivent dans trivia-questions.js (bilingue FR/EN, 3 vraies
+// difficultés par thème). Plus d'API externe : fini les répétitions dues aux
+// petits pools d'OpenTDB, les difficultés fantaisistes des traductions
+// automatiques et le rate-limit qui cassait la sélection multi-thèmes.
+const BANK = require('./trivia-questions');
 
 function shuffle(arr) {
   const a = [...arr];
@@ -9,93 +14,57 @@ function shuffle(arr) {
   return a;
 }
 
-// ── Anglais : Open Trivia DB ───────────────────────────────────────────────────
-function fetchQuestionsEN(category, amount = 10, difficulty = '') {
-  const diff = ['easy', 'medium', 'hard'].includes(difficulty) ? `&difficulty=${difficulty}` : '';
-  const url = `https://opentdb.com/api.php?amount=${amount}&category=${category}&type=multiple&encode=url3986${diff}`;
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => reject(new Error('timeout')), 10000);
-    https.get(url, (res) => {
-      let data = '';
-      res.on('data', c => data += c);
-      res.on('end', () => {
-        clearTimeout(timeout);
-        try {
-          const json = JSON.parse(data);
-          if (json.response_code !== 0) { reject(new Error('code:' + json.response_code)); return; }
-          resolve(json.results.map(q => {
-            const choices = shuffle([...q.incorrect_answers, q.correct_answer].map(decodeURIComponent));
-            return { question: decodeURIComponent(q.question), choices, correct: decodeURIComponent(q.correct_answer) };
-          }));
-        } catch (e) { reject(e); }
-      });
-    }).on('error', e => { clearTimeout(timeout); reject(e); });
-  });
-}
+const DIFFS = ['easy', 'medium', 'hard'];
 
-// ── Traduction FR via Google Translate (sans clé) ─────────────────────────────
-function translateTextFR(text) {
-  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=fr&dt=t&q=${encodeURIComponent(text)}`;
-  return new Promise((resolve) => {
-    const timeout = setTimeout(() => resolve(text), 8000);
-    https.get(url, (res) => {
-      let data = '';
-      res.on('data', c => data += c);
-      res.on('end', () => {
-        clearTimeout(timeout);
-        try {
-          const json = JSON.parse(data);
-          const translated = json[0].map(chunk => chunk[0]).join('');
-          resolve(translated || text);
-        } catch { resolve(text); }
-      });
-    }).on('error', () => { clearTimeout(timeout); resolve(text); });
-  });
-}
-
-// Traduit question + choix en un seul appel API (séparateur |||)
-async function translateQuestionFR(q) {
-  const correctIdx = q.choices.indexOf(q.correct);
-  const SEP = ' ||| ';
-  const joined = [q.question, ...q.choices].join(SEP);
-  const translated = await translateTextFR(joined);
-
-  let parts = translated.split(SEP);
-  if (parts.length !== q.choices.length + 1) {
-    parts = translated.split('|||').map(s => s.trim());
+// Toutes les questions d'un thème pour une difficulté donnée ('' = toutes),
+// chacune munie d'un id stable `cat:diff:index` (sert à l'anti-répétition).
+function poolFor(cat, diff) {
+  const catBank = BANK[cat];
+  if (!catBank) return [];
+  const diffs = DIFFS.includes(diff) ? [diff] : DIFFS;
+  const out = [];
+  for (const d of diffs) {
+    (catBank[d] || []).forEach((q, i) => out.push({ id: `${cat}:${d}:${i}`, q }));
   }
-  if (parts.length !== q.choices.length + 1) {
-    const texts = await Promise.all([q.question, ...q.choices].map(t => translateTextFR(t)));
-    parts = texts;
+  return out;
+}
+
+// Formate une question pour le jeu : langue choisie, choix mélangés.
+function present(entry, lang) {
+  const { q } = entry;
+  const question = lang === 'en' ? q.e : q.f;
+  const choices  = lang === 'en' ? q.ec : q.fc;
+  const correct  = choices[q.a];
+  return { id: entry.id, question, choices: shuffle(choices), correct };
+}
+
+// Sélectionne `amount` questions mélangées sur les thèmes demandés.
+// - `seen` (Set d'ids) : questions déjà servies au(x) joueur(s), évitées tant
+//   que le pool le permet ; on n'y repioche que si tout a déjà été vu.
+// - Multi-thèmes : chaque thème fournit sa part, puis tout est mélangé,
+//   pour un vrai mix au lieu d'un seul thème.
+function pickQuestions({ cats, amount = 10, lang = 'fr', diff = '', seen = null } = {}) {
+  const wanted  = Math.max(1, amount);
+  const perCat  = Math.ceil(wanted / cats.length);
+  const chosen  = [];
+  const leftovers = [];
+
+  for (const cat of cats) {
+    const pool    = shuffle(poolFor(cat, diff));
+    const unseen  = pool.filter(e => !seen || !seen.has(e.id));
+    const already = pool.filter(e => seen && seen.has(e.id));
+    const take    = unseen.slice(0, perCat);
+    // Pas assez d'inédites dans ce thème : on complète avec des déjà-vues.
+    if (take.length < perCat) take.push(...already.slice(0, perCat - take.length));
+    chosen.push(...take);
+    leftovers.push(...unseen.slice(perCat), ...already.slice(Math.max(0, perCat - unseen.length)));
   }
 
-  const tChoices = parts.slice(1, q.choices.length + 1);
-  return {
-    question: parts[0],
-    choices: tChoices,
-    correct: tChoices[correctIdx] ?? q.correct,
-  };
+  // Complète si certains thèmes étaient trop courts, puis mélange le tout.
+  let final = chosen;
+  if (final.length < wanted) final = final.concat(shuffle(leftovers).slice(0, wanted - final.length));
+  final = shuffle(final).slice(0, wanted);
+  return final.map(e => present(e, lang));
 }
 
-// ── API principale ─────────────────────────────────────────────────────────────
-async function fetchQuestions(category, amount = 10, lang = 'fr', difficulty = '') {
-  const questions = await fetchQuestionsEN(category, amount, difficulty);
-  if (lang !== 'fr') return questions;
-  return Promise.all(questions.map(translateQuestionFR));
-}
-
-// Requêtes séquentielles pour éviter le rate-limit OpenTDB sur les multi-catégories
-async function fetchQuestionsMulti(categories, totalAmount, lang = 'fr', difficulty = '') {
-  const perCat = Math.max(2, Math.ceil(totalAmount / categories.length));
-  const results = [];
-  for (const cat of categories) {
-    try {
-      const qs = await fetchQuestions(cat, perCat, lang, difficulty);
-      results.push(...qs);
-    } catch { /* catégorie sans résultats ou rate-limitée, on continue */ }
-  }
-  if (results.length === 0) throw new Error('no questions');
-  return shuffle(results).slice(0, totalAmount);
-}
-
-module.exports = { fetchQuestions, fetchQuestionsMulti };
+module.exports = { pickQuestions };
