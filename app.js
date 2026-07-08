@@ -511,7 +511,7 @@ const DICT = {
     eventsLockedCard: days => `📅 Dans ${days} j`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> <u style="cursor:pointer">vote ici</u> !`,
     eventActiveMsg:   '🐍 <strong>Évent ce week-end</strong> : Snake Challenge ! Ton serpent mange des ⚡ et chaque Lib mangé est ajouté à ton solde.',
-    newsCommunityMsg: '💬 <strong>Luffy Runner</strong> : regarde une idée de la communauté reprise par le créateur ! Toi aussi, si tu veux que la tienne soit prise en compte, laisse un commentaire, ta voix compte !',
+    newsGeorgiaMsg: '⭐ <strong>Life of Georgia</strong> : la saga exclusive est complète ! Débloque le Tome 1 pour 2000 ⚡ dans la section Lecture, et le Tome 2, « L\'Héritière d\'Aboula », t\'est offert. Disponible en français et en anglais.',
     newsBookMsg: '📚 <strong>Nouveau dans Lecture</strong> : le roman ⭐ L\'Affaire endormie, Tome 1, écrit par le créateur ! Chapitre 1 gratuit, la suite se débloque avec tes Libs.',
     snakeVoteTitle:'Snake Challenge',
     snakeVoteSubtitle:'Veux-tu voir le Snake Challenge revenir ?',
@@ -921,7 +921,7 @@ const DICT = {
     eventsLockedCard: days => `📅 In ${days}d`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> <u style="cursor:pointer">vote here</u>!`,
     eventActiveMsg:   '🐍 <strong>Event this weekend</strong>: Snake Challenge! Your snake eats ⚡ and every Lib eaten is added to your balance.',
-    newsCommunityMsg: '💬 <strong>Luffy Runner</strong>: check out a community idea the creator brought to life! Want yours considered too? Leave a comment, your voice matters!',
+    newsGeorgiaMsg: '⭐ <strong>Life of Georgia</strong>: the exclusive saga is complete! Unlock Volume 1 for 2000 ⚡ in the Reading section, and Volume 2, "The Heiress of Aboula", comes free with it. Available in French and English.',
     newsBookMsg: '📚 <strong>New in Reading</strong>: the novel ⭐ L\'Affaire endormie, Tome 1, written by the creator! Chapter 1 is free, unlock the rest with your Libs.',
     snakeVoteTitle:'Snake Challenge',
     snakeVoteSubtitle:'Do you want the Snake Challenge to come back?',
@@ -1356,7 +1356,7 @@ function applyLang() {
 
   // News
   const nte = $('news-title-el'); if (nte) nte.textContent = d.newsTitle;
-  const ncm = $('news-community-msg'); if (ncm) ncm.innerHTML = d.newsCommunityMsg;
+  const ngm = $('news-georgia-msg'); if (ngm) ngm.innerHTML = d.newsGeorgiaMsg;
   const nbm = $('news-book-msg'); if (nbm) nbm.innerHTML = d.newsBookMsg;
 
   // Floating button tooltips
