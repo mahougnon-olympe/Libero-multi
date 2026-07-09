@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentions légales · CGV · Confidentialité — Libero's Multi</title>
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root {
+      --bg: #0d1120; --card: #161d33; --text: #e8ecf6; --muted: #9aa4c0;
+      --accent: #7c5cff; --gold: #ffd23f; --border: rgba(255,255,255,.10);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6; padding: 0 0 60px;
+    }
+    .wrap { max-width: 780px; margin: 0 auto; padding: 24px 20px; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+    a.back { color: var(--accent); text-decoration: none; font-weight: 600; }
+    a.back:hover { text-decoration: underline; }
+    h1 { font-size: 1.6rem; margin: 18px 0 4px; }
+    h2 { font-size: 1.2rem; margin: 34px 0 8px; color: var(--gold); border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+    h3 { font-size: 1rem; margin: 20px 0 4px; }
+    p, li { color: var(--text); }
+    .muted { color: var(--muted); font-size: .9rem; }
+    ul { padding-left: 20px; }
+    li { margin: 4px 0; }
+    a { color: var(--accent); }
+    .lang-toggle button {
+      background: var(--card); color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 12px; cursor: pointer; font-weight: 600;
+    }
+    .lang-toggle button.active { background: var(--accent); border-color: var(--accent); }
+    .todo {
+      background: rgba(255,210,63,.10); border: 1px solid rgba(255,210,63,.4);
+      border-radius: 10px; padding: 12px 16px; margin: 16px 0; font-size: .92rem;
+    }
+    .todo strong { color: var(--gold); }
+    section[data-lang] { display: none; }
+    section[data-lang].show { display: block; }
+    footer { text-align: center; margin-top: 40px; }
+    code { background: rgba(255,255,255,.08); padding: 1px 6px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="back" href="index.html">← Libero's Multi</a>
+    <span class="lang-toggle">
+      <button id="btn-fr" class="active" onclick="setLang('fr')">🇫🇷 FR</button>
+      <button id="btn-en" onclick="setLang('en')">🇬🇧 EN</button>
+    </span>
+  </header>
+
+  <!-- ─────────────────────────── FRANÇAIS ─────────────────────────── -->
+  <section data-lang="fr" class="show">
+    <h1>Mentions légales, CGV et Confidentialité</h1>
+    <p class="muted">Dernière mise à jour : juillet 2026</p>
+
+    <div class="todo">
+      <strong>À compléter par l'éditeur :</strong> remplace les champs entre crochets
+      (<code>[ … ]</code>) par tes informations réelles (nom, statut, contact) avant
+      la mise en ligne définitive.
+    </div>
+
+    <h2>1. Mentions légales</h2>
+    <p><strong>Éditeur du site :</strong> Libero's Multi, projet édité par [Nom / Prénom de l'éditeur], [statut : particulier / entreprise], résidant au Bénin.</p>
+    <p><strong>Contact :</strong> [ton adresse e-mail de contact].</p>
+    <p><strong>Directeur de la publication :</strong> [Nom de l'éditeur].</p>
+    <p><strong>Hébergement :</strong></p>
+    <ul>
+      <li>Interface (frontend) : Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, États-Unis.</li>
+      <li>Serveur (backend) : Render (Render Services, Inc.), San Francisco, États-Unis.</li>
+      <li>Base de données : MongoDB Atlas (MongoDB, Inc.), États-Unis / Union européenne.</li>
+    </ul>
+    <p><strong>Propriété intellectuelle :</strong> le site, son nom, sa mascotte « Libero », les textes des romans (« L'Affaire endormie », « Life of Georgia » et ses tomes) ainsi que les visuels créés pour le site sont la propriété exclusive de l'éditeur. Toute reproduction, diffusion ou traduction, même partielle, sans autorisation écrite est interdite. Les jeux classiques (Puissance 4, Morpion, Échecs) reposent sur des règles du domaine public.</p>
+
+    <h2>2. Conditions Générales de Vente (les « Libs » ⚡)</h2>
+    <h3>2.1 Nature des Libs</h3>
+    <p>Les « Libs » (⚡) sont une <strong>monnaie virtuelle interne</strong> au site, sans aucune valeur monétaire réelle. Ils servent uniquement à débloquer des contenus numériques du site (cosmétiques, chapitres de livres, bonus). Ils ne constituent ni un moyen de paiement, ni un placement, ni un instrument de jeu d'argent.</p>
+    <h3>2.2 Achat et paiement</h3>
+    <ul>
+      <li>L'achat de Libs se fait via le prestataire de paiement <strong>FedaPay</strong> (mobile money / carte bancaire). Le paiement est sécurisé par FedaPay ; le site ne stocke aucune donnée bancaire.</li>
+      <li>Les prix sont affichés en francs CFA (XOF), toutes taxes éventuelles comprises.</li>
+      <li>Les Libs sont crédités sur ton solde <strong>dès la confirmation du paiement</strong> par nos serveurs (généralement quelques secondes). Un e-mail valide est requis pour la confirmation de commande.</li>
+    </ul>
+    <h3>2.3 Absence de remboursement et de conversion</h3>
+    <p>Les Libs correspondent à un contenu numérique fourni immédiatement : conformément à l'usage pour ce type de bien, ils sont <strong>non remboursables</strong> une fois crédités, <strong>non convertibles en argent réel</strong>, et <strong>non transférables</strong> en dehors du site. En cas de problème technique (paiement débité sans crédit des Libs), contacte l'éditeur : la commande sera vérifiée et régularisée.</p>
+    <h3>2.4 Mineurs</h3>
+    <p>Si tu es mineur, tu dois obtenir <strong>l'accord d'un parent ou représentant légal</strong> avant tout achat. L'éditeur pourra annuler une commande passée sans cet accord.</p>
+    <h3>2.5 Jeu responsable</h3>
+    <p>Le site <strong>n'est pas un jeu d'argent</strong> : il est impossible de gagner ou de retirer de l'argent réel. Les scores, classements et récompenses en Libs sont purement ludiques.</p>
+
+    <h2>3. Politique de confidentialité</h2>
+    <h3>3.1 Données collectées</h3>
+    <ul>
+      <li>Un <strong>pseudo</strong> que tu choisis (facultatif pour jouer, requis pour les classements).</li>
+      <li>Un <strong>identifiant de joueur aléatoire</strong> généré et stocké dans ton navigateur, qui te reconnaît sans compte ni mot de passe.</li>
+      <li>Tes <strong>scores, parties et progression</strong> (Libs, défis, historique).</li>
+      <li>Ton <strong>adresse e-mail uniquement lors d'un achat</strong>, pour la confirmation de commande via FedaPay.</li>
+    </ul>
+    <h3>3.2 Finalités</h3>
+    <p>Ces données servent à faire fonctionner le jeu (sauvegardes, classements, défis) et à traiter les paiements. Elles ne sont <strong>ni vendues, ni louées</strong> à des tiers.</p>
+    <h3>3.3 Paiements</h3>
+    <p>Les paiements sont traités par <strong>FedaPay</strong>, qui applique sa propre politique de confidentialité. Nous ne recevons pas tes coordonnées bancaires.</p>
+    <h3>3.4 Stockage local</h3>
+    <p>Le site utilise le <strong>stockage local du navigateur</strong> (localStorage / sessionStorage) pour te reconnaître et sauvegarder ta progression. Il n'y a <strong>pas de cookies publicitaires ni de traceurs tiers</strong>.</p>
+    <h3>3.5 Conservation et tes droits</h3>
+    <p>Tes données sont conservées tant que ton pseudo reste actif. Conformément à la <strong>loi béninoise n° 2017-20 portant Code du numérique</strong> et aux missions de l'APDP (Autorité de Protection des Données Personnelles), tu disposes d'un droit d'accès, de rectification et de suppression de tes données. Pour l'exercer, écris à : [ton adresse e-mail de contact].</p>
+
+    <footer class="muted">© 2026 Libero's Multi — Tous droits réservés.</footer>
+  </section>
+
+  <!-- ─────────────────────────── ENGLISH ─────────────────────────── -->
+  <section data-lang="en">
+    <h1>Legal Notice, Terms of Sale &amp; Privacy</h1>
+    <p class="muted">Last updated: July 2026</p>
+
+    <div class="todo">
+      <strong>For the site owner:</strong> replace the bracketed fields
+      (<code>[ … ]</code>) with your real details (name, status, contact) before
+      going fully live.
+    </div>
+
+    <h2>1. Legal notice</h2>
+    <p><strong>Publisher:</strong> Libero's Multi, operated by [Owner's name], [status: individual / company], based in Benin.</p>
+    <p><strong>Contact:</strong> [your contact e-mail].</p>
+    <p><strong>Hosting:</strong></p>
+    <ul>
+      <li>Frontend: Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, USA.</li>
+      <li>Backend: Render (Render Services, Inc.), San Francisco, USA.</li>
+      <li>Database: MongoDB Atlas (MongoDB, Inc.), USA / EU.</li>
+    </ul>
+    <p><strong>Intellectual property:</strong> the site, its name, its "Libero" mascot, the novels' texts ("L'Affaire endormie", "Life of Georgia" and its volumes) and all visuals created for the site are the exclusive property of the publisher. Any reproduction, distribution or translation, in whole or in part, without written permission is prohibited. Classic games (Connect 4, Tic-Tac-Toe, Chess) are based on public-domain rules.</p>
+
+    <h2>2. Terms of Sale (the "Libs" ⚡)</h2>
+    <h3>2.1 Nature of Libs</h3>
+    <p>"Libs" (⚡) are an <strong>internal virtual currency</strong> with no real monetary value. They only unlock digital content on the site (cosmetics, book chapters, bonuses). They are not a means of payment, an investment, or a gambling instrument.</p>
+    <h3>2.2 Purchase and payment</h3>
+    <ul>
+      <li>Libs are bought through the payment provider <strong>FedaPay</strong> (mobile money / card). Payment is secured by FedaPay; the site stores no banking data.</li>
+      <li>Prices are shown in CFA francs (XOF), including any applicable taxes.</li>
+      <li>Libs are credited <strong>as soon as payment is confirmed</strong> by our servers (usually within seconds). A valid e-mail is required for order confirmation.</li>
+    </ul>
+    <h3>2.3 No refund, no conversion</h3>
+    <p>Libs are digital content delivered immediately: as is standard for such goods, they are <strong>non-refundable</strong> once credited, <strong>not convertible to real money</strong>, and <strong>not transferable</strong> off the site. If a technical issue occurs (payment charged without Libs credited), contact the publisher and the order will be checked and fixed.</p>
+    <h3>2.4 Minors</h3>
+    <p>If you are a minor, you must get a <strong>parent or guardian's consent</strong> before any purchase. The publisher may cancel an order made without such consent.</p>
+    <h3>2.5 Responsible play</h3>
+    <p>The site is <strong>not gambling</strong>: it is impossible to win or withdraw real money. Scores, leaderboards and Libs rewards are purely for fun.</p>
+
+    <h2>3. Privacy policy</h2>
+    <h3>3.1 Data collected</h3>
+    <ul>
+      <li>A <strong>nickname</strong> you choose (optional to play, required for leaderboards).</li>
+      <li>A <strong>random player ID</strong> generated and stored in your browser, recognising you without an account or password.</li>
+      <li>Your <strong>scores, games and progress</strong> (Libs, challenges, history).</li>
+      <li>Your <strong>e-mail only when you make a purchase</strong>, for order confirmation via FedaPay.</li>
+    </ul>
+    <h3>3.2 Purposes</h3>
+    <p>This data runs the game (saves, leaderboards, challenges) and processes payments. It is <strong>never sold or rented</strong> to third parties.</p>
+    <h3>3.3 Payments</h3>
+    <p>Payments are handled by <strong>FedaPay</strong>, under its own privacy policy. We never receive your banking details.</p>
+    <h3>3.4 Local storage</h3>
+    <p>The site uses the browser's <strong>local storage</strong> (localStorage / sessionStorage) to recognise you and save your progress. There are <strong>no advertising cookies or third-party trackers</strong>.</p>
+    <h3>3.5 Retention and your rights</h3>
+    <p>Your data is kept as long as your nickname stays active. Under <strong>Benin's Law No. 2017-20 (Digital Code)</strong> and the APDP (data-protection authority), you have the right to access, correct and delete your data. To exercise it, write to: [your contact e-mail].</p>
+
+    <footer class="muted">© 2026 Libero's Multi — All rights reserved.</footer>
+  </section>
+</div>
+
+<script>
+  function setLang(l) {
+    document.documentElement.lang = l;
+    document.querySelectorAll('section[data-lang]').forEach(s => s.classList.toggle('show', s.dataset.lang === l));
+    document.getElementById('btn-fr').classList.toggle('active', l === 'fr');
+    document.getElementById('btn-en').classList.toggle('active', l === 'en');
+    try { localStorage.setItem('lang', l); } catch (e) {}
+  }
+  try { const s = localStorage.getItem('lang'); if (s === 'en') setLang('en'); } catch (e) {}
+</script>
+</body>
+</html>

@@ -1144,6 +1144,29 @@ html.light .read-cats { background: linear-gradient(var(--bg), rgba(240,244,255,
   font-weight: 600;
 }
 
+/* Lien légal dans les paramètres */
+.sp-legal-link {
+  display: block;
+  font-size: .78rem;
+  color: var(--muted);
+  text-decoration: none;
+  margin-top: 2px;
+}
+.sp-legal-link:hover { color: var(--accent); text-decoration: underline; }
+
+/* Pied de page discret sur l'accueil */
+.landing-footer {
+  text-align: center;
+  margin: 22px auto 0;
+  padding-top: 14px;
+}
+.landing-footer a {
+  color: var(--muted);
+  font-size: .8rem;
+  text-decoration: none;
+}
+.landing-footer a:hover { color: var(--accent); text-decoration: underline; }
+
 /* ── Bouton Rembourser (boutique) ── */
 .shop-refund-btn {
   margin-top: 6px;

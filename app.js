@@ -488,6 +488,8 @@ const DICT = {
     settingsSfx:'Sons', settingsSfxOn:'Activé', settingsSfxOff:'Désactivé', settingsSfxVol:'Volume',
     settingsBgm:'Musique', settingsBgmOn:'Activée', settingsBgmOff:'Désactivée', settingsBgmVol:'Vol. musique',
     settingsRefundTitle:'Cartes de remboursement',
+    legalLinkSettings:'📄 Mentions légales · CGV · Confidentialité',
+    legalLinkFooter:'Mentions légales · CGV · Confidentialité',
     settingsRefundInfo:(cards, next) => {
       const base = `${cards}/2 carte${cards !== 1 ? 's' : ''} disponible${cards !== 1 ? 's' : ''}`;
       if (!next || cards >= 2) return base;
@@ -546,7 +548,7 @@ const DICT = {
       wins3:'Gagne 3 parties', play5:'Joue 5 parties (peu importe le jeu)',
       trivia5:'Réponds bien à 5 questions de quiz', trivia12:'Réponds bien à 12 questions de quiz', quiz2:'Termine 2 quiz',
       snake30:'Mange 30 ⚡ au Snake', snake60:'Mange 60 ⚡ au Snake',
-      luffy12000:'Cumule 12000 pts au Luffy Runner', luffyGames3:'Fais 3 parties de Luffy Runner',
+      luffy12000:'Cumule 12000 pts au Libero Run', luffyGames3:'Fais 3 parties de Libero Run',
     },
     challengePerfectDay: bonus => `🎉 Journée parfaite ! Les 3 défis réclamés : +${bonus} ⚡ bonus`,
     triviaSkip:'⏭ Passer',
@@ -558,7 +560,7 @@ const DICT = {
     streakSub:(l, b) => `Record : ${l} jour${l > 1 ? 's' : ''}${b > 0 ? ` · +${b} ⚡ aujourd'hui` : ''}`,
     streakBonusToast:(n, b) => `Jour ${n} de connexion · +${b} ⚡ !`,
     historyEmpty:'Aucune partie pour l\'instant. Lance une partie !',
-    historyGameNames:{ connect4:'Puissance 4', tictactoe:'Morpion', chess:'Échecs', trivia:'Quiz', snake:'Snake', luffy:'Luffy Runner' },
+    historyGameNames:{ connect4:'Puissance 4', tictactoe:'Morpion', chess:'Échecs', trivia:'Quiz', snake:'Snake', luffy:'Libero Run' },
     historyResults:{ win:'Victoire', loss:'Défaite', draw:'Match nul' },
     historyScore:n => `${n} pts`,
     bookReaders:n => `${n} lecteur${n > 1 ? 's' : ''}`,
@@ -568,9 +570,9 @@ const DICT = {
     snakePause:'⏸ Pause', btnSnakeResume:'▶ Reprendre',
     btnSnakeBack:'← Retour', btnSnakeHome:'🏠 Quitter',
     snakeHint:'↑ ↓ ← → ou glisser sur mobile',
-    luffyChallengeDesc:'Aide Luffy à fuir la Marine ! Saute par-dessus les obstacles au sol, accroupis-toi sous ceux qui volent.',
-    luffyNameTitle:'🏴‍☠️ Ton pseudo',
-    luffyLbTitle:'Classement Luffy Runner',
+    luffyChallengeDesc:'Aide Libero à courir le plus loin possible ! Saute par-dessus les obstacles au sol, accroupis-toi sous ceux qui volent.',
+    luffyNameTitle:'🏃 Ton pseudo',
+    luffyLbTitle:'Classement Libero Run',
     luffyHsDisplay:n => `🏆 Ton record : ${n} pts`,
     luffyHint:'↑ / Espace pour sauter · ↓ pour t\'accroupir',
     luffySuggestLink:'💬 Proposer un jeu pour cette section',
@@ -593,8 +595,8 @@ const DICT = {
     snakeOverScore:(score, hs) => `Score : ${score} · Meilleur : ${hs}`,
     helpContent:{
       general:[
-        { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Luffy Runner</strong>, une idée de joueur reprise par le créateur). Chaque section a son propre classement." },
-        { icon:'🎯', title:'Mon profil', desc:"La carte <strong>Mon profil</strong> (accueil) regroupe trois choses : tes <strong>défis du jour</strong> (3 objectifs qui <strong>changent chaque jour</strong> : jamais le même défi deux jours de suite, avec le Snake le week-end et Luffy Runner en semaine ; réclame les 3 pour un <strong>bonus « journée parfaite » +30 ⚡</strong>), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. Il faut un pseudo pour en profiter." },
+        { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Libero Run</strong>, une idée de joueur reprise par le créateur). Chaque section a son propre classement." },
+        { icon:'🎯', title:'Mon profil', desc:"La carte <strong>Mon profil</strong> (accueil) regroupe trois choses : tes <strong>défis du jour</strong> (3 objectifs qui <strong>changent chaque jour</strong> : jamais le même défi deux jours de suite, avec le Snake le week-end et Libero Run en semaine ; réclame les 3 pour un <strong>bonus « journée parfaite » +30 ⚡</strong>), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. Il faut un pseudo pour en profiter." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> · ton serpent mange des <strong>⚡ Libs</strong> pour grandir, et chaque ⚡ mangé est <strong>ajouté à ton solde</strong> (score 10 = 10 Libs gagnés). Les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
         { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras les <strong>romans exclusifs</strong> lisibles directement sur le site (en français ou en anglais selon la langue choisie) : <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, 1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10), <strong>Life of Georgia</strong> (livre entier pour 2000 ⚡) et sa suite <strong>Life of Georgia · Tome 2</strong>, <strong>offerte</strong> à tous ceux qui ont débloqué le Tome 1." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile." },
@@ -603,10 +605,10 @@ const DICT = {
         { icon:'💬', title:'Chat', desc:"Envoie des messages à ton adversaire pendant une partie classique. Le bouton <em>Vider</em> efface l'historique côté local uniquement." },
         { icon:'🔄', title:'Reconnexion', desc:"Si tu recharges la page, tu retrouves automatiquement ta partie classique en cours. L'adversaire a <strong>30 secondes</strong> pour se reconnecter, sinon la partie est annulée." },
         { icon:'🔁', title:'Rejouer', desc:"En fin de partie classique, clique <em>Rejouer</em>. La partie redémarre uniquement si les deux joueurs acceptent." },
-        { icon:'🌍', title:'Classement Global', desc:"Visible dès la page d'accueil, il regroupe <strong>tous les joueurs ayant au moins un point</strong>. Score = victoires classiques (×10) + points Quiz + meilleur score Snake (×10) + meilleur score Luffy Runner (÷10). Mis à jour en temps réel." },
+        { icon:'🌍', title:'Classement Global', desc:"Visible dès la page d'accueil, il regroupe <strong>tous les joueurs ayant au moins un point</strong>. Score = victoires classiques (×10) + points Quiz + meilleur score Snake (×10) + meilleur score Libero Run (÷10). Mis à jour en temps réel." },
         { icon:'🏆', title:'Classements par section', desc:"Chaque section garde aussi son propre classement : victoires/défaites/nuls pour les Jeux Classiques, total de points pour le Quiz." },
-        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Aide Luffy à fuir la Marine dans ce clone du jeu du dinosaure ! Saute (<strong>↑</strong> / Espace) par-dessus les obstacles au sol (tonneaux, canons, crabes…) et accroupis-toi (<strong>↓</strong>) sous les obstacles volants (mouettes, boulets de canon…). Attrape l'<strong>⭐ étoile brillante</strong> pour devenir invincible quelques secondes : un compte à rebours affiche le temps restant. Ton meilleur score <strong>persiste</strong> entre les sessions et alimente un classement dédié. C'est d'ailleurs une <strong>idée de la communauté</strong> reprise par le créateur · si tu veux que la tienne soit prise en compte, laisse un commentaire via le bouton dans l'écran de jeu." },
-        { icon:'📰', title:'News', desc:"La carte News est repliée dans le <strong>coin en haut à gauche</strong>. <strong>Clique dessus</strong> pour l'ouvrir : elle affiche l'état de l'évent en cours (ou le compte à rebours jusqu'au prochain) et un rappel pour participer à la section <strong>Luffy Runner</strong>. Reclique pour la refermer." },
+        { icon:'🏃', title:'Libero Run', desc:"Aide Libero, la mascotte du site, à courir le plus loin possible dans ce runner sans fin ! Saute (<strong>↑</strong> / Espace) par-dessus les obstacles au sol (tonneaux, canons, crabes…) et accroupis-toi (<strong>↓</strong>) sous les obstacles volants (mouettes, boulets de canon…). Attrape l'<strong>⭐ étoile brillante</strong> pour devenir invincible quelques secondes : un compte à rebours affiche le temps restant. Ton meilleur score <strong>persiste</strong> entre les sessions et alimente un classement dédié. C'est d'ailleurs une <strong>idée de la communauté</strong> reprise par le créateur · si tu veux que la tienne soit prise en compte, laisse un commentaire via le bouton dans l'écran de jeu." },
+        { icon:'📰', title:'News', desc:"La carte News est repliée dans le <strong>coin en haut à gauche</strong>. <strong>Clique dessus</strong> pour l'ouvrir : elle affiche les dernières <strong>annonces</strong> (nouveaux livres, nouveautés du site) et les <strong>commentaires</strong> des joueurs. Reclique pour la refermer." },
         { icon:'⚙️', title:'Paramètres', desc:"Le bouton <strong>⚙️</strong> en <em>haut à droite</em> regroupe tous les réglages : <strong>Langue</strong>, <strong>Thème</strong>, <strong>Serpent</strong>, <strong>Sons</strong> (effets sonores + volume), <strong>Musique</strong> (fond musical + volume) et <strong>Cartes de remboursement</strong>. Tout est mémorisé entre les sessions." },
         { icon:'🔊', title:'Sons & Musique', desc:"<strong>Sons</strong> : des effets sonores accompagnent chaque action (poser une pièce, victoire, quiz, chat, boutique, Snake…). Active/désactive-les via <strong>⚙️ → Sons</strong> et règle le volume.<br><strong>Musique</strong> : une musique ambiante joue en fond. Active/désactive-la via <strong>⚙️ → Musique</strong> avec son propre curseur de volume. Les deux se gèrent indépendamment." },
         { icon:'🐍', title:'Serpent', desc:"Un petit serpent suit ton curseur. Il <strong>grandit et change de couleur</strong> selon ton score global 🌍 : or (1er), bleu (2e), bronze (3e). Joue et grimpe dans le classement pour l'allonger ! Active ou désactive-le via le bouton <strong>⚙️</strong> en haut à droite → <strong>Serpent</strong>." },
@@ -677,12 +679,12 @@ const DICT = {
     ],
     tutoSteps:{
       landing_news:'📰 Le cadre <strong>News</strong> est replié dans le coin <strong>en haut à gauche</strong>. <strong>Clique dessus</strong> pour l\'ouvrir : il affiche les dernières actualités, nouvelles fonctionnalités, annonces et commentaires de joueurs. Reclique pour le refermer.',
-      landing_cats:'👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose quatre sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> (mini-jeux du week-end) et <strong>Pour la communauté</strong> (le mini-jeu <strong>Luffy Runner</strong>). Clique sur une carte pour commencer.',
-      landing_lb:'🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10 + meilleur score Luffy Runner ÷10. Plus tu montes, plus ton serpent 🐍 grandit !',
+      landing_cats:'👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose quatre sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> (mini-jeux du week-end) et <strong>Pour la communauté</strong> (le mini-jeu <strong>Libero Run</strong>). Clique sur une carte pour commencer.',
+      landing_lb:'🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10 + meilleur score Libero Run ÷10. Plus tu montes, plus ton serpent 🐍 grandit !',
       landing_btns:'⚙️ Des boutons permanents sont disponibles :<br>▶ <strong>En haut à droite</strong> : le bouton <strong>⚙️</strong> ouvre les <strong>Paramètres</strong> (thème, langue, serpent, cartes de remboursement).<br>▶ <strong>En bas à droite</strong> : ❓ <strong>Aide</strong> · ✉️ <strong>Commentaire</strong>',
       landing_libs:'⚡ <strong>Libs</strong> : une monnaie virtuelle gagnée par les meilleurs joueurs. Les top 3 du classement Global reçoivent automatiquement des Libs toutes les 5h (1er : +10 ⚡, 2e : +5 ⚡, 3e : +3 ⚡). Dépense-les dans la <strong>boutique</strong> pour obtenir des boosts quiz !',
       events_snake:'🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les <strong>⚡ Libs</strong> pour grandir : chaque ⚡ mangé est ajouté à ton solde (score 10 = 10 Libs gagnés). Les bords sont traversables, tu ressors de l\'autre côté ! Ton meilleur score <strong>persiste</strong> entre les sessions.',
-      luffy_runner:'🏴‍☠️ <strong>Luffy Runner</strong> : aide Luffy à fuir la Marine ! Saute (↑ / Espace) par-dessus les obstacles au sol, accroupis-toi (↓) sous les obstacles volants. Ton meilleur score alimente un classement dédié.',
+      luffy_runner:'🏃 <strong>Libero Run</strong> : aide Libero à courir le plus loin possible ! Saute (↑ / Espace) par-dessus les obstacles au sol, accroupis-toi (↓) sous les obstacles volants. Ton meilleur score alimente un classement dédié.',
       home_games:'🎮 Choisis ton jeu en haut : <strong>Puissance 4</strong>, <strong>Morpion</strong> ou <strong>Échecs</strong>. Le classement est partagé entre les trois jeux.',
       home_bot:'🤖 <strong>Mode Solo</strong> : joue contre le bot à 3 niveaux de difficulté : Facile, Moyen ou Difficile. Tes victoires et défaites sont comptées dans le classement !',
       home_multi:'👥 <strong>Mode Multijoueur</strong> : entre ton pseudo (optionnel), puis clique sur <em>Créer une partie</em> pour générer un code, ou entre le code d\'un ami pour le rejoindre.',
@@ -898,6 +900,8 @@ const DICT = {
     settingsSfx:'Sound', settingsSfxOn:'Enabled', settingsSfxOff:'Disabled', settingsSfxVol:'Volume',
     settingsBgm:'Music', settingsBgmOn:'Enabled', settingsBgmOff:'Disabled', settingsBgmVol:'Music vol.',
     settingsRefundTitle:'Refund cards',
+    legalLinkSettings:'📄 Legal notice · Terms · Privacy',
+    legalLinkFooter:'Legal notice · Terms of Sale · Privacy',
     settingsRefundInfo:(cards, next) => {
       const base = `${cards}/2 card${cards !== 1 ? 's' : ''} available`;
       if (!next || cards >= 2) return base;
@@ -956,7 +960,7 @@ const DICT = {
       wins3:'Win 3 games', play5:'Play 5 games (any game)',
       trivia5:'Answer 5 quiz questions right', trivia12:'Answer 12 quiz questions right', quiz2:'Finish 2 quizzes',
       snake30:'Eat 30 ⚡ in Snake', snake60:'Eat 60 ⚡ in Snake',
-      luffy12000:'Rack up 12000 pts in Luffy Runner', luffyGames3:'Play 3 Luffy Runner games',
+      luffy12000:'Rack up 12000 pts in Libero Run', luffyGames3:'Play 3 Libero Run games',
     },
     challengePerfectDay: bonus => `🎉 Perfect day! All 3 challenges claimed: +${bonus} ⚡ bonus`,
     triviaSkip:'⏭ Skip',
@@ -968,7 +972,7 @@ const DICT = {
     streakSub:(l, b) => `Best: ${l} day${l > 1 ? 's' : ''}${b > 0 ? ` · +${b} ⚡ today` : ''}`,
     streakBonusToast:(n, b) => `Day ${n} streak · +${b} ⚡!`,
     historyEmpty:'No games yet. Start one!',
-    historyGameNames:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', trivia:'Quiz', snake:'Snake', luffy:'Luffy Runner' },
+    historyGameNames:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', trivia:'Quiz', snake:'Snake', luffy:'Libero Run' },
     historyResults:{ win:'Win', loss:'Loss', draw:'Draw' },
     historyScore:n => `${n} pts`,
     bookReaders:n => `${n} reader${n > 1 ? 's' : ''}`,
@@ -978,9 +982,9 @@ const DICT = {
     snakePause:'⏸ Pause', btnSnakeResume:'▶ Resume',
     btnSnakeBack:'← Back', btnSnakeHome:'🏠 Quit',
     snakeHint:'↑ ↓ ← → or swipe on mobile',
-    luffyChallengeDesc:'Help Luffy escape the Marines! Jump over ground obstacles, duck under flying ones.',
-    luffyNameTitle:'🏴‍☠️ Your username',
-    luffyLbTitle:'Luffy Runner Leaderboard',
+    luffyChallengeDesc:'Help Libero run as far as possible! Jump over ground obstacles, duck under flying ones.',
+    luffyNameTitle:'🏃 Your username',
+    luffyLbTitle:'Libero Run Leaderboard',
     luffyHsDisplay:n => `🏆 Your record: ${n} pts`,
     luffyHint:'↑ / Space to jump · ↓ to duck',
     luffySuggestLink:'💬 Suggest a game for this section',
@@ -1003,8 +1007,8 @@ const DICT = {
     snakeOverScore:(score, hs) => `Score: ${score} · Best: ${hs}`,
     helpContent:{
       general:[
-        { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Luffy Runner</strong> mini-game, a player idea brought to life by the creator). Each section has its own leaderboard." },
-        { icon:'🎯', title:'My profile', desc:"The <strong>My profile</strong> card (home) gathers three things: your <strong>daily challenges</strong> (3 goals that <strong>change every day</strong>: never the same challenge two days in a row, with Snake on weekends and Luffy Runner on weekdays; claim all 3 for a <strong>'perfect day' +30 ⚡ bonus</strong>), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. A nickname is required." },
+        { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Libero Run</strong> mini-game, a player idea brought to life by the creator). Each section has its own leaderboard." },
+        { icon:'🎯', title:'My profile', desc:"The <strong>My profile</strong> card (home) gathers three things: your <strong>daily challenges</strong> (3 goals that <strong>change every day</strong>: never the same challenge two days in a row, with Snake on weekends and Libero Run on weekdays; claim all 3 for a <strong>'perfect day' +30 ⚡ bonus</strong>), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. A nickname is required." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> · your snake eats <strong>⚡ Libs</strong> to grow, and every ⚡ eaten is <strong>added to your balance</strong> (score 10 = 10 Libs earned). Walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
         { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll find the <strong>exclusive novels</strong> readable right on the site (in French or English, following the site language): <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapter 1 free, 1000 ⚡ for chapters 2-5, 2000 ⚡ for 6-10), <strong>Life of Georgia</strong> (whole book for 2000 ⚡) and its sequel <strong>Life of Georgia · Volume 2</strong>, <strong>free</strong> for everyone who unlocked Volume 1." },
         { icon:'🎮', title:'Create a classic game', desc:"Choose a game, enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent. You can also play <strong>Solo vs the bot</strong> by choosing a difficulty: Easy, Medium or Hard." },
@@ -1013,10 +1017,10 @@ const DICT = {
         { icon:'💬', title:'Chat', desc:"Send messages to your opponent during a classic game. The <em>Clear</em> button erases the history on your side only." },
         { icon:'🔄', title:'Reconnection', desc:"If you reload the page, you automatically rejoin your ongoing classic game. The opponent has <strong>30 seconds</strong> to reconnect, otherwise the game is cancelled." },
         { icon:'🔁', title:'Play again', desc:"At the end of a classic game, click <em>Play again</em>. The game restarts only if both players agree." },
-        { icon:'🌍', title:'Global leaderboard', desc:"Visible from the home page, it gathers <strong>all players with at least one point</strong>. Score = classic wins (×10) + Quiz points + best Snake score (×10) + best Luffy Runner score (÷10). Updated in real time." },
+        { icon:'🌍', title:'Global leaderboard', desc:"Visible from the home page, it gathers <strong>all players with at least one point</strong>. Score = classic wins (×10) + Quiz points + best Snake score (×10) + best Libero Run score (÷10). Updated in real time." },
         { icon:'🏆', title:'Section leaderboards', desc:"Each section also keeps its own leaderboard: wins/losses/draws for Classic Games, total points for Quiz." },
-        { icon:'🏴‍☠️', title:'Luffy Runner', desc:"Help Luffy escape the Marines in this dinosaur-game clone! Jump (<strong>↑</strong> / Space) over ground obstacles (barrels, cannons, crabs…) and duck (<strong>↓</strong>) under flying ones (seagulls, cannonballs…). Grab the <strong>⭐ shining star</strong> to become invincible for a few seconds: a countdown shows the time left. Your best score <strong>persists</strong> between sessions and feeds its own leaderboard. It's actually a <strong>community idea</strong> brought to life by the creator · if you want yours considered too, leave a comment via the button on the game screen." },
-        { icon:'📰', title:'News', desc:"The News card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the current event status (or a countdown to the next one) and a nudge to check out the <strong>Luffy Runner</strong> section. Click again to close it." },
+        { icon:'🏃', title:'Libero Run', desc:"Help Libero, the site's mascot, run as far as possible in this endless runner! Jump (<strong>↑</strong> / Space) over ground obstacles (barrels, cannons, crabs…) and duck (<strong>↓</strong>) under flying ones (seagulls, cannonballs…). Grab the <strong>⭐ shining star</strong> to become invincible for a few seconds: a countdown shows the time left. Your best score <strong>persists</strong> between sessions and feeds its own leaderboard. It's actually a <strong>community idea</strong> brought to life by the creator · if you want yours considered too, leave a comment via the button on the game screen." },
+        { icon:'📰', title:'News', desc:"The News card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the latest <strong>announcements</strong> (new books, site updates) and player <strong>comments</strong>. Click again to close it." },
         { icon:'⚙️', title:'Settings', desc:"The <strong>⚙️</strong> button in the <em>top right</em> groups all settings: <strong>Language</strong>, <strong>Theme</strong>, <strong>Snake</strong>, <strong>Sound</strong> (SFX + volume), <strong>Music</strong> (background music + volume) and <strong>Refund cards</strong>. Everything is saved between sessions." },
         { icon:'🔊', title:'Sound & Music', desc:"<strong>Sound</strong>: sound effects play on every action (placing a piece, win, quiz, chat, shop, Snake…). Toggle via <strong>⚙️ → Sound</strong> and adjust the volume.<br><strong>Music</strong>: ambient background music plays while you browse. Toggle via <strong>⚙️ → Music</strong> with its own volume slider. Both are controlled independently." },
         { icon:'🐍', title:'Snake', desc:"A little snake follows your cursor. It <strong>grows and changes colour</strong> based on your global score 🌍: gold (1st), blue (2nd), bronze (3rd). Play and climb the leaderboard to make it longer! Enable or disable it via the <strong>⚙️</strong> button (top right) → <strong>Snake</strong>." },
@@ -1087,12 +1091,12 @@ const DICT = {
     ],
     tutoSteps:{
       landing_news:'📰 The <strong>News</strong> card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the latest news, updates, announcements and player comments. Click again to close it.',
-      landing_cats:'👋 Welcome to <strong>Libero\'s Multi</strong>! The home screen offers four sections: <strong>Classic Games</strong>, <strong>General Knowledge</strong>, <strong>Events</strong> (weekend mini-games) and <strong>Community</strong> (the <strong>Luffy Runner</strong> mini-game). Click a card to get started.',
-      landing_lb:'🌍 The <strong>Global Leaderboard</strong> brings together <em>all</em> players with at least one point. Score = classic wins ×10 + Quiz points + best Snake score ×10 + best Luffy Runner score ÷10. The higher you climb, the longer your snake 🐍 grows!',
+      landing_cats:'👋 Welcome to <strong>Libero\'s Multi</strong>! The home screen offers four sections: <strong>Classic Games</strong>, <strong>General Knowledge</strong>, <strong>Events</strong> (weekend mini-games) and <strong>Community</strong> (the <strong>Libero Run</strong> mini-game). Click a card to get started.',
+      landing_lb:'🌍 The <strong>Global Leaderboard</strong> brings together <em>all</em> players with at least one point. Score = classic wins ×10 + Quiz points + best Snake score ×10 + best Libero Run score ÷10. The higher you climb, the longer your snake 🐍 grows!',
       landing_btns:'⚙️ Permanent buttons are available:<br>▶ <strong>Top right</strong>: the <strong>⚙️</strong> button opens <strong>Settings</strong> (day/night theme, language, snake, refund cards).<br>▶ <strong>Bottom right</strong>: ❓ <strong>Help</strong> · ✉️ <strong>Comment</strong>',
       landing_libs:'⚡ <strong>Libs</strong>: a virtual currency earned by the best players. The top 3 in the Global Leaderboard automatically receive Libs every 5 hours (1st: +5 ⚡, 2nd: +3 ⚡, 3rd: +2 ⚡). Spend them in the <strong>shop</strong> to get quiz boosts!',
       events_snake:'🐍 This weekend\'s event: <strong>Snake Challenge</strong>! Click <em>Play</em>, your snake enters the arena. Eat the <strong>⚡ Libs</strong> to grow: every ⚡ eaten is added to your balance (score 10 = 10 Libs earned). Walls wrap around · you reappear on the other side! Your best score <strong>persists</strong> between sessions.',
-      luffy_runner:'🏴‍☠️ <strong>Luffy Runner</strong>: help Luffy escape the Marines! Jump (↑ / Space) over ground obstacles, duck (↓) under flying ones. Your best score feeds a dedicated leaderboard.',
+      luffy_runner:'🏃 <strong>Libero Run</strong>: help Luffy escape the Marines! Jump (↑ / Space) over ground obstacles, duck (↓) under flying ones. Your best score feeds a dedicated leaderboard.',
       home_games:'🎮 Choose your game at the top: <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong> or <strong>Chess</strong>. The leaderboard is shared across all three games.',
       home_bot:'🤖 <strong>Solo mode</strong>: play against the bot at 3 difficulty levels: Easy, Medium or Hard. Your wins and losses count in the leaderboard!',
       home_multi:'👥 <strong>Multiplayer mode</strong>: enter your username (optional), then click <em>Create a game</em> to generate a code, or enter a friend\'s code to join them.',
@@ -1304,7 +1308,7 @@ function applyLang() {
   const bsph = $('btn-snake-pause-quit-home');   if (bsph) bsph.textContent = d.btnSnakeHome;
   const sht  = $('snake-hint-text');     if (sht)  sht.textContent  = d.snakeHint;
 
-  // Luffy Runner screen
+  // Libero Run screen
   const lss  = $('luffy-screen-sub');    if (lss)  lss.textContent  = d.communityCard;
   const lcd  = $('luffy-challenge-desc'); if (lcd) lcd.textContent  = d.luffyChallengeDesc;
   const bls  = $('btn-luffy-play');      if (bls)  bls.textContent  = d.btnPlay;
@@ -5555,7 +5559,7 @@ function showCursorSnakeToast(msg) {
   })();
 })();
 
-// ── Luffy Runner (jeu communautaire) ────────────────────────────────────────
+// ── Libero Run (jeu communautaire) ────────────────────────────────────────
 (() => {
   const HS_KEY   = 'libero_luffy_hs';
   const SESS_KEY = 'libero_luffy_session';
@@ -5579,10 +5583,10 @@ function showCursorSnakeToast(msg) {
   let obstacles, nextSpawnDist, lastSpawnType;
   let invincibleUntil, nextPowerupDist, airshipX, airshipY;
 
-  // ── Sprites (pixel art) ──────────────────────────────────────────────────
-  const SPRITE_DIR = 'luffy-sprites/';
+  // ── Sprites d'obstacles (pixel art génériques : tonneaux, rochers, animaux…) ─
+  // Le héros, lui, est dessiné au canvas (mascotte originale « Libero »).
+  const SPRITE_DIR = 'runner-sprites/';
   function loadSprite(name) { const img = new Image(); img.src = SPRITE_DIR + name; return img; }
-  const RUN_FRAMES = [1, 2, 3, 4].map(n => loadSprite(`luffy-run-${n}.png`));
   const SPR = {
     canon:        loadSprite('canon.png'),
     boulet:       loadSprite('boulet-canon.png'),
@@ -5593,11 +5597,8 @@ function showCursorSnakeToast(msg) {
     dendenmushi:  loadSprite('dendenmushi.png'),
     tonneau:      loadSprite('tonneau.png'),
     dirigeable:   loadSprite('dirigeable.png'),
-    marine1:      loadSprite('marine-1.png'),
-    marine2:      loadSprite('marine-2.png'),
     mouette:      loadSprite('mouette.png'),
     oiseau:       loadSprite('oiseau.png'),
-    marineAigle:  loadSprite('marine-aigle.png'),
   };
 
   function getHs()   { return parseInt(localStorage.getItem(HS_KEY) || '0', 10); }
@@ -5640,14 +5641,11 @@ function showCursorSnakeToast(msg) {
     { id: 'crabe',       w: 32, h: 20, draw: (c, x, y, w, h) => drawSprite(c, SPR.crabe, x, y, w, h, false) },
     { id: 'meduse',      w: 32, h: 24, draw: (c, x, y, w, h) => drawSprite(c, SPR.meduse, x, y, w, h, false) },
     { id: 'dendenmushi', w: 23, h: 20, draw: (c, x, y, w, h) => drawSprite(c, SPR.dendenmushi, x, y, w, h, false) },
-    { id: 'marine1',     w: 32, h: 40, draw: (c, x, y, w, h) => drawSprite(c, SPR.marine1, x, y, w, h, true) },
-    { id: 'marine2',     w: 38, h: 40, draw: (c, x, y, w, h) => drawSprite(c, SPR.marine2, x, y, w, h, true) },
   ];
   const FLY_OBS = [
     { id: 'mouette',      w: 34, h: 16, draw: (c, x, y, w, h) => drawSprite(c, SPR.mouette, x, y, w, h, true) },
     { id: 'oiseau',       w: 26, h: 20, draw: (c, x, y, w, h) => drawSprite(c, SPR.oiseau, x, y, w, h, true) },
     { id: 'boulet',       w: 22, h: 21, draw: (c, x, y, w, h) => drawSprite(c, SPR.boulet, x, y, w, h, false) },
-    { id: 'marineoiseau', w: 42, h: 35, draw: (c, x, y, w, h) => drawSprite(c, SPR.marineAigle, x, y, w, h, true) },
   ];
   // Bonus d'invincibilité : une étoile brillante dessinée au canvas (pas de
   // sprite) — bien plus visible que l'ancien tonneau, avec halo pulsé et rayons.
@@ -5890,30 +5888,125 @@ function showCursorSnakeToast(msg) {
     c.restore();
   }
 
-  const RUN_FRAME_DIST = 18; // distance logique entre deux frames de course
-  function currentRunFrame() {
-    return RUN_FRAMES[Math.floor(distance / RUN_FRAME_DIST) % RUN_FRAMES.length];
+  // ── Mascotte « Libero » : personnage 100 % original dessiné au canvas ────────
+  // Aucun sprite importé : c'est une création propre au site (violet + or), ce
+  // qui évite toute image sous droits d'auteur.
+  const HERO = {
+    cloak:   '#7c5cff', // violet, accent du site
+    cloakLo: '#5a3fd6', // jambe arrière (ombre)
+    scarf:   '#ffd23f', // écharpe / bandeau dorés
+    skin:    '#f1c9a0',
+    boots:   '#241b40',
+    eye:     '#241b40',
+  };
+  function _limb(c, x1, y1, x2, y2, w, col) {
+    c.strokeStyle = col; c.lineWidth = w; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke();
   }
 
   function drawLuffy(c, now) {
     const lb = luffyBox();
-    const img = jumping ? RUN_FRAMES[1] : ducking ? RUN_FRAMES[2] : currentRunFrame();
+    const cx = lb.x + lb.w / 2;
     c.save();
-    if (now < invincibleUntil) {
-      c.globalAlpha = 0.55 + 0.45 * Math.sin(now / 60);
+    c.lineJoin = 'round';
+    if (now < invincibleUntil) { // aura dorée pendant l'invincibilité
+      c.globalAlpha = 0.6 + 0.4 * Math.sin(now / 60);
       c.shadowColor = '#ffd23f';
       c.shadowBlur = 14;
     }
-    if (img.complete && img.naturalWidth) {
-      const h = lb.bottom - lb.top;
-      const w = h * img.naturalWidth / img.naturalHeight;
-      const cx = lb.x + lb.w / 2;
-      c.drawImage(img, cx - w / 2, lb.top, w, h);
-    } else {
-      c.fillStyle = '#c0392b';
-      c.fillRect(lb.x, lb.top, lb.w, lb.bottom - lb.top);
-    }
+    if (ducking) drawHeroDuck(c, cx, lb, now);
+    else drawHeroStand(c, cx, lb, now);
     c.restore();
+  }
+
+  // Écharpe dorée qui flotte derrière le héros (donne le sens de la course).
+  function _scarf(c, ax, ay, now, len) {
+    const flap = Math.sin(now / 90) * 4;
+    c.fillStyle = HERO.scarf;
+    c.beginPath();
+    c.moveTo(ax, ay);
+    c.quadraticCurveTo(ax - len * 0.6, ay - 3 + flap, ax - len, ay + 6 - flap);
+    c.quadraticCurveTo(ax - len * 0.6, ay + 8, ax, ay + 7);
+    c.closePath(); c.fill();
+  }
+
+  function drawHeroStand(c, cx, lb, now) {
+    const footY = lb.bottom;
+    const H     = lb.bottom - lb.top;      // 62 debout
+    const hipY  = lb.top + H * 0.60;
+    const shY   = lb.top + H * 0.32;       // épaules
+    const headR = H * 0.15;
+    const headX = cx + 2, headY = lb.top + headR + 1;
+    const phase = distance / 13;
+    const sw    = jumping ? 0.5 : Math.sin(phase);
+
+    _scarf(c, cx - 5, shY + 2, now, 26);
+
+    // Jambes (l'arrière plus sombre) — repliées au saut, alternées à la course.
+    if (jumping) {
+      _limb(c, cx, hipY, cx - 7, footY - 8, 7, HERO.cloakLo);
+      _limb(c, cx, hipY, cx + 9, footY - 12, 7, HERO.boots);
+    } else {
+      _limb(c, cx, hipY, cx + sw * 12,  footY, 7, HERO.cloakLo);
+      _limb(c, cx, hipY, cx - sw * 12,  footY, 7, HERO.boots);
+    }
+
+    // Tronc (tunique violette)
+    c.fillStyle = HERO.cloak;
+    c.beginPath();
+    c.moveTo(cx - 9, shY);
+    c.lineTo(cx + 9, shY);
+    c.lineTo(cx + 7, hipY + 2);
+    c.lineTo(cx - 7, hipY + 2);
+    c.closePath(); c.fill();
+
+    // Petit emblème étoile doré sur la poitrine (clin d'œil au bonus étoile)
+    c.fillStyle = HERO.scarf;
+    c.beginPath(); c.arc(cx, shY + (hipY - shY) * 0.45, 2.4, 0, Math.PI * 2); c.fill();
+
+    // Bras avant qui balance (opposé aux jambes)
+    const aSw = jumping ? -0.9 : Math.sin(phase + Math.PI);
+    _limb(c, cx + 3, shY + 3, cx + 3 + aSw * 10, shY + 15, 5, HERO.cloak);
+
+    // Tête
+    c.fillStyle = HERO.skin;
+    c.beginPath(); c.arc(headX, headY, headR, 0, Math.PI * 2); c.fill();
+    // Capuche / cheveux violets balayés en arrière
+    c.fillStyle = HERO.cloak;
+    c.beginPath();
+    c.arc(headX, headY, headR, Math.PI * 0.85, Math.PI * 2.15);
+    c.lineTo(headX - headR - 4, headY - 3);
+    c.closePath(); c.fill();
+    // Bandeau doré
+    _limb(c, headX - headR, headY - 1, headX + headR, headY - 2, 2.4, HERO.scarf);
+    // Œil
+    c.fillStyle = HERO.eye;
+    c.beginPath(); c.arc(headX + headR * 0.55, headY + 1, 1.5, 0, Math.PI * 2); c.fill();
+  }
+
+  function drawHeroDuck(c, cx, lb, now) {
+    const H     = lb.bottom - lb.top;      // 32 accroupi
+    const footY = lb.bottom;
+    const bodyY = lb.top + H * 0.45;
+    const phase = distance / 13;
+    const sw    = Math.sin(phase) * 8;
+
+    _scarf(c, cx - 12, bodyY - 2, now, 22);
+    // Jambes repliées sous le corps (glissade)
+    _limb(c, cx, bodyY + 5, cx - 12 + sw, footY, 7, HERO.cloakLo);
+    _limb(c, cx, bodyY + 5, cx + 12 - sw, footY, 7, HERO.boots);
+    // Corps ramassé
+    c.fillStyle = HERO.cloak;
+    c.beginPath(); c.ellipse(cx, bodyY + 2, 16, 9, 0, 0, Math.PI * 2); c.fill();
+    // Tête projetée vers l'avant (sens de la course)
+    const headX = cx + 15, headR = H * 0.28;
+    c.fillStyle = HERO.skin;
+    c.beginPath(); c.arc(headX, bodyY, headR, 0, Math.PI * 2); c.fill();
+    c.fillStyle = HERO.cloak; // capuche
+    c.beginPath(); c.arc(headX, bodyY, headR, Math.PI * 1.1, Math.PI * 2.2); c.closePath(); c.fill();
+    _limb(c, headX - headR, bodyY - 1, headX + headR, bodyY - 1, 2.2, HERO.scarf);
+    c.fillStyle = HERO.eye;
+    c.beginPath(); c.arc(headX + headR * 0.5, bodyY + 1, 1.4, 0, Math.PI * 2); c.fill();
   }
 
   function draw(now) {
@@ -6037,7 +6130,7 @@ function showCursorSnakeToast(msg) {
   // l'état « tenu » de chaque touche et on le réapplique à l'atterrissage, la
   // pression la plus récente ayant priorité. (Avant : le saut était bloqué
   // pendant l'accroupissement et inversement, donc maintenir les deux rendait
-  // Luffy inerte face aux obstacles → défaite immédiate.)
+  // personnage inerte face aux obstacles → défaite immédiate.)
   let jumpHeld = false, duckHeld = false, lastHeld = null; // 'jump' | 'duck'
 
   function doJump() {
@@ -6561,13 +6654,13 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'landing_cats',
       screen: 'landing',
-      text: '👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose quatre sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> (mini-jeux du week-end) et <strong>Pour la communauté</strong> (le mini-jeu <strong>Luffy Runner</strong>). Clique sur une carte pour commencer.',
+      text: '👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose quatre sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> (mini-jeux du week-end) et <strong>Pour la communauté</strong> (le mini-jeu <strong>Libero Run</strong>). Clique sur une carte pour commencer.',
       target: '.landing-grid',
     },
     {
       id: 'landing_lb',
       screen: 'landing',
-      text: '🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10 + meilleur score Luffy Runner ×10. Plus tu montes, plus ton serpent 🐍 grandit !',
+      text: '🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10 + meilleur score Libero Run ×10. Plus tu montes, plus ton serpent 🐍 grandit !',
       target: '.global-lb-card',
     },
     {
@@ -6595,7 +6688,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'luffy_runner',
       screen: 'luffy',
-      text: '🏴‍☠️ <strong>Luffy Runner</strong> : aide Luffy à fuir la Marine ! Saute (↑ / Espace) par-dessus les obstacles au sol, accroupis-toi (↓) sous les obstacles volants. Ton meilleur score alimente un classement dédié.',
+      text: '🏃 <strong>Libero Run</strong> : aide Libero à courir le plus loin possible ! Saute (↑ / Espace) par-dessus les obstacles au sol, accroupis-toi (↓) sous les obstacles volants. Ton meilleur score alimente un classement dédié.',
       target: '#luffy-intro',
     },
 
@@ -7882,7 +7975,7 @@ const ProfileHub = (() => {
     if (!list) return;
     if (!_named()) { list.innerHTML = ''; return; }
     if (!history.length) { list.innerHTML = `<p class="history-empty">${_escHtml(d.historyEmpty)}</p>`; return; }
-    const icons = { connect4:'🔴', tictactoe:'✕', chess:'♟', trivia:'🧠', snake:'🐍', luffy:'🏴‍☠️' };
+    const icons = { connect4:'🔴', tictactoe:'✕', chess:'♟', trivia:'🧠', snake:'🐍', luffy:'🏃' };
     list.innerHTML = history.map(h => {
       const gName = d.historyGameNames[h.game] || h.game;
       let detail;
