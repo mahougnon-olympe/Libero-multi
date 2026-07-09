@@ -5648,7 +5648,7 @@ function showCursorSnakeToast(msg) {
     { id: 'boulet',       w: 22, h: 21, draw: (c, x, y, w, h) => drawSprite(c, SPR.boulet, x, y, w, h, false) },
   ];
   // Bonus d'invincibilité : une étoile brillante dessinée au canvas (pas de
-  // sprite) — bien plus visible que l'ancien tonneau, avec halo pulsé et rayons.
+  // sprite), bien plus visible que l'ancien tonneau, avec halo pulsé et rayons.
   function drawStarShape(c, cx, cy, r) {
     c.beginPath();
     for (let i = 0; i < 10; i++) {
@@ -5942,7 +5942,7 @@ function showCursorSnakeToast(msg) {
 
     _scarf(c, cx - 5, shY + 2, now, 26);
 
-    // Jambes (l'arrière plus sombre) — repliées au saut, alternées à la course.
+    // Jambes (l'arrière plus sombre), repliées au saut, alternées à la course.
     if (jumping) {
       _limb(c, cx, hipY, cx - 7, footY - 8, 7, HERO.cloakLo);
       _limb(c, cx, hipY, cx + 9, footY - 12, 7, HERO.boots);
