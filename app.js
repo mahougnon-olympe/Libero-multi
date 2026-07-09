@@ -366,6 +366,25 @@ const DICT = {
     restartRequested:"\nL'adversaire veut rejouer !",
     errConnect:'Impossible de joindre le serveur. Réessaie.',
     help:{ title:'Aide', tabs:{ general:'Général', quiz:'Quiz', connect4:'Puissance 4', ttt:'Morpion', chess:'Échecs' } },
+    chatbot:{
+      fabTitle:'Assistant Libero',
+      title:'🤖 Assistant Libero',
+      subtitle:'Pose ta question sur le site',
+      placeholder:'Écris ta question…',
+      reset:'Effacer la conversation',
+      greeting:"Salut ! Je suis l'assistant de Libero's Multi. Pose-moi une question sur le site (Libs, boutique, livres, jeux, défis…) ou choisis un sujet ci-dessous.",
+      thanks:'Avec plaisir ! Autre chose ?',
+      answerIntro:"Voici ce que j'ai trouvé :",
+      fallback:"Je n'ai pas de réponse précise à ça. Reformule ta question, ouvre l'aide complète avec le bouton ❓ en bas à droite, ou écris au créateur via le bouton ✉️ en bas à gauche.",
+      suggestions:[
+        { q:'Comment gagner des Libs ?' },
+        { q:'Comment acheter des Libs ?' },
+        { q:"C'est quoi Libero Run ?" },
+        { q:'Comment lire un livre ?' },
+        { q:'Comment marchent les défis du jour ?' },
+        { q:'Comment jouer au quiz ?' },
+      ],
+    },
     shopTitle:'⚡ Boutique', shopBalanceLabel:'Ton solde :',
     shopBoostHintName:'💡 Indice Quiz',
     shopBoostHintDesc:'Élimine une mauvaise réponse. Utilisable jusqu\'à 2 fois par question.',
@@ -778,6 +797,25 @@ const DICT = {
     restartRequested:'\nOpponent wants to play again!',
     errConnect:'Cannot reach the server. Please try again.',
     help:{ title:'Help', tabs:{ general:'General', quiz:'Quiz', connect4:'Connect 4', ttt:'Tic Tac Toe', chess:'Chess' } },
+    chatbot:{
+      fabTitle:'Libero Assistant',
+      title:'🤖 Libero Assistant',
+      subtitle:'Ask a question about the site',
+      placeholder:'Type your question…',
+      reset:'Clear the conversation',
+      greeting:"Hi! I'm the Libero's Multi assistant. Ask me anything about the site (Libs, shop, books, games, challenges…) or pick a topic below.",
+      thanks:'You are welcome! Anything else?',
+      answerIntro:'Here is what I found:',
+      fallback:"I don't have a precise answer for that. Try rephrasing, open the full help with the ❓ button (bottom right), or message the creator via the ✉️ button in the bottom left.",
+      suggestions:[
+        { q:'How do I earn Libs?' },
+        { q:'How do I buy Libs?' },
+        { q:'What is Libero Run?' },
+        { q:'How do I read a book?' },
+        { q:'How do the daily challenges work?' },
+        { q:'How do I play the quiz?' },
+      ],
+    },
     shopTitle:'⚡ Shop', shopBalanceLabel:'Your balance:',
     shopBoostHintName:'💡 Quiz Hint',
     shopBoostHintDesc:'Eliminates a wrong answer. Usable up to 2 times per question.',
@@ -1176,6 +1214,7 @@ function applyLang() {
   const cht = $('challenges-title');   if (cht) cht.textContent = d.challengesTitle;
   const hit = $('history-title');      if (hit) hit.textContent = d.historyTitle;
   if (window._profileHub) window._profileHub.retexte();
+  if (window._chatbot) window._chatbot.retexte();
   const bl = $('btn-lang');
   if (bl) bl.textContent = currentLang === 'fr' ? '🇫🇷 FR ⇄' : '🇬🇧 EN ⇄';
   const btm = $('btn-theme-toggle'); if (btm) btm.title = d.themeToggle;
@@ -2839,6 +2878,210 @@ $('btn-help-close').addEventListener('click', () => {
 $('overlay-help').addEventListener('click', e => {
   if (e.target === $('overlay-help')) $('overlay-help').classList.add('hidden');
 });
+
+// ── Assistant / Chatbot d'aide (100% local, aucune API, aucun coût) ───────────
+// Recherche par mots-clés dans la base d'aide existante (helpContent), bilingue.
+(function initChatbot(){
+  const panel  = $('chatbot-panel');
+  const fab     = $('btn-chatbot');
+  const logEl  = $('chatbot-log');
+  const chipsEl = $('chatbot-chips');
+  const form   = $('chatbot-form');
+  const input  = $('chatbot-input');
+  if (!panel || !fab || !logEl || !chipsEl || !form || !input) return;
+
+  const LS_OPEN = 'libero_chat_open';
+  const LS_LOG  = 'libero_chat_log';
+  const LOG_MAX = 40;
+
+  const norm = s => (s || '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+
+  const esc = s => (s || '').replace(/[&<>"']/g, c => (
+    { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+  ));
+
+  const STOP = new Set(('le la les un une des de du au aux et ou a c ce cette mon ma mes ton ta tes comment quoi qui que quel quelle quels quelles pour dans sur je tu on nous vous il elle se sa son ses avec plus fait faire est the an of to how what is are do does i my me you your can where why with in it this that for and or').split(' '));
+
+  // Chaque terme utilisateur est enrichi de synonymes qui pointent vers des mots
+  // reellement presents dans les fiches d'aide (FR et EN).
+  const SYN = {
+    argent:['libs','monnaie'], money:['libs','monnaie'], sous:['libs'], cash:['libs'],
+    gagner:['gagne','classement','libs'], gagne:['classement','libs'], earn:['libs','classement'], win:['classement','victoire'], gratuit:['gratuit'], free:['gratuit'],
+    acheter:['acheter','recharger','fedapay'], buy:['acheter','recharger','fedapay'], payer:['recharger','fedapay'], pay:['recharger','fedapay'], recharger:['recharger','fedapay'], topup:['recharger','fedapay'], top:['recharger'], paiement:['recharger','fedapay'], payment:['recharger','fedapay'], fedapay:['recharger','fedapay'],
+    livre:['lecture','livres','roman','reading'], livres:['lecture','roman','reading'], book:['lecture','livres','roman','reading','books'], books:['lecture','roman','reading'], roman:['lecture','livres','reading'], lire:['lecture','livres','reading'], read:['lecture','livres','reading','books'], reading:['lecture','livres','books'], lecture:['lecture','livres','reading'], georgia:['lecture','livres','reading'], georgie:['lecture','livres','reading'], affaire:['lecture','livres','reading'],
+    defi:['defis','profil'], defis:['defis','profil'], daily:['defis','profil'], quotidien:['defis','profil'], challenge:['defis','profil'], challenges:['defis','profil'], objectif:['defis'], objectifs:['defis'],
+    run:['libero','runner','run'], runner:['libero','runner'], courir:['libero','runner'], course:['libero','runner'], mascotte:['libero','runner'], libero:['libero','runner'],
+    quiz:['quiz','culture','themes'], culture:['quiz','culture'], trivia:['quiz','culture'], question:['quiz','themes'], questions:['quiz','themes'], theme:['themes','quiz'], themes:['themes','quiz'],
+    echec:['echecs'], echecs:['echecs'], chess:['echecs','chess'],
+    morpion:['morpion'], tictactoe:['morpion','ttt'],
+    puissance:['puissance'], connect:['puissance','connect'],
+    serpent:['serpent','snake'], snake:['serpent','snake'],
+    langue:['langue'], language:['langue'], anglais:['langue'], francais:['langue'], english:['langue'], french:['langue'],
+    sombre:['theme'], clair:['theme'], dark:['theme'], light:['theme'], nuit:['theme'], night:['theme'],
+    son:['sons','musique'], sons:['sons','musique'], sound:['sons','musique'], musique:['musique','sons'], music:['musique','sons'], volume:['sons','musique'],
+    boutique:['boutique'], shop:['boutique'], cosmetique:['boutique'], cosmetic:['boutique'], skin:['boutique'], skins:['boutique'], bundle:['boutique'], bundles:['boutique'],
+    commentaire:['commentaire'], avis:['commentaire'], bug:['commentaire'], suggestion:['commentaire'], feedback:['commentaire'], contact:['commentaire'], contacter:['commentaire'], createur:['commentaire'], creator:['commentaire'], joindre:['commentaire'], ecrire:['commentaire'], write:['commentaire'], message:['commentaire'], probleme:['commentaire'], problem:['commentaire'],
+    classement:['classement'], leaderboard:['classement'], rang:['classement'], rank:['classement'], score:['classement'],
+    solo:['solo','bot'], bot:['bot','solo'], multijoueur:['multijoueur'], multiplayer:['multijoueur'], ami:['rejoindre','code'], amis:['rejoindre','code'], friend:['rejoindre','code'], code:['rejoindre','code'], rejoindre:['rejoindre','code'], join:['rejoindre','code'],
+    profil:['profil','defis'], profile:['profil','defis'], serie:['serie','connexion'], streak:['serie','connexion'],
+  };
+
+  const GREET  = new Set('bonjour salut coucou hello hi hey yo bonsoir wesh'.split(' '));
+  const THANKS = new Set('merci thanks thx thank cool super genial nice'.split(' '));
+
+  let KB = [];
+  function buildKB(){
+    const d = t();
+    KB = [];
+    const hc = d.helpContent || {};
+    for (const key of Object.keys(hc)) {
+      (hc[key] || []).forEach(item => {
+        const title = item.titleKey ? d[item.titleKey] : item.title;
+        const desc  = item.descKey  ? d[item.descKey]  : item.desc;
+        if (!title || !desc) return;
+        KB.push({ icon:item.icon || '💡', title, desc, tn:norm(title), dn:norm(desc) });
+      });
+    }
+  }
+
+  function expand(tokens){
+    const out = new Set();
+    tokens.forEach(tk => {
+      if (tk.length < 2 || STOP.has(tk)) return;
+      out.add(tk);
+      (SYN[tk] || []).forEach(s => out.add(s));
+    });
+    return [...out];
+  }
+
+  function search(query){
+    const toks = expand(norm(query).split(' ').filter(Boolean));
+    if (!toks.length) return [];
+    return KB.map(doc => {
+      let sc = 0;
+      const tset = new Set(doc.tn.split(' '));
+      toks.forEach(tk => {
+        if (tset.has(tk)) sc += 4;
+        else if (doc.tn.indexOf(tk) >= 0) sc += 3;
+        if (doc.dn.indexOf(tk) >= 0) sc += 1;
+      });
+      return { doc, sc };
+    }).filter(x => x.sc > 0).sort((a,b) => b.sc - a.sc);
+  }
+
+  function pushLog(role, html, save){
+    const wrap = document.createElement('div');
+    wrap.className = 'chatbot-msg chatbot-msg-' + role;
+    wrap.innerHTML = html;
+    logEl.appendChild(wrap);
+    logEl.scrollTop = logEl.scrollHeight;
+    if (save !== false) persist();
+  }
+
+  function botCards(list){
+    return list.map(({doc}) =>
+      `<div class="chatbot-card"><span class="chatbot-card-ic">${doc.icon}</span><div><strong>${doc.title}</strong><p>${doc.desc}</p></div></div>`
+    ).join('');
+  }
+
+  function answer(query){
+    const d = t();
+    const q = norm(query);
+    const words = q.split(' ').filter(Boolean);
+    if (words.length && GREET.has(words[0]) && words.length <= 2) { pushLog('bot', esc(d.chatbot.greeting)); return; }
+    if (words.length && words.every(w => THANKS.has(w))) { pushLog('bot', esc(d.chatbot.thanks)); return; }
+    const res = search(query);
+    if (!res.length || res[0].sc < 3) { pushLog('bot', esc(d.chatbot.fallback)); return; }
+    const top = res.slice(0, res[0].sc >= 6 ? 2 : 3).filter(x => x.sc >= 3);
+    pushLog('bot', `<p class="chatbot-intro">${esc(d.chatbot.answerIntro)}</p>` + botCards(top));
+  }
+
+  function submit(text){
+    const clean = (text || '').trim();
+    if (!clean) return;
+    pushLog('user', esc(clean));
+    setTimeout(() => answer(clean), 140);
+  }
+
+  function renderChips(){
+    const d = t();
+    chipsEl.innerHTML = (d.chatbot.suggestions || []).map((s,i) =>
+      `<button type="button" class="chatbot-chip" data-i="${i}">${esc(s.q)}</button>`
+    ).join('');
+  }
+
+  function persist(){
+    try {
+      const msgs = [...logEl.querySelectorAll('.chatbot-msg')].slice(-LOG_MAX).map(el => ({
+        r: el.classList.contains('chatbot-msg-user') ? 'user' : 'bot',
+        h: el.innerHTML,
+      }));
+      localStorage.setItem(LS_LOG, JSON.stringify(msgs));
+    } catch(e){}
+  }
+
+  function restoreLog(){
+    logEl.innerHTML = '';
+    let msgs = null;
+    try { msgs = JSON.parse(localStorage.getItem(LS_LOG) || 'null'); } catch(e){}
+    if (msgs && msgs.length) msgs.forEach(m => pushLog(m.r, m.h, false));
+    else pushLog('bot', esc(t().chatbot.greeting), false);
+  }
+
+  function openPanel(){
+    panel.classList.remove('hidden');
+    fab.classList.add('chatbot-fab-open');
+    localStorage.setItem(LS_OPEN, '1');
+    setTimeout(() => { logEl.scrollTop = logEl.scrollHeight; input.focus(); }, 30);
+  }
+  function closePanel(){
+    panel.classList.add('hidden');
+    fab.classList.remove('chatbot-fab-open');
+    localStorage.setItem(LS_OPEN, '0');
+  }
+  function toggle(){ panel.classList.contains('hidden') ? openPanel() : closePanel(); }
+
+  function retexte(){
+    const d = t();
+    fab.title = d.chatbot.fabTitle;
+    const ti = $('chatbot-title');    if (ti) ti.textContent = d.chatbot.title;
+    const su = $('chatbot-subtitle'); if (su) su.textContent = d.chatbot.subtitle;
+    const rb = $('chatbot-reset');    if (rb) rb.title = d.chatbot.reset;
+    input.placeholder = d.chatbot.placeholder;
+    buildKB();
+    renderChips();
+  }
+  window._chatbot = { retexte };
+
+  fab.addEventListener('click', toggle);
+  $('chatbot-close').addEventListener('click', closePanel);
+  $('chatbot-reset').addEventListener('click', () => {
+    try { localStorage.removeItem(LS_LOG); } catch(e){}
+    restoreLog(); persist();
+  });
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    submit(input.value);
+    input.value = '';
+  });
+  chipsEl.addEventListener('click', e => {
+    const btn = e.target.closest('.chatbot-chip');
+    if (!btn) return;
+    const s = (t().chatbot.suggestions || [])[+btn.dataset.i];
+    if (s) submit(s.q);
+  });
+
+  buildKB();
+  renderChips();
+  restoreLog();
+  retexte();
+  if (localStorage.getItem(LS_OPEN) === '1') openPanel();
+})();
 
 $('btn-honor-reward-accept').addEventListener('click', () => {
   $('overlay-honor-reward').classList.add('hidden');
