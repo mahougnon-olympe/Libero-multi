@@ -26,6 +26,43 @@ function getPlayerId() {
   return id;
 }
 
+// ── Identifiant de visiteur (comptage de visites, non secret) ─────────────────
+function getVisitorId() {
+  let id = localStorage.getItem('libero_visitor_id');
+  if (!id) {
+    id = (window.crypto?.randomUUID ? window.crypto.randomUUID().replace(/-/g, '')
+                                    : Date.now().toString(36) + Math.random().toString(36).slice(2, 10));
+    localStorage.setItem('libero_visitor_id', id);
+  }
+  return id;
+}
+// Ping de visite : une fois par session d'onglet (best-effort, sans bloquer).
+function pingVisit() {
+  if (sessionStorage.getItem('libero_visit_pinged')) return;
+  sessionStorage.setItem('libero_visit_pinged', '1');
+  try {
+    fetch(`${window.BACKEND_URL}/api/visit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ visitorId: getVisitorId() }),
+      keepalive: true,
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+// ── Lien de partage : code de partie à rejoindre à l'ouverture (?join=CODE) ────
+const pendingJoinCode = (() => {
+  try {
+    const c = new URLSearchParams(location.search).get('join');
+    if (c) { // nettoie l'URL pour qu'un refresh ne relance pas la jointure
+      const clean = location.pathname + location.hash;
+      history.replaceState(null, '', clean);
+      return c.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+    }
+  } catch (e) {}
+  return null;
+})();
+
 // ── État global ─────────────────────────────────────────────────────────────
 let libsBalance        = parseInt(localStorage.getItem('libero_libs') || '0', 10);
 let pendingHintCharges = 0;
@@ -318,6 +355,10 @@ const DICT = {
     lbEmpty:'Aucune partie jouée pour l\'instant.',
     lbW:'V', lbL:'D', lbD:'N',
     btnCopyCode:'Copier le code', codeCopied:'Copié !',
+    btnShare:'🔗 Partager le lien', btnTriviaShare:'🔗 Partager le lien', linkCopied:'Lien copié !',
+    shareTitle:"Rejoins ma partie sur Libero's Multi",
+    shareText: code => `Rejoins ma partie sur Libero's Multi (code ${code}) :`,
+    joinLinkFailed:'Partie introuvable. Le lien est peut-être expiré.',
     waitingFor:'En attente d\'un adversaire…', shareCode:'Partage ce code :',
     waitingHint:'La partie démarre automatiquement dès que ton adversaire rejoint.',
     myTurn:'Ton tour', oppTurn:'Adversaire joue…', botThinking:'🤖 Robot réfléchit…',
@@ -749,6 +790,10 @@ const DICT = {
     lbEmpty:'No games played yet.',
     lbW:'W', lbL:'L', lbD:'D',
     btnCopyCode:'Copy code', codeCopied:'Copied!',
+    btnShare:'🔗 Share link', btnTriviaShare:'🔗 Share link', linkCopied:'Link copied!',
+    shareTitle:"Join my game on Libero's Multi",
+    shareText: code => `Join my game on Libero's Multi (code ${code}):`,
+    joinLinkFailed:'Game not found. The link may have expired.',
     waitingFor:'Waiting for an opponent…', shareCode:'Share this code:',
     waitingHint:'The game starts automatically when your opponent joins.',
     myTurn:'Your turn', oppTurn:'Opponent playing…', botThinking:'🤖 Bot thinking…',
@@ -1264,6 +1309,7 @@ function applyLang() {
   const djt = $('divider-join-text'); if (djt) djt.textContent = d.dividerJoin;
   const lbc = $('lb-title-classic'); if (lbc) lbc.textContent = d.lbTitle;
   const bco = $('btn-copy');      if (bco) bco.textContent = d.btnCopyCode;
+  const bsh = $('btn-share');     if (bsh) bsh.textContent = d.btnShare;
   const bba = $('btn-back-classic'); if (bba) bba.textContent = `← ${d.backLabel}`;
   const bbev = $('btn-back-events'); if (bbev) bbev.textContent = `← ${d.backLabel}`;
 
@@ -1299,6 +1345,7 @@ function applyLang() {
   const bjt2 = $('btn-join-trivia');      if (bjt2) bjt2.textContent = d.btnJoinTrivia;
   const lbtt = $('lb-title-trivia');      if (lbtt) lbtt.textContent = d.triviaLbTitle;
   const btc  = $('btn-trivia-copy');      if (btc)  btc.textContent  = d.btnTriviaCopy;
+  const bts  = $('btn-trivia-share');     if (bts)  bts.textContent  = d.btnTriviaShare;
   const bbth = $('btn-back-trivia-home'); if (bbth) bbth.textContent = `← ${d.backLabel}`;
 
   // Trivia waiting
@@ -1738,6 +1785,29 @@ $('btn-copy').addEventListener('click', () => {
     setTimeout(() => { $('btn-copy').textContent = t().btnCopyCode; }, 2000);
   });
 });
+
+// ── Lien de partage d'une partie ──────────────────────────────────────────────
+// Le lien encode le code de la partie ; à l'ouverture, le site rejoint tout seul
+// (peu importe la section, le serveur résout le bon type de salle).
+function buildShareUrl(code) {
+  return `${location.origin}${location.pathname}?join=${encodeURIComponent(code)}`;
+}
+async function shareRoomLink(code, btn, restoreLabel) {
+  if (!code) return;
+  const url = buildShareUrl(code);
+  if (navigator.share) {
+    try { await navigator.share({ title: t().shareTitle, text: t().shareText(code), url }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; } // annulé par l'utilisateur
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    if (btn) { btn.textContent = t().linkCopied; setTimeout(() => { btn.textContent = restoreLabel || t().btnShare; }, 2000); }
+    else showCursorSnakeToast(t().linkCopied);
+  } catch (e) {
+    showCursorSnakeToast(url);
+  }
+}
+$('btn-share').addEventListener('click', () => shareRoomLink(currentRoomCode, $('btn-share'), t().btnShare));
 
 // ── Header joueurs ────────────────────────────────────────────────────────────
 const AVATAR_ICONS = {
@@ -2613,6 +2683,7 @@ $('btn-trivia-copy').addEventListener('click', () => {
     setTimeout(() => { $('btn-trivia-copy').textContent = t().btnTriviaCopy; }, 2000);
   });
 });
+$('btn-trivia-share').addEventListener('click', () => shareRoomLink(triviaRoomCode, $('btn-trivia-share'), t().btnTriviaShare));
 $('btn-start-trivia').addEventListener('click', () => { socket.emit('start-trivia'); });
 $('btn-leave-trivia-wait').addEventListener('click', goToTriviaHome);
 
@@ -3205,10 +3276,19 @@ socket.on('trivia-error', ({ message }) => { showTriviaError(message); buildTriv
 // ── Reconnexion automatique après reload + chargement du classement ───────────
 socket.on('connect', () => {
   triviaMySocketId = socket.id;
+  pingVisit();
   socket.emit('get-leaderboard');
   socket.emit('get-trivia-leaderboard');
   socket.emit('get-global-leaderboard');
   socket.emit('get-libs', { playerId: getPlayerId() });
+
+  // Jointure par lien de partage (une seule fois, sauf si une partie est déjà
+  // en cours de reconnexion). Le serveur résout le bon type de salle.
+  if (pendingJoinCode && pendingJoinCode.length === 4
+      && !sessionStorage.getItem('p4session') && !sessionStorage.getItem('triviaSession')) {
+    const name = getPlayerName() || getTriviaName() || '';
+    socket.emit('join-by-code', { code: pendingJoinCode, name, playerId: getPlayerId() });
+  }
   if (sessionStorage.getItem('libero_screen') === 'events') socket.emit('get-snake-leaderboard');
   if (sessionStorage.getItem('libero_screen') === 'luffy')  socket.emit('get-luffy-leaderboard');
 
@@ -3278,8 +3358,9 @@ socket.on('room-created', ({ code, gameType }) => {
   showScreen('waiting');
 });
 
-socket.on('game-start', ({ gameType, state, yourPlayer, vsBot, botDifficulty }) => {
+socket.on('game-start', ({ gameType, state, yourPlayer, vsBot, botDifficulty, code }) => {
   isBotGame = !!vsBot;
+  if (code) currentRoomCode = code; // couvre la jointure inter-sections / par lien
   saveSession(currentRoomCode, yourPlayer);
   applyGameState({ gameType, state, yourPlayer, status: 'playing', winner: null });
   $('chat').classList.toggle('hidden', isBotGame);
@@ -3652,6 +3733,8 @@ socket.on('boost-hint-result', ({ eliminateChoice } = {}) => {
 
 socket.on('error', ({ message }) => { showError(message); });
 socket.on('connect_error', () => { showError(t().errConnect); });
+// Echec d'une jointure par lien de partage (code introuvable) : toast neutre.
+socket.on('join-code-failed', ({ message }) => { showCursorSnakeToast(message || t().joinLinkFailed); });
 
 // ── Langue ───────────────────────────────────────────────────────────────────
 $('btn-lang').addEventListener('click', () => {

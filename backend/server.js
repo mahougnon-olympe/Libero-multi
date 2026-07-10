@@ -1104,7 +1104,7 @@ function generateCode() {
     code = Array.from({ length: 4 }, () =>
       CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]
     ).join('');
-  } while (rooms.has(code));
+  } while (rooms.has(code) || triviaRooms.has(code)); // unique aux deux sections
   return code;
 }
 
@@ -1508,36 +1508,73 @@ io.on('connection', (socket) => {
     socket.join(code);
 
     if (vsBot) {
-      socket.emit('game-start', { gameType, state: createInitialState(gameType), yourPlayer: 'R', vsBot: true, botDifficulty: diff });
+      socket.emit('game-start', { gameType, state: createInitialState(gameType), yourPlayer: 'R', vsBot: true, botDifficulty: diff, code });
     } else {
       socket.emit('room-created', { code, gameType });
     }
   });
 
-  // ── Rejoindre une room ──────────────────────────────────────────────────
-  socket.on('join-room', ({ code, name = '', playerId } = {}) => {
-    const playerName = sanitizeName(name, 'Anonyme');
+  // ── Tentatives de jointure (renvoient true si le code correspond à ce
+  //    type de salle, qu'elle ait été rejointe ou pleine/déjà lancée). ──────
+  function tryJoinClassic(code, name, playerId) {
     const key  = (code || '').toUpperCase().trim();
     const room = rooms.get(key);
+    if (!room) return false;
+    if (room.players.Y) { socket.emit('error', { message: 'Cette room est déjà pleine.' }); return true; }
 
-    if (!room)          { socket.emit('error', { message: 'Room introuvable. Vérifie le code.' }); return; }
-    if (room.players.Y) { socket.emit('error', { message: 'Cette room est déjà pleine.' });        return; }
-
+    const playerName = sanitizeName(name, 'Anonyme');
     room.players.Y     = socket.id;
     room.playerNames.Y = playerName;
     if (room.playerIds) room.playerIds.Y = safePlayerId(playerId) || playerName;
-    room.status       = 'playing';
+    room.status = 'playing';
     roomCode = key;
     myPlayer = 'Y';
     socket.join(key);
 
     for (const p of ['R', 'Y']) {
       io.to(room.players[p]).emit('game-start', {
-        gameType:     room.gameType,
-        state:        room.state,
-        yourPlayer:   p,
+        gameType:   room.gameType,
+        state:      room.state,
+        yourPlayer: p,
+        code:       key,
       });
     }
+    return true;
+  }
+
+  function tryJoinTrivia(code, name, playerId) {
+    const key  = (code || '').toUpperCase().trim();
+    const room = triviaRooms.get(key);
+    if (!room) return false;
+    if (room.status !== 'waiting') { socket.emit('trivia-error', { message: 'La partie a déjà commencé.' }); return true; }
+    if (room.players.size >= 6)    { socket.emit('trivia-error', { message: 'Le salon est complet (6 joueurs max).' }); return true; }
+
+    const playerName = sanitizeName(name, 'Anonyme');
+    const colorIndex = room.players.size;
+    room.players.set(socket.id, { name: playerName, playerId: safePlayerId(playerId) || playerName, colorIndex, score: 0 });
+    triviaRoomCode = key;
+    socket.join(key);
+    socket.emit('trivia-room-joined', { code: key, categoryName: room.categoryName });
+    io.to(key).emit('trivia-room-updated', getTriviaRoomState(room));
+    return true;
+  }
+
+  // ── Rejoindre une room ──────────────────────────────────────────────────
+  // On tente d'abord le type de la section courante, puis l'autre : ainsi un
+  // code de Jeux Classiques saisi dans le Quiz (et inversement) lance quand
+  // même la bonne partie au lieu d'afficher une erreur.
+  socket.on('join-room', ({ code, name = '', playerId } = {}) => {
+    if (tryJoinClassic(code, name, playerId)) return;
+    if (tryJoinTrivia(code, name, playerId))  return;
+    socket.emit('error', { message: 'Room introuvable. Vérifie le code.' });
+  });
+
+  // Jointure universelle (utilisée par les liens de partage) : peu importe la
+  // section, on résout le type de salle à partir du code seul.
+  socket.on('join-by-code', ({ code, name = '', playerId } = {}) => {
+    if (tryJoinClassic(code, name, playerId)) return;
+    if (tryJoinTrivia(code, name, playerId))  return;
+    socket.emit('join-code-failed', { message: 'Partie introuvable. Vérifie le lien ou le code.' });
   });
 
   // ── Reconnexion après reload ────────────────────────────────────────────
@@ -1896,18 +1933,9 @@ io.on('connection', (socket) => {
 
   // ── Trivia : rejoindre ───────────────────────────────────────────────────
   socket.on('join-trivia-room', ({ code, name = '', playerId } = {}) => {
-    const key  = (code || '').toUpperCase().trim();
-    const room = triviaRooms.get(key);
-    const playerName = sanitizeName(name, 'Anonyme');
-    if (!room)                   { socket.emit('trivia-error', { message: 'Salon introuvable. Vérifie le code.' }); return; }
-    if (room.status !== 'waiting') { socket.emit('trivia-error', { message: 'La partie a déjà commencé.' });        return; }
-    if (room.players.size >= 6)  { socket.emit('trivia-error', { message: 'Le salon est complet (6 joueurs max).' }); return; }
-    const colorIndex = room.players.size;
-    room.players.set(socket.id, { name: playerName, playerId: safePlayerId(playerId) || playerName, colorIndex, score: 0 });
-    triviaRoomCode = key;
-    socket.join(key);
-    socket.emit('trivia-room-joined', { code: key, categoryName: room.categoryName });
-    io.to(key).emit('trivia-room-updated', getTriviaRoomState(room));
+    if (tryJoinTrivia(code, name, playerId))  return;
+    if (tryJoinClassic(code, name, playerId)) return;
+    socket.emit('trivia-error', { message: 'Salon introuvable. Vérifie le code.' });
   });
 
   // ── Trivia : démarrer ────────────────────────────────────────────────────
@@ -2508,6 +2536,81 @@ io.on('connection', (socket) => {
 });
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+
+// ── Compteur de visites ──────────────────────────────────────────────────────
+// Le front envoie un ping une fois par session avec un identifiant de visiteur
+// stable (stocké dans son localStorage). On compte le total de visites et les
+// visiteurs uniques. La consultation se fait via /admin/stats (clé admin).
+const DAY_MS      = 86_400_000;
+const BENIN_OFFSET = 3_600_000; // UTC+1, sans changement d'heure
+// Repli mémoire si MongoDB est indisponible (perdu au redémarrage).
+const visitFallback = { totalVisits: 0, uniqueVisitors: 0, seen: new Set() };
+const visitRateMap  = new Map(); // ip → [timestamps]
+
+app.post('/api/visit', async (req, res) => {
+  try {
+    const raw = typeof req.body?.visitorId === 'string' ? req.body.visitorId : '';
+    const visitorId = raw.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
+    if (!visitorId) return res.json({ ok: false });
+
+    // Anti-abus léger : 30 pings max / 10 min / IP.
+    const ip  = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown').trim();
+    const now = Date.now();
+    const hits = (visitRateMap.get(ip) || []).filter(ts => now - ts < 10 * 60_000);
+    if (hits.length >= 30) return res.json({ ok: false });
+    hits.push(now);
+    visitRateMap.set(ip, hits);
+
+    let isNew = false;
+    if (db) {
+      const r = await db.collection('visitors').updateOne(
+        { _id: visitorId },
+        { $set: { last: now }, $setOnInsert: { first: now }, $inc: { visits: 1 } },
+        { upsert: true }
+      );
+      isNew = !!(r.upsertedCount || r.upsertedId);
+      await db.collection('visit_stats').updateOne(
+        { _id: 'totals' },
+        { $inc: { totalVisits: 1, uniqueVisitors: isNew ? 1 : 0 } },
+        { upsert: true }
+      );
+    } else {
+      visitFallback.totalVisits += 1;
+      if (!visitFallback.seen.has(visitorId)) { visitFallback.seen.add(visitorId); visitFallback.uniqueVisitors += 1; isNew = true; }
+    }
+    res.json({ ok: true });
+  } catch (e) {
+    res.json({ ok: false });
+  }
+});
+
+// Consultation privée des statistiques de visite (clé admin requise).
+app.get('/admin/stats', async (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  try {
+    const now = Date.now();
+    const startOfToday = Math.floor((now + BENIN_OFFSET) / DAY_MS) * DAY_MS - BENIN_OFFSET;
+    const online = io.engine?.clientsCount || 0;
+
+    if (db) {
+      const totals = await db.collection('visit_stats').findOne({ _id: 'totals' }) || {};
+      const today  = await db.collection('visitors').countDocuments({ last: { $gte: startOfToday } });
+      const week   = await db.collection('visitors').countDocuments({ last: { $gte: now - 7 * DAY_MS } });
+      return res.json({
+        totalVisits:    totals.totalVisits || 0,
+        uniqueVisitors: totals.uniqueVisitors || 0,
+        today, week, online,
+      });
+    }
+    res.json({
+      totalVisits:    visitFallback.totalVisits,
+      uniqueVisitors: visitFallback.uniqueVisitors,
+      today: visitFallback.uniqueVisitors, week: visitFallback.uniqueVisitors, online,
+    });
+  } catch (e) {
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
 
 // ── Commentaires joueurs ─────────────────────────────────────────────────────
 const commentRateMap     = new Map(); // ip → [timestamps]

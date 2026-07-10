@@ -273,6 +273,13 @@ h1 {
 }
 .hint { font-size: .8rem; color: var(--muted); line-height: 1.5; }
 
+/* ── Boutons Copier / Partager (salle d'attente) ── */
+.share-row {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: center; margin: 4px 0 6px;
+}
+.share-row .btn { flex: 1 1 auto; min-width: 140px; }
+
 /* ── Game header ── */
 .game-header {
   display: flex;

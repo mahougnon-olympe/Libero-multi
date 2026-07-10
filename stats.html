@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Statistiques · Libero's Multi</title>
+  <style>
+    :root {
+      --bg:#0a0c18; --card:#131727; --card2:#1c2040; --board:#6366f1;
+      --text:#e2e8f0; --muted:#94a3b8; --accent:#a5b4fc; --border:rgba(255,255,255,.1);
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      background:var(--bg); color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      padding:20px;
+    }
+    .wrap { width:100%; max-width:560px; }
+    h1 { font-size:1.4rem; margin-bottom:4px; }
+    .sub { color:var(--muted); font-size:.85rem; margin-bottom:20px; }
+    .card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:22px; box-shadow:0 12px 40px rgba(0,0,0,.4);
+    }
+    .field { display:flex; gap:8px; margin-bottom:12px; }
+    input {
+      flex:1; padding:11px 13px; border-radius:10px; border:1px solid var(--border);
+      background:var(--card2); color:var(--text); font-size:.95rem; outline:none;
+    }
+    input:focus { border-color:var(--board); }
+    button {
+      border:none; border-radius:10px; cursor:pointer; font-weight:700;
+      background:var(--board); color:#fff; padding:11px 16px; font-size:.9rem;
+      transition:transform .12s, opacity .15s;
+    }
+    button:active { transform:scale(.95); }
+    button.ghost { background:var(--card2); color:var(--text); border:1px solid var(--border); }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:6px 0 16px; }
+    .stat {
+      background:var(--card2); border:1px solid var(--border);
+      border-radius:12px; padding:16px; text-align:center;
+    }
+    .stat .num { font-size:2rem; font-weight:900; color:var(--accent); line-height:1.1; }
+    .stat .lbl { font-size:.78rem; color:var(--muted); margin-top:4px; }
+    .stat.wide { grid-column:1 / -1; }
+    .online .num { color:#4ade80; }
+    .row { display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    .err { color:#f87171; font-size:.85rem; margin-top:8px; min-height:1.1em; }
+    .muted { color:var(--muted); font-size:.78rem; margin-top:14px; line-height:1.5; }
+    .hidden { display:none; }
+    a { color:var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>📊 Statistiques de visite</h1>
+    <p class="sub">Tableau de bord privé · Libero's Multi</p>
+
+    <div class="card">
+      <!-- Connexion -->
+      <div id="login">
+        <p class="sub" style="margin-bottom:12px;">Entre ta clé admin pour voir les chiffres.</p>
+        <div class="field">
+          <input id="key" type="password" placeholder="Clé admin" autocomplete="off" />
+          <button id="btn-login">Voir</button>
+        </div>
+        <div id="login-err" class="err"></div>
+      </div>
+
+      <!-- Tableau -->
+      <div id="dash" class="hidden">
+        <div class="grid">
+          <div class="stat wide online">
+            <div class="num" id="s-online">0</div>
+            <div class="lbl">En ligne maintenant</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="s-today">0</div>
+            <div class="lbl">Visiteurs aujourd'hui</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="s-week">0</div>
+            <div class="lbl">Visiteurs (7 jours)</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="s-unique">0</div>
+            <div class="lbl">Visiteurs uniques (total)</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="s-total">0</div>
+            <div class="lbl">Visites totales</div>
+          </div>
+        </div>
+        <div class="row">
+          <button id="btn-refresh">🔄 Actualiser</button>
+          <button id="btn-logout" class="ghost">Se déconnecter</button>
+        </div>
+        <p class="muted">
+          « Visiteurs uniques » compte les navigateurs distincts (via un identifiant local).
+          « Visites totales » compte chaque ouverture du site. Les chiffres se mettent à jour
+          en continu. <a href="index.html">← Retour au site</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var BACKEND_URL =
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+        ? 'http://localhost:3001'
+        : 'https://libero-multi.onrender.com';
+
+    var $ = function (id) { return document.getElementById(id); };
+
+    function fmt(n) { return (n || 0).toLocaleString('fr-FR'); }
+
+    async function loadStats(key) {
+      var res = await fetch(BACKEND_URL + '/admin/stats', { headers: { 'X-Admin-Key': key } });
+      if (res.status === 401) throw new Error('Clé invalide.');
+      if (!res.ok) throw new Error('Erreur serveur. Réessaie.');
+      return res.json();
+    }
+
+    function render(d) {
+      $('s-online').textContent = fmt(d.online);
+      $('s-today').textContent  = fmt(d.today);
+      $('s-week').textContent   = fmt(d.week);
+      $('s-unique').textContent = fmt(d.uniqueVisitors);
+      $('s-total').textContent  = fmt(d.totalVisits);
+    }
+
+    function showDash() { $('login').classList.add('hidden'); $('dash').classList.remove('hidden'); }
+    function showLogin() { $('dash').classList.add('hidden'); $('login').classList.remove('hidden'); }
+
+    async function attempt(key) {
+      $('login-err').textContent = '';
+      try {
+        var d = await loadStats(key);
+        localStorage.setItem('libero_admin_key', key);
+        render(d);
+        showDash();
+      } catch (e) {
+        $('login-err').textContent = e.message || 'Erreur.';
+        localStorage.removeItem('libero_admin_key');
+      }
+    }
+
+    $('btn-login').addEventListener('click', function () { attempt($('key').value.trim()); });
+    $('key').addEventListener('keydown', function (e) { if (e.key === 'Enter') attempt($('key').value.trim()); });
+    $('btn-refresh').addEventListener('click', async function () {
+      var key = localStorage.getItem('libero_admin_key');
+      if (!key) return showLogin();
+      try { render(await loadStats(key)); } catch (e) { showLogin(); }
+    });
+    $('btn-logout').addEventListener('click', function () {
+      localStorage.removeItem('libero_admin_key');
+      $('key').value = '';
+      showLogin();
+    });
+
+    // Reconnexion auto si une clé valide est déjà mémorisée.
+    (function () {
+      var saved = localStorage.getItem('libero_admin_key');
+      if (saved) attempt(saved);
+    })();
+  </script>
+</body>
+</html>
