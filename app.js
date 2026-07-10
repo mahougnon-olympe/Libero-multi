@@ -328,6 +328,7 @@ const DICT = {
     lockerTitle:'🎒 Mon casier',
     lockerEmpty:"Tu n'as encore rien acheté dans la boutique. Passe faire un tour !",
     lockerEquipped:'équipé',
+    lockerEquip:'Équiper', lockerUnequip:'Déséquiper',
     lockerCats:{ colors:'Couleurs de pseudo', nameeffects:'Effets de pseudo', titles:'Titres', bgs:"Fonds d'écran", bubbles:'Bulles de chat', fonts:'Polices', cursorsnakes:'Curseur', avatars:'Avatars', p4tokens:'Jetons Puissance 4', ttt:'Symboles Morpion', chess:"Thèmes d'échiquier", clickfx:'Particules de clic', emojipacks:"Packs d'émojis", victorybans:'Bannières de victoire', soundpacks:'Packs de sons', emotes:'Emotes', honorary:'Titre honorifique' },
     readLoading:'Chargement des livres…',
     readEmpty:'Cette section est en cours de développement.\nReviens bientôt pour découvrir des livres !',
@@ -427,7 +428,7 @@ const DICT = {
         { q:'Comment acheter des Libs ?' },
         { q:"C'est quoi Libero Run ?" },
         { q:'Comment lire un livre ?' },
-        { q:'Comment marchent les défis du jour ?' },
+        { q:'Comment équiper un cosmétique ?' },
         { q:'Comment jouer au quiz ?' },
       ],
     },
@@ -661,7 +662,8 @@ const DICT = {
     helpContent:{
       general:[
         { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Libero Run</strong>, une idée de joueur reprise par le créateur). Chaque section a son propre classement." },
-        { icon:'🎯', title:'Mon profil', desc:"La carte <strong>Mon profil</strong> (accueil) regroupe trois choses : tes <strong>défis du jour</strong> (3 objectifs qui <strong>changent chaque jour</strong> : jamais le même défi deux jours de suite, avec le Snake le week-end et Libero Run en semaine ; réclame les 3 pour un <strong>bonus « journée parfaite » +30 ⚡</strong>), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. Il faut un pseudo pour en profiter." },
+        { icon:'🎯', title:'Mon profil', desc:"L'onglet <strong>Profil</strong> (dans la barre en bas, à côté d'Accueil) regroupe quatre choses : ton <strong>casier</strong> (voir ci-dessous), tes <strong>défis du jour</strong> (3 objectifs qui <strong>changent chaque jour</strong> : jamais le même défi deux jours de suite, avec le Snake le week-end et Libero Run en semaine ; réclame les 3 pour un <strong>bonus « journée parfaite » +30 ⚡</strong>), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. Il faut un pseudo pour en profiter." },
+        { icon:'🎒', title:'Mon casier', desc:"Dans l'onglet <strong>Profil</strong>, le <strong>casier</strong> range tout ce que tu as acheté dans la boutique, <strong>classé par catégorie</strong>. Chaque catégorie est un bouton : <strong>clique dessus pour la déplier</strong> et voir les articles que tu possèdes. De là, tu peux directement <strong>équiper</strong> un article ou le <strong>déséquiper</strong>, sans passer par la boutique. Les articles retirés de la vente que tu avais achetés restent disponibles ici." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> · ton serpent mange des <strong>⚡ Libs</strong> pour grandir, et chaque ⚡ mangé est <strong>ajouté à ton solde</strong> (score 10 = 10 Libs gagnés). Les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
         { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras les <strong>romans exclusifs</strong> lisibles directement sur le site (en français ou en anglais selon la langue choisie) : <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, 1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10), <strong>Life of Georgia</strong> (livre entier pour 2000 ⚡) et sa suite <strong>Life of Georgia · Tome 2</strong>, <strong>offerte</strong> à tous ceux qui ont débloqué le Tome 1." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile." },
@@ -768,6 +770,7 @@ const DICT = {
     lockerTitle:'🎒 My locker',
     lockerEmpty:"You haven't bought anything in the shop yet. Go take a look!",
     lockerEquipped:'equipped',
+    lockerEquip:'Equip', lockerUnequip:'Unequip',
     lockerCats:{ colors:'Name colors', nameeffects:'Name effects', titles:'Titles', bgs:'Backgrounds', bubbles:'Chat bubbles', fonts:'Fonts', cursorsnakes:'Cursor', avatars:'Avatars', p4tokens:'Connect 4 tokens', ttt:'Tic-Tac-Toe symbols', chess:'Chessboard themes', clickfx:'Click particles', emojipacks:'Emoji packs', victorybans:'Victory banners', soundpacks:'Sound packs', emotes:'Emotes', honorary:'Honorary title' },
     readLoading:'Loading books…',
     readEmpty:'This section is under development.\nCheck back soon for books!',
@@ -867,7 +870,7 @@ const DICT = {
         { q:'How do I buy Libs?' },
         { q:'What is Libero Run?' },
         { q:'How do I read a book?' },
-        { q:'How do the daily challenges work?' },
+        { q:'How do I equip a cosmetic?' },
         { q:'How do I play the quiz?' },
       ],
     },
@@ -1101,7 +1104,8 @@ const DICT = {
     helpContent:{
       general:[
         { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Libero Run</strong> mini-game, a player idea brought to life by the creator). Each section has its own leaderboard." },
-        { icon:'🎯', title:'My profile', desc:"The <strong>My profile</strong> card (home) gathers three things: your <strong>daily challenges</strong> (3 goals that <strong>change every day</strong>: never the same challenge two days in a row, with Snake on weekends and Libero Run on weekdays; claim all 3 for a <strong>'perfect day' +30 ⚡ bonus</strong>), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. A nickname is required." },
+        { icon:'🎯', title:'My profile', desc:"The <strong>Profile</strong> tab (in the bottom bar, next to Home) gathers four things: your <strong>locker</strong> (see below), your <strong>daily challenges</strong> (3 goals that <strong>change every day</strong>: never the same challenge two days in a row, with Snake on weekends and Libero Run on weekdays; claim all 3 for a <strong>'perfect day' +30 ⚡ bonus</strong>), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. A nickname is required." },
+        { icon:'🎒', title:'My locker', desc:"In the <strong>Profile</strong> tab, the <strong>locker</strong> holds everything you bought in the shop, <strong>sorted by category</strong>. Each category is a button: <strong>tap it to expand</strong> and see the items you own. From there you can directly <strong>equip</strong> an item or <strong>unequip</strong> it, without opening the shop. Items you had bought that were later removed from sale are still available here." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> · your snake eats <strong>⚡ Libs</strong> to grow, and every ⚡ eaten is <strong>added to your balance</strong> (score 10 = 10 Libs earned). Walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
         { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll find the <strong>exclusive novels</strong> readable right on the site (in French or English, following the site language): <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapter 1 free, 1000 ⚡ for chapters 2-5, 2000 ⚡ for 6-10), <strong>Life of Georgia</strong> (whole book for 2000 ⚡) and its sequel <strong>Life of Georgia · Volume 2</strong>, <strong>free</strong> for everyone who unlocked Volume 1." },
         { icon:'🎮', title:'Create a classic game', desc:"Choose a game, enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent. You can also play <strong>Solo vs the bot</strong> by choosing a difficulty: Easy, Medium or Hard." },
@@ -3014,7 +3018,8 @@ $('overlay-help').addEventListener('click', e => {
     commentaire:['commentaire'], avis:['commentaire'], bug:['commentaire'], suggestion:['commentaire'], feedback:['commentaire'], contact:['commentaire'], contacter:['commentaire'], createur:['commentaire'], creator:['commentaire'], joindre:['commentaire'], ecrire:['commentaire'], write:['commentaire'], message:['commentaire'], probleme:['commentaire'], problem:['commentaire'],
     classement:['classement'], leaderboard:['classement'], rang:['classement'], rank:['classement'], score:['classement'],
     solo:['solo','bot'], bot:['bot','solo'], multijoueur:['multijoueur'], multiplayer:['multijoueur'], ami:['rejoindre','code'], amis:['rejoindre','code'], friend:['rejoindre','code'], code:['rejoindre','code'], rejoindre:['rejoindre','code'], join:['rejoindre','code'],
-    profil:['profil','defis'], profile:['profil','defis'], serie:['serie','connexion'], streak:['serie','connexion'],
+    profil:['profil','defis','casier'], profile:['profil','defis','casier'], serie:['serie','connexion'], streak:['serie','connexion'],
+    casier:['casier','profil'], locker:['casier','profil'], equiper:['casier','equiper'], equip:['casier','equiper'], desequiper:['casier','equiper'], unequip:['casier','equiper'], cosmetique2:['casier'],
   };
 
   const GREET  = new Set('bonjour salut coucou hello hi hey yo bonsoir wesh'.split(' '));
@@ -8186,6 +8191,7 @@ const ProfileHub = (() => {
   let streak = null;      // { count, longest, bonus }
   let history = [];
   let loadedHistory = false;
+  const _lockerOpen = new Set(); // catégories du casier actuellement dépliées
 
   const isActive = () => document.body.classList.contains('screen-profile-active');
   const _named = () => { const n = (localStorage.getItem('playerName') || '').trim(); return n && n !== 'Anonyme'; };
@@ -8270,27 +8276,28 @@ const ProfileHub = (() => {
     }).join('');
   }
 
-  // ── Casier : tous les cosmétiques possédés, classés par catégorie ─────────
-  // La liste des catégories couvre aussi les familles retirées de la boutique,
-  // pour qu'un joueur qui les a achetées avant les retrouve toujours ici.
+  // ── Casier : cosmétiques possédés, repliés par catégorie (accordéon) ───────
+  // Chaque catégorie est un bouton : on la déplie pour voir ses items possédés
+  // et équiper / déséquiper directement. Couvre aussi les familles retirées de
+  // la boutique, pour qu'un joueur qui les a achetées avant les retrouve ici.
   function _lockerCategories(d) {
     return [
-      { icon:'🎨', label:d.lockerCats.colors,       names:d.shopCosmeticNames,    equipped:[equippedCosmetic] },
-      { icon:'✨', label:d.lockerCats.nameeffects,  names:d.shopNameEffectNames,  equipped:[equippedNameEffect] },
-      { icon:'🏷️', label:d.lockerCats.titles,       names:d.shopTitleNames,       equipped:[equippedTitle] },
-      { icon:'🖼️', label:d.lockerCats.bgs,          names:d.shopBgNames,          equipped:[equippedBackground] },
-      { icon:'💬', label:d.lockerCats.bubbles,      names:d.shopBubbleNames,      equipped:[equippedBubble] },
-      { icon:'✍️', label:d.lockerCats.fonts,        names:_FONT_DISPLAY_NAMES,    equipped:[equippedFont] },
-      { icon:'🖱️', label:d.lockerCats.cursorsnakes, names:d.shopCursorSnakeNames, equipped:[equippedCursorSnake] },
-      { icon:'🎭', label:d.lockerCats.avatars,      names:d.shopAvatarNames,      equipped:[equippedAvatar] },
-      { icon:'🔴', label:d.lockerCats.p4tokens,     names:d.shopP4TokenNames,     equipped:[equippedP4Token] },
-      { icon:'✖️', label:d.lockerCats.ttt,          names:d.shopTttNames,         equipped:[equippedTtt] },
-      { icon:'♟️', label:d.lockerCats.chess,        names:d.shopChessNames,       equipped:[equippedChess] },
-      { icon:'💥', label:d.lockerCats.clickfx,      names:d.shopClickFxNames,     equipped:[equippedClickFx] },
-      { icon:'🌈', label:d.lockerCats.emojipacks,   names:d.shopEmojiPackNames,   equipped:[equippedEmojiPack] },
-      { icon:'🏆', label:d.lockerCats.victorybans,  names:d.shopVictoryBanNames,  equipped:[equippedVictoryBan] },
-      { icon:'🔊', label:d.lockerCats.soundpacks,   names:d.shopSoundPackNames,   equipped:[equippedSoundPack] },
-      { icon:'😎', label:d.lockerCats.emotes,       names:d.shopEmoteNames,       equipped:Array.isArray(equippedEmotes) ? equippedEmotes : [] },
+      { type:'color',       icon:'🎨', label:d.lockerCats.colors,       names:d.shopCosmeticNames,    equipped:[equippedCosmetic] },
+      { type:'nameeffect',  icon:'✨', label:d.lockerCats.nameeffects,  names:d.shopNameEffectNames,  equipped:[equippedNameEffect] },
+      { type:'title',       icon:'🏷️', label:d.lockerCats.titles,       names:d.shopTitleNames,       equipped:[equippedTitle] },
+      { type:'background',  icon:'🖼️', label:d.lockerCats.bgs,          names:d.shopBgNames,          equipped:[equippedBackground] },
+      { type:'bubble',      icon:'💬', label:d.lockerCats.bubbles,      names:d.shopBubbleNames,      equipped:[equippedBubble] },
+      { type:'font',        icon:'✍️', label:d.lockerCats.fonts,        names:_FONT_DISPLAY_NAMES,    equipped:[equippedFont] },
+      { type:'cursorsnake', icon:'🖱️', label:d.lockerCats.cursorsnakes, names:d.shopCursorSnakeNames, equipped:[equippedCursorSnake] },
+      { type:'avatar',      icon:'🎭', label:d.lockerCats.avatars,      names:d.shopAvatarNames,      equipped:[equippedAvatar] },
+      { type:'p4token',     icon:'🔴', label:d.lockerCats.p4tokens,     names:d.shopP4TokenNames,     equipped:[equippedP4Token] },
+      { type:'ttt',         icon:'✖️', label:d.lockerCats.ttt,          names:d.shopTttNames,         equipped:[equippedTtt] },
+      { type:'chess',       icon:'♟️', label:d.lockerCats.chess,        names:d.shopChessNames,       equipped:[equippedChess] },
+      { type:'clickfx',     icon:'💥', label:d.lockerCats.clickfx,      names:d.shopClickFxNames,     equipped:[equippedClickFx] },
+      { type:'emojipack',   icon:'🌈', label:d.lockerCats.emojipacks,   names:d.shopEmojiPackNames,   equipped:[equippedEmojiPack] },
+      { type:'victoryban',  icon:'🏆', label:d.lockerCats.victorybans,  names:d.shopVictoryBanNames,  equipped:[equippedVictoryBan] },
+      { type:'soundpack',   icon:'🔊', label:d.lockerCats.soundpacks,   names:d.shopSoundPackNames,   equipped:[equippedSoundPack] },
+      { type:'emote',       icon:'😎', label:d.lockerCats.emotes,       names:d.shopEmoteNames,       equipped:Array.isArray(equippedEmotes) ? equippedEmotes : [] },
     ];
   }
 
@@ -8306,19 +8313,59 @@ const ProfileHub = (() => {
       const items = owned.filter(id => cat.names[id]);
       if (!items.length) return;
       total += items.length;
+      const open = _lockerOpen.has(cat.type);
+      const equippedCount = items.filter(id => cat.equipped.includes(id)).length;
       const rows = items.map(id => {
         const eq = cat.equipped.includes(id);
-        return `<span class="locker-item${eq ? ' equipped' : ''}">${_escHtml(cat.names[id])}${eq ? ` <span class="locker-eq">${_escHtml(d.lockerEquipped)}</span>` : ''}</span>`;
+        const btnLabel = eq ? d.lockerUnequip : d.lockerEquip;
+        return `<div class="locker-item${eq ? ' equipped' : ''}">
+          <span class="locker-item-name">${_escHtml(cat.names[id])}${eq ? ` <span class="locker-eq">${_escHtml(d.lockerEquipped)}</span>` : ''}</span>
+          <button class="locker-eq-btn${eq ? ' on' : ''}" data-equip="${_escHtml(id)}" data-type="${cat.type}" data-on="${eq ? '1' : '0'}">${_escHtml(btnLabel)}</button>
+        </div>`;
       }).join('');
-      html += `<div class="locker-cat"><h4 class="locker-cat-title">${cat.icon} ${_escHtml(cat.label)} <span class="locker-count">${items.length}</span></h4><div class="locker-items">${rows}</div></div>`;
+      html += `<div class="locker-cat${open ? ' open' : ''}">
+        <button class="locker-cat-btn" data-cat="${cat.type}">
+          <span class="locker-cat-ic">${cat.icon}</span>
+          <span class="locker-cat-label">${_escHtml(cat.label)}</span>
+          <span class="locker-count">${items.length}</span>
+          ${equippedCount ? `<span class="locker-cat-eq">${_escHtml(d.lockerEquipped)}</span>` : ''}
+          <span class="locker-chevron">▾</span>
+        </button>
+        <div class="locker-items" data-items="${cat.type}">${rows}</div>
+      </div>`;
     });
     if (honorTitle) {
       const hn = d.honorTitleNames?.[honorTitle] || honorTitle;
-      html += `<div class="locker-cat"><h4 class="locker-cat-title">🥇 ${_escHtml(d.lockerCats.honorary)} <span class="locker-count">1</span></h4><div class="locker-items"><span class="locker-item equipped">${_escHtml(hn)} <span class="locker-eq">${_escHtml(d.lockerEquipped)}</span></span></div></div>`;
+      html += `<div class="locker-cat locker-cat-static">
+        <div class="locker-cat-btn locker-cat-btn-static">
+          <span class="locker-cat-ic">🥇</span>
+          <span class="locker-cat-label">${_escHtml(d.lockerCats.honorary)}</span>
+          <span class="locker-honor-name">${_escHtml(hn)} <span class="locker-eq">${_escHtml(d.lockerEquipped)}</span></span>
+        </div>
+      </div>`;
       total++;
     }
     el.innerHTML = total ? html : `<p class="history-empty">${_escHtml(d.lockerEmpty)}</p>`;
   }
+
+  // Clics sur le casier : plier/déplier une catégorie, ou équiper/déséquiper.
+  document.getElementById('locker-list')?.addEventListener('click', e => {
+    const catBtn = e.target.closest('.locker-cat-btn');
+    if (catBtn && !catBtn.classList.contains('locker-cat-btn-static')) {
+      const type = catBtn.dataset.cat;
+      if (_lockerOpen.has(type)) _lockerOpen.delete(type); else _lockerOpen.add(type);
+      catBtn.closest('.locker-cat')?.classList.toggle('open');
+      return;
+    }
+    const eqBtn = e.target.closest('.locker-eq-btn');
+    if (eqBtn) {
+      const id = eqBtn.dataset.equip, type = eqBtn.dataset.type, on = eqBtn.dataset.on === '1';
+      if (type === 'emote') socket.emit('equip-cosmetic', { cosmeticId: id, type: 'emote', playerId: getPlayerId(), remove: on });
+      else if (on)          socket.emit('equip-cosmetic', { cosmeticId: null, type, playerId: getPlayerId() });
+      else                  socket.emit('equip-cosmetic', { cosmeticId: id, type, playerId: getPlayerId() });
+      eqBtn.disabled = true; // le résultat serveur relance renderLocker()
+    }
+  });
 
   // Pastille sur l'onglet Profil quand au moins un défi est réclamable.
   function updateBadge() {

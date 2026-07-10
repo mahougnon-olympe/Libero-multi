@@ -84,7 +84,28 @@
 
     .bot-q { padding:8px 11px; border:1px solid var(--border); border-radius:10px; margin-bottom:6px; font-size:.83rem; background:var(--card); display:flex; justify-content:space-between; gap:10px; }
     .bot-q .t { color:var(--muted); font-size:.72rem; white-space:nowrap; }
-  </style>
+
+    tr.clickable { cursor:pointer; }
+    tr.clickable:hover td { background:rgba(99,102,241,.12); }
+    .chev { color:var(--muted); font-weight:900; }
+
+    /* Modale détail joueur */
+    .modal { position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(0,0,0,.6); }
+    .modal.hidden { display:none; }
+    .modal-box { background:var(--card); border:1px solid var(--border); border-radius:16px; width:100%; max-width:640px; max-height:88vh; overflow-y:auto; padding:20px; }
+    .modal-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; }
+    .modal-head h2 { margin:0; font-size:1.2rem; }
+    .pd-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(90px,1fr)); gap:8px; margin-bottom:14px; }
+    .pd-stat { background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:10px; text-align:center; }
+    .pd-stat .num { font-size:1.25rem; font-weight:900; color:var(--accent); }
+    .pd-stat .lbl { font-size:.68rem; color:var(--muted); margin-top:2px; }
+    .pd-h3 { font-size:.82rem; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:16px 0 8px; }
+    .chips { display:flex; flex-wrap:wrap; gap:6px; }
+    .chip { background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:4px 9px; font-size:.76rem; }
+    .chip.eq { border-color:var(--board); }
+    .pd-line { font-size:.83rem; padding:5px 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; gap:10px; }
+    .pd-line:last-child { border-bottom:none; }
+</style>
 </head>
 <body>
   <div class="wrap">
@@ -149,6 +170,17 @@
       </section>
 
       <p class="sub"><a href="index.html">← Retour au site</a></p>
+    </div>
+
+    <!-- Modale détail joueur -->
+    <div id="player-modal" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h2 id="pd-name">Joueur</h2>
+          <button id="pd-close" class="ghost small">Fermer</button>
+        </div>
+        <div id="pd-body"></div>
+      </div>
     </div>
   </div>
 
@@ -240,7 +272,7 @@
       $('players-pill').textContent = list.length;
       if (!list.length) { $('players-body').innerHTML = '<tr><td colspan="9" class="empty">Aucun joueur.</td></tr>'; return; }
       $('players-body').innerHTML = list.map(function (p) {
-        return '<tr><td>' + esc(p.name) + '</td>'
+        return '<tr class="clickable" data-ref="' + esc(p.ref) + '"><td>' + esc(p.name) + ' <span class="chev">›</span></td>'
           + '<td class="num">' + fmt(p.wins) + '</td><td class="num">' + fmt(p.losses) + '</td><td class="num">' + fmt(p.draws) + '</td>'
           + '<td class="num">' + fmt(p.points) + '</td><td class="num">' + fmt(p.quizzes) + '</td>'
           + '<td class="num">' + fmt(p.snakeHs) + '</td><td class="num">' + fmt(p.luffyHs) + '</td>'
@@ -330,6 +362,75 @@
         await refresh();
       } catch (err) { btn.disabled = false; }
     });
+
+    // ---- Détail d'un joueur ----
+    var GAME_ICON = { connect4:'🔴', tictactoe:'✕', chess:'♟', trivia:'🧠', snake:'🐍', luffy:'🏃' };
+    var RESULT_FR = { win:'Victoire', loss:'Défaite', draw:'Nul' };
+
+    async function openPlayer(ref) {
+      try {
+        var res = await api('/admin/player/' + encodeURIComponent(ref));
+        if (!res.ok) return;
+        renderPlayerDetail(await res.json());
+      } catch (e) {}
+    }
+
+    function renderPlayerDetail(d) {
+      $('pd-name').textContent = d.name || 'Anonyme';
+      var st = d.streak || {};
+      var stats = [
+        { n: d.wins, l: 'Victoires' }, { n: d.losses, l: 'Défaites' }, { n: d.draws, l: 'Nuls' },
+        { n: d.points, l: 'Points quiz' }, { n: d.quizzes, l: 'Quiz joués' },
+        { n: d.snakeHs, l: 'Record Snake' }, { n: d.luffyHs, l: 'Record Run' },
+        { n: d.libs, l: 'Libs' },
+        { n: st.count || 0, l: 'Streak (jours)' }, { n: st.longest || 0, l: 'Meilleure streak' },
+      ];
+      var html = '<div class="pd-grid">' + stats.map(function (s) {
+        return '<div class="pd-stat"><div class="num">' + fmt(s.n) + '</div><div class="lbl">' + esc(s.l) + '</div></div>';
+      }).join('') + '</div>';
+
+      // Cosmétiques équipés
+      var eq = d.equipped || {};
+      var eqList = [];
+      Object.keys(eq).forEach(function (k) {
+        var v = eq[k];
+        if (Array.isArray(v)) { v.forEach(function (x) { if (x) eqList.push(x); }); }
+        else if (v) eqList.push(v);
+      });
+      if (d.honorTitle) eqList.push(d.honorTitle);
+      html += '<div class="pd-h3">Cosmétiques équipés (' + eqList.length + ')</div>';
+      html += eqList.length ? '<div class="chips">' + eqList.map(function (x) { return '<span class="chip eq">' + esc(x) + '</span>'; }).join('') + '</div>' : '<p class="muted">Aucun.</p>';
+
+      // Cosmétiques possédés
+      var owned = d.owned || [];
+      html += '<div class="pd-h3">Cosmétiques possédés (' + owned.length + ')</div>';
+      html += owned.length ? '<div class="chips">' + owned.map(function (x) { return '<span class="chip">' + esc(x) + '</span>'; }).join('') + '</div>' : '<p class="muted">Aucun.</p>';
+
+      // Achats
+      var pur = d.purchases || [];
+      html += '<div class="pd-h3">Achats en argent réel (' + pur.length + ')</div>';
+      html += pur.length ? pur.map(function (p) {
+        return '<div class="pd-line"><span>' + esc(p.packId || '') + ' · +' + fmt(p.libsAmount) + ' Libs <span class="muted">(' + esc(p.status) + ')</span></span><span class="muted">' + esc(p.at ? new Date(p.at).toLocaleString('fr-FR') : '') + '</span></div>';
+      }).join('') : '<p class="muted">Aucun.</p>';
+
+      // Historique
+      var hist = d.history || [];
+      html += '<div class="pd-h3">Dernières activités (' + hist.length + ')</div>';
+      html += hist.length ? hist.map(function (h) {
+        var detail = h.result ? (RESULT_FR[h.result] || h.result) : (h.score != null ? (h.score + ' pts') : '');
+        return '<div class="pd-line"><span>' + (GAME_ICON[h.game] || '🎮') + ' ' + esc(h.game) + ' · ' + esc(detail) + '</span><span class="muted">' + esc(h.at ? ago(h.at) : '') + '</span></div>';
+      }).join('') : '<p class="muted">Aucune activité enregistrée.</p>';
+
+      $('pd-body').innerHTML = html;
+      $('player-modal').classList.remove('hidden');
+    }
+
+    $('players-body').addEventListener('click', function (e) {
+      var row = e.target.closest('tr.clickable'); if (!row) return;
+      openPlayer(row.dataset.ref);
+    });
+    $('pd-close').addEventListener('click', function () { $('player-modal').classList.add('hidden'); });
+    $('player-modal').addEventListener('click', function (e) { if (e.target === $('player-modal')) $('player-modal').classList.add('hidden'); });
 
     $('btn-login').addEventListener('click', function () { attempt($('key').value.trim()); });
     $('key').addEventListener('keydown', function (e) { if (e.key === 'Enter') attempt($('key').value.trim()); });

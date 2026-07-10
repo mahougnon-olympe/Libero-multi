@@ -2625,6 +2625,21 @@ app.post('/api/bot-log', (req, res) => {
   }
 });
 
+// Reference opaque d'un joueur pour l'admin : hash du playerId (jamais le vrai
+// identifiant secret, pour qu'il ne puisse pas fuiter du tableau de bord).
+function _playerRef(pid) {
+  return crypto.createHash('sha256').update(String(pid)).digest('hex').slice(0, 16);
+}
+function _allPlayerIds() {
+  const ids = new Set();
+  for (const k of leaderboard.keys())       ids.add(k);
+  for (const k of triviaLeaderboard.keys())  ids.add(k);
+  for (const k of snakeLeaderboard.keys())   ids.add(k);
+  for (const k of luffyLeaderboard.keys())   ids.add(k);
+  for (const k of libs.keys())               ids.add(k);
+  return ids;
+}
+
 // Agrège les joueurs à partir des différents classements + soldes de Libs.
 function _aggregatePlayers() {
   const map = new Map(); // pid -> stats
@@ -2638,11 +2653,54 @@ function _aggregatePlayers() {
   for (const [pid, v] of snakeLeaderboard)  { const p = get(pid); setName(p, v.name); p.snakeHs = v.hs || 0; }
   for (const [pid, v] of luffyLeaderboard)  { const p = get(pid); setName(p, v.name); p.luffyHs = v.hs || 0; }
   for (const [pid, v] of libs)              { const p = get(pid); setName(p, v.name); p.libs = v.balance || 0; }
-  return [...map.values()]
-    .map(p => ({ ...p, name: p.name || 'Anonyme', games: p.wins + p.losses + p.draws }))
+  return [...map.entries()]
+    .map(([pid, p]) => ({ ...p, name: p.name || 'Anonyme', games: p.wins + p.losses + p.draws, ref: _playerRef(pid) }))
     .sort((a, b) => (b.games + b.quizzes) - (a.games + a.quizzes))
     .slice(0, 300);
 }
+
+// Detail complet d'un joueur (clé admin requise) : stats + streak + cosmétiques
+// possédés + équipements + historique + achats. Identifié par sa reference hashée.
+app.get('/admin/player/:ref', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const wantRef = String(req.params.ref || '');
+  let pid = null;
+  for (const id of _allPlayerIds()) { if (_playerRef(id) === wantRef) { pid = id; break; } }
+  if (pid === null) return res.status(404).json({ error: 'Joueur introuvable.' });
+
+  const lb  = leaderboard.get(pid)       || {};
+  const tlb = triviaLeaderboard.get(pid) || {};
+  const slb = snakeLeaderboard.get(pid)  || {};
+  const llb = luffyLeaderboard.get(pid)  || {};
+  const e   = libs.get(pid)              || {};
+  const name = e.name || lb.name || tlb.name || slb.name || llb.name || 'Anonyme';
+
+  const purchases = [...libsPurchases.values()]
+    .filter(p => p.playerId === pid)
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+    .map(p => ({ packId: p.packId, libsAmount: p.libsAmount || 0, status: p.credited ? 'completed' : (p.status || 'pending'), at: p.createdAt || 0 }));
+
+  res.json({
+    name,
+    wins: lb.wins || 0, losses: lb.losses || 0, draws: lb.draws || 0,
+    points: tlb.points || 0, quizzes: tlb.games || 0,
+    snakeHs: slb.hs || 0, luffyHs: llb.hs || 0,
+    libs: e.balance || 0,
+    streak: e.streak || null,
+    owned: Array.isArray(e.ownedCosmetics) ? e.ownedCosmetics : [],
+    honorTitle: e.honorTitle || null,
+    equipped: {
+      color: e.equippedCosmetic || null, font: e.equippedFont || null, bubble: e.equippedBubble || null,
+      background: e.equippedBackground || null, nameEffect: e.equippedNameEffect || null, title: e.equippedTitle || null,
+      cursorSnake: e.equippedCursorSnake || null, avatar: e.equippedAvatar || null, p4Token: e.equippedP4Token || null,
+      ttt: e.equippedTtt || null, chess: e.equippedChess || null, snakeSkin: e.equippedSnakeSkin || null,
+      clickFx: e.equippedClickFx || null, emojiPack: e.equippedEmojiPack || null, victoryBan: e.equippedVictoryBan || null,
+      soundPack: e.equippedSoundPack || null, emotes: Array.isArray(e.equippedEmotes) ? e.equippedEmotes : [],
+    },
+    history: (Array.isArray(e.history) ? e.history : []).slice(-40).reverse(),
+    purchases,
+  });
+});
 
 // Consultation privée du tableau de bord complet (clé admin requise).
 app.get('/admin/stats', async (req, res) => {
