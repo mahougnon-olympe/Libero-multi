@@ -284,7 +284,9 @@ async function loadData() {
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
   cmtDocs.forEach(d => {
-    comments.push({ _id: d._id, pseudo: d.pseudo, message: d.message, date: d.date });
+    // Les anciens commentaires (sans champ `approved`) sont considérés validés
+    // pour ne pas disparaître ; les nouveaux naissent en attente de modération.
+    comments.push({ _id: d._id, pseudo: d.pseudo, message: d.message, date: d.date, approved: d.approved !== false });
     if (Array.isArray(d.likedBy) && d.likedBy.length) commentLikeMap.set(d._id.toString(), new Set(d.likedBy));
   });
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
@@ -380,6 +382,14 @@ function dbDeleteComments(ids) {
   db.collection('comments')
     .deleteMany({ _id: { $in: ids } })
     .catch(e => console.error('Erreur suppression commentaire:', e));
+}
+
+// Persiste le statut de modération (validé / masqué) d'un commentaire.
+function dbUpdateCommentApproved(commentId, approved) {
+  if (!db || !commentId) return;
+  db.collection('comments')
+    .updateOne({ _id: commentId }, { $set: { approved } })
+    .catch(e => console.error('Erreur mise à jour modération commentaire:', e));
 }
 
 // Persiste la liste des joueurs ayant liké : les likes survivent aux redémarrages.
@@ -2584,7 +2594,57 @@ app.post('/api/visit', async (req, res) => {
   }
 });
 
-// Consultation privée des statistiques de visite (clé admin requise).
+// ── Journal des questions posées à l'assistant (chatbot local) ───────────────
+// Le bot répond côté navigateur ; ce ping sert uniquement à ce que l'admin voie
+// ce que les joueurs demandent. Anonyme (aucun identifiant joueur).
+const botLogs = []; // ring buffer en mémoire, {q, lang, at}
+const BOT_LOG_MAX = 300;
+const botLogRateMap = new Map(); // ip -> [timestamps]
+
+app.post('/api/bot-log', (req, res) => {
+  try {
+    const raw = typeof req.body?.q === 'string' ? req.body.q : '';
+    const q = raw.trim().slice(0, 200);
+    if (!q) return res.json({ ok: false });
+    const lang = req.body?.lang === 'en' ? 'en' : 'fr';
+
+    const ip  = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown').trim();
+    const now = Date.now();
+    const hits = (botLogRateMap.get(ip) || []).filter(ts => now - ts < 10 * 60_000);
+    if (hits.length >= 60) return res.json({ ok: false });
+    hits.push(now);
+    botLogRateMap.set(ip, hits);
+
+    const entry = { q, lang, at: now };
+    botLogs.push(entry);
+    if (botLogs.length > BOT_LOG_MAX) botLogs.shift();
+    if (db) db.collection('bot_logs').insertOne(entry).catch(() => {});
+    res.json({ ok: true });
+  } catch (e) {
+    res.json({ ok: false });
+  }
+});
+
+// Agrège les joueurs à partir des différents classements + soldes de Libs.
+function _aggregatePlayers() {
+  const map = new Map(); // pid -> stats
+  const get = pid => {
+    if (!map.has(pid)) map.set(pid, { name: '', wins: 0, losses: 0, draws: 0, points: 0, quizzes: 0, snakeHs: 0, luffyHs: 0, libs: 0 });
+    return map.get(pid);
+  };
+  const setName = (p, n) => { if (n && (!p.name || p.name === 'Anonyme')) p.name = n; };
+  for (const [pid, v] of leaderboard)       { const p = get(pid); setName(p, v.name); p.wins = v.wins || 0; p.losses = v.losses || 0; p.draws = v.draws || 0; }
+  for (const [pid, v] of triviaLeaderboard) { const p = get(pid); setName(p, v.name); p.points = v.points || 0; p.quizzes = v.games || 0; }
+  for (const [pid, v] of snakeLeaderboard)  { const p = get(pid); setName(p, v.name); p.snakeHs = v.hs || 0; }
+  for (const [pid, v] of luffyLeaderboard)  { const p = get(pid); setName(p, v.name); p.luffyHs = v.hs || 0; }
+  for (const [pid, v] of libs)              { const p = get(pid); setName(p, v.name); p.libs = v.balance || 0; }
+  return [...map.values()]
+    .map(p => ({ ...p, name: p.name || 'Anonyme', games: p.wins + p.losses + p.draws }))
+    .sort((a, b) => (b.games + b.quizzes) - (a.games + a.quizzes))
+    .slice(0, 300);
+}
+
+// Consultation privée du tableau de bord complet (clé admin requise).
 app.get('/admin/stats', async (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   try {
@@ -2592,20 +2652,74 @@ app.get('/admin/stats', async (req, res) => {
     const startOfToday = Math.floor((now + BENIN_OFFSET) / DAY_MS) * DAY_MS - BENIN_OFFSET;
     const online = io.engine?.clientsCount || 0;
 
+    // Visites
+    let visits = { totalVisits: 0, uniqueVisitors: 0, today: 0, week: 0 };
     if (db) {
       const totals = await db.collection('visit_stats').findOne({ _id: 'totals' }) || {};
-      const today  = await db.collection('visitors').countDocuments({ last: { $gte: startOfToday } });
-      const week   = await db.collection('visitors').countDocuments({ last: { $gte: now - 7 * DAY_MS } });
-      return res.json({
-        totalVisits:    totals.totalVisits || 0,
-        uniqueVisitors: totals.uniqueVisitors || 0,
-        today, week, online,
-      });
+      visits.totalVisits    = totals.totalVisits || 0;
+      visits.uniqueVisitors = totals.uniqueVisitors || 0;
+      visits.today = await db.collection('visitors').countDocuments({ last: { $gte: startOfToday } });
+      visits.week  = await db.collection('visitors').countDocuments({ last: { $gte: now - 7 * DAY_MS } });
+    } else {
+      visits.totalVisits    = visitFallback.totalVisits;
+      visits.uniqueVisitors = visitFallback.uniqueVisitors;
+      visits.today = visits.week = visitFallback.uniqueVisitors;
     }
+
+    // Joueurs + parties
+    const players = _aggregatePlayers();
+    const classicResults = players.reduce((s, p) => s + p.games, 0);
+    const classicWins     = players.reduce((s, p) => s + p.wins, 0);
+    const quizzes         = players.reduce((s, p) => s + p.quizzes, 0);
+    const quizPoints      = players.reduce((s, p) => s + p.points, 0);
+    const snakePlayers    = players.filter(p => p.snakeHs > 0).length;
+    const luffyPlayers    = players.filter(p => p.luffyHs > 0).length;
+
+    // Commentaires (avec statut de modération)
+    const commentsPayload = comments.slice().reverse().map(c => ({
+      id: c._id?.toString(), pseudo: c.pseudo || 'Anonyme', message: c.message,
+      date: c.date, approved: !!c.approved, likes: commentLikeMap.get(c._id?.toString())?.size || 0,
+    }));
+    const commentsApproved = commentsPayload.filter(c => c.approved).length;
+    const commentsPending  = commentsPayload.length - commentsApproved;
+
+    // Achats en argent réel
+    const purchasesAll = [...libsPurchases.values()];
+    const purchasesDone = purchasesAll.filter(p => p.credited || p.status === 'completed');
+    const libsSold = purchasesDone.reduce((s, p) => s + (p.libsAmount || 0), 0);
+    const recentPurchases = purchasesAll
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+      .slice(0, 50)
+      .map(p => ({
+        name: (libs.get(p.playerId)?.name) || 'Anonyme',
+        packId: p.packId, libsAmount: p.libsAmount || 0,
+        status: p.credited ? 'completed' : (p.status || 'pending'),
+        at: p.createdAt || 0,
+      }));
+
+    // Journal du chatbot
+    let botLogsOut = botLogs.slice(-100).reverse();
+    if (db) {
+      try {
+        const docs = await db.collection('bot_logs').find().sort({ at: -1 }).limit(100).toArray();
+        if (docs.length) botLogsOut = docs.map(d => ({ q: d.q, lang: d.lang, at: d.at }));
+      } catch (e) {}
+    }
+
     res.json({
-      totalVisits:    visitFallback.totalVisits,
-      uniqueVisitors: visitFallback.uniqueVisitors,
-      today: visitFallback.uniqueVisitors, week: visitFallback.uniqueVisitors, online,
+      // compat : les champs de visite restent à la racine
+      totalVisits: visits.totalVisits, uniqueVisitors: visits.uniqueVisitors,
+      today: visits.today, week: visits.week, online,
+      totals: {
+        players: players.length, classicResults, classicWins, quizzes, quizPoints,
+        snakePlayers, luffyPlayers,
+        commentsApproved, commentsPending, commentsTotal: commentsPayload.length,
+        purchasesCount: purchasesDone.length, libsSold,
+      },
+      players,
+      comments: commentsPayload,
+      purchases: recentPurchases,
+      botLogs: botLogsOut,
     });
   } catch (e) {
     res.status(500).json({ error: 'Erreur serveur.' });
@@ -2618,8 +2732,8 @@ const commentLikeMap     = new Map(); // commentId (string) → Set<playerId>
 const commentLikeRateMap = new Map(); // ip → [timestamps]
 
 function _newsCommentsPayload() {
-  return comments.slice(-3).reverse()
-    .filter(c => c._id)
+  // Seuls les commentaires validés par l'admin sont affichés publiquement.
+  return comments.filter(c => c._id && c.approved).slice(-3).reverse()
     .map(c => ({
       id:     c._id.toString(),
       pseudo: c.pseudo || 'Anonyme',
@@ -2686,9 +2800,12 @@ app.post('/api/comment', (req, res) => {
     pseudo:  pseudo?.trim() || 'Anonyme',
     message: message.trim(),
     date:    new Date().toISOString(),
+    approved: false, // en attente de modération : n'apparaît pas avant validation
   };
   comments.push(comment);
   dbInsertComment(comment);
+  // Pas de broadcast public (le commentaire est en attente) : le tableau de bord
+  // admin le verra via /admin/comments.
   io.emit('news-comments-update', _newsCommentsPayload());
 
   console.log(`[💬] ${pseudo?.trim() || 'Anonyme'} : ${message.trim().slice(0, 80)}`);
@@ -2872,7 +2989,26 @@ function isAdmin(req) {
 
 app.get('/admin/comments', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
-  res.json(comments.slice().reverse()); // plus récent en premier
+  res.json(comments.slice().reverse().map(c => ({
+    id:       c._id?.toString(),
+    pseudo:   c.pseudo || 'Anonyme',
+    message:  c.message,
+    date:     c.date,
+    approved: !!c.approved,
+    likes:    commentLikeMap.get(c._id?.toString())?.size || 0,
+  }))); // plus récent en premier
+});
+
+// Admin : valide (affiche) ou masque un commentaire.
+app.post('/admin/comment-approve', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const { id, approved } = req.body || {};
+  const comment = comments.find(c => c._id && c._id.toString() === String(id));
+  if (!comment) return res.status(404).json({ error: 'Commentaire introuvable.' });
+  comment.approved = approved !== false; // true par défaut, false pour masquer
+  dbUpdateCommentApproved(comment._id, comment.approved);
+  io.emit('news-comments-update', _newsCommentsPayload());
+  res.json({ ok: true, approved: comment.approved });
 });
 
 // Admin : supprime un commentaire par _id (/admin/comment/:id) ou tous ceux

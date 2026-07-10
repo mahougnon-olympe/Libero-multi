@@ -4,105 +4,151 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Statistiques · Libero's Multi</title>
+  <title>Tableau de bord · Libero's Multi</title>
   <style>
     :root {
       --bg:#0a0c18; --card:#131727; --card2:#1c2040; --board:#6366f1;
       --text:#e2e8f0; --muted:#94a3b8; --accent:#a5b4fc; --border:rgba(255,255,255,.1);
+      --green:#4ade80; --red:#f87171; --amber:#fbbf24;
     }
     * { box-sizing:border-box; margin:0; padding:0; }
     body {
       background:var(--bg); color:var(--text);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-      min-height:100vh; display:flex; align-items:center; justify-content:center;
-      padding:20px;
+      padding:16px; line-height:1.4;
     }
-    .wrap { width:100%; max-width:560px; }
-    h1 { font-size:1.4rem; margin-bottom:4px; }
-    .sub { color:var(--muted); font-size:.85rem; margin-bottom:20px; }
-    .card {
-      background:var(--card); border:1px solid var(--border);
-      border-radius:16px; padding:22px; box-shadow:0 12px 40px rgba(0,0,0,.4);
-    }
-    .field { display:flex; gap:8px; margin-bottom:12px; }
+    .wrap { max-width:1000px; margin:0 auto; }
+    h1 { font-size:1.4rem; }
+    .sub { color:var(--muted); font-size:.85rem; margin-bottom:16px; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; }
+    /* Connexion */
+    #login { max-width:460px; margin:8vh auto 0; }
+    .field { display:flex; gap:8px; margin-bottom:10px; }
     input {
       flex:1; padding:11px 13px; border-radius:10px; border:1px solid var(--border);
       background:var(--card2); color:var(--text); font-size:.95rem; outline:none;
     }
     input:focus { border-color:var(--board); }
     button {
-      border:none; border-radius:10px; cursor:pointer; font-weight:700;
-      background:var(--board); color:#fff; padding:11px 16px; font-size:.9rem;
-      transition:transform .12s, opacity .15s;
+      border:none; border-radius:9px; cursor:pointer; font-weight:700;
+      background:var(--board); color:#fff; padding:9px 14px; font-size:.85rem;
+      transition:transform .1s, opacity .15s;
     }
     button:active { transform:scale(.95); }
     button.ghost { background:var(--card2); color:var(--text); border:1px solid var(--border); }
-    .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:6px 0 16px; }
-    .stat {
-      background:var(--card2); border:1px solid var(--border);
-      border-radius:12px; padding:16px; text-align:center;
-    }
-    .stat .num { font-size:2rem; font-weight:900; color:var(--accent); line-height:1.1; }
-    .stat .lbl { font-size:.78rem; color:var(--muted); margin-top:4px; }
-    .stat.wide { grid-column:1 / -1; }
-    .online .num { color:#4ade80; }
-    .row { display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
-    .err { color:#f87171; font-size:.85rem; margin-top:8px; min-height:1.1em; }
-    .muted { color:var(--muted); font-size:.78rem; margin-top:14px; line-height:1.5; }
+    button.green { background:#16a34a; }
+    button.red   { background:#b91c1c; }
+    button.small { padding:5px 10px; font-size:.76rem; }
+    .err { color:var(--red); font-size:.85rem; min-height:1.1em; margin-top:6px; }
     .hidden { display:none; }
     a { color:var(--accent); }
+
+    /* Dashboard */
+    .topbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+    .topbar .live { display:flex; align-items:center; gap:8px; font-size:.8rem; color:var(--muted); }
+    .dot { width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 1.6s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin-bottom:14px; }
+    .kpi { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; text-align:center; }
+    .kpi .num { font-size:1.7rem; font-weight:900; color:var(--accent); line-height:1.1; }
+    .kpi .lbl { font-size:.72rem; color:var(--muted); margin-top:3px; }
+    .kpi.live-kpi .num { color:var(--green); }
+
+    section { margin-bottom:20px; }
+    h2 { font-size:1.05rem; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+    .pill { background:var(--card2); border-radius:999px; padding:1px 9px; font-size:.72rem; color:var(--muted); font-weight:700; }
+    .pill.warn { background:rgba(251,191,36,.16); color:var(--amber); }
+
+    .tbl-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:12px; }
+    table { width:100%; border-collapse:collapse; font-size:.82rem; min-width:520px; }
+    th, td { padding:8px 10px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap; }
+    th { color:var(--muted); font-weight:700; font-size:.74rem; text-transform:uppercase; letter-spacing:.03em; position:sticky; top:0; background:var(--card); }
+    tr:last-child td { border-bottom:none; }
+    td.num, th.num { text-align:right; }
+    .muted { color:var(--muted); }
+    .empty { color:var(--muted); font-size:.85rem; padding:14px; text-align:center; }
+
+    /* Commentaires */
+    .cmt { display:flex; gap:10px; align-items:flex-start; padding:11px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; background:var(--card); }
+    .cmt.pending { border-color:rgba(251,191,36,.5); }
+    .cmt-body { flex:1; min-width:0; }
+    .cmt-head { display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; }
+    .cmt-pseudo { font-weight:800; font-size:.85rem; }
+    .cmt-date { color:var(--muted); font-size:.72rem; }
+    .cmt-msg { font-size:.86rem; margin-top:3px; word-break:break-word; white-space:pre-wrap; }
+    .cmt-actions { display:flex; gap:6px; flex-shrink:0; flex-wrap:wrap; }
+    .tag { font-size:.66rem; font-weight:800; text-transform:uppercase; padding:2px 7px; border-radius:999px; }
+    .tag.ok { background:rgba(74,222,128,.16); color:var(--green); }
+    .tag.wait { background:rgba(251,191,36,.16); color:var(--amber); }
+
+    .bot-q { padding:8px 11px; border:1px solid var(--border); border-radius:10px; margin-bottom:6px; font-size:.83rem; background:var(--card); display:flex; justify-content:space-between; gap:10px; }
+    .bot-q .t { color:var(--muted); font-size:.72rem; white-space:nowrap; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>📊 Statistiques de visite</h1>
-    <p class="sub">Tableau de bord privé · Libero's Multi</p>
+    <!-- Connexion -->
+    <div id="login" class="card">
+      <h1>📊 Tableau de bord</h1>
+      <p class="sub">Libero's Multi · accès privé</p>
+      <div class="field">
+        <input id="key" type="password" placeholder="Clé admin" autocomplete="off" />
+        <button id="btn-login">Entrer</button>
+      </div>
+      <div id="login-err" class="err"></div>
+    </div>
 
-    <div class="card">
-      <!-- Connexion -->
-      <div id="login">
-        <p class="sub" style="margin-bottom:12px;">Entre ta clé admin pour voir les chiffres.</p>
-        <div class="field">
-          <input id="key" type="password" placeholder="Clé admin" autocomplete="off" />
-          <button id="btn-login">Voir</button>
+    <!-- Dashboard -->
+    <div id="dash" class="hidden">
+      <div class="topbar">
+        <div>
+          <h1>📊 Tableau de bord</h1>
+          <p class="sub" style="margin:0;">Libero's Multi · mise à jour en temps réel</p>
         </div>
-        <div id="login-err" class="err"></div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span class="live"><span class="dot"></span><span id="live-txt">en direct</span></span>
+          <button id="btn-logout" class="ghost small">Déconnexion</button>
+        </div>
       </div>
 
-      <!-- Tableau -->
-      <div id="dash" class="hidden">
-        <div class="grid">
-          <div class="stat wide online">
-            <div class="num" id="s-online">0</div>
-            <div class="lbl">En ligne maintenant</div>
-          </div>
-          <div class="stat">
-            <div class="num" id="s-today">0</div>
-            <div class="lbl">Visiteurs aujourd'hui</div>
-          </div>
-          <div class="stat">
-            <div class="num" id="s-week">0</div>
-            <div class="lbl">Visiteurs (7 jours)</div>
-          </div>
-          <div class="stat">
-            <div class="num" id="s-unique">0</div>
-            <div class="lbl">Visiteurs uniques (total)</div>
-          </div>
-          <div class="stat">
-            <div class="num" id="s-total">0</div>
-            <div class="lbl">Visites totales</div>
-          </div>
+      <div class="kpis" id="kpis"></div>
+
+      <section>
+        <h2>💬 Commentaires <span id="cmt-pending-pill" class="pill warn hidden"></span></h2>
+        <p class="sub" style="margin-top:-4px;">Valide un commentaire pour qu'il apparaisse sur le site. Supprime ceux qui contiennent des mots déplacés.</p>
+        <div id="comments"></div>
+      </section>
+
+      <section>
+        <h2>👥 Joueurs <span id="players-pill" class="pill"></span></h2>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Joueur</th><th class="num">V</th><th class="num">D</th><th class="num">N</th>
+              <th class="num">Quiz pts</th><th class="num">Quiz</th><th class="num">Snake</th><th class="num">Run</th><th class="num">Libs</th>
+            </tr></thead>
+            <tbody id="players-body"></tbody>
+          </table>
         </div>
-        <div class="row">
-          <button id="btn-refresh">🔄 Actualiser</button>
-          <button id="btn-logout" class="ghost">Se déconnecter</button>
+      </section>
+
+      <section>
+        <h2>💳 Achats en argent réel <span id="purchases-pill" class="pill"></span></h2>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Joueur</th><th>Pack</th><th class="num">Libs</th><th>Statut</th><th>Date</th></tr></thead>
+            <tbody id="purchases-body"></tbody>
+          </table>
         </div>
-        <p class="muted">
-          « Visiteurs uniques » compte les navigateurs distincts (via un identifiant local).
-          « Visites totales » compte chaque ouverture du site. Les chiffres se mettent à jour
-          en continu. <a href="index.html">← Retour au site</a>
-        </p>
-      </div>
+      </section>
+
+      <section>
+        <h2>🤖 Questions posées à l'assistant <span id="bot-pill" class="pill"></span></h2>
+        <div id="botlogs"></div>
+      </section>
+
+      <p class="sub"><a href="index.html">← Retour au site</a></p>
     </div>
   </div>
 
@@ -113,54 +159,185 @@
         : 'https://libero-multi.onrender.com';
 
     var $ = function (id) { return document.getElementById(id); };
+    var KEY = '';
+    var timer = null;
 
-    function fmt(n) { return (n || 0).toLocaleString('fr-FR'); }
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[<>&"']/g, function (c) {
+        return { '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;', "'":'&#39;' }[c];
+      });
+    }
+    function fmt(n) { return (Number(n) || 0).toLocaleString('fr-FR'); }
+    function ago(ts) {
+      if (!ts) return '';
+      var s = Math.floor((Date.now() - ts) / 1000);
+      if (s < 60) return "à l'instant";
+      var m = Math.floor(s / 60); if (m < 60) return 'il y a ' + m + ' min';
+      var h = Math.floor(m / 60); if (h < 24) return 'il y a ' + h + ' h';
+      var d = Math.floor(h / 24); return 'il y a ' + d + ' j';
+    }
 
-    async function loadStats(key) {
-      var res = await fetch(BACKEND_URL + '/admin/stats', { headers: { 'X-Admin-Key': key } });
+    function api(path, opts) {
+      opts = opts || {};
+      opts.headers = Object.assign({ 'X-Admin-Key': KEY }, opts.headers || {});
+      return fetch(BACKEND_URL + path, opts);
+    }
+
+    async function loadStats() {
+      var res = await api('/admin/stats');
       if (res.status === 401) throw new Error('Clé invalide.');
-      if (!res.ok) throw new Error('Erreur serveur. Réessaie.');
+      if (!res.ok) throw new Error('Erreur serveur.');
       return res.json();
     }
 
-    function render(d) {
-      $('s-online').textContent = fmt(d.online);
-      $('s-today').textContent  = fmt(d.today);
-      $('s-week').textContent   = fmt(d.week);
-      $('s-unique').textContent = fmt(d.uniqueVisitors);
-      $('s-total').textContent  = fmt(d.totalVisits);
+    function renderKpis(d) {
+      var t = d.totals || {};
+      var items = [
+        { n: d.online, l: 'En ligne', live: true },
+        { n: d.today, l: "Visiteurs aujourd'hui" },
+        { n: d.week, l: 'Visiteurs (7 j)' },
+        { n: d.uniqueVisitors, l: 'Visiteurs uniques' },
+        { n: d.totalVisits, l: 'Visites totales' },
+        { n: t.players, l: 'Joueurs' },
+        { n: t.classicResults, l: 'Parties classiques' },
+        { n: t.quizzes, l: 'Quiz joués' },
+        { n: t.purchasesCount, l: 'Achats réels' },
+        { n: t.libsSold, l: 'Libs vendus' },
+      ];
+      $('kpis').innerHTML = items.map(function (i) {
+        return '<div class="kpi' + (i.live ? ' live-kpi' : '') + '"><div class="num">' + fmt(i.n) + '</div><div class="lbl">' + esc(i.l) + '</div></div>';
+      }).join('');
     }
+
+    function renderComments(list) {
+      list = list || [];
+      var pending = list.filter(function (c) { return !c.approved; });
+      var pill = $('cmt-pending-pill');
+      if (pending.length) { pill.textContent = pending.length + ' en attente'; pill.classList.remove('hidden'); }
+      else pill.classList.add('hidden');
+      if (!list.length) { $('comments').innerHTML = '<p class="empty">Aucun commentaire.</p>'; return; }
+      // en attente d'abord
+      var ordered = pending.concat(list.filter(function (c) { return c.approved; }));
+      $('comments').innerHTML = ordered.map(function (c) {
+        var actions = c.approved
+          ? '<span class="tag ok">Affiché</span>'
+            + '<button class="ghost small" data-hide="' + esc(c.id) + '">Masquer</button>'
+            + '<button class="red small" data-del="' + esc(c.id) + '">Supprimer</button>'
+          : '<span class="tag wait">En attente</span>'
+            + '<button class="green small" data-approve="' + esc(c.id) + '">Valider</button>'
+            + '<button class="red small" data-del="' + esc(c.id) + '">Supprimer</button>';
+        return '<div class="cmt' + (c.approved ? '' : ' pending') + '">'
+          + '<div class="cmt-body"><div class="cmt-head"><span class="cmt-pseudo">' + esc(c.pseudo) + '</span>'
+          + '<span class="cmt-date">' + esc(new Date(c.date).toLocaleString('fr-FR')) + '</span>'
+          + (c.likes ? '<span class="cmt-date">❤️ ' + fmt(c.likes) + '</span>' : '')
+          + '</div><div class="cmt-msg">' + esc(c.message) + '</div></div>'
+          + '<div class="cmt-actions">' + actions + '</div></div>';
+      }).join('');
+    }
+
+    function renderPlayers(list) {
+      list = list || [];
+      $('players-pill').textContent = list.length;
+      if (!list.length) { $('players-body').innerHTML = '<tr><td colspan="9" class="empty">Aucun joueur.</td></tr>'; return; }
+      $('players-body').innerHTML = list.map(function (p) {
+        return '<tr><td>' + esc(p.name) + '</td>'
+          + '<td class="num">' + fmt(p.wins) + '</td><td class="num">' + fmt(p.losses) + '</td><td class="num">' + fmt(p.draws) + '</td>'
+          + '<td class="num">' + fmt(p.points) + '</td><td class="num">' + fmt(p.quizzes) + '</td>'
+          + '<td class="num">' + fmt(p.snakeHs) + '</td><td class="num">' + fmt(p.luffyHs) + '</td>'
+          + '<td class="num">' + fmt(p.libs) + '</td></tr>';
+      }).join('');
+    }
+
+    function renderPurchases(list) {
+      list = list || [];
+      $('purchases-pill').textContent = list.length;
+      if (!list.length) { $('purchases-body').innerHTML = '<tr><td colspan="5" class="empty">Aucun achat.</td></tr>'; return; }
+      $('purchases-body').innerHTML = list.map(function (p) {
+        var col = p.status === 'completed' ? 'var(--green)' : (p.status === 'pending' || p.status === 'waiting_payment' ? 'var(--amber)' : 'var(--red)');
+        return '<tr><td>' + esc(p.name) + '</td><td>' + esc(p.packId || '') + '</td>'
+          + '<td class="num">' + fmt(p.libsAmount) + '</td>'
+          + '<td style="color:' + col + '">' + esc(p.status) + '</td>'
+          + '<td class="muted">' + esc(p.at ? new Date(p.at).toLocaleString('fr-FR') : '') + '</td></tr>';
+      }).join('');
+    }
+
+    function renderBotLogs(list) {
+      list = list || [];
+      $('bot-pill').textContent = list.length;
+      if (!list.length) { $('botlogs').innerHTML = '<p class="empty">Aucune question pour l\'instant.</p>'; return; }
+      $('botlogs').innerHTML = list.map(function (b) {
+        return '<div class="bot-q"><span>' + (b.lang === 'en' ? '🇬🇧 ' : '🇫🇷 ') + esc(b.q) + '</span><span class="t">' + esc(ago(b.at)) + '</span></div>';
+      }).join('');
+    }
+
+    function render(d) {
+      renderKpis(d);
+      renderComments(d.comments);
+      renderPlayers(d.players);
+      renderPurchases(d.purchases);
+      renderBotLogs(d.botLogs);
+    }
+
+    async function refresh() {
+      try {
+        var d = await loadStats();
+        render(d);
+        $('live-txt').textContent = 'à jour · ' + new Date().toLocaleTimeString('fr-FR');
+      } catch (e) {
+        if ((e.message || '').indexOf('Clé') >= 0) { showLogin(); stopTimer(); }
+        else $('live-txt').textContent = 'reconnexion…';
+      }
+    }
+
+    function startTimer() { stopTimer(); timer = setInterval(function () { if (!document.hidden) refresh(); }, 8000); }
+    function stopTimer() { if (timer) clearInterval(timer); timer = null; }
 
     function showDash() { $('login').classList.add('hidden'); $('dash').classList.remove('hidden'); }
     function showLogin() { $('dash').classList.add('hidden'); $('login').classList.remove('hidden'); }
 
     async function attempt(key) {
       $('login-err').textContent = '';
+      KEY = key;
       try {
-        var d = await loadStats(key);
+        var d = await loadStats();
         localStorage.setItem('libero_admin_key', key);
-        render(d);
-        showDash();
+        showDash(); render(d);
+        $('live-txt').textContent = 'à jour · ' + new Date().toLocaleTimeString('fr-FR');
+        startTimer();
       } catch (e) {
         $('login-err').textContent = e.message || 'Erreur.';
         localStorage.removeItem('libero_admin_key');
+        KEY = '';
       }
     }
 
-    $('btn-login').addEventListener('click', function () { attempt($('key').value.trim()); });
-    $('key').addEventListener('keydown', function (e) { if (e.key === 'Enter') attempt($('key').value.trim()); });
-    $('btn-refresh').addEventListener('click', async function () {
-      var key = localStorage.getItem('libero_admin_key');
-      if (!key) return showLogin();
-      try { render(await loadStats(key)); } catch (e) { showLogin(); }
-    });
-    $('btn-logout').addEventListener('click', function () {
-      localStorage.removeItem('libero_admin_key');
-      $('key').value = '';
-      showLogin();
+    // Actions de modération (délégation d'événements).
+    $('comments').addEventListener('click', async function (e) {
+      var btn = e.target.closest('button'); if (!btn) return;
+      var id = btn.dataset.approve || btn.dataset.hide || btn.dataset.del;
+      if (!id) return;
+      btn.disabled = true;
+      try {
+        if (btn.dataset.del) {
+          await api('/admin/comment/' + encodeURIComponent(id), { method: 'DELETE' });
+        } else {
+          await api('/admin/comment-approve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, approved: !!btn.dataset.approve }),
+          });
+        }
+        await refresh();
+      } catch (err) { btn.disabled = false; }
     });
 
-    // Reconnexion auto si une clé valide est déjà mémorisée.
+    $('btn-login').addEventListener('click', function () { attempt($('key').value.trim()); });
+    $('key').addEventListener('keydown', function (e) { if (e.key === 'Enter') attempt($('key').value.trim()); });
+    $('btn-logout').addEventListener('click', function () {
+      localStorage.removeItem('libero_admin_key'); KEY = ''; $('key').value = ''; stopTimer(); showLogin();
+    });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden && KEY) refresh(); });
+
     (function () {
       var saved = localStorage.getItem('libero_admin_key');
       if (saved) attempt(saved);

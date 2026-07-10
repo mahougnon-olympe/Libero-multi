@@ -324,6 +324,11 @@ const DICT = {
     navHome:'Accueil', navFeed:'Vidéos',
     feedLoading:'Chargement des vidéos…', feedEmpty:'Cette section est en cours de développement.\nReviens bientôt pour découvrir les vidéos !', feedError:'Cette section est en cours de développement.\nReviens bientôt pour découvrir les vidéos !',
     navRead:'Lecture',
+    navProfile:'Profil',
+    lockerTitle:'🎒 Mon casier',
+    lockerEmpty:"Tu n'as encore rien acheté dans la boutique. Passe faire un tour !",
+    lockerEquipped:'équipé',
+    lockerCats:{ colors:'Couleurs de pseudo', nameeffects:'Effets de pseudo', titles:'Titres', bgs:"Fonds d'écran", bubbles:'Bulles de chat', fonts:'Polices', cursorsnakes:'Curseur', avatars:'Avatars', p4tokens:'Jetons Puissance 4', ttt:'Symboles Morpion', chess:"Thèmes d'échiquier", clickfx:'Particules de clic', emojipacks:"Packs d'émojis", victorybans:'Bannières de victoire', soundpacks:'Packs de sons', emotes:'Emotes', honorary:'Titre honorifique' },
     readLoading:'Chargement des livres…',
     readEmpty:'Cette section est en cours de développement.\nReviens bientôt pour découvrir des livres !',
     readError:'Cette section est en cours de développement.\nReviens bientôt pour découvrir des livres !',
@@ -759,6 +764,11 @@ const DICT = {
     navHome:'Home', navFeed:'Videos',
     feedLoading:'Loading videos…', feedEmpty:'This section is under development.\nCheck back soon for videos!', feedError:'This section is under development.\nCheck back soon for videos!',
     navRead:'Reading',
+    navProfile:'Profile',
+    lockerTitle:'🎒 My locker',
+    lockerEmpty:"You haven't bought anything in the shop yet. Go take a look!",
+    lockerEquipped:'equipped',
+    lockerCats:{ colors:'Name colors', nameeffects:'Name effects', titles:'Titles', bgs:'Backgrounds', bubbles:'Chat bubbles', fonts:'Fonts', cursorsnakes:'Cursor', avatars:'Avatars', p4tokens:'Connect 4 tokens', ttt:'Tic-Tac-Toe symbols', chess:'Chessboard themes', clickfx:'Click particles', emojipacks:'Emoji packs', victorybans:'Victory banners', soundpacks:'Sound packs', emotes:'Emotes', honorary:'Honorary title' },
     readLoading:'Loading books…',
     readEmpty:'This section is under development.\nCheck back soon for books!',
     readError:'This section is under development.\nCheck back soon for books!',
@@ -1254,10 +1264,10 @@ function applyLang() {
   const d = t();
   document.documentElement.lang = currentLang;
   document.title = d.siteTitle;
-  const pbtn = $('btn-go-profile'); if (pbtn) pbtn.title = d.profileTitle;
   const pmt = $('profile-modal-title'); if (pmt) pmt.textContent = d.profileTitle;
   const cht = $('challenges-title');   if (cht) cht.textContent = d.challengesTitle;
   const hit = $('history-title');      if (hit) hit.textContent = d.historyTitle;
+  const lkt = $('locker-title');       if (lkt) lkt.textContent = d.lockerTitle;
   if (window._profileHub) window._profileHub.retexte();
   if (window._chatbot) window._chatbot.retexte();
   const bl = $('btn-lang');
@@ -1269,6 +1279,7 @@ function applyLang() {
   const nth = $('nav-tab-home-label'); if (nth) nth.textContent = d.navHome;
   const ntf = $('nav-tab-feed-label'); if (ntf) ntf.textContent = d.navFeed;
   const ntr = $('nav-tab-read-label'); if (ntr) ntr.textContent = d.navRead;
+  const ntp = $('nav-tab-profile-label'); if (ntp) ntp.textContent = d.navProfile;
 
   // Lecture
   const rt = $('read-title');        if (rt) rt.textContent  = d.navRead;
@@ -1541,12 +1552,13 @@ function showScreen(name) {
   document.body.classList.toggle('screen-luffy-active', name === 'luffy');
   document.body.classList.toggle('screen-feed-active', name === 'feed');
   document.body.classList.toggle('screen-read-active', name === 'read');
+  document.body.classList.toggle('screen-profile-active', name === 'profile');
 
   // Barre de navigation principale : visible sur les écrans de premier niveau,
   // onglet actif synchronisé avec l'écran courant.
   const nav = document.getElementById('main-nav');
   if (nav) {
-    const onTopLevel = (name === 'landing' || name === 'feed' || name === 'read');
+    const onTopLevel = (name === 'landing' || name === 'feed' || name === 'read' || name === 'profile');
     nav.classList.toggle('hidden', !onTopLevel);
     // Sur mobile la barre de nav est en bas : on marque ces écrans pour remonter
     // les boutons flottants (aide / commentaire) au-dessus d'elle.
@@ -1554,10 +1566,13 @@ function showScreen(name) {
     const homeTab = document.getElementById('nav-tab-home');
     const feedTab = document.getElementById('nav-tab-feed');
     const readTab = document.getElementById('nav-tab-read');
+    const profTab = document.getElementById('nav-tab-profile');
     if (homeTab) { homeTab.classList.toggle('active', name === 'landing'); homeTab.setAttribute('aria-selected', String(name === 'landing')); }
     if (feedTab) { feedTab.classList.toggle('active', name === 'feed');    feedTab.setAttribute('aria-selected', String(name === 'feed')); }
     if (readTab) { readTab.classList.toggle('active', name === 'read');    readTab.setAttribute('aria-selected', String(name === 'read')); }
+    if (profTab) { profTab.classList.toggle('active', name === 'profile'); profTab.setAttribute('aria-selected', String(name === 'profile')); }
   }
+  if (name === 'profile' && window._profileHub) window._profileHub.enter();
   // Lecture / pause du feed vidéo selon qu'on entre ou quitte l'onglet Vidéos.
   if (window._videoFeed) {
     if (name === 'feed') window._videoFeed.load();
@@ -3076,7 +3091,20 @@ $('overlay-help').addEventListener('click', e => {
     const clean = (text || '').trim();
     if (!clean) return;
     pushLog('user', esc(clean));
+    logBotQuestion(clean);
     setTimeout(() => answer(clean), 140);
+  }
+
+  // Journalise la question côté serveur (anonyme) pour le tableau de bord admin.
+  function logBotQuestion(q){
+    try {
+      fetch(`${window.BACKEND_URL}/api/bot-log`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ q: q.slice(0, 200), lang: currentLang }),
+        keepalive: true,
+      }).catch(() => {});
+    } catch (e) {}
   }
 
   function renderChips(){
@@ -3291,6 +3319,7 @@ socket.on('connect', () => {
   }
   if (sessionStorage.getItem('libero_screen') === 'events') socket.emit('get-snake-leaderboard');
   if (sessionStorage.getItem('libero_screen') === 'luffy')  socket.emit('get-luffy-leaderboard');
+  if (sessionStorage.getItem('libero_screen') === 'profile' && window._profileHub) window._profileHub.enter();
 
   // Jeu classique
   const saved = sessionStorage.getItem('p4session');
@@ -3511,6 +3540,7 @@ socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosme
   if (newRefillAt    !== undefined) { refundCardsNextRefill = newRefillAt; }
   if (newHonorTitle  !== undefined) honorTitle = newHonorTitle;
   if (newHonorModal) _showHonorModal(newHonorModal);
+  if (window._profileHub && document.body.classList.contains('screen-profile-active')) window._profileHub.renderLocker();
   _updateSettingsPanel();
 });
 
@@ -4058,7 +4088,7 @@ const _FONT_DISPLAY_NAMES = {
   'font-lobster':'Lobster','font-fredoka':'Fredoka','font-monoton':'Monoton',
 };
 
-const _FEATURED_IDS = ['bg-hologramme', 'bubble-cameleon'];
+const _FEATURED_IDS = ['bg-hologramme', 'bg-galaxie'];
 
 const ALL_BUNDLES = [
   { id:'bundle-debutant',    items:['silver','bubble-ardoise','bg-nuit','boost_hint_10'], totalPrice:38,  bundlePrice:25  },
@@ -4215,10 +4245,13 @@ function _renderShopItems() {
   allItemsById['boost_hint_10'] = { id:'boost_hint_10', type:'boost', price:3, name:d.shopBoostHintName };
   allItemsById['boost_hint_20'] = { id:'boost_hint_20', type:'boost', price:5, name:d.shopBoostHintName };
 
+  // Seules ces familles restent en vente (le reste des cosmétiques est retiré
+  // de la boutique mais conservé dans le casier des joueurs qui les possèdent).
+  const KEPT_SHOP_TYPES = new Set(['color', 'nameeffect', 'title', 'background', 'boost']);
   const rotFeatured = shopRotation?.featured?.length ? shopRotation.featured : _FEATURED_IDS;
   const rotDaily    = shopRotation?.daily || [];
-  const featuredItems = rotFeatured.map(id => allItemsById[id]).filter(Boolean);
-  const dailyItems    = rotDaily.map(id => allItemsById[id]).filter(Boolean);
+  const featuredItems = rotFeatured.map(id => allItemsById[id]).filter(it => it && KEPT_SHOP_TYPES.has(it.type));
+  const dailyItems    = rotDaily.map(id => allItemsById[id]).filter(it => it && KEPT_SHOP_TYPES.has(it.type));
 
   function tileHtml(item, large = false, extraBadge = '') {
     const { id, type, price, name } = item;
@@ -4313,21 +4346,9 @@ function _renderShopItems() {
       <button class="shop-fn-nav-btn" data-section="bundles"><span class="shop-nav-icon">🎁</span><span class="shop-nav-label"> ${nav.bundles}</span></button>
       <button class="shop-fn-nav-btn" data-section="boosts"><span class="shop-nav-icon">💡</span><span class="shop-nav-label"> ${nav.boosts}</span></button>
       <button class="shop-fn-nav-btn" data-section="colors"><span class="shop-nav-icon">🎨</span><span class="shop-nav-label"> ${nav.colors}</span></button>
-      <button class="shop-fn-nav-btn" data-section="fonts"><span class="shop-nav-icon">✍️</span><span class="shop-nav-label"> ${nav.fonts}</span></button>
-      <button class="shop-fn-nav-btn" data-section="bubbles"><span class="shop-nav-icon">💬</span><span class="shop-nav-label"> ${nav.bubbles}</span></button>
-      <button class="shop-fn-nav-btn" data-section="bgs"><span class="shop-nav-icon">🖼️</span><span class="shop-nav-label"> ${nav.bgs}</span></button>
       <button class="shop-fn-nav-btn" data-section="nameeffects"><span class="shop-nav-icon">✨</span><span class="shop-nav-label"> ${nav.nameeffects}</span></button>
       <button class="shop-fn-nav-btn" data-section="titles"><span class="shop-nav-icon">🏷️</span><span class="shop-nav-label"> ${nav.titles}</span></button>
-      <button class="shop-fn-nav-btn" data-section="cursorsnakes"><span class="shop-nav-icon">🖱️</span><span class="shop-nav-label"> ${nav.cursorsnakes}</span></button>
-      <button class="shop-fn-nav-btn" data-section="avatars"><span class="shop-nav-icon">🎭</span><span class="shop-nav-label"> ${nav.avatars}</span></button>
-      <button class="shop-fn-nav-btn" data-section="p4tokens"><span class="shop-nav-icon">🔴</span><span class="shop-nav-label"> ${nav.p4tokens}</span></button>
-      <button class="shop-fn-nav-btn" data-section="ttt"><span class="shop-nav-icon">✖️</span><span class="shop-nav-label"> ${nav.ttt}</span></button>
-      <button class="shop-fn-nav-btn" data-section="chess"><span class="shop-nav-icon">♟️</span><span class="shop-nav-label"> ${nav.chess}</span></button>
-      <button class="shop-fn-nav-btn" data-section="clickfx"><span class="shop-nav-icon">💥</span><span class="shop-nav-label"> ${nav.clickfx}</span></button>
-      <button class="shop-fn-nav-btn" data-section="emojipacks"><span class="shop-nav-icon">🌈</span><span class="shop-nav-label"> ${nav.emojipacks}</span></button>
-      <button class="shop-fn-nav-btn" data-section="victorybans"><span class="shop-nav-icon">🏆</span><span class="shop-nav-label"> ${nav.victorybans}</span></button>
-      <button class="shop-fn-nav-btn" data-section="soundpacks"><span class="shop-nav-icon">🔊</span><span class="shop-nav-label"> ${nav.soundpacks}</span></button>
-      <button class="shop-fn-nav-btn" data-section="emotes"><span class="shop-nav-icon">😎</span><span class="shop-nav-label"> ${nav.emotes}</span></button>
+      <button class="shop-fn-nav-btn" data-section="bgs"><span class="shop-nav-icon">🖼️</span><span class="shop-nav-label"> ${nav.bgs}</span></button>
     </nav>
     <div class="shop-fn-content">
 
@@ -4366,22 +4387,6 @@ function _renderShopItems() {
       </div>
     </section>
 
-    <section class="shop-fn-section" id="shop-sec-bubbles" data-section-id="bubbles">
-      <h3 class="shop-fn-section-title">${d.shopBubbleTitle}</h3>
-      <p class="shop-fn-section-desc">${d.shopSectionDescs.bubbles}</p>
-      <div class="shop-fn-grid">
-        ${bubbleItems.map(it => tileHtml(it)).join('')}
-      </div>
-    </section>
-
-    <section class="shop-fn-section" id="shop-sec-fonts" data-section-id="fonts">
-      <h3 class="shop-fn-section-title">${d.shopFontsTitle}</h3>
-      <p class="shop-fn-section-desc">${d.shopSectionDescs.fonts}</p>
-      <div class="shop-fn-grid">
-        ${fontItems.map(it => tileHtml(it)).join('')}
-      </div>
-    </section>
-
     <section class="shop-fn-section" id="shop-sec-colors" data-section-id="colors">
       <h3 class="shop-fn-section-title">${d.shopCosmeticsTitle}</h3>
       <p class="shop-fn-section-desc">${d.shopSectionDescs.colors}</p>
@@ -4415,66 +4420,6 @@ function _renderShopItems() {
       <h3 class="shop-fn-section-title">${d.shopTitlesTitle}</h3>
       <p class="shop-fn-section-desc">${d.shopSectionDescs.titles}</p>
       <div class="shop-fn-grid">${titleItems.map(it => tileHtml(it)).join('')}</div>
-    </section>
-
-    <section class="shop-fn-section" id="shop-sec-cursorsnakes" data-section-id="cursorsnakes">
-      <h3 class="shop-fn-section-title">${d.shopCursorSnakesTitle}</h3>
-      <p class="shop-fn-section-desc">${d.shopSectionDescs.cursorsnakes}</p>
-      <div class="shop-fn-grid">${cursorSnakeItems.map(it => tileHtml(it)).join('')}</div>
-    </section>
-
-    <section class="shop-fn-section" id="shop-sec-avatars" data-section-id="avatars">
-      <h3 class="shop-fn-section-title">${d.shopAvatarsTitle}</h3>
-      <p class="shop-fn-section-desc">${d.shopSectionDescs.avatars}</p>
-      <div class="shop-fn-grid">${avatarItems.map(it => tileHtml(it)).join('')}</div>
-    </section>
-
-    <section class="shop-fn-section" id="shop-sec-p4tokens" data-section-id="p4tokens">
-      <h3 class="shop-fn-section-title">${d.shopP4TokensTitle}</h3>
-      <p class="shop-fn-section-desc">${d.shopSectionDescs.p4tokens}</p>
-      <div class="shop-fn-grid">${p4TokenItems.map(it => tileHtml(it)).join('')}</div>
-    </section>
-
-    <section class="shop-fn-section" id="shop-sec-ttt" data-section-id="ttt">
-      <h3 class="shop-fn-section-title">${d.shopTttTitle}</h3>
-      <p class="shop-fn-section-desc">${d.shopSectionDescs.ttt}</p>
-      <div class="shop-fn-grid">${tttItems.map(it => tileHtml(it)).join('')}</div>
-    </section>
-
-    <section class="shop-fn-section" id="shop-sec-chess" data-section-id="chess">
-      <h3 class="shop-fn-section-title">${d.shopChessTitle}</h3>
-      <p class="shop-fn-section-desc">${d.shopSectionDescs.chess}</p>
-      <div class="shop-fn-grid">${chessItems.map(it => tileHtml(it)).join('')}</div>
-    </section>
-
-    <section class="shop-fn-section" id="shop-sec-clickfx" data-section-id="clickfx">
-      <h3 class="shop-fn-section-title">${d.shopClickFxTitle}</h3>
-      <p class="shop-fn-section-desc">${d.shopSectionDescs.clickfx}</p>
-      <div class="shop-fn-grid">${clickFxItems.map(it => tileHtml(it)).join('')}</div>
-    </section>
-
-    <section class="shop-fn-section" id="shop-sec-emojipacks" data-section-id="emojipacks">
-      <h3 class="shop-fn-section-title">${d.shopEmojiPacksTitle}</h3>
-      <p class="shop-fn-section-desc">${d.shopSectionDescs.emojipacks}</p>
-      <div class="shop-fn-grid">${emojiPackItems.map(it => tileHtml(it)).join('')}</div>
-    </section>
-
-    <section class="shop-fn-section" id="shop-sec-victorybans" data-section-id="victorybans">
-      <h3 class="shop-fn-section-title">${d.shopVictoryBansTitle}</h3>
-      <p class="shop-fn-section-desc">${d.shopSectionDescs.victorybans}</p>
-      <div class="shop-fn-grid">${victoryBanItems.map(it => tileHtml(it)).join('')}</div>
-    </section>
-
-    <section class="shop-fn-section" id="shop-sec-soundpacks" data-section-id="soundpacks">
-      <h3 class="shop-fn-section-title">${d.shopSoundPacksTitle}</h3>
-      <p class="shop-fn-section-desc">${d.shopSectionDescs.soundpacks}</p>
-      <div class="shop-fn-grid">${soundPackItems.map(it => tileHtml(it)).join('')}</div>
-    </section>
-
-    <section class="shop-fn-section" id="shop-sec-emotes" data-section-id="emotes">
-      <h3 class="shop-fn-section-title">${d.shopEmotesTitle}</h3>
-      <p class="shop-fn-section-desc">${d.shopSectionDescs.emotes}</p>
-      <div class="shop-fn-grid">${emoteItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-promo">
@@ -6851,7 +6796,9 @@ function showCursorSnakeToast(msg) {
       });
       const data = await res.json();
       if (res.ok) {
-        feedback.textContent = '✅ Message envoyé ! Merci pour ton retour.';
+        feedback.textContent = currentLang === 'en'
+          ? '✅ Message sent! It will appear after review. Thanks!'
+          : '✅ Message envoyé ! Il apparaîtra après validation. Merci !';
         feedback.className = 'comment-feedback ok';
         form.reset();
         charsEl.textContent = '0 / 1000';
@@ -7738,6 +7685,10 @@ document.getElementById('nav-tab-read')?.addEventListener('click', () => {
   if (sessionStorage.getItem('libero_screen') === 'read') return;
   showScreen('read');
 });
+document.getElementById('nav-tab-profile')?.addEventListener('click', () => {
+  if (sessionStorage.getItem('libero_screen') === 'profile') return;
+  showScreen('profile');
+});
 
 // Écran par défaut au chargement = landing (barre de nav visible en bas sur mobile).
 // showScreen() corrigera cette classe si un autre écran est restauré ci-dessous.
@@ -8236,20 +8187,19 @@ const ProfileHub = (() => {
   let history = [];
   let loadedHistory = false;
 
-  const overlay = () => document.getElementById('overlay-profile');
+  const isActive = () => document.body.classList.contains('screen-profile-active');
   const _named = () => { const n = (localStorage.getItem('playerName') || '').trim(); return n && n !== 'Anonyme'; };
 
-  function open() {
-    const d = t();
-    // Rafraîchit depuis le serveur à l'ouverture.
+  // Le profil est maintenant un onglet (écran) : open() y navigue, enter() est
+  // appelé par showScreen quand on entre dans l'écran.
+  function open() { showScreen('profile'); }
+  function enter() {
     socket.emit('get-challenges', { playerId: getPlayerId() });
     socket.emit('get-history', { playerId: getPlayerId() });
     renderAll();
-    overlay().classList.remove('hidden');
   }
-  function close() { overlay().classList.add('hidden'); }
 
-  function renderAll() { renderStreak(); renderChallenges(); renderHistory(); }
+  function renderAll() { renderStreak(); renderLocker(); renderChallenges(); renderHistory(); }
 
   function renderStreak() {
     const d = t();
@@ -8320,7 +8270,57 @@ const ProfileHub = (() => {
     }).join('');
   }
 
-  // Pastille sur la carte d'accueil quand au moins un défi est réclamable.
+  // ── Casier : tous les cosmétiques possédés, classés par catégorie ─────────
+  // La liste des catégories couvre aussi les familles retirées de la boutique,
+  // pour qu'un joueur qui les a achetées avant les retrouve toujours ici.
+  function _lockerCategories(d) {
+    return [
+      { icon:'🎨', label:d.lockerCats.colors,       names:d.shopCosmeticNames,    equipped:[equippedCosmetic] },
+      { icon:'✨', label:d.lockerCats.nameeffects,  names:d.shopNameEffectNames,  equipped:[equippedNameEffect] },
+      { icon:'🏷️', label:d.lockerCats.titles,       names:d.shopTitleNames,       equipped:[equippedTitle] },
+      { icon:'🖼️', label:d.lockerCats.bgs,          names:d.shopBgNames,          equipped:[equippedBackground] },
+      { icon:'💬', label:d.lockerCats.bubbles,      names:d.shopBubbleNames,      equipped:[equippedBubble] },
+      { icon:'✍️', label:d.lockerCats.fonts,        names:_FONT_DISPLAY_NAMES,    equipped:[equippedFont] },
+      { icon:'🖱️', label:d.lockerCats.cursorsnakes, names:d.shopCursorSnakeNames, equipped:[equippedCursorSnake] },
+      { icon:'🎭', label:d.lockerCats.avatars,      names:d.shopAvatarNames,      equipped:[equippedAvatar] },
+      { icon:'🔴', label:d.lockerCats.p4tokens,     names:d.shopP4TokenNames,     equipped:[equippedP4Token] },
+      { icon:'✖️', label:d.lockerCats.ttt,          names:d.shopTttNames,         equipped:[equippedTtt] },
+      { icon:'♟️', label:d.lockerCats.chess,        names:d.shopChessNames,       equipped:[equippedChess] },
+      { icon:'💥', label:d.lockerCats.clickfx,      names:d.shopClickFxNames,     equipped:[equippedClickFx] },
+      { icon:'🌈', label:d.lockerCats.emojipacks,   names:d.shopEmojiPackNames,   equipped:[equippedEmojiPack] },
+      { icon:'🏆', label:d.lockerCats.victorybans,  names:d.shopVictoryBanNames,  equipped:[equippedVictoryBan] },
+      { icon:'🔊', label:d.lockerCats.soundpacks,   names:d.shopSoundPackNames,   equipped:[equippedSoundPack] },
+      { icon:'😎', label:d.lockerCats.emotes,       names:d.shopEmoteNames,       equipped:Array.isArray(equippedEmotes) ? equippedEmotes : [] },
+    ];
+  }
+
+  function renderLocker() {
+    const d  = t();
+    const el = document.getElementById('locker-list');
+    if (!el) return;
+    if (!_named()) { el.innerHTML = `<p class="profile-anon">${_escHtml(d.profileAnon)}</p>`; return; }
+    const owned = Array.isArray(ownedCosmetics) ? ownedCosmetics : [];
+    let html = '', total = 0;
+    _lockerCategories(d).forEach(cat => {
+      if (!cat.names) return;
+      const items = owned.filter(id => cat.names[id]);
+      if (!items.length) return;
+      total += items.length;
+      const rows = items.map(id => {
+        const eq = cat.equipped.includes(id);
+        return `<span class="locker-item${eq ? ' equipped' : ''}">${_escHtml(cat.names[id])}${eq ? ` <span class="locker-eq">${_escHtml(d.lockerEquipped)}</span>` : ''}</span>`;
+      }).join('');
+      html += `<div class="locker-cat"><h4 class="locker-cat-title">${cat.icon} ${_escHtml(cat.label)} <span class="locker-count">${items.length}</span></h4><div class="locker-items">${rows}</div></div>`;
+    });
+    if (honorTitle) {
+      const hn = d.honorTitleNames?.[honorTitle] || honorTitle;
+      html += `<div class="locker-cat"><h4 class="locker-cat-title">🥇 ${_escHtml(d.lockerCats.honorary)} <span class="locker-count">1</span></h4><div class="locker-items"><span class="locker-item equipped">${_escHtml(hn)} <span class="locker-eq">${_escHtml(d.lockerEquipped)}</span></span></div></div>`;
+      total++;
+    }
+    el.innerHTML = total ? html : `<p class="history-empty">${_escHtml(d.lockerEmpty)}</p>`;
+  }
+
+  // Pastille sur l'onglet Profil quand au moins un défi est réclamable.
   function updateBadge() {
     const badge = document.getElementById('profile-card-badge');
     if (!badge) return;
@@ -8332,13 +8332,9 @@ const ProfileHub = (() => {
   function setChallenges(list) { challenges = Array.isArray(list) ? list : []; renderChallenges(); updateBadge(); }
   function setStreak(s)        { streak = s; renderStreak(); }
   function setHistory(list)    { history = Array.isArray(list) ? list : []; loadedHistory = true; renderHistory(); }
-  function retexte()           { if (!overlay()?.classList.contains('hidden')) renderAll(); updateBadge(); }
+  function retexte()           { if (isActive()) renderAll(); updateBadge(); }
 
-  document.getElementById('btn-go-profile')?.addEventListener('click', open);
-  document.getElementById('btn-profile-close')?.addEventListener('click', close);
-  overlay()?.addEventListener('click', e => { if (e.target === overlay()) close(); });
-
-  return { open, close, setChallenges, setStreak, setHistory, retexte, updateBadge };
+  return { open, enter, setChallenges, setStreak, setHistory, retexte, updateBadge, renderLocker };
 })();
 window._profileHub = ProfileHub;
 

@@ -35,6 +35,9 @@
     <button id="nav-tab-read" class="nav-tab" role="tab" aria-selected="false">
       <span class="nav-tab-icon">📚</span><span id="nav-tab-read-label">Lecture</span>
     </button>
+    <button id="nav-tab-profile" class="nav-tab" role="tab" aria-selected="false">
+      <span class="nav-tab-icon">🎯</span><span id="nav-tab-profile-label">Profil</span><span id="profile-card-badge" class="profile-card-badge hidden"></span>
+    </button>
   </nav>
 
   <!-- ── Écran 0 : Landing ── -->
@@ -544,11 +547,6 @@
   <button id="btn-snake-toggle" class="btn-hidden" aria-hidden="true">🐍</button>
   <button id="btn-theme-toggle" class="btn-hidden" aria-hidden="true">☀️</button>
 
-  <!-- ── Bouton Mon profil (défis, série, historique) ── -->
-  <button id="btn-go-profile" class="btn-profile-float" title="Mon profil">
-    🎯<span id="profile-card-badge" class="profile-card-badge hidden"></span>
-  </button>
-
   <!-- ── Bouton Paramètres ── -->
   <button id="btn-settings" class="btn-settings-float" title="Paramètres">⚙️</button>
 
@@ -813,13 +811,10 @@
     </div><!-- /.help-modal -->
   </div>
 
-  <!-- ── Modal Profil : défis quotidiens, série de connexion, historique ── -->
-  <div id="overlay-profile" class="overlay hidden">
-    <div class="profile-modal">
-      <div class="profile-modal-header">
-        <h2 id="profile-modal-title" class="profile-modal-title">Mon profil</h2>
-        <button id="btn-profile-close" class="help-close-btn">✕</button>
-      </div>
+  <!-- ── Écran Profil : casier, défis quotidiens, série de connexion, historique ── -->
+  <div id="screen-profile" class="screen">
+    <div class="profile-screen-inner">
+      <h2 id="profile-modal-title" class="profile-screen-title">Mon profil</h2>
       <div class="profile-body">
         <!-- Série de connexion -->
         <div id="streak-banner" class="streak-banner">
@@ -829,6 +824,10 @@
             <p id="streak-sub" class="streak-sub"></p>
           </div>
         </div>
+
+        <!-- Casier : cosmétiques possédés, classés par catégorie -->
+        <h3 id="locker-title" class="profile-section-title">🎒 Mon casier</h3>
+        <div id="locker-list" class="locker-list"></div>
 
         <!-- Défis quotidiens -->
         <h3 id="challenges-title" class="profile-section-title">🎯 Défis du jour</h3>
