@@ -86,8 +86,12 @@
     .tag.ok { background:rgba(74,222,128,.16); color:var(--green); }
     .tag.wait { background:rgba(251,191,36,.16); color:var(--amber); }
 
-    .bot-q { padding:8px 11px; border:1px solid var(--border); border-radius:10px; margin-bottom:6px; font-size:.83rem; background:var(--card); display:flex; justify-content:space-between; gap:10px; }
-    .bot-q .t { color:var(--muted); font-size:.72rem; white-space:nowrap; }
+    .bot-q { padding:8px 11px; border:1px solid var(--border); border-radius:10px; margin-bottom:6px; font-size:.83rem; background:var(--card); display:flex; justify-content:space-between; gap:10px; align-items:center; }
+    .bot-q .t { color:var(--muted); font-size:.72rem; white-space:nowrap; margin-left:auto; }
+    .bot-q span:nth-of-type(1) { flex:1; }
+    .bot-q.flagged { border-color:var(--amber); background:rgba(251,191,36,.07); }
+    .bot-flag { background:none; border:none; cursor:pointer; font-size:1rem; padding:0 2px; flex-shrink:0; }
+    .bot-flag:disabled { opacity:.4; }
 
     tr.clickable { cursor:pointer; }
     tr.clickable:hover td { background:rgba(99,102,241,.12); }
@@ -171,7 +175,7 @@
       </section>
 
       <section>
-        <h2>🤖 Questions posées à l'assistant <span id="bot-pill" class="pill"></span></h2>
+        <h2>🤖 Questions posées à l'assistant <span id="bot-pill" class="pill"></span> <span id="bot-flagged-pill" class="pill hidden" style="background:rgba(251,191,36,.15);color:var(--amber)"></span></h2>
         <div id="botlogs"></div>
       </section>
 
@@ -239,6 +243,8 @@
         { n: t.players, l: 'Joueurs' },
         { n: t.classicResults, l: 'Parties classiques' },
         { n: t.quizzes, l: 'Quiz joués' },
+        { n: t.snakeGames, l: 'Parties de Snake' },
+        { n: t.luffyGames, l: 'Parties de Libero Run' },
         { n: t.purchasesCount, l: 'Achats réels' },
         { n: t.libsSold, l: 'Libs vendus' },
       ];
@@ -322,9 +328,20 @@
     function renderBotLogs(list) {
       list = list || [];
       $('bot-pill').textContent = list.length;
+      var flaggedCount = list.filter(function (b) { return b.flagged; }).length;
+      var fp = $('bot-flagged-pill');
+      if (fp) {
+        if (flaggedCount) { fp.textContent = '🚩 ' + flaggedCount; fp.classList.remove('hidden'); }
+        else fp.classList.add('hidden');
+      }
       if (!list.length) { $('botlogs').innerHTML = '<p class="empty">Aucune question pour l\'instant.</p>'; return; }
-      $('botlogs').innerHTML = list.map(function (b) {
-        return '<div class="bot-q"><span>' + (b.lang === 'en' ? '🇬🇧 ' : '🇫🇷 ') + esc(b.q) + '</span><span class="t">' + esc(ago(b.at)) + '</span></div>';
+      // Les questions flaguees remontent en tete de liste.
+      var ordered = list.filter(function (b) { return b.flagged; })
+        .concat(list.filter(function (b) { return !b.flagged; }));
+      $('botlogs').innerHTML = ordered.map(function (b) {
+        return '<div class="bot-q' + (b.flagged ? ' flagged' : '') + '">'
+          + '<button type="button" class="bot-flag" data-flag="' + esc(b.id || '') + '" data-on="' + (b.flagged ? '1' : '0') + '" title="' + (b.flagged ? 'Retirer le drapeau' : 'Flaguer cette question') + '">' + (b.flagged ? '🚩' : '⚐') + '</button>'
+          + '<span>' + (b.lang === 'en' ? '🇬🇧 ' : '🇫🇷 ') + esc(b.q) + '</span><span class="t">' + esc(ago(b.at)) + '</span></div>';
       }).join('');
     }
 
@@ -403,6 +420,22 @@
         });
         await refresh();
       } catch (err) { sel.disabled = false; }
+    });
+
+    // Flag des questions du chatbot (délégation d'événements).
+    $('botlogs').addEventListener('click', async function (e) {
+      var btn = e.target.closest('.bot-flag'); if (!btn) return;
+      var id = btn.dataset.flag;
+      if (!id) return;
+      btn.disabled = true;
+      try {
+        await api('/admin/botlog-flag', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id, flagged: btn.dataset.on !== '1' }),
+        });
+        await refresh();
+      } catch (err) { btn.disabled = false; }
     });
 
     // ---- Détail d'un joueur ----

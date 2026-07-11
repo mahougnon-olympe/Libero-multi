@@ -3429,3 +3429,17 @@ html.light .honor-reward-title { color: #d97706; }
 .welcome-start { min-width: 180px; animation: welcome-fadein .5s ease forwards; }
 .welcome-start.hidden { display: none; }
 @keyframes welcome-fadein { from { opacity: 0; } to { opacity: 1; } }
+
+/* Jauges de defis : la piste etait invisible en theme jour (blanc sur blanc). */
+html.light .challenge-bar { background: rgba(0,0,0,.14); }
+
+/* Sous-titre des defis permanents */
+.perm-sub { font-size: .78rem; color: var(--muted); margin: -4px 0 10px; line-height: 1.45; }
+
+/* Choix du theme dans l'onboarding */
+.onboard-theme-row { display: flex; gap: 10px; margin-bottom: 4px; }
+.onboard-theme-btn { flex: 1; }
+.onboard-theme-btn.onboard-theme-active {
+  border-color: var(--board); box-shadow: inset 0 0 0 1px var(--board);
+  font-weight: 800;
+}

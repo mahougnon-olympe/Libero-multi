@@ -371,6 +371,7 @@ const DICT = {
     onboarding:{
       welcomeType:"Bienvenue sur Libero's Multi",
       start:'Commencer',
+      themeLabel:'Choisis ton thème', themeDay:'☀️ Jour', themeNight:'🌙 Nuit',
       title:'👋 Bienvenue !',
       intro:'Tu as déjà un compte sur un autre appareil ? Colle ton code de récupération pour retrouver ta progression. Sinon, commence une nouvelle aventure.',
       label:"J'ai déjà un code de récupération",
@@ -687,7 +688,13 @@ const DICT = {
       trivia5:'Réponds bien à 5 questions de quiz', trivia12:'Réponds bien à 12 questions de quiz', quiz2:'Termine 2 quiz',
       snake30:'Mange 30 ⚡ au Snake', snake60:'Mange 60 ⚡ au Snake',
       luffy12000:'Cumule 12000 pts au Libero Run', luffyGames3:'Fais 3 parties de Libero Run',
+      perm_wins50:'Gagne 50 parties classiques', perm_wins250:'Gagne 250 parties classiques',
+      perm_play500:'Joue 500 parties classiques', perm_trivia1000:'Réponds bien à 1000 questions de quiz',
+      perm_snake2000:'Mange 2000 ⚡ au Snake', perm_luffy500k:'Cumule 500 000 pts au Libero Run',
+      perm_streak30:'Tiens une série de connexion de 30 jours',
     },
+    permTitle:'🏔️ Défis permanents',
+    permSub:'Des exploits de longue haleine : la progression ne se remet jamais à zéro. Récompenses énormes, jusqu\'à 5000 ⚡ !',
     challengePerfectDay: bonus => `🎉 Journée parfaite ! Les 3 défis réclamés : +${bonus} ⚡ bonus`,
     triviaSkip:'⏭ Passer',
     challengeClaim:'Réclamer', challengeClaimed:'✓ Réclamé', challengeLocked:'À finir',
@@ -878,6 +885,7 @@ const DICT = {
     onboarding:{
       welcomeType:"Welcome to Libero's Multi",
       start:'Start',
+      themeLabel:'Pick your theme', themeDay:'☀️ Day', themeNight:'🌙 Night',
       title:'👋 Welcome!',
       intro:'Already have an account on another device? Paste your recovery code to get your progress back. Otherwise, start a new adventure.',
       label:'I already have a recovery code',
@@ -1194,7 +1202,13 @@ const DICT = {
       trivia5:'Answer 5 quiz questions right', trivia12:'Answer 12 quiz questions right', quiz2:'Finish 2 quizzes',
       snake30:'Eat 30 ⚡ in Snake', snake60:'Eat 60 ⚡ in Snake',
       luffy12000:'Rack up 12000 pts in Libero Run', luffyGames3:'Play 3 Libero Run games',
+      perm_wins50:'Win 50 classic games', perm_wins250:'Win 250 classic games',
+      perm_play500:'Play 500 classic games', perm_trivia1000:'Answer 1000 quiz questions right',
+      perm_snake2000:'Eat 2000 ⚡ in Snake', perm_luffy500k:'Rack up 500,000 pts in Libero Run',
+      perm_streak30:'Hold a 30-day login streak',
     },
+    permTitle:'🏔️ Permanent challenges',
+    permSub:'Long-haul feats: progress never resets. Huge rewards, up to 5000 ⚡!',
     challengePerfectDay: bonus => `🎉 Perfect day! All 3 challenges claimed: +${bonus} ⚡ bonus`,
     triviaSkip:'⏭ Skip',
     challengeClaim:'Claim', challengeClaimed:'✓ Claimed', challengeLocked:'In progress',
@@ -1418,6 +1432,8 @@ function applyLang() {
   document.title = d.siteTitle;
   const pmt = $('profile-modal-title'); if (pmt) pmt.textContent = d.profileTitle;
   const cht = $('challenges-title');   if (cht) cht.textContent = d.challengesTitle;
+  const pmtt = $('perm-title');        if (pmtt) pmtt.textContent = d.permTitle;
+  const pms = $('perm-sub');           if (pms) pms.textContent = d.permSub;
   // Cartes du profil (sans l'emoji, déjà présent en icône à gauche) + pages
   const _plain = s => (s || '').replace(/^[^\s]+\s+/, '');
   const hit = $('history-title');      if (hit) hit.textContent = _plain(d.historyTitle);
@@ -1451,6 +1467,9 @@ function applyLang() {
   const rscb = $('btn-reset-confirm');   if (rscb) rscb.textContent = d.resetConfirmBtn;
   // Onboarding
   const obt = $('onboard-title');  if (obt) obt.textContent = d.onboarding.title;
+  const obtl = $('onboard-theme-label'); if (obtl) obtl.textContent = d.onboarding.themeLabel;
+  const obtd = $('onboard-theme-day');   if (obtd) obtd.textContent = d.onboarding.themeDay;
+  const obtn = $('onboard-theme-night'); if (obtn) obtn.textContent = d.onboarding.themeNight;
   const obi = $('onboard-intro');  if (obi) obi.textContent = d.onboarding.intro;
   const obl = $('onboard-label');  if (obl) obl.textContent = d.onboarding.label;
   const obr = $('btn-onboard-restore'); if (obr) obr.textContent = d.onboarding.restore;
@@ -8651,6 +8670,7 @@ if (window.location.search.includes('libs_return=1') || localStorage.getItem('li
 // ── Profil : défis quotidiens, série de connexion, historique ────────────────
 const ProfileHub = (() => {
   let challenges = [];
+  let permanent  = [];   // défis permanents (progression à vie)
   let streak = null;      // { count, longest, bonus }
   let history = [];
   let loadedHistory = false;
@@ -8685,13 +8705,8 @@ const ProfileHub = (() => {
     }
   }
 
-  function renderChallenges() {
-    const d = t();
-    const list = document.getElementById('challenges-list');
-    if (!list) return;
-    if (!_named()) { list.innerHTML = `<p class="profile-anon">${_escHtml(d.profileAnon)}</p>`; return; }
-    if (!challenges.length) { list.innerHTML = ''; return; }
-    list.innerHTML = challenges.map(ch => {
+  function _challengeRowsHtml(d, items) {
+    return items.map(ch => {
       const name = d.challengesNames[ch.id] || ch.id;
       const pct  = Math.round(100 * Math.min(ch.progress, ch.goal) / ch.goal);
       let btn;
@@ -8707,12 +8722,33 @@ const ProfileHub = (() => {
         ${btn}
       </div>`;
     }).join('');
-    list.querySelectorAll('.challenge-claim-btn').forEach(b => {
+  }
+
+  function _wireClaims(root) {
+    root.querySelectorAll('.challenge-claim-btn').forEach(b => {
       b.addEventListener('click', () => {
         b.disabled = true;
         socket.emit('claim-challenge', { playerId: getPlayerId(), challengeId: b.dataset.cid });
       });
     });
+  }
+
+  function renderChallenges() {
+    const d = t();
+    const list = document.getElementById('challenges-list');
+    const permList = document.getElementById('perm-list');
+    if (!list) return;
+    if (!_named()) {
+      list.innerHTML = `<p class="profile-anon">${_escHtml(d.profileAnon)}</p>`;
+      if (permList) permList.innerHTML = '';
+      return;
+    }
+    list.innerHTML = challenges.length ? _challengeRowsHtml(d, challenges) : '';
+    _wireClaims(list);
+    if (permList) {
+      permList.innerHTML = permanent.length ? _challengeRowsHtml(d, permanent) : '';
+      _wireClaims(permList);
+    }
   }
 
   function renderHistory() {
@@ -8848,12 +8884,13 @@ const ProfileHub = (() => {
   function updateBadge() {
     const badge = document.getElementById('profile-card-badge');
     if (!badge) return;
-    const claimable = challenges.filter(c => c.done && !c.claimed).length;
+    const claimable = challenges.filter(c => c.done && !c.claimed).length
+                    + permanent.filter(c => c.done && !c.claimed).length;
     if (claimable > 0 && _named()) { badge.textContent = claimable; badge.classList.remove('hidden'); }
     else badge.classList.add('hidden');
   }
 
-  function setChallenges(list) { challenges = Array.isArray(list) ? list : []; renderChallenges(); updateBadge(); }
+  function setChallenges(list, perm) { challenges = Array.isArray(list) ? list : []; if (perm !== undefined) permanent = Array.isArray(perm) ? perm : []; renderChallenges(); updateBadge(); }
   function setStreak(s)        { streak = s; renderStreak(); }
   function setHistory(list)    { history = Array.isArray(list) ? list : []; loadedHistory = true; renderHistory(); }
   function retexte() {
@@ -9063,7 +9100,27 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
   const d = t().onboarding;
   const ICONS = ['🎮', '♟️', '⛂', '⭕', '⚡'];
 
-  function showOnboard() { welcome.classList.add('hidden'); obHint.textContent = ''; obHint.classList.remove('recovery-err'); onboard.classList.remove('hidden'); }
+  function showOnboard() { welcome.classList.add('hidden'); obHint.textContent = ''; obHint.classList.remove('recovery-err'); onboard.classList.remove('hidden'); _syncThemeBtns(); }
+
+  // Choix du thème jour / nuit dès l'arrivée : appliqué immédiatement et
+  // mémorisé (le bouton ⚙️ permet d'en changer plus tard).
+  const thDay   = document.getElementById('onboard-theme-day');
+  const thNight = document.getElementById('onboard-theme-night');
+  function _syncThemeBtns() {
+    const light = document.documentElement.classList.contains('light');
+    thDay?.classList.toggle('onboard-theme-active', light);
+    thNight?.classList.toggle('onboard-theme-active', !light);
+  }
+  function _pickTheme(light) {
+    localStorage.setItem('themeMode', light ? 'light' : 'dark');
+    document.documentElement.classList.toggle('light', light);
+    const tbtn = document.getElementById('btn-theme-toggle');
+    if (tbtn) tbtn.textContent = light ? '☀️' : '🌙';
+    _syncThemeBtns();
+  }
+  thDay?.addEventListener('click', () => _pickTheme(true));
+  thNight?.addEventListener('click', () => _pickTheme(false));
+
   function finishNew() {
     onboard.classList.add('hidden');
     finish();
@@ -9101,7 +9158,7 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
   })();
 })();
 
-socket.on('challenges-update', ({ challenges } = {}) => ProfileHub.setChallenges(challenges));
+socket.on('challenges-update', ({ challenges, permanent } = {}) => ProfileHub.setChallenges(challenges, permanent));
 socket.on('history-update',    ({ history } = {})    => ProfileHub.setHistory(history));
 socket.on('streak-update',     ({ count, longest, bonus } = {}) => {
   ProfileHub.setStreak({ count, longest, bonus });
