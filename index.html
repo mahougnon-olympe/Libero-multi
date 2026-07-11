@@ -824,7 +824,7 @@
     </div><!-- /.help-modal -->
   </div>
 
-  <!-- ── Écran Profil : casier, défis quotidiens, série de connexion, historique ── -->
+  <!-- ── Écran Profil ── -->
   <div id="screen-profile" class="screen">
     <div class="profile-screen-inner">
       <h2 id="profile-modal-title" class="profile-screen-title">Mon profil</h2>
@@ -838,23 +838,70 @@
           </div>
         </div>
 
-        <!-- Casier : bouton dépliable vers les cosmétiques possédés -->
-        <button type="button" class="profile-acc-btn" id="locker-toggle" aria-expanded="false">
-          <span id="locker-title" class="profile-acc-label">🎒 Mon casier</span>
-          <span class="profile-acc-chevron">▾</span>
-        </button>
-        <div id="locker-list" class="locker-list profile-acc-panel"></div>
-
         <!-- Défis quotidiens -->
         <h3 id="challenges-title" class="profile-section-title">🎯 Défis du jour</h3>
         <div id="challenges-list" class="challenges-list"></div>
 
-        <!-- Historique : bouton dépliable vers les dernières parties -->
-        <button type="button" class="profile-acc-btn" id="history-toggle" aria-expanded="false">
-          <span id="history-title" class="profile-acc-label">🕑 Mes dernières parties</span>
-          <span class="profile-acc-chevron">▾</span>
+        <!-- Cartes de navigation -->
+        <button type="button" class="profile-nav-card" id="go-locker">
+          <span class="pnc-icon">🎒</span>
+          <span class="pnc-text"><span id="locker-title">Mon casier</span><small id="locker-card-sub">Tes cosmétiques et leurs aperçus</small></span>
+          <span class="pnc-arrow">›</span>
         </button>
-        <div id="history-list" class="history-list profile-acc-panel"></div>
+        <button type="button" class="profile-nav-card" id="go-history">
+          <span class="pnc-icon">🕑</span>
+          <span class="pnc-text"><span id="history-title">Mes dernières parties</span><small id="history-card-sub">Ton historique de jeu</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
+        <button type="button" class="profile-nav-card" id="go-recovery">
+          <span class="pnc-icon">🔐</span>
+          <span class="pnc-text"><span id="recovery-card-title">Sauvegarder ma progression</span><small id="recovery-card-sub">Ne perds jamais ton compte</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Écran Casier (cosmétiques possédés, avec aperçus) ── -->
+  <div id="screen-locker" class="screen">
+    <div class="subpage-inner">
+      <button class="btn-back" id="btn-back-locker">← Retour</button>
+      <h2 class="profile-screen-title" id="locker-page-title">🎒 Mon casier</h2>
+      <div id="locker-list" class="locker-list"></div>
+    </div>
+  </div>
+
+  <!-- ── Écran Historique ── -->
+  <div id="screen-history" class="screen">
+    <div class="subpage-inner">
+      <button class="btn-back" id="btn-back-history">← Retour</button>
+      <h2 class="profile-screen-title" id="history-page-title">🕑 Mes dernières parties</h2>
+      <div id="history-list" class="history-list"></div>
+    </div>
+  </div>
+
+  <!-- ── Modal : Sauvegarder / restaurer la progression (code de récupération) ── -->
+  <div id="overlay-recovery" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="recovery-title" class="profile-modal-title">🔐 Sauvegarder ma progression</h2>
+        <button id="btn-recovery-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <p id="recovery-intro" class="recovery-intro">Ce code est la clé de ton compte. Note-le et garde-le en lieu sûr : si tu changes ou perds ton appareil, il te permet de récupérer toute ta progression.</p>
+        <label id="recovery-code-label" class="recovery-label">Ton code de récupération</label>
+        <div class="recovery-code-row">
+          <input id="recovery-code" class="recovery-input" type="text" readonly />
+          <button id="btn-recovery-copy" class="btn btn-secondary">Copier</button>
+        </div>
+        <p id="recovery-warn" class="recovery-warn">Ne le partage avec personne : quiconque a ce code peut accéder à ton compte.</p>
+        <hr class="recovery-sep" />
+        <label id="recovery-restore-label" class="recovery-label">Restaurer une progression</label>
+        <div class="recovery-restore-row">
+          <input id="recovery-input-field" class="recovery-input" type="text" placeholder="Colle ton code ici" autocomplete="off" spellcheck="false" />
+          <button id="btn-recovery-restore" class="btn btn-primary">Restaurer</button>
+        </div>
+        <p id="recovery-restore-hint" class="recovery-warn">Attention : restaurer remplace la progression actuelle de cet appareil.</p>
       </div>
     </div>
   </div>

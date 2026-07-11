@@ -330,6 +330,19 @@ const DICT = {
     lockerEquipped:'équipé',
     lockerEquip:'Équiper', lockerUnequip:'Déséquiper',
     lockerCats:{ colors:'Couleurs de pseudo', nameeffects:'Effets de pseudo', titles:'Titres', bgs:"Fonds d'écran", bubbles:'Bulles de chat', fonts:'Polices', cursorsnakes:'Curseur', avatars:'Avatars', p4tokens:'Jetons Puissance 4', ttt:'Symboles Morpion', chess:"Thèmes d'échiquier", clickfx:'Particules de clic', emojipacks:"Packs d'émojis", victorybans:'Bannières de victoire', soundpacks:'Packs de sons', emotes:'Emotes', honorary:'Titre honorifique' },
+    lockerCardSub:'Tes cosmétiques et leurs aperçus',
+    historyCardSub:'Ton historique de jeu',
+    recovery:{
+      cardTitle:'Sauvegarder ma progression', cardSub:'Ne perds jamais ton compte',
+      title:'🔐 Sauvegarder ma progression',
+      intro:"Ce code est la clé de ton compte. Note-le et garde-le en lieu sûr : si tu changes ou perds ton appareil, il te permet de récupérer toute ta progression.",
+      codeLabel:'Ton code de récupération', copy:'Copier',
+      warn:'Ne le partage avec personne : quiconque a ce code peut accéder à ton compte.',
+      restoreLabel:'Restaurer une progression', restore:'Restaurer',
+      restoreHint:'Attention : restaurer remplace la progression actuelle de cet appareil.',
+      invalid:'Ce code est invalide.',
+      confirm:'Restaurer cette progression ? La progression actuelle de cet appareil sera remplacée.',
+    },
     readLoading:'Chargement des livres…',
     readEmpty:'Cette section est en cours de développement.\nReviens bientôt pour découvrir des livres !',
     readError:'Cette section est en cours de développement.\nReviens bientôt pour découvrir des livres !',
@@ -778,6 +791,19 @@ const DICT = {
     lockerEquipped:'equipped',
     lockerEquip:'Equip', lockerUnequip:'Unequip',
     lockerCats:{ colors:'Name colors', nameeffects:'Name effects', titles:'Titles', bgs:'Backgrounds', bubbles:'Chat bubbles', fonts:'Fonts', cursorsnakes:'Cursor', avatars:'Avatars', p4tokens:'Connect 4 tokens', ttt:'Tic-Tac-Toe symbols', chess:'Chessboard themes', clickfx:'Click particles', emojipacks:'Emoji packs', victorybans:'Victory banners', soundpacks:'Sound packs', emotes:'Emotes', honorary:'Honorary title' },
+    lockerCardSub:'Your cosmetics and their previews',
+    historyCardSub:'Your game history',
+    recovery:{
+      cardTitle:'Save my progress', cardSub:'Never lose your account',
+      title:'🔐 Save my progress',
+      intro:"This code is the key to your account. Write it down and keep it safe: if you change or lose your device, it lets you recover all your progress.",
+      codeLabel:'Your recovery code', copy:'Copy',
+      warn:'Do not share it: anyone with this code can access your account.',
+      restoreLabel:'Restore progress', restore:'Restore',
+      restoreHint:'Warning: restoring replaces the current progress on this device.',
+      invalid:'This code is invalid.',
+      confirm:'Restore this progress? The current progress on this device will be replaced.',
+    },
     readLoading:'Loading books…',
     readEmpty:'This section is under development.\nCheck back soon for books!',
     readError:'This section is under development.\nCheck back soon for books!',
@@ -1282,8 +1308,27 @@ function applyLang() {
   document.title = d.siteTitle;
   const pmt = $('profile-modal-title'); if (pmt) pmt.textContent = d.profileTitle;
   const cht = $('challenges-title');   if (cht) cht.textContent = d.challengesTitle;
-  const hit = $('history-title');      if (hit) hit.textContent = d.historyTitle;
-  const lkt = $('locker-title');       if (lkt) lkt.textContent = d.lockerTitle;
+  // Cartes du profil (sans l'emoji, déjà présent en icône à gauche) + pages
+  const _plain = s => (s || '').replace(/^[^\s]+\s+/, '');
+  const hit = $('history-title');      if (hit) hit.textContent = _plain(d.historyTitle);
+  const lkt = $('locker-title');       if (lkt) lkt.textContent = _plain(d.lockerTitle);
+  const lkpt = $('locker-page-title'); if (lkpt) lkpt.textContent = d.lockerTitle;
+  const hpt = $('history-page-title'); if (hpt) hpt.textContent = d.historyTitle;
+  const lcs = $('locker-card-sub');    if (lcs) lcs.textContent = d.lockerCardSub;
+  const hcs = $('history-card-sub');   if (hcs) hcs.textContent = d.historyCardSub;
+  const bbl = $('btn-back-locker');    if (bbl) bbl.textContent = `← ${d.backLabel}`;
+  const bbh = $('btn-back-history');   if (bbh) bbh.textContent = `← ${d.backLabel}`;
+  // Récupération de progression
+  const rct = $('recovery-card-title'); if (rct) rct.textContent = d.recovery.cardTitle;
+  const rcs = $('recovery-card-sub');   if (rcs) rcs.textContent = d.recovery.cardSub;
+  const rvt = $('recovery-title');      if (rvt) rvt.textContent = d.recovery.title;
+  const rvi = $('recovery-intro');      if (rvi) rvi.textContent = d.recovery.intro;
+  const rcl = $('recovery-code-label'); if (rcl) rcl.textContent = d.recovery.codeLabel;
+  const rcp = $('btn-recovery-copy');   if (rcp) rcp.textContent = d.recovery.copy;
+  const rvw = $('recovery-warn');       if (rvw) rvw.textContent = d.recovery.warn;
+  const rrl = $('recovery-restore-label'); if (rrl) rrl.textContent = d.recovery.restoreLabel;
+  const rrb = $('btn-recovery-restore');   if (rrb) rrb.textContent = d.recovery.restore;
+  const rrh = $('recovery-restore-hint');  if (rrh && !rrh.classList.contains('recovery-err')) rrh.textContent = d.recovery.restoreHint;
   if (window._profileHub) window._profileHub.retexte();
   if (window._chatbot) window._chatbot.retexte();
   const bl = $('btn-lang');
@@ -1574,6 +1619,8 @@ function showScreen(name) {
   document.body.classList.toggle('screen-feed-active', name === 'feed');
   document.body.classList.toggle('screen-read-active', name === 'read');
   document.body.classList.toggle('screen-profile-active', name === 'profile');
+  document.body.classList.toggle('screen-locker-active', name === 'locker');
+  document.body.classList.toggle('screen-history-active', name === 'history');
 
   // Barre de navigation principale : visible sur les écrans de premier niveau,
   // onglet actif synchronisé avec l'écran courant.
@@ -1593,7 +1640,11 @@ function showScreen(name) {
     if (readTab) { readTab.classList.toggle('active', name === 'read');    readTab.setAttribute('aria-selected', String(name === 'read')); }
     if (profTab) { profTab.classList.toggle('active', name === 'profile'); profTab.setAttribute('aria-selected', String(name === 'profile')); }
   }
-  if (name === 'profile' && window._profileHub) window._profileHub.enter();
+  if (window._profileHub) {
+    if (name === 'profile')      window._profileHub.enter();
+    else if (name === 'locker')  window._profileHub.enterLocker();
+    else if (name === 'history') window._profileHub.enterHistory();
+  }
   // Lecture / pause du feed vidéo selon qu'on entre ou quitte l'onglet Vidéos.
   if (window._videoFeed) {
     if (name === 'feed') window._videoFeed.load();
@@ -3451,7 +3502,12 @@ socket.on('connect', () => {
   }
   if (sessionStorage.getItem('libero_screen') === 'events') socket.emit('get-snake-leaderboard');
   if (sessionStorage.getItem('libero_screen') === 'luffy')  socket.emit('get-luffy-leaderboard');
-  if (sessionStorage.getItem('libero_screen') === 'profile' && window._profileHub) window._profileHub.enter();
+  if (window._profileHub) {
+    const _scr = sessionStorage.getItem('libero_screen');
+    if      (_scr === 'profile') window._profileHub.enter();
+    else if (_scr === 'locker')  window._profileHub.enterLocker();
+    else if (_scr === 'history') window._profileHub.enterHistory();
+  }
 
   // Jeu classique
   const saved = sessionStorage.getItem('p4session');
@@ -3652,10 +3708,18 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal } = {}) => {
+socket.on('libs-update', ({ name: serverName, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal } = {}) => {
   const prev = libsBalance;
   libsBalance = balance ?? 0;
   localStorage.setItem('libero_libs', String(libsBalance));
+  // Récupération de progression : sur un appareil neuf (pseudo local vide), on
+  // restaure le pseudo mémorisé côté serveur pour ce code.
+  if (serverName && !(localStorage.getItem('playerName') || '').trim() && serverName !== 'Anonyme') {
+    localStorage.setItem('playerName', serverName);
+    const ni = $('input-name'); if (ni) ni.value = serverName;
+    const tni = $('input-trivia-name'); if (tni) tni.value = serverName;
+    applyLang();
+  }
   _refreshLibsUI(prev, libsBalance, delta ?? null);
   const shopBal = $('shop-balance-display');
   if (shopBal) shopBal.textContent = `⚡ ${libsBalance} Libs`;
@@ -3688,7 +3752,7 @@ socket.on('libs-update', ({ balance, pendingBoostHint, delta, nextAt, ownedCosme
   if (newRefillAt    !== undefined) { refundCardsNextRefill = newRefillAt; }
   if (newHonorTitle  !== undefined) honorTitle = newHonorTitle;
   if (newHonorModal) _showHonorModal(newHonorModal);
-  if (window._profileHub && document.body.classList.contains('screen-profile-active')) window._profileHub.renderLocker();
+  if (window._profileHub && document.body.classList.contains('screen-locker-active')) window._profileHub.renderLocker();
   _updateSettingsPanel();
 });
 
@@ -3760,7 +3824,7 @@ socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippe
   }
   // Rafraîchit le casier tout de suite : permet de rééquiper juste après avoir
   // déséquipé, sans avoir à recharger la page.
-  if (window._profileHub && document.body.classList.contains('screen-profile-active')) window._profileHub.renderLocker();
+  if (window._profileHub && document.body.classList.contains('screen-locker-active')) window._profileHub.renderLocker();
 });
 
 socket.on('refund-cosmetic-result', ({ ok, refundCards: newCards, delta, error } = {}) => {
@@ -5153,6 +5217,38 @@ function _fontClass(font) {
     'font-sharetech','font-majormono','font-cinzel','font-tektur',
     'font-pacifico','font-lobster','font-fredoka','font-monoton'];
   return font && valid.includes(font) ? font : '';
+}
+
+// Aperçu visuel d'un cosmétique (réutilise les classes de la boutique), pour le
+// casier. `type` = famille du cosmétique, `id` = son identifiant.
+const _LOCKER_EMOJI = {
+  avatar:{'avatar-gamepad':'🎮','avatar-cat':'🐱','avatar-lightning':'⚡','avatar-rocket':'🚀','avatar-robot':'🤖','avatar-skull':'💀','avatar-crown':'👑'},
+  ttt:{'ttt-neon':'✖️⭕','ttt-sunmoon':'☀️🌙','ttt-heartstar':'❤️⭐','ttt-catdog':'🐱🐶','ttt-skulllightning':'💀⚡'},
+  clickfx:{'clickfx-bubbles':'🫧','clickfx-confetti':'🎊','clickfx-neon':'⚡','clickfx-stars':'🌟','clickfx-firework':'🎆'},
+  emojipack:{'emojipack-animals':'🐾','emojipack-hearts':'💜','emojipack-party':'🎉','emojipack-gaming':'🎮','emojipack-cosmos':'🌌'},
+  emote:{'emote-gg':'👍','emote-wellplayed':'🤝','emote-fire':'🔥','emote-easy':'😎','emote-omg':'😱'},
+};
+function _cosmeticPreviewHtml(type, id, itemName) {
+  const nm = _escHtml(localStorage.getItem('playerName') || 'Aa');
+  switch (type) {
+    case 'background':  return `<div class="shop-bg-preview ${id}"></div>`;
+    case 'bubble':      return `<div class="shop-bubble-preview ${id}">👋</div>`;
+    case 'font':        return `<span class="shop-fn-font-preview ${_cosmeticClass(equippedCosmetic)} ${id}">${nm}</span>`;
+    case 'color':       return `<span class="shop-cosmetic-preview name-${id} ${_fontClass(equippedFont)}">${nm}</span>`;
+    case 'nameeffect':  return `<span class="shop-nameeffect-preview ${id}">${nm}</span>`;
+    case 'title':       return `<span class="shop-title-tag">${_escHtml(itemName || '')}</span>`;
+    case 'cursorsnake': return `<div class="shop-emoji-preview">🐍</div>`;
+    case 'avatar':      return `<div class="shop-emoji-preview">${_LOCKER_EMOJI.avatar[id] || '🎭'}</div>`;
+    case 'p4token':     return `<div class="shop-emoji-preview">🔴🟡</div>`;
+    case 'ttt':         return `<div class="shop-emoji-preview">${_LOCKER_EMOJI.ttt[id] || '✖️⭕'}</div>`;
+    case 'chess':       return `<div class="shop-emoji-preview">♟️♜</div>`;
+    case 'clickfx':     return `<div class="shop-emoji-preview">${_LOCKER_EMOJI.clickfx[id] || '✨'}</div>`;
+    case 'emojipack':   return `<div class="shop-emoji-preview">${_LOCKER_EMOJI.emojipack[id] || '🎉'}</div>`;
+    case 'victoryban':  return `<div class="shop-emoji-preview">🏆</div>`;
+    case 'soundpack':   return `<div class="shop-emoji-preview">🎵</div>`;
+    case 'emote':       return `<div class="shop-emoji-preview">${_LOCKER_EMOJI.emote[id] || '😊'}</div>`;
+    default: return '';
+  }
 }
 
 function _nameEffectClass(nameEffect) {
@@ -8338,20 +8434,27 @@ const ProfileHub = (() => {
   let history = [];
   let loadedHistory = false;
   const _lockerOpen = new Set(); // catégories du casier actuellement dépliées
+  let _lockerTouched = false;    // l'utilisateur a-t-il déjà plié/déplié une catégorie ?
 
-  const isActive = () => document.body.classList.contains('screen-profile-active');
   const _named = () => { const n = (localStorage.getItem('playerName') || '').trim(); return n && n !== 'Anonyme'; };
 
-  // Le profil est maintenant un onglet (écran) : open() y navigue, enter() est
-  // appelé par showScreen quand on entre dans l'écran.
   function open() { showScreen('profile'); }
   function enter() {
     socket.emit('get-challenges', { playerId: getPlayerId() });
     socket.emit('get-history', { playerId: getPlayerId() });
-    renderAll();
+    renderStreak(); renderChallenges(); updateBadge();
   }
-
-  function renderAll() { renderStreak(); renderLocker(); renderChallenges(); renderHistory(); }
+  function enterLocker() {
+    // Première visite : on déplie toutes les catégories possédées pour voir les
+    // produits et leurs aperçus tout de suite.
+    if (!_lockerTouched) {
+      _lockerOpen.clear();
+      const owned = Array.isArray(ownedCosmetics) ? ownedCosmetics : [];
+      _lockerCategories(t()).forEach(cat => { if (cat.names && owned.some(id => cat.names[id])) _lockerOpen.add(cat.type); });
+    }
+    renderLocker();
+  }
+  function enterHistory() { socket.emit('get-history', { playerId: getPlayerId() }); renderHistory(); }
 
   function renderStreak() {
     const d = t();
@@ -8465,6 +8568,7 @@ const ProfileHub = (() => {
         const eq = cat.equipped.includes(id);
         const btnLabel = eq ? d.lockerUnequip : d.lockerEquip;
         return `<div class="locker-item${eq ? ' equipped' : ''}">
+          <div class="locker-item-preview">${_cosmeticPreviewHtml(cat.type, id, cat.names[id])}</div>
           <span class="locker-item-name">${_escHtml(cat.names[id])}${eq ? ` <span class="locker-eq">${_escHtml(d.lockerEquipped)}</span>` : ''}</span>
           <button class="locker-eq-btn${eq ? ' on' : ''}" data-equip="${_escHtml(id)}" data-type="${cat.type}" data-on="${eq ? '1' : '0'}">${_escHtml(btnLabel)}</button>
         </div>`;
@@ -8499,6 +8603,7 @@ const ProfileHub = (() => {
     const catBtn = e.target.closest('.locker-cat-btn');
     if (catBtn && !catBtn.classList.contains('locker-cat-btn-static')) {
       const type = catBtn.dataset.cat;
+      _lockerTouched = true;
       if (_lockerOpen.has(type)) _lockerOpen.delete(type); else _lockerOpen.add(type);
       catBtn.closest('.locker-cat')?.classList.toggle('open');
       return;
@@ -8513,23 +8618,11 @@ const ProfileHub = (() => {
     }
   });
 
-  // Sections repliables du profil (Casier, Historique) : boutons cliquables dont
-  // l'état d'ouverture est mémorisé pour survivre à un rafraîchissement.
-  function _wireAccordion(btnId, panelId, storeKey) {
-    const btn = document.getElementById(btnId);
-    const panel = document.getElementById(panelId);
-    if (!btn || !panel) return;
-    const setOpen = open => {
-      btn.classList.toggle('open', open);
-      panel.classList.toggle('open', open);
-      btn.setAttribute('aria-expanded', String(open));
-      try { localStorage.setItem(storeKey, open ? '1' : '0'); } catch (e) {}
-    };
-    btn.addEventListener('click', () => setOpen(!panel.classList.contains('open')));
-    setOpen(localStorage.getItem(storeKey) === '1');
-  }
-  _wireAccordion('locker-toggle', 'locker-list', 'libero_prof_locker');
-  _wireAccordion('history-toggle', 'history-list', 'libero_prof_history');
+  // Cartes du profil qui mènent à leur page dédiée + modal de récupération.
+  document.getElementById('go-locker')?.addEventListener('click', () => showScreen('locker'));
+  document.getElementById('go-history')?.addEventListener('click', () => showScreen('history'));
+  document.getElementById('btn-back-locker')?.addEventListener('click', () => showScreen('profile'));
+  document.getElementById('btn-back-history')?.addEventListener('click', () => showScreen('profile'));
 
   // Pastille sur l'onglet Profil quand au moins un défi est réclamable.
   function updateBadge() {
@@ -8543,11 +8636,65 @@ const ProfileHub = (() => {
   function setChallenges(list) { challenges = Array.isArray(list) ? list : []; renderChallenges(); updateBadge(); }
   function setStreak(s)        { streak = s; renderStreak(); }
   function setHistory(list)    { history = Array.isArray(list) ? list : []; loadedHistory = true; renderHistory(); }
-  function retexte()           { if (isActive()) renderAll(); updateBadge(); }
+  function retexte() {
+    const s = sessionStorage.getItem('libero_screen');
+    if (s === 'profile') { renderStreak(); renderChallenges(); }
+    else if (s === 'locker')  renderLocker();
+    else if (s === 'history') renderHistory();
+    updateBadge();
+  }
 
-  return { open, enter, setChallenges, setStreak, setHistory, retexte, updateBadge, renderLocker };
+  return { open, enter, enterLocker, enterHistory, setChallenges, setStreak, setHistory, retexte, updateBadge, renderLocker };
 })();
 window._profileHub = ProfileHub;
+
+// ── Sauvegarde / restauration de progression (code de récupération) ──────────
+// Le code EST l'identifiant du joueur (libero_player_id). Le sauvegarder permet
+// de retrouver toute sa progression sur un autre appareil.
+(function initRecovery() {
+  const overlay = document.getElementById('overlay-recovery');
+  if (!overlay) return;
+  const codeInput    = document.getElementById('recovery-code');
+  const openBtn      = document.getElementById('go-recovery');
+  const closeBtn     = document.getElementById('btn-recovery-close');
+  const copyBtn      = document.getElementById('btn-recovery-copy');
+  const restoreBtn   = document.getElementById('btn-recovery-restore');
+  const restoreInput = document.getElementById('recovery-input-field');
+
+  function openModal() {
+    if (codeInput) codeInput.value = getPlayerId();
+    if (restoreInput) restoreInput.value = '';
+    const hint = document.getElementById('recovery-restore-hint');
+    if (hint) { hint.textContent = t().recovery.restoreHint; hint.classList.remove('recovery-err'); }
+    overlay.classList.remove('hidden');
+  }
+  function closeModal() { overlay.classList.add('hidden'); }
+
+  openBtn?.addEventListener('click', openModal);
+  closeBtn?.addEventListener('click', closeModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+
+  copyBtn?.addEventListener('click', () => {
+    navigator.clipboard.writeText(codeInput.value).then(() => {
+      copyBtn.textContent = t().codeCopied;
+      setTimeout(() => { copyBtn.textContent = t().recovery.copy; }, 2000);
+    }).catch(() => {});
+  });
+
+  restoreBtn?.addEventListener('click', () => {
+    const raw  = (restoreInput.value || '').trim().replace(/[^a-zA-Z0-9_-]/g, '');
+    const hint = document.getElementById('recovery-restore-hint');
+    if (raw.length < 8) {
+      if (hint) { hint.textContent = t().recovery.invalid; hint.classList.add('recovery-err'); }
+      return;
+    }
+    if (raw === getPlayerId()) { closeModal(); return; } // c'est déjà ce compte
+    if (!confirm(t().recovery.confirm)) return;
+    localStorage.setItem('libero_player_id', raw);
+    localStorage.removeItem('playerName'); // sera restauré depuis le serveur
+    location.reload();
+  });
+})();
 
 socket.on('challenges-update', ({ challenges } = {}) => ProfileHub.setChallenges(challenges));
 socket.on('history-update',    ({ history } = {})    => ProfileHub.setHistory(history));

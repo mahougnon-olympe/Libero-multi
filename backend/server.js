@@ -2186,7 +2186,7 @@ io.on('connection', (socket) => {
     }
 
     const { available: refundCards, nextRefill: refundCardsNextRefill } = getRefundCardsInfo(entry);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, delta: streakBonus || undefined });
+    socket.emit('libs-update', { name: entry.name || '', balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, delta: streakBonus || undefined });
     socket.emit('challenges-update', { challenges: challengesPayload(entry) });
   });
 
