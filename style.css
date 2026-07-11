@@ -3446,3 +3446,26 @@ html.light .challenge-bar { background: rgba(0,0,0,.14); }
   border-color: var(--board); box-shadow: inset 0 0 0 1px var(--board);
   font-weight: 800;
 }
+
+/* ══ Menu Pluie d'emojis (Profil) ══ */
+.emojirain-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.emojirain-opt {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 10px 12px; background: var(--card2); border: 1px solid var(--border);
+  border-radius: 12px; color: var(--text); cursor: pointer; text-align: left;
+  transition: border-color .15s, transform .1s;
+}
+.emojirain-opt:hover  { border-color: var(--board); }
+.emojirain-opt:active { transform: scale(.99); }
+.emojirain-opt.selected { border-color: var(--board); box-shadow: inset 0 0 0 1px var(--board); }
+.emojirain-opt.locked { opacity: .75; }
+.emojirain-opt-ic { font-size: 1.25rem; flex-shrink: 0; }
+.emojirain-opt-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.emojirain-opt-text > span { font-weight: 700; font-size: .88rem; }
+.emojirain-opt-text small { font-size: .95rem; letter-spacing: 2px; margin-top: 2px; }
+.emojirain-check { color: #4ade80; font-weight: 900; font-size: 1.05rem; flex-shrink: 0; }
+.emojirain-unlock {
+  flex-shrink: 0; font-size: .74rem; font-weight: 800; white-space: nowrap;
+  background: var(--board); color: #fff; border-radius: 999px; padding: 4px 10px;
+}
+.emojirain-custom-wrap { margin-bottom: 14px; }

@@ -361,6 +361,17 @@ const DICT = {
       invalid:'Ce code est invalide.',
       confirm:'Restaurer cette progression ? La progression actuelle de cet appareil sera remplacée.',
     },
+    emojirain:{
+      cardTitle:"Pluie d'émojis", cardSub:'Choisis le thème ou tes propres émojis',
+      title:"🌈 Pluie d'émojis",
+      intro:"La pluie d'émojis s'affiche à ton arrivée sur le site. Choisis son thème, ou compose ta propre pluie !",
+      standard:'Standard (jeux du site)', custom:'Personnalisé',
+      customLabel:'Tes émojis (15 max)',
+      customEmpty:'Tape au moins un émoji.',
+      saved:n=>`Enregistré ! ${n} émoji${n>1?'s':''} dans ta pluie.`,
+      unlock:price=>`Débloquer (${price} ⚡)`,
+      test:'▶ Tester la pluie',
+    },
     resetCardTitle:'Réinitialiser le compte', resetCardSub:'Repartir de zéro sur le site',
     resetTitle:'🗑️ Réinitialiser le compte',
     resetIntro:"Réinitialiser supprime définitivement toute ta progression (Libs, cosmétiques, série, historique) et tu disparais de tous les classements. Le site redémarre ensuite comme à ta toute première visite.",
@@ -877,6 +888,17 @@ const DICT = {
       restoreHint:'Warning: restoring replaces the current progress on this device.',
       invalid:'This code is invalid.',
       confirm:'Restore this progress? The current progress on this device will be replaced.',
+    },
+    emojirain:{
+      cardTitle:'Emoji rain', cardSub:'Pick a theme or your own emojis',
+      title:'🌈 Emoji rain',
+      intro:'The emoji rain plays when you arrive on the site. Pick its theme, or build your own rain!',
+      standard:'Standard (site games)', custom:'Custom',
+      customLabel:'Your emojis (15 max)',
+      customEmpty:'Type at least one emoji.',
+      saved:n=>`Saved! ${n} emoji${n>1?'s':''} in your rain.`,
+      unlock:price=>`Unlock (${price} ⚡)`,
+      test:'▶ Test the rain',
     },
     resetCardTitle:'Reset account', resetCardSub:'Start over from scratch',
     resetTitle:'🗑️ Reset account',
@@ -1461,6 +1483,14 @@ function applyLang() {
   const rrl = $('recovery-restore-label'); if (rrl) rrl.textContent = d.recovery.restoreLabel;
   const rrb = $('btn-recovery-restore');   if (rrb) rrb.textContent = d.recovery.restore;
   const rrh = $('recovery-restore-hint');  if (rrh && !rrh.classList.contains('recovery-err')) rrh.textContent = d.recovery.restoreHint;
+  // Pluie d'émojis
+  const ert = $('emojirain-card-title'); if (ert) ert.textContent = d.emojirain.cardTitle;
+  const ers = $('emojirain-card-sub');   if (ers) ers.textContent = d.emojirain.cardSub;
+  const erm = $('emojirain-title');      if (erm) erm.textContent = d.emojirain.title;
+  const eri = $('emojirain-intro');      if (eri) eri.textContent = d.emojirain.intro;
+  const erl = $('emojirain-custom-label'); if (erl) erl.textContent = d.emojirain.customLabel;
+  const erb = $('btn-emojirain-test');   if (erb) erb.textContent = d.emojirain.test;
+  if (window._emojiRainRetexte) window._emojiRainRetexte();
   // Réinitialiser le compte
   const rsct = $('reset-card-title'); if (rsct) rsct.textContent = d.resetCardTitle;
   const rscs = $('reset-card-sub');   if (rscs) rscs.textContent = d.resetCardSub;
@@ -7135,19 +7165,40 @@ function showCursorSnakeToast(msg) {
   })();
 })();
 
-// ── Pluie d'émojis au chargement ──────────────────────────────────────────────
-(() => {
-  const _sc = sessionStorage.getItem('libero_screen');
-  if (_sc && _sc !== 'landing') return;
-  const EMOJI_PACK_SETS = {
-    'emojipack-animals': ['🐶','🐱','🐻','🦊','🐼','🐨','🐯','🦁','🐮','🐸','🐧','🦋','🦄','🐙','🦀'],
-    'emojipack-hearts':  ['💜','💙','💚','💛','🧡','❤️','🩷','🤍','🩵','💗','💖','💝','💘','💞','💓'],
-    'emojipack-party':   ['🎉','🎊','🎈','🎆','🎇','🥳','🎂','🎁','🪅','🎀','🥂','✨','🎠','🎪','🎭'],
-    'emojipack-gaming':  ['🎮','🕹️','👾','🎯','🏆','🎲','🃏','🎰','👑','⚔️','🛡️','🗡️','🧩','🕳️','💣'],
-    'emojipack-cosmos':  ['🌌','🪐','✨','⭐','🌟','💫','☄️','🌙','🌠','🔭','🛸','🚀','🌍','🌌','💥'],
-  };
-  const _equippedPack = localStorage.getItem('libero_equipped_emojipack') || '';
-  const EMOJIS = EMOJI_PACK_SETS[_equippedPack] || ['🔴','🟡','♟','♔','♚','♛','♜','♝','♞','❌','⭕','🧠','❓','💡','🎮','🎯','🏆','🎲'];
+// ── Pluie d'émojis ────────────────────────────────────────────────────────────
+// Jeu d'émojis choisi par le joueur (Profil → Pluie d'émojis) : standard,
+// pack équipé, ou liste personnalisée tapée par le joueur (stockée en local).
+const EMOJI_PACK_SETS = {
+  'emojipack-animals': ['🐶','🐱','🐻','🦊','🐼','🐨','🐯','🦁','🐮','🐸','🐧','🦋','🦄','🐙','🦀'],
+  'emojipack-hearts':  ['💜','💙','💚','💛','🧡','❤️','🩷','🤍','🩵','💗','💖','💝','💘','💞','💓'],
+  'emojipack-party':   ['🎉','🎊','🎈','🎆','🎇','🥳','🎂','🎁','🪅','🎀','🥂','✨','🎠','🎪','🎭'],
+  'emojipack-gaming':  ['🎮','🕹️','👾','🎯','🏆','🎲','🃏','🎰','👑','⚔️','🛡️','🗡️','🧩','🕳️','💣'],
+  'emojipack-cosmos':  ['🌌','🪐','✨','⭐','🌟','💫','☄️','🌙','🌠','🔭','🛸','🚀','🌍','🌌','💥'],
+};
+const EMOJI_STANDARD = ['🔴','🟡','♟','♔','♚','♛','♜','♝','♞','❌','⭕','🧠','❓','💡','🎮','🎯','🏆','🎲'];
+
+// Découpe une chaîne d'émojis collés en liste (gère les émojis composés).
+function _parseCustomEmojis(str) {
+  const raw = String(str || '').replace(/[\s,;]+/g, '');
+  let parts;
+  try { parts = [...new Intl.Segmenter('fr', { granularity: 'grapheme' }).segment(raw)].map(x => x.segment); }
+  catch { parts = [...raw]; }
+  return parts.filter(Boolean).slice(0, 15);
+}
+
+function _currentEmojiSet() {
+  const mode = localStorage.getItem('libero_emojirain_mode') || '';
+  if (mode === 'custom') {
+    const custom = _parseCustomEmojis(localStorage.getItem('libero_custom_emojis'));
+    if (custom.length) return custom;
+  }
+  const pack = localStorage.getItem('libero_equipped_emojipack') || '';
+  return EMOJI_PACK_SETS[pack] || EMOJI_STANDARD;
+}
+
+// Joue la pluie (au chargement de l'accueil, et via « Tester » dans le menu).
+window._playEmojiRain = function () {
+  const EMOJIS = _currentEmojiSet();
   const wrap = document.createElement('div');
   wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9998;';
   document.body.appendChild(wrap);
@@ -7177,6 +7228,13 @@ function showCursorSnakeToast(msg) {
   }
 
   setTimeout(() => wrap.remove(), 8500);
+};
+
+// Au chargement : uniquement sur l'accueil.
+(() => {
+  const _sc = sessionStorage.getItem('libero_screen');
+  if (_sc && _sc !== 'landing') return;
+  window._playEmojiRain();
 })();
 
 // ── Commentaires joueurs ──────────────────────────────────────────────────────
@@ -9033,6 +9091,94 @@ window._profileHub = ProfileHub;
     // quand meme localement.
     setTimeout(() => { if (!done) { done = true; wipe(); } }, 4000);
   });
+})();
+
+// ── Pluie d'émojis : choix du thème + émojis personnalisés ──────────────────
+(function initEmojiRainMenu() {
+  const overlay = document.getElementById('overlay-emojirain');
+  if (!overlay) return;
+  const optionsEl  = document.getElementById('emojirain-options');
+  const customWrap = document.getElementById('emojirain-custom-wrap');
+  const customIn   = document.getElementById('emojirain-custom-input');
+  const customHint = document.getElementById('emojirain-custom-hint');
+  const PACK_PRICES = { 'emojipack-animals':10, 'emojipack-hearts':15, 'emojipack-party':25, 'emojipack-gaming':40, 'emojipack-cosmos':70 };
+
+  function mode() { return localStorage.getItem('libero_emojirain_mode') || ''; }
+
+  function render() {
+    const d = t();
+    const owned = Array.isArray(ownedCosmetics) ? ownedCosmetics : [];
+    const curPack = localStorage.getItem('libero_equipped_emojipack') || '';
+    const rows = [];
+    const row = (id, icon, label, preview, selected, lockedPrice) => `
+      <button type="button" class="emojirain-opt${selected ? ' selected' : ''}${lockedPrice ? ' locked' : ''}" data-opt="${id}">
+        <span class="emojirain-opt-ic">${icon}</span>
+        <span class="emojirain-opt-text"><span>${_escHtml(label)}</span><small>${preview}</small></span>
+        ${lockedPrice ? `<span class="emojirain-unlock">${_escHtml(d.emojirain.unlock(lockedPrice))}</span>` : selected ? '<span class="emojirain-check">✓</span>' : ''}
+      </button>`;
+    rows.push(row('standard', '🎲', d.emojirain.standard, EMOJI_STANDARD.slice(0, 6).join(''), mode() !== 'custom' && !curPack, 0));
+    Object.keys(EMOJI_PACK_SETS).forEach(pid => {
+      const name = d.shopEmojiPackNames[pid] || pid;
+      const has  = owned.includes(pid);
+      rows.push(row(pid, '🌈', name, EMOJI_PACK_SETS[pid].slice(0, 6).join(''), has && mode() !== 'custom' && curPack === pid, has ? 0 : PACK_PRICES[pid]));
+    });
+    const customSel = mode() === 'custom';
+    rows.push(row('custom', '✏️', d.emojirain.custom, _parseCustomEmojis(localStorage.getItem('libero_custom_emojis')).join('') || '…', customSel, 0));
+    optionsEl.innerHTML = rows.join('');
+    customWrap.classList.toggle('hidden', !customSel);
+    if (customSel) customIn.value = localStorage.getItem('libero_custom_emojis') || '';
+  }
+
+  function open()  { customHint.textContent = ''; customHint.classList.remove('recovery-err'); render(); overlay.classList.remove('hidden'); }
+  function close() { overlay.classList.add('hidden'); }
+  document.getElementById('go-emojirain')?.addEventListener('click', open);
+  document.getElementById('btn-emojirain-close')?.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  optionsEl?.addEventListener('click', e => {
+    const btn = e.target.closest('.emojirain-opt');
+    if (!btn) return;
+    const id = btn.dataset.opt;
+    if (id === 'standard') {
+      localStorage.setItem('libero_emojirain_mode', 'standard');
+      localStorage.setItem('libero_equipped_emojipack', '');
+      socket.emit('equip-cosmetic', { cosmeticId: null, type: 'emojipack', playerId: getPlayerId() });
+      render();
+    } else if (id === 'custom') {
+      localStorage.setItem('libero_emojirain_mode', 'custom');
+      render();
+      customIn?.focus();
+    } else if (btn.classList.contains('locked')) {
+      // Pack non possédé : achat direct depuis ce menu (même flux que la boutique).
+      socket.emit('buy-cosmetic', { cosmeticId: id, playerId: getPlayerId() });
+    } else {
+      localStorage.setItem('libero_emojirain_mode', 'pack');
+      localStorage.setItem('libero_equipped_emojipack', id);
+      socket.emit('equip-cosmetic', { cosmeticId: id, type: 'emojipack', playerId: getPlayerId() });
+      render();
+    }
+  });
+
+  document.getElementById('btn-emojirain-save')?.addEventListener('click', () => {
+    const list = _parseCustomEmojis(customIn.value);
+    if (!list.length) {
+      customHint.textContent = t().emojirain.customEmpty;
+      customHint.classList.add('recovery-err');
+      return;
+    }
+    localStorage.setItem('libero_custom_emojis', list.join(''));
+    localStorage.setItem('libero_emojirain_mode', 'custom');
+    customHint.classList.remove('recovery-err');
+    customHint.textContent = t().emojirain.saved(list.length);
+    render();
+  });
+
+  document.getElementById('btn-emojirain-test')?.addEventListener('click', () => window._playEmojiRain?.());
+
+  // Un achat / équipement (fait ici ou en boutique) rafraîchit la liste.
+  socket.on('buy-cosmetic-result',   () => { if (!overlay.classList.contains('hidden')) setTimeout(render, 200); });
+  socket.on('equip-cosmetic-result', () => { if (!overlay.classList.contains('hidden')) setTimeout(render, 200); });
+  window._emojiRainRetexte = () => { if (!overlay.classList.contains('hidden')) render(); };
 })();
 
 // ── Offrir un cosmétique ou un pack (modal du lien + code cadeau) ────────────

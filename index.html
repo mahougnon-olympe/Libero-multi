@@ -863,6 +863,11 @@
           <span class="pnc-text"><span id="recovery-card-title">Sauvegarder ma progression</span><small id="recovery-card-sub">Ne perds jamais ton compte</small></span>
           <span class="pnc-arrow">›</span>
         </button>
+        <button type="button" class="profile-nav-card" id="go-emojirain">
+          <span class="pnc-icon">🌈</span>
+          <span class="pnc-text"><span id="emojirain-card-title">Pluie d'émojis</span><small id="emojirain-card-sub">Choisis le thème ou tes propres émojis</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
         <button type="button" class="profile-nav-card profile-nav-card-danger" id="go-reset">
           <span class="pnc-icon">🗑️</span>
           <span class="pnc-text"><span id="reset-card-title">Réinitialiser le compte</span><small id="reset-card-sub">Repartir de zéro sur le site</small></span>
@@ -912,6 +917,29 @@
           <button id="btn-recovery-restore" class="btn btn-primary">Restaurer</button>
         </div>
         <p id="recovery-restore-hint" class="recovery-warn">Attention : restaurer remplace la progression actuelle de cet appareil.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal : Pluie d'émojis (thème + émojis personnalisés) ── -->
+  <div id="overlay-emojirain" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="emojirain-title" class="profile-modal-title">🌈 Pluie d'émojis</h2>
+        <button id="btn-emojirain-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <p id="emojirain-intro" class="recovery-intro">La pluie d'émojis s'affiche à ton arrivée sur le site. Choisis son thème, ou compose ta propre pluie !</p>
+        <div id="emojirain-options" class="emojirain-options"></div>
+        <div id="emojirain-custom-wrap" class="emojirain-custom-wrap hidden">
+          <label id="emojirain-custom-label" class="recovery-label">Tes émojis (15 max)</label>
+          <div class="recovery-restore-row">
+            <input id="emojirain-custom-input" class="recovery-input" type="text" placeholder="😎🔥🐍⚡🌈" autocomplete="off" spellcheck="false" />
+            <button id="btn-emojirain-save" class="btn btn-primary">OK</button>
+          </div>
+          <p id="emojirain-custom-hint" class="recovery-warn"></p>
+        </div>
+        <button id="btn-emojirain-test" class="btn btn-secondary recovery-reset-btn">▶ Tester la pluie</button>
       </div>
     </div>
   </div>
