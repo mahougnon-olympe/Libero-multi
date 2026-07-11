@@ -4627,7 +4627,7 @@ function _renderShopItems() {
 
   // Seules ces familles restent en vente (le reste des cosmétiques est retiré
   // de la boutique mais conservé dans le casier des joueurs qui les possèdent).
-  const KEPT_SHOP_TYPES = new Set(['color', 'nameeffect', 'title', 'background', 'boost']);
+  const KEPT_SHOP_TYPES = new Set(['color', 'font', 'nameeffect', 'title', 'background', 'boost']);
   const rotDaily = shopRotation?.daily || [];
   const _pickKept = ids => ids.map(id => allItemsById[id]).filter(it => it && KEPT_SHOP_TYPES.has(it.type));
   // « À la une » : on garde les vedettes du serveur (uniquement des familles
@@ -4734,6 +4734,7 @@ function _renderShopItems() {
       <button class="shop-fn-nav-btn" data-section="bundles"><span class="shop-nav-icon">🎁</span><span class="shop-nav-label"> ${nav.bundles}</span></button>
       <button class="shop-fn-nav-btn" data-section="boosts"><span class="shop-nav-icon">💡</span><span class="shop-nav-label"> ${nav.boosts}</span></button>
       <button class="shop-fn-nav-btn" data-section="colors"><span class="shop-nav-icon">🎨</span><span class="shop-nav-label"> ${nav.colors}</span></button>
+      <button class="shop-fn-nav-btn" data-section="fonts"><span class="shop-nav-icon">✍️</span><span class="shop-nav-label"> ${nav.fonts}</span></button>
       <button class="shop-fn-nav-btn" data-section="nameeffects"><span class="shop-nav-icon">✨</span><span class="shop-nav-label"> ${nav.nameeffects}</span></button>
       <button class="shop-fn-nav-btn" data-section="titles"><span class="shop-nav-icon">🏷️</span><span class="shop-nav-label"> ${nav.titles}</span></button>
       <button class="shop-fn-nav-btn" data-section="bgs"><span class="shop-nav-icon">🖼️</span><span class="shop-nav-label"> ${nav.bgs}</span></button>
@@ -4797,6 +4798,12 @@ function _renderShopItems() {
           <button id="btn-buy-boost-hint-20" class="btn btn-primary">${d.shopBtnBuy20}</button>
         </div>
       </div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-fonts" data-section-id="fonts">
+      <h3 class="shop-fn-section-title">${d.shopFontsTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.fonts}</p>
+      <div class="shop-fn-grid">${fontItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-nameeffects" data-section-id="nameeffects">

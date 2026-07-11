@@ -921,9 +921,10 @@ body.shop-open .main-nav { display: none !important; } /* pas de barre de nav da
   box-shadow: 0 2px 12px rgba(99,102,241,.5);
 }
 .nav-tab-icon { font-size: 1rem; line-height: 1; }
-@media (max-width: 600px) {
-  /* En haut, la barre chevaucherait le compteur Libs et la roue Paramètres :
-     on la place en bas au centre (entre les boutons flottants aide/commentaire). */
+@media (max-width: 900px) {
+  /* En haut, la barre chevaucherait le compteur Libs et la roue Paramètres
+     (des 900px de large, tablettes comprises) : on la place en bas au centre
+     (entre les boutons flottants aide/commentaire). */
   .main-nav { top: auto; bottom: 16px; padding: 3px; gap: 3px; }
   .nav-tab  { padding: 7px 12px; font-size: .8rem; gap: 5px; }
   /* Remonte le titre de la vidéo pour qu'il ne passe pas sous la barre du bas. */

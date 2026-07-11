@@ -1125,11 +1125,15 @@ let nextDistributionAt = 0;
 
 function refreshAllHonorTitles() {
   const newR1Global = getGlobalLeaderboardData()[0]?.name || null;
-  if (newR1Global === rank1Global) return;
-  rank1Global     = newR1Global;
-  rank1StreakSince = Date.now();
-  dbSaveRank1Streak();
-
+  if (newR1Global !== rank1Global) {
+    rank1Global      = newR1Global;
+    rank1StreakSince = Date.now();
+    dbSaveRank1Streak();
+  }
+  // Pas de sortie anticipée quand le nom du n°1 n'a pas changé : la boucle
+  // ci-dessous est auto-reparatrice (elle ne reecrit que ce qui differe).
+  // Cela recolle le titre si l'entree du n°1 l'a perdu (reinitialisation,
+  // restauration SAV, nouvel appareil sous le meme pseudo...).
   for (const [id, entry] of libs.entries()) {
     if (entry.name === 'Libero') continue;
     const name = entry.name;
@@ -3891,6 +3895,7 @@ async function mergeDuplicateNames() {
   await loadData();
   await mergeDuplicateNames();
   await resetLibsBalancesOnce();
+  refreshAllHonorTitles(); // recolle le titre honorifique du n°1 si besoin
 
   const DIST_INTERVAL = 5 * 3_600_000;
   const now = Date.now();
