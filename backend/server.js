@@ -2327,30 +2327,42 @@ io.on('connection', (socket) => {
     socket.emit('redeem-result', { ok: true, delta: reward });
   });
 
-  // ── Offrir un cosmetique ─────────────────────────────────────────────────
-  // L'acheteur paie le prix du cosmetique et recoit un code cadeau a partager.
-  // Le destinataire l'echange (redeem-gift) pour l'ajouter a son casier.
-  socket.on('gift-cosmetic', ({ playerId, cosmeticId } = {}) => {
+  // ── Offrir un cosmetique ou un pack ──────────────────────────────────────
+  // L'acheteur paie le prix (cosmetique ou pack complet) et recoit un code
+  // cadeau a partager (ou un lien ?gift=CODE). Le destinataire l'echange
+  // (redeem-gift) pour l'ajouter a son casier.
+  socket.on('gift-cosmetic', ({ playerId, cosmeticId, bundleId } = {}) => {
     if (!allowAction('buy')) { socket.emit('gift-cosmetic-result', { ok: false, error: 'rate' }); return; }
     const id = safePlayerId(playerId);
     if (!id) { socket.emit('gift-cosmetic-result', { ok: false, error: 'invalid' }); return; }
     const entry = getLibsEntry(id);
     if (!entry.name || entry.name === 'Anonyme') { socket.emit('gift-cosmetic-result', { ok: false, error: 'anonymous' }); return; }
-    const cosmetic = COSMETICS.find(c => c.id === cosmeticId);
-    if (!cosmetic || cosmetic.honorary || cosmetic.price <= 0) { socket.emit('gift-cosmetic-result', { ok: false, error: 'invalid' }); return; }
-    if (entry.balance < cosmetic.price) { socket.emit('gift-cosmetic-result', { ok: false, error: 'insufficient' }); return; }
-    entry.balance -= cosmetic.price;
+    let price, rec;
+    if (bundleId) {
+      const bundle = BUNDLES.find(b => b.id === bundleId);
+      if (!bundle) { socket.emit('gift-cosmetic-result', { ok: false, error: 'invalid' }); return; }
+      price = bundle.bundlePrice; // pack complet : le destinataire recoit tout
+      rec = { bundleId, fromName: entry.name, createdAt: Date.now(), redeemedBy: null, redeemedAt: null };
+    } else {
+      const cosmetic = COSMETICS.find(c => c.id === cosmeticId);
+      if (!cosmetic || cosmetic.honorary || cosmetic.price <= 0) { socket.emit('gift-cosmetic-result', { ok: false, error: 'invalid' }); return; }
+      price = cosmetic.price;
+      rec = { cosmeticId, fromName: entry.name, createdAt: Date.now(), redeemedBy: null, redeemedAt: null };
+    }
+    if (entry.balance < price) { socket.emit('gift-cosmetic-result', { ok: false, error: 'insufficient' }); return; }
+    entry.balance -= price;
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
     const code = _makeGiftCode();
-    const rec = { cosmeticId, fromName: entry.name, createdAt: Date.now(), redeemedBy: null, redeemedAt: null };
     giftCodes.set(code, rec);
     if (db) db.collection('gift_codes').updateOne({ _id: code }, { $set: rec }, { upsert: true }).catch(() => {});
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
-    socket.emit('gift-cosmetic-result', { ok: true, code, cosmeticId });
+    socket.emit('gift-cosmetic-result', { ok: true, code, cosmeticId: rec.cosmeticId || null, bundleId: rec.bundleId || null });
   });
 
-  // ── Recevoir un cadeau ───────────────────────────────────────────────────
+  // ── Recevoir un cadeau (cosmetique ou pack) ──────────────────────────────
+  // Pas de pseudo obligatoire : le cadeau est deja paye par l'offreur, aucun
+  // risque de farm. Le pseudo est quand meme enregistre s'il est fourni.
   socket.on('redeem-gift', ({ code, playerId, name } = {}) => {
     if (!allowAction('redeem', 10, 60_000)) { socket.emit('redeem-gift-result', { ok: false, error: 'rate' }); return; }
     const id = safePlayerId(playerId);
@@ -2358,22 +2370,73 @@ io.on('connection', (socket) => {
     const entry = getLibsEntry(id);
     const cleanName = sanitizeName(name);
     if (cleanName && cleanName !== 'Anonyme') entry.name = cleanName;
-    if (!entry.name || entry.name === 'Anonyme') { socket.emit('redeem-gift-result', { ok: false, error: 'anonymous' }); return; }
     const g = String(code || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
     const rec = giftCodes.get(g);
     if (!rec) { socket.emit('redeem-gift-result', { ok: false, error: 'invalid' }); return; }
     if (rec.redeemedBy) { socket.emit('redeem-gift-result', { ok: false, error: 'used' }); return; }
-    const cosmetic = COSMETICS.find(c => c.id === rec.cosmeticId);
-    if (!cosmetic) { socket.emit('redeem-gift-result', { ok: false, error: 'invalid' }); return; }
-    if (entry.ownedCosmetics.includes(rec.cosmeticId)) { socket.emit('redeem-gift-result', { ok: false, error: 'already_owned' }); return; }
-    entry.ownedCosmetics.push(rec.cosmeticId);
+    let granted = [], boostAdded = 0;
+    if (rec.bundleId) {
+      const bundle = BUNDLES.find(b => b.id === rec.bundleId);
+      if (!bundle) { socket.emit('redeem-gift-result', { ok: false, error: 'invalid' }); return; }
+      const bundleCosmetics = bundle.items.filter(itemId => COSMETICS.some(c => c.id === itemId));
+      const bundleBoosts    = bundle.items.filter(itemId => SHOP_ITEMS.some(s => s.id === itemId));
+      granted = bundleCosmetics.filter(itemId => !entry.ownedCosmetics.includes(itemId));
+      if (!granted.length && !bundleBoosts.length) { socket.emit('redeem-gift-result', { ok: false, error: 'already_owned' }); return; }
+      granted.forEach(itemId => entry.ownedCosmetics.push(itemId));
+      bundleBoosts.forEach(itemId => {
+        const item = SHOP_ITEMS.find(s => s.id === itemId);
+        if (item) { entry.pendingBoostHint = (entry.pendingBoostHint || 0) + item.amount; boostAdded += item.amount; }
+      });
+    } else {
+      const cosmetic = COSMETICS.find(c => c.id === rec.cosmeticId);
+      if (!cosmetic) { socket.emit('redeem-gift-result', { ok: false, error: 'invalid' }); return; }
+      if (entry.ownedCosmetics.includes(rec.cosmeticId)) { socket.emit('redeem-gift-result', { ok: false, error: 'already_owned' }); return; }
+      entry.ownedCosmetics.push(rec.cosmeticId);
+      granted = [rec.cosmeticId];
+    }
     rec.redeemedBy = id; rec.redeemedAt = Date.now();
     giftCodes.set(g, rec);
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
     if (db) db.collection('gift_codes').updateOne({ _id: g }, { $set: { redeemedBy: id, redeemedAt: rec.redeemedAt } }).catch(() => {});
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
-    socket.emit('redeem-gift-result', { ok: true, cosmeticId: rec.cosmeticId, fromName: rec.fromName });
+    socket.emit('redeem-gift-result', { ok: true, cosmeticId: rec.cosmeticId || null, bundleId: rec.bundleId || null, granted, boostAdded, fromName: rec.fromName });
+  });
+
+  // ── Réinitialiser le compte ──────────────────────────────────────────────
+  // Suppression totale et définitive de la progression : le joueur disparaît
+  // de tous les classements et de toutes les données serveur. Le playerId
+  // (secret) fait office de preuve de propriété.
+  socket.on('reset-account', ({ playerId } = {}) => {
+    if (!allowAction('reset', 3, 60_000)) { socket.emit('reset-account-result', { ok: false, error: 'rate' }); return; }
+    const id = safePlayerId(playerId);
+    if (!id) { socket.emit('reset-account-result', { ok: false, error: 'invalid' }); return; }
+    libs.delete(id);
+    leaderboard.delete(id);
+    triviaLeaderboard.delete(id);
+    snakeLeaderboard.delete(id);
+    luffyLeaderboard.delete(id);
+    snakeVotes.delete(id);
+    // Alias : on retire les redirections qui partent de cet id ou y mènent.
+    for (const [from, to] of [...playerIdAliases.entries()]) {
+      if (from === id || to === id) playerIdAliases.delete(from);
+    }
+    if (db) {
+      db.collection('libs').deleteOne({ _id: id }).catch(() => {});
+      db.collection('leaderboard').deleteOne({ _id: id }).catch(() => {});
+      db.collection('trivia_leaderboard').deleteOne({ _id: id }).catch(() => {});
+      db.collection('snake_leaderboard').deleteOne({ _id: id }).catch(() => {});
+      db.collection('luffy_leaderboard').deleteOne({ _id: id }).catch(() => {});
+      db.collection('snake_votes').deleteOne({ _id: id }).catch(() => {});
+      db.collection('player_aliases').deleteMany({ $or: [{ _id: id }, { canonId: id }] }).catch(() => {});
+    }
+    // Tous les classements se mettent à jour en direct pour tout le monde.
+    io.emit('leaderboard-update', getLeaderboardData());
+    io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
+    io.emit('snake-leaderboard-update', getSnakeLeaderboardData());
+    io.emit('luffy-leaderboard-update', getLuffyLeaderboardData());
+    io.emit('global-leaderboard-update', getGlobalLeaderboardData());
+    socket.emit('reset-account-result', { ok: true });
   });
 
   socket.on('buy-cosmetic', ({ playerId, cosmeticId } = {}) => {

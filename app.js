@@ -66,6 +66,20 @@ const pendingJoinCode = (() => {
   return null;
 })();
 
+// Lien cadeau ?gift=CODE : le destinataire ouvre le lien et le cosmétique (ou
+// le pack) est échangé automatiquement, sans avoir à taper le code.
+const pendingGiftCode = (() => {
+  try {
+    const c = new URLSearchParams(location.search).get('gift');
+    if (c) { // nettoie l'URL pour qu'un refresh ne retente pas l'échange
+      const clean = location.pathname + location.hash;
+      history.replaceState(null, '', clean);
+      return c.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+    }
+  } catch (e) {}
+  return null;
+})();
+
 // ── État global ─────────────────────────────────────────────────────────────
 let libsBalance        = parseInt(localStorage.getItem('libero_libs') || '0', 10);
 let pendingHintCharges = 0;
@@ -349,10 +363,10 @@ const DICT = {
     },
     resetCardTitle:'Réinitialiser le compte', resetCardSub:'Repartir de zéro sur le site',
     resetTitle:'🗑️ Réinitialiser le compte',
-    resetIntro:'Réinitialiser efface toute ta progression sur cet appareil (Libs, cosmétiques, série, historique) et repart avec un compte tout neuf. Cette action est définitive sur cet appareil.',
-    resetSaveHint:"Tu veux garder ton compte actuel ? Copie d'abord ton code de récupération ci-dessous : tu pourras y revenir plus tard. Ce n'est pas obligatoire.",
-    resetCodeLabel:'Ton code de récupération (avant de réinitialiser)',
-    resetConfirmLabel:'Je comprends que ma progression sera supprimée de cet appareil.',
+    resetIntro:"Réinitialiser supprime définitivement toute ta progression (Libs, cosmétiques, série, historique) et tu disparais de tous les classements. Le site redémarre ensuite comme à ta toute première visite.",
+    resetSaveHint:"Tu hésites ? Sauvegarde d'abord ton code de récupération ci-dessous si tu veux réfléchir. Attention : après la réinitialisation, ce code ne fonctionnera plus, la suppression est définitive. Sauvegarder n'est pas obligatoire.",
+    resetCodeLabel:'Ton code de récupération (valable seulement avant la réinitialisation)',
+    resetConfirmLabel:'Je comprends que ma progression sera définitivement supprimée et que je disparaîtrai des classements.',
     resetConfirmBtn:'Réinitialiser définitivement',
     onboarding:{
       welcomeType:"Bienvenue sur Libero's Multi",
@@ -371,13 +385,15 @@ const DICT = {
     shopGiftReceiveBtn:'Recevoir',
     shopGiftPlaceholder:'Code cadeau',
     giftTitle:'🎁 Cadeau prêt !',
-    giftIntro:"Envoie ce code cadeau à la personne de ton choix. Elle l'échange dans la boutique (section « Recevoir un cadeau ») pour débloquer le cosmétique.",
-    giftCodeLabel:'Code cadeau',
-    giftShareBtn:'Partager le cadeau', giftWarn:"Le code n'est utilisable qu'une seule fois.",
+    giftIntro:"Envoie le lien cadeau à la personne de ton choix : en l'ouvrant, elle reçoit le cadeau automatiquement. Si elle ne peut pas ouvrir le lien, elle peut aussi entrer le code dans la boutique (section « Recevoir un cadeau »).",
+    giftLinkLabel:"Lien cadeau (à ouvrir, c'est tout)",
+    giftCodeLabel:'Code cadeau (si le lien ne passe pas)',
+    giftShareBtn:'Partager le cadeau', giftWarn:"Le cadeau n'est utilisable qu'une seule fois (lien ou code).",
     giftShareTitle:"Un cadeau sur Libero's Multi",
-    giftShareText:code=>`🎁 Je t'offre un cosmétique sur Libero's Multi ! Échange ce code dans la boutique (Recevoir un cadeau) : ${code}\nhttps://libero-multi.vercel.app`,
+    giftShareText:(code,url)=>`🎁 Je t'offre un cadeau sur Libero's Multi ! Ouvre ce lien pour le recevoir : ${url}\nOu entre ce code dans la boutique (Recevoir un cadeau) : ${code}`,
     giftReceived:name=>name ? `🎁 Cadeau de ${name} débloqué !` : '🎁 Cadeau débloqué !',
-    giftUsed:'Ce code cadeau a déjà été utilisé.',
+    giftReceivedBundle:name=>name ? `🎁 Pack cadeau de ${name} débloqué ! Regarde ton casier.` : '🎁 Pack cadeau débloqué ! Regarde ton casier.',
+    giftUsed:'Ce cadeau a déjà été utilisé.',
     giftInvalid:'Code cadeau invalide.',
     readLoading:'Chargement des livres…',
     readEmpty:'Cette section est en cours de développement.\nReviens bientôt pour découvrir des livres !',
@@ -721,8 +737,8 @@ const DICT = {
         { icon:'🎯', title:'Mon profil', desc:"L'onglet <strong>Profil</strong> (dans la barre en bas, à côté d'Accueil) regroupe quatre choses : ton <strong>casier</strong> (voir ci-dessous), tes <strong>défis du jour</strong> (3 objectifs qui <strong>changent chaque jour</strong> : jamais le même défi deux jours de suite, avec le Snake le week-end et Libero Run en semaine ; réclame les 3 pour un <strong>bonus « journée parfaite » +30 ⚡</strong>), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. On y trouve aussi les cartes <strong>Sauvegarder ma progression</strong> (ton code de récupération) et <strong>Réinitialiser le compte</strong>. Il faut un pseudo pour en profiter." },
         { icon:'🎒', title:'Mon casier', desc:"Dans l'onglet <strong>Profil</strong>, le <strong>casier</strong> range tout ce que tu possèdes, <strong>classé par catégorie</strong>. Chaque catégorie est une <strong>carte</strong> : clique dessus pour voir les articles de ce type avec leur <strong>aperçu visuel</strong>, puis <strong>équipe</strong> ou <strong>déséquipe</strong> directement, sans passer par la boutique. Bonus : <strong>3 fonds d'écran gratuits</strong> (Nuit Calme, Ardoise Profonde, Brume Violette) sont offerts à tous les joueurs et t'attendent déjà dedans. Les articles retirés de la vente que tu avais achetés restent disponibles ici." },
         { icon:'🔐', title:'Code de récupération', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Sauvegarder ma progression</strong> affiche ton <strong>code de récupération</strong> : c'est la clé de ton compte. Note-le en lieu sûr ! Si tu changes ou perds ton appareil, colle ce code sur le nouvel appareil (même carte → <em>Restaurer</em>) pour retrouver <strong>toute ta progression</strong> : Libs, cosmétiques, série, historique et pseudo. À la toute première visite, le site te propose aussi de récupérer une progression existante. Ne partage ce code avec personne." },
-        { icon:'🗑️', title:'Réinitialiser le compte', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Réinitialiser le compte</strong> efface toute ta progression sur cet appareil et repart avec un compte tout neuf (comme un nouveau joueur). Avant de confirmer, la fenêtre te propose de <strong>copier ton code de récupération</strong> : ce n'est pas obligatoire, mais si tu le gardes, tu pourras revenir à ton ancien compte plus tard en le restaurant. Il faut cocher la case de confirmation pour valider." },
-        { icon:'🎁', title:'Offrir un cosmétique', desc:"Tu peux <strong>offrir</strong> n'importe quel cosmétique payant de la boutique ! Ouvre sa fiche et clique <strong>🎁 Offrir</strong> : tu paies son prix en ⚡ et tu reçois un <strong>code cadeau</strong> à copier ou partager (WhatsApp, etc.). Ton ami l'échange dans la boutique, section <strong>🎟️ Codes → Recevoir un cadeau</strong>, et le cosmétique rejoint son casier. Chaque code n'est utilisable qu'<strong>une seule fois</strong>." },
+        { icon:'🗑️', title:'Réinitialiser le compte', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Réinitialiser le compte</strong> supprime <strong>définitivement</strong> toute ta progression : Libs, cosmétiques, série, historique, et tu <strong>disparais de tous les classements</strong>. Le site redémarre ensuite comme à ta toute première visite (animation de bienvenue comprise). Il faut cocher la case de confirmation pour valider. Attention : après la réinitialisation, ton ancien code de récupération ne fonctionne plus." },
+        { icon:'🎁', title:'Offrir un cosmétique ou un pack', desc:"Tu peux <strong>offrir</strong> n'importe quel cosmétique payant <strong>ou pack (bundle)</strong> de la boutique ! Ouvre sa fiche et clique <strong>🎁 Offrir</strong> : tu paies son prix en ⚡ et tu reçois un <strong>lien cadeau</strong> à partager (WhatsApp, etc.). Ton ami <strong>ouvre le lien et reçoit le cadeau automatiquement</strong>. Si le lien ne passe pas, un <strong>code cadeau</strong> est aussi fourni, à entrer dans la boutique, section <strong>🎟️ Codes → Recevoir un cadeau</strong>. Chaque cadeau n'est utilisable qu'<strong>une seule fois</strong>." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> · ton serpent mange des <strong>⚡ Libs</strong> pour grandir, et chaque ⚡ mangé est <strong>ajouté à ton solde</strong> (score 10 = 10 Libs gagnés). Les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
         { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras les <strong>romans exclusifs</strong> lisibles directement sur le site (en français ou en anglais selon la langue choisie) : <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, 1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10), <strong>Life of Georgia</strong> (livre entier pour 2000 ⚡) et sa suite <strong>Life of Georgia · Tome 2</strong>, <strong>offerte</strong> à tous ceux qui ont débloqué le Tome 1." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis d'abord un jeu parmi <strong>Puissance 4</strong>, <strong>Morpion</strong>, <strong>Échecs</strong> ou <strong>Dames</strong> (aucun n'est présélectionné), entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire, ou le <strong>lien</strong>. Tu peux annuler l'attente si personne ne rejoint. Tu peux aussi jouer <strong>Solo contre le bot</strong> (Facile, Moyen ou Difficile)." },
@@ -847,10 +863,10 @@ const DICT = {
     },
     resetCardTitle:'Reset account', resetCardSub:'Start over from scratch',
     resetTitle:'🗑️ Reset account',
-    resetIntro:'Resetting erases all your progress on this device (Libs, cosmetics, streak, history) and starts a brand-new account. This action is final on this device.',
-    resetSaveHint:'Want to keep your current account? Copy your recovery code below first: you can come back to it later. This is optional.',
-    resetCodeLabel:'Your recovery code (before resetting)',
-    resetConfirmLabel:'I understand my progress will be deleted from this device.',
+    resetIntro:'Resetting permanently deletes all your progress (Libs, cosmetics, streak, history) and removes you from every leaderboard. The site then restarts as if it were your very first visit.',
+    resetSaveHint:'Not sure yet? Save your recovery code below first if you want to think about it. Warning: after the reset this code will no longer work, the deletion is final. Saving it is optional.',
+    resetCodeLabel:'Your recovery code (only valid before the reset)',
+    resetConfirmLabel:'I understand my progress will be permanently deleted and I will disappear from the leaderboards.',
     resetConfirmBtn:'Reset permanently',
     onboarding:{
       welcomeType:"Welcome to Libero's Multi",
@@ -869,13 +885,15 @@ const DICT = {
     shopGiftReceiveBtn:'Receive',
     shopGiftPlaceholder:'Gift code',
     giftTitle:'🎁 Gift ready!',
-    giftIntro:'Send this gift code to anyone you like. They redeem it in the shop (Receive a gift section) to unlock the cosmetic.',
-    giftCodeLabel:'Gift code',
-    giftShareBtn:'Share the gift', giftWarn:'The code can only be used once.',
+    giftIntro:'Send the gift link to anyone you like: opening it delivers the gift automatically. If they cannot open the link, they can also enter the code in the shop (Receive a gift section).',
+    giftLinkLabel:'Gift link (just open it)',
+    giftCodeLabel:'Gift code (if the link does not work)',
+    giftShareBtn:'Share the gift', giftWarn:'The gift can only be used once (link or code).',
     giftShareTitle:"A gift on Libero's Multi",
-    giftShareText:code=>`🎁 I'm gifting you a cosmetic on Libero's Multi! Redeem this code in the shop (Receive a gift): ${code}\nhttps://libero-multi.vercel.app`,
+    giftShareText:(code,url)=>`🎁 I'm sending you a gift on Libero's Multi! Open this link to receive it: ${url}\nOr enter this code in the shop (Receive a gift): ${code}`,
     giftReceived:name=>name ? `🎁 Gift from ${name} unlocked!` : '🎁 Gift unlocked!',
-    giftUsed:'This gift code has already been used.',
+    giftReceivedBundle:name=>name ? `🎁 Gift pack from ${name} unlocked! Check your locker.` : '🎁 Gift pack unlocked! Check your locker.',
+    giftUsed:'This gift has already been used.',
     giftInvalid:'Invalid gift code.',
     readLoading:'Loading books…',
     readEmpty:'This section is under development.\nCheck back soon for books!',
@@ -1219,8 +1237,8 @@ const DICT = {
         { icon:'🎯', title:'My profile', desc:"The <strong>Profile</strong> tab (in the bottom bar, next to Home) gathers four things: your <strong>locker</strong> (see below), your <strong>daily challenges</strong> (3 goals that <strong>change every day</strong>: never the same challenge two days in a row, with Snake on weekends and Libero Run on weekdays; claim all 3 for a <strong>'perfect day' +30 ⚡ bonus</strong>), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. You'll also find the <strong>Save my progress</strong> card (your recovery code) and the <strong>Reset account</strong> card. A nickname is required." },
         { icon:'🎒', title:'My locker', desc:"In the <strong>Profile</strong> tab, the <strong>locker</strong> holds everything you own, <strong>sorted by category</strong>. Each category is a <strong>card</strong>: tap it to see the items of that type with their <strong>visual preview</strong>, then <strong>equip</strong> or <strong>unequip</strong> directly, without opening the shop. Bonus: <strong>3 free backgrounds</strong> (Calm Night, Deep Slate, Violet Mist) are gifted to every player and are already waiting inside. Items you had bought that were later removed from sale are still available here." },
         { icon:'🔐', title:'Recovery code', desc:"In the <strong>Profile</strong> tab, the <strong>Save my progress</strong> card shows your <strong>recovery code</strong>: it is the key to your account. Write it down somewhere safe! If you change or lose your device, paste this code on the new device (same card → <em>Restore</em>) to get <strong>all your progress</strong> back: Libs, cosmetics, streak, history and nickname. On your very first visit, the site also offers to recover an existing progress. Never share this code with anyone." },
-        { icon:'🗑️', title:'Reset account', desc:"In the <strong>Profile</strong> tab, the <strong>Reset account</strong> card erases all your progress on this device and starts a brand-new account (like a new player). Before confirming, the window offers to <strong>copy your recovery code</strong>: it is optional, but if you keep it you can return to your old account later by restoring it. You must tick the confirmation box to proceed." },
-        { icon:'🎁', title:'Gift a cosmetic', desc:"You can <strong>gift</strong> any paid cosmetic from the shop! Open its detail sheet and click <strong>🎁 Gift</strong>: you pay its price in ⚡ and receive a <strong>gift code</strong> to copy or share (WhatsApp, etc.). Your friend redeems it in the shop, <strong>🎟️ Codes → Receive a gift</strong> section, and the cosmetic joins their locker. Each code can only be used <strong>once</strong>." },
+        { icon:'🗑️', title:'Reset account', desc:"In the <strong>Profile</strong> tab, the <strong>Reset account</strong> card <strong>permanently</strong> deletes all your progress: Libs, cosmetics, streak, history, and you <strong>disappear from every leaderboard</strong>. The site then restarts as if it were your very first visit (welcome animation included). You must tick the confirmation box to proceed. Warning: after the reset, your old recovery code no longer works." },
+        { icon:'🎁', title:'Gift a cosmetic or a pack', desc:"You can <strong>gift</strong> any paid cosmetic <strong>or pack (bundle)</strong> from the shop! Open its detail sheet and click <strong>🎁 Gift</strong>: you pay its price in ⚡ and receive a <strong>gift link</strong> to share (WhatsApp, etc.). Your friend <strong>opens the link and receives the gift automatically</strong>. If the link does not work, a <strong>gift code</strong> is also provided, to enter in the shop, <strong>🎟️ Codes → Receive a gift</strong> section. Each gift can only be used <strong>once</strong>." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> · your snake eats <strong>⚡ Libs</strong> to grow, and every ⚡ eaten is <strong>added to your balance</strong> (score 10 = 10 Libs earned). Walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
         { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll find the <strong>exclusive novels</strong> readable right on the site (in French or English, following the site language): <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapter 1 free, 1000 ⚡ for chapters 2-5, 2000 ⚡ for 6-10), <strong>Life of Georgia</strong> (whole book for 2000 ⚡) and its sequel <strong>Life of Georgia · Volume 2</strong>, <strong>free</strong> for everyone who unlocked Volume 1." },
         { icon:'🎮', title:'Create a classic game', desc:"First choose a game among <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong>, <strong>Chess</strong> or <strong>Checkers</strong> (none is pre-selected), enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent, or the <strong>link</strong>. You can cancel while waiting if nobody joins. You can also play <strong>Solo vs the bot</strong> (Easy, Medium or Hard)." },
@@ -1426,6 +1444,8 @@ function applyLang() {
   // Cadeau
   const gt = $('gift-title');       if (gt) gt.textContent = d.giftTitle;
   const gi = $('gift-intro');       if (gi) gi.textContent = d.giftIntro;
+  const gll = $('gift-link-label'); if (gll) gll.textContent = d.giftLinkLabel;
+  const glc = $('btn-gift-link-copy'); if (glc) glc.textContent = d.recovery.copy;
   const gcl = $('gift-code-label'); if (gcl) gcl.textContent = d.giftCodeLabel;
   const gco = $('btn-gift-copy');   if (gco) gco.textContent = d.recovery.copy;
   const gsb = $('btn-gift-share');  if (gsb) gsb.textContent = d.giftShareBtn;
@@ -3604,6 +3624,11 @@ socket.on('connect', () => {
     const name = getPlayerName() || getTriviaName() || '';
     socket.emit('join-by-code', { code: pendingJoinCode, name, playerId: getPlayerId() });
   }
+  // Lien cadeau : échange automatique du code (une seule fois par chargement).
+  if (pendingGiftCode && pendingGiftCode.length === 8 && !window._giftLinkTried) {
+    window._giftLinkTried = true;
+    socket.emit('redeem-gift', { code: pendingGiftCode, playerId: getPlayerId(), name: localStorage.getItem('playerName') || '' });
+  }
   if (sessionStorage.getItem('libero_screen') === 'events') socket.emit('get-snake-leaderboard');
   if (sessionStorage.getItem('libero_screen') === 'luffy')  socket.emit('get-luffy-leaderboard');
   if (window._profileHub) {
@@ -4990,9 +5015,12 @@ function _openBundleDetail(bundle, allItemsById) {
         <span class="shop-bundle-saving-inline">${d.shopBundleSave(savings)}</span>
       </div>`;
 
-  const actionHtml = allOwned
+  // Offrir un pack : toujours au prix complet du pack (le destinataire recevra
+  // tout son contenu), meme si l'offreur possede deja certains articles.
+  const actionHtml = (allOwned
     ? `<button class="btn btn-secondary" disabled>${d.shopBundleAlreadyOwned}</button>`
-    : `<button class="btn btn-primary shop-detail-action-btn" data-bundle-id="${bundle.id}" data-action="buy-bundle">${d.shopBundleBuy(adjPrice)}</button>`;
+    : `<button class="btn btn-primary shop-detail-action-btn" data-bundle-id="${bundle.id}" data-action="buy-bundle">${d.shopBundleBuy(adjPrice)}</button>`)
+    + `<button class="btn btn-secondary shop-detail-action-btn shop-gift-offer-btn" data-bundle-id="${bundle.id}" data-action="gift-bundle">${d.shopGiftBtn(bundle.bundlePrice)}</button>`;
 
   panel.innerHTML = `
     <button class="shop-fn-detail-back" id="shop-detail-back">← ${fr ? 'Retour' : 'Back'}</button>
@@ -5014,6 +5042,11 @@ function _openBundleDetail(bundle, allItemsById) {
   panel.querySelectorAll('[data-action="buy-bundle"]').forEach(btn => {
     btn.addEventListener('click', () => {
       socket.emit('buy-bundle', { bundleId: btn.dataset.bundleId, playerId: getPlayerId() });
+    });
+  });
+  panel.querySelectorAll('[data-action="gift-bundle"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      socket.emit('gift-cosmetic', { bundleId: btn.dataset.bundleId, playerId: getPlayerId() });
     });
   });
 }
@@ -8870,36 +8903,55 @@ window._profileHub = ProfileHub;
   });
   confirmBtn?.addEventListener('click', () => {
     if (!check.checked) return;
-    let fresh;
-    if (window.crypto?.randomUUID) fresh = window.crypto.randomUUID().replace(/-/g, '');
-    else if (window.crypto?.getRandomValues) { const b = new Uint8Array(16); window.crypto.getRandomValues(b); fresh = [...b].map(x => x.toString(16).padStart(2, '0')).join(''); }
-    else fresh = Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
-    ['playerName', 'libero_equipped_bg', 'libero_equipped_emojipack'].forEach(k => localStorage.removeItem(k));
-    localStorage.setItem('libero_player_id', fresh);
-    location.reload();
+    confirmBtn.disabled = true;
+    // Remise a neuf totale : le serveur efface la progression et retire le
+    // joueur de tous les classements, puis on vide TOUT le stockage local.
+    // Au rechargement, le site se comporte comme pour un tout nouveau venu
+    // (animation de bienvenue et onboarding compris).
+    const wipe = () => {
+      try { localStorage.clear(); sessionStorage.clear(); } catch {}
+      location.reload();
+    };
+    let done = false;
+    socket.once('reset-account-result', () => { if (!done) { done = true; wipe(); } });
+    socket.emit('reset-account', { playerId: getPlayerId() });
+    // Filet de securite si le serveur ne repond pas (hors-ligne) : on efface
+    // quand meme localement.
+    setTimeout(() => { if (!done) { done = true; wipe(); } }, 4000);
   });
 })();
 
-// ── Offrir un cosmétique (modal du code cadeau) ──────────────────────────────
+// ── Offrir un cosmétique ou un pack (modal du lien + code cadeau) ────────────
+function buildGiftUrl(code) {
+  return `${location.origin}${location.pathname}?gift=${code}`;
+}
 (function initGift() {
   const overlay = document.getElementById('overlay-gift');
   if (!overlay) return;
-  const codeInput = document.getElementById('gift-code');
-  const closeBtn  = document.getElementById('btn-gift-close');
-  const copyBtn   = document.getElementById('btn-gift-copy');
-  const shareBtn  = document.getElementById('btn-gift-share');
+  const codeInput   = document.getElementById('gift-code');
+  const linkInput   = document.getElementById('gift-link');
+  const closeBtn    = document.getElementById('btn-gift-close');
+  const copyBtn     = document.getElementById('btn-gift-copy');
+  const copyLinkBtn = document.getElementById('btn-gift-link-copy');
+  const shareBtn    = document.getElementById('btn-gift-share');
   function close() { overlay.classList.add('hidden'); }
-  window._openGiftModal = code => { codeInput.value = code; overlay.classList.remove('hidden'); };
+  window._openGiftModal = code => {
+    codeInput.value = code;
+    if (linkInput) linkInput.value = buildGiftUrl(code);
+    overlay.classList.remove('hidden');
+  };
   closeBtn?.addEventListener('click', close);
   overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-  copyBtn?.addEventListener('click', () => {
-    navigator.clipboard.writeText(codeInput.value).then(() => {
-      copyBtn.textContent = t().codeCopied;
-      setTimeout(() => { copyBtn.textContent = t().recovery.copy; }, 2000);
+  const wireCopy = (btn, input) => btn?.addEventListener('click', () => {
+    navigator.clipboard.writeText(input.value).then(() => {
+      btn.textContent = t().codeCopied;
+      setTimeout(() => { btn.textContent = t().recovery.copy; }, 2000);
     }).catch(() => {});
   });
+  wireCopy(copyBtn, codeInput);
+  wireCopy(copyLinkBtn, linkInput);
   shareBtn?.addEventListener('click', () => {
-    const txt = t().giftShareText(codeInput.value);
+    const txt = t().giftShareText(codeInput.value, buildGiftUrl(codeInput.value));
     if (navigator.share) navigator.share({ title: t().giftShareTitle, text: txt }).catch(() => {});
     else navigator.clipboard.writeText(txt).then(() => {
       shareBtn.textContent = t().linkCopied;
@@ -8930,18 +8982,21 @@ socket.on('gift-cosmetic-result', ({ ok, code, error } = {}) => {
   }
 });
 
-socket.on('redeem-gift-result', ({ ok, cosmeticId, fromName, error } = {}) => {
+socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, error } = {}) => {
+  const shopOpen = !$('overlay-shop').classList.contains('hidden');
   if (ok) {
-    if (cosmeticId && !ownedCosmetics.includes(cosmeticId)) ownedCosmetics.push(cosmeticId);
+    (Array.isArray(granted) && granted.length ? granted : (cosmeticId ? [cosmeticId] : []))
+      .forEach(id => { if (!ownedCosmetics.includes(id)) ownedCosmetics.push(id); });
     SFX.shopBuy?.();
-    _showGiftFeedback(t().giftReceived(fromName || ''), '#22c55e');
-    if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+    const msg = bundleId ? t().giftReceivedBundle(fromName || '') : t().giftReceived(fromName || '');
+    if (shopOpen) { _showGiftFeedback(msg, '#22c55e'); _renderShopItems(); }
+    else showCursorSnakeToast(msg); // arrivée par lien cadeau : la boutique est fermée
   } else {
     const msg = error === 'used'          ? t().giftUsed
               : error === 'already_owned' ? t().shopCosmeticAlreadyOwned
-              : error === 'anonymous'     ? t().shopCosmeticAnon
               : t().giftInvalid;
-    _showGiftFeedback(msg, '#ef4444');
+    if (shopOpen) _showGiftFeedback(msg, '#ef4444');
+    else showCursorSnakeToast(msg);
   }
 });
 

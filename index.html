@@ -919,9 +919,9 @@
         <button id="btn-reset-close" class="help-close-btn">✕</button>
       </div>
       <div class="recovery-body">
-        <p id="reset-intro" class="recovery-intro">Réinitialiser efface toute ta progression sur cet appareil (Libs, cosmétiques, série, historique) et repart avec un compte tout neuf. Cette action est définitive sur cet appareil.</p>
-        <p id="reset-save-hint" class="recovery-intro">Tu veux garder ton compte actuel ? Copie d'abord ton code de récupération ci-dessous : tu pourras y revenir plus tard. Ce n'est pas obligatoire.</p>
-        <label id="reset-code-label" class="recovery-label">Ton code de récupération (avant de réinitialiser)</label>
+        <p id="reset-intro" class="recovery-intro">Réinitialiser supprime définitivement toute ta progression (Libs, cosmétiques, série, historique) et tu disparais de tous les classements. Le site redémarre ensuite comme à ta toute première visite.</p>
+        <p id="reset-save-hint" class="recovery-intro">Tu hésites ? Sauvegarde d'abord ton code de récupération ci-dessous si tu veux réfléchir. Attention : après la réinitialisation, ce code ne fonctionnera plus, la suppression est définitive. Sauvegarder n'est pas obligatoire.</p>
+        <label id="reset-code-label" class="recovery-label">Ton code de récupération (valable seulement avant la réinitialisation)</label>
         <div class="recovery-code-row">
           <input id="reset-code" class="recovery-input" type="text" readonly />
           <button id="btn-reset-copy" class="btn btn-secondary">Copier</button>
@@ -929,7 +929,7 @@
         <hr class="recovery-sep" />
         <label class="recovery-confirm-check">
           <input type="checkbox" id="reset-confirm-check" />
-          <span id="reset-confirm-label">Je comprends que ma progression sera supprimée de cet appareil.</span>
+          <span id="reset-confirm-label">Je comprends que ma progression sera définitivement supprimée et que je disparaîtrai des classements.</span>
         </label>
         <button id="btn-reset-confirm" class="btn btn-danger recovery-reset-btn" disabled>Réinitialiser définitivement</button>
       </div>
@@ -944,14 +944,19 @@
         <button id="btn-gift-close" class="help-close-btn">✕</button>
       </div>
       <div class="recovery-body">
-        <p id="gift-intro" class="recovery-intro">Envoie ce code cadeau à la personne de ton choix. Elle l'échange dans la boutique (section « Recevoir un cadeau ») pour débloquer le cosmétique.</p>
-        <label id="gift-code-label" class="recovery-label">Code cadeau</label>
+        <p id="gift-intro" class="recovery-intro">Envoie le lien cadeau à la personne de ton choix : en l'ouvrant, elle reçoit le cadeau automatiquement. Si elle ne peut pas ouvrir le lien, elle peut aussi entrer le code dans la boutique (section « Recevoir un cadeau »).</p>
+        <label id="gift-link-label" class="recovery-label">Lien cadeau (à ouvrir, c'est tout)</label>
+        <div class="recovery-code-row">
+          <input id="gift-link" class="recovery-input" type="text" readonly />
+          <button id="btn-gift-link-copy" class="btn btn-secondary">Copier</button>
+        </div>
+        <label id="gift-code-label" class="recovery-label" style="margin-top:12px">Code cadeau (si le lien ne passe pas)</label>
         <div class="recovery-code-row">
           <input id="gift-code" class="recovery-input" type="text" readonly />
           <button id="btn-gift-copy" class="btn btn-secondary">Copier</button>
         </div>
         <button id="btn-gift-share" class="btn btn-primary recovery-reset-btn">Partager le cadeau</button>
-        <p id="gift-warn" class="recovery-warn">Le code n'est utilisable qu'une seule fois.</p>
+        <p id="gift-warn" class="recovery-warn">Le cadeau n'est utilisable qu'une seule fois (lien ou code).</p>
       </div>
     </div>
   </div>
