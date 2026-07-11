@@ -9,6 +9,7 @@ const { MongoClient } = require('mongodb');
 const connect4   = require('./game');
 const tictactoe  = require('./game-tictactoe');
 const chessGame  = require('./game-chess');
+const checkers   = require('./game-checkers');
 const triviaGame = require('./game-trivia');
 const bots       = require('./game-bots');
 
@@ -1094,7 +1095,7 @@ function distributeLibs() {
 const CODE_CHARS   = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const RECONNECT_MS        = 30_000;
 const TRIVIA_RECONNECT_MS = 20_000;
-const VALID_GAMES  = new Set(['connect4', 'tictactoe', 'chess']);
+const VALID_GAMES  = new Set(['connect4', 'tictactoe', 'chess', 'checkers']);
 
 const TRIVIA_CATEGORIES = {
   9: 'Culture Générale', 23: 'Histoire',       22: 'Géographie',
@@ -1123,6 +1124,7 @@ function createInitialState(gameType) {
     case 'connect4':  return { board: connect4.createBoard(), currentPlayer: 'R' };
     case 'tictactoe': return tictactoe.createState();
     case 'chess':     return chessGame.createState();
+    case 'checkers':  return checkers.createState();
   }
 }
 
@@ -1443,6 +1445,21 @@ function scheduleBotMove(code) {
         status = res.status; winner = res.winner;
         break;
       }
+      case 'checkers': {
+        const move = checkers.botMove(room.state, diff);
+        if (!move) { // le bot ne peut plus bouger : le joueur humain gagne
+          room.status = 'won'; room.winner = 'R';
+          io.to(code).emit('game-update', { gameType: room.gameType, state: room.state, status: 'won', winner: 'R' });
+          const humanName = room.playerNames.R, humanId = room.playerIds?.R || humanName;
+          if (humanName) { updateLeaderboard(humanId, humanName, 'win'); updateLastActive(humanId, humanName); io.emit('leaderboard-update', getLeaderboardData()); io.emit('global-leaderboard-update', getGlobalLeaderboardData()); }
+          return;
+        }
+        const res = checkers.applyMove(room.state, move);
+        if (!res) return;
+        newState = { board: res.board, currentPlayer: res.currentPlayer, mustFrom: res.mustFrom, lastMove: res.lastMove };
+        status = res.status; winner = res.winner;
+        break;
+      }
       default: return;
     }
 
@@ -1464,6 +1481,9 @@ function scheduleBotMove(code) {
         io.emit('leaderboard-update', getLeaderboardData());
         io.emit('global-leaderboard-update', getGlobalLeaderboardData());
       }
+    } else if (room.state.currentPlayer === 'Y') {
+      // Dames : rafle multiple, le bot rejoue avec la même pièce.
+      scheduleBotMove(code);
     }
   }, 700);
 }
@@ -1671,6 +1691,15 @@ io.on('connection', (socket) => {
         break;
       }
 
+      case 'checkers': {
+        const result = checkers.applyMove(room.state, move);
+        if (!result) return;
+        newState = { board: result.board, currentPlayer: result.currentPlayer, mustFrom: result.mustFrom, lastMove: result.lastMove };
+        status   = result.status;
+        winner   = result.winner;
+        break;
+      }
+
       default: return;
     }
 
@@ -1725,14 +1754,20 @@ io.on('connection', (socket) => {
     }
   });
 
-  // ── Coups légaux (échecs uniquement) ────────────────────────────────────
+  // ── Coups légaux (échecs et dames) ──────────────────────────────────────
   socket.on('get-moves', ({ square }) => {
     const room = rooms.get(roomCode);
-    if (!room || room.gameType !== 'chess' || room.state.currentPlayer !== myPlayer) {
+    if (!room || room.status !== 'playing' || room.state.currentPlayer !== myPlayer) {
       socket.emit('legal-moves', { square, moves: [] });
       return;
     }
-    socket.emit('legal-moves', { square, moves: chessGame.getLegalMoves(room.state.fen, square) });
+    if (room.gameType === 'chess') {
+      socket.emit('legal-moves', { square, moves: chessGame.getLegalMoves(room.state.fen, square) });
+    } else if (room.gameType === 'checkers') {
+      socket.emit('legal-moves', { square, moves: checkers.getLegalMoves(room.state, square) });
+    } else {
+      socket.emit('legal-moves', { square, moves: [] });
+    }
   });
 
   // ── Rejouer ─────────────────────────────────────────────────────────────
@@ -1767,6 +1802,22 @@ io.on('connection', (socket) => {
       socket.to(roomCode).emit('restart-requested');
       socket.emit('restart-vote-sent');
     }
+  });
+
+  // ── Refuser une revanche ─────────────────────────────────────────────────
+  socket.on('decline-restart', () => {
+    const room = rooms.get(roomCode);
+    if (!room) return;
+    room.restartVotes.clear();
+    socket.to(roomCode).emit('restart-declined'); // prévient celui qui a proposé
+  });
+
+  // ── Annuler une partie en attente (le créateur ne reste pas coincé) ───────
+  socket.on('cancel-room', () => {
+    const room = rooms.get(roomCode);
+    if (room && room.status === 'waiting') rooms.delete(roomCode);
+    roomCode = null;
+    myPlayer = null;
   });
 
   // ── Classement ───────────────────────────────────────────────────────────

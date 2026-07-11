@@ -89,6 +89,15 @@
     tr.clickable:hover td { background:rgba(99,102,241,.12); }
     .chev { color:var(--muted); font-weight:900; }
 
+    .players-list { display:flex; flex-wrap:wrap; gap:8px; }
+    .player-chip {
+      display:flex; align-items:center; gap:6px;
+      background:var(--card); border:1px solid var(--border); border-radius:10px;
+      padding:9px 13px; font-size:.86rem; font-weight:700; color:var(--text); cursor:pointer;
+    }
+    .player-chip:hover { border-color:var(--board); background:rgba(99,102,241,.12); }
+    .player-chip-name { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
     /* Modale détail joueur */
     .modal { position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(0,0,0,.6); }
     .modal.hidden { display:none; }
@@ -143,15 +152,8 @@
 
       <section>
         <h2>👥 Joueurs <span id="players-pill" class="pill"></span></h2>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr>
-              <th>Joueur</th><th class="num">V</th><th class="num">D</th><th class="num">N</th>
-              <th class="num">Quiz pts</th><th class="num">Quiz</th><th class="num">Snake</th><th class="num">Run</th><th class="num">Libs</th>
-            </tr></thead>
-            <tbody id="players-body"></tbody>
-          </table>
-        </div>
+        <p class="sub" style="margin-top:-4px;">Clique sur un pseudo pour voir toutes ses infos et son activité.</p>
+        <div id="players-list" class="players-list"></div>
       </section>
 
       <section>
@@ -270,13 +272,11 @@
     function renderPlayers(list) {
       list = list || [];
       $('players-pill').textContent = list.length;
-      if (!list.length) { $('players-body').innerHTML = '<tr><td colspan="9" class="empty">Aucun joueur.</td></tr>'; return; }
-      $('players-body').innerHTML = list.map(function (p) {
-        return '<tr class="clickable" data-ref="' + esc(p.ref) + '"><td>' + esc(p.name) + ' <span class="chev">›</span></td>'
-          + '<td class="num">' + fmt(p.wins) + '</td><td class="num">' + fmt(p.losses) + '</td><td class="num">' + fmt(p.draws) + '</td>'
-          + '<td class="num">' + fmt(p.points) + '</td><td class="num">' + fmt(p.quizzes) + '</td>'
-          + '<td class="num">' + fmt(p.snakeHs) + '</td><td class="num">' + fmt(p.luffyHs) + '</td>'
-          + '<td class="num">' + fmt(p.libs) + '</td></tr>';
+      if (!list.length) { $('players-list').innerHTML = '<p class="empty">Aucun joueur.</p>'; return; }
+      $('players-list').innerHTML = list.map(function (p) {
+        return '<button type="button" class="player-chip" data-ref="' + esc(p.ref) + '">'
+          + '<span class="player-chip-name">' + esc(p.name) + '</span>'
+          + '<span class="chev">›</span></button>';
       }).join('');
     }
 
@@ -425,9 +425,9 @@
       $('player-modal').classList.remove('hidden');
     }
 
-    $('players-body').addEventListener('click', function (e) {
-      var row = e.target.closest('tr.clickable'); if (!row) return;
-      openPlayer(row.dataset.ref);
+    $('players-list').addEventListener('click', function (e) {
+      var chip = e.target.closest('.player-chip'); if (!chip) return;
+      openPlayer(chip.dataset.ref);
     });
     $('pd-close').addEventListener('click', function () { $('player-modal').classList.add('hidden'); });
     $('player-modal').addEventListener('click', function (e) { if (e.target === $('player-modal')) $('player-modal').classList.add('hidden'); });

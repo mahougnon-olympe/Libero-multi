@@ -305,7 +305,7 @@ let myPlayer        = null;   // 'R' | 'Y'
 let gameActive      = false;
 let currentRoomCode = null;
 let currentGame     = null;   // 'connect4' | 'tictactoe' | 'chess'
-let selectedGameType = 'connect4';
+let selectedGameType = null; // le joueur choisit son jeu (aucun présélectionné)
 let isBotGame = false;
 let currentTurnPlayer = null;
 
@@ -378,12 +378,17 @@ const DICT = {
     dcDisconnectedMsg:'L\'adversaire a quitté la partie.',
     btnBackHome:'Retour à l\'accueil', backLabel:'Retour',
     promoTitle:'Promouvoir le pion',
-    games:{ connect4:'Puissance 4', tictactoe:'Tic Tac Toe', chess:'Échecs' },
+    games:{ connect4:'Puissance 4', tictactoe:'Tic Tac Toe', chess:'Échecs', checkers:'Dames' },
     playerNames:{
       connect4:{ R:'Rouge', Y:'Jaune' },
       tictactoe:{ R:'Croix', Y:'Rond' },
       chess:{ R:'Blancs', Y:'Noirs' },
+      checkers:{ R:'Rouge', Y:'Jaune' },
     },
+    errNoGame:'Choisis d\'abord un jeu.',
+    restartRequestedPrompt:'Ton adversaire veut rejouer.',
+    restartDeclined:'L\'adversaire a refusé la revanche.',
+    btnCancel:'Annuler', btnAccept:'Accepter', btnRefuse:'Refuser',
     diffLabels:{ easy:'Facile', medium:'Moyen', hard:'Difficile' },
     triviaHomeTitle:'🧠 Culture Générale',
     triviaHomeSubtitle:'Choisis un ou plusieurs thèmes et joue !',
@@ -666,7 +671,8 @@ const DICT = {
         { icon:'🎒', title:'Mon casier', desc:"Dans l'onglet <strong>Profil</strong>, le <strong>casier</strong> range tout ce que tu as acheté dans la boutique, <strong>classé par catégorie</strong>. Chaque catégorie est un bouton : <strong>clique dessus pour la déplier</strong> et voir les articles que tu possèdes. De là, tu peux directement <strong>équiper</strong> un article ou le <strong>déséquiper</strong>, sans passer par la boutique. Les articles retirés de la vente que tu avais achetés restent disponibles ici." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> · ton serpent mange des <strong>⚡ Libs</strong> pour grandir, et chaque ⚡ mangé est <strong>ajouté à ton solde</strong> (score 10 = 10 Libs gagnés). Les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
         { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras les <strong>romans exclusifs</strong> lisibles directement sur le site (en français ou en anglais selon la langue choisie) : <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, 1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10), <strong>Life of Georgia</strong> (livre entier pour 2000 ⚡) et sa suite <strong>Life of Georgia · Tome 2</strong>, <strong>offerte</strong> à tous ceux qui ont débloqué le Tome 1." },
-        { icon:'🎮', title:'Créer une partie classique', desc:"Choisis un jeu, entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire. Tu peux aussi jouer <strong>Solo contre le bot</strong> en choisissant une difficulté : Facile, Moyen ou Difficile." },
+        { icon:'🎮', title:'Créer une partie classique', desc:"Choisis d'abord un jeu parmi <strong>Puissance 4</strong>, <strong>Morpion</strong>, <strong>Échecs</strong> ou <strong>Dames</strong> (aucun n'est présélectionné), entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire, ou le <strong>lien</strong>. Tu peux annuler l'attente si personne ne rejoint. Tu peux aussi jouer <strong>Solo contre le bot</strong> (Facile, Moyen ou Difficile)." },
+        { icon:'⛂', title:'Dames', desc:"Le jeu de <strong>Dames</strong> (draughts 8x8, 12 pions chacun). Les pions avancent en diagonale d'une case vers l'avant. <strong>La prise est obligatoire</strong> : si tu peux sauter par-dessus un pion adverse (case libre derrière), tu dois le faire, et tu enchaînes les prises multiples avec la même pièce. Un pion qui atteint la dernière rangée devient une <strong>dame ♛</strong> qui se déplace et prend dans les deux sens. Tu gagnes quand l'adversaire n'a plus de pièces ou ne peut plus jouer. En fin de partie, <em>Rejouer</em> propose une revanche que l'adversaire accepte ou refuse." },
         { icon:'🤖', title:'Mode Solo (vs Bot)', desc:"Joue seul contre un robot. <em>Facile</em> : le bot joue au hasard. <em>Moyen</em> : le bot bloque et attaque. <em>Difficile</em> : le bot joue de manière optimale. Les parties <strong>Moyen et Difficile</strong> comptent dans le classement classique." },
         { icon:'🔗', title:'Rejoindre', desc:"Entre le code à 4 lettres reçu et clique <em>Rejoindre</em>. La partie démarre automatiquement dès que les deux joueurs sont connectés." },
         { icon:'💬', title:'Chat', desc:"Envoie des messages à ton adversaire pendant une partie classique. Le bouton <em>Vider</em> efface l'historique côté local uniquement." },
@@ -820,12 +826,17 @@ const DICT = {
     dcDisconnectedMsg:'Your opponent left the game.',
     btnBackHome:'Back to home', backLabel:'Back',
     promoTitle:'Promote pawn',
-    games:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess' },
+    games:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', checkers:'Checkers' },
     playerNames:{
       connect4:{ R:'Red', Y:'Yellow' },
       tictactoe:{ R:'Cross', Y:'Circle' },
       chess:{ R:'White', Y:'Black' },
+      checkers:{ R:'Red', Y:'Yellow' },
     },
+    errNoGame:'Choose a game first.',
+    restartRequestedPrompt:'Your opponent wants a rematch.',
+    restartDeclined:'Your opponent declined the rematch.',
+    btnCancel:'Cancel', btnAccept:'Accept', btnRefuse:'Decline',
     diffLabels:{ easy:'Easy', medium:'Medium', hard:'Hard' },
     triviaHomeTitle:'🧠 General Knowledge',
     triviaHomeSubtitle:'Choose one or more themes and play!',
@@ -1108,7 +1119,8 @@ const DICT = {
         { icon:'🎒', title:'My locker', desc:"In the <strong>Profile</strong> tab, the <strong>locker</strong> holds everything you bought in the shop, <strong>sorted by category</strong>. Each category is a button: <strong>tap it to expand</strong> and see the items you own. From there you can directly <strong>equip</strong> an item or <strong>unequip</strong> it, without opening the shop. Items you had bought that were later removed from sale are still available here." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> · your snake eats <strong>⚡ Libs</strong> to grow, and every ⚡ eaten is <strong>added to your balance</strong> (score 10 = 10 Libs earned). Walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
         { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll find the <strong>exclusive novels</strong> readable right on the site (in French or English, following the site language): <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapter 1 free, 1000 ⚡ for chapters 2-5, 2000 ⚡ for 6-10), <strong>Life of Georgia</strong> (whole book for 2000 ⚡) and its sequel <strong>Life of Georgia · Volume 2</strong>, <strong>free</strong> for everyone who unlocked Volume 1." },
-        { icon:'🎮', title:'Create a classic game', desc:"Choose a game, enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent. You can also play <strong>Solo vs the bot</strong> by choosing a difficulty: Easy, Medium or Hard." },
+        { icon:'🎮', title:'Create a classic game', desc:"First choose a game among <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong>, <strong>Chess</strong> or <strong>Checkers</strong> (none is pre-selected), enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent, or the <strong>link</strong>. You can cancel while waiting if nobody joins. You can also play <strong>Solo vs the bot</strong> (Easy, Medium or Hard)." },
+        { icon:'⛂', title:'Checkers', desc:"The game of <strong>Checkers</strong> (draughts 8x8, 12 pieces each). Men move diagonally one square forward. <strong>Capturing is mandatory</strong>: if you can jump over an opponent piece (empty square behind), you must, and you chain multiple captures with the same piece. A man reaching the last row becomes a <strong>king ♛</strong> that moves and captures both ways. You win when the opponent has no pieces left or cannot move. At the end, <em>Rematch</em> asks the opponent to accept or decline." },
         { icon:'🤖', title:'Solo mode (vs Bot)', desc:"Play alone against a robot. <em>Easy</em>: plays randomly. <em>Medium</em>: blocks and attacks. <em>Hard</em>: plays optimally. <strong>Medium and Hard</strong> games count in the classic leaderboard." },
         { icon:'🔗', title:'Join', desc:"Enter the 4-letter code you received and click <em>Join</em>. The game starts automatically as soon as both players are connected." },
         { icon:'💬', title:'Chat', desc:"Send messages to your opponent during a classic game. The <em>Clear</em> button erases the history on your side only." },
@@ -1312,6 +1324,10 @@ function applyLang() {
   const gnc = $('gn-connect4');    if (gnc) gnc.textContent = d.games.connect4;
   const gntt = $('gn-tictactoe'); if (gntt) gntt.textContent = d.games.tictactoe;
   const gnch = $('gn-chess');     if (gnch) gnch.textContent = d.games.chess;
+  const gnck = $('gn-checkers');  if (gnck) gnck.textContent = d.games.checkers;
+  const bcw = $('btn-cancel-wait');   if (bcw) bcw.textContent = d.btnCancel;
+  const bra = $('btn-restart-accept'); if (bra) bra.textContent = d.btnAccept;
+  const brf = $('btn-restart-refuse'); if (brf) brf.textContent = d.btnRefuse;
   const blp = $('bot-label-p');   if (blp) blp.textContent = d.botLabel;
   document.querySelectorAll('.bot-btn').forEach(b => {
     const key = 'bot' + b.dataset.diff[0].toUpperCase() + b.dataset.diff.slice(1);
@@ -1511,9 +1527,10 @@ function applyLang() {
   _updateSettingsPanel();
 }
 
-// État échecs
+// État échecs / dames (selectedSquare + availableMoves partagés)
 let selectedSquare  = null;
 let availableMoves  = [];
+let ckState         = null; // dernier état des dames reçu
 let currentFen      = null;
 let lastMove        = null;   // { from, to }
 let pendingPromoMove = null;
@@ -1663,6 +1680,7 @@ const PLAYER_ICONS = {
   connect4:  { R: '🔴', Y: '🟡' },
   tictactoe: { R: '✕',  Y: '○' },
   chess:     { R: '♔',  Y: '♚' },
+  checkers:  { R: '🔴', Y: '🟡' },
 };
 
 // ── Landing ───────────────────────────────────────────────────────────────────
@@ -1755,6 +1773,7 @@ document.querySelectorAll('.game-btn').forEach(btn => {
 // ── Accueil ──────────────────────────────────────────────────────────────────
 document.querySelectorAll('.bot-btn').forEach(btn => {
   btn.addEventListener('click', () => {
+    if (!selectedGameType) { showError(t().errNoGame); return; }
     if (!getPlayerName()) { showError(t().errNoName); return; }
     if (_nameTaken) { showError(t().errNameTaken); return; }
     clearError();
@@ -1763,6 +1782,7 @@ document.querySelectorAll('.bot-btn').forEach(btn => {
 });
 
 $('btn-create').addEventListener('click', () => {
+  if (!selectedGameType) { showError(t().errNoGame); return; }
   if (!getPlayerName()) { showError(t().errNoName); return; }
   if (_nameTaken) { showError(t().errNameTaken); return; }
   clearError();
@@ -1911,6 +1931,7 @@ function showGameOver(status, winner) {
   $('btn-restart').classList.remove('hidden');
   $('btn-restart').disabled = false;
   $('restart-pending').classList.add('hidden');
+  $('restart-vote-prompt').classList.add('hidden');
   $('btn-menu').classList.remove('hidden');
 }
 
@@ -1926,6 +1947,7 @@ function applyGameState({ gameType, state, yourPlayer, status, winner }) {
   $('btn-restart').classList.remove('hidden');
   $('btn-restart').disabled = false;
   $('restart-pending').classList.add('hidden');
+  $('restart-vote-prompt').classList.add('hidden');
   $('btn-menu').classList.add('hidden');
 
   clearChat();
@@ -1950,6 +1972,7 @@ function buildGameBoard(gameType, state, yourPlayer) {
     case 'connect4':  buildConnect4(area, state.board); break;
     case 'tictactoe': buildTTT(area, state.board);      break;
     case 'chess':     buildChess(area, state, yourPlayer); break;
+    case 'checkers':  buildCheckers(area, state, yourPlayer); break;
   }
 }
 
@@ -1958,6 +1981,7 @@ function updateGameBoard(gameType, state) {
     case 'connect4':  updateConnect4(state.board);                          break;
     case 'tictactoe': updateTTT(state.board, state.winLine);                break;
     case 'chess':     updateChess(state.fen, state.isCheck, state.currentPlayer); break;
+    case 'checkers':  updateCheckers(state);                                break;
   }
 }
 
@@ -2299,6 +2323,88 @@ function onChessClick(square) {
   socket.emit('get-moves', { square });
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// DAMES (checkers 8x8)
+// ══════════════════════════════════════════════════════════════════════════════
+function buildCheckers(container, state, yourPlayer) {
+  const flipped = yourPlayer === 'Y';
+  const boardEl = document.createElement('div');
+  boardEl.id = 'ck-board';
+  boardEl.className = 'ck-board';
+  for (let gr = 0; gr < 8; gr++) {
+    for (let gc = 0; gc < 8; gc++) {
+      const br = flipped ? 7 - gr : gr;
+      const bc = flipped ? 7 - gc : gc;
+      const i  = br * 8 + bc;
+      const dark = (gr + gc) % 2 === 1;
+      const sq = document.createElement('div');
+      sq.className = `ck-sq ${dark ? 'dark' : 'light'}`;
+      sq.dataset.idx = i;
+      if (dark) sq.addEventListener('click', () => onCheckersClick(i));
+      boardEl.appendChild(sq);
+    }
+  }
+  container.appendChild(boardEl);
+  updateCheckers(state);
+}
+
+function updateCheckers(state) {
+  ckState = state;
+  document.querySelectorAll('.ck-sq').forEach(sq => {
+    const i = parseInt(sq.dataset.idx, 10);
+    sq.classList.remove('selected', 'can-move', 'last-move', 'must');
+    sq.innerHTML = '';
+    const p = state.board[i];
+    if (p) {
+      const piece = document.createElement('span');
+      const red  = (p === 'r' || p === 'R');
+      const king = (p === 'R' || p === 'Y');
+      piece.className = `ck-piece ${red ? 'ck-red' : 'ck-yellow'}${king ? ' ck-king' : ''}`;
+      if (king) piece.textContent = '♛';
+      sq.appendChild(piece);
+    }
+    if (state.lastMove && (i === state.lastMove.from || i === state.lastMove.to)) sq.classList.add('last-move');
+  });
+  if (state.mustFrom !== null && state.mustFrom !== undefined) {
+    document.querySelector(`.ck-sq[data-idx="${state.mustFrom}"]`)?.classList.add('must');
+  }
+  if (selectedSquare !== null && currentGame === 'checkers') {
+    document.querySelector(`.ck-sq[data-idx="${selectedSquare}"]`)?.classList.add('selected');
+    availableMoves.forEach(mv => document.querySelector(`.ck-sq[data-idx="${mv}"]`)?.classList.add('can-move'));
+  }
+}
+
+function clearCheckersSelection() {
+  selectedSquare = null;
+  availableMoves = [];
+  document.querySelectorAll('.ck-sq.selected, .ck-sq.can-move').forEach(el => el.classList.remove('selected', 'can-move'));
+}
+
+function onCheckersClick(i) {
+  if (!gameActive || currentTurnPlayer !== myPlayer || !ckState) return;
+
+  // Clic sur une destination proposée → jouer le coup
+  if (selectedSquare !== null && availableMoves.includes(i)) {
+    const from = selectedSquare;
+    clearCheckersSelection();
+    SFX.placePiece();
+    socket.emit('make-move', { from, to: i });
+    return;
+  }
+
+  // Sélection d'une de mes pièces
+  clearCheckersSelection();
+  const p = ckState.board[i];
+  if (!p) return;
+  const mine = myPlayer === 'R' ? (p === 'r' || p === 'R') : (p === 'y' || p === 'Y');
+  if (!mine) return;
+  // Pendant une rafle, seule la pièce obligée peut jouer
+  if (ckState.mustFrom !== null && ckState.mustFrom !== undefined && ckState.mustFrom !== i) return;
+  selectedSquare = i;
+  document.querySelector(`.ck-sq[data-idx="${i}"]`)?.classList.add('selected');
+  socket.emit('get-moves', { square: i });
+}
+
 // ── Promotion du pion ─────────────────────────────────────────────────────────
 function showPromoModal(player) {
   const choices = [
@@ -2336,6 +2442,27 @@ $('btn-restart').addEventListener('click', () => {
     $('btn-restart').disabled = true;
     $('restart-pending').classList.remove('hidden');
   }
+});
+// Accepter la revanche proposée par l'adversaire (mon vote déclenche la partie).
+$('btn-restart-accept').addEventListener('click', () => {
+  socket.emit('request-restart');
+  $('restart-vote-prompt').classList.add('hidden');
+  $('restart-pending').classList.remove('hidden');
+});
+// Refuser la revanche.
+$('btn-restart-refuse').addEventListener('click', () => {
+  socket.emit('decline-restart');
+  $('restart-vote-prompt').classList.add('hidden');
+  $('btn-restart').classList.remove('hidden');
+  $('btn-restart').disabled = false;
+  $('btn-menu').classList.remove('hidden');
+});
+// Annuler une partie multi en attente : on prévient le serveur et on rentre.
+$('btn-cancel-wait').addEventListener('click', () => {
+  socket.emit('cancel-room');
+  currentRoomCode = null;
+  clearSession();
+  showScreen('home');
 });
 
 // ── Chat ──────────────────────────────────────────────────────────────────────
@@ -3437,8 +3564,12 @@ socket.on('game-update', ({ gameType, state, status, winner }) => {
 });
 
 socket.on('legal-moves', ({ square, moves }) => {
-  if (square !== selectedSquare) return;
+  if (String(square) !== String(selectedSquare)) return;
   availableMoves = moves;
+  if (currentGame === 'checkers') {
+    moves.forEach(mv => document.querySelector(`.ck-sq[data-idx="${mv}"]`)?.classList.add('can-move'));
+    return;
+  }
   moves.forEach(mv => {
     const el = document.querySelector(`.chess-sq[data-sq="${mv}"]`);
     if (el) {
@@ -3466,10 +3597,22 @@ socket.on('player-disconnected', () => {
   showDisconnectedOverlay();
 });
 
+// L'adversaire propose une revanche : on affiche Accepter / Refuser.
 socket.on('restart-requested', () => {
-  if (!$('game-status').classList.contains('hidden')) {
-    $('status-text').textContent += t().restartRequested;
-  }
+  if ($('game-status').classList.contains('hidden')) return;
+  $('btn-restart').classList.add('hidden');
+  $('restart-pending').classList.add('hidden');
+  $('restart-vote-text').textContent = t().restartRequestedPrompt;
+  $('restart-vote-prompt').classList.remove('hidden');
+});
+// L'adversaire a refusé la revanche.
+socket.on('restart-declined', () => {
+  $('restart-pending').classList.add('hidden');
+  $('restart-vote-prompt').classList.add('hidden');
+  $('btn-restart').classList.remove('hidden');
+  $('btn-restart').disabled = false;
+  $('btn-menu').classList.remove('hidden');
+  showCursorSnakeToast(t().restartDeclined);
 });
 
 socket.on('new-message',       (msg)  => { appendMessage(msg); SFX.chat(); });
@@ -3615,6 +3758,9 @@ socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippe
     if (newEmotes !== undefined) { equippedEmotes = newEmotes || []; _renderEmoteBar(); }
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   }
+  // Rafraîchit le casier tout de suite : permet de rééquiper juste après avoir
+  // déséquipé, sans avoir à recharger la page.
+  if (window._profileHub && document.body.classList.contains('screen-profile-active')) window._profileHub.renderLocker();
 });
 
 socket.on('refund-cosmetic-result', ({ ok, refundCards: newCards, delta, error } = {}) => {
@@ -8366,6 +8512,24 @@ const ProfileHub = (() => {
       eqBtn.disabled = true; // le résultat serveur relance renderLocker()
     }
   });
+
+  // Sections repliables du profil (Casier, Historique) : boutons cliquables dont
+  // l'état d'ouverture est mémorisé pour survivre à un rafraîchissement.
+  function _wireAccordion(btnId, panelId, storeKey) {
+    const btn = document.getElementById(btnId);
+    const panel = document.getElementById(panelId);
+    if (!btn || !panel) return;
+    const setOpen = open => {
+      btn.classList.toggle('open', open);
+      panel.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', String(open));
+      try { localStorage.setItem(storeKey, open ? '1' : '0'); } catch (e) {}
+    };
+    btn.addEventListener('click', () => setOpen(!panel.classList.contains('open')));
+    setOpen(localStorage.getItem(storeKey) === '1');
+  }
+  _wireAccordion('locker-toggle', 'locker-list', 'libero_prof_locker');
+  _wireAccordion('history-toggle', 'history-list', 'libero_prof_history');
 
   // Pastille sur l'onglet Profil quand au moins un défi est réclamable.
   function updateBadge() {
