@@ -2927,6 +2927,72 @@ function _aggregatePlayers() {
 
 // Detail complet d'un joueur (clé admin requise) : stats + streak + cosmétiques
 // possédés + équipements + historique + achats. Identifié par sa reference hashée.
+// Admin : restauration manuelle d'un compte (SAV, ex. reinitialisation par
+// erreur). Re-credite solde, cosmetiques, classements et serie sur le compte
+// vise par sa ref. Chaque champ est optionnel : seuls ceux fournis sont ecrits.
+app.post('/admin/restore-player', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const b = req.body || {};
+  const wantRef = String(b.ref || '');
+  let pid = null;
+  for (const id of _allPlayerIds()) { if (_playerRef(id) === wantRef) { pid = id; break; } }
+  if (pid === null) return res.status(404).json({ error: 'Joueur introuvable.' });
+  const entry = getLibsEntry(pid);
+  const name  = entry.name || 'Anonyme';
+  const num = v => Math.max(0, Math.floor(Number(v) || 0));
+
+  if (b.balance !== undefined) entry.balance = Math.min(MAX_BALANCE, num(b.balance));
+  if (Array.isArray(b.addCosmetics)) {
+    b.addCosmetics.forEach(cid => {
+      if (COSMETICS.some(c => c.id === cid) && !entry.ownedCosmetics.includes(cid)) entry.ownedCosmetics.push(cid);
+    });
+  }
+  if (b.streakCount !== undefined) {
+    const n = num(b.streakCount);
+    entry.streak = { lastDay: _dayKey(), count: n, longest: Math.max(n, entry.streak?.longest || 0) };
+    const lt = getLifetime(entry);
+    lt.streakDays = Math.max(lt.streakDays || 0, n);
+  }
+  libs.set(pid, entry);
+  dbUpsertLibs(pid, entry);
+
+  if (b.wins !== undefined || b.losses !== undefined || b.draws !== undefined) {
+    const lb = leaderboard.get(pid) || { name, wins: 0, losses: 0, draws: 0 };
+    if (b.wins   !== undefined) lb.wins   = num(b.wins);
+    if (b.losses !== undefined) lb.losses = num(b.losses);
+    if (b.draws  !== undefined) lb.draws  = num(b.draws);
+    lb.name = name;
+    leaderboard.set(pid, lb);
+    dbUpsertLeaderboard(pid, lb);
+  }
+  if (b.points !== undefined || b.quizzes !== undefined) {
+    const tlb = triviaLeaderboard.get(pid) || { name, points: 0, games: 0 };
+    if (b.points  !== undefined) tlb.points = num(b.points);
+    if (b.quizzes !== undefined) tlb.games  = num(b.quizzes);
+    tlb.name = name;
+    triviaLeaderboard.set(pid, tlb);
+    dbUpsertTriviaLeaderboard(pid, tlb);
+  }
+  if (b.snakeHs !== undefined) {
+    const slb = { name, hs: num(b.snakeHs) };
+    snakeLeaderboard.set(pid, slb);
+    dbUpsertSnakeLeaderboard(pid, slb);
+  }
+  if (b.luffyHs !== undefined) {
+    const llb = { name, hs: num(b.luffyHs) };
+    luffyLeaderboard.set(pid, llb);
+    dbUpsertLuffyLeaderboard(pid, llb);
+  }
+
+  io.emit('leaderboard-update', getLeaderboardData());
+  io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
+  io.emit('snake-leaderboard-update', getSnakeLeaderboardData());
+  io.emit('luffy-leaderboard-update', getLuffyLeaderboardData());
+  io.emit('global-leaderboard-update', getGlobalLeaderboardData());
+  _emitToPlayer(pid, 'libs-update', { name: entry.name || '', balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
+  res.json({ ok: true, name, balance: entry.balance, owned: entry.ownedCosmetics.length });
+});
+
 app.get('/admin/player/:ref', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   const wantRef = String(req.params.ref || '');
