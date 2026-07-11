@@ -287,7 +287,7 @@ async function loadData() {
   cmtDocs.forEach(d => {
     // Les anciens commentaires (sans champ `approved`) sont considérés validés
     // pour ne pas disparaître ; les nouveaux naissent en attente de modération.
-    comments.push({ _id: d._id, pseudo: d.pseudo, message: d.message, date: d.date, approved: d.approved !== false });
+    comments.push({ _id: d._id, pseudo: d.pseudo, message: d.message, date: d.date, approved: d.approved !== false, autoDeleteAt: d.autoDeleteAt || null });
     if (Array.isArray(d.likedBy) && d.likedBy.length) commentLikeMap.set(d._id.toString(), new Set(d.likedBy));
   });
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
@@ -391,6 +391,14 @@ function dbUpdateCommentApproved(commentId, approved) {
   db.collection('comments')
     .updateOne({ _id: commentId }, { $set: { approved } })
     .catch(e => console.error('Erreur mise à jour modération commentaire:', e));
+}
+
+// Persiste la minuterie de suppression automatique d'un commentaire.
+function dbUpdateCommentAutoDelete(commentId, autoDeleteAt) {
+  if (!db || !commentId) return;
+  db.collection('comments')
+    .updateOne({ _id: commentId }, { $set: { autoDeleteAt } })
+    .catch(e => console.error('Erreur mise à jour minuterie commentaire:', e));
 }
 
 // Persiste la liste des joueurs ayant liké : les likes survivent aux redémarrages.
@@ -2785,10 +2793,7 @@ app.get('/admin/stats', async (req, res) => {
     const luffyPlayers    = players.filter(p => p.luffyHs > 0).length;
 
     // Commentaires (avec statut de modération)
-    const commentsPayload = comments.slice().reverse().map(c => ({
-      id: c._id?.toString(), pseudo: c.pseudo || 'Anonyme', message: c.message,
-      date: c.date, approved: !!c.approved, likes: commentLikeMap.get(c._id?.toString())?.size || 0,
-    }));
+    const commentsPayload = comments.slice().reverse().map(_adminCommentView);
     const commentsApproved = commentsPayload.filter(c => c.approved).length;
     const commentsPending  = commentsPayload.length - commentsApproved;
 
@@ -3096,16 +3101,21 @@ function isAdmin(req) {
   return ok;
 }
 
-app.get('/admin/comments', (req, res) => {
-  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
-  res.json(comments.slice().reverse().map(c => ({
+function _adminCommentView(c) {
+  return {
     id:       c._id?.toString(),
     pseudo:   c.pseudo || 'Anonyme',
     message:  c.message,
     date:     c.date,
     approved: !!c.approved,
+    autoDeleteAt: c.autoDeleteAt || null,
     likes:    commentLikeMap.get(c._id?.toString())?.size || 0,
-  }))); // plus récent en premier
+  };
+}
+
+app.get('/admin/comments', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  res.json(comments.slice().reverse().map(_adminCommentView)); // plus récent en premier
 });
 
 // Admin : valide (affiche) ou masque un commentaire.
@@ -3119,6 +3129,37 @@ app.post('/admin/comment-approve', (req, res) => {
   io.emit('news-comments-update', _newsCommentsPayload());
   res.json({ ok: true, approved: comment.approved });
 });
+
+// Admin : programme (ou annule) la suppression automatique d'un commentaire.
+// delayMs > 0 : supprimé dans ce délai. delayMs falsy : annule la minuterie.
+// La minuterie est purement admin : elle n'apparaît jamais sur le site public.
+app.post('/admin/comment-schedule', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const { id, delayMs } = req.body || {};
+  const comment = comments.find(c => c._id && c._id.toString() === String(id));
+  if (!comment) return res.status(404).json({ error: 'Commentaire introuvable.' });
+  const ms = parseInt(delayMs, 10);
+  comment.autoDeleteAt = (ms && ms > 0) ? Date.now() + Math.min(ms, 90 * DAY_MS) : null;
+  dbUpdateCommentAutoDelete(comment._id, comment.autoDeleteAt);
+  res.json({ ok: true, autoDeleteAt: comment.autoDeleteAt });
+});
+
+// Balayage périodique : supprime les commentaires dont la minuterie a expiré.
+function _sweepExpiredComments() {
+  const now = Date.now();
+  const expired = comments.filter(c => c.autoDeleteAt && c.autoDeleteAt <= now);
+  if (!expired.length) return;
+  const ids = expired.map(c => c._id);
+  for (const c of expired) {
+    const idx = comments.indexOf(c);
+    if (idx !== -1) comments.splice(idx, 1);
+    commentLikeMap.delete(c._id?.toString());
+  }
+  dbDeleteComments(ids);
+  io.emit('news-comments-update', _newsCommentsPayload());
+  console.log(`[⏳] ${expired.length} commentaire(s) supprimé(s) par minuterie.`);
+}
+setInterval(_sweepExpiredComments, 30_000);
 
 // Admin : supprime un commentaire par _id (/admin/comment/:id) ou tous ceux
 // d'un pseudo (/admin/comment?pseudo=sassy). Sert à la modération.

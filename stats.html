@@ -77,6 +77,10 @@
     .cmt-pseudo { font-weight:800; font-size:.85rem; }
     .cmt-date { color:var(--muted); font-size:.72rem; }
     .cmt-msg { font-size:.86rem; margin-top:3px; word-break:break-word; white-space:pre-wrap; }
+    .cmt-timer-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .cmt-timer-left { font-size:.74rem; color:var(--amber); font-weight:700; }
+    .cmt-timer { background:var(--card2); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:4px 8px; font-size:.74rem; cursor:pointer; }
+    .cmt.scheduled { border-color:rgba(251,191,36,.5); }
     .cmt-actions { display:flex; gap:6px; flex-shrink:0; flex-wrap:wrap; }
     .tag { font-size:.66rem; font-weight:800; text-transform:uppercase; padding:2px 7px; border-radius:999px; }
     .tag.ok { background:rgba(74,222,128,.16); color:var(--green); }
@@ -260,13 +264,35 @@
           : '<span class="tag wait">En attente</span>'
             + '<button class="green small" data-approve="' + esc(c.id) + '">Valider</button>'
             + '<button class="red small" data-del="' + esc(c.id) + '">Supprimer</button>';
-        return '<div class="cmt' + (c.approved ? '' : ' pending') + '">'
+        // Minuterie de suppression automatique (admin uniquement, invisible sur le site)
+        var scheduled = c.autoDeleteAt && c.autoDeleteAt > Date.now();
+        var timer = '<div class="cmt-timer-row">'
+          + (scheduled ? '<span class="cmt-timer-left">🕒 supprimé dans ' + durLeft(c.autoDeleteAt) + '</span>' : '')
+          + '<select class="cmt-timer" data-tid="' + esc(c.id) + '">'
+          + '<option value="">⏳ Suppression auto…</option>'
+          + '<option value="3600000">Dans 1 h</option>'
+          + '<option value="21600000">Dans 6 h</option>'
+          + '<option value="86400000">Dans 24 h</option>'
+          + '<option value="604800000">Dans 7 jours</option>'
+          + (scheduled ? '<option value="0">Annuler la minuterie</option>' : '')
+          + '</select></div>';
+        return '<div class="cmt' + (c.approved ? '' : ' pending') + (scheduled ? ' scheduled' : '') + '">'
           + '<div class="cmt-body"><div class="cmt-head"><span class="cmt-pseudo">' + esc(c.pseudo) + '</span>'
           + '<span class="cmt-date">' + esc(new Date(c.date).toLocaleString('fr-FR')) + '</span>'
           + (c.likes ? '<span class="cmt-date">❤️ ' + fmt(c.likes) + '</span>' : '')
-          + '</div><div class="cmt-msg">' + esc(c.message) + '</div></div>'
+          + '</div><div class="cmt-msg">' + esc(c.message) + '</div>' + timer + '</div>'
           + '<div class="cmt-actions">' + actions + '</div></div>';
       }).join('');
+    }
+
+    function durLeft(ts) {
+      var s = Math.max(0, Math.floor((ts - Date.now()) / 1000));
+      var d = Math.floor(s / 86400); s -= d * 86400;
+      var h = Math.floor(s / 3600);  s -= h * 3600;
+      var m = Math.floor(s / 60);
+      if (d) return d + ' j ' + h + ' h';
+      if (h) return h + ' h ' + m + ' min';
+      return m + ' min';
     }
 
     function renderPlayers(list) {
@@ -361,6 +387,22 @@
         }
         await refresh();
       } catch (err) { btn.disabled = false; }
+    });
+
+    // Minuterie de suppression (select)
+    $('comments').addEventListener('change', async function (e) {
+      var sel = e.target.closest('.cmt-timer'); if (!sel) return;
+      var val = sel.value;
+      if (val === '') return; // placeholder
+      sel.disabled = true;
+      try {
+        await api('/admin/comment-schedule', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: sel.dataset.tid, delayMs: parseInt(val, 10) }),
+        });
+        await refresh();
+      } catch (err) { sel.disabled = false; }
     });
 
     // ---- Détail d'un joueur ----

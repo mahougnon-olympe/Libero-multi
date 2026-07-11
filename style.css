@@ -3196,13 +3196,15 @@ html.light .honor-reward-title { color: #d97706; }
 .recovery-body { padding: 16px 20px 22px; overflow-y: auto; }
 .recovery-intro { font-size: .86rem; line-height: 1.5; margin: 0 0 14px; }
 .recovery-label { display: block; font-size: .8rem; font-weight: 700; opacity: .85; margin-bottom: 6px; }
-.recovery-code-row, .recovery-restore-row { display: flex; gap: 8px; }
+.recovery-code-row, .recovery-restore-row { display: flex; gap: 8px; align-items: stretch; }
 .recovery-input {
-  flex: 1; min-width: 0; padding: 10px 12px; border-radius: 10px;
+  flex: 1 1 auto; min-width: 0; width: 100%; padding: 11px 12px; border-radius: 10px;
   border: 1px solid var(--border); background: var(--card2); color: var(--text);
   font-size: .85rem; outline: none; font-family: monospace;
 }
 .recovery-input:focus { border-color: var(--board); }
+/* Le bouton ne doit pas écraser le champ : il prend juste la largeur de son texte. */
+.recovery-code-row .btn, .recovery-restore-row .btn { flex: 0 0 auto; width: auto; white-space: nowrap; }
 .recovery-warn { font-size: .76rem; color: var(--muted); margin: 8px 0 0; line-height: 1.4; }
 .recovery-warn.recovery-err { color: #f87171; }
 .recovery-sep { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
