@@ -1498,7 +1498,9 @@ body.screen-events-active .btn-comment-float { display: none !important; }
   display: none;
   flex-direction: column; align-items: center; gap: 6px; margin-top: 4px;
 }
-@media (max-width: 600px) { .snake-dpad { display: flex; } }
+/* Visibles sur petits ecrans ET sur tout appareil tactile (tablettes incluses,
+   qui sont plus larges que 600px mais n'ont pas de clavier). */
+@media (max-width: 600px), (pointer: coarse) { .snake-dpad { display: flex; } }
 .dpad-row { display: flex; gap: 6px; }
 .dpad-btn {
   width: 54px; height: 54px;
@@ -1523,7 +1525,7 @@ body.screen-events-active .btn-comment-float { display: none !important; }
 .luffy-controls {
   display: none; gap: 14px; margin-top: 4px;
 }
-@media (max-width: 600px) { .luffy-controls { display: flex; } }
+@media (max-width: 600px), (pointer: coarse) { .luffy-controls { display: flex; } }
 .luffy-ctrl-btn { width: 64px; height: 64px; font-size: 1.6rem; }
 body.screen-luffy-active .btn-help-float,
 body.screen-luffy-active .btn-comment-float { display: none !important; }
