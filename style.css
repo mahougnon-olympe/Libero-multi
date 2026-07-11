@@ -3483,3 +3483,62 @@ html.light .challenge-bar { background: rgba(0,0,0,.14); }
   /* La barre de nav du bas ne doit pas recouvrir les derniers defis. */
   #screen-profile .profile-body { padding-bottom: 84px; }
 }
+
+/* ══ Quiz : animations de reveal (plus vivant) ══ */
+.tg-reveal { animation: tg-reveal-pop .45s cubic-bezier(.2,1.6,.4,1); }
+@keyframes tg-reveal-pop { 0% { transform: scale(.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.tg-choice.correct { animation: tg-correct-glow .9s ease; }
+@keyframes tg-correct-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(74,222,128,.9); }
+  100% { box-shadow: 0 0 0 14px rgba(74,222,128,0); }
+}
+.tg-choice.tg-shake { animation: tg-shake .45s ease; }
+@keyframes tg-shake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-7px); } 40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); } 80% { transform: translateX(3px); }
+}
+.tg-points-pop {
+  position: absolute; left: 50%; top: 8px; transform: translateX(-50%);
+  font-size: 1.5rem; font-weight: 900; color: #4ade80; pointer-events: none;
+  text-shadow: 0 0 14px rgba(74,222,128,.7); z-index: 20;
+  animation: tg-points-fly 1.3s ease forwards;
+}
+.tg-points-pop.fast { color: #ffce3a; text-shadow: 0 0 16px rgba(255,206,58,.8); font-size: 1.7rem; }
+@keyframes tg-points-fly {
+  0%   { opacity: 0; transform: translate(-50%, 16px) scale(.6); }
+  20%  { opacity: 1; transform: translate(-50%, 0) scale(1.15); }
+  100% { opacity: 0; transform: translate(-50%, -46px) scale(1); }
+}
+.tg-burst {
+  position: fixed; z-index: 9999; pointer-events: none; font-size: 1.15rem;
+  animation: tg-burst-fly 1s ease-out forwards;
+}
+@keyframes tg-burst-fly {
+  0%   { opacity: 1; transform: translate(0, 0) scale(.6); }
+  100% { opacity: 0; transform: translate(var(--bx), var(--by)) scale(1.25); }
+}
+.tg-chip-bump { animation: tg-chip-bump .5s cubic-bezier(.2,1.6,.4,1); }
+@keyframes tg-chip-bump { 0% { transform: scale(1); } 40% { transform: scale(1.14); } 100% { transform: scale(1); } }
+.tg-chip-gain { color: #eaffea; font-weight: 900; }
+
+/* ══ Boutique mobile : barre de categories compacte (icone seule) ══
+   Le bloc equivalent plus haut etait ecrase par la definition de base
+   (148px) declaree apres lui : ici, en fin de fichier, il gagne. */
+@media (max-width: 700px) {
+  .shop-fn-nav { width: 52px; min-width: 52px; padding: 8px 4px; }
+  .shop-fn-nav-btn { justify-content: center; padding: 9px 4px; }
+  .shop-nav-label { display: none; }
+  .shop-nav-icon { font-size: 1.1rem; line-height: 1; }
+  .shop-fn-content { padding: 14px 10px 40px; }
+}
+
+/* ══ Reglages : le bouton flottant en haut a droite est retire, l'acces se
+   fait via la carte Reglages du Profil. Le panneau se centre desormais. ══ */
+.btn-settings-float { display: none !important; }
+.settings-panel {
+  top: 50%; left: 50%; right: auto;
+  transform: translate(-50%, -50%);
+  max-height: 86dvh; overflow-y: auto;
+  box-shadow: 0 12px 48px rgba(0,0,0,.55);
+}

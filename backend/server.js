@@ -971,11 +971,26 @@ const COSMETICS = [
   { id: 'soundpack-cyber',      type: 'soundpack',   price: 100 },
   { id: 'soundpack-epic',       type: 'soundpack',   price: 130 },
   // Emotes
-  { id: 'emote-gg',             type: 'emote',       price: 5   },
-  { id: 'emote-wellplayed',     type: 'emote',       price: 10  },
-  { id: 'emote-fire',           type: 'emote',       price: 30  },
-  { id: 'emote-easy',           type: 'emote',       price: 50  },
-  { id: 'emote-omg',            type: 'emote',       price: 80  },
+  { id: 'emote-hello',        type: 'emote',       price: 0  },
+  { id: 'emote-gg',           type: 'emote',       price: 0  },
+  { id: 'emote-sad',          type: 'emote',       price: 0  },
+  { id: 'emote-wellplayed',   type: 'emote',       price: 10 },
+  { id: 'emote-laugh',        type: 'emote',       price: 15 },
+  { id: 'emote-think',        type: 'emote',       price: 15 },
+  { id: 'emote-cool',         type: 'emote',       price: 20 },
+  { id: 'emote-clap',         type: 'emote',       price: 25 },
+  { id: 'emote-fire',         type: 'emote',       price: 30 },
+  { id: 'emote-heart',        type: 'emote',       price: 30 },
+  { id: 'emote-cry',          type: 'emote',       price: 35 },
+  { id: 'emote-angry',        type: 'emote',       price: 40 },
+  { id: 'emote-shock',        type: 'emote',       price: 45 },
+  { id: 'emote-easy',         type: 'emote',       price: 50 },
+  { id: 'emote-eyes',         type: 'emote',       price: 55 },
+  { id: 'emote-skull',        type: 'emote',       price: 60 },
+  { id: 'emote-party',        type: 'emote',       price: 65 },
+  { id: 'emote-rocket',       type: 'emote',       price: 70 },
+  { id: 'emote-omg',          type: 'emote',       price: 80 },
+  { id: 'emote-crown',        type: 'emote',       price: 100},
 ];
 
 const ROTATION_INTERVAL_MS = 24 * 3600 * 1000;
@@ -1059,7 +1074,7 @@ function getRefundCardsInfo(entry) {
 
 // Fonds d'ecran offerts a tous les joueurs (nouveaux comme anciens) : ils
 // apparaissent dans le casier de chacun sans achat, injectes a chaque chargement.
-const FREE_COSMETICS = ['bg-nuit', 'bg-ardoise', 'bg-brume'];
+const FREE_COSMETICS = ['bg-nuit', 'bg-ardoise', 'bg-brume', 'emote-hello', 'emote-gg', 'emote-sad'];
 
 // Genere un code cadeau unique (8 caracteres, sans O/0/I/1 pour eviter les confusions).
 function _makeGiftCode() {
@@ -1439,6 +1454,7 @@ function sendTriviaQuestion(code) {
   const q = room.questions[room.currentQ];
   room.answersThisRound = new Map();
   room.status = 'question';
+  room.questionStartAt = Date.now(); // pour le bonus de vitesse
   io.to(code).emit('trivia-question', {
     questionNum:    room.currentQ + 1,
     totalQuestions: room.totalQ,
@@ -1459,13 +1475,23 @@ function revealTriviaAnswer(code) {
 
   const correct = room.questions[room.currentQ].correct;
   const correctSocketIds = [];
-  for (const [sid, choice] of room.answersThisRound) {
-    if (choice === correct) {
+  const gains = {}; // socketId -> { pts, fast } pour les animations côté client
+  for (const [sid, ans] of room.answersThisRound) {
+    if (ans && ans.choice === correct) {
       const p = room.players.get(sid);
-      if (p) { p.score++; correctSocketIds.push(sid); bumpChallenge(p.playerId, 'triviaCorrect'); }
+      if (p) {
+        // Bonus de vitesse : répondre dans les 40% premiers du temps double le point.
+        const elapsed = (ans.at || Date.now()) - (room.questionStartAt || 0);
+        const fast = elapsed <= TRIVIA_TIME_MS * 0.4;
+        const pts  = fast ? 2 : 1;
+        p.score += pts;
+        gains[sid] = { pts, fast };
+        correctSocketIds.push(sid);
+        bumpChallenge(p.playerId, 'triviaCorrect');
+      }
     }
   }
-  io.to(code).emit('trivia-reveal', { correct, correctSocketIds, scores: publicScores(room) });
+  io.to(code).emit('trivia-reveal', { correct, correctSocketIds, gains, scores: publicScores(room) });
   room.revealTimer = setTimeout(() => nextTriviaQuestion(code), 3500);
 }
 
@@ -2106,7 +2132,7 @@ io.on('connection', (socket) => {
     if (!room || room.status !== 'question') return;
     if (room.answersThisRound.has(socket.id)) return;
     if (!room.players.has(socket.id)) return;
-    room.answersThisRound.set(socket.id, String(choice));
+    room.answersThisRound.set(socket.id, { choice: String(choice), at: Date.now() });
     io.to(triviaRoomCode).emit('trivia-player-answered', { socketId: socket.id });
     const connectedIds = [...room.players.keys()].filter(sid => io.sockets.sockets.get(sid)?.connected);
     if (connectedIds.every(sid => room.answersThisRound.has(sid))) {
@@ -2273,7 +2299,7 @@ io.on('connection', (socket) => {
     if (!room || !room.players.Y) return;
     const pid = socketPlayerIds.get(socket.id);
     const entry = pid ? libs.get(pid) : null;
-    const VALID_EMOTES = ['emote-gg','emote-wellplayed','emote-fire','emote-easy','emote-omg'];
+    const VALID_EMOTES = COSMETICS.filter(c => c.type === 'emote').map(c => c.id);
     if (!VALID_EMOTES.includes(emoteId)) return;
     if (!entry || !entry.ownedCosmetics?.includes(emoteId)) return;
     io.to(roomCode).emit('emote-received', { player: myPlayer, emoteId, timestamp: Date.now() });

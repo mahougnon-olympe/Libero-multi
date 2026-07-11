@@ -361,6 +361,14 @@ const DICT = {
       invalid:'Ce code est invalide.',
       confirm:'Restaurer cette progression ? La progression actuelle de cet appareil sera remplacée.',
     },
+    joinName:{
+      title:"🎮 On t'attend !",
+      intro:"Un ami t'a invité à une partie. Choisis d'abord ton pseudo pour le rejoindre.",
+      placeholder:'Ton pseudo', go:'Rejoindre',
+      invalid:'Choisis un pseudo d\'au moins 2 caractères.',
+    },
+    emotesCardTitle:'Émotes', emotesCardSub:'20 réactions à envoyer en partie (5 équipées max)',
+    settingsCardTitle:'Réglages', settingsCardSub:'Langue, thème, sons, musique, serpent',
     emojirain:{
       cardTitle:"Pluie d'émojis", cardSub:'Choisis le thème ou tes propres émojis',
       title:"🌈 Pluie d'émojis",
@@ -481,7 +489,7 @@ const DICT = {
     btnTriviaCopy:'Copier le code', btnStartTrivia:'▶ Démarrer la partie',
     btnLeaveTrivia:'Quitter le salon',
     triviaWaitHint:'1 à 6 joueurs. Démarre dès que tu es prêt·e.',
-    triviaCorrect:'✅ Bonne réponse !', triviaWrong:'❌ La réponse était : ',
+    triviaCorrect:'✅ Bonne réponse !', triviaFastBonus:'⚡ Réponse éclair : point doublé !', triviaWrong:'❌ La réponse était : ',
     triviaFinishedTitle:'Résultats finaux', btnLeaveGame:'Retour au menu', btnQuitTrivia:'🚪 Quitter',
     errNoTheme:'Choisis au moins un thème pour commencer.',
     errLoadQ:'Impossible de charger les questions. Vérifie ta connexion.',
@@ -573,7 +581,7 @@ const DICT = {
     shopSoundPacksTitle:'🔊 Packs de sons',
     shopSoundPackNames:{'soundpack-8bit':'8-bit','soundpack-retro':'Rétro Arcade','soundpack-crystal':'Cristal','soundpack-cyber':'Cyber','soundpack-epic':'Épique'},
     shopEmotesTitle:'😎 Emotes',
-    shopEmoteNames:{'emote-gg':'GG 👍','emote-wellplayed':'Bien joué 🤝','emote-fire':'En feu 🔥','emote-easy':'Trop facile 😎','emote-omg':'Incroyable 😱'},
+    shopEmoteNames:{'emote-hello':'Salut 👋', 'emote-gg':'GG 👍', 'emote-sad':'Sniff 😢', 'emote-wellplayed':'Bien joué 🤝', 'emote-laugh':'MDR 😂', 'emote-think':'Hmm 🤔', 'emote-cool':'Cool 🆒', 'emote-clap':'Bravo 👏', 'emote-fire':'En feu 🔥', 'emote-heart':'Cœur ❤️', 'emote-cry':'Larmes 😭', 'emote-angry':'Grr 😤', 'emote-shock':'Explosé 🤯', 'emote-easy':'Trop facile 😎', 'emote-eyes':'Vu 👀', 'emote-skull':'Mort de rire 💀', 'emote-party':'La fête 🥳', 'emote-rocket':'Fusée 🚀', 'emote-omg':'Incroyable 😱', 'emote-crown':'Roi 👑'},
     shopFeaturedTitle:'⭐ À la une',
     shopDailyTitle:'📅 Quotidien',
     shopBundlesTitle:'🎁 Bundles',
@@ -777,7 +785,7 @@ const DICT = {
         { icon:'🏆', title:'Classements par section', desc:"Chaque section garde aussi son propre classement : victoires/défaites/nuls pour les Jeux Classiques, total de points pour le Quiz." },
         { icon:'🏃', title:'Libero Run', desc:"Aide Libero, la mascotte du site, à courir le plus loin possible dans ce runner sans fin ! Saute (<strong>↑</strong> / Espace) par-dessus les obstacles au sol (tonneaux, canons, crabes…) et accroupis-toi (<strong>↓</strong>) sous les obstacles volants (mouettes, boulets de canon…). Attrape l'<strong>⭐ étoile brillante</strong> pour devenir invincible quelques secondes : un compte à rebours affiche le temps restant. Ton meilleur score <strong>persiste</strong> entre les sessions et alimente un classement dédié. C'est d'ailleurs une <strong>idée de la communauté</strong> reprise par le créateur · si tu veux que la tienne soit prise en compte, laisse un commentaire via le bouton dans l'écran de jeu." },
         { icon:'📰', title:'News', desc:"La carte News est repliée dans le <strong>coin en haut à gauche</strong>. <strong>Clique dessus</strong> pour l'ouvrir : elle affiche les dernières <strong>annonces</strong> (nouveaux livres, nouveautés du site) et les <strong>commentaires</strong> des joueurs. Reclique pour la refermer." },
-        { icon:'⚙️', title:'Paramètres', desc:"Le bouton <strong>⚙️</strong> en <em>haut à droite</em> regroupe tous les réglages : <strong>Langue</strong>, <strong>Thème</strong>, <strong>Serpent</strong>, <strong>Sons</strong> (effets sonores + volume), <strong>Musique</strong> (fond musical + volume) et <strong>Cartes de remboursement</strong>. Tout est mémorisé entre les sessions." },
+        { icon:'⚙️', title:'Paramètres', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>⚙️ Réglages</strong> regroupe tous les réglages : <strong>Langue</strong>, <strong>Thème</strong>, <strong>Serpent</strong>, <strong>Sons</strong> (effets sonores + volume), <strong>Musique</strong> (fond musical + volume) et <strong>Cartes de remboursement</strong>. Tout est mémorisé entre les sessions." },
         { icon:'🔊', title:'Sons & Musique', desc:"<strong>Sons</strong> : des effets sonores accompagnent chaque action (poser une pièce, victoire, quiz, chat, boutique, Snake…). Active/désactive-les via <strong>⚙️ → Sons</strong> et règle le volume.<br><strong>Musique</strong> : une musique ambiante joue en fond. Active/désactive-la via <strong>⚙️ → Musique</strong> avec son propre curseur de volume. Les deux se gèrent indépendamment." },
         { icon:'🐍', title:'Serpent', desc:"Un petit serpent suit ton curseur. Il <strong>grandit et change de couleur</strong> selon ton score global 🌍 : or (1er), bleu (2e), bronze (3e). Joue et grimpe dans le classement pour l'allonger ! Active ou désactive-le via le bouton <strong>⚙️</strong> en haut à droite → <strong>Serpent</strong>." },
         { icon:'☀️', title:'Thème jour / nuit', desc:"Le bouton <strong>⚙️</strong> en <em>haut à droite</em> → <strong>Thème</strong> bascule entre le thème clair et sombre. Le site s'adapte aussi automatiquement selon l'heure (clair de 7h à 20h, sombre la nuit). Ton choix manuel est mémorisé entre les sessions." },
@@ -801,7 +809,7 @@ const DICT = {
         { icon:'🌈', title:'Packs d\'émojis', desc:"Remplace le jeu d'émojis de la pluie animée au premier chargement de la page. Exemples : Pack Fête 🎉, Pack Gaming 🎮, Pack Cosmos 🌌. Rareté : Commun à Rare." },
         { icon:'🏆', title:'Bannières de victoire', desc:"Personnalise le style et l'animation de la bannière de fin de partie (victoire). Visible à l'écran de résultat des jeux classiques et du quiz. Exemples : Triomphe Néon, Flammes de Champion, Couronnement. Rareté : Épique à Légendaire." },
         { icon:'🔊', title:'Packs de sons', desc:"Remplace certains sons du site (achat, victoire, clic, changement du compteur Libs) par un set sonore thématique. Les packs respectent ta préférence de son (⚙️ → Sons). Exemples : Rétro Arcade, Cristal, Épique. Rareté : Rare à Épique." },
-        { icon:'😎', title:'Emotes', desc:"Débloque des réactions rapides envoyables dans le chat des parties classiques multi. Les emotes possédées s'affichent dans une barre de réactions en jeu. Exemples : GG 👍, En feu 🔥, Incroyable 😱. Rareté : Commun à Épique." },
+        { icon:'😎', title:'Émotes', desc:"<strong>20 réactions rapides</strong> à envoyer dans le chat des parties classiques multi, dont <strong>3 gratuites</strong> pour tous (👋 Salut, 👍 GG, 😢 Sniff). Gère-les depuis l'onglet <strong>Profil → carte Émotes</strong> : tu peux en <strong>équiper jusqu'à 5</strong>, qui apparaissent dans la barre de réactions en jeu. Les autres s'achètent en Libs (de 10 à 100 ⚡)." },
         { icon:'🎓', title:'Tutoriel', desc:"À ta première visite, un guide apparaît automatiquement pour te présenter chaque fonctionnalité écran par écran. Une fois une étape vue, elle ne s'affiche plus. Pour tout revoir depuis le début, vide le cache de ton navigateur (localStorage)." },
       ],
       quiz:[
@@ -849,7 +857,7 @@ const DICT = {
       landing_news:'📰 Le cadre <strong>News</strong> est replié dans le coin <strong>en haut à gauche</strong>. <strong>Clique dessus</strong> pour l\'ouvrir : il affiche les dernières actualités, nouvelles fonctionnalités, annonces et commentaires de joueurs. Reclique pour le refermer.',
       landing_cats:'👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose quatre sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> (mini-jeux du week-end) et <strong>Pour la communauté</strong> (le mini-jeu <strong>Libero Run</strong>). La barre en bas mène aussi aux <strong>Vidéos</strong>, à la <strong>Lecture</strong> et à ton <strong>Profil</strong>.',
       landing_lb:'🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10 + meilleur score Libero Run ÷10. Plus tu montes, plus ton serpent 🐍 grandit !',
-      landing_btns:'⚙️ Des boutons permanents sont disponibles :<br>▶ <strong>En haut à droite</strong> : le bouton <strong>⚙️</strong> ouvre les <strong>Paramètres</strong> (thème, langue, serpent, sons, musique, cartes de remboursement).<br>▶ <strong>En bas à droite</strong> : ❓ <strong>Aide</strong> · ✉️ <strong>Commentaire</strong>',
+      landing_btns:'⚙️ Des boutons permanents sont disponibles :<br>▶ Les <strong>Réglages</strong> (thème, langue, serpent, sons, musique, cartes de remboursement) sont dans l\'onglet <strong>Profil</strong>, carte <strong>⚙️ Réglages</strong>.<br>▶ <strong>En bas à droite</strong> : ❓ <strong>Aide</strong> · ✉️ <strong>Commentaire</strong> · 🤖 <strong>Assistant</strong>',
       landing_libs:'⚡ <strong>Libs</strong> : la monnaie virtuelle du site. Tous les joueurs classés en reçoivent toutes les 5h (1er : +10 ⚡, 2e : +5 ⚡, 3e : +3 ⚡, du 4e au 10e : +2 ⚡, ensuite +1 ⚡). Tu en gagnes aussi avec les <strong>défis du jour</strong> et ta <strong>série de connexion</strong>. Dépense-les dans la <strong>boutique</strong> : cosmétiques, boosts quiz, livres exclusifs !',
       events_snake:'🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les <strong>⚡ Libs</strong> pour grandir : chaque ⚡ mangé est ajouté à ton solde (score 10 = 10 Libs gagnés). Les bords sont traversables, tu ressors de l\'autre côté ! Ton meilleur score <strong>persiste</strong> entre les sessions.',
       luffy_runner:'🏃 <strong>Libero Run</strong> : aide Libero à courir le plus loin possible ! Saute (↑ / Espace) par-dessus les obstacles au sol, accroupis-toi (↓) sous les obstacles volants. Attrape l\'⭐ étoile pour être invincible quelques secondes. Ton meilleur score alimente un classement dédié.',
@@ -859,9 +867,9 @@ const DICT = {
       home_lb:'🏆 <strong>Classement</strong> : victoires, défaites et nuls s\'enregistrent automatiquement après chaque partie (bot Moyen / Difficile ou multijoueur).',
       waiting_code:'📋 <strong>Partage ce code</strong> à 4 lettres avec ton adversaire, ou clique <strong>🔗 Partager le lien</strong> : il rejoindra en un clic. La partie démarre dès qu\'il arrive, et tu peux <strong>Annuler</strong> si personne ne vient.',
       quiz_themes:'🧠 <strong>Quiz Culture Générale</strong> : sélectionne un ou plusieurs thèmes (Histoire, Cinéma, Sciences…), puis joue en <strong>Solo</strong> ou crée un <strong>salon multijoueur</strong> à partager avec tes amis.',
-      quiz_lb:'🏆 Le <strong>classement Quiz</strong> est séparé du classement Classique. Les points sont attribués selon ta vitesse de réponse et le nombre de bonnes réponses.',
+      quiz_lb:'🏆 Le <strong>classement Quiz</strong> est séparé du classement Classique. Les points sont attribués selon ta vitesse de réponse et le nombre de bonnes réponses. <strong>Réponse éclair</strong> (dans les premières secondes) = <strong>point doublé ⚡</strong>.',
       read_catalogue:'📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Les <strong>romans exclusifs</strong> se lisent directement ici : <strong>⭐ L\'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, puis 1000 ⚡ et 2000 ⚡), <strong>Life of Georgia</strong> (2000 ⚡ le livre entier) et <strong>Life of Georgia · Tome 2</strong>, offert à ceux qui possèdent le Tome 1.',
-      profile_hub:'🎯 Ton <strong>Profil</strong> regroupe ta <strong>série de connexion</strong> 🔥, tes <strong>défis du jour</strong> (des ⚡ à réclamer chaque jour), ton <strong>casier</strong> (tes cosmétiques, avec aperçus et équipement), ton <strong>historique</strong> de parties, ton <strong>code de récupération</strong> 🔐 (note-le pour ne jamais perdre ton compte !) et la <strong>réinitialisation</strong> du compte.',
+      profile_hub:'🎯 Ton <strong>Profil</strong> regroupe ta <strong>série de connexion</strong> 🔥, tes <strong>défis du jour</strong> (des ⚡ à réclamer chaque jour), ton <strong>casier</strong> (tes cosmétiques, avec aperçus et équipement), ton <strong>historique</strong> de parties, tes <strong>émotes</strong> 😎, la <strong>pluie d\'émojis</strong> 🌈, les <strong>Réglages</strong> ⚙️, ton <strong>code de récupération</strong> 🔐 (note-le pour ne jamais perdre ton compte !) et la <strong>réinitialisation</strong> du compte.',
       feed_videos:'🎬 La section <strong>Vidéos</strong> : fais défiler verticalement pour découvrir les vidéos de la communauté, comme sur TikTok. Le son se coupe ou se réactive d\'un simple clic sur la vidéo.',
     },
   },
@@ -889,6 +897,14 @@ const DICT = {
       invalid:'This code is invalid.',
       confirm:'Restore this progress? The current progress on this device will be replaced.',
     },
+    joinName:{
+      title:'🎮 They are waiting for you!',
+      intro:'A friend invited you to a game. Pick your nickname first to join them.',
+      placeholder:'Your nickname', go:'Join',
+      invalid:'Pick a nickname of at least 2 characters.',
+    },
+    emotesCardTitle:'Emotes', emotesCardSub:'20 reactions to send in game (5 equipped max)',
+    settingsCardTitle:'Settings', settingsCardSub:'Language, theme, sounds, music, snake',
     emojirain:{
       cardTitle:'Emoji rain', cardSub:'Pick a theme or your own emojis',
       title:'🌈 Emoji rain',
@@ -1009,7 +1025,7 @@ const DICT = {
     btnTriviaCopy:'Copy code', btnStartTrivia:'▶ Start game',
     btnLeaveTrivia:'Leave room',
     triviaWaitHint:'1 to 6 players. Start whenever you\'re ready.',
-    triviaCorrect:'✅ Correct!', triviaWrong:'❌ The answer was: ',
+    triviaCorrect:'✅ Correct!', triviaFastBonus:'⚡ Lightning answer: double points!', triviaWrong:'❌ The answer was: ',
     triviaFinishedTitle:'Final Results', btnLeaveGame:'Back to menu', btnQuitTrivia:'🚪 Quit',
     errNoTheme:'Choose at least one theme to start.',
     errLoadQ:'Could not load questions. Check your connection.',
@@ -1101,7 +1117,7 @@ const DICT = {
     shopSoundPacksTitle:'🔊 Sound Packs',
     shopSoundPackNames:{'soundpack-8bit':'8-bit','soundpack-retro':'Retro Arcade','soundpack-crystal':'Crystal','soundpack-cyber':'Cyber','soundpack-epic':'Epic'},
     shopEmotesTitle:'😎 Emotes',
-    shopEmoteNames:{'emote-gg':'GG 👍','emote-wellplayed':'Well played 🤝','emote-fire':'On fire 🔥','emote-easy':'Too easy 😎','emote-omg':'Incredible 😱'},
+    shopEmoteNames:{'emote-hello':'Hello 👋', 'emote-gg':'GG 👍', 'emote-sad':'Sniff 😢', 'emote-wellplayed':'Well played 🤝', 'emote-laugh':'LOL 😂', 'emote-think':'Hmm 🤔', 'emote-cool':'Cool 🆒', 'emote-clap':'Bravo 👏', 'emote-fire':'On fire 🔥', 'emote-heart':'Heart ❤️', 'emote-cry':'Tears 😭', 'emote-angry':'Grr 😤', 'emote-shock':'Mind blown 🤯', 'emote-easy':'Too easy 😎', 'emote-eyes':'Seen 👀', 'emote-skull':'Dead 💀', 'emote-party':'Party 🥳', 'emote-rocket':'Rocket 🚀', 'emote-omg':'OMG 😱', 'emote-crown':'King 👑'},
     shopFeaturedTitle:'⭐ Featured',
     shopDailyTitle:'📅 Daily',
     shopBundlesTitle:'🎁 Bundles',
@@ -1305,7 +1321,7 @@ const DICT = {
         { icon:'🏆', title:'Section leaderboards', desc:"Each section also keeps its own leaderboard: wins/losses/draws for Classic Games, total points for Quiz." },
         { icon:'🏃', title:'Libero Run', desc:"Help Libero, the site's mascot, run as far as possible in this endless runner! Jump (<strong>↑</strong> / Space) over ground obstacles (barrels, cannons, crabs…) and duck (<strong>↓</strong>) under flying ones (seagulls, cannonballs…). Grab the <strong>⭐ shining star</strong> to become invincible for a few seconds: a countdown shows the time left. Your best score <strong>persists</strong> between sessions and feeds its own leaderboard. It's actually a <strong>community idea</strong> brought to life by the creator · if you want yours considered too, leave a comment via the button on the game screen." },
         { icon:'📰', title:'News', desc:"The News card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the latest <strong>announcements</strong> (new books, site updates) and player <strong>comments</strong>. Click again to close it." },
-        { icon:'⚙️', title:'Settings', desc:"The <strong>⚙️</strong> button in the <em>top right</em> groups all settings: <strong>Language</strong>, <strong>Theme</strong>, <strong>Snake</strong>, <strong>Sound</strong> (SFX + volume), <strong>Music</strong> (background music + volume) and <strong>Refund cards</strong>. Everything is saved between sessions." },
+        { icon:'⚙️', title:'Settings', desc:"In the <strong>Profile</strong> tab, the <strong>⚙️ Settings</strong> card groups all settings: <strong>Language</strong>, <strong>Theme</strong>, <strong>Snake</strong>, <strong>Sound</strong> (SFX + volume), <strong>Music</strong> (background music + volume) and <strong>Refund cards</strong>. Everything is saved between sessions." },
         { icon:'🔊', title:'Sound & Music', desc:"<strong>Sound</strong>: sound effects play on every action (placing a piece, win, quiz, chat, shop, Snake…). Toggle via <strong>⚙️ → Sound</strong> and adjust the volume.<br><strong>Music</strong>: ambient background music plays while you browse. Toggle via <strong>⚙️ → Music</strong> with its own volume slider. Both are controlled independently." },
         { icon:'🐍', title:'Snake', desc:"A little snake follows your cursor. It <strong>grows and changes colour</strong> based on your global score 🌍: gold (1st), blue (2nd), bronze (3rd). Play and climb the leaderboard to make it longer! Enable or disable it via the <strong>⚙️</strong> button (top right) → <strong>Snake</strong>." },
         { icon:'☀️', title:'Day / night theme', desc:"The <strong>⚙️</strong> button in the <em>top right</em> → <strong>Theme</strong> toggles between light and dark theme. The site also adapts automatically based on the time (light 7am–8pm, dark at night). Your manual choice is remembered between sessions." },
@@ -1329,7 +1345,7 @@ const DICT = {
         { icon:'🌈', title:'Emoji Packs', desc:"Replace the emoji set in the animated emoji rain on the first page load. Examples: Party Pack 🎉, Gaming Pack 🎮, Cosmos Pack 🌌. Rarity: Common to Rare." },
         { icon:'🏆', title:'Victory Banners', desc:"Customize the style and animation of the end-of-game banner (win screen). Shown at the result screen of classic games and quizzes. Examples: Neon Triumph, Champion Flames, Coronation. Rarity: Epic to Legendary." },
         { icon:'🔊', title:'Sound Packs', desc:"Replace some site sounds (purchase, win, click, Libs counter change) with a themed audio set. Packs respect your sound preference (⚙️ → Sound). Examples: Retro Arcade, Crystal, Epic. Rarity: Rare to Epic." },
-        { icon:'😎', title:'Emotes', desc:"Unlock quick reactions sendable in the chat during classic multiplayer games. Owned emotes appear in a reaction bar in-game. Examples: GG 👍, On fire 🔥, Incredible 😱. Rarity: Common to Epic." },
+        { icon:'😎', title:'Emotes', desc:"<strong>20 quick reactions</strong> to send in the chat of classic multiplayer games, including <strong>3 free for everyone</strong> (👋 Hello, 👍 GG, 😢 Sniff). Manage them from the <strong>Profile tab → Emotes card</strong>: you can <strong>equip up to 5</strong>, shown in the in-game reaction bar. The rest cost Libs (10 to 100 ⚡)." },
         { icon:'🎓', title:'Tutorial', desc:"On your first visit, a guide appears automatically to walk you through each feature screen by screen. Once a step has been seen, it won't show again. To restart from the beginning, clear your browser cache (localStorage)." },
       ],
       quiz:[
@@ -1377,7 +1393,7 @@ const DICT = {
       landing_news:'📰 The <strong>News</strong> card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the latest news, updates, announcements and player comments. Click again to close it.',
       landing_cats:'👋 Welcome to <strong>Libero\'s Multi</strong>! The home screen offers four sections: <strong>Classic Games</strong>, <strong>General Knowledge</strong>, <strong>Events</strong> (weekend mini-games) and <strong>Community</strong> (the <strong>Libero Run</strong> mini-game). The bottom bar also leads to <strong>Videos</strong>, <strong>Reading</strong> and your <strong>Profile</strong>.',
       landing_lb:'🌍 The <strong>Global Leaderboard</strong> brings together <em>all</em> players with at least one point. Score = classic wins ×10 + Quiz points + best Snake score ×10 + best Libero Run score ÷10. The higher you climb, the longer your snake 🐍 grows!',
-      landing_btns:'⚙️ Permanent buttons are available:<br>▶ <strong>Top right</strong>: the <strong>⚙️</strong> button opens <strong>Settings</strong> (day/night theme, language, snake, sounds, music, refund cards).<br>▶ <strong>Bottom right</strong>: ❓ <strong>Help</strong> · ✉️ <strong>Comment</strong>',
+      landing_btns:'⚙️ Permanent buttons are available:<br>▶ <strong>Settings</strong> (theme, language, snake, sounds, music, refund cards) live in the <strong>Profile</strong> tab, <strong>⚙️ Settings</strong> card.<br>▶ <strong>Bottom right</strong>: ❓ <strong>Help</strong> · ✉️ <strong>Comment</strong> · 🤖 <strong>Assistant</strong>',
       landing_libs:'⚡ <strong>Libs</strong>: the site\'s virtual currency. Every ranked player receives some every 5 hours (1st: +10 ⚡, 2nd: +5 ⚡, 3rd: +3 ⚡, 4th to 10th: +2 ⚡, then +1 ⚡). You also earn them through the <strong>daily challenges</strong> and your <strong>login streak</strong>. Spend them in the <strong>shop</strong>: cosmetics, quiz boosts, exclusive books!',
       events_snake:'🐍 This weekend\'s event: <strong>Snake Challenge</strong>! Click <em>Play</em>, your snake enters the arena. Eat the <strong>⚡ Libs</strong> to grow: every ⚡ eaten is added to your balance (score 10 = 10 Libs earned). Walls wrap around · you reappear on the other side! Your best score <strong>persists</strong> between sessions.',
       luffy_runner:'🏃 <strong>Libero Run</strong>: help Libero run as far as possible! Jump (↑ / Space) over ground obstacles, duck (↓) under flying ones. Grab the ⭐ star to become invincible for a few seconds. Your best score feeds a dedicated leaderboard.',
@@ -1387,9 +1403,9 @@ const DICT = {
       home_lb:'🏆 <strong>Leaderboard</strong>: wins, losses and draws are recorded automatically after each game (Medium/Hard bot or multiplayer).',
       waiting_code:'📋 <strong>Share this 4-letter code</strong> with your opponent, or click <strong>🔗 Share link</strong>: they will join in one click. The game starts as soon as they arrive, and you can <strong>Cancel</strong> if nobody comes.',
       quiz_themes:'🧠 <strong>General Knowledge Quiz</strong>: select one or more themes (History, Movies, Science…), then play <strong>Solo</strong> or create a <strong>multiplayer room</strong> to share with your friends.',
-      quiz_lb:'🏆 The <strong>Quiz leaderboard</strong> is separate from the Classic leaderboard. Points are awarded based on your response speed and number of correct answers.',
+      quiz_lb:'🏆 The <strong>Quiz leaderboard</strong> is separate from the Classic leaderboard. Points are awarded based on your response speed and number of correct answers. A <strong>lightning answer</strong> (within the first seconds) = <strong>double points ⚡</strong>.',
       read_catalogue:'📚 Welcome to the <strong>Reading</strong> section! Search a book by title or author, filter by category, and click a cover to open its sheet. The <strong>exclusive novels</strong> can be read right here: <strong>⭐ L\'Affaire endormie · Tome 1</strong> (chapter 1 free, then 1000 ⚡ and 2000 ⚡), <strong>Life of Georgia</strong> (2000 ⚡ for the whole book) and <strong>Life of Georgia · Volume 2</strong>, free for owners of Volume 1.',
-      profile_hub:'🎯 Your <strong>Profile</strong> gathers your <strong>login streak</strong> 🔥, your <strong>daily challenges</strong> (⚡ to claim every day), your <strong>locker</strong> (your cosmetics, with previews and equipping), your game <strong>history</strong>, your <strong>recovery code</strong> 🔐 (write it down so you never lose your account!) and the account <strong>reset</strong>.',
+      profile_hub:'🎯 Your <strong>Profile</strong> gathers your <strong>login streak</strong> 🔥, your <strong>daily challenges</strong> (⚡ to claim every day), your <strong>locker</strong> (your cosmetics, with previews and equipping), your game <strong>history</strong>, your <strong>emotes</strong> 😎, the <strong>emoji rain</strong> 🌈, the <strong>Settings</strong> ⚙️, your <strong>recovery code</strong> 🔐 (write it down so you never lose your account!) and the account <strong>reset</strong>.',
       feed_videos:'🎬 The <strong>Videos</strong> section: scroll vertically to discover community videos, TikTok-style. Sound toggles on and off with a simple click on the video.',
     },
   },
@@ -1483,6 +1499,17 @@ function applyLang() {
   const rrl = $('recovery-restore-label'); if (rrl) rrl.textContent = d.recovery.restoreLabel;
   const rrb = $('btn-recovery-restore');   if (rrb) rrb.textContent = d.recovery.restore;
   const rrh = $('recovery-restore-hint');  if (rrh && !rrh.classList.contains('recovery-err')) rrh.textContent = d.recovery.restoreHint;
+  // Pseudo pour lien d'invitation
+  const jnt = $('joinname-title'); if (jnt) jnt.textContent = d.joinName.title;
+  const jni = $('joinname-intro'); if (jni) jni.textContent = d.joinName.intro;
+  const jnp = $('joinname-input'); if (jnp) jnp.placeholder = d.joinName.placeholder;
+  const jng = $('btn-joinname-go'); if (jng) jng.textContent = d.joinName.go;
+  // Émotes (carte du profil)
+  const emct = $('emotes-card-title'); if (emct) emct.textContent = d.emotesCardTitle;
+  const emcs = $('emotes-card-sub');   if (emcs) emcs.textContent = d.emotesCardSub;
+  // Réglages (carte du profil)
+  const stgt = $('settings-card-title'); if (stgt) stgt.textContent = d.settingsCardTitle;
+  const stgs = $('settings-card-sub');   if (stgs) stgs.textContent = d.settingsCardSub;
   // Pluie d'émojis
   const ert = $('emojirain-card-title'); if (ert) ert.textContent = d.emojirain.cardTitle;
   const ers = $('emojirain-card-sub');   if (ers) ers.textContent = d.emojirain.cardSub;
@@ -2711,11 +2738,26 @@ $('btn-cancel-wait').addEventListener('click', () => {
 $('btn-clear-chat').addEventListener('click', () => { $('chat-messages').innerHTML = ''; });
 
 const EMOTE_DEFS = {
-  'emote-gg':        { emoji:'👍', label:'GG' },
-  'emote-wellplayed':{ emoji:'🤝', label:'Bien joué' },
-  'emote-fire':      { emoji:'🔥', label:'En feu' },
-  'emote-easy':      { emoji:'😎', label:'Trop facile' },
-  'emote-omg':       { emoji:'😱', label:'Incroyable' },
+  'emote-hello':      { emoji:'👋', label:'Salut' },
+  'emote-gg':         { emoji:'👍', label:'GG' },
+  'emote-sad':        { emoji:'😢', label:'Sniff' },
+  'emote-wellplayed': { emoji:'🤝', label:'Bien joué' },
+  'emote-laugh':      { emoji:'😂', label:'MDR' },
+  'emote-think':      { emoji:'🤔', label:'Hmm' },
+  'emote-cool':       { emoji:'🆒', label:'Cool' },
+  'emote-clap':       { emoji:'👏', label:'Bravo' },
+  'emote-fire':       { emoji:'🔥', label:'En feu' },
+  'emote-heart':      { emoji:'❤️', label:'Cœur' },
+  'emote-cry':        { emoji:'😭', label:'Larmes' },
+  'emote-angry':      { emoji:'😤', label:'Grr' },
+  'emote-shock':      { emoji:'🤯', label:'Explosé' },
+  'emote-easy':       { emoji:'😎', label:'Trop facile' },
+  'emote-eyes':       { emoji:'👀', label:'Vu' },
+  'emote-skull':      { emoji:'💀', label:'Mort de rire' },
+  'emote-party':      { emoji:'🥳', label:'La fête' },
+  'emote-rocket':     { emoji:'🚀', label:'Fusée' },
+  'emote-omg':        { emoji:'😱', label:'Incroyable' },
+  'emote-crown':      { emoji:'👑', label:'Roi' },
 };
 
 function _renderEmoteBar() {
@@ -3108,6 +3150,8 @@ const LETTERS = ['A','B','C','D'];
 
 function showTriviaQuestion({ questionNum, totalQuestions, question, choices, timeLimit, scores }) {
   triviaAnsweredThis = false; triviaChoiceSelected = null;
+  window._triviaQStartAt = Date.now();
+  window._triviaQLimitMs = (timeLimit || 30) * 1000;
   hintsUsedThisQ = 0;
   _updateBoostHintBtn();
   $('tg-q-num').textContent = `Q ${questionNum} / ${totalQuestions}`;
@@ -3168,31 +3212,73 @@ function onTriviaTimeUp() {
   if (triviaIsSolo) soloReveal(null);
 }
 
-function showTriviaReveal({ correct, correctSocketIds, scores, myChoice }) {
+function showTriviaReveal({ correct, correctSocketIds, gains, scores, myChoice, soloGain }) {
   stopTriviaTimer();
   const _skip = $('tg-skip'); if (_skip) _skip.classList.add('hidden');
   $('tg-choices').querySelectorAll('.tg-choice').forEach(btn => {
     const c = btn.dataset.choice;
     btn.classList.remove('wrong');
     if (c === correct) btn.classList.add('correct');
-    else if (c === myChoice) btn.classList.add('wrong');
+    else if (c === myChoice) { btn.classList.add('wrong'); btn.classList.add('tg-shake'); }
     else btn.classList.add('dimmed');
   });
-  if (scores) renderTriviaScores(scores);
+  if (scores) renderTriviaScores(scores, gains);
   const gotIt = triviaIsSolo ? myChoice === correct
     : (correctSocketIds || []).includes(triviaMySocketId);
-  $('tg-reveal').textContent  = gotIt ? t().triviaCorrect : `${t().triviaWrong}${correct}`;
-  $('tg-reveal').className    = `tg-reveal ${gotIt ? 'ok' : 'ko'}`;
-  if (gotIt) SFX.quizOk(); else SFX.quizBad();
+  const myGain = triviaIsSolo ? soloGain : (gains ? gains[triviaMySocketId] : null);
+  let msg = gotIt ? t().triviaCorrect : `${t().triviaWrong}${correct}`;
+  if (gotIt && myGain?.fast) msg += ` ${t().triviaFastBonus}`;
+  const rev = $('tg-reveal');
+  rev.textContent = msg;
+  rev.className   = `tg-reveal ${gotIt ? 'ok' : 'ko'}`;
+  rev.style.animation = 'none'; void rev.offsetWidth; rev.style.animation = '';
+  if (gotIt) {
+    SFX.quizOk();
+    _triviaPointsPop(myGain?.pts || 1, myGain?.fast);
+    _triviaBurst(myGain?.fast ? '⚡' : '🎉');
+  } else {
+    SFX.quizBad();
+  }
 }
 
-function renderTriviaScores(scores) {
-  $('tg-scores').innerHTML = scores.map(s => `
-    <div class="tg-score-chip" style="background:${TRIVIA_COLORS[s.colorIndex] || '#64748b'}">
+// « +1 ⚡ » / « +2 ⚡ » qui s'envole au-dessus de la question.
+function _triviaPointsPop(pts, fast) {
+  const host = $('tg-question')?.parentElement || document.body;
+  const el = document.createElement('div');
+  el.className = 'tg-points-pop' + (fast ? ' fast' : '');
+  el.textContent = `+${pts} ⚡`;
+  host.appendChild(el);
+  setTimeout(() => el.remove(), 1400);
+}
+
+// Petite explosion d'émojis autour de la bonne réponse.
+function _triviaBurst(emoji) {
+  const target = $('tg-choices')?.querySelector('.tg-choice.correct') || $('tg-reveal');
+  if (!target) return;
+  const r = target.getBoundingClientRect();
+  for (let i = 0; i < 10; i++) {
+    const sp = document.createElement('span');
+    sp.className = 'tg-burst';
+    sp.textContent = emoji;
+    sp.style.left = (r.left + r.width / 2) + 'px';
+    sp.style.top  = (r.top + r.height / 2) + 'px';
+    sp.style.setProperty('--bx', ((Math.random() - .5) * 220).toFixed(0) + 'px');
+    sp.style.setProperty('--by', (-40 - Math.random() * 160).toFixed(0) + 'px');
+    sp.style.animationDelay = (Math.random() * .12).toFixed(2) + 's';
+    document.body.appendChild(sp);
+    setTimeout(() => sp.remove(), 1200);
+  }
+}
+
+function renderTriviaScores(scores, gains) {
+  $('tg-scores').innerHTML = scores.map(s => {
+    const g = gains && s.socketId ? gains[s.socketId] : null;
+    return `
+    <div class="tg-score-chip${g ? ' tg-chip-bump' : ''}" style="background:${TRIVIA_COLORS[s.colorIndex] || '#64748b'}">
       <span>${s.name}</span>
-      <span class="tg-score-check">${s.score}pt</span>
-    </div>
-  `).join('');
+      <span class="tg-score-check">${s.score}pt${g ? ` <b class="tg-chip-gain">+${g.pts}</b>` : ''}</span>
+    </div>`;
+  }).join('');
 }
 
 function showTriviaFinished(scores) {
@@ -3273,8 +3359,15 @@ function soloNextQuestion() {
 
 function soloReveal(myChoice) {
   const q = triviaQuestions[triviaCurrentQ];
-  if (myChoice === q.correct) triviaScore++;
-  showTriviaReveal({ correct: q.correct, correctSocketIds: [], scores: null, myChoice });
+  let soloGain = null;
+  if (myChoice === q.correct) {
+    // Même règle qu'en multi : répondre vite double le point.
+    const fast = (Date.now() - (window._triviaQStartAt || 0)) <= (window._triviaQLimitMs || 30000) * 0.4;
+    const pts  = fast ? 2 : 1;
+    triviaScore += pts;
+    soloGain = { pts, fast };
+  }
+  showTriviaReveal({ correct: q.correct, correctSocketIds: [], scores: null, myChoice, soloGain });
   triviaCurrentQ++;
   saveTriviaSession({ isSolo: true, questions: triviaQuestions, currentQ: triviaCurrentQ, score: triviaScore });
   setTimeout(soloNextQuestion, 3000);
@@ -3391,6 +3484,10 @@ $('overlay-help').addEventListener('click', e => {
     casier:['casier','profil'], locker:['casier','profil'], equiper:['casier','equiper'], equip:['casier','equiper'], desequiper:['casier','equiper'], unequip:['casier','equiper'], cosmetique2:['casier'],
     cadeau:['cadeau','offrir'], cadeaux:['cadeau','offrir'], gift:['cadeau','offrir','gift'], offrir:['cadeau','offrir'], offert:['cadeau','offrir'],
     recuperation:['recuperation','sauvegarder'], recuperer:['recuperation','sauvegarder'], recovery:['recuperation','recovery'], recover:['recuperation','recovery'], sauvegarder:['recuperation','sauvegarder','progression'], sauvegarde:['recuperation','sauvegarder'], save:['recuperation','recovery'], progression:['recuperation','progression'], progress:['recuperation','recovery'], appareil:['recuperation'], device:['recuperation','recovery'], telephone:['recuperation'], phone:['recuperation','recovery'], perdu:['recuperation'], lost:['recuperation','recovery'],
+    emote:['emotes','reactions','profil'], emotes:['emotes','reactions','profil'], reaction:['emotes'], reactions:['emotes'],
+    reglage:['reglages','parametres','profil'], reglages:['reglages','parametres','profil'], parametre:['reglages','parametres'], parametres:['reglages','parametres'], settings:['parametres','profil'],
+    eclair:['quiz','vitesse'], vitesse:['quiz','vitesse'], rapide:['quiz','vitesse'], lightning:['quiz','speed'], vite:['quiz','vitesse'],
+    pluie:['emojis','pluie'], emoji:['emojis','pluie'], emojis:['emojis','pluie'],
     reinitialiser:['reinitialiser','reset'], reset:['reinitialiser','reset'], effacer:['reinitialiser'], supprimer:['reinitialiser','compte'], delete:['reinitialiser','reset'], compte:['compte','recuperation'], account:['compte','recovery','reset'], zero:['reinitialiser'],
   };
 
@@ -3691,8 +3788,13 @@ socket.on('connect', () => {
   // en cours de reconnexion). Le serveur résout le bon type de salle.
   if (pendingJoinCode && pendingJoinCode.length === 4
       && !sessionStorage.getItem('p4session') && !sessionStorage.getItem('triviaSession')) {
-    const name = getPlayerName() || getTriviaName() || '';
-    socket.emit('join-by-code', { code: pendingJoinCode, name, playerId: getPlayerId() });
+    const name = getPlayerName() || getTriviaName() || (localStorage.getItem('playerName') || '').trim();
+    if (name && name !== 'Anonyme') {
+      socket.emit('join-by-code', { code: pendingJoinCode, name, playerId: getPlayerId() });
+    } else {
+      // Pas de pseudo : on l'exige avant de rejoindre la partie du lien.
+      window._askJoinName?.(pendingJoinCode);
+    }
   }
   // Lien cadeau : échange automatique du code (une seule fois par chargement).
   if (pendingGiftCode && pendingGiftCode.length === 8 && !window._giftLinkTried) {
@@ -4635,8 +4737,7 @@ function _renderShopItems() {
     {id:'soundpack-cyber',price:100},{id:'soundpack-epic',price:130},
   ];
   const ALL_EMOTES = [
-    {id:'emote-gg',price:5},{id:'emote-wellplayed',price:10},{id:'emote-fire',price:30},
-    {id:'emote-easy',price:50},{id:'emote-omg',price:80},
+    {id:'emote-hello',price:0},{id:'emote-gg',price:0},{id:'emote-sad',price:0},{id:'emote-wellplayed',price:10},{id:'emote-laugh',price:15},{id:'emote-think',price:15},{id:'emote-cool',price:20},{id:'emote-clap',price:25},{id:'emote-fire',price:30},{id:'emote-heart',price:30},{id:'emote-cry',price:35},{id:'emote-angry',price:40},{id:'emote-shock',price:45},{id:'emote-easy',price:50},{id:'emote-eyes',price:55},{id:'emote-skull',price:60},{id:'emote-party',price:65},{id:'emote-rocket',price:70},{id:'emote-omg',price:80},{id:'emote-crown',price:100},
   ];
 
   const colorItems       = ALL_COLORS.map(c  => ({ ...c, type:'color',       name: d.shopCosmeticNames[c.id] }));
@@ -4697,7 +4798,7 @@ function _renderShopItems() {
     const _TTT_E = {'ttt-neon':'✖️⭕','ttt-sunmoon':'☀️🌙','ttt-heartstar':'❤️⭐','ttt-catdog':'🐱🐶','ttt-skulllightning':'💀⚡'};
     const _CFX = {'clickfx-bubbles':'🫧','clickfx-confetti':'🎊','clickfx-neon':'⚡','clickfx-stars':'🌟','clickfx-firework':'🎆'};
     const _EP = {'emojipack-animals':'🐾','emojipack-hearts':'💜','emojipack-party':'🎉','emojipack-gaming':'🎮','emojipack-cosmos':'🌌'};
-    const _EM = {'emote-gg':'👍','emote-wellplayed':'🤝','emote-fire':'🔥','emote-easy':'😎','emote-omg':'😱'};
+    const _EM = {'emote-hello':'👋','emote-gg':'👍','emote-sad':'😢','emote-wellplayed':'🤝','emote-laugh':'😂','emote-think':'🤔','emote-cool':'🆒','emote-clap':'👏','emote-fire':'🔥','emote-heart':'❤️','emote-cry':'😭','emote-angry':'😤','emote-shock':'🤯','emote-easy':'😎','emote-eyes':'👀','emote-skull':'💀','emote-party':'🥳','emote-rocket':'🚀','emote-omg':'😱','emote-crown':'👑'};
     let previewHtml = '';
     if (type === 'background')     previewHtml = `<div class="shop-bg-preview ${id}"></div>`;
     else if (type === 'bubble')    previewHtml = `<div class="shop-bubble-preview ${id}">Salut ! 👋</div>`;
@@ -5191,7 +5292,7 @@ function _openShopDetail(item) {
       'ttt-neon':'✖️⭕','ttt-sunmoon':'☀️🌙','ttt-heartstar':'❤️⭐','ttt-catdog':'🐱🐶','ttt-skulllightning':'💀⚡',
       'clickfx-bubbles':'🫧','clickfx-confetti':'🎊','clickfx-neon':'⚡','clickfx-stars':'🌟','clickfx-firework':'🎆',
       'emojipack-animals':'🐾🐶🐱','emojipack-hearts':'💜💙💚','emojipack-party':'🎉🎊🎈','emojipack-gaming':'🎮🕹️👾','emojipack-cosmos':'🌌🪐✨',
-      'emote-gg':'👍','emote-wellplayed':'🤝','emote-fire':'🔥','emote-easy':'😎','emote-omg':'😱',
+      'emote-hello':'👋','emote-gg':'👍','emote-sad':'😢','emote-wellplayed':'🤝','emote-laugh':'😂','emote-think':'🤔','emote-cool':'🆒','emote-clap':'👏','emote-fire':'🔥','emote-heart':'❤️','emote-cry':'😭','emote-angry':'😤','emote-shock':'🤯','emote-easy':'😎','emote-eyes':'👀','emote-skull':'💀','emote-party':'🥳','emote-rocket':'🚀','emote-omg':'😱','emote-crown':'👑',
     };
     const emoji = _ITEM_EMOJI[id] || _DETAIL_EMOJI[type] || '✨';
     previewHtml = `<div class="shop-emoji-preview large">${emoji}</div>`;
@@ -5414,6 +5515,12 @@ document.addEventListener('DOMContentLoaded', () => {
       else _openSettingsPanel();
     });
   }
+  // Les réglages s'ouvrent depuis la carte du Profil (le bouton ⚙️ flottant
+  // en haut à droite a été retiré de l'interface).
+  document.getElementById('go-settings')?.addEventListener('click', e => {
+    e.stopPropagation();
+    _openSettingsPanel();
+  });
 
   document.getElementById('sp-lang-btn')?.addEventListener('click', () => {
     document.getElementById('btn-lang')?.click();
@@ -5503,7 +5610,7 @@ const _LOCKER_EMOJI = {
   ttt:{'ttt-neon':'✖️⭕','ttt-sunmoon':'☀️🌙','ttt-heartstar':'❤️⭐','ttt-catdog':'🐱🐶','ttt-skulllightning':'💀⚡'},
   clickfx:{'clickfx-bubbles':'🫧','clickfx-confetti':'🎊','clickfx-neon':'⚡','clickfx-stars':'🌟','clickfx-firework':'🎆'},
   emojipack:{'emojipack-animals':'🐾','emojipack-hearts':'💜','emojipack-party':'🎉','emojipack-gaming':'🎮','emojipack-cosmos':'🌌'},
-  emote:{'emote-gg':'👍','emote-wellplayed':'🤝','emote-fire':'🔥','emote-easy':'😎','emote-omg':'😱'},
+  emote:{'emote-hello':'👋','emote-gg':'👍','emote-sad':'😢','emote-wellplayed':'🤝','emote-laugh':'😂','emote-think':'🤔','emote-cool':'🆒','emote-clap':'👏','emote-fire':'🔥','emote-heart':'❤️','emote-cry':'😭','emote-angry':'😤','emote-shock':'🤯','emote-easy':'😎','emote-eyes':'👀','emote-skull':'💀','emote-party':'🥳','emote-rocket':'🚀','emote-omg':'😱','emote-crown':'👑'},
 };
 function _cosmeticPreviewHtml(type, id, itemName) {
   const nm = _escHtml(localStorage.getItem('playerName') || 'Aa');
@@ -7492,7 +7599,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'landing_btns',
       screen: 'landing',
-      text: '⚙️ Des boutons permanents sont disponibles :<br>▶ <strong>En haut à droite</strong> : le bouton <strong>⚙️</strong> ouvre les <strong>Paramètres</strong> (thème, langue, serpent, sons, musique, cartes de remboursement).<br>▶ <strong>En bas à droite</strong> : ❓ <strong>Aide</strong> · ✉️ <strong>Commentaire</strong>',
+      text: '⚙️ Des boutons permanents sont disponibles :<br>▶ Les <strong>Réglages</strong> (thème, langue, serpent, sons, musique, cartes de remboursement) sont dans l\'onglet <strong>Profil</strong>, carte <strong>⚙️ Réglages</strong>.<br>▶ <strong>En bas à droite</strong> : ❓ <strong>Aide</strong> · ✉️ <strong>Commentaire</strong> · 🤖 <strong>Assistant</strong>',
       target: null,
     },
     {
@@ -7565,7 +7672,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'profile_hub',
       screen: 'profile',
-      text: '🎯 Ton <strong>Profil</strong> regroupe ta <strong>série de connexion</strong> 🔥, tes <strong>défis du jour</strong> (des ⚡ à réclamer chaque jour), ton <strong>casier</strong> (tes cosmétiques, avec aperçus et équipement), ton <strong>historique</strong> de parties, ton <strong>code de récupération</strong> 🔐 (note-le pour ne jamais perdre ton compte !) et la <strong>réinitialisation</strong> du compte.',
+      text: '🎯 Ton <strong>Profil</strong> regroupe ta <strong>série de connexion</strong> 🔥, tes <strong>défis du jour</strong> (des ⚡ à réclamer chaque jour), ton <strong>casier</strong> (tes cosmétiques, avec aperçus et équipement), ton <strong>historique</strong> de parties, tes <strong>émotes</strong> 😎, la <strong>pluie d\'émojis</strong> 🌈, les <strong>Réglages</strong> ⚙️, ton <strong>code de récupération</strong> 🔐 (note-le pour ne jamais perdre ton compte !) et la <strong>réinitialisation</strong> du compte.',
       target: '.profile-body',
     },
 
@@ -7587,7 +7694,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'quiz_lb',
       screen: 'trivia-home',
-      text: '🏆 Le <strong>classement Quiz</strong> est séparé du classement Classique. Les points sont attribués selon ta vitesse de réponse et le nombre de bonnes réponses.',
+      text: '🏆 Le <strong>classement Quiz</strong> est séparé du classement Classique. Les points sont attribués selon ta vitesse de réponse et le nombre de bonnes réponses. <strong>Réponse éclair</strong> (dans les premières secondes) = <strong>point doublé ⚡</strong>.',
       target: '.lb-card',
     },
   ];
@@ -8767,6 +8874,7 @@ const ProfileHub = (() => {
   let history = [];
   let loadedHistory = false;
   let _lockerCat = null; // catégorie ouverte dans le casier (null = grille de cartes)
+  let _lockerPendingCat = null; // catégorie à ouvrir directement à la prochaine entrée
 
   const _named = () => { const n = (localStorage.getItem('playerName') || '').trim(); return n && n !== 'Anonyme'; };
 
@@ -8777,8 +8885,10 @@ const ProfileHub = (() => {
     renderStreak(); renderChallenges(); updateBadge();
   }
   function enterLocker() {
-    // On entre toujours sur la grille de cartes des catégories.
-    _lockerCat = null;
+    // On entre sur la grille de cartes, sauf si une catégorie a été demandée
+    // (ex. carte Émotes du profil qui ouvre directement le bon rayon).
+    _lockerCat = _lockerPendingCat;
+    _lockerPendingCat = null;
     renderLocker();
   }
   function enterHistory() { socket.emit('get-history', { playerId: getPlayerId() }); renderHistory(); }
@@ -8969,6 +9079,7 @@ const ProfileHub = (() => {
 
   // Cartes du profil qui mènent à leur page dédiée + modal de récupération.
   document.getElementById('go-locker')?.addEventListener('click', () => showScreen('locker'));
+  document.getElementById('go-emotes')?.addEventListener('click', () => { _lockerPendingCat = 'emote'; showScreen('locker'); });
   document.getElementById('go-history')?.addEventListener('click', () => showScreen('history'));
   document.getElementById('btn-back-locker')?.addEventListener('click', () => showScreen('profile'));
   document.getElementById('btn-back-history')?.addEventListener('click', () => showScreen('profile'));
@@ -9091,6 +9202,38 @@ window._profileHub = ProfileHub;
     // quand meme localement.
     setTimeout(() => { if (!done) { done = true; wipe(); } }, 4000);
   });
+})();
+
+// ── Pseudo obligatoire pour rejoindre via un lien d'invitation ────────────────
+(function initJoinName() {
+  const overlay = document.getElementById('overlay-joinname');
+  if (!overlay) return;
+  const input = document.getElementById('joinname-input');
+  const btn   = document.getElementById('btn-joinname-go');
+  const hint  = document.getElementById('joinname-hint');
+  let code = null;
+  window._askJoinName = c => {
+    code = c;
+    hint.textContent = '';
+    hint.classList.remove('recovery-err');
+    overlay.classList.remove('hidden');
+    setTimeout(() => input?.focus(), 150);
+  };
+  function go() {
+    const name = (input.value || '').trim().slice(0, 16);
+    if (name.length < 2 || name.toLowerCase() === 'anonyme') {
+      hint.textContent = t().joinName.invalid;
+      hint.classList.add('recovery-err');
+      return;
+    }
+    localStorage.setItem('playerName', name);
+    const inp = document.getElementById('input-name');       if (inp) inp.value = name;
+    const tin = document.getElementById('input-trivia-name'); if (tin) tin.value = name;
+    overlay.classList.add('hidden');
+    socket.emit('join-by-code', { code, name, playerId: getPlayerId() });
+  }
+  btn?.addEventListener('click', go);
+  input?.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
 })();
 
 // ── Pluie d'émojis : choix du thème + émojis personnalisés ──────────────────

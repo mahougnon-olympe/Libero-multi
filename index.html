@@ -854,6 +854,16 @@
           <span class="pnc-text"><span id="recovery-card-title">Sauvegarder ma progression</span><small id="recovery-card-sub">Ne perds jamais ton compte</small></span>
           <span class="pnc-arrow">›</span>
         </button>
+        <button type="button" class="profile-nav-card" id="go-emotes">
+          <span class="pnc-icon">😎</span>
+          <span class="pnc-text"><span id="emotes-card-title">Émotes</span><small id="emotes-card-sub">20 réactions à envoyer en partie (5 équipées max)</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
+        <button type="button" class="profile-nav-card" id="go-settings">
+          <span class="pnc-icon">⚙️</span>
+          <span class="pnc-text"><span id="settings-card-title">Réglages</span><small id="settings-card-sub">Langue, thème, sons, musique, serpent</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
         <button type="button" class="profile-nav-card" id="go-emojirain">
           <span class="pnc-icon">🌈</span>
           <span class="pnc-text"><span id="emojirain-card-title">Pluie d'émojis</span><small id="emojirain-card-sub">Choisis le thème ou tes propres émojis</small></span>
@@ -917,6 +927,23 @@
           <button id="btn-recovery-restore" class="btn btn-primary">Restaurer</button>
         </div>
         <p id="recovery-restore-hint" class="recovery-warn">Attention : restaurer remplace la progression actuelle de cet appareil.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal : pseudo obligatoire quand on rejoint via un lien ── -->
+  <div id="overlay-joinname" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="joinname-title" class="profile-modal-title">🎮 On t'attend !</h2>
+      </div>
+      <div class="recovery-body">
+        <p id="joinname-intro" class="recovery-intro">Un ami t'a invité à une partie. Choisis d'abord ton pseudo pour le rejoindre.</p>
+        <div class="recovery-restore-row">
+          <input id="joinname-input" class="recovery-input" type="text" maxlength="16" placeholder="Ton pseudo" autocomplete="off" />
+          <button id="btn-joinname-go" class="btn btn-primary">Rejoindre</button>
+        </div>
+        <p id="joinname-hint" class="recovery-warn"></p>
       </div>
     </div>
   </div>
