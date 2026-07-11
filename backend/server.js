@@ -211,6 +211,12 @@ const playerIdAliases = new Map();
 // code que le destinataire echange. code -> { cosmeticId, fromName, createdAt, redeemedBy, redeemedAt }
 const giftCodes = new Map();
 
+// Archive des comptes reinitialises : snapshot complet pris juste AVANT la
+// suppression. L'admin est prevenu sur le dashboard et peut restituer les
+// donnees (sur l'ancien identifiant ou sur le nouveau compte du joueur) ou
+// vider le cache. archiveId -> snapshot
+const resetArchive = new Map();
+
 // Compteurs globaux de parties solo (Snake / Libero Run), pour le tableau de
 // bord admin. Persistes dans server_config (sauvegarde debouncee).
 const gameCounters = { snakeGames: 0, luffyGames: 0 };
@@ -284,7 +290,7 @@ async function connectDB() {
 
 async function loadData() {
   if (!db) return;
-  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs, feedDocs, bookDocs, purchaseDocs, readerDocs, giftDocs] = await Promise.all([
+  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs, feedDocs, bookDocs, purchaseDocs, readerDocs, giftDocs, resetDocs] = await Promise.all([
     db.collection('leaderboard').find().toArray(),
     db.collection('trivia_leaderboard').find().toArray(),
     db.collection('comments').find().sort({ date: 1 }).toArray(),
@@ -299,7 +305,9 @@ async function loadData() {
     db.collection('libs_purchases').find().toArray(),
     db.collection('book_readers').find().toArray(),
     db.collection('gift_codes').find().toArray(),
+    db.collection('reset_archive').find().toArray(),
   ]);
+  resetDocs.forEach(d => resetArchive.set(d._id, d));
   giftDocs.forEach(d => giftCodes.set(d._id, { cosmeticId: d.cosmeticId, fromName: d.fromName || '', createdAt: d.createdAt || Date.now(), redeemedBy: d.redeemedBy || null, redeemedAt: d.redeemedAt || null }));
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
@@ -2487,6 +2495,24 @@ io.on('connection', (socket) => {
     if (!allowAction('reset', 3, 60_000)) { socket.emit('reset-account-result', { ok: false, error: 'rate' }); return; }
     const id = safePlayerId(playerId);
     if (!id) { socket.emit('reset-account-result', { ok: false, error: 'invalid' }); return; }
+    // Snapshot complet AVANT suppression : l'admin est prevenu sur le dashboard
+    // et peut restituer la progression (ou vider ce cache).
+    const _e = libs.get(id);
+    if (_e || leaderboard.get(id) || triviaLeaderboard.get(id) || snakeLeaderboard.get(id) || luffyLeaderboard.get(id)) {
+      const arch = {
+        _id: crypto.randomUUID(), at: Date.now(),
+        playerId: id,
+        name: _e?.name || leaderboard.get(id)?.name || triviaLeaderboard.get(id)?.name || snakeLeaderboard.get(id)?.name || luffyLeaderboard.get(id)?.name || 'Anonyme',
+        libs: _e ? JSON.parse(JSON.stringify(_e)) : null,
+        leaderboard: leaderboard.get(id) ? { ...leaderboard.get(id) } : null,
+        trivia: triviaLeaderboard.get(id) ? { ...triviaLeaderboard.get(id) } : null,
+        snake: snakeLeaderboard.get(id) ? { ...snakeLeaderboard.get(id) } : null,
+        luffy: luffyLeaderboard.get(id) ? { ...luffyLeaderboard.get(id) } : null,
+        restoredAt: null,
+      };
+      resetArchive.set(arch._id, arch);
+      if (db) db.collection('reset_archive').insertOne({ ...arch }).catch(() => {});
+    }
     libs.delete(id);
     leaderboard.delete(id);
     triviaLeaderboard.delete(id);
@@ -2993,6 +3019,65 @@ app.post('/admin/restore-player', (req, res) => {
   res.json({ ok: true, name, balance: entry.balance, owned: entry.ownedCosmetics.length });
 });
 
+// Admin : restitue un compte reinitialise depuis l'archive. Par defaut sur son
+// ancien identifiant ; targetRef (ref d'un joueur actuel) permet de restituer
+// sur le nouveau compte du joueur. Les cosmetiques s'ajoutent a ceux du compte
+// cible, le reste (solde, stats, classements) reprend les valeurs archivees.
+app.post('/admin/reset-restore', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const { id, targetRef } = req.body || {};
+  const arch = resetArchive.get(String(id || ''));
+  if (!arch) return res.status(404).json({ error: 'Archive introuvable.' });
+  let pid = arch.playerId;
+  if (targetRef) {
+    pid = null;
+    for (const p of _allPlayerIds()) { if (_playerRef(p) === String(targetRef)) { pid = p; break; } }
+    if (pid === null) return res.status(404).json({ error: 'Compte cible introuvable.' });
+  }
+  const name = arch.name || 'Anonyme';
+  if (arch.libs) {
+    const target = getLibsEntry(pid);
+    const merged = { ...JSON.parse(JSON.stringify(arch.libs)) };
+    merged.name = target.name || name;
+    // Union des cosmetiques : on ne retire rien de ce que le compte cible a deja.
+    (target.ownedCosmetics || []).forEach(c => { if (!merged.ownedCosmetics.includes(c)) merged.ownedCosmetics.push(c); });
+    libs.set(pid, merged);
+    dbUpsertLibs(pid, merged);
+  }
+  if (arch.leaderboard) { const v = { ...arch.leaderboard, name }; leaderboard.set(pid, v);       dbUpsertLeaderboard(pid, v); }
+  if (arch.trivia)      { const v = { ...arch.trivia, name };      triviaLeaderboard.set(pid, v); dbUpsertTriviaLeaderboard(pid, v); }
+  if (arch.snake)       { const v = { ...arch.snake, name };       snakeLeaderboard.set(pid, v);  dbUpsertSnakeLeaderboard(pid, v); }
+  if (arch.luffy)       { const v = { ...arch.luffy, name };       luffyLeaderboard.set(pid, v);  dbUpsertLuffyLeaderboard(pid, v); }
+  arch.restoredAt = Date.now();
+  resetArchive.set(arch._id, arch);
+  if (db) db.collection('reset_archive').updateOne({ _id: arch._id }, { $set: { restoredAt: arch.restoredAt } }).catch(() => {});
+  io.emit('leaderboard-update', getLeaderboardData());
+  io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
+  io.emit('snake-leaderboard-update', getSnakeLeaderboardData());
+  io.emit('luffy-leaderboard-update', getLuffyLeaderboardData());
+  io.emit('global-leaderboard-update', getGlobalLeaderboardData());
+  const e2 = libs.get(pid);
+  if (e2) _emitToPlayer(pid, 'libs-update', { name: e2.name || '', balance: e2.balance, pendingBoostHint: e2.pendingBoostHint, ownedCosmetics: e2.ownedCosmetics, ..._equippedPayload(e2), nextAt: nextDistributionAt });
+  res.json({ ok: true, name, restoredTo: targetRef ? 'target' : 'original' });
+});
+
+// Admin : supprime une entree de l'archive (ou tout le cache sans :id).
+app.delete('/admin/reset-archive/:id', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const id = String(req.params.id || '');
+  if (!resetArchive.has(id)) return res.status(404).json({ error: 'Archive introuvable.' });
+  resetArchive.delete(id);
+  if (db) db.collection('reset_archive').deleteOne({ _id: id }).catch(() => {});
+  res.json({ ok: true });
+});
+app.delete('/admin/reset-archive', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const n = resetArchive.size;
+  resetArchive.clear();
+  if (db) db.collection('reset_archive').deleteMany({}).catch(() => {});
+  res.json({ ok: true, cleared: n });
+});
+
 app.get('/admin/player/:ref', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   const wantRef = String(req.params.ref || '');
@@ -3112,6 +3197,18 @@ app.get('/admin/stats', async (req, res) => {
       comments: commentsPayload,
       purchases: recentPurchases,
       botLogs: botLogsOut,
+      // Comptes reinitialises (cache restituable) : les plus recents d'abord.
+      resets: [...resetArchive.values()]
+        .sort((a, b) => (b.at || 0) - (a.at || 0))
+        .map(r => ({
+          id: r._id, name: r.name, at: r.at, restoredAt: r.restoredAt || null,
+          balance: r.libs?.balance || 0,
+          owned: (r.libs?.ownedCosmetics || []).length,
+          wins: r.leaderboard?.wins || 0, losses: r.leaderboard?.losses || 0,
+          points: r.trivia?.points || 0,
+          snakeHs: r.snake?.hs || 0, luffyHs: r.luffy?.hs || 0,
+          streak: r.libs?.streak?.count || 0,
+        })),
     });
   } catch (e) {
     res.status(500).json({ error: 'Erreur serveur.' });

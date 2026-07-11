@@ -159,6 +159,13 @@
       </section>
 
       <section>
+        <h2>🗑️ Comptes réinitialisés <span id="resets-pill" class="pill warn hidden"></span>
+          <button id="btn-resets-clear" class="ghost small hidden" style="margin-left:auto">Vider le cache</button></h2>
+        <p class="sub" style="margin-top:-4px;">Quand un joueur réinitialise son compte, sa progression est archivée ici. Tu peux la restituer (sur son ancien identifiant ou sur son nouveau compte) ou vider le cache.</p>
+        <div id="resets"></div>
+      </section>
+
+      <section>
         <h2>👥 Joueurs <span id="players-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Clique sur un pseudo pour voir toutes ses infos et son activité.</p>
         <div id="players-list" class="players-list"></div>
@@ -301,6 +308,67 @@
       return m + ' min';
     }
 
+    var LAST_PLAYERS = []; // pour retrouver la ref d'un compte actuel par pseudo
+
+    function renderResets(list) {
+      list = list || [];
+      var fresh = list.filter(function (r) { return !r.restoredAt; });
+      var pill = $('resets-pill');
+      if (fresh.length) { pill.textContent = fresh.length + ' à traiter'; pill.classList.remove('hidden'); }
+      else pill.classList.add('hidden');
+      $('btn-resets-clear').classList.toggle('hidden', !list.length);
+      if (!list.length) { $('resets').innerHTML = '<p class="empty">Aucune réinitialisation.</p>'; return; }
+      $('resets').innerHTML = list.map(function (r) {
+        var stats = fmt(r.balance) + ' ⚡ · ' + fmt(r.wins) + 'V/' + fmt(r.losses) + 'D · '
+          + fmt(r.points) + ' pts quiz · Snake ' + fmt(r.snakeHs) + ' · Run ' + fmt(r.luffyHs)
+          + ' · ' + fmt(r.owned) + ' cosmétique(s) · série ' + fmt(r.streak) + ' j';
+        var actions = (r.restoredAt
+            ? '<span class="tag ok">Restitué</span>'
+            : '<button class="green small" data-restore="' + esc(r.id) + '">Restituer</button>')
+          + '<button class="red small" data-rdel="' + esc(r.id) + '">Supprimer</button>';
+        return '<div class="cmt' + (r.restoredAt ? '' : ' pending') + '">'
+          + '<div class="cmt-body"><div class="cmt-head"><span class="cmt-pseudo">' + esc(r.name) + '</span>'
+          + '<span class="cmt-date">' + esc(new Date(r.at).toLocaleString('fr-FR')) + '</span></div>'
+          + '<div class="cmt-msg">' + esc(stats) + '</div></div>'
+          + '<div class="cmt-actions">' + actions + '</div></div>';
+      }).join('');
+    }
+
+    $('resets').addEventListener('click', async function (e) {
+      var btn = e.target.closest('button'); if (!btn) return;
+      btn.disabled = true;
+      try {
+        if (btn.dataset.rdel) {
+          await api('/admin/reset-archive/' + encodeURIComponent(btn.dataset.rdel), { method: 'DELETE' });
+        } else if (btn.dataset.restore) {
+          // Par défaut : restitution sur l'ancien identifiant. Si le joueur a
+          // déjà recréé un compte, donner son pseudo actuel le cible directement.
+          var pseudo = prompt('Restituer sur quel compte ?\n\nLaisse vide pour restituer sur son ANCIEN identifiant (il faudra son ancien code de récupération).\nOu tape le pseudo EXACT de son compte ACTUEL :');
+          if (pseudo === null) { btn.disabled = false; return; }
+          var body = { id: btn.dataset.restore };
+          if (pseudo.trim()) {
+            var m = LAST_PLAYERS.filter(function (p) { return (p.name || '').toLowerCase() === pseudo.trim().toLowerCase(); });
+            if (!m.length) { alert('Aucun joueur actuel avec ce pseudo.'); btn.disabled = false; return; }
+            if (m.length > 1) { alert('Plusieurs joueurs portent ce pseudo, impossible de choisir automatiquement.'); btn.disabled = false; return; }
+            body.targetRef = m[0].ref;
+          }
+          await api('/admin/reset-restore', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+        }
+        await refresh();
+      } catch (err) { btn.disabled = false; }
+    });
+
+    $('btn-resets-clear').addEventListener('click', async function () {
+      if (!confirm('Vider tout le cache des comptes réinitialisés ? Les progressions archivées seront perdues définitivement.')) return;
+      try {
+        await api('/admin/reset-archive', { method: 'DELETE' });
+        await refresh();
+      } catch (err) {}
+    });
+
     function renderPlayers(list) {
       list = list || [];
       $('players-pill').textContent = list.length;
@@ -346,8 +414,10 @@
     }
 
     function render(d) {
+      LAST_PLAYERS = d.players || [];
       renderKpis(d);
       renderComments(d.comments);
+      renderResets(d.resets);
       renderPlayers(d.players);
       renderPurchases(d.purchases);
       renderBotLogs(d.botLogs);
