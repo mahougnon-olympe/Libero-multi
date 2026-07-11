@@ -858,6 +858,11 @@
           <span class="pnc-text"><span id="recovery-card-title">Sauvegarder ma progression</span><small id="recovery-card-sub">Ne perds jamais ton compte</small></span>
           <span class="pnc-arrow">›</span>
         </button>
+        <button type="button" class="profile-nav-card profile-nav-card-danger" id="go-reset">
+          <span class="pnc-icon">🗑️</span>
+          <span class="pnc-text"><span id="reset-card-title">Réinitialiser le compte</span><small id="reset-card-sub">Repartir de zéro sur le site</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
       </div>
     </div>
   </div>
@@ -902,6 +907,80 @@
           <button id="btn-recovery-restore" class="btn btn-primary">Restaurer</button>
         </div>
         <p id="recovery-restore-hint" class="recovery-warn">Attention : restaurer remplace la progression actuelle de cet appareil.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal : Réinitialiser le compte ── -->
+  <div id="overlay-reset" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="reset-title" class="profile-modal-title">🗑️ Réinitialiser le compte</h2>
+        <button id="btn-reset-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <p id="reset-intro" class="recovery-intro">Réinitialiser efface toute ta progression sur cet appareil (Libs, cosmétiques, série, historique) et repart avec un compte tout neuf. Cette action est définitive sur cet appareil.</p>
+        <p id="reset-save-hint" class="recovery-intro">Tu veux garder ton compte actuel ? Copie d'abord ton code de récupération ci-dessous : tu pourras y revenir plus tard. Ce n'est pas obligatoire.</p>
+        <label id="reset-code-label" class="recovery-label">Ton code de récupération (avant de réinitialiser)</label>
+        <div class="recovery-code-row">
+          <input id="reset-code" class="recovery-input" type="text" readonly />
+          <button id="btn-reset-copy" class="btn btn-secondary">Copier</button>
+        </div>
+        <hr class="recovery-sep" />
+        <label class="recovery-confirm-check">
+          <input type="checkbox" id="reset-confirm-check" />
+          <span id="reset-confirm-label">Je comprends que ma progression sera supprimée de cet appareil.</span>
+        </label>
+        <button id="btn-reset-confirm" class="btn btn-danger recovery-reset-btn" disabled>Réinitialiser définitivement</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal : Offrir un cosmétique (code cadeau généré) ── -->
+  <div id="overlay-gift" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="gift-title" class="profile-modal-title">🎁 Cadeau prêt !</h2>
+        <button id="btn-gift-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <p id="gift-intro" class="recovery-intro">Envoie ce code cadeau à la personne de ton choix. Elle l'échange dans la boutique (section « Recevoir un cadeau ») pour débloquer le cosmétique.</p>
+        <label id="gift-code-label" class="recovery-label">Code cadeau</label>
+        <div class="recovery-code-row">
+          <input id="gift-code" class="recovery-input" type="text" readonly />
+          <button id="btn-gift-copy" class="btn btn-secondary">Copier</button>
+        </div>
+        <button id="btn-gift-share" class="btn btn-primary recovery-reset-btn">Partager le cadeau</button>
+        <p id="gift-warn" class="recovery-warn">Le code n'est utilisable qu'une seule fois.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Écran de bienvenue (première visite uniquement) : machine à écrire ── -->
+  <div id="overlay-welcome" class="overlay-welcome hidden">
+    <div class="welcome-stage">
+      <p id="welcome-type" class="welcome-type"><span id="welcome-type-text"></span><span class="welcome-caret">|</span></p>
+      <div id="welcome-icons" class="welcome-icons"></div>
+      <button id="welcome-start" class="btn btn-primary welcome-start hidden">Commencer</button>
+    </div>
+  </div>
+
+  <!-- ── Onboarding : proposer de récupérer une progression (nouveau joueur) ── -->
+  <div id="overlay-onboard" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="onboard-title" class="profile-modal-title">👋 Bienvenue !</h2>
+      </div>
+      <div class="recovery-body">
+        <p id="onboard-intro" class="recovery-intro">Tu as déjà un compte sur un autre appareil ? Colle ton code de récupération pour retrouver ta progression. Sinon, commence une nouvelle aventure.</p>
+        <label id="onboard-label" class="recovery-label">J'ai déjà un code de récupération</label>
+        <div class="recovery-restore-row">
+          <input id="onboard-input" class="recovery-input" type="text" placeholder="Colle ton code ici" autocomplete="off" spellcheck="false" />
+          <button id="btn-onboard-restore" class="btn btn-primary">Récupérer</button>
+        </div>
+        <p id="onboard-hint" class="recovery-warn"></p>
+        <hr class="recovery-sep" />
+        <button id="btn-onboard-new" class="btn btn-secondary recovery-reset-btn">Non, je suis nouveau, commencer</button>
       </div>
     </div>
   </div>

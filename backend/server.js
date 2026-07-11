@@ -207,6 +207,9 @@ const PROMO_CODES = (() => {
 const PROMO_FILL_CODE = (process.env.PROMO_FILL_CODE || 'SDFT').trim().toUpperCase();
 const socketPlayerIds = new Map();
 const playerIdAliases = new Map();
+// Codes cadeaux : un joueur paie un cosmetique pour l'offrir, ce qui genere un
+// code que le destinataire echange. code -> { cosmeticId, fromName, createdAt, redeemedBy, redeemedAt }
+const giftCodes = new Map();
 
 // ── Lecteurs par livre ──────────────────────────────────────────────────────
 // Ensemble des joueurs distincts ayant ouvert un livre (livre exclusif ou livre
@@ -267,7 +270,7 @@ async function connectDB() {
 
 async function loadData() {
   if (!db) return;
-  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs, feedDocs, bookDocs, purchaseDocs, readerDocs] = await Promise.all([
+  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs, feedDocs, bookDocs, purchaseDocs, readerDocs, giftDocs] = await Promise.all([
     db.collection('leaderboard').find().toArray(),
     db.collection('trivia_leaderboard').find().toArray(),
     db.collection('comments').find().sort({ date: 1 }).toArray(),
@@ -281,7 +284,9 @@ async function loadData() {
     db.collection('feed_books').find().toArray(),
     db.collection('libs_purchases').find().toArray(),
     db.collection('book_readers').find().toArray(),
+    db.collection('gift_codes').find().toArray(),
   ]);
+  giftDocs.forEach(d => giftCodes.set(d._id, { cosmeticId: d.cosmeticId, fromName: d.fromName || '', createdAt: d.createdAt || Date.now(), redeemedBy: d.redeemedBy || null, redeemedAt: d.redeemedAt || null }));
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
   tlbDocs.forEach(d => triviaLeaderboard.set(d._id, { name: d.name || '', points: d.points, games: d.games }));
   cmtDocs.forEach(d => {
@@ -992,6 +997,19 @@ function getRefundCardsInfo(entry) {
   return { available, nextRefill };
 }
 
+// Fonds d'ecran offerts a tous les joueurs (nouveaux comme anciens) : ils
+// apparaissent dans le casier de chacun sans achat, injectes a chaque chargement.
+const FREE_COSMETICS = ['bg-nuit', 'bg-ardoise', 'bg-brume'];
+
+// Genere un code cadeau unique (8 caracteres, sans O/0/I/1 pour eviter les confusions).
+function _makeGiftCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code;
+  do { code = Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join(''); }
+  while (giftCodes.has(code));
+  return code;
+}
+
 function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
@@ -1001,6 +1019,7 @@ function getLibsEntry(id) {
   }
   if (!entry.usedCodes)          entry.usedCodes          = [];
   if (!entry.ownedCosmetics)     entry.ownedCosmetics     = [];
+  FREE_COSMETICS.forEach(c => { if (!entry.ownedCosmetics.includes(c)) entry.ownedCosmetics.push(c); });
   if (!entry.refundCardsUsedAt)  entry.refundCardsUsedAt  = [];
   if (!Array.isArray(entry.ownedBooks)) entry.ownedBooks  = [];
   if (!('equippedCosmetic'    in entry)) entry.equippedCosmetic    = null;
@@ -2306,6 +2325,55 @@ io.on('connection', (socket) => {
     dbUpsertLibs(id, entry);
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: reward, nextAt: nextDistributionAt });
     socket.emit('redeem-result', { ok: true, delta: reward });
+  });
+
+  // ── Offrir un cosmetique ─────────────────────────────────────────────────
+  // L'acheteur paie le prix du cosmetique et recoit un code cadeau a partager.
+  // Le destinataire l'echange (redeem-gift) pour l'ajouter a son casier.
+  socket.on('gift-cosmetic', ({ playerId, cosmeticId } = {}) => {
+    if (!allowAction('buy')) { socket.emit('gift-cosmetic-result', { ok: false, error: 'rate' }); return; }
+    const id = safePlayerId(playerId);
+    if (!id) { socket.emit('gift-cosmetic-result', { ok: false, error: 'invalid' }); return; }
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') { socket.emit('gift-cosmetic-result', { ok: false, error: 'anonymous' }); return; }
+    const cosmetic = COSMETICS.find(c => c.id === cosmeticId);
+    if (!cosmetic || cosmetic.honorary || cosmetic.price <= 0) { socket.emit('gift-cosmetic-result', { ok: false, error: 'invalid' }); return; }
+    if (entry.balance < cosmetic.price) { socket.emit('gift-cosmetic-result', { ok: false, error: 'insufficient' }); return; }
+    entry.balance -= cosmetic.price;
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    const code = _makeGiftCode();
+    const rec = { cosmeticId, fromName: entry.name, createdAt: Date.now(), redeemedBy: null, redeemedAt: null };
+    giftCodes.set(code, rec);
+    if (db) db.collection('gift_codes').updateOne({ _id: code }, { $set: rec }, { upsert: true }).catch(() => {});
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
+    socket.emit('gift-cosmetic-result', { ok: true, code, cosmeticId });
+  });
+
+  // ── Recevoir un cadeau ───────────────────────────────────────────────────
+  socket.on('redeem-gift', ({ code, playerId, name } = {}) => {
+    if (!allowAction('redeem', 10, 60_000)) { socket.emit('redeem-gift-result', { ok: false, error: 'rate' }); return; }
+    const id = safePlayerId(playerId);
+    if (!id) { socket.emit('redeem-gift-result', { ok: false, error: 'invalid' }); return; }
+    const entry = getLibsEntry(id);
+    const cleanName = sanitizeName(name);
+    if (cleanName && cleanName !== 'Anonyme') entry.name = cleanName;
+    if (!entry.name || entry.name === 'Anonyme') { socket.emit('redeem-gift-result', { ok: false, error: 'anonymous' }); return; }
+    const g = String(code || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const rec = giftCodes.get(g);
+    if (!rec) { socket.emit('redeem-gift-result', { ok: false, error: 'invalid' }); return; }
+    if (rec.redeemedBy) { socket.emit('redeem-gift-result', { ok: false, error: 'used' }); return; }
+    const cosmetic = COSMETICS.find(c => c.id === rec.cosmeticId);
+    if (!cosmetic) { socket.emit('redeem-gift-result', { ok: false, error: 'invalid' }); return; }
+    if (entry.ownedCosmetics.includes(rec.cosmeticId)) { socket.emit('redeem-gift-result', { ok: false, error: 'already_owned' }); return; }
+    entry.ownedCosmetics.push(rec.cosmeticId);
+    rec.redeemedBy = id; rec.redeemedAt = Date.now();
+    giftCodes.set(g, rec);
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    if (db) db.collection('gift_codes').updateOne({ _id: g }, { $set: { redeemedBy: id, redeemedAt: rec.redeemedAt } }).catch(() => {});
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
+    socket.emit('redeem-gift-result', { ok: true, cosmeticId: rec.cosmeticId, fromName: rec.fromName });
   });
 
   socket.on('buy-cosmetic', ({ playerId, cosmeticId } = {}) => {

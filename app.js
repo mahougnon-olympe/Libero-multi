@@ -9,6 +9,9 @@ function _escHtml(s) {
 // ── Identifiant joueur stable ─────────────────────────────────────────────────
 // Identifiant secret servant de clé d'identité : il ne doit jamais être devinable
 // ni divulgué. Généré via l'API cryptographique du navigateur (128 bits).
+// Vrai UNIQUEMENT si aucun identifiant n'existait au chargement : sert à ne
+// montrer l'animation de bienvenue qu'aux joueurs qui découvrent le site.
+window.__liberoNewVisitor = !localStorage.getItem('libero_player_id');
 function getPlayerId() {
   let id = localStorage.getItem('libero_player_id');
   if (!id) {
@@ -87,6 +90,7 @@ let equippedSoundPack    = null;
 let equippedEmotes       = [];
 let honorTitle           = null;
 let _shopDetailItem         = null;
+let _shopActiveSection      = 'featured'; // onglet boutique affiché (vue par onglets, pas de saut de scroll)
 let _pendingShopFocus       = null;
 let _pendingShopFocusIds    = null;
 let _shopRetainTileId       = null;
@@ -343,6 +347,38 @@ const DICT = {
       invalid:'Ce code est invalide.',
       confirm:'Restaurer cette progression ? La progression actuelle de cet appareil sera remplacée.',
     },
+    resetCardTitle:'Réinitialiser le compte', resetCardSub:'Repartir de zéro sur le site',
+    resetTitle:'🗑️ Réinitialiser le compte',
+    resetIntro:'Réinitialiser efface toute ta progression sur cet appareil (Libs, cosmétiques, série, historique) et repart avec un compte tout neuf. Cette action est définitive sur cet appareil.',
+    resetSaveHint:"Tu veux garder ton compte actuel ? Copie d'abord ton code de récupération ci-dessous : tu pourras y revenir plus tard. Ce n'est pas obligatoire.",
+    resetCodeLabel:'Ton code de récupération (avant de réinitialiser)',
+    resetConfirmLabel:'Je comprends que ma progression sera supprimée de cet appareil.',
+    resetConfirmBtn:'Réinitialiser définitivement',
+    onboarding:{
+      welcomeType:"Bienvenue sur Libero's Multi",
+      start:'Commencer',
+      title:'👋 Bienvenue !',
+      intro:'Tu as déjà un compte sur un autre appareil ? Colle ton code de récupération pour retrouver ta progression. Sinon, commence une nouvelle aventure.',
+      label:"J'ai déjà un code de récupération",
+      restore:'Récupérer',
+      newBtn:'Non, je suis nouveau, commencer',
+      invalid:'Ce code est invalide.',
+    },
+    lockerBackCats:'Toutes les catégories',
+    shopGiftBtn:price=>`🎁 Offrir (${price} ⚡)`,
+    shopGiftReceiveTitle:'🎁 Recevoir un cadeau',
+    shopGiftReceiveDesc:"Un ami t'a offert un cosmétique ? Entre le code cadeau qu'il t'a envoyé pour le débloquer.",
+    shopGiftReceiveBtn:'Recevoir',
+    shopGiftPlaceholder:'Code cadeau',
+    giftTitle:'🎁 Cadeau prêt !',
+    giftIntro:"Envoie ce code cadeau à la personne de ton choix. Elle l'échange dans la boutique (section « Recevoir un cadeau ») pour débloquer le cosmétique.",
+    giftCodeLabel:'Code cadeau',
+    giftShareBtn:'Partager le cadeau', giftWarn:"Le code n'est utilisable qu'une seule fois.",
+    giftShareTitle:"Un cadeau sur Libero's Multi",
+    giftShareText:code=>`🎁 Je t'offre un cosmétique sur Libero's Multi ! Échange ce code dans la boutique (Recevoir un cadeau) : ${code}\nhttps://libero-multi.vercel.app`,
+    giftReceived:name=>name ? `🎁 Cadeau de ${name} débloqué !` : '🎁 Cadeau débloqué !',
+    giftUsed:'Ce code cadeau a déjà été utilisé.',
+    giftInvalid:'Code cadeau invalide.',
     readLoading:'Chargement des livres…',
     readEmpty:'Cette section est en cours de développement.\nReviens bientôt pour découvrir des livres !',
     readError:'Cette section est en cours de développement.\nReviens bientôt pour découvrir des livres !',
@@ -447,6 +483,8 @@ const DICT = {
         { q:"C'est quoi Libero Run ?" },
         { q:'Comment lire un livre ?' },
         { q:'Comment équiper un cosmétique ?' },
+        { q:'Comment offrir un cosmétique ?' },
+        { q:'Comment sauvegarder ma progression ?' },
         { q:'Comment jouer au quiz ?' },
       ],
     },
@@ -543,7 +581,7 @@ const DICT = {
     shopBundleInsufficientFunds:'Champion, tu n\'as pas assez de Libs.',
     shopBundleError:'Erreur lors de l\'achat.',
     shopBundleNames:{ 'bundle-debutant':'Pack Débutant','bundle-retro':'Pack Rétro','bundle-neon-arcade':'Pack Néon Arcade','bundle-galaxie':'Pack Galaxie','bundle-prestige-or':'Pack Prestige Or','bundle-hologramme':'Pack Hologramme Ultime' },
-    shopNavLabels:{ featured:'À la une', daily:'Quotidien', bundles:'Bundles', boosts:'Boosts', colors:'Couleurs', fonts:'Polices', bubbles:'Bulles', bgs:'Fonds', nameeffects:'Effets', titles:'Titres', cursorsnakes:'Curseur', avatars:'Avatars', p4tokens:'P4', ttt:'Morpion', chess:'Échiquier', clickfx:'Particules', emojipacks:'Émojis', victorybans:'Victoire', soundpacks:'Sons', emotes:'Emotes' },
+    shopNavLabels:{ featured:'À la une', daily:'Quotidien', bundles:'Bundles', boosts:'Boosts', colors:'Couleurs', fonts:'Polices', bubbles:'Bulles', bgs:'Fonds', nameeffects:'Effets', titles:'Titres', codes:'Codes', cursorsnakes:'Curseur', avatars:'Avatars', p4tokens:'P4', ttt:'Morpion', chess:'Échiquier', clickfx:'Particules', emojipacks:'Émojis', victorybans:'Victoire', soundpacks:'Sons', emotes:'Emotes' },
     shopLibsPacksTitle:'💳 Recharger tes Libs',
     shopLibsPacksDesc:'Achète des Libs ⚡ avec de l\'argent réel (mobile money / carte, paiement sécurisé FedaPay). Le crédit est vérifié par nos serveurs, jamais instantané côté navigateur.',
     shopLibsPacksLoading:'Chargement des packs…',
@@ -680,8 +718,11 @@ const DICT = {
     helpContent:{
       general:[
         { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Libero Run</strong>, une idée de joueur reprise par le créateur). Chaque section a son propre classement." },
-        { icon:'🎯', title:'Mon profil', desc:"L'onglet <strong>Profil</strong> (dans la barre en bas, à côté d'Accueil) regroupe quatre choses : ton <strong>casier</strong> (voir ci-dessous), tes <strong>défis du jour</strong> (3 objectifs qui <strong>changent chaque jour</strong> : jamais le même défi deux jours de suite, avec le Snake le week-end et Libero Run en semaine ; réclame les 3 pour un <strong>bonus « journée parfaite » +30 ⚡</strong>), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. Il faut un pseudo pour en profiter." },
-        { icon:'🎒', title:'Mon casier', desc:"Dans l'onglet <strong>Profil</strong>, le <strong>casier</strong> range tout ce que tu as acheté dans la boutique, <strong>classé par catégorie</strong>. Chaque catégorie est un bouton : <strong>clique dessus pour la déplier</strong> et voir les articles que tu possèdes. De là, tu peux directement <strong>équiper</strong> un article ou le <strong>déséquiper</strong>, sans passer par la boutique. Les articles retirés de la vente que tu avais achetés restent disponibles ici." },
+        { icon:'🎯', title:'Mon profil', desc:"L'onglet <strong>Profil</strong> (dans la barre en bas, à côté d'Accueil) regroupe quatre choses : ton <strong>casier</strong> (voir ci-dessous), tes <strong>défis du jour</strong> (3 objectifs qui <strong>changent chaque jour</strong> : jamais le même défi deux jours de suite, avec le Snake le week-end et Libero Run en semaine ; réclame les 3 pour un <strong>bonus « journée parfaite » +30 ⚡</strong>), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. On y trouve aussi les cartes <strong>Sauvegarder ma progression</strong> (ton code de récupération) et <strong>Réinitialiser le compte</strong>. Il faut un pseudo pour en profiter." },
+        { icon:'🎒', title:'Mon casier', desc:"Dans l'onglet <strong>Profil</strong>, le <strong>casier</strong> range tout ce que tu possèdes, <strong>classé par catégorie</strong>. Chaque catégorie est une <strong>carte</strong> : clique dessus pour voir les articles de ce type avec leur <strong>aperçu visuel</strong>, puis <strong>équipe</strong> ou <strong>déséquipe</strong> directement, sans passer par la boutique. Bonus : <strong>3 fonds d'écran gratuits</strong> (Nuit Calme, Ardoise Profonde, Brume Violette) sont offerts à tous les joueurs et t'attendent déjà dedans. Les articles retirés de la vente que tu avais achetés restent disponibles ici." },
+        { icon:'🔐', title:'Code de récupération', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Sauvegarder ma progression</strong> affiche ton <strong>code de récupération</strong> : c'est la clé de ton compte. Note-le en lieu sûr ! Si tu changes ou perds ton appareil, colle ce code sur le nouvel appareil (même carte → <em>Restaurer</em>) pour retrouver <strong>toute ta progression</strong> : Libs, cosmétiques, série, historique et pseudo. À la toute première visite, le site te propose aussi de récupérer une progression existante. Ne partage ce code avec personne." },
+        { icon:'🗑️', title:'Réinitialiser le compte', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Réinitialiser le compte</strong> efface toute ta progression sur cet appareil et repart avec un compte tout neuf (comme un nouveau joueur). Avant de confirmer, la fenêtre te propose de <strong>copier ton code de récupération</strong> : ce n'est pas obligatoire, mais si tu le gardes, tu pourras revenir à ton ancien compte plus tard en le restaurant. Il faut cocher la case de confirmation pour valider." },
+        { icon:'🎁', title:'Offrir un cosmétique', desc:"Tu peux <strong>offrir</strong> n'importe quel cosmétique payant de la boutique ! Ouvre sa fiche et clique <strong>🎁 Offrir</strong> : tu paies son prix en ⚡ et tu reçois un <strong>code cadeau</strong> à copier ou partager (WhatsApp, etc.). Ton ami l'échange dans la boutique, section <strong>🎟️ Codes → Recevoir un cadeau</strong>, et le cosmétique rejoint son casier. Chaque code n'est utilisable qu'<strong>une seule fois</strong>." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> · ton serpent mange des <strong>⚡ Libs</strong> pour grandir, et chaque ⚡ mangé est <strong>ajouté à ton solde</strong> (score 10 = 10 Libs gagnés). Les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
         { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras les <strong>romans exclusifs</strong> lisibles directement sur le site (en français ou en anglais selon la langue choisie) : <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, 1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10), <strong>Life of Georgia</strong> (livre entier pour 2000 ⚡) et sa suite <strong>Life of Georgia · Tome 2</strong>, <strong>offerte</strong> à tous ceux qui ont débloqué le Tome 1." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis d'abord un jeu parmi <strong>Puissance 4</strong>, <strong>Morpion</strong>, <strong>Échecs</strong> ou <strong>Dames</strong> (aucun n'est présélectionné), entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire, ou le <strong>lien</strong>. Tu peux annuler l'attente si personne ne rejoint. Tu peux aussi jouer <strong>Solo contre le bot</strong> (Facile, Moyen ou Difficile)." },
@@ -704,7 +745,7 @@ const DICT = {
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
         { icon:'💳', titleKey:'helpLibsBuyTitle', descKey:'helpLibsBuyDesc' },
         { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
-        { icon:'🗂️', title:'Navigation boutique', desc:"À gauche de la boutique, une <strong>barre de catégories</strong> te permet de sauter directement à la section souhaitée : ⭐ À la une, 📅 Quotidien, 🎁 Bundles, 💳 Recharger, 💡 Boosts, 🎨 Couleurs, ✍️ Polices, 💬 Bulles, 🖼️ Fonds. Sur mobile, seuls les icônes sont affichés. Le bouton de la section visible s'allume automatiquement." },
+        { icon:'🗂️', title:'Navigation boutique', desc:"À gauche de la boutique, une <strong>barre de catégories</strong> fonctionne comme des <strong>onglets</strong> : clique sur un rayon (⭐ À la une, 📅 Quotidien, 🎁 Bundles, 💡 Boosts, 🎨 Couleurs, ✨ Effets, 🏷️ Titres, 🖼️ Fonds, 🎟️ Codes) et <strong>seul ce rayon s'affiche</strong>, bien rangé. L'onglet <strong>🎟️ Codes</strong> regroupe <em>Recevoir un cadeau</em> (codes cadeaux d'amis) et les <em>codes promo</em>. Sur mobile, seuls les icônes sont affichés." },
         { icon:'🎁', title:'Bundles', desc:"La section <strong>Bundles</strong> propose des lots thématiques regroupant plusieurs cosmétiques à prix réduit (−24 % à −28 %). Si tu possèdes déjà certains articles d'un bundle, le prix est <strong>ajusté automatiquement</strong> · tu ne paies que pour ce qu'il te manque. La sélection <strong>⭐ À la une</strong> et <strong>📅 Quotidien</strong> se renouvelle toutes les 24 h · un compte à rebours indique l'heure du prochain renouvellement." },
         { icon:'✨', title:'Effets de pseudo', desc:"Anime l'affichage de ton pseudo dans les classements, le chat, les badges et le podium. Les effets sont <strong>cumulables avec ta couleur de pseudo</strong> : la couleur reste la teinte, l'effet ajoute l'animation par-dessus. Exemples : Clignotement Néon, Glitch, Vague Arc-en-ciel. Rareté : Épique à Légendaire." },
         { icon:'🏷️', title:'Titres', desc:"Ajoute un court texte de statut affiché à côté de ton pseudo dans les classements, badges et chips de salle d'attente. Exemples : Tacticien, Quiz Master, Roi du Snake, Légende Vivante. Rareté : Commun à Épique. Les titres achetés se combinent avec les <strong>titres honorifiques</strong> (voir ci-dessous)." },
@@ -804,6 +845,38 @@ const DICT = {
       invalid:'This code is invalid.',
       confirm:'Restore this progress? The current progress on this device will be replaced.',
     },
+    resetCardTitle:'Reset account', resetCardSub:'Start over from scratch',
+    resetTitle:'🗑️ Reset account',
+    resetIntro:'Resetting erases all your progress on this device (Libs, cosmetics, streak, history) and starts a brand-new account. This action is final on this device.',
+    resetSaveHint:'Want to keep your current account? Copy your recovery code below first: you can come back to it later. This is optional.',
+    resetCodeLabel:'Your recovery code (before resetting)',
+    resetConfirmLabel:'I understand my progress will be deleted from this device.',
+    resetConfirmBtn:'Reset permanently',
+    onboarding:{
+      welcomeType:"Welcome to Libero's Multi",
+      start:'Start',
+      title:'👋 Welcome!',
+      intro:'Already have an account on another device? Paste your recovery code to get your progress back. Otherwise, start a new adventure.',
+      label:'I already have a recovery code',
+      restore:'Recover',
+      newBtn:"No, I'm new, let's start",
+      invalid:'This code is invalid.',
+    },
+    lockerBackCats:'All categories',
+    shopGiftBtn:price=>`🎁 Gift (${price} ⚡)`,
+    shopGiftReceiveTitle:'🎁 Receive a gift',
+    shopGiftReceiveDesc:'A friend gifted you a cosmetic? Enter the gift code they sent you to unlock it.',
+    shopGiftReceiveBtn:'Receive',
+    shopGiftPlaceholder:'Gift code',
+    giftTitle:'🎁 Gift ready!',
+    giftIntro:'Send this gift code to anyone you like. They redeem it in the shop (Receive a gift section) to unlock the cosmetic.',
+    giftCodeLabel:'Gift code',
+    giftShareBtn:'Share the gift', giftWarn:'The code can only be used once.',
+    giftShareTitle:"A gift on Libero's Multi",
+    giftShareText:code=>`🎁 I'm gifting you a cosmetic on Libero's Multi! Redeem this code in the shop (Receive a gift): ${code}\nhttps://libero-multi.vercel.app`,
+    giftReceived:name=>name ? `🎁 Gift from ${name} unlocked!` : '🎁 Gift unlocked!',
+    giftUsed:'This gift code has already been used.',
+    giftInvalid:'Invalid gift code.',
     readLoading:'Loading books…',
     readEmpty:'This section is under development.\nCheck back soon for books!',
     readError:'This section is under development.\nCheck back soon for books!',
@@ -908,6 +981,8 @@ const DICT = {
         { q:'What is Libero Run?' },
         { q:'How do I read a book?' },
         { q:'How do I equip a cosmetic?' },
+        { q:'How do I gift a cosmetic?' },
+        { q:'How do I save my progress?' },
         { q:'How do I play the quiz?' },
       ],
     },
@@ -1004,7 +1079,7 @@ const DICT = {
     shopBundleInsufficientFunds:'Champion, you don\'t have enough Libs.',
     shopBundleError:'Purchase failed.',
     shopBundleNames:{ 'bundle-debutant':'Starter Pack','bundle-retro':'Retro Pack','bundle-neon-arcade':'Neon Arcade Pack','bundle-galaxie':'Galaxy Pack','bundle-prestige-or':'Gold Prestige Pack','bundle-hologramme':'Ultimate Hologram Pack' },
-    shopNavLabels:{ featured:'Featured', daily:'Daily', bundles:'Bundles', boosts:'Boosts', colors:'Colors', fonts:'Fonts', bubbles:'Bubbles', bgs:'Backgrounds', nameeffects:'Effects', titles:'Titles', cursorsnakes:'Cursor', avatars:'Avatars', p4tokens:'P4', ttt:'Tic-Tac', chess:'Chess', clickfx:'Particles', emojipacks:'Emojis', victorybans:'Victory', soundpacks:'Sounds', emotes:'Emotes' },
+    shopNavLabels:{ featured:'Featured', daily:'Daily', bundles:'Bundles', boosts:'Boosts', colors:'Colors', fonts:'Fonts', bubbles:'Bubbles', bgs:'Backgrounds', nameeffects:'Effects', titles:'Titles', codes:'Codes', cursorsnakes:'Cursor', avatars:'Avatars', p4tokens:'P4', ttt:'Tic-Tac', chess:'Chess', clickfx:'Particles', emojipacks:'Emojis', victorybans:'Victory', soundpacks:'Sounds', emotes:'Emotes' },
     shopLibsPacksTitle:'💳 Top up your Libs',
     shopLibsPacksDesc:'Buy Libs ⚡ with real money (mobile money / card, secure FedaPay checkout). Credit is verified by our servers, never instant on the browser side.',
     shopLibsPacksLoading:'Loading packs…',
@@ -1141,8 +1216,11 @@ const DICT = {
     helpContent:{
       general:[
         { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Libero Run</strong> mini-game, a player idea brought to life by the creator). Each section has its own leaderboard." },
-        { icon:'🎯', title:'My profile', desc:"The <strong>Profile</strong> tab (in the bottom bar, next to Home) gathers four things: your <strong>locker</strong> (see below), your <strong>daily challenges</strong> (3 goals that <strong>change every day</strong>: never the same challenge two days in a row, with Snake on weekends and Libero Run on weekdays; claim all 3 for a <strong>'perfect day' +30 ⚡ bonus</strong>), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. A nickname is required." },
-        { icon:'🎒', title:'My locker', desc:"In the <strong>Profile</strong> tab, the <strong>locker</strong> holds everything you bought in the shop, <strong>sorted by category</strong>. Each category is a button: <strong>tap it to expand</strong> and see the items you own. From there you can directly <strong>equip</strong> an item or <strong>unequip</strong> it, without opening the shop. Items you had bought that were later removed from sale are still available here." },
+        { icon:'🎯', title:'My profile', desc:"The <strong>Profile</strong> tab (in the bottom bar, next to Home) gathers four things: your <strong>locker</strong> (see below), your <strong>daily challenges</strong> (3 goals that <strong>change every day</strong>: never the same challenge two days in a row, with Snake on weekends and Libero Run on weekdays; claim all 3 for a <strong>'perfect day' +30 ⚡ bonus</strong>), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. You'll also find the <strong>Save my progress</strong> card (your recovery code) and the <strong>Reset account</strong> card. A nickname is required." },
+        { icon:'🎒', title:'My locker', desc:"In the <strong>Profile</strong> tab, the <strong>locker</strong> holds everything you own, <strong>sorted by category</strong>. Each category is a <strong>card</strong>: tap it to see the items of that type with their <strong>visual preview</strong>, then <strong>equip</strong> or <strong>unequip</strong> directly, without opening the shop. Bonus: <strong>3 free backgrounds</strong> (Calm Night, Deep Slate, Violet Mist) are gifted to every player and are already waiting inside. Items you had bought that were later removed from sale are still available here." },
+        { icon:'🔐', title:'Recovery code', desc:"In the <strong>Profile</strong> tab, the <strong>Save my progress</strong> card shows your <strong>recovery code</strong>: it is the key to your account. Write it down somewhere safe! If you change or lose your device, paste this code on the new device (same card → <em>Restore</em>) to get <strong>all your progress</strong> back: Libs, cosmetics, streak, history and nickname. On your very first visit, the site also offers to recover an existing progress. Never share this code with anyone." },
+        { icon:'🗑️', title:'Reset account', desc:"In the <strong>Profile</strong> tab, the <strong>Reset account</strong> card erases all your progress on this device and starts a brand-new account (like a new player). Before confirming, the window offers to <strong>copy your recovery code</strong>: it is optional, but if you keep it you can return to your old account later by restoring it. You must tick the confirmation box to proceed." },
+        { icon:'🎁', title:'Gift a cosmetic', desc:"You can <strong>gift</strong> any paid cosmetic from the shop! Open its detail sheet and click <strong>🎁 Gift</strong>: you pay its price in ⚡ and receive a <strong>gift code</strong> to copy or share (WhatsApp, etc.). Your friend redeems it in the shop, <strong>🎟️ Codes → Receive a gift</strong> section, and the cosmetic joins their locker. Each code can only be used <strong>once</strong>." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> · your snake eats <strong>⚡ Libs</strong> to grow, and every ⚡ eaten is <strong>added to your balance</strong> (score 10 = 10 Libs earned). Walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
         { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll find the <strong>exclusive novels</strong> readable right on the site (in French or English, following the site language): <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapter 1 free, 1000 ⚡ for chapters 2-5, 2000 ⚡ for 6-10), <strong>Life of Georgia</strong> (whole book for 2000 ⚡) and its sequel <strong>Life of Georgia · Volume 2</strong>, <strong>free</strong> for everyone who unlocked Volume 1." },
         { icon:'🎮', title:'Create a classic game', desc:"First choose a game among <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong>, <strong>Chess</strong> or <strong>Checkers</strong> (none is pre-selected), enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent, or the <strong>link</strong>. You can cancel while waiting if nobody joins. You can also play <strong>Solo vs the bot</strong> (Easy, Medium or Hard)." },
@@ -1165,7 +1243,7 @@ const DICT = {
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
         { icon:'💳', titleKey:'helpLibsBuyTitle', descKey:'helpLibsBuyDesc' },
         { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
-        { icon:'🗂️', title:'Shop navigation', desc:"On the left side of the shop, a <strong>category bar</strong> lets you jump directly to any section: ⭐ Featured, 📅 Daily, 🎁 Bundles, 💳 Top up, 💡 Boosts, 🎨 Colors, ✍️ Fonts, 💬 Bubbles, 🖼️ Backgrounds. On mobile only icons are shown. The button for the currently visible section lights up automatically." },
+        { icon:'🗂️', title:'Shop navigation', desc:"On the left side of the shop, a <strong>category bar</strong> works like <strong>tabs</strong>: click an aisle (⭐ Featured, 📅 Daily, 🎁 Bundles, 💡 Boosts, 🎨 Colors, ✨ Effects, 🏷️ Titles, 🖼️ Backgrounds, 🎟️ Codes) and <strong>only that aisle is shown</strong>, neatly laid out. The <strong>🎟️ Codes</strong> tab gathers <em>Receive a gift</em> (gift codes from friends) and <em>promo codes</em>. On mobile only icons are shown." },
         { icon:'🎁', title:'Bundles', desc:"The <strong>Bundles</strong> section offers themed packs grouping several cosmetics at a reduced price (−24% to −28%). If you already own some items in a bundle, the price is <strong>automatically adjusted</strong> · you only pay for what you're missing. The <strong>⭐ Featured</strong> and <strong>📅 Daily</strong> picks refresh every 24 hours · a countdown shows the next refresh time." },
         { icon:'✨', title:'Name Effects', desc:"Animate your username display in leaderboards, chat, badges and the podium. Effects <strong>stack with your username color</strong>: the color sets the hue, the effect adds the animation on top. Examples: Neon Blink, Glitch, Rainbow Wave. Rarity: Epic to Legendary." },
         { icon:'🏷️', title:'Titles', desc:"Add a short status text displayed next to your username in leaderboards, player badges and room chips. Examples: Tactician, Quiz Master, Snake King, Living Legend. Rarity: Common to Epic. Shop titles stack with <strong>honorary titles</strong> (see below)." },
@@ -1329,6 +1407,29 @@ function applyLang() {
   const rrl = $('recovery-restore-label'); if (rrl) rrl.textContent = d.recovery.restoreLabel;
   const rrb = $('btn-recovery-restore');   if (rrb) rrb.textContent = d.recovery.restore;
   const rrh = $('recovery-restore-hint');  if (rrh && !rrh.classList.contains('recovery-err')) rrh.textContent = d.recovery.restoreHint;
+  // Réinitialiser le compte
+  const rsct = $('reset-card-title'); if (rsct) rsct.textContent = d.resetCardTitle;
+  const rscs = $('reset-card-sub');   if (rscs) rscs.textContent = d.resetCardSub;
+  const rst = $('reset-title');       if (rst) rst.textContent = d.resetTitle;
+  const rsi = $('reset-intro');       if (rsi) rsi.textContent = d.resetIntro;
+  const rsh = $('reset-save-hint');   if (rsh) rsh.textContent = d.resetSaveHint;
+  const rscl = $('reset-code-label'); if (rscl) rscl.textContent = d.resetCodeLabel;
+  const rsco = $('btn-reset-copy');   if (rsco) rsco.textContent = d.recovery.copy;
+  const rscf = $('reset-confirm-label'); if (rscf) rscf.textContent = d.resetConfirmLabel;
+  const rscb = $('btn-reset-confirm');   if (rscb) rscb.textContent = d.resetConfirmBtn;
+  // Onboarding
+  const obt = $('onboard-title');  if (obt) obt.textContent = d.onboarding.title;
+  const obi = $('onboard-intro');  if (obi) obi.textContent = d.onboarding.intro;
+  const obl = $('onboard-label');  if (obl) obl.textContent = d.onboarding.label;
+  const obr = $('btn-onboard-restore'); if (obr) obr.textContent = d.onboarding.restore;
+  const obn = $('btn-onboard-new');     if (obn) obn.textContent = d.onboarding.newBtn;
+  // Cadeau
+  const gt = $('gift-title');       if (gt) gt.textContent = d.giftTitle;
+  const gi = $('gift-intro');       if (gi) gi.textContent = d.giftIntro;
+  const gcl = $('gift-code-label'); if (gcl) gcl.textContent = d.giftCodeLabel;
+  const gco = $('btn-gift-copy');   if (gco) gco.textContent = d.recovery.copy;
+  const gsb = $('btn-gift-share');  if (gsb) gsb.textContent = d.giftShareBtn;
+  const gw = $('gift-warn');        if (gw) gw.textContent = d.giftWarn;
   if (window._profileHub) window._profileHub.retexte();
   if (window._chatbot) window._chatbot.retexte();
   const bl = $('btn-lang');
@@ -3198,6 +3299,9 @@ $('overlay-help').addEventListener('click', e => {
     solo:['solo','bot'], bot:['bot','solo'], multijoueur:['multijoueur'], multiplayer:['multijoueur'], ami:['rejoindre','code'], amis:['rejoindre','code'], friend:['rejoindre','code'], code:['rejoindre','code'], rejoindre:['rejoindre','code'], join:['rejoindre','code'],
     profil:['profil','defis','casier'], profile:['profil','defis','casier'], serie:['serie','connexion'], streak:['serie','connexion'],
     casier:['casier','profil'], locker:['casier','profil'], equiper:['casier','equiper'], equip:['casier','equiper'], desequiper:['casier','equiper'], unequip:['casier','equiper'], cosmetique2:['casier'],
+    cadeau:['cadeau','offrir'], cadeaux:['cadeau','offrir'], gift:['cadeau','offrir','gift'], offrir:['cadeau','offrir'], offert:['cadeau','offrir'],
+    recuperation:['recuperation','sauvegarder'], recuperer:['recuperation','sauvegarder'], recovery:['recuperation','recovery'], recover:['recuperation','recovery'], sauvegarder:['recuperation','sauvegarder','progression'], sauvegarde:['recuperation','sauvegarder'], save:['recuperation','recovery'], progression:['recuperation','progression'], progress:['recuperation','recovery'], appareil:['recuperation'], device:['recuperation','recovery'], telephone:['recuperation'], phone:['recuperation','recovery'], perdu:['recuperation'], lost:['recuperation','recovery'],
+    reinitialiser:['reinitialiser','reset'], reset:['reinitialiser','reset'], effacer:['reinitialiser'], supprimer:['reinitialiser','compte'], delete:['reinitialiser','reset'], compte:['compte','recuperation'], account:['compte','recovery','reset'], zero:['reinitialiser'],
   };
 
   const GREET  = new Set('bonjour salut coucou hello hi hey yo bonsoir wesh'.split(' '));
@@ -4303,7 +4407,9 @@ const _FONT_DISPLAY_NAMES = {
   'font-lobster':'Lobster','font-fredoka':'Fredoka','font-monoton':'Monoton',
 };
 
-const _FEATURED_IDS = ['bg-hologramme', 'bg-galaxie'];
+// Sélection « À la une » : un mélange varié (fonds, couleurs, effet, titre) mis
+// en avant. Sert de repli si le serveur ne fournit pas de rotation featured.
+const _FEATURED_IDS = ['bg-hologramme', 'bg-galaxie', 'bg-synthwave', 'rainbow', 'gold', 'nameeffect-rainbow', 'title-champion', 'diamond'];
 
 const ALL_BUNDLES = [
   { id:'bundle-debutant',    items:['silver','bubble-ardoise','bg-nuit','boost_hint_10'], totalPrice:38,  bundlePrice:25  },
@@ -4463,10 +4569,18 @@ function _renderShopItems() {
   // Seules ces familles restent en vente (le reste des cosmétiques est retiré
   // de la boutique mais conservé dans le casier des joueurs qui les possèdent).
   const KEPT_SHOP_TYPES = new Set(['color', 'nameeffect', 'title', 'background', 'boost']);
-  const rotFeatured = shopRotation?.featured?.length ? shopRotation.featured : _FEATURED_IDS;
-  const rotDaily    = shopRotation?.daily || [];
-  const featuredItems = rotFeatured.map(id => allItemsById[id]).filter(it => it && KEPT_SHOP_TYPES.has(it.type));
-  const dailyItems    = rotDaily.map(id => allItemsById[id]).filter(it => it && KEPT_SHOP_TYPES.has(it.type));
+  const rotDaily = shopRotation?.daily || [];
+  const _pickKept = ids => ids.map(id => allItemsById[id]).filter(it => it && KEPT_SHOP_TYPES.has(it.type));
+  // « À la une » : on garde les vedettes du serveur (uniquement des familles
+  // encore vendues) puis on complète avec la sélection curatée pour que le rayon
+  // ne soit jamais vide (le serveur peut tirer des cosmétiques d'un type retiré).
+  let featuredItems = _pickKept(shopRotation?.featured || []);
+  _pickKept(_FEATURED_IDS).forEach(it => { if (!featuredItems.some(f => f.id === it.id)) featuredItems.push(it); });
+  featuredItems = featuredItems.slice(0, 8);
+  // Idem pour le quotidien : on complète avec des vedettes si le tirage est court.
+  let dailyItems = _pickKept(rotDaily);
+  if (dailyItems.length < 4) _pickKept(_FEATURED_IDS).forEach(it => { if (!dailyItems.some(f => f.id === it.id)) dailyItems.push(it); });
+  dailyItems = dailyItems.slice(0, 8);
 
   function tileHtml(item, large = false, extraBadge = '') {
     const { id, type, price, name } = item;
@@ -4564,10 +4678,11 @@ function _renderShopItems() {
       <button class="shop-fn-nav-btn" data-section="nameeffects"><span class="shop-nav-icon">✨</span><span class="shop-nav-label"> ${nav.nameeffects}</span></button>
       <button class="shop-fn-nav-btn" data-section="titles"><span class="shop-nav-icon">🏷️</span><span class="shop-nav-label"> ${nav.titles}</span></button>
       <button class="shop-fn-nav-btn" data-section="bgs"><span class="shop-nav-icon">🖼️</span><span class="shop-nav-label"> ${nav.bgs}</span></button>
+      <button class="shop-fn-nav-btn" data-section="codes"><span class="shop-nav-icon">🎟️</span><span class="shop-nav-label"> ${nav.codes}</span></button>
     </nav>
     <div class="shop-fn-content">
 
-    <section class="shop-fn-section" id="shop-sec-featured" data-section-id="featured">
+    <section class="shop-fn-section active" id="shop-sec-featured" data-section-id="featured">
       <h3 class="shop-fn-section-title">${d.shopFeaturedTitle}</h3>
       <p class="shop-fn-section-desc">${d.shopSectionDescs.featured}</p>
       <div class="shop-fn-featured">
@@ -4637,7 +4752,20 @@ function _renderShopItems() {
       <div class="shop-fn-grid">${titleItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
-    <section class="shop-fn-section" id="shop-sec-promo">
+    <section class="shop-fn-section" id="shop-sec-codes" data-section-id="codes">
+      <h3 class="shop-fn-section-title">${d.shopGiftReceiveTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopGiftReceiveDesc}</p>
+      <div class="shop-fn-promo">
+        <div class="shop-fn-promo-row">
+          <input id="shop-gift-input" type="text" maxlength="8" class="shop-fn-promo-input"
+            placeholder="${d.shopGiftPlaceholder}" autocomplete="off" autocorrect="off"
+            autocapitalize="characters" spellcheck="false">
+          <button id="btn-redeem-gift" class="btn btn-secondary">${d.shopGiftReceiveBtn}</button>
+        </div>
+        <span id="shop-gift-feedback" class="shop-fn-promo-feedback"></span>
+      </div>
+
+      <hr class="recovery-sep" />
       <h3 class="shop-fn-section-title">${d.shopPromoTitle}</h3>
       <div class="shop-fn-promo">
         <div class="shop-fn-promo-row">
@@ -4666,6 +4794,14 @@ function _renderShopItems() {
   $('shop-promo-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') $('btn-redeem-code').click();
   });
+  $('btn-redeem-gift')?.addEventListener('click', () => {
+    const code = ($('shop-gift-input').value || '').trim();
+    if (!code) return;
+    socket.emit('redeem-gift', { code, playerId: getPlayerId(), name: localStorage.getItem('playerName') || '' });
+  });
+  $('shop-gift-input')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') $('btn-redeem-gift').click();
+  });
   _updateShopPending(pendingHintCharges);
 
   container.querySelectorAll('.shop-tile:not([data-type="bundle"])').forEach(tile => {
@@ -4682,25 +4818,26 @@ function _renderShopItems() {
     });
   });
 
-  container.querySelectorAll('.shop-fn-nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const sec = container.querySelector(`#shop-sec-${btn.dataset.section}`);
-      if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  });
-
   const contentEl = container.querySelector('.shop-fn-content');
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const sid = entry.target.dataset.sectionId;
-        container.querySelectorAll('.shop-fn-nav-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.section === sid);
-        });
-      }
+
+  // Vue par onglets : un seul rayon visible à la fois. Cliquer sur une catégorie
+  // remplace le contenu (aucun saut de scroll dans une longue liste empilée).
+  function _showShopSection(sid) {
+    if (!container.querySelector(`[data-section-id="${sid}"]`)) sid = 'featured';
+    _shopActiveSection = sid;
+    container.querySelectorAll('.shop-fn-section[data-section-id]').forEach(sec => {
+      sec.classList.toggle('active', sec.dataset.sectionId === sid);
     });
-  }, { root: contentEl || container, threshold: 0.15 });
-  container.querySelectorAll('[data-section-id]').forEach(sec => observer.observe(sec));
+    container.querySelectorAll('.shop-fn-nav-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.section === sid);
+    });
+    if (contentEl) contentEl.scrollTop = 0;
+  }
+  container.querySelectorAll('.shop-fn-nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => _showShopSection(btn.dataset.section));
+  });
+  // Restaure l'onglet actif après un re-rendu (achat, équipement, etc.).
+  _showShopSection(_shopActiveSection);
 
   if (shopRotation) _startShopCountdown(shopRotation.resetAt);
   if (_shopDetailItem) _openShopDetail(_shopDetailItem);
@@ -4715,6 +4852,7 @@ function _renderShopItems() {
       const capturedId  = _pendingShopFocus;
       _shopRetainTileId = capturedId;
       _tileJustFocused  = true;
+      { const _s = tile.closest('[data-section-id]'); if (_s) _showShopSection(_s.dataset.sectionId); }
       requestAnimationFrame(() => {
         const cRect = contentEl.getBoundingClientRect();
         const tRect = tile.getBoundingClientRect();
@@ -4744,6 +4882,7 @@ function _renderShopItems() {
       const capturedIds = [..._pendingShopFocusIds];
       _shopRetainTileId = capturedIds[0];
       _tileJustFocused  = true;
+      { const _s = tiles[0].closest('[data-section-id]'); if (_s) _showShopSection(_s.dataset.sectionId); }
       requestAnimationFrame(() => {
         const cRect = contentEl.getBoundingClientRect();
         const tRect = tiles[0].getBoundingClientRect();
@@ -4771,6 +4910,7 @@ function _renderShopItems() {
   if (!_tileJustFocused && _shopRetainTileId && contentEl) {
     const tile = container.querySelector(`.shop-tile[data-id="${_shopRetainTileId}"]`);
     if (tile) {
+      { const _s = tile.closest('[data-section-id]'); if (_s) _showShopSection(_s.dataset.sectionId); }
       requestAnimationFrame(() => {
         const cRect = contentEl.getBoundingClientRect();
         const tRect = tile.getBoundingClientRect();
@@ -4976,6 +5116,12 @@ function _openShopDetail(item) {
     actionHtml = `<button class="btn btn-primary shop-detail-action-btn" data-id="${id}" data-action="buy" data-type="${type}">${price === 0 ? lblFree : d.shopCosmeticBuy(price)}</button>`;
   }
 
+  // Offrir : disponible pour tout cosmétique payant non honorifique (même si on
+  // ne le possède pas). L'acheteur paie et reçoit un code cadeau à partager.
+  const giftBtn = (!honorary && price > 0)
+    ? `<button class="btn btn-secondary shop-detail-action-btn shop-gift-offer-btn" data-id="${id}" data-action="gift">${d.shopGiftBtn(price)}</button>`
+    : '';
+
   panel.innerHTML = `
     <button class="shop-fn-detail-back" id="shop-detail-back">← ${fr ? 'Retour' : 'Back'}</button>
     <div class="shop-fn-detail-preview">${previewHtml}</div>
@@ -4985,7 +5131,7 @@ function _openShopDetail(item) {
         : `<span class="shop-fn-rarity-badge ${rarity}">${rarityLabel[rarity]}</span>`}
       <h3 class="shop-fn-detail-name">${name || id}</h3>
       ${honorary ? '' : `<div class="shop-fn-detail-price">${priceStr}</div>`}
-      <div class="shop-fn-detail-action">${actionHtml}</div>
+      <div class="shop-fn-detail-action">${actionHtml}${giftBtn}</div>
     </div>
   `;
   panel.classList.remove('hidden');
@@ -5004,6 +5150,7 @@ function _openShopDetail(item) {
       else if (action === 'equip')   socket.emit('equip-cosmetic',  { cosmeticId: bId,  type: bType, playerId: getPlayerId() });
       else if (action === 'unequip') socket.emit('equip-cosmetic',  { cosmeticId: bType === 'emote' ? bId : null, type: bType, playerId: getPlayerId(), remove: bType === 'emote' });
       else if (action === 'refund')  socket.emit('refund-cosmetic', { cosmeticId: bId,  playerId: getPlayerId() });
+      else if (action === 'gift')    socket.emit('gift-cosmetic',   { cosmeticId: bId,  playerId: getPlayerId() });
     });
   });
 }
@@ -8433,8 +8580,7 @@ const ProfileHub = (() => {
   let streak = null;      // { count, longest, bonus }
   let history = [];
   let loadedHistory = false;
-  const _lockerOpen = new Set(); // catégories du casier actuellement dépliées
-  let _lockerTouched = false;    // l'utilisateur a-t-il déjà plié/déplié une catégorie ?
+  let _lockerCat = null; // catégorie ouverte dans le casier (null = grille de cartes)
 
   const _named = () => { const n = (localStorage.getItem('playerName') || '').trim(); return n && n !== 'Anonyme'; };
 
@@ -8445,13 +8591,8 @@ const ProfileHub = (() => {
     renderStreak(); renderChallenges(); updateBadge();
   }
   function enterLocker() {
-    // Première visite : on déplie toutes les catégories possédées pour voir les
-    // produits et leurs aperçus tout de suite.
-    if (!_lockerTouched) {
-      _lockerOpen.clear();
-      const owned = Array.isArray(ownedCosmetics) ? ownedCosmetics : [];
-      _lockerCategories(t()).forEach(cat => { if (cat.names && owned.some(id => cat.names[id])) _lockerOpen.add(cat.type); });
-    }
+    // On entre toujours sur la grille de cartes des catégories.
+    _lockerCat = null;
     renderLocker();
   }
   function enterHistory() { socket.emit('get-history', { playerId: getPlayerId() }); renderHistory(); }
@@ -8556,14 +8697,12 @@ const ProfileHub = (() => {
     if (!el) return;
     if (!_named()) { el.innerHTML = `<p class="profile-anon">${_escHtml(d.profileAnon)}</p>`; return; }
     const owned = Array.isArray(ownedCosmetics) ? ownedCosmetics : [];
-    let html = '', total = 0;
-    _lockerCategories(d).forEach(cat => {
-      if (!cat.names) return;
-      const items = owned.filter(id => cat.names[id]);
-      if (!items.length) return;
-      total += items.length;
-      const open = _lockerOpen.has(cat.type);
-      const equippedCount = items.filter(id => cat.equipped.includes(id)).length;
+    const cats  = _lockerCategories(d);
+
+    // Vue détail : les items d'une catégorie choisie (avec un retour aux cartes).
+    if (_lockerCat) {
+      const cat = cats.find(c => c.type === _lockerCat);
+      const items = cat && cat.names ? owned.filter(id => cat.names[id]) : [];
       const rows = items.map(id => {
         const eq = cat.equipped.includes(id);
         const btnLabel = eq ? d.lockerUnequip : d.lockerEquip;
@@ -8573,39 +8712,46 @@ const ProfileHub = (() => {
           <button class="locker-eq-btn${eq ? ' on' : ''}" data-equip="${_escHtml(id)}" data-type="${cat.type}" data-on="${eq ? '1' : '0'}">${_escHtml(btnLabel)}</button>
         </div>`;
       }).join('');
-      html += `<div class="locker-cat${open ? ' open' : ''}">
-        <button class="locker-cat-btn" data-cat="${cat.type}">
-          <span class="locker-cat-ic">${cat.icon}</span>
-          <span class="locker-cat-label">${_escHtml(cat.label)}</span>
-          <span class="locker-count">${items.length}</span>
-          ${equippedCount ? `<span class="locker-cat-eq">${_escHtml(d.lockerEquipped)}</span>` : ''}
-          <span class="locker-chevron">▾</span>
-        </button>
-        <div class="locker-items" data-items="${cat.type}">${rows}</div>
-      </div>`;
+      el.innerHTML = `
+        <button class="locker-back-cats" data-back="1">← ${_escHtml(d.lockerBackCats)}</button>
+        <h3 class="locker-detail-title">${cat ? cat.icon + ' ' + _escHtml(cat.label) : ''}</h3>
+        <div class="locker-items-grid">${rows || `<p class="history-empty">${_escHtml(d.lockerEmpty)}</p>`}</div>`;
+      return;
+    }
+
+    // Vue cartes : une carte par catégorie possédée.
+    let html = '', total = 0;
+    cats.forEach(cat => {
+      if (!cat.names) return;
+      const items = owned.filter(id => cat.names[id]);
+      if (!items.length) return;
+      total += items.length;
+      const equippedCount = items.filter(id => cat.equipped.includes(id)).length;
+      html += `<button class="locker-cat-card" data-cat="${cat.type}">
+        <span class="locker-cat-ic">${cat.icon}</span>
+        <span class="locker-cat-label">${_escHtml(cat.label)}</span>
+        <span class="locker-cat-meta"><span class="locker-count">${items.length}</span>${equippedCount ? `<span class="locker-cat-eq">${_escHtml(d.lockerEquipped)}</span>` : ''}</span>
+      </button>`;
     });
     if (honorTitle) {
       const hn = d.honorTitleNames?.[honorTitle] || honorTitle;
-      html += `<div class="locker-cat locker-cat-static">
-        <div class="locker-cat-btn locker-cat-btn-static">
-          <span class="locker-cat-ic">🥇</span>
-          <span class="locker-cat-label">${_escHtml(d.lockerCats.honorary)}</span>
-          <span class="locker-honor-name">${_escHtml(hn)} <span class="locker-eq">${_escHtml(d.lockerEquipped)}</span></span>
-        </div>
+      html += `<div class="locker-cat-card locker-cat-card-static">
+        <span class="locker-cat-ic">🥇</span>
+        <span class="locker-cat-label">${_escHtml(d.lockerCats.honorary)}</span>
+        <span class="locker-honor-name">${_escHtml(hn)} <span class="locker-eq">${_escHtml(d.lockerEquipped)}</span></span>
       </div>`;
       total++;
     }
-    el.innerHTML = total ? html : `<p class="history-empty">${_escHtml(d.lockerEmpty)}</p>`;
+    el.innerHTML = total ? `<div class="locker-cards">${html}</div>` : `<p class="history-empty">${_escHtml(d.lockerEmpty)}</p>`;
   }
 
-  // Clics sur le casier : plier/déplier une catégorie, ou équiper/déséquiper.
+  // Clics sur le casier : ouvrir une catégorie (carte), revenir, ou équiper.
   document.getElementById('locker-list')?.addEventListener('click', e => {
-    const catBtn = e.target.closest('.locker-cat-btn');
-    if (catBtn && !catBtn.classList.contains('locker-cat-btn-static')) {
-      const type = catBtn.dataset.cat;
-      _lockerTouched = true;
-      if (_lockerOpen.has(type)) _lockerOpen.delete(type); else _lockerOpen.add(type);
-      catBtn.closest('.locker-cat')?.classList.toggle('open');
+    if (e.target.closest('.locker-back-cats')) { _lockerCat = null; renderLocker(); return; }
+    const card = e.target.closest('.locker-cat-card');
+    if (card && !card.classList.contains('locker-cat-card-static')) {
+      _lockerCat = card.dataset.cat;
+      renderLocker();
       return;
     }
     const eqBtn = e.target.closest('.locker-eq-btn');
@@ -8694,6 +8840,158 @@ window._profileHub = ProfileHub;
     localStorage.removeItem('playerName'); // sera restauré depuis le serveur
     location.reload();
   });
+})();
+
+// ── Réinitialiser le compte ──────────────────────────────────────────────────
+// Repart avec un identifiant tout neuf (état vierge). La progression précédente
+// reste récupérable via le code de récupération : on invite donc à le copier
+// d'abord, sans l'imposer.
+(function initReset() {
+  const overlay = document.getElementById('overlay-reset');
+  if (!overlay) return;
+  const openBtn    = document.getElementById('go-reset');
+  const closeBtn   = document.getElementById('btn-reset-close');
+  const codeInput  = document.getElementById('reset-code');
+  const copyBtn    = document.getElementById('btn-reset-copy');
+  const check      = document.getElementById('reset-confirm-check');
+  const confirmBtn = document.getElementById('btn-reset-confirm');
+
+  function open()  { codeInput.value = getPlayerId(); check.checked = false; confirmBtn.disabled = true; overlay.classList.remove('hidden'); }
+  function close() { overlay.classList.add('hidden'); }
+  openBtn?.addEventListener('click', open);
+  closeBtn?.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  check?.addEventListener('change', () => { confirmBtn.disabled = !check.checked; });
+  copyBtn?.addEventListener('click', () => {
+    navigator.clipboard.writeText(codeInput.value).then(() => {
+      copyBtn.textContent = t().codeCopied;
+      setTimeout(() => { copyBtn.textContent = t().recovery.copy; }, 2000);
+    }).catch(() => {});
+  });
+  confirmBtn?.addEventListener('click', () => {
+    if (!check.checked) return;
+    let fresh;
+    if (window.crypto?.randomUUID) fresh = window.crypto.randomUUID().replace(/-/g, '');
+    else if (window.crypto?.getRandomValues) { const b = new Uint8Array(16); window.crypto.getRandomValues(b); fresh = [...b].map(x => x.toString(16).padStart(2, '0')).join(''); }
+    else fresh = Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    ['playerName', 'libero_equipped_bg', 'libero_equipped_emojipack'].forEach(k => localStorage.removeItem(k));
+    localStorage.setItem('libero_player_id', fresh);
+    location.reload();
+  });
+})();
+
+// ── Offrir un cosmétique (modal du code cadeau) ──────────────────────────────
+(function initGift() {
+  const overlay = document.getElementById('overlay-gift');
+  if (!overlay) return;
+  const codeInput = document.getElementById('gift-code');
+  const closeBtn  = document.getElementById('btn-gift-close');
+  const copyBtn   = document.getElementById('btn-gift-copy');
+  const shareBtn  = document.getElementById('btn-gift-share');
+  function close() { overlay.classList.add('hidden'); }
+  window._openGiftModal = code => { codeInput.value = code; overlay.classList.remove('hidden'); };
+  closeBtn?.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  copyBtn?.addEventListener('click', () => {
+    navigator.clipboard.writeText(codeInput.value).then(() => {
+      copyBtn.textContent = t().codeCopied;
+      setTimeout(() => { copyBtn.textContent = t().recovery.copy; }, 2000);
+    }).catch(() => {});
+  });
+  shareBtn?.addEventListener('click', () => {
+    const txt = t().giftShareText(codeInput.value);
+    if (navigator.share) navigator.share({ title: t().giftShareTitle, text: txt }).catch(() => {});
+    else navigator.clipboard.writeText(txt).then(() => {
+      shareBtn.textContent = t().linkCopied;
+      setTimeout(() => { shareBtn.textContent = t().giftShareBtn; }, 2000);
+    }).catch(() => {});
+  });
+})();
+
+function _showGiftFeedback(msg, color) {
+  const fb = $('shop-gift-feedback');
+  if (!fb) return;
+  fb.textContent = msg;
+  fb.style.color = color;
+  clearTimeout(fb._t);
+  fb._t = setTimeout(() => { fb.textContent = ''; }, 3500);
+}
+
+socket.on('gift-cosmetic-result', ({ ok, code, error } = {}) => {
+  if (ok) {
+    SFX.shopBuy?.();
+    window._openGiftModal?.(code);
+    if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+  } else {
+    const msg = error === 'insufficient' ? t().shopInsufficient
+              : error === 'anonymous'    ? t().shopCosmeticAnon
+              : t().shopBuyError;
+    _showShopFeedback(msg, '#ef4444');
+  }
+});
+
+socket.on('redeem-gift-result', ({ ok, cosmeticId, fromName, error } = {}) => {
+  if (ok) {
+    if (cosmeticId && !ownedCosmetics.includes(cosmeticId)) ownedCosmetics.push(cosmeticId);
+    SFX.shopBuy?.();
+    _showGiftFeedback(t().giftReceived(fromName || ''), '#22c55e');
+    if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+  } else {
+    const msg = error === 'used'          ? t().giftUsed
+              : error === 'already_owned' ? t().shopCosmeticAlreadyOwned
+              : error === 'anonymous'     ? t().shopCosmeticAnon
+              : t().giftInvalid;
+    _showGiftFeedback(msg, '#ef4444');
+  }
+});
+
+// ── Bienvenue (première visite) + proposition de récupération ─────────────────
+(function initOnboarding() {
+  if (localStorage.getItem('libero_onboarded')) return;
+  const finish = () => { try { localStorage.setItem('libero_onboarded', '1'); } catch {} };
+  // Anciens joueurs (compte déjà présent avant cette fonctionnalité) : pas d'animation.
+  if (!window.__liberoNewVisitor) { finish(); return; }
+
+  const welcome  = document.getElementById('overlay-welcome');
+  const typeText = document.getElementById('welcome-type-text');
+  const iconsEl  = document.getElementById('welcome-icons');
+  const startBtn = document.getElementById('welcome-start');
+  const onboard  = document.getElementById('overlay-onboard');
+  const obInput  = document.getElementById('onboard-input');
+  const obHint   = document.getElementById('onboard-hint');
+  const obRestore= document.getElementById('btn-onboard-restore');
+  const obNew    = document.getElementById('btn-onboard-new');
+  if (!welcome || !onboard || !typeText) { finish(); return; }
+
+  const d = t().onboarding;
+  const ICONS = ['🎮', '♟️', '⛂', '⭕', '⚡'];
+
+  function showOnboard() { welcome.classList.add('hidden'); obHint.textContent = ''; obHint.classList.remove('recovery-err'); onboard.classList.remove('hidden'); }
+  function finishNew()   { onboard.classList.add('hidden'); finish(); }
+
+  obRestore?.addEventListener('click', () => {
+    const raw = (obInput.value || '').trim().replace(/[^a-zA-Z0-9_-]/g, '');
+    if (raw.length < 8) { obHint.textContent = d.invalid; obHint.classList.add('recovery-err'); return; }
+    finish();
+    localStorage.setItem('libero_player_id', raw);
+    localStorage.removeItem('playerName');
+    location.reload();
+  });
+  obNew?.addEventListener('click', finishNew);
+  startBtn?.addEventListener('click', showOnboard);
+
+  // Animation machine à écrire, puis cascade d'icônes et bouton Commencer.
+  welcome.classList.remove('hidden');
+  const msg = d.welcomeType;
+  let i = 0;
+  (function step() {
+    if (i <= msg.length) { typeText.textContent = msg.slice(0, i); i++; setTimeout(step, 55); }
+    else {
+      iconsEl.innerHTML = ICONS.map((ic, k) => `<span class="welcome-icon" style="animation-delay:${k * 140}ms">${ic}</span>`).join('');
+      startBtn.textContent = d.start;
+      startBtn.classList.remove('hidden');
+    }
+  })();
 })();
 
 socket.on('challenges-update', ({ challenges } = {}) => ProfileHub.setChallenges(challenges));

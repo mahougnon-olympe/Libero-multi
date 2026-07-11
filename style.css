@@ -3353,3 +3353,79 @@ html.light .honor-reward-title { color: #d97706; }
 .book-sequel-note--ok {
   background: rgba(60,220,130,.1); border-color: rgba(60,220,130,.35);
 }
+
+/* ══ Boutique : vue par onglets (un seul rayon visible, plus de saut de scroll) ══ */
+.shop-fn-section { display: none; }
+.shop-fn-section.active { display: flex; }
+
+/* ══ Casier : catégories en cartes ══ */
+.locker-cards {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
+}
+.locker-cat-card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+  padding: 14px; background: var(--card2); border: 1px solid var(--border);
+  border-radius: 14px; color: var(--text); cursor: pointer; text-align: left;
+  transition: border-color .15s, transform .1s;
+}
+.locker-cat-card:hover  { border-color: var(--board); }
+.locker-cat-card:active { transform: scale(.98); }
+.locker-cat-card .locker-cat-ic { font-size: 1.6rem; }
+.locker-cat-card .locker-cat-label { font-weight: 800; font-size: .9rem; }
+.locker-cat-meta { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+.locker-cat-card-static { cursor: default; }
+.locker-cat-card-static:hover { border-color: var(--border); }
+.locker-back-cats {
+  background: transparent; border: none; color: var(--muted); cursor: pointer;
+  font-size: .84rem; font-weight: 700; padding: 4px 0; margin-bottom: 6px;
+}
+.locker-back-cats:hover { color: var(--text); }
+.locker-detail-title { font-size: 1rem; font-weight: 800; margin: 0 0 10px; }
+.locker-items-grid { display: flex; flex-direction: column; gap: 6px; }
+
+/* ══ Profil : carte danger (réinitialiser le compte) ══ */
+.profile-nav-card-danger { border-color: rgba(248,113,113,.4); }
+.profile-nav-card-danger:hover { border-color: #f87171; }
+.profile-nav-card-danger .pnc-icon { filter: none; }
+
+/* Bouton danger + case de confirmation dans la modal de réinitialisation */
+.btn-danger { background: #ef4444; border: 1px solid #ef4444; color: #fff; }
+.btn-danger:hover:not(:disabled) { background: #dc2626; }
+.btn-danger:disabled { opacity: .5; cursor: default; }
+.recovery-confirm-check {
+  display: flex; align-items: flex-start; gap: 9px; font-size: .82rem;
+  line-height: 1.4; margin: 0 0 14px; cursor: pointer;
+}
+.recovery-confirm-check input { margin-top: 2px; flex-shrink: 0; width: 17px; height: 17px; }
+.recovery-reset-btn { width: 100%; margin-top: 4px; }
+
+/* ══ Écran de bienvenue (première visite) : machine à écrire ══ */
+.overlay-welcome {
+  position: fixed; inset: 0; z-index: 4000;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  background: radial-gradient(circle at 50% 40%, #1a1140, #0a0618 70%);
+}
+.overlay-welcome.hidden { display: none; }
+.welcome-stage { text-align: center; max-width: 560px; }
+.welcome-type {
+  font-size: clamp(1.5rem, 6vw, 2.6rem); font-weight: 900; color: #fff;
+  margin: 0; line-height: 1.25; min-height: 1.3em;
+  text-shadow: 0 0 24px rgba(124,92,255,.55);
+}
+.welcome-caret {
+  display: inline-block; color: #a78bfa; font-weight: 400;
+  animation: welcome-blink 1s steps(1) infinite;
+}
+@keyframes welcome-blink { 50% { opacity: 0; } }
+.welcome-icons { display: flex; gap: 14px; justify-content: center; margin: 26px 0 30px; min-height: 2.4rem; }
+.welcome-icon {
+  font-size: clamp(1.6rem, 7vw, 2.4rem); opacity: 0;
+  animation: welcome-pop .5s cubic-bezier(.2,1.4,.4,1) forwards;
+}
+@keyframes welcome-pop {
+  0%   { opacity: 0; transform: translateY(16px) scale(.4); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.welcome-start { min-width: 180px; animation: welcome-fadein .5s ease forwards; }
+.welcome-start.hidden { display: none; }
+@keyframes welcome-fadein { from { opacity: 0; } to { opacity: 1; } }
