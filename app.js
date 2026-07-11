@@ -347,7 +347,7 @@ const DICT = {
     lockerEmpty:"Tu n'as encore rien acheté dans la boutique. Passe faire un tour !",
     lockerEquipped:'équipé',
     lockerEquip:'Équiper', lockerUnequip:'Déséquiper',
-    lockerCats:{ colors:'Couleurs de pseudo', nameeffects:'Effets de pseudo', titles:'Titres', bgs:"Fonds d'écran", bubbles:'Bulles de chat', fonts:'Polices', cursorsnakes:'Curseur', avatars:'Avatars', p4tokens:'Jetons Puissance 4', ttt:'Symboles Morpion', chess:"Thèmes d'échiquier", clickfx:'Particules de clic', emojipacks:"Packs d'émojis", victorybans:'Bannières de victoire', soundpacks:'Packs de sons', emotes:'Emotes', honorary:'Titre honorifique' },
+    lockerCats:{ colors:'Couleurs de pseudo', nameeffects:'Effets de pseudo', titles:'Titres', bgs:"Fonds d'écran", bubbles:'Bulles de chat', fonts:'Polices', cursorsnakes:'Curseur', snakeskins:'Skins Snake', avatars:'Avatars', p4tokens:'Jetons Puissance 4', ttt:'Symboles Morpion', chess:"Thèmes d'échiquier", clickfx:'Particules de clic', emojipacks:"Packs d'émojis", victorybans:'Bannières de victoire', soundpacks:'Packs de sons', emotes:'Emotes', honorary:'Titre honorifique' },
     lockerCardSub:'Tes cosmétiques et leurs aperçus',
     historyCardSub:'Ton historique de jeu',
     recovery:{
@@ -542,6 +542,8 @@ const DICT = {
     shopHonoraryOwned:'Obtenu',
     shopHonoraryNote:'Deviens 1er au classement global pour obtenir ce titre.',
     shopCursorSnakesTitle:'🖱️ Skins de curseur',
+    shopSnakeSkinsTitle:'🐍 Skins Snake (Évents)',
+    shopSnakeSkinNames:{'snakeskin-gems':'Serpent de Gemmes','snakeskin-cyber':'Serpent Cyber','snakeskin-lava':'Serpent de Lave','snakeskin-galaxy':'Serpent Galaxie','snakeskin-rainbow':'Serpent Arc-en-ciel'},
     shopCursorSnakeNames:{'cursorsnake-pixel':'Serpent Pixel','cursorsnake-neon':'Serpent Néon','cursorsnake-comet':'Comète','cursorsnake-electric':'Anguille Électrique','cursorsnake-stars':'Traînée Étoilée','cursorsnake-fire':'Dragon de Feu'},
     shopAvatarsTitle:'🎭 Avatars',
     shopAvatarNames:{'avatar-gamepad':'Manette','avatar-cat':'Chat Pixel','avatar-lightning':'Éclair','avatar-rocket':'Fusée','avatar-robot':'Robot','avatar-skull':'Crâne','avatar-crown':'Couronne'},
@@ -575,6 +577,7 @@ const DICT = {
       nameeffects:"Ajoute un effet visuel animé directement sur ton pseudo.",
       titles:"Affiche un titre à côté de ton pseudo dans le classement.",
       cursorsnakes:"Remplace ton curseur de souris par un serpent animé.",
+      snakeskins:"Change l'apparence de ton serpent pendant le Snake Challenge du week-end.",
       avatars:"Un emoji s'affiche à côté de ton pseudo dans le classement.",
       p4tokens:"Personnalise l'apparence de tes jetons en Puissance 4.",
       ttt:"Personnalise tes symboles ✖️ et ⭕ en Morpion.",
@@ -598,7 +601,7 @@ const DICT = {
     shopBundleInsufficientFunds:'Champion, tu n\'as pas assez de Libs.',
     shopBundleError:'Erreur lors de l\'achat.',
     shopBundleNames:{ 'bundle-debutant':'Pack Débutant','bundle-retro':'Pack Rétro','bundle-neon-arcade':'Pack Néon Arcade','bundle-galaxie':'Pack Galaxie','bundle-prestige-or':'Pack Prestige Or','bundle-hologramme':'Pack Hologramme Ultime' },
-    shopNavLabels:{ featured:'À la une', daily:'Quotidien', bundles:'Bundles', boosts:'Boosts', colors:'Couleurs', fonts:'Polices', bubbles:'Bulles', bgs:'Fonds', nameeffects:'Effets', titles:'Titres', codes:'Codes', cursorsnakes:'Curseur', avatars:'Avatars', p4tokens:'P4', ttt:'Morpion', chess:'Échiquier', clickfx:'Particules', emojipacks:'Émojis', victorybans:'Victoire', soundpacks:'Sons', emotes:'Emotes' },
+    shopNavLabels:{ featured:'À la une', daily:'Quotidien', bundles:'Bundles', boosts:'Boosts', colors:'Couleurs', fonts:'Polices', bubbles:'Bulles', bgs:'Fonds', nameeffects:'Effets', titles:'Titres', codes:'Codes', cursorsnakes:'Curseur', snakeskins:'Snake', avatars:'Avatars', p4tokens:'P4', ttt:'Morpion', chess:'Échiquier', clickfx:'Particules', emojipacks:'Émojis', victorybans:'Victoire', soundpacks:'Sons', emotes:'Emotes' },
     shopLibsPacksTitle:'💳 Recharger tes Libs',
     shopLibsPacksDesc:'Achète des Libs ⚡ avec de l\'argent réel (mobile money / carte, paiement sécurisé FedaPay). Le crédit est vérifié par nos serveurs, jamais instantané côté navigateur.',
     shopLibsPacksLoading:'Chargement des packs…',
@@ -861,7 +864,7 @@ const DICT = {
     lockerEmpty:"You haven't bought anything in the shop yet. Go take a look!",
     lockerEquipped:'equipped',
     lockerEquip:'Equip', lockerUnequip:'Unequip',
-    lockerCats:{ colors:'Name colors', nameeffects:'Name effects', titles:'Titles', bgs:'Backgrounds', bubbles:'Chat bubbles', fonts:'Fonts', cursorsnakes:'Cursor', avatars:'Avatars', p4tokens:'Connect 4 tokens', ttt:'Tic-Tac-Toe symbols', chess:'Chessboard themes', clickfx:'Click particles', emojipacks:'Emoji packs', victorybans:'Victory banners', soundpacks:'Sound packs', emotes:'Emotes', honorary:'Honorary title' },
+    lockerCats:{ colors:'Name colors', nameeffects:'Name effects', titles:'Titles', bgs:'Backgrounds', bubbles:'Chat bubbles', fonts:'Fonts', cursorsnakes:'Cursor', snakeskins:'Snake skins', avatars:'Avatars', p4tokens:'Connect 4 tokens', ttt:'Tic-Tac-Toe symbols', chess:'Chessboard themes', clickfx:'Click particles', emojipacks:'Emoji packs', victorybans:'Victory banners', soundpacks:'Sound packs', emotes:'Emotes', honorary:'Honorary title' },
     lockerCardSub:'Your cosmetics and their previews',
     historyCardSub:'Your game history',
     recovery:{
@@ -1056,6 +1059,8 @@ const DICT = {
     honorModalMsg:(titleName) => `Congratulations! You're ranked #1. As a reward, you receive the title <strong>${titleName}</strong>. It will appear next to your username as long as you hold the top spot.`,
     honorModalBtn:'Accept',
     shopCursorSnakesTitle:'🖱️ Cursor Skins',
+    shopSnakeSkinsTitle:'🐍 Snake skins (Events)',
+    shopSnakeSkinNames:{'snakeskin-gems':'Gem Snake','snakeskin-cyber':'Cyber Snake','snakeskin-lava':'Lava Snake','snakeskin-galaxy':'Galaxy Snake','snakeskin-rainbow':'Rainbow Snake'},
     shopCursorSnakeNames:{'cursorsnake-pixel':'Pixel Snake','cursorsnake-neon':'Neon Snake','cursorsnake-comet':'Comet','cursorsnake-electric':'Electric Eel','cursorsnake-stars':'Starry Trail','cursorsnake-fire':'Fire Dragon'},
     shopAvatarsTitle:'🎭 Avatars',
     shopAvatarNames:{'avatar-gamepad':'Gamepad','avatar-cat':'Pixel Cat','avatar-lightning':'Lightning','avatar-rocket':'Rocket','avatar-robot':'Robot','avatar-skull':'Skull','avatar-crown':'Crown'},
@@ -1089,6 +1094,7 @@ const DICT = {
       nameeffects:"Add an animated visual effect directly to your username.",
       titles:"Display a title next to your username in the leaderboard.",
       cursorsnakes:"Replace your mouse cursor with an animated snake.",
+      snakeskins:"Change how your snake looks during the weekend Snake Challenge.",
       avatars:"An emoji displays next to your username in the leaderboard.",
       p4tokens:"Customize the look of your Connect 4 tokens.",
       ttt:"Customize your ✖️ and ⭕ symbols in Tic-Tac-Toe.",
@@ -1112,7 +1118,7 @@ const DICT = {
     shopBundleInsufficientFunds:'Champion, you don\'t have enough Libs.',
     shopBundleError:'Purchase failed.',
     shopBundleNames:{ 'bundle-debutant':'Starter Pack','bundle-retro':'Retro Pack','bundle-neon-arcade':'Neon Arcade Pack','bundle-galaxie':'Galaxy Pack','bundle-prestige-or':'Gold Prestige Pack','bundle-hologramme':'Ultimate Hologram Pack' },
-    shopNavLabels:{ featured:'Featured', daily:'Daily', bundles:'Bundles', boosts:'Boosts', colors:'Colors', fonts:'Fonts', bubbles:'Bubbles', bgs:'Backgrounds', nameeffects:'Effects', titles:'Titles', codes:'Codes', cursorsnakes:'Cursor', avatars:'Avatars', p4tokens:'P4', ttt:'Tic-Tac', chess:'Chess', clickfx:'Particles', emojipacks:'Emojis', victorybans:'Victory', soundpacks:'Sounds', emotes:'Emotes' },
+    shopNavLabels:{ featured:'Featured', daily:'Daily', bundles:'Bundles', boosts:'Boosts', colors:'Colors', fonts:'Fonts', bubbles:'Bubbles', bgs:'Backgrounds', nameeffects:'Effects', titles:'Titles', codes:'Codes', cursorsnakes:'Cursor', snakeskins:'Snake', avatars:'Avatars', p4tokens:'P4', ttt:'Tic-Tac', chess:'Chess', clickfx:'Particles', emojipacks:'Emojis', victorybans:'Victory', soundpacks:'Sounds', emotes:'Emotes' },
     shopLibsPacksTitle:'💳 Top up your Libs',
     shopLibsPacksDesc:'Buy Libs ⚡ with real money (mobile money / card, secure FedaPay checkout). Credit is verified by our servers, never instant on the browser side.',
     shopLibsPacksLoading:'Loading packs…',
@@ -4564,6 +4570,10 @@ function _renderShopItems() {
     {id:'cursorsnake-pixel',price:50},{id:'cursorsnake-neon',price:80},{id:'cursorsnake-comet',price:110},
     {id:'cursorsnake-electric',price:130},{id:'cursorsnake-stars',price:160},{id:'cursorsnake-fire',price:200},
   ];
+  const ALL_SNAKESKINS = [
+    {id:'snakeskin-gems',price:50},{id:'snakeskin-cyber',price:80},{id:'snakeskin-lava',price:120},
+    {id:'snakeskin-galaxy',price:140},{id:'snakeskin-rainbow',price:180},
+  ];
   const ALL_AVATARS = [
     {id:'avatar-gamepad',price:15},{id:'avatar-cat',price:15},{id:'avatar-lightning',price:25},
     {id:'avatar-rocket',price:40},{id:'avatar-robot',price:70},{id:'avatar-skull',price:90},{id:'avatar-crown',price:120},
@@ -4606,6 +4616,7 @@ function _renderShopItems() {
   const nameEffectItems  = ALL_NAMEEFFECTS.map(x  => ({ ...x, type:'nameeffect',  name: d.shopNameEffectNames[x.id] }));
   const titleItems       = ALL_TITLES.map(x       => ({ ...x, type:'title',       name: x.honorary ? (d.honorTitleNames?.[x.id] || x.id) : d.shopTitleNames[x.id] }));
   const cursorSnakeItems = ALL_CURSORSNAKES.map(x  => ({ ...x, type:'cursorsnake', name: d.shopCursorSnakeNames[x.id] }));
+  const snakeSkinItems   = ALL_SNAKESKINS.map(x    => ({ ...x, type:'snakeskin',   name: d.shopSnakeSkinNames[x.id] }));
   const avatarItems      = ALL_AVATARS.map(x      => ({ ...x, type:'avatar',      name: d.shopAvatarNames[x.id] }));
   const p4TokenItems     = ALL_P4TOKENS.map(x     => ({ ...x, type:'p4token',     name: d.shopP4TokenNames[x.id] }));
   const tttItems         = ALL_TTT.map(x          => ({ ...x, type:'ttt',         name: d.shopTttNames[x.id] }));
@@ -4618,7 +4629,7 @@ function _renderShopItems() {
 
   const allItemsById = {};
   [...colorItems, ...fontItems, ...bubbleItems, ...bgItems,
-   ...nameEffectItems, ...titleItems, ...cursorSnakeItems, ...avatarItems,
+   ...nameEffectItems, ...titleItems, ...cursorSnakeItems, ...snakeSkinItems, ...avatarItems,
    ...p4TokenItems, ...tttItems, ...chessItems,
    ...clickFxItems, ...emojiPackItems, ...victoryBanItems, ...soundPackItems, ...emoteItems,
   ].forEach(it => { allItemsById[it.id] = it; });
@@ -4627,7 +4638,7 @@ function _renderShopItems() {
 
   // Seules ces familles restent en vente (le reste des cosmétiques est retiré
   // de la boutique mais conservé dans le casier des joueurs qui les possèdent).
-  const KEPT_SHOP_TYPES = new Set(['color', 'font', 'nameeffect', 'title', 'background', 'boost']);
+  const KEPT_SHOP_TYPES = new Set(['color', 'font', 'nameeffect', 'title', 'background', 'boost', 'cursorsnake', 'snakeskin']);
   const rotDaily = shopRotation?.daily || [];
   const _pickKept = ids => ids.map(id => allItemsById[id]).filter(it => it && KEPT_SHOP_TYPES.has(it.type));
   // « À la une » : on garde les vedettes du serveur (uniquement des familles
@@ -4666,6 +4677,7 @@ function _renderShopItems() {
     else if (type === 'title' && honorary) previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="player-honor-tag">${name || ''}</span></span>`;
     else if (type === 'title')      previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="shop-title-tag">${name || ''}</span></span>`;
     else if (type === 'cursorsnake') previewHtml = `<div class="shop-emoji-preview">🐍</div>`;
+    else if (type === 'snakeskin')  previewHtml = `<div class="shop-emoji-preview">${({'snakeskin-gems':'💎','snakeskin-cyber':'⬡','snakeskin-lava':'🔥','snakeskin-galaxy':'⭐','snakeskin-rainbow':'🌈'})[id]||'🐍'}</div>`;
     else if (type === 'avatar')     previewHtml = `<div class="shop-emoji-preview">${_AV[id]||'🎭'}</div>`;
     else if (type === 'p4token')    previewHtml = `<div class="shop-emoji-preview">🔴🟡</div>`;
     else if (type === 'ttt')        previewHtml = `<div class="shop-emoji-preview">${_TTT_E[id]||'✖️⭕'}</div>`;
@@ -4738,6 +4750,8 @@ function _renderShopItems() {
       <button class="shop-fn-nav-btn" data-section="nameeffects"><span class="shop-nav-icon">✨</span><span class="shop-nav-label"> ${nav.nameeffects}</span></button>
       <button class="shop-fn-nav-btn" data-section="titles"><span class="shop-nav-icon">🏷️</span><span class="shop-nav-label"> ${nav.titles}</span></button>
       <button class="shop-fn-nav-btn" data-section="bgs"><span class="shop-nav-icon">🖼️</span><span class="shop-nav-label"> ${nav.bgs}</span></button>
+      <button class="shop-fn-nav-btn" data-section="cursorsnakes"><span class="shop-nav-icon">🖱️</span><span class="shop-nav-label"> ${nav.cursorsnakes}</span></button>
+      <button class="shop-fn-nav-btn" data-section="snakeskins"><span class="shop-nav-icon">🐍</span><span class="shop-nav-label"> ${nav.snakeskins}</span></button>
       <button class="shop-fn-nav-btn" data-section="codes"><span class="shop-nav-icon">🎟️</span><span class="shop-nav-label"> ${nav.codes}</span></button>
     </nav>
     <div class="shop-fn-content">
@@ -4816,6 +4830,18 @@ function _renderShopItems() {
       <h3 class="shop-fn-section-title">${d.shopTitlesTitle}</h3>
       <p class="shop-fn-section-desc">${d.shopSectionDescs.titles}</p>
       <div class="shop-fn-grid">${titleItems.map(it => tileHtml(it)).join('')}</div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-cursorsnakes" data-section-id="cursorsnakes">
+      <h3 class="shop-fn-section-title">${d.shopCursorSnakesTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.cursorsnakes}</p>
+      <div class="shop-fn-grid">${cursorSnakeItems.map(it => tileHtml(it)).join('')}</div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-snakeskins" data-section-id="snakeskins">
+      <h3 class="shop-fn-section-title">${d.shopSnakeSkinsTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.snakeskins}</p>
+      <div class="shop-fn-grid">${snakeSkinItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-codes" data-section-id="codes">
@@ -5127,7 +5153,7 @@ function _openShopDetail(item) {
     previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="shop-title-tag">${name || ''}</span></span>`;
   } else {
     const _DETAIL_EMOJI = {
-      'cursorsnake':'🐍','chess':'♟️♜','victoryban':'🏆','soundpack':'🎵🔊',
+      'cursorsnake':'🐍','snakeskin':'🐍','chess':'♟️♜','victoryban':'🏆','soundpack':'🎵🔊',
       'p4token':'🔴🟡',
     };
     const _ITEM_EMOJI = {
@@ -5459,6 +5485,7 @@ function _cosmeticPreviewHtml(type, id, itemName) {
     case 'nameeffect':  return `<span class="shop-nameeffect-preview ${id}">${nm}</span>`;
     case 'title':       return `<span class="shop-title-tag">${_escHtml(itemName || '')}</span>`;
     case 'cursorsnake': return `<div class="shop-emoji-preview">🐍</div>`;
+    case 'snakeskin':   return `<div class="shop-emoji-preview">${({'snakeskin-gems':'💎','snakeskin-cyber':'⬡','snakeskin-lava':'🔥','snakeskin-galaxy':'⭐','snakeskin-rainbow':'🌈'})[id] || '🐍'}</div>`;
     case 'avatar':      return `<div class="shop-emoji-preview">${_LOCKER_EMOJI.avatar[id] || '🎭'}</div>`;
     case 'p4token':     return `<div class="shop-emoji-preview">🔴🟡</div>`;
     case 'ttt':         return `<div class="shop-emoji-preview">${_LOCKER_EMOJI.ttt[id] || '✖️⭕'}</div>`;
@@ -8796,6 +8823,7 @@ const ProfileHub = (() => {
       { type:'bubble',      icon:'💬', label:d.lockerCats.bubbles,      names:d.shopBubbleNames,      equipped:[equippedBubble] },
       { type:'font',        icon:'✍️', label:d.lockerCats.fonts,        names:_FONT_DISPLAY_NAMES,    equipped:[equippedFont] },
       { type:'cursorsnake', icon:'🖱️', label:d.lockerCats.cursorsnakes, names:d.shopCursorSnakeNames, equipped:[equippedCursorSnake] },
+      { type:'snakeskin',   icon:'🐍', label:d.lockerCats.snakeskins,   names:d.shopSnakeSkinNames,   equipped:[equippedSnakeSkin] },
       { type:'avatar',      icon:'🎭', label:d.lockerCats.avatars,      names:d.shopAvatarNames,      equipped:[equippedAvatar] },
       { type:'p4token',     icon:'🔴', label:d.lockerCats.p4tokens,     names:d.shopP4TokenNames,     equipped:[equippedP4Token] },
       { type:'ttt',         icon:'✖️', label:d.lockerCats.ttt,          names:d.shopTttNames,         equipped:[equippedTtt] },
