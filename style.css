@@ -3469,3 +3469,17 @@ html.light .challenge-bar { background: rgba(0,0,0,.14); }
   background: var(--board); color: #fff; border-radius: 999px; padding: 4px 10px;
 }
 .emojirain-custom-wrap { margin-bottom: 14px; }
+
+/* ══ Profil sur mobile / tablette : rien ne doit cacher les infos ══ */
+@media (max-width: 900px) {
+  /* Les boutons flottants (Libs, reglages, aide, commentaire, assistant)
+     recouvraient les cartes et defis : on les masque sur cet ecran, ils
+     restent accessibles depuis l'accueil. */
+  body.screen-profile-active #libs-counter,
+  body.screen-profile-active .btn-settings-float,
+  body.screen-profile-active .btn-help-float,
+  body.screen-profile-active .btn-comment-float,
+  body.screen-profile-active .btn-chatbot-float { display: none !important; }
+  /* La barre de nav du bas ne doit pas recouvrir les derniers defis. */
+  #screen-profile .profile-body { padding-bottom: 84px; }
+}
