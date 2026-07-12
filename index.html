@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Libero's Multi</title>
   <link rel="icon" type="image/svg+xml" href="logo-badge.svg" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#6366f1" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
   <meta property="og:title" content="Libero's Multi" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://libero-multi.vercel.app" />
@@ -614,6 +617,10 @@
       <span class="sp-label" data-sp-label="settingsBgmVol">Vol. musique</span>
       <input type="range" id="sp-bgm-vol" class="sp-vol-slider" min="0" max="100" value="28">
     </div>
+    <div class="sp-row">
+      <span class="sp-label" data-sp-label="settingsPush">Notifications</span>
+      <button id="sp-push-btn" class="sp-toggle">🔔</button>
+    </div>
     <div class="sp-divider"></div>
     <div class="sp-row sp-row-refund">
       <span class="sp-label" data-sp-label="settingsRefundTitle">Remboursements</span>
@@ -729,6 +736,7 @@
           <button id="btn-shop-close" class="shop-fn-close-btn">✕</button>
         </div>
       </div>
+      <div id="shop-flash" class="shop-flash hidden"></div>
       <div id="shop-items-list" class="shop-fn-body"></div>
       <div id="shop-detail-panel" class="shop-fn-detail hidden"></div>
       <!-- Section dédiée : recharger ses Libs avec de l'argent réel (FedaPay) -->

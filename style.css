@@ -3762,3 +3762,20 @@ html.light .ludo-cell { background: #fff; border: 1px solid #e2e8f0; }
 .ludo-dice { font-size: 1.5rem; font-weight: 900; min-width: 60px; }
 #ludo-roll.pulse { animation: ludoPulse 1.2s ease-in-out infinite; }
 #ludo-roll:disabled { opacity: .45; }
+
+/* ── Offre flash (boutique) ── */
+.shop-flash {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 0 14px 8px; padding: 10px 14px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(251,191,36,.18), rgba(239,68,68,.18));
+  border: 1px solid rgba(251,191,36,.55);
+  font-size: .85rem; font-weight: 700;
+}
+.shop-flash.hidden { display: none; }
+.shop-flash-tag { color: #fbbf24; font-weight: 900; animation: flashBlink 1.2s ease-in-out infinite; }
+@keyframes flashBlink { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+.shop-flash-prices s { opacity: .6; margin-right: 4px; }
+.shop-flash-prices strong { color: #fbbf24; font-size: 1rem; }
+.shop-flash-timer { opacity: .85; font-size: .75rem; margin-left: auto; }
+.shop-flash-buy { padding: 6px 14px; font-size: .8rem; }

@@ -748,6 +748,11 @@ const DICT = {
     settingsSfx:'Sons', settingsSfxOn:'Activé', settingsSfxOff:'Désactivé', settingsSfxVol:'Volume',
     settingsBgm:'Musique', settingsBgmOn:'Activée', settingsBgmOff:'Désactivée', settingsBgmVol:'Vol. musique',
     settingsRefundTitle:'Cartes de remboursement',
+    settingsPush:'Notifications', settingsPushOn:'🔔 Activées', settingsPushOff:'🔕 Désactivées',
+    pushEnabledToast:'🔔 Notifications activées ! Tu seras prévenu des tournois, défis et annonces.',
+    pushDeniedToast:'🔕 Notifications bloquées par le navigateur. Autorise-les dans les réglages du site.',
+    pushUnsupported:'Ce navigateur ne gère pas les notifications.',
+    flashOfferTitle:'⚡ OFFRE FLASH', flashOfferEnds:t=>`Se termine dans ${t}`,
     legalLinkSettings:'📄 Mentions légales · CGV · Confidentialité',
     legalLinkFooter:'Mentions légales · CGV · Confidentialité',
     settingsRefundInfo:(cards, next) => {
@@ -1371,6 +1376,11 @@ const DICT = {
     settingsSfx:'Sound', settingsSfxOn:'Enabled', settingsSfxOff:'Disabled', settingsSfxVol:'Volume',
     settingsBgm:'Music', settingsBgmOn:'Enabled', settingsBgmOff:'Disabled', settingsBgmVol:'Music vol.',
     settingsRefundTitle:'Refund cards',
+    settingsPush:'Notifications', settingsPushOn:'🔔 Enabled', settingsPushOff:'🔕 Disabled',
+    pushEnabledToast:'🔔 Notifications enabled! You will be alerted about tournaments, challenges and news.',
+    pushDeniedToast:'🔕 Notifications blocked by the browser. Allow them in the site settings.',
+    pushUnsupported:'This browser does not support notifications.',
+    flashOfferTitle:'⚡ FLASH OFFER', flashOfferEnds:t=>`Ends in ${t}`,
     legalLinkSettings:'📄 Legal notice · Terms · Privacy',
     legalLinkFooter:'Legal notice · Terms of Sale · Privacy',
     settingsRefundInfo:(cards, next) => {
@@ -1768,6 +1778,7 @@ function applyLang() {
   const vct = $('vip-card-title');     if (vct) vct.textContent = d.vipCardTitle;
   const vcs = $('vip-card-sub');       if (vcs) vcs.textContent = d.vipCardSub;
   const vtt = $('vip-title');          if (vtt) vtt.textContent = d.vipTitle;
+  if (window._refreshPushBtn) window._refreshPushBtn();
   if (window._renderLevel)  window._renderLevel();
   if (window._renderIqCard) window._renderIqCard();
   if (window._renderVip)    window._renderVip();
@@ -4870,6 +4881,7 @@ function openShop() {
   const _prevShopState = (() => { try { return JSON.parse(sessionStorage.getItem('shopState')) || {}; } catch { return {}; } })();
   sessionStorage.setItem('shopState', JSON.stringify({ open: true, scrollTop: _prevShopState.scrollTop || 0 }));
   socket.emit('get-shop-rotation', {});
+  socket.emit('get-flash-offer');
   _renderShopItems();
   _loadLibsPacks();
   socket.emit('get-libs', { playerId: getPlayerId() });
@@ -5254,6 +5266,8 @@ function _renderShopItems() {
   ].forEach(it => { allItemsById[it.id] = it; });
   allItemsById['boost_hint_10'] = { id:'boost_hint_10', type:'boost', price:3, name:d.shopBoostHintName };
   allItemsById['boost_hint_20'] = { id:'boost_hint_20', type:'boost', price:5, name:d.shopBoostHintName };
+  window._allShopItemsById = allItemsById;
+  if (window._renderFlashBanner) window._renderFlashBanner();
 
   // Seules ces familles restent en vente (le reste des cosmétiques est retiré
   // de la boutique mais conservé dans le casier des joueurs qui les possèdent).
@@ -10391,3 +10405,92 @@ socket.on('claim-challenge-result', ({ ok, reward, allDoneBonus } = {}) => {
   // Journée parfaite : les 3 défis réclamés → petit bonus + toast dédié.
   if (allDoneBonus > 0) setTimeout(() => showCursorSnakeToast(t().challengePerfectDay(allDoneBonus)), 1800);
 });
+
+// ── PWA : service worker + notifications push ────────────────────────────────
+(function initPwaAndPush() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  const btn = document.getElementById('sp-push-btn');
+  if (!btn) return;
+  const supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  function isOn() { return supported && Notification.permission === 'granted' && localStorage.getItem('libero_push') === '1'; }
+  function refresh() { btn.textContent = isOn() ? t().settingsPushOn : t().settingsPushOff; }
+  window._refreshPushBtn = refresh;
+  refresh();
+  function b64ToU8(b64) {
+    const pad = '='.repeat((4 - b64.length % 4) % 4);
+    const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+    return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+  }
+  btn.addEventListener('click', async () => {
+    if (!supported) { showCursorSnakeToast(t().pushUnsupported); return; }
+    if (isOn()) {
+      localStorage.setItem('libero_push', '0');
+      socket.emit('push-unsubscribe', { playerId: getPlayerId() });
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) await sub.unsubscribe();
+      } catch {}
+      refresh();
+      return;
+    }
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') { showCursorSnakeToast(t().pushDeniedToast); return; }
+      const r = await fetch(`${window.BACKEND_URL}/api/push-key`);
+      const { key } = await r.json();
+      if (!key) { showCursorSnakeToast(t().pushUnsupported); return; }
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(key) });
+      socket.emit('push-subscribe', { playerId: getPlayerId(), sub: sub.toJSON() });
+      localStorage.setItem('libero_push', '1');
+      refresh();
+      showCursorSnakeToast(t().pushEnabledToast);
+    } catch (e) {
+      showCursorSnakeToast(t().pushDeniedToast);
+    }
+  });
+})();
+
+// ── Boutique : offre flash ────────────────────────────────────────────────────
+(function initFlashOffer() {
+  let countdownTimer = null;
+  function fmt(ms) {
+    const h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000), s = Math.floor((ms % 60000) / 1000);
+    return h > 0 ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}m ${String(s).padStart(2, '0')}s`;
+  }
+  window._renderFlashBanner = function () {
+    const el = document.getElementById('shop-flash');
+    if (!el) return;
+    clearInterval(countdownTimer);
+    const offer = window._flashOffer;
+    if (!offer || offer.endsAt <= Date.now()) { el.classList.add('hidden'); el.innerHTML = ''; return; }
+    const item = (window._allShopItemsById || {})[offer.cosmeticId];
+    const name = item?.name || offer.cosmeticId;
+    const owned = Array.isArray(ownedCosmetics) && ownedCosmetics.includes(offer.cosmeticId);
+    el.innerHTML = `
+      <span class="shop-flash-tag">${t().flashOfferTitle} · -${offer.discount}%</span>
+      <span class="shop-flash-name">${_escHtml(name)}</span>
+      <span class="shop-flash-prices"><s>⚡ ${offer.price}</s> <strong>⚡ ${offer.flashPrice}</strong></span>
+      <span class="shop-flash-timer" id="shop-flash-timer"></span>
+      ${owned ? '' : `<button class="btn btn-primary shop-flash-buy" id="shop-flash-buy">⚡</button>`}`;
+    el.classList.remove('hidden');
+    const tick = () => {
+      const left = offer.endsAt - Date.now();
+      if (left <= 0) { window._flashOffer = null; window._renderFlashBanner(); return; }
+      const tEl = document.getElementById('shop-flash-timer');
+      if (tEl) tEl.textContent = t().flashOfferEnds(fmt(left));
+    };
+    tick();
+    countdownTimer = setInterval(tick, 1000);
+    document.getElementById('shop-flash-buy')?.addEventListener('click', () => {
+      socket.emit('buy-cosmetic', { cosmeticId: offer.cosmeticId, playerId: getPlayerId() });
+    });
+  };
+  socket.on('flash-offer', ({ offer } = {}) => {
+    window._flashOffer = offer || null;
+    window._renderFlashBanner();
+  });
+})();

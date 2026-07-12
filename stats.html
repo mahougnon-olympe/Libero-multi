@@ -182,9 +182,43 @@
         <div id="ann-list"></div>
       </section>
 
+      <section>
+        <h2>🔔 Notification push <span id="push-pill" class="pill"></span></h2>
+        <p class="sub" style="margin-top:-4px;">Envoie une notification à tous les joueurs abonnés (même site fermé). Nécessite les clés VAPID sur Render.</p>
+        <div class="field"><input id="push-title" placeholder="Titre (ex : 🏆 Tournoi ce samedi !)" maxlength="80" /></div>
+        <div class="field"><input id="push-body" placeholder="Texte de la notification" maxlength="200" />
+          <button id="btn-push-send" class="green">Envoyer</button></div>
+        <p id="push-status" class="sub"></p>
+      </section>
+
+      <section>
+        <h2>⚡ Offre flash</h2>
+        <p class="sub" style="margin-top:-4px;">Met un cosmétique en promo pour quelques heures : bannière dans la boutique + notification push automatique.</p>
+        <div class="field">
+          <input id="flash-cosm" placeholder="Id du cosmétique (ex : bg-galaxie)" maxlength="40" style="max-width:220px" />
+          <input id="flash-disc" type="number" min="10" max="90" value="50" title="Réduction %" style="max-width:80px" />
+          <input id="flash-hours" type="number" min="1" max="72" value="2" title="Durée (heures)" style="max-width:80px" />
+          <button id="btn-flash-send" class="green">Lancer</button>
+          <button id="btn-flash-clear" class="red small">Retirer</button>
+        </div>
+        <p id="flash-status" class="sub"></p>
+      </section>
+
+      <section id="inactive-section" class="hidden">
+        <h2>😴 Joueurs qui décrochent <span id="inactive-pill" class="pill warn"></span></h2>
+        <p class="sub" style="margin-top:-4px;">Joueurs nommés sans activité depuis 7 jours ou plus. Clique pour ouvrir la fiche et envoyer un cadeau de retour.</p>
+        <div id="inactive-list"></div>
+      </section>
+
       <section id="fraud-section" class="hidden">
         <h2>🚨 Alertes fraude <span id="fraud-pill" class="pill warn"></span></h2>
         <div id="fraud-list"></div>
+      </section>
+
+      <section>
+        <h2>📋 Journal d'audit</h2>
+        <p class="sub" style="margin-top:-4px;">Toutes tes actions admin (cadeaux, restitutions, annonces, push, offres flash), les plus récentes d'abord.</p>
+        <div id="audit-list"></div>
       </section>
 
       <section>
@@ -540,7 +574,76 @@
       renderPlayers(d.players);
       renderPurchases(d.purchases);
       renderBotLogs(d.botLogs);
+      renderInactive(d.inactive7);
+      renderAudit(d.audit);
+      var pp = $('push-pill');
+      if (pp) pp.textContent = (d.pushSubscribers || 0) + ' abonné(s)';
+      var fs = $('flash-status');
+      if (fs && !fs.dataset.busy) {
+        fs.textContent = d.flashOffer
+          ? ('En cours : ' + d.flashOffer.cosmeticId + ' à -' + d.flashOffer.discount + '% (⚡ ' + d.flashOffer.flashPrice + ' au lieu de ' + d.flashOffer.price + '), fin ' + new Date(d.flashOffer.endsAt).toLocaleTimeString('fr-FR'))
+          : 'Aucune offre flash en cours.';
+      }
     }
+
+    function renderInactive(list) {
+      list = list || [];
+      $('inactive-section').classList.toggle('hidden', !list.length);
+      $('inactive-pill').textContent = list.length;
+      $('inactive-list').innerHTML = list.map(function (p) {
+        return '<div class="ann-row" style="cursor:pointer" data-openref="' + esc(p.ref) + '">😴 <strong>' + esc(p.name) + '</strong>'
+          + '<span class="cmt-date">absent depuis ' + p.days + ' j · ⚡ ' + p.balance + '</span>'
+          + '<button class="small">🎁 Ouvrir la fiche</button></div>';
+      }).join('');
+    }
+    document.addEventListener('click', function (e) {
+      var row = e.target.closest('[data-openref]');
+      if (row && typeof openPlayer === 'function') openPlayer(row.dataset.openref);
+    });
+
+    var AUDIT_LABELS = { gift: '🎁 Cadeau', 'restore-player': '🛠 Restauration', 'reset-restore': '↩️ Restitution', announce: '📣 Annonce', push: '🔔 Push', 'flash-offer': '⚡ Offre flash', 'flash-offer-clear': '⚡ Offre retirée' };
+    function renderAudit(list) {
+      list = list || [];
+      $('audit-list').innerHTML = list.length ? list.map(function (a) {
+        var det = a.details ? Object.keys(a.details).filter(function (k) { return a.details[k]; }).map(function (k) { return k + ': ' + a.details[k]; }).join(' · ') : '';
+        return '<div class="ann-row"><span class="txt">' + esc(AUDIT_LABELS[a.action] || a.action) + (det ? ' <span class="muted">' + esc(det) + '</span>' : '') + '</span>'
+          + '<span class="cmt-date">' + esc(new Date(a.at).toLocaleString('fr-FR')) + '</span></div>';
+      }).join('') : '<p class="empty">Aucune action pour le moment.</p>';
+    }
+
+    $('btn-push-send').addEventListener('click', async function () {
+      var title = $('push-title').value.trim(), body = $('push-body').value.trim();
+      if (!title && !body) return;
+      this.disabled = true;
+      try {
+        var r = await api('/admin/push', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ title: title, body: body }) });
+        var d = await r.json();
+        $('push-status').textContent = d.ok ? ('Envoyée à ' + d.subscribers + ' abonné(s).') : (d.error || 'Erreur.');
+        if (d.ok) { $('push-title').value = ''; $('push-body').value = ''; }
+      } catch (e) { $('push-status').textContent = 'Erreur : ' + (e.message || e); }
+      this.disabled = false;
+    });
+
+    $('btn-flash-send').addEventListener('click', async function () {
+      var id = $('flash-cosm').value.trim();
+      if (!id) return;
+      this.disabled = true;
+      var fs = $('flash-status'); fs.dataset.busy = '1';
+      try {
+        var r = await api('/admin/flash', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cosmeticId: id, discount: Number($('flash-disc').value), hours: Number($('flash-hours').value) }) });
+        var d = await r.json();
+        fs.textContent = d.ok ? 'Offre lancée !' : (d.error || 'Erreur.');
+      } catch (e) { fs.textContent = 'Erreur : ' + (e.message || e); }
+      delete fs.dataset.busy;
+      this.disabled = false;
+      refresh();
+    });
+    $('btn-flash-clear').addEventListener('click', async function () {
+      this.disabled = true;
+      try { await api('/admin/flash', { method:'DELETE' }); } catch (e) {}
+      this.disabled = false;
+      refresh();
+    });
 
     async function refresh() {
       try {

@@ -341,7 +341,7 @@ async function connectDB() {
 
 async function loadData() {
   if (!db) return;
-  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs, feedDocs, bookDocs, purchaseDocs, readerDocs, giftDocs, resetDocs, annDocs, dailyDocs] = await Promise.all([
+  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs, feedDocs, bookDocs, purchaseDocs, readerDocs, giftDocs, resetDocs, annDocs, dailyDocs, pushDocs] = await Promise.all([
     db.collection('leaderboard').find().toArray(),
     db.collection('trivia_leaderboard').find().toArray(),
     db.collection('comments').find().sort({ date: 1 }).toArray(),
@@ -359,6 +359,7 @@ async function loadData() {
     db.collection('reset_archive').find().toArray(),
     db.collection('announcements').find().sort({ at: -1 }).toArray(),
     db.collection('daily_stats').find().toArray(),
+    db.collection('push_subs').find().toArray(),
   ]);
   annDocs.forEach(d => announcements.push({ _id: d._id, text: d.text, textEn: d.textEn || '', at: d.at }));
   // Migration unique : les deux news historiques (codees en dur dans le HTML avant)
@@ -385,6 +386,10 @@ async function loadData() {
     db.collection('server_config').updateOne({ _id: 'news_seeded' }, { $set: { value: true } }, { upsert: true }).catch(() => {});
   }
   dailyDocs.forEach(d => dailyStats.set(d._id, { visits: d.visits || 0, games: d.games || 0 }));
+  pushDocs.forEach(d => { if (d.sub) pushSubs.set(d._id, d.sub); });
+  db.collection('admin_audit').find().sort({ at: -1 }).limit(200).toArray()
+    .then(docs => docs.forEach(d => adminAudits.push({ at: d.at, action: d.action, details: d.details || {} })))
+    .catch(() => {});
   resetDocs.forEach(d => resetArchive.set(d._id, d));
   giftDocs.forEach(d => giftCodes.set(d._id, { cosmeticId: d.cosmeticId, fromName: d.fromName || '', createdAt: d.createdAt || Date.now(), redeemedBy: d.redeemedBy || null, redeemedAt: d.redeemedAt || null }));
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
@@ -422,6 +427,8 @@ async function loadData() {
   if (streakDoc) rank1StreakSince = streakDoc.value;
   const rank1NameDoc = configDocs.find(d => d._id === 'rank1GlobalName');
   if (rank1NameDoc) rank1Global = rank1NameDoc.value;
+  const flashDoc = configDocs.find(d => d._id === 'flash_offer');
+  if (flashDoc?.value && flashDoc.value.endsAt > Date.now()) flashOffer = flashDoc.value;
   console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${llbDocs.length} luffy, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias, ${voteDocs.length} votes snake, ${feedDocs.length} vidéos feed, ${bookDocs.length} livres, ${purchaseDocs.length} achats Libs.`);
 }
 
@@ -803,6 +810,7 @@ function finalizeTournament() {
     libs.set(pid, entry);
     dbUpsertLibs(pid, entry);
     _emitToPlayer(pid, 'libs-update', { balance: entry.balance, delta: tGain, nextAt: nextDistributionAt });
+    sendPush(pid, { title: '🏆 Champion de la semaine !', body: `Bravo ${best.name} : tu remportes le tournoi et ${tGain} Libs !`, url: 'https://libero-multi.vercel.app' });
   }
   tournament.champion = { name: best.name, pts: best.pts, week: tournament.week };
   tournament.week = null; tournament.scores = {};
@@ -878,6 +886,72 @@ const IQ_RETAKE_MS = 3 * 24 * 3600 * 1000; // 3 jours entre deux tests
 // et poids en pourcentage.
 const WHEEL_PRIZES  = [5, 10, 20, 50, 100, 250];
 const WHEEL_WEIGHTS = [30, 25, 20, 15, 8, 2];
+
+// ── Offre flash ───────────────────────────────────────────────────────────────
+// Un cosmetique en promo pendant quelques heures, gere depuis le dashboard.
+// Persiste dans server_config 'flash_offer' pour survivre aux redemarrages.
+let flashOffer = null; // { cosmeticId, discount (10-90), endsAt }
+function flashPayload() {
+  if (!flashOffer || flashOffer.endsAt <= Date.now()) return { offer: null };
+  const cosm = COSMETICS.find(c => c.id === flashOffer.cosmeticId);
+  if (!cosm) return { offer: null };
+  return { offer: {
+    cosmeticId: cosm.id, type: cosm.type, price: cosm.price,
+    flashPrice: flashPriceFor(cosm.id, cosm.price),
+    discount: flashOffer.discount, endsAt: flashOffer.endsAt,
+  } };
+}
+function flashPriceFor(cosmeticId, price) {
+  if (!flashOffer || flashOffer.endsAt <= Date.now() || flashOffer.cosmeticId !== cosmeticId) return price;
+  return Math.max(1, Math.round(price * (100 - flashOffer.discount) / 100));
+}
+function dbSaveFlashOffer() {
+  if (!db) return;
+  db.collection('server_config').updateOne({ _id: 'flash_offer' }, { $set: { value: flashOffer } }, { upsert: true }).catch(() => {});
+}
+
+// ── Journal d'audit admin ─────────────────────────────────────────────────────
+// Trace toutes les actions d'administration (cadeaux, restitutions,
+// suppressions, annonces, push...) avec date, en memoire + Mongo `admin_audit`.
+const adminAudits = []; // { at, action, details }
+function adminAudit(action, details = {}) {
+  const entry = { at: Date.now(), action, details };
+  adminAudits.unshift(entry);
+  if (adminAudits.length > 200) adminAudits.pop();
+  if (db) db.collection('admin_audit').insertOne({ ...entry }).catch(() => {});
+}
+
+// ── Notifications push (web-push) ────────────────────────────────────────────
+// Activees seulement si les cles VAPID sont dans l'environnement (Render).
+// Abonnements en memoire + Mongo `push_subs` (cle = playerId canonique).
+let webpush = null;
+const pushSubs = new Map(); // playerId -> subscription
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  try {
+    webpush = require('web-push');
+    webpush.setVapidDetails(
+      process.env.VAPID_SUBJECT || 'mailto:mohounkpevi@gmail.com',
+      process.env.VAPID_PUBLIC_KEY,
+      process.env.VAPID_PRIVATE_KEY
+    );
+    console.log('🔔 Notifications push activées.');
+  } catch (e) { console.error('web-push indisponible:', e.message); webpush = null; }
+}
+function sendPush(pid, payload) {
+  if (!webpush) return;
+  const body = JSON.stringify(payload);
+  const targets = pid ? [[pid, pushSubs.get(pid)]] : [...pushSubs.entries()];
+  for (const [id, sub] of targets) {
+    if (!sub) continue;
+    webpush.sendNotification(sub, body).catch(err => {
+      // Abonnement expire ou revoque : on le retire.
+      if (err.statusCode === 404 || err.statusCode === 410) {
+        pushSubs.delete(id);
+        if (db) db.collection('push_subs').deleteOne({ _id: id }).catch(() => {});
+      }
+    });
+  }
+}
 
 // Pass VIP : 30 jours, +20% sur les gains de Libs (serie, defis, roue, tournoi).
 const VIP_PRICE = 2000;
@@ -2752,6 +2826,21 @@ io.on('connection', (socket) => {
     });
   });
 
+  // ── Notifications push : abonnement / desabonnement ──────────────────────
+  socket.on('push-subscribe', ({ playerId, sub } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id || !sub || typeof sub.endpoint !== 'string' || !sub.endpoint.startsWith('https://')) return;
+    pushSubs.set(id, sub);
+    if (db) db.collection('push_subs').updateOne({ _id: id }, { $set: { sub, at: Date.now() } }, { upsert: true }).catch(() => {});
+    socket.emit('push-subscribed', { ok: true });
+  });
+  socket.on('push-unsubscribe', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    pushSubs.delete(id);
+    if (db) db.collection('push_subs').deleteOne({ _id: id }).catch(() => {});
+  });
+
   // ── Pass VIP : 30 jours, paye en Libs, +20% sur les gains ────────────────
   socket.on('buy-vip', ({ playerId } = {}) => {
     const id = safePlayerId(playerId);
@@ -2777,6 +2866,8 @@ io.on('connection', (socket) => {
   socket.on('get-shop-rotation', () => {
     socket.emit('shop-rotation', getShopRotation());
   });
+
+  socket.on('get-flash-offer', () => socket.emit('flash-offer', flashPayload()));
 
   socket.on('get-snake-vote', ({ playerId } = {}) => {
     const id = safePlayerId(playerId);
@@ -3020,8 +3111,9 @@ io.on('connection', (socket) => {
     if (!cosmetic) { socket.emit('buy-cosmetic-result', { ok: false, error: 'invalid' }); return; }
     if (cosmetic.honorary) { socket.emit('buy-cosmetic-result', { ok: false, error: 'honorary' }); return; }
     if (entry.ownedCosmetics.includes(cosmeticId)) { socket.emit('buy-cosmetic-result', { ok: false, error: 'already_owned' }); return; }
-    if (entry.balance < cosmetic.price) { socket.emit('buy-cosmetic-result', { ok: false, error: 'insufficient' }); return; }
-    entry.balance -= cosmetic.price;
+    const price = flashPriceFor(cosmeticId, cosmetic.price);
+    if (entry.balance < price) { socket.emit('buy-cosmetic-result', { ok: false, error: 'insufficient' }); return; }
+    entry.balance -= price;
     entry.ownedCosmetics.push(cosmeticId);
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
@@ -3487,6 +3579,7 @@ app.post('/admin/restore-player', (req, res) => {
   io.emit('luffy-leaderboard-update', getLuffyLeaderboardData());
   io.emit('global-leaderboard-update', getGlobalLeaderboardData());
   _emitToPlayer(pid, 'libs-update', { name: entry.name || '', balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
+  adminAudit('restore-player', { ref: String(req.body?.ref || '') });
   res.json({ ok: true, name, balance: entry.balance, owned: entry.ownedCosmetics.length });
 });
 
@@ -3529,6 +3622,7 @@ app.post('/admin/reset-restore', (req, res) => {
   io.emit('global-leaderboard-update', getGlobalLeaderboardData());
   const e2 = libs.get(pid);
   if (e2) _emitToPlayer(pid, 'libs-update', { name: e2.name || '', balance: e2.balance, pendingBoostHint: e2.pendingBoostHint, ownedCosmetics: e2.ownedCosmetics, ..._equippedPayload(e2), nextAt: nextDistributionAt });
+  adminAudit('reset-restore', { id: String(req.body?.id || ''), targetRef: String(req.body?.targetRef || '') });
   res.json({ ok: true, name, restoredTo: targetRef ? 'target' : 'original' });
 });
 
@@ -3675,6 +3769,20 @@ app.get('/admin/stats', async (req, res) => {
       })(),
       fraudAlerts: fraudAlerts.slice(0, 20),
       announcements: announcements.slice(0, 20).map(a => ({ id: a._id, text: a.text, textEn: a.textEn || '', at: a.at })),
+      audit: adminAudits.slice(0, 50),
+      pushSubscribers: pushSubs.size,
+      flashOffer: flashPayload().offer,
+      // Joueurs qui decrochent : actifs autrefois, silencieux depuis 7 jours ou plus.
+      inactive7: (() => {
+        const now = Date.now();
+        const out = [];
+        for (const [pid, e] of libs.entries()) {
+          if (!e.name || e.name === 'Anonyme' || !(e.history || []).length) continue;
+          const days = Math.floor((now - (e.lastActive || 0)) / 86_400_000);
+          if (days >= 7) out.push({ ref: _playerRef(pid), name: e.name, days, balance: e.balance || 0 });
+        }
+        return out.sort((a, b) => a.days - b.days).slice(0, 30);
+      })(),
       players,
       comments: commentsPayload,
       purchases: recentPurchases,
@@ -3980,6 +4088,47 @@ app.get('/admin/comments', (req, res) => {
 app.get('/api/announcements', (req, res) => {
   res.json({ announcements: announcements.slice(0, 5).map(a => ({ id: a._id, text: a.text, textEn: a.textEn || '', at: a.at })) });
 });
+// Admin : lancer / retirer une offre flash (promo courte sur un cosmetique).
+app.post('/admin/flash', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const { cosmeticId, discount, hours } = req.body || {};
+  const cosm = COSMETICS.find(c => c.id === String(cosmeticId) && !c.honorary && c.price > 0);
+  if (!cosm) return res.status(400).json({ error: 'Cosmétique inconnu ou gratuit : ' + cosmeticId });
+  const disc = Math.max(10, Math.min(90, Math.floor(Number(discount) || 50)));
+  const hrs  = Math.max(1, Math.min(72, Math.floor(Number(hours) || 2)));
+  flashOffer = { cosmeticId: cosm.id, discount: disc, endsAt: Date.now() + hrs * 3_600_000 };
+  dbSaveFlashOffer();
+  io.emit('flash-offer', flashPayload());
+  sendPush(null, { title: '⚡ Offre flash !', body: `-${disc}% sur un cosmétique pendant ${hrs}h dans la boutique !`, url: 'https://libero-multi.vercel.app' });
+  adminAudit('flash-offer', { cosmeticId: cosm.id, discount: disc, hours: hrs });
+  res.json({ ok: true, offer: flashPayload().offer });
+});
+app.delete('/admin/flash', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  flashOffer = null;
+  dbSaveFlashOffer();
+  io.emit('flash-offer', { offer: null });
+  adminAudit('flash-offer-clear', {});
+  res.json({ ok: true });
+});
+
+// Cle publique VAPID pour l'abonnement push cote client.
+app.get('/api/push-key', (req, res) => {
+  res.json({ key: webpush ? process.env.VAPID_PUBLIC_KEY : null });
+});
+
+// Admin : notification push manuelle a tous les abonnes.
+app.post('/admin/push', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  if (!webpush) return res.status(503).json({ error: 'Push non configuré (clés VAPID manquantes).' });
+  const title = String(req.body?.title || '').trim().slice(0, 80);
+  const body  = String(req.body?.body || '').trim().slice(0, 200);
+  if (!title && !body) return res.status(400).json({ error: 'Titre ou texte requis.' });
+  sendPush(null, { title: title || "Libero's Multi", body, url: 'https://libero-multi.vercel.app' });
+  adminAudit('push', { title, body });
+  res.json({ ok: true, subscribers: pushSubs.size });
+});
+
 app.post('/admin/announce', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   const text   = String(req.body?.text || '').trim().slice(0, 300);
@@ -3999,6 +4148,7 @@ app.post('/admin/announce', (req, res) => {
   if (announcements.length > 20) announcements.pop();
   if (db) db.collection('announcements').insertOne({ ...a }).catch(() => {});
   io.emit('announcements-update', { announcements: announcements.slice(0, 5).map(x => ({ id: x._id, text: x.text, textEn: x.textEn || '', at: x.at })) });
+  sendPush(null, { title: '📣 Libero\'s Multi', body: text.slice(0, 180), url: 'https://libero-multi.vercel.app' });
   res.json({ ok: true, id: a._id });
 });
 app.delete('/admin/announce/:id', (req, res) => {
@@ -4030,6 +4180,7 @@ app.post('/admin/gift', (req, res) => {
   libs.set(pid, entry);
   dbUpsertLibs(pid, entry);
   _emitToPlayer(pid, 'libs-update', { balance: entry.balance, delta: amount || undefined, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
+  adminAudit('gift', { ref: String(ref || ''), libs: amount, cosmeticId: grantedCosmetic });
   res.json({ ok: true, name: entry.name || 'Anonyme', balance: entry.balance, grantedCosmetic });
 });
 
