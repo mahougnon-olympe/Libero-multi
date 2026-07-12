@@ -553,12 +553,14 @@ const DICT = {
     dcDisconnectedMsg:'L\'adversaire a quitté la partie.',
     btnBackHome:'Retour à l\'accueil', backLabel:'Retour',
     promoTitle:'Promouvoir le pion',
-    games:{ connect4:'Puissance 4', tictactoe:'Tic Tac Toe', chess:'Échecs', checkers:'Dames' },
+    games:{ connect4:'Puissance 4', tictactoe:'Tic Tac Toe', chess:'Échecs', checkers:'Dames', ludo:'Ludo' },
+    ludoRoll:'🎲 Lancer le dé', ludoDice:d=>`🎲 Dé : ${d}`, ludoNoMove:'Aucun coup possible, le tour passe.',
     playerNames:{
       connect4:{ R:'Rouge', Y:'Jaune' },
       tictactoe:{ R:'Croix', Y:'Rond' },
       chess:{ R:'Blancs', Y:'Noirs' },
       checkers:{ R:'Rouge', Y:'Jaune' },
+      ludo:{ R:'Rouge', Y:'Jaune' },
     },
     errNoGame:'Choisis d\'abord un jeu.',
     restartRequestedPrompt:'Ton adversaire veut rejouer.',
@@ -950,6 +952,8 @@ const DICT = {
       { id:12, name:'Musique',    icon:'🎵' }, { id:14, name:'Télévision', icon:'📺' },
       { id:19, name:'Maths',      icon:'🔢' }, { id:20, name:'Info',       icon:'💻' },
       { id:25, name:'Arts',       icon:'🎨' }, { id:27, name:'Animaux',    icon:'🐾' },
+      { id:30, name:'SVT',        icon:'🌱' }, { id:31, name:'Anglais',    icon:'🇬🇧' },
+      { id:32, name:'Bénin',      icon:'🇧🇯' },
     ],
     tutoSteps:{
       landing_news:'📰 Le cadre <strong>News</strong> est replié dans le coin <strong>en haut à gauche</strong>. <strong>Clique dessus</strong> pour l\'ouvrir : il affiche les dernières actualités, nouvelles fonctionnalités, annonces et commentaires de joueurs. Reclique pour le refermer.',
@@ -1172,12 +1176,14 @@ const DICT = {
     dcDisconnectedMsg:'Your opponent left the game.',
     btnBackHome:'Back to home', backLabel:'Back',
     promoTitle:'Promote pawn',
-    games:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', checkers:'Checkers' },
+    games:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', checkers:'Checkers', ludo:'Ludo' },
+    ludoRoll:'🎲 Roll the dice', ludoDice:d=>`🎲 Dice: ${d}`, ludoNoMove:'No possible move, turn passes.',
     playerNames:{
       connect4:{ R:'Red', Y:'Yellow' },
       tictactoe:{ R:'Cross', Y:'Circle' },
       chess:{ R:'White', Y:'Black' },
       checkers:{ R:'Red', Y:'Yellow' },
+      ludo:{ R:'Red', Y:'Yellow' },
     },
     errNoGame:'Choose a game first.',
     restartRequestedPrompt:'Your opponent wants a rematch.',
@@ -1569,6 +1575,8 @@ const DICT = {
       { id:12, name:'Music',     icon:'🎵' }, { id:14, name:'TV',        icon:'📺' },
       { id:19, name:'Maths',     icon:'🔢' }, { id:20, name:'Computing', icon:'💻' },
       { id:25, name:'Arts',      icon:'🎨' }, { id:27, name:'Animals',   icon:'🐾' },
+      { id:30, name:'Biology',   icon:'🌱' }, { id:31, name:'English',   icon:'🇬🇧' },
+      { id:32, name:'Benin',     icon:'🇧🇯' },
     ],
     tutoSteps:{
       landing_news:'📰 The <strong>News</strong> card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the latest news, updates, announcements and player comments. Click again to close it.',
@@ -1804,6 +1812,7 @@ function applyLang() {
   const gntt = $('gn-tictactoe'); if (gntt) gntt.textContent = d.games.tictactoe;
   const gnch = $('gn-chess');     if (gnch) gnch.textContent = d.games.chess;
   const gnck = $('gn-checkers');  if (gnck) gnck.textContent = d.games.checkers;
+  const gnld = $('gn-ludo');      if (gnld) gnld.textContent = d.games.ludo;
   const bcw = $('btn-cancel-wait');   if (bcw) bcw.textContent = d.btnCancel;
   const bra = $('btn-restart-accept'); if (bra) bra.textContent = d.btnAccept;
   const brf = $('btn-restart-refuse'); if (brf) brf.textContent = d.btnRefuse;
@@ -2166,6 +2175,7 @@ const PLAYER_ICONS = {
   tictactoe: { R: '✕',  Y: '○' },
   chess:     { R: '♔',  Y: '♚' },
   checkers:  { R: '🔴', Y: '🟡' },
+  ludo:      { R: '🔴', Y: '🟡' },
 };
 
 // ── Landing ───────────────────────────────────────────────────────────────────
@@ -2458,6 +2468,7 @@ function buildGameBoard(gameType, state, yourPlayer) {
     case 'tictactoe': buildTTT(area, state.board);      break;
     case 'chess':     buildChess(area, state, yourPlayer); break;
     case 'checkers':  buildCheckers(area, state, yourPlayer); break;
+    case 'ludo':      buildLudo(area, state); break;
   }
 }
 
@@ -2467,6 +2478,7 @@ function updateGameBoard(gameType, state) {
     case 'tictactoe': updateTTT(state.board, state.winLine);                break;
     case 'chess':     updateChess(state.fen, state.isCheck, state.currentPlayer); break;
     case 'checkers':  updateCheckers(state);                                break;
+    case 'ludo':      updateLudo(state);                                    break;
   }
 }
 
@@ -2888,6 +2900,176 @@ function onCheckersClick(i) {
   selectedSquare = i;
   document.querySelector(`.ck-sq[data-idx="${i}"]`)?.classList.add('selected');
   socket.emit('get-moves', { square: i });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LUDO (1 contre 1 : rouge en bas a gauche, jaune en haut a droite)
+// ══════════════════════════════════════════════════════════════════════════════
+// Piste absolue de 52 cases : memes conventions que le serveur (R entre en 0,
+// Y en 26, cases etoilees sans capture). Coordonnees (ligne, colonne) sur 15x15.
+const LUDO_TRACK = (() => {
+  const t = [];
+  for (let r = 13; r >= 9; r--) t.push([r, 6]);   // 0-4
+  for (let c = 5; c >= 0; c--)  t.push([8, c]);   // 5-10
+  t.push([7, 0]);                                  // 11
+  for (let c = 0; c <= 5; c++)  t.push([6, c]);   // 12-17
+  for (let r = 5; r >= 0; r--)  t.push([r, 6]);   // 18-23
+  t.push([0, 7]);                                  // 24
+  for (let r = 0; r <= 5; r++)  t.push([r, 8]);   // 25-30
+  for (let c = 9; c <= 14; c++) t.push([6, c]);   // 31-36
+  t.push([7, 14]);                                 // 37
+  for (let c = 14; c >= 9; c--) t.push([8, c]);   // 38-43
+  for (let r = 9; r <= 14; r++) t.push([r, 8]);   // 44-49
+  t.push([14, 7]);                                 // 50
+  t.push([14, 6]);                                 // 51
+  return t;
+})();
+const LUDO_SAFE = new Set([0, 8, 13, 21, 26, 34, 39, 47]);
+const LUDO_START = { R: 0, Y: 26 };
+// Colonnes d'arrivee (rel 52-56) : R monte la colonne 7, Y la descend.
+const LUDO_HOME = {
+  R: [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7]],
+  Y: [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7]],
+};
+// Emplacements des 4 pions en base.
+const LUDO_BASE = {
+  R: [[10, 1], [10, 3], [12, 1], [12, 3]],
+  Y: [[2, 11], [2, 13], [4, 11], [4, 13]],
+};
+let ludoState = null;
+
+function ludoAbs(player, rel) {
+  return (rel >= 0 && rel < 52) ? (LUDO_START[player] + rel) % 52 : null;
+}
+function ludoPlayable(state, player) {
+  if (!state.dice) return [];
+  const out = [];
+  state.pawns[player].forEach((pos, i) => {
+    if (pos === 57) return;
+    if (pos === -1) { if (state.dice === 6) out.push(i); return; }
+    if (pos + state.dice <= 57) out.push(i);
+  });
+  return out;
+}
+function ludoCellCoord(player, pos, pawnIdx) {
+  if (pos === -1) return LUDO_BASE[player][pawnIdx];
+  if (pos >= 57) return [7, 7];
+  if (pos >= 52) return LUDO_HOME[player][pos - 52];
+  return LUDO_TRACK[ludoAbs(player, pos)];
+}
+
+function buildLudo(container, state) {
+  const wrap = document.createElement('div');
+  wrap.className = 'ludo-wrap';
+  const boardEl = document.createElement('div');
+  boardEl.id = 'ludo-board';
+  boardEl.className = 'ludo-board';
+  // Zones de base et centre
+  const zones = [
+    { cls: 'ludo-basezone ludo-r', r: 10, c: 1, rs: 5, cs: 5 },
+    { cls: 'ludo-basezone ludo-y', r: 1, c: 10, rs: 5, cs: 5 },
+    { cls: 'ludo-center', r: 7, c: 7, rs: 3, cs: 3 },
+  ];
+  zones.forEach(z => {
+    const el = document.createElement('div');
+    el.className = z.cls;
+    el.style.gridArea = `${z.r} / ${z.c} / span ${z.rs} / span ${z.cs}`;
+    if (z.cls === 'ludo-center') { el.id = 'ludo-center'; el.textContent = '🏁'; }
+    boardEl.appendChild(el);
+  });
+  // Piste
+  LUDO_TRACK.forEach(([r, c], abs) => {
+    const cell = document.createElement('div');
+    cell.className = 'ludo-cell';
+    if (LUDO_SAFE.has(abs)) cell.classList.add('safe');
+    if (abs === LUDO_START.R) cell.classList.add('start-r');
+    if (abs === LUDO_START.Y) cell.classList.add('start-y');
+    cell.dataset.abs = abs;
+    cell.style.gridArea = `${r + 1} / ${c + 1}`;
+    if (LUDO_SAFE.has(abs)) cell.textContent = '★';
+    boardEl.appendChild(cell);
+  });
+  // Colonnes d'arrivee
+  for (const pl of ['R', 'Y']) {
+    LUDO_HOME[pl].forEach(([r, c], i) => {
+      const cell = document.createElement('div');
+      cell.className = `ludo-cell home ${pl === 'R' ? 'home-r' : 'home-y'}`;
+      cell.dataset.home = `${pl}${i}`;
+      cell.style.gridArea = `${r + 1} / ${c + 1}`;
+      boardEl.appendChild(cell);
+    });
+  }
+  // Emplacements de base
+  for (const pl of ['R', 'Y']) {
+    LUDO_BASE[pl].forEach(([r, c], i) => {
+      const slot = document.createElement('div');
+      slot.className = 'ludo-baseslot';
+      slot.dataset.base = `${pl}${i}`;
+      slot.style.gridArea = `${r + 1} / ${c + 1}`;
+      boardEl.appendChild(slot);
+    });
+  }
+  // Couche des pions (au-dessus des cases)
+  const pawnLayer = document.createElement('div');
+  pawnLayer.id = 'ludo-pawns';
+  pawnLayer.className = 'ludo-pawns';
+  boardEl.appendChild(pawnLayer);
+  wrap.appendChild(boardEl);
+  // Barre de de
+  const bar = document.createElement('div');
+  bar.className = 'ludo-bar';
+  bar.innerHTML = `<button id="ludo-roll" class="btn btn-primary">${t().ludoRoll}</button><span id="ludo-dice" class="ludo-dice"></span>`;
+  wrap.appendChild(bar);
+  container.appendChild(wrap);
+  document.getElementById('ludo-roll').addEventListener('click', () => {
+    if (!gameActive || !ludoState || ludoState.currentPlayer !== myPlayer || ludoState.dice) return;
+    SFX.placePiece();
+    socket.emit('make-move', { roll: true });
+  });
+  updateLudo(state);
+}
+
+const LUDO_DICE_FACES = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+function updateLudo(state) {
+  ludoState = state;
+  const layer = document.getElementById('ludo-pawns');
+  if (!layer) return;
+  layer.innerHTML = '';
+  // Note : updateLudo est appele AVANT updateTurnUI sur game-update, donc on
+  // lit le tour dans l'etat (currentTurnPlayer serait en retard d'un coup).
+  const myTurn = state.currentPlayer === myPlayer;
+  const playable = (myTurn && state.dice) ? ludoPlayable(state, myPlayer) : [];
+  for (const pl of ['R', 'Y']) {
+    state.pawns[pl].forEach((pos, i) => {
+      const [r, c] = ludoCellCoord(pl, pos, i);
+      const pawn = document.createElement('button');
+      pawn.className = `ludo-pawn ${pl === 'R' ? 'p-r' : 'p-y'}`;
+      if (pl === myPlayer && playable.includes(i)) pawn.classList.add('can-play');
+      if (state.lastMove && state.lastMove.player === pl && state.lastMove.pawn === i) pawn.classList.add('just-moved');
+      pawn.style.setProperty('--lr', r);
+      pawn.style.setProperty('--lc', c);
+      // Decalage leger quand plusieurs pions partagent une case
+      const stackIdx = state.pawns[pl].slice(0, i).filter(p => p === pos && pos !== -1).length;
+      pawn.style.setProperty('--stack', stackIdx);
+      if (pl === myPlayer) pawn.addEventListener('click', () => onLudoPawnClick(i));
+      layer.appendChild(pawn);
+    });
+  }
+  const rollBtn = document.getElementById('ludo-roll');
+  const diceEl  = document.getElementById('ludo-dice');
+  if (rollBtn) {
+    rollBtn.textContent = t().ludoRoll;
+    rollBtn.disabled = !(myTurn && !state.dice);
+    rollBtn.classList.toggle('pulse', myTurn && !state.dice);
+  }
+  if (diceEl) diceEl.textContent = state.lastDice ? `${LUDO_DICE_FACES[state.lastDice]} ${state.lastDice}` : '';
+}
+
+function onLudoPawnClick(i) {
+  if (!gameActive || !ludoState || ludoState.currentPlayer !== myPlayer || !ludoState.dice) return;
+  if (!ludoPlayable(ludoState, myPlayer).includes(i)) return;
+  SFX.placePiece();
+  socket.emit('make-move', { pawn: i });
 }
 
 // ── Promotion du pion ─────────────────────────────────────────────────────────

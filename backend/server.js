@@ -10,6 +10,7 @@ const connect4   = require('./game');
 const tictactoe  = require('./game-tictactoe');
 const chessGame  = require('./game-chess');
 const checkers   = require('./game-checkers');
+const ludo       = require('./game-ludo');
 const triviaGame = require('./game-trivia');
 const bots       = require('./game-bots');
 
@@ -1406,13 +1407,14 @@ function distributeLibs() {
 const CODE_CHARS   = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const RECONNECT_MS        = 30_000;
 const TRIVIA_RECONNECT_MS = 20_000;
-const VALID_GAMES  = new Set(['connect4', 'tictactoe', 'chess', 'checkers']);
+const VALID_GAMES  = new Set(['connect4', 'tictactoe', 'chess', 'checkers', 'ludo']);
 
 const TRIVIA_CATEGORIES = {
   9: 'Culture Générale', 23: 'Histoire',       22: 'Géographie',
   17: 'Sciences',        21: 'Sports',          11: 'Cinéma',
   12: 'Musique',         14: 'Télévision',      19: 'Mathématiques',
   20: 'Informatique',    25: 'Arts',            27: 'Animaux',
+  30: 'SVT',             31: 'Anglais',         32: 'Bénin',
 };
 const TRIVIA_COLORS = ['#2563eb','#dc2626','#16a34a','#9333ea','#ea580c','#0891b2'];
 const TRIVIA_Q_COUNT = 10;
@@ -1436,6 +1438,7 @@ function createInitialState(gameType) {
     case 'tictactoe': return tictactoe.createState();
     case 'chess':     return chessGame.createState();
     case 'checkers':  return checkers.createState();
+    case 'ludo':      return ludo.createState();
   }
 }
 
@@ -1783,6 +1786,15 @@ function scheduleBotMove(code) {
         status = res.status; winner = res.winner;
         break;
       }
+      case 'ludo': {
+        const move = ludo.botMove(room.state, diff);
+        if (!move) return;
+        const res = ludo.applyMove(room.state, move);
+        if (!res) return;
+        newState = res.state;
+        status = res.status; winner = res.winner;
+        break;
+      }
       default: return;
     }
 
@@ -2086,6 +2098,15 @@ io.on('connection', (socket) => {
         const result = checkers.applyMove(room.state, move);
         if (!result) return;
         newState = { board: result.board, currentPlayer: result.currentPlayer, mustFrom: result.mustFrom, lastMove: result.lastMove };
+        status   = result.status;
+        winner   = result.winner;
+        break;
+      }
+
+      case 'ludo': {
+        const result = ludo.applyMove(room.state, move);
+        if (!result) return;
+        newState = result.state;
         status   = result.status;
         winner   = result.winner;
         break;
