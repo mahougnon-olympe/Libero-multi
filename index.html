@@ -855,6 +855,17 @@
           </div>
         </div>
 
+        <!-- Niveau et XP -->
+        <div id="level-banner" class="level-banner">
+          <span class="level-badge" id="level-badge">⭐ 1</span>
+          <div class="level-texts">
+            <p id="level-main" class="level-main"></p>
+            <div class="level-bar"><div id="level-bar-fill" class="level-bar-fill"></div></div>
+            <p id="level-sub" class="level-sub"></p>
+          </div>
+          <span id="vip-badge" class="vip-badge hidden">👑 VIP</span>
+        </div>
+
         <!-- Cartes de navigation (en haut, les défis sont en bas) -->
         <button type="button" class="profile-nav-card" id="go-locker">
           <span class="pnc-icon">🎒</span>
@@ -874,6 +885,26 @@
         <button type="button" class="profile-nav-card" id="go-referral">
           <span class="pnc-icon">🤝</span>
           <span class="pnc-text"><span id="referral-card-title">Inviter un ami</span><small id="referral-card-sub">+100 ⚡ pour toi et pour lui</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
+        <button type="button" class="profile-nav-card" id="go-friends">
+          <span class="pnc-icon">👥</span>
+          <span class="pnc-text"><span id="friends-card-title">Mes amis</span><small id="friends-card-sub">Vois qui est en ligne et défie-les</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
+        <button type="button" class="profile-nav-card" id="go-wheel">
+          <span class="pnc-icon">🎡</span>
+          <span class="pnc-text"><span id="wheel-card-title">Roue de la fortune</span><small id="wheel-card-sub">1 tour gratuit par jour, jusqu'à 250 ⚡</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
+        <button type="button" class="profile-nav-card" id="go-iq">
+          <span class="pnc-icon">🧠</span>
+          <span class="pnc-text"><span id="iq-card-title">Mon QI</span><small id="iq-card-sub"></small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
+        <button type="button" class="profile-nav-card" id="go-vip">
+          <span class="pnc-icon">👑</span>
+          <span class="pnc-text"><span id="vip-card-title">Pass VIP</span><small id="vip-card-sub">+20% de Libs sur tes gains pendant 30 jours</small></span>
           <span class="pnc-arrow">›</span>
         </button>
         <button type="button" class="profile-nav-card" id="go-emotes">
@@ -969,6 +1000,86 @@
         </div>
         <button id="btn-referral-share" class="btn btn-primary recovery-reset-btn">Partager le lien</button>
         <p id="referral-count" class="recovery-warn"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal : Roue de la fortune ── -->
+  <div id="overlay-wheel" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="wheel-title" class="profile-modal-title">🎡 Roue de la fortune</h2>
+        <button id="btn-wheel-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body wheel-body">
+        <p id="wheel-intro" class="recovery-intro">Un tour gratuit par jour. Tente ta chance !</p>
+        <div class="wheel-wrap">
+          <div class="wheel-pointer">▼</div>
+          <div id="wheel-disc" class="wheel-disc"></div>
+        </div>
+        <button id="btn-wheel-spin" class="btn btn-primary recovery-reset-btn">🎡 Tourner la roue</button>
+        <p id="wheel-status" class="recovery-warn"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal : Mes amis ── -->
+  <div id="overlay-friends" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="friends-title" class="profile-modal-title">👥 Mes amis</h2>
+        <button id="btn-friends-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <p id="friends-intro" class="recovery-intro">Ajoute un ami avec son code d'invitation (dans « Inviter un ami » de son profil), vois s'il est en ligne et défie-le en un clic.</p>
+        <div class="recovery-code-row">
+          <input id="friend-code-input" class="recovery-input" type="text" maxlength="8" placeholder="Code ami (8 caractères)" />
+          <button id="btn-friend-add" class="btn btn-secondary">Ajouter</button>
+        </div>
+        <div id="friends-list" class="friends-list"></div>
+        <p id="friends-status" class="recovery-warn"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal : Test de QI ── -->
+  <div id="overlay-iq" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="iq-title" class="profile-modal-title">🧠 Test de QI</h2>
+        <button id="btn-iq-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <div id="iq-intro-view">
+          <p id="iq-intro" class="recovery-intro"></p>
+          <button id="btn-iq-start" class="btn btn-primary recovery-reset-btn">🧠 Commencer le test</button>
+        </div>
+        <div id="iq-test-view" class="hidden">
+          <div class="iq-head"><span id="iq-progress"></span><span id="iq-timer" class="iq-timer"></span></div>
+          <p id="iq-question" class="iq-question"></p>
+          <div id="iq-choices" class="iq-choices"></div>
+        </div>
+        <div id="iq-result-view" class="hidden">
+          <p id="iq-result-value" class="iq-result-value"></p>
+          <p id="iq-result-note" class="recovery-warn"></p>
+          <button id="btn-iq-share" class="btn btn-primary recovery-reset-btn">📣 Partager</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal : Pass VIP ── -->
+  <div id="overlay-vip" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="vip-title" class="profile-modal-title">👑 Pass VIP</h2>
+        <button id="btn-vip-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <p id="vip-intro" class="recovery-intro"></p>
+        <ul id="vip-perks" class="vip-perks"></ul>
+        <button id="btn-vip-buy" class="btn btn-primary recovery-reset-btn"></button>
+        <p id="vip-status" class="recovery-warn"></p>
       </div>
     </div>
   </div>

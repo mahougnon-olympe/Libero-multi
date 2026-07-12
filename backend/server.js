@@ -396,7 +396,7 @@ async function loadData() {
   });
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   llbDocs.forEach(d => luffyLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, history: Array.isArray(d.history) ? d.history : [] }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, xp: d.xp || 0, iq: d.iq ?? null, iqAt: d.iqAt || 0, wheelDay: d.wheelDay || null, friends: Array.isArray(d.friends) ? d.friends : [], vipUntil: d.vipUntil || 0, history: Array.isArray(d.history) ? d.history : [] }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   feedDocs.forEach(d => feedVideos.push({ _id: d._id, url: d.url, titre: d.titre || '', ordre: d.ordre || 0, actif: d.actif !== false, createdAt: d.createdAt || Date.now() }));
@@ -559,7 +559,7 @@ function dbUpsertLibsPurchase(cartId, purchase) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], referredBy: entry.referredBy || null, referralRewarded: !!entry.referralRewarded, referrals: entry.referrals || 0, history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [] } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], referredBy: entry.referredBy || null, referralRewarded: !!entry.referralRewarded, referrals: entry.referrals || 0, xp: entry.xp || 0, iq: entry.iq ?? null, iqAt: entry.iqAt || 0, wheelDay: entry.wheelDay || null, friends: entry.friends || [], vipUntil: entry.vipUntil || 0, history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [] } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -797,10 +797,11 @@ function finalizeTournament() {
   const [pid, best] = entries.sort((a, b) => b[1].pts - a[1].pts)[0];
   const entry = getLibsEntry(pid);
   if (entry) {
-    entry.balance = Math.min(MAX_BALANCE, entry.balance + TOURNAMENT_REWARD);
+    const tGain = Math.round(TOURNAMENT_REWARD * vipMult(entry));
+    entry.balance = Math.min(MAX_BALANCE, entry.balance + tGain);
     libs.set(pid, entry);
     dbUpsertLibs(pid, entry);
-    _emitToPlayer(pid, 'libs-update', { balance: entry.balance, delta: TOURNAMENT_REWARD, nextAt: nextDistributionAt });
+    _emitToPlayer(pid, 'libs-update', { balance: entry.balance, delta: tGain, nextAt: nextDistributionAt });
   }
   tournament.champion = { name: best.name, pts: best.pts, week: tournament.week };
   tournament.week = null; tournament.scores = {};
@@ -864,11 +865,57 @@ function maybeRewardReferral(id, entry) {
   }
 }
 
+// ── Niveaux et XP ────────────────────────────────────────────────────────────
+// Courbe : niveau = 1 + racine(xp/100). Niveau 2 a 100 XP, 5 a 1600, 10 a 8100,
+// 25 a 57600, 50 a 240100. Chaque niveau gagne rapporte 20 x niveau Libs, et les
+// paliers 10/25/50 ajoutent un gros bonus.
+const XP_MILESTONE_BONUS = { 10: 500, 25: 1500, 50: 5000 };
+const IQ_UNLOCK_QUIZZES = 10;              // quiz termines pour debloquer le test de QI
+const IQ_RETAKE_MS = 3 * 24 * 3600 * 1000; // 3 jours entre deux tests
+
+// Roue de la fortune : lots (dans l'ordre des cases de la roue cote client)
+// et poids en pourcentage.
+const WHEEL_PRIZES  = [5, 10, 20, 50, 100, 250];
+const WHEEL_WEIGHTS = [30, 25, 20, 15, 8, 2];
+
+// Pass VIP : 30 jours, +20% sur les gains de Libs (serie, defis, roue, tournoi).
+const VIP_PRICE = 2000;
+const VIP_DURATION_MS = 30 * 24 * 3600 * 1000;
+function vipMult(entry) { return (entry && entry.vipUntil > Date.now()) ? 1.2 : 1; }
+
+// Liste d'amis : projection publique (jamais les playerId secrets, uniquement
+// le code public 8 hex, le pseudo, le niveau et la presence).
+function friendsPayload(entry) {
+  const online = new Set(socketPlayerIds.values());
+  const friends = (entry.friends || []).map(pid => {
+    const f = libs.get(pid);
+    if (!f || !f.name || f.name === 'Anonyme') return null;
+    return { ref: _playerRef(pid).slice(0, 8), name: f.name, level: levelFromXp(f.xp || 0), online: online.has(pid) };
+  }).filter(Boolean);
+  return { friends };
+}
+function levelFromXp(xp) { return 1 + Math.floor(Math.sqrt(Math.max(0, xp) / 100)); }
+function awardXp(id, entry, amount) {
+  if (!id || !entry || !(amount > 0)) return;
+  const before = levelFromXp(entry.xp || 0);
+  entry.xp = (entry.xp || 0) + Math.floor(amount);
+  const after = levelFromXp(entry.xp);
+  let reward = 0;
+  if (after > before) {
+    for (let lv = before + 1; lv <= after; lv++) reward += lv * 20 + (XP_MILESTONE_BONUS[lv] || 0);
+    entry.balance = Math.min(MAX_BALANCE, entry.balance + reward);
+    _emitToPlayer(id, 'libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: reward, nextAt: nextDistributionAt });
+  }
+  _emitToPlayer(id, 'xp-update', { xp: entry.xp, level: after, gained: Math.floor(amount), levelUp: after > before ? after : null, reward: reward || undefined });
+}
+
 function pushHistory(id, item) {
   if (!id) return;
   const entry = getLibsEntry(id);
   if (!entry || !entry.name || entry.name === 'Anonyme') return;
   maybeRewardReferral(id, entry); // 1re partie d'un filleul -> +100 ⚡ chacun
+  // XP : chaque partie en rapporte, gagner ou briller au quiz en rapporte plus.
+  awardXp(id, entry, 25 + (item.result === 'win' ? 25 : 0) + (item.game === 'trivia' ? Math.min(60, (item.score || 0) * 2) : 0));
   if (!Array.isArray(entry.history)) entry.history = [];
   entry.history.unshift({ game: item.game, result: item.result || null, score: item.score ?? null, at: Date.now() });
   entry.history = entry.history.slice(0, 20);
@@ -1237,9 +1284,15 @@ function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null, streak: null, challenges: null, lifetime: {}, permClaimed: [], referredBy: null, referralRewarded: false, referrals: 0, history: [] };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null, streak: null, challenges: null, lifetime: {}, permClaimed: [], referredBy: null, referralRewarded: false, referrals: 0, xp: 0, iq: null, iqAt: 0, wheelDay: null, friends: [], vipUntil: 0, history: [] };
     libs.set(id, entry);
   }
+  if (typeof entry.xp !== 'number') entry.xp = 0;
+  if (!('iq' in entry)) entry.iq = null;
+  if (!('iqAt' in entry)) entry.iqAt = 0;
+  if (!('wheelDay' in entry)) entry.wheelDay = null;
+  if (!Array.isArray(entry.friends)) entry.friends = [];
+  if (typeof entry.vipUntil !== 'number') entry.vipUntil = 0;
   if (!entry.usedCodes)          entry.usedCodes          = [];
   if (!entry.ownedCosmetics)     entry.ownedCosmetics     = [];
   FREE_COSMETICS.forEach(c => { if (!entry.ownedCosmetics.includes(c)) entry.ownedCosmetics.push(c); });
@@ -2463,12 +2516,13 @@ io.on('connection', (socket) => {
       if ((lt[permDef.metric] || 0) < permDef.goal) { socket.emit('claim-challenge-result', { ok: false, error: 'not_done' }); return; }
       if (entry.permClaimed.includes(permDef.id)) { socket.emit('claim-challenge-result', { ok: false, error: 'already' }); return; }
       entry.permClaimed.push(permDef.id);
-      entry.balance = Math.min(MAX_BALANCE, entry.balance + permDef.reward);
+      const permGain = Math.round(permDef.reward * vipMult(entry));
+      entry.balance = Math.min(MAX_BALANCE, entry.balance + permGain);
       libs.set(id, entry);
       dbUpsertLibs(id, entry);
-      socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: permDef.reward, nextAt: nextDistributionAt });
+      socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: permGain, nextAt: nextDistributionAt });
       socket.emit('challenges-update', { challenges: challengesPayload(entry), permanent: permanentPayload(entry) });
-      socket.emit('claim-challenge-result', { ok: true, challengeId, reward: permDef.reward, allDoneBonus: 0 });
+      socket.emit('claim-challenge-result', { ok: true, challengeId, reward: permGain, allDoneBonus: 0 });
       return;
     }
 
@@ -2482,12 +2536,13 @@ io.on('connection', (socket) => {
     const todays  = activeChallenges();
     const allDone = todays.every(ch => c.claimed.includes(ch.id));
     const bonus   = allDone ? CHALLENGE_ALL_DONE_BONUS : 0;
-    entry.balance = Math.min(MAX_BALANCE, entry.balance + def.reward + bonus);
+    const dayGain = Math.round((def.reward + bonus) * vipMult(entry));
+    entry.balance = Math.min(MAX_BALANCE, entry.balance + dayGain);
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
-    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: def.reward + bonus, nextAt: nextDistributionAt });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: dayGain, nextAt: nextDistributionAt });
     socket.emit('challenges-update', { challenges: challengesPayload(entry), permanent: permanentPayload(entry) });
-    socket.emit('claim-challenge-result', { ok: true, challengeId, reward: def.reward, allDoneBonus: bonus });
+    socket.emit('claim-challenge-result', { ok: true, challengeId, reward: Math.round(def.reward * vipMult(entry)), allDoneBonus: bonus });
   });
 
   // ── Historique des parties ────────────────────────────────────────────────
@@ -2550,17 +2605,17 @@ io.on('connection', (socket) => {
     let streakBonus = 0;
     if (entry.name && entry.name !== 'Anonyme') {
       const { streak, bonus } = touchStreak(entry);
-      streakBonus = bonus;
-      if (bonus > 0) {
-        entry.balance = Math.min(MAX_BALANCE, entry.balance + bonus);
+      streakBonus = Math.round(bonus * vipMult(entry));
+      if (streakBonus > 0) {
+        entry.balance = Math.min(MAX_BALANCE, entry.balance + streakBonus);
         libs.set(id, entry);
       }
       dbUpsertLibs(id, entry);
-      socket.emit('streak-update', { count: streak.count, longest: streak.longest, bonus });
+      socket.emit('streak-update', { count: streak.count, longest: streak.longest, bonus: streakBonus });
     }
 
     const { available: refundCards, nextRefill: refundCardsNextRefill } = getRefundCardsInfo(entry);
-    socket.emit('libs-update', { name: entry.name || '', refCode: _playerRef(id).slice(0, 8), referrals: entry.referrals || 0, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, delta: streakBonus || undefined });
+    socket.emit('libs-update', { name: entry.name || '', refCode: _playerRef(id).slice(0, 8), referrals: entry.referrals || 0, xp: entry.xp || 0, level: levelFromXp(entry.xp || 0), iq: entry.iq ?? null, iqUnlocked: (getLifetime(entry).triviaGames || 0) >= IQ_UNLOCK_QUIZZES, vipUntil: entry.vipUntil || 0, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, delta: streakBonus || undefined });
     socket.emit('challenges-update', { challenges: challengesPayload(entry), permanent: permanentPayload(entry) });
   });
 
@@ -2581,6 +2636,114 @@ io.on('connection', (socket) => {
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
     socket.emit('referrer-set', { ok: true });
+  });
+
+  // ── Test de QI (approximatif, ludique) ───────────────────────────────────
+  // Debloque apres IQ_UNLOCK_QUIZZES quiz termines. Le client envoie les
+  // reponses brutes (bonnes reponses, total, temps moyen), le serveur calcule
+  // et borne la valeur : jamais de QI fourni directement par le client.
+  socket.on('iq-submit', ({ playerId, correct, total, avgMs } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    const entry = getLibsEntry(id);
+    if ((getLifetime(entry).triviaGames || 0) < IQ_UNLOCK_QUIZZES) {
+      socket.emit('iq-update', { error: 'locked' }); return;
+    }
+    if (Date.now() - (entry.iqAt || 0) < IQ_RETAKE_MS) {
+      socket.emit('iq-update', { error: 'cooldown', nextAt: (entry.iqAt || 0) + IQ_RETAKE_MS, iq: entry.iq }); return;
+    }
+    const tot = Math.max(1, Math.min(30, Math.floor(Number(total) || 0)));
+    const ok  = Math.max(0, Math.min(tot, Math.floor(Number(correct) || 0)));
+    const ms  = Math.max(1000, Math.min(60000, Math.floor(Number(avgMs) || 30000)));
+    // Precision (70 a 130) + bonus de vitesse (jusqu'a +10 si reponse moyenne < 8 s).
+    const speedBonus = ms < 8000 ? 10 : ms < 15000 ? 6 : ms < 25000 ? 3 : 0;
+    const iq = Math.max(65, Math.min(145, Math.round(70 + (ok / tot) * 60 + (ok / tot >= 0.5 ? speedBonus : 0))));
+    entry.iq = iq; entry.iqAt = Date.now();
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    socket.emit('iq-update', { iq, at: entry.iqAt, nextAt: entry.iqAt + IQ_RETAKE_MS });
+  });
+
+  // ── Roue de la fortune (1 tour gratuit par jour, joueurs nommes) ─────────
+  socket.on('spin-wheel', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') { socket.emit('wheel-result', { error: 'noname' }); return; }
+    const today = _tournamentTodayKey();
+    if (entry.wheelDay === today) { socket.emit('wheel-result', { error: 'done' }); return; }
+    // Tirage pondere sur WHEEL_PRIZES (indices alignes avec la roue du client).
+    let roll = Math.random() * 100, idx = 0;
+    for (let i = 0; i < WHEEL_WEIGHTS.length; i++) { roll -= WHEEL_WEIGHTS[i]; if (roll <= 0) { idx = i; break; } }
+    const prize = Math.round(WHEEL_PRIZES[idx] * vipMult(entry));
+    entry.wheelDay = today;
+    entry.balance = Math.min(MAX_BALANCE, entry.balance + prize);
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    socket.emit('wheel-result', { index: idx, prize, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, nextAt: nextDistributionAt });
+  });
+
+  // ── Amis : suivre un joueur via son code (le meme que le parrainage) ─────
+  socket.on('add-friend', ({ playerId, ref } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    const code = String(ref || '').toLowerCase().replace(/[^a-f0-9]/g, '').slice(0, 8);
+    if (code.length !== 8 || _playerRef(id).slice(0, 8) === code) { socket.emit('friends-error', { reason: 'invalid' }); return; }
+    let pid = null;
+    for (const p of _allPlayerIds()) { if (_playerRef(p).slice(0, 8) === code) { pid = p; break; } }
+    const target = pid ? libs.get(pid) : null;
+    if (!pid || !target || !target.name || target.name === 'Anonyme') { socket.emit('friends-error', { reason: 'notfound' }); return; }
+    const entry = getLibsEntry(id);
+    if (entry.friends.length >= 30) { socket.emit('friends-error', { reason: 'full' }); return; }
+    if (!entry.friends.includes(pid)) {
+      entry.friends.push(pid);
+      libs.set(id, entry);
+      dbUpsertLibs(id, entry);
+    }
+    socket.emit('friends-list', friendsPayload(entry));
+  });
+  socket.on('remove-friend', ({ playerId, ref } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    const entry = getLibsEntry(id);
+    entry.friends = entry.friends.filter(p => _playerRef(p).slice(0, 8) !== String(ref || ''));
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    socket.emit('friends-list', friendsPayload(entry));
+  });
+  socket.on('get-friends', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    socket.emit('friends-list', friendsPayload(getLibsEntry(id)));
+  });
+  // Defi direct : l'ami en ligne recoit une invitation avec le code du salon.
+  socket.on('challenge-friend', ({ playerId, ref, code, game } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') return;
+    const pid = entry.friends.find(p => _playerRef(p).slice(0, 8) === String(ref || ''));
+    if (!pid) return;
+    _emitToPlayer(pid, 'friend-challenge', {
+      fromName: entry.name,
+      code: String(code || '').toUpperCase().slice(0, 4),
+      game: String(game || '').slice(0, 20),
+    });
+  });
+
+  // ── Pass VIP : 30 jours, paye en Libs, +20% sur les gains ────────────────
+  socket.on('buy-vip', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') { socket.emit('vip-result', { error: 'noname' }); return; }
+    if (entry.balance < VIP_PRICE) { socket.emit('vip-result', { error: 'insufficient', price: VIP_PRICE }); return; }
+    entry.balance -= VIP_PRICE;
+    entry.vipUntil = Math.max(Date.now(), entry.vipUntil || 0) + VIP_DURATION_MS;
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    socket.emit('vip-result', { vipUntil: entry.vipUntil });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, vipUntil: entry.vipUntil, nextAt: nextDistributionAt });
   });
 
   // ── Tournoi du samedi ─────────────────────────────────────────────────────

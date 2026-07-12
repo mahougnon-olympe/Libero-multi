@@ -402,6 +402,55 @@ const DICT = {
     referralCount:n=>`🏅 Tu as déjà parrainé ${n} joueur${n>1?'s':''}.`,
     referralRewardSponsor:(amount,name)=>`🤝 Ton filleul ${name} a joué sa première partie : +${amount} ⚡ !`,
     referralRewardChild:amount=>`🤝 Bienvenue ! Ton parrainage te rapporte +${amount} ⚡ !`,
+    // Niveaux et XP
+    levelMain:lv=>`Niveau ${lv}`,
+    levelSub:(xp,next)=>`${xp} XP · prochain niveau à ${next} XP`,
+    levelUpToast:(lv,reward)=>`🎉 Niveau ${lv} atteint ! +${reward} ⚡`,
+    // Roue de la fortune
+    wheelCardTitle:'Roue de la fortune', wheelCardSub:"1 tour gratuit par jour, jusqu'à 250 ⚡",
+    wheelTitle:'🎡 Roue de la fortune',
+    wheelIntro:'Un tour gratuit par jour. Tente ta chance !',
+    wheelSpinBtn:'🎡 Tourner la roue',
+    wheelWin:p=>`🎉 Tu gagnes ${p} ⚡ ! Reviens demain pour un nouveau tour.`,
+    wheelDone:'⏳ Tu as déjà tourné la roue aujourd\'hui. Reviens demain !',
+    wheelNoName:'Choisis d\'abord un pseudo pour tourner la roue.',
+    // Amis
+    friendsCardTitle:'Mes amis', friendsCardSub:'Vois qui est en ligne et défie-les',
+    friendsTitle:'👥 Mes amis',
+    friendsIntro:"Ajoute un ami avec son code d'invitation (dans « Inviter un ami » de son profil), vois s'il est en ligne et défie-le en un clic.",
+    friendsAddBtn:'Ajouter', friendsAddPlaceholder:'Code ami (8 caractères)',
+    friendsEmpty:'Aucun ami pour le moment. Demande leur code à tes camarades !',
+    friendsOnline:'en ligne', friendsOffline:'hors ligne',
+    friendsChallengeBtn:'⚔️ Défier', friendsRemoveBtn:'✕',
+    friendsErrInvalid:'Code invalide.', friendsErrNotFound:'Aucun joueur avec ce code.', friendsErrFull:'Liste pleine (30 amis max).',
+    friendsChallengeSent:name=>`⚔️ Défi envoyé à ${name} ! En attente...`,
+    friendChallengeToast:(name)=>`⚔️ ${name} te défie !`,
+    friendChallengeAccept:'Accepter', friendChallengeDecline:'Ignorer',
+    friendsMyCode:code=>`Ton code ami : ${code}`,
+    // QI
+    iqCardTitle:'Mon QI',
+    iqCardLocked:n=>`Termine encore ${n} quiz pour débloquer le test`,
+    iqCardUnlocked:'Test débloqué : mesure ton QI approximatif !',
+    iqCardValue:v=>`QI estimé : ${v}`,
+    iqTitle:'🧠 Test de QI',
+    iqIntroLocked:n=>`Le test de QI se débloque en jouant au quiz. Termine encore ${n} quiz (solo ou en groupe) pour y accéder !`,
+    iqIntroReady:'15 questions de logique, 30 secondes chacune. Réponds vite et bien : le résultat est une estimation ludique de ton QI (ce n\'est pas un test médical). Prêt ?',
+    iqCooldown:d=>`Tu pourras repasser le test dans ${d}.`,
+    iqStartBtn:'🧠 Commencer le test',
+    iqProgress:(i,n)=>`Question ${i}/${n}`,
+    iqResultValue:v=>`Ton QI estimé : ${v}`,
+    iqResultNote:'Estimation ludique basée sur ta précision et ta vitesse. Rejoue au quiz et reviens le repasser dans 3 jours !',
+    iqShareBtn:'📣 Partager',
+    iqShareText:v=>`🧠 Mon QI estimé sur Libero's Multi : ${v} ! Viens tester le tien : https://libero-multi.vercel.app`,
+    // VIP
+    vipCardTitle:'Pass VIP', vipCardSub:'+20% de Libs sur tes gains pendant 30 jours',
+    vipTitle:'👑 Pass VIP',
+    vipIntro:price=>`Deviens VIP pendant 30 jours pour ${price} ⚡ :`,
+    vipPerks:['👑 Badge VIP sur ton profil','⚡ +20% de Libs sur la série, les défis, la roue et le tournoi','🎡 Les gains de la roue de la fortune boostés aussi'],
+    vipBuyBtn:price=>`👑 Devenir VIP (${price} ⚡)`,
+    vipActive:d=>`👑 Tu es VIP jusqu'au ${d}. Rachète pour prolonger de 30 jours !`,
+    vipDone:'👑 Te voilà VIP pour 30 jours ! Profite de tes +20%.',
+    vipInsufficient:price=>`Il te faut ${price} ⚡ pour devenir VIP. Passe par la boutique pour recharger !`,
     joinName:{
       title:"🎮 On t'attend !",
       intro:"Un ami t'a invité à une partie. Choisis d'abord ton pseudo pour le rejoindre.",
@@ -972,6 +1021,55 @@ const DICT = {
     referralCount:n=>`🏅 You already referred ${n} player${n>1?'s':''}.`,
     referralRewardSponsor:(amount,name)=>`🤝 Your friend ${name} played their first game: +${amount} ⚡!`,
     referralRewardChild:amount=>`🤝 Welcome! Your referral earns you +${amount} ⚡!`,
+    // Levels and XP
+    levelMain:lv=>`Level ${lv}`,
+    levelSub:(xp,next)=>`${xp} XP · next level at ${next} XP`,
+    levelUpToast:(lv,reward)=>`🎉 Level ${lv} reached! +${reward} ⚡`,
+    // Wheel of fortune
+    wheelCardTitle:'Wheel of fortune', wheelCardSub:'1 free spin a day, up to 250 ⚡',
+    wheelTitle:'🎡 Wheel of fortune',
+    wheelIntro:'One free spin a day. Try your luck!',
+    wheelSpinBtn:'🎡 Spin the wheel',
+    wheelWin:p=>`🎉 You win ${p} ⚡! Come back tomorrow for another spin.`,
+    wheelDone:'⏳ You already spun the wheel today. Come back tomorrow!',
+    wheelNoName:'Pick a nickname first to spin the wheel.',
+    // Friends
+    friendsCardTitle:'My friends', friendsCardSub:'See who is online and challenge them',
+    friendsTitle:'👥 My friends',
+    friendsIntro:'Add a friend with their invite code (in "Invite a friend" on their profile), see if they are online and challenge them in one click.',
+    friendsAddBtn:'Add', friendsAddPlaceholder:'Friend code (8 characters)',
+    friendsEmpty:'No friends yet. Ask your classmates for their code!',
+    friendsOnline:'online', friendsOffline:'offline',
+    friendsChallengeBtn:'⚔️ Challenge', friendsRemoveBtn:'✕',
+    friendsErrInvalid:'Invalid code.', friendsErrNotFound:'No player with this code.', friendsErrFull:'List full (30 friends max).',
+    friendsChallengeSent:name=>`⚔️ Challenge sent to ${name}! Waiting...`,
+    friendChallengeToast:(name)=>`⚔️ ${name} challenges you!`,
+    friendChallengeAccept:'Accept', friendChallengeDecline:'Ignore',
+    friendsMyCode:code=>`Your friend code: ${code}`,
+    // IQ
+    iqCardTitle:'My IQ',
+    iqCardLocked:n=>`Finish ${n} more quizzes to unlock the test`,
+    iqCardUnlocked:'Test unlocked: measure your approximate IQ!',
+    iqCardValue:v=>`Estimated IQ: ${v}`,
+    iqTitle:'🧠 IQ test',
+    iqIntroLocked:n=>`The IQ test unlocks by playing quizzes. Finish ${n} more quizzes (solo or group) to access it!`,
+    iqIntroReady:'15 logic questions, 30 seconds each. Answer fast and well: the result is a playful estimate of your IQ (this is not a medical test). Ready?',
+    iqCooldown:d=>`You can retake the test in ${d}.`,
+    iqStartBtn:'🧠 Start the test',
+    iqProgress:(i,n)=>`Question ${i}/${n}`,
+    iqResultValue:v=>`Your estimated IQ: ${v}`,
+    iqResultNote:'Playful estimate based on your accuracy and speed. Keep playing quizzes and retake it in 3 days!',
+    iqShareBtn:'📣 Share',
+    iqShareText:v=>`🧠 My estimated IQ on Libero's Multi: ${v}! Come test yours: https://libero-multi.vercel.app`,
+    // VIP
+    vipCardTitle:'VIP Pass', vipCardSub:'+20% Libs on your earnings for 30 days',
+    vipTitle:'👑 VIP Pass',
+    vipIntro:price=>`Become VIP for 30 days for ${price} ⚡:`,
+    vipPerks:['👑 VIP badge on your profile','⚡ +20% Libs on streak, challenges, wheel and tournament','🎡 Wheel of fortune prizes boosted too'],
+    vipBuyBtn:price=>`👑 Become VIP (${price} ⚡)`,
+    vipActive:d=>`👑 You are VIP until ${d}. Buy again to extend by 30 days!`,
+    vipDone:'👑 You are now VIP for 30 days! Enjoy your +20%.',
+    vipInsufficient:price=>`You need ${price} ⚡ to become VIP. Top up in the shop!`,
     joinName:{
       title:'🎮 They are waiting for you!',
       intro:'A friend invited you to a game. Pick your nickname first to join them.',
@@ -1643,6 +1741,28 @@ function applyLang() {
   const gco = $('btn-gift-copy');   if (gco) gco.textContent = d.recovery.copy;
   const gsb = $('btn-gift-share');  if (gsb) gsb.textContent = d.giftShareBtn;
   const gw = $('gift-warn');        if (gw) gw.textContent = d.giftWarn;
+  // Niveau, roue, amis, QI, VIP
+  const wct = $('wheel-card-title'); if (wct) wct.textContent = d.wheelCardTitle;
+  const wcs = $('wheel-card-sub');   if (wcs) wcs.textContent = d.wheelCardSub;
+  const wtt = $('wheel-title');      if (wtt) wtt.textContent = d.wheelTitle;
+  const wit = $('wheel-intro');      if (wit) wit.textContent = d.wheelIntro;
+  const wsb = $('btn-wheel-spin');   if (wsb) wsb.textContent = d.wheelSpinBtn;
+  const fct = $('friends-card-title'); if (fct) fct.textContent = d.friendsCardTitle;
+  const fcs = $('friends-card-sub');   if (fcs) fcs.textContent = d.friendsCardSub;
+  const ftt = $('friends-title');      if (ftt) ftt.textContent = d.friendsTitle;
+  const fit = $('friends-intro');      if (fit) fit.textContent = d.friendsIntro;
+  const fab = $('btn-friend-add');     if (fab) fab.textContent = d.friendsAddBtn;
+  const fci = $('friend-code-input');  if (fci) fci.placeholder = d.friendsAddPlaceholder;
+  const qct = $('iq-card-title');      if (qct) qct.textContent = d.iqCardTitle;
+  const qtt = $('iq-title');           if (qtt) qtt.textContent = d.iqTitle;
+  const qsb = $('btn-iq-start');       if (qsb) qsb.textContent = d.iqStartBtn;
+  const qshb = $('btn-iq-share');      if (qshb) qshb.textContent = d.iqShareBtn;
+  const vct = $('vip-card-title');     if (vct) vct.textContent = d.vipCardTitle;
+  const vcs = $('vip-card-sub');       if (vcs) vcs.textContent = d.vipCardSub;
+  const vtt = $('vip-title');          if (vtt) vtt.textContent = d.vipTitle;
+  if (window._renderLevel)  window._renderLevel();
+  if (window._renderIqCard) window._renderIqCard();
+  if (window._renderVip)    window._renderVip();
   if (window._profileHub) window._profileHub.retexte();
   if (window._chatbot) window._chatbot.retexte();
   const bl = $('btn-lang');
@@ -4182,9 +4302,14 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ name: serverName, refCode, referrals, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal } = {}) => {
+socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal } = {}) => {
   if (refCode !== undefined)   window._myRefCode = refCode;
   if (referrals !== undefined) window._myReferrals = referrals;
+  if (xp !== undefined)         { window._myXp = xp; window._myLevel = level; window._renderLevel?.(); }
+  if (iq !== undefined)         window._myIq = iq;
+  if (iqUnlocked !== undefined) window._myIqUnlocked = iqUnlocked;
+  if (iq !== undefined || iqUnlocked !== undefined) window._renderIqCard?.();
+  if (vipUntil !== undefined)   { window._myVipUntil = vipUntil; window._renderVip?.(); }
   const prev = libsBalance;
   // Certaines mises a jour partielles (ex. titre honorifique seul) n'ont pas de
   // champ balance : ne jamais ecraser le solde avec 0 dans ce cas.
@@ -9428,6 +9553,313 @@ window._profileHub = ProfileHub;
       this.textContent = t().linkCopied;
       setTimeout(() => { this.textContent = t().referralShareBtn; }, 2000);
     }).catch(() => {});
+  });
+})();
+
+// ── Niveaux et XP ─────────────────────────────────────────────────────────────
+// Courbe identique au serveur : niveau lv atteint a 100 x (lv-1)^2 XP.
+window._renderLevel = function () {
+  const lv = window._myLevel || 1;
+  const xp = window._myXp || 0;
+  const badge = document.getElementById('level-badge');
+  const main  = document.getElementById('level-main');
+  const sub   = document.getElementById('level-sub');
+  const fill  = document.getElementById('level-bar-fill');
+  if (!badge) return;
+  const cur  = 100 * (lv - 1) * (lv - 1);
+  const next = 100 * lv * lv;
+  badge.textContent = `⭐ ${lv}`;
+  if (main) main.textContent = t().levelMain(lv);
+  if (sub)  sub.textContent  = t().levelSub(xp, next);
+  if (fill) fill.style.width = `${Math.min(100, Math.round(((xp - cur) / (next - cur)) * 100))}%`;
+};
+socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
+  window._myXp = xp; window._myLevel = level;
+  window._renderLevel();
+  if (levelUp) showCursorSnakeToast(t().levelUpToast(levelUp, reward || 0));
+});
+
+// ── Roue de la fortune (1 tour par jour) ─────────────────────────────────────
+(function initWheel() {
+  const overlay = document.getElementById('overlay-wheel');
+  if (!overlay) return;
+  const PRIZES = [5, 10, 20, 50, 100, 250]; // meme ordre que le serveur
+  const COLORS = ['#6366f1', '#ef4444', '#22c55e', '#f59e0b', '#0ea5e9', '#a855f7'];
+  const disc = document.getElementById('wheel-disc');
+  const spinBtn = document.getElementById('btn-wheel-spin');
+  const statusEl = document.getElementById('wheel-status');
+  let spinning = false, rotation = 0;
+  // Disque : 6 parts en conic-gradient + libelles positionnes par rotation.
+  disc.style.background = `conic-gradient(${PRIZES.map((_, i) => `${COLORS[i]} ${i * 60}deg ${(i + 1) * 60}deg`).join(',')})`;
+  disc.innerHTML = PRIZES.map((p, i) =>
+    `<span class="wheel-label" style="transform:rotate(${i * 60 + 30}deg) translateY(-58px) rotate(90deg)">${p}⚡</span>`).join('');
+  function open() {
+    statusEl.textContent = '';
+    spinBtn.disabled = false;
+    overlay.classList.remove('hidden');
+  }
+  function close() { overlay.classList.add('hidden'); }
+  document.getElementById('go-wheel')?.addEventListener('click', open);
+  document.getElementById('btn-wheel-close')?.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay && !spinning) close(); });
+  spinBtn.addEventListener('click', () => {
+    if (spinning) return;
+    spinning = true; spinBtn.disabled = true; statusEl.textContent = '';
+    socket.emit('spin-wheel', { playerId: getPlayerId() });
+  });
+  socket.on('wheel-result', ({ error, index, prize, balance } = {}) => {
+    if (error) {
+      spinning = false;
+      statusEl.textContent = error === 'done' ? t().wheelDone : t().wheelNoName;
+      return;
+    }
+    // 5 tours complets + arret au centre du segment gagnant sous le pointeur.
+    rotation += 360 * 5 + ((360 - (index * 60 + 30)) - (rotation % 360) + 360) % 360;
+    disc.style.transition = 'transform 3.4s cubic-bezier(.15,.6,.15,1)';
+    disc.style.transform = `rotate(${rotation}deg)`;
+    setTimeout(() => {
+      spinning = false;
+      statusEl.textContent = t().wheelWin(prize);
+      if (balance !== undefined) { const prev = libsBalance; libsBalance = balance; _refreshLibsUI(prev, balance, prize); }
+    }, 3500);
+  });
+})();
+
+// ── Liste d'amis ──────────────────────────────────────────────────────────────
+(function initFriends() {
+  const overlay = document.getElementById('overlay-friends');
+  if (!overlay) return;
+  const listEl = document.getElementById('friends-list');
+  const statusEl = document.getElementById('friends-status');
+  const input = document.getElementById('friend-code-input');
+  function open() {
+    statusEl.textContent = window._myRefCode ? t().friendsMyCode(window._myRefCode) : '';
+    listEl.innerHTML = '<p class="recovery-warn">…</p>';
+    socket.emit('get-friends', { playerId: getPlayerId() });
+    overlay.classList.remove('hidden');
+  }
+  function close() { overlay.classList.add('hidden'); }
+  document.getElementById('go-friends')?.addEventListener('click', open);
+  document.getElementById('btn-friends-close')?.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  document.getElementById('btn-friend-add')?.addEventListener('click', () => {
+    const code = (input.value || '').trim().toLowerCase();
+    if (code.length !== 8) { statusEl.textContent = t().friendsErrInvalid; return; }
+    socket.emit('add-friend', { playerId: getPlayerId(), ref: code });
+    input.value = '';
+  });
+  socket.on('friends-list', ({ friends } = {}) => {
+    const list = friends || [];
+    listEl.innerHTML = list.length ? list.map(f => `
+      <div class="friend-row">
+        <span class="friend-dot ${f.online ? 'on' : ''}" title="${f.online ? t().friendsOnline : t().friendsOffline}"></span>
+        <span class="friend-name">${_escHtml(f.name)} <small class="friend-level">⭐ ${f.level}</small></span>
+        ${f.online ? `<button class="btn btn-secondary friend-challenge" data-ref="${f.ref}" data-name="${_escHtml(f.name)}">${t().friendsChallengeBtn}</button>` : ''}
+        <button class="friend-remove" data-rm="${f.ref}" title="${t().friendsRemoveBtn}">✕</button>
+      </div>`).join('') : `<p class="recovery-warn">${t().friendsEmpty}</p>`;
+  });
+  socket.on('friends-error', ({ reason } = {}) => {
+    statusEl.textContent = reason === 'notfound' ? t().friendsErrNotFound : reason === 'full' ? t().friendsErrFull : t().friendsErrInvalid;
+  });
+  listEl.addEventListener('click', e => {
+    const rm = e.target.closest('[data-rm]');
+    if (rm) { socket.emit('remove-friend', { playerId: getPlayerId(), ref: rm.dataset.rm }); return; }
+    const ch = e.target.closest('.friend-challenge');
+    if (ch) {
+      // Defi : on cree un salon morpion sans mise, puis on envoie le code a l'ami.
+      window._pendingFriendChallenge = { ref: ch.dataset.ref, name: ch.dataset.name };
+      close();
+      socket.emit('create-room', { gameType: 'tictactoe', name: getPlayerName(), playerId: getPlayerId(), stake: 0 });
+    }
+  });
+  socket.on('room-created', ({ code, gameType } = {}) => {
+    const p = window._pendingFriendChallenge;
+    if (!p || !code) return;
+    window._pendingFriendChallenge = null;
+    socket.emit('challenge-friend', { playerId: getPlayerId(), ref: p.ref, code, game: gameType });
+    showCursorSnakeToast(t().friendsChallengeSent(p.name));
+  });
+  // Invitation recue : petite banniere avec Accepter / Ignorer.
+  socket.on('friend-challenge', ({ fromName, code, game } = {}) => {
+    if (!code) return;
+    document.getElementById('friend-challenge-banner')?.remove();
+    const div = document.createElement('div');
+    div.id = 'friend-challenge-banner';
+    div.className = 'friend-challenge-banner';
+    div.innerHTML = `<span>${t().friendChallengeToast(_escHtml(fromName))} <small>(${t().games[game] || game})</small></span>
+      <button class="btn btn-primary" id="fc-accept">${t().friendChallengeAccept}</button>
+      <button class="btn btn-secondary" id="fc-decline">${t().friendChallengeDecline}</button>`;
+    document.body.appendChild(div);
+    const gone = () => div.remove();
+    div.querySelector('#fc-accept').addEventListener('click', () => {
+      gone();
+      socket.emit('join-by-code', { code, name: getPlayerName() || (localStorage.getItem('playerName') || '').trim(), playerId: getPlayerId() });
+    });
+    div.querySelector('#fc-decline').addEventListener('click', gone);
+    setTimeout(gone, 25000);
+  });
+})();
+
+// ── Test de QI (approximatif et ludique) ─────────────────────────────────────
+const IQ_UNLOCK_QUIZZES = 10;
+const IQ_QUESTIONS = [
+  { q:{fr:'Quel nombre complète la suite : 2, 4, 8, 16, … ?',en:'Which number completes the sequence: 2, 4, 8, 16, …?'}, c:['24','32','30','20'], a:1 },
+  { q:{fr:'Quel nombre complète la suite : 1, 4, 9, 16, 25, … ?',en:'Which number completes the sequence: 1, 4, 9, 16, 25, …?'}, c:['30','35','36','49'], a:2 },
+  { q:{fr:'Main est à gant ce que pied est à…',en:'Hand is to glove as foot is to…'}, c:[{fr:'jambe',en:'leg'},{fr:'chaussure',en:'shoe'},{fr:'orteil',en:'toe'},{fr:'sol',en:'ground'}], a:1 },
+  { q:{fr:'Trouve l\'intrus : pomme, banane, carotte, mangue',en:'Find the odd one out: apple, banana, carrot, mango'}, c:[{fr:'pomme',en:'apple'},{fr:'banane',en:'banana'},{fr:'carotte',en:'carrot'},{fr:'mangue',en:'mango'}], a:2 },
+  { q:{fr:'Si tous les Zips sont des Zaps et que certains Zaps sont bleus, alors…',en:'If all Zips are Zaps and some Zaps are blue, then…'}, c:[{fr:'tous les Zips sont bleus',en:'all Zips are blue'},{fr:'certains Zips peuvent être bleus',en:'some Zips may be blue'},{fr:'aucun Zip n\'est bleu',en:'no Zip is blue'},{fr:'les Zaps sont des Zips',en:'Zaps are Zips'}], a:1 },
+  { q:{fr:'Quel nombre complète la suite : 3, 6, 12, 24, … ?',en:'Which number completes the sequence: 3, 6, 12, 24, …?'}, c:['36','40','48','30'], a:2 },
+  { q:{fr:'Un fermier a 17 moutons. Tous meurent sauf 9. Combien en reste-t-il ?',en:'A farmer has 17 sheep. All die except 9. How many are left?'}, c:['8','17','9','0'], a:2 },
+  { q:{fr:'Quel mot n\'a pas sa place : courir, marcher, nager, dormir',en:'Which word does not belong: run, walk, swim, sleep'}, c:[{fr:'courir',en:'run'},{fr:'marcher',en:'walk'},{fr:'nager',en:'swim'},{fr:'dormir',en:'sleep'}], a:3 },
+  { q:{fr:'Quel nombre complète la suite : 100, 90, 81, 73, … ?',en:'Which number completes the sequence: 100, 90, 81, 73, …?'}, c:['66','65','64','63'], a:0 },
+  { q:{fr:'Marie est plus grande que Jean. Jean est plus grand que Paul. Qui est le plus petit ?',en:'Mary is taller than John. John is taller than Paul. Who is the shortest?'}, c:[{fr:'Marie',en:'Mary'},{fr:'Jean',en:'John'},{fr:'Paul',en:'Paul'},{fr:'impossible à dire',en:'cannot tell'}], a:2 },
+  { q:{fr:'Quel nombre complète la suite : 1, 1, 2, 3, 5, 8, … ?',en:'Which number completes the sequence: 1, 1, 2, 3, 5, 8, …?'}, c:['11','12','13','14'], a:2 },
+  { q:{fr:'Livre est à lire ce que fourchette est à…',en:'Book is to read as fork is to…'}, c:[{fr:'cuisine',en:'kitchen'},{fr:'manger',en:'eat'},{fr:'couteau',en:'knife'},{fr:'table',en:'table'}], a:1 },
+  { q:{fr:'Combien de mois ont 28 jours ?',en:'How many months have 28 days?'}, c:['1','2','6','12'], a:3 },
+  { q:{fr:'Quel nombre complète la suite : 2, 5, 11, 23, … ?',en:'Which number completes the sequence: 2, 5, 11, 23, …?'}, c:['46','47','45','44'], a:1 },
+  { q:{fr:'Trouve l\'intrus : cercle, carré, triangle, cube',en:'Find the odd one out: circle, square, triangle, cube'}, c:[{fr:'cercle',en:'circle'},{fr:'carré',en:'square'},{fr:'triangle',en:'triangle'},{fr:'cube',en:'cube'}], a:3 },
+  { q:{fr:'Si avant-hier était mercredi, quel jour serons-nous demain ?',en:'If the day before yesterday was Wednesday, what day is tomorrow?'}, c:[{fr:'vendredi',en:'Friday'},{fr:'samedi',en:'Saturday'},{fr:'dimanche',en:'Sunday'},{fr:'jeudi',en:'Thursday'}], a:1 },
+  { q:{fr:'Quel nombre est le tiers de la moitié de 90 ?',en:'Which number is one third of half of 90?'}, c:['15','30','10','45'], a:0 },
+  { q:{fr:'Océan est à eau ce que désert est à…',en:'Ocean is to water as desert is to…'}, c:[{fr:'chaleur',en:'heat'},{fr:'sable',en:'sand'},{fr:'soleil',en:'sun'},{fr:'chameau',en:'camel'}], a:1 },
+  { q:{fr:'Quel nombre complète la suite : 64, 32, 16, 8, … ?',en:'Which number completes the sequence: 64, 32, 16, 8, …?'}, c:['6','2','4','3'], a:2 },
+  { q:{fr:'Deux pères et deux fils ont 3 poissons, chacun en a un. Comment ?',en:'Two fathers and two sons have 3 fish, one each. How?'}, c:[{fr:'ils partagent',en:'they share'},{fr:'grand-père, père, fils',en:'grandfather, father, son'},{fr:'c\'est impossible',en:'it is impossible'},{fr:'un poisson est perdu',en:'one fish is lost'}], a:1 },
+  { q:{fr:'Quel nombre complète la suite : 7, 10, 16, 28, … ?',en:'Which number completes the sequence: 7, 10, 16, 28, …?'}, c:['52','50','48','40'], a:0 },
+  { q:{fr:'Trouve l\'intrus : violon, guitare, piano, flûte',en:'Find the odd one out: violin, guitar, piano, flute'}, c:[{fr:'violon',en:'violin'},{fr:'guitare',en:'guitar'},{fr:'piano',en:'piano'},{fr:'flûte',en:'flute'}], a:3 },
+  { q:{fr:'Un train électrique roule vers le nord. Où va sa fumée ?',en:'An electric train heads north. Where does its smoke go?'}, c:[{fr:'vers le sud',en:'south'},{fr:'vers le nord',en:'north'},{fr:'il n\'y a pas de fumée',en:'there is no smoke'},{fr:'vers le haut',en:'up'}], a:2 },
+  { q:{fr:'Quel nombre complète la suite : 1, 3, 7, 15, 31, … ?',en:'Which number completes the sequence: 1, 3, 7, 15, 31, …?'}, c:['62','63','64','61'], a:1 },
+];
+window._renderIqCard = function () {
+  const sub = document.getElementById('iq-card-sub');
+  if (!sub) return;
+  if (window._myIq) sub.textContent = t().iqCardValue(window._myIq);
+  else if (window._myIqUnlocked) sub.textContent = t().iqCardUnlocked;
+  else sub.textContent = t().iqCardLocked(IQ_UNLOCK_QUIZZES);
+};
+(function initIqTest() {
+  const overlay = document.getElementById('overlay-iq');
+  if (!overlay) return;
+  const introView = document.getElementById('iq-intro-view');
+  const testView = document.getElementById('iq-test-view');
+  const resultView = document.getElementById('iq-result-view');
+  const introEl = document.getElementById('iq-intro');
+  const startBtn = document.getElementById('btn-iq-start');
+  let qs = [], qi = 0, correct = 0, times = [], qStart = 0, timer = null;
+  const QN = 15, QSEC = 30;
+  function open() {
+    introView.classList.remove('hidden');
+    testView.classList.add('hidden');
+    resultView.classList.add('hidden');
+    if (window._myIqUnlocked) {
+      introEl.textContent = t().iqIntroReady;
+      startBtn.classList.remove('hidden');
+    } else {
+      introEl.textContent = t().iqIntroLocked(IQ_UNLOCK_QUIZZES);
+      startBtn.classList.add('hidden');
+    }
+    overlay.classList.remove('hidden');
+  }
+  function close() { clearInterval(timer); overlay.classList.add('hidden'); }
+  document.getElementById('go-iq')?.addEventListener('click', open);
+  document.getElementById('btn-iq-close')?.addEventListener('click', close);
+  function showQ() {
+    if (qi >= qs.length) { finish(); return; }
+    const item = qs[qi];
+    const fr = currentLang === 'fr';
+    document.getElementById('iq-progress').textContent = t().iqProgress(qi + 1, qs.length);
+    document.getElementById('iq-question').textContent = fr ? item.q.fr : item.q.en;
+    document.getElementById('iq-choices').innerHTML = item.c.map((c, i) =>
+      `<button class="iq-choice" data-i="${i}">${_escHtml(typeof c === 'string' ? c : (fr ? c.fr : c.en))}</button>`).join('');
+    qStart = Date.now();
+    let left = QSEC;
+    const timEl = document.getElementById('iq-timer');
+    timEl.textContent = `${left}s`;
+    clearInterval(timer);
+    timer = setInterval(() => {
+      left--;
+      timEl.textContent = `${left}s`;
+      if (left <= 0) { times.push(QSEC * 1000); qi++; showQ(); }
+    }, 1000);
+  }
+  function finish() {
+    clearInterval(timer);
+    const avgMs = Math.round(times.reduce((a, b) => a + b, 0) / Math.max(1, times.length));
+    socket.emit('iq-submit', { playerId: getPlayerId(), correct, total: qs.length, avgMs });
+    testView.classList.add('hidden');
+    resultView.classList.remove('hidden');
+    document.getElementById('iq-result-value').textContent = '…';
+  }
+  startBtn.addEventListener('click', () => {
+    qs = shuffle([...IQ_QUESTIONS]).slice(0, QN);
+    qi = 0; correct = 0; times = [];
+    introView.classList.add('hidden');
+    testView.classList.remove('hidden');
+    showQ();
+  });
+  document.getElementById('iq-choices').addEventListener('click', e => {
+    const btn = e.target.closest('.iq-choice');
+    if (!btn) return;
+    times.push(Date.now() - qStart);
+    if (Number(btn.dataset.i) === qs[qi].a) correct++;
+    qi++;
+    showQ();
+  });
+  socket.on('iq-update', ({ iq, error, nextAt } = {}) => {
+    if (error === 'cooldown') {
+      const days = Math.max(1, Math.ceil((nextAt - Date.now()) / 86400000));
+      introEl.textContent = t().iqCooldown(days + (currentLang === 'fr' ? ' jour(s)' : ' day(s)'));
+      startBtn.classList.add('hidden');
+      introView.classList.remove('hidden');
+      testView.classList.add('hidden');
+      resultView.classList.add('hidden');
+      return;
+    }
+    if (error) return;
+    window._myIq = iq;
+    window._renderIqCard();
+    document.getElementById('iq-result-value').textContent = t().iqResultValue(iq);
+    document.getElementById('iq-result-note').textContent = t().iqResultNote;
+  });
+  document.getElementById('btn-iq-share')?.addEventListener('click', async function () {
+    const text = t().iqShareText(window._myIq || '?');
+    if (navigator.share) { try { await navigator.share({ text }); return; } catch {} }
+    try { await navigator.clipboard.writeText(text); showCursorSnakeToast(t().triviaShareCopied); } catch {}
+  });
+})();
+
+// ── Pass VIP ──────────────────────────────────────────────────────────────────
+const VIP_PRICE = 2000;
+window._renderVip = function () {
+  const active = (window._myVipUntil || 0) > Date.now();
+  document.getElementById('vip-badge')?.classList.toggle('hidden', !active);
+  const status = document.getElementById('vip-status');
+  if (status) status.textContent = active ? t().vipActive(new Date(window._myVipUntil).toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-GB')) : '';
+};
+(function initVip() {
+  const overlay = document.getElementById('overlay-vip');
+  if (!overlay) return;
+  function open() {
+    document.getElementById('vip-intro').textContent = t().vipIntro(VIP_PRICE);
+    document.getElementById('vip-perks').innerHTML = t().vipPerks.map(p => `<li>${p}</li>`).join('');
+    document.getElementById('btn-vip-buy').textContent = t().vipBuyBtn(VIP_PRICE);
+    window._renderVip();
+    overlay.classList.remove('hidden');
+  }
+  function close() { overlay.classList.add('hidden'); }
+  document.getElementById('go-vip')?.addEventListener('click', open);
+  document.getElementById('btn-vip-close')?.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  document.getElementById('btn-vip-buy')?.addEventListener('click', () => {
+    socket.emit('buy-vip', { playerId: getPlayerId() });
+  });
+  socket.on('vip-result', ({ vipUntil, error, price } = {}) => {
+    const status = document.getElementById('vip-status');
+    if (error) {
+      if (status) status.textContent = error === 'insufficient' ? t().vipInsufficient(price || VIP_PRICE) : t().wheelNoName;
+      return;
+    }
+    window._myVipUntil = vipUntil;
+    window._renderVip();
+    showCursorSnakeToast(t().vipDone);
   });
 })();
 
