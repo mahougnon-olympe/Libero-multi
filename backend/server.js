@@ -402,7 +402,7 @@ async function loadData() {
   });
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   llbDocs.forEach(d => luffyLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, xp: d.xp || 0, iq: d.iq ?? null, iqAt: d.iqAt || 0, wheelDay: d.wheelDay || null, friends: Array.isArray(d.friends) ? d.friends : [], vipUntil: d.vipUntil || 0, history: Array.isArray(d.history) ? d.history : [] }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, xp: d.xp || 0, iq: d.iq ?? null, iqAt: d.iqAt || 0, wheelDay: d.wheelDay || null, friends: Array.isArray(d.friends) ? d.friends : [], friendRequests: Array.isArray(d.friendRequests) ? d.friendRequests : [], pendingGifts: Array.isArray(d.pendingGifts) ? d.pendingGifts : [], giftSentDay: d.giftSentDay || null, vipUntil: d.vipUntil || 0, history: Array.isArray(d.history) ? d.history : [] }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   feedDocs.forEach(d => feedVideos.push({ _id: d._id, url: d.url, titre: d.titre || '', ordre: d.ordre || 0, actif: d.actif !== false, createdAt: d.createdAt || Date.now() }));
@@ -429,6 +429,11 @@ async function loadData() {
   if (rank1NameDoc) rank1Global = rank1NameDoc.value;
   const flashDoc = configDocs.find(d => d._id === 'flash_offer');
   if (flashDoc?.value && flashDoc.value.endsAt > Date.now()) flashOffer = flashDoc.value;
+  const shopOvDoc = configDocs.find(d => d._id === 'shop_overrides');
+  if (Array.isArray(shopOvDoc?.value)) shopOvDoc.value.forEach(([id, o]) => { if (o && (!o.until || o.until > Date.now())) shopOverrides.set(id, o); });
+  db.collection('admin_challenges').find().toArray()
+    .then(docs => { adminChallenges = docs.map(d => ({ _id: d._id, kind: d.kind, metric: d.metric, goal: d.goal, reward: d.reward, label: d.label, labelEn: d.labelEn || '', at: d.at })); })
+    .catch(() => {});
   console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${llbDocs.length} luffy, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias, ${voteDocs.length} votes snake, ${feedDocs.length} vidéos feed, ${bookDocs.length} livres, ${purchaseDocs.length} achats Libs.`);
 }
 
@@ -567,7 +572,7 @@ function dbUpsertLibsPurchase(cartId, purchase) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], referredBy: entry.referredBy || null, referralRewarded: !!entry.referralRewarded, referrals: entry.referrals || 0, xp: entry.xp || 0, iq: entry.iq ?? null, iqAt: entry.iqAt || 0, wheelDay: entry.wheelDay || null, friends: entry.friends || [], vipUntil: entry.vipUntil || 0, history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [] } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], referredBy: entry.referredBy || null, referralRewarded: !!entry.referralRewarded, referrals: entry.referrals || 0, xp: entry.xp || 0, iq: entry.iq ?? null, iqAt: entry.iqAt || 0, wheelDay: entry.wheelDay || null, friends: entry.friends || [], friendRequests: entry.friendRequests || [], pendingGifts: entry.pendingGifts || [], giftSentDay: entry.giftSentDay || null, vipUntil: entry.vipUntil || 0, history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [] } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -705,7 +710,7 @@ const CHALLENGE_POOL = {
     { id: 'luffyGames3', metric: 'luffyGames', goal: 3,    reward: 35 },
   ],
 };
-const CHALLENGE_METRICS = ['gamesWon', 'gamesPlayed', 'triviaCorrect', 'triviaGames', 'snakeEaten', 'luffyRun', 'luffyGames'];
+const CHALLENGE_METRICS = ['gamesWon', 'gamesPlayed', 'triviaCorrect', 'triviaGames', 'snakeEaten', 'luffyRun', 'luffyGames', 'wheelSpins', 'ludoWins', 'giftsSent'];
 const CHALLENGE_ALL_DONE_BONUS = 30; // bonus « journée parfaite » quand les 3 défis sont réclamés
 
 // ── Défis permanents ─────────────────────────────────────────────────────────
@@ -720,18 +725,33 @@ const PERMANENT_CHALLENGES = [
   { id: 'perm_snake2000',  metric: 'snakeEaten',    goal: 2000,    reward: 2500 },
   { id: 'perm_luffy500k',  metric: 'luffyRun',      goal: 500_000, reward: 4000 },
   { id: 'perm_streak30',   metric: 'streakDays',    goal: 30,      reward: 5000 },
+  { id: 'perm_wheel30',    metric: 'wheelSpins',    goal: 30,      reward: 800  },
+  { id: 'perm_ludo25',     metric: 'ludoWins',      goal: 25,      reward: 1500 },
+  { id: 'perm_gift5',      metric: 'giftsSent',     goal: 5,       reward: 1000 },
 ];
+
+// Defis crees par l'admin depuis le dashboard (quotidiens ou permanents),
+// avec libelle FR/EN, metrique, objectif et recompense. Mongo `admin_challenges`.
+let adminChallenges = []; // { _id, kind:'daily'|'permanent', metric, goal, reward, label, labelEn, at }
+function adminDaily()     { return adminChallenges.filter(c => c.kind === 'daily'); }
+function adminPermanent() { return adminChallenges.filter(c => c.kind === 'permanent'); }
 
 function getLifetime(entry) {
   if (!entry.lifetime || typeof entry.lifetime !== 'object') entry.lifetime = {};
   return entry.lifetime;
 }
 
+function allPermanentChallenges() {
+  return [
+    ...PERMANENT_CHALLENGES,
+    ...adminPermanent().map(c => ({ id: c._id, metric: c.metric, goal: c.goal, reward: c.reward, label: c.label, labelEn: c.labelEn })),
+  ];
+}
 function permanentPayload(entry) {
   const lt = getLifetime(entry);
   const claimed = Array.isArray(entry.permClaimed) ? entry.permClaimed : [];
-  return PERMANENT_CHALLENGES.map(ch => ({
-    id: ch.id, goal: ch.goal, reward: ch.reward,
+  return allPermanentChallenges().map(ch => ({
+    id: ch.id, goal: ch.goal, reward: ch.reward, label: ch.label, labelEn: ch.labelEn,
     progress: Math.min(ch.goal, lt[ch.metric] || 0),
     done: (lt[ch.metric] || 0) >= ch.goal,
     claimed: claimed.includes(ch.id),
@@ -747,6 +767,9 @@ function activeChallenges() {
     CHALLENGE_POOL.A[dayNum % CHALLENGE_POOL.A.length],
     CHALLENGE_POOL.B[dayNum % CHALLENGE_POOL.B.length],
     slotC[dayNum % slotC.length],
+    // Defis quotidiens crees par l'admin : actifs tous les jours tant qu'ils
+    // existent (les compteurs et reclamations, eux, se remettent a zero chaque jour).
+    ...adminDaily().map(c => ({ id: c._id, metric: c.metric, goal: c.goal, reward: c.reward, label: c.label, labelEn: c.labelEn })),
   ];
 }
 
@@ -765,7 +788,7 @@ function getChallenges(entry) {
 function challengesPayload(entry) {
   const c = getChallenges(entry);
   return activeChallenges().map(ch => ({
-    id: ch.id, goal: ch.goal, reward: ch.reward,
+    id: ch.id, goal: ch.goal, reward: ch.reward, label: ch.label, labelEn: ch.labelEn,
     progress: Math.min(ch.goal, c.progress[ch.metric] || 0),
     done: (c.progress[ch.metric] || 0) >= ch.goal,
     claimed: c.claimed.includes(ch.id),
@@ -836,6 +859,10 @@ function bumpChallenge(id, metric, amount = 1) {
   libs.set(id, entry);
   dbUpsertLibs(id, entry);
   _emitToPlayer(id, 'challenges-update', { challenges: challengesPayload(entry), permanent: permanentPayload(entry) });
+  // La carte « Mon QI » affiche le nombre de quiz restants : tenue a jour en direct.
+  if (metric === 'triviaGames') {
+    _emitToPlayer(id, 'iq-progress', { done: lt.triviaGames || 0, needed: IQ_UNLOCK_QUIZZES, unlocked: (lt.triviaGames || 0) >= IQ_UNLOCK_QUIZZES });
+  }
 }
 
 // Met à jour la série de connexion une fois par jour et renvoie le bonus gagné.
@@ -871,7 +898,40 @@ function maybeRewardReferral(id, entry) {
     dbUpsertLibs(refId, refEntry);
     _emitToPlayer(refId, 'libs-update', { balance: refEntry.balance, delta: REFERRAL_REWARD, nextAt: nextDistributionAt });
     _emitToPlayer(refId, 'referral-reward', { role: 'parrain', amount: REFERRAL_REWARD, name: entry.name });
+    // Parrain et filleul deviennent automatiquement amis : ils peuvent se defier.
+    makeFriends(refId, id);
   }
+}
+
+// Lie deux joueurs en amis (mutuel), dans la limite de 30 chacun.
+function makeFriends(idA, idB) {
+  if (!idA || !idB || idA === idB) return false;
+  const a = getLibsEntry(idA), b = getLibsEntry(idB);
+  if (!a || !b) return false;
+  if (!a.friends.includes(idB) && a.friends.length < 30) a.friends.push(idB);
+  if (!b.friends.includes(idA) && b.friends.length < 30) b.friends.push(idA);
+  a.friendRequests = (a.friendRequests || []).filter(p => p !== idB);
+  b.friendRequests = (b.friendRequests || []).filter(p => p !== idA);
+  libs.set(idA, a); libs.set(idB, b);
+  dbUpsertLibs(idA, a); dbUpsertLibs(idB, b);
+  _emitToPlayer(idA, 'friends-list', friendsPayload(a));
+  _emitToPlayer(idB, 'friends-list', friendsPayload(b));
+  return true;
+}
+
+// Depose un cadeau chez un joueur : credite tout de suite, et le message
+// (avec bouton OK) est affiche en direct ou a la prochaine connexion.
+function deliverGift(pid, { fromName, libsAmount = 0, cosmeticId = null }) {
+  const entry = getLibsEntry(pid);
+  if (!entry) return false;
+  const gift = { id: crypto.randomUUID(), fromName: String(fromName || '').slice(0, 20), libs: Math.max(0, Math.floor(libsAmount)), cosmeticId: cosmeticId || null, at: Date.now() };
+  if (!Array.isArray(entry.pendingGifts)) entry.pendingGifts = [];
+  entry.pendingGifts.push(gift);
+  entry.pendingGifts = entry.pendingGifts.slice(-10);
+  libs.set(pid, entry);
+  dbUpsertLibs(pid, entry);
+  _emitToPlayer(pid, 'gift-received', gift);
+  return true;
 }
 
 // ── Niveaux et XP ────────────────────────────────────────────────────────────
@@ -908,6 +968,38 @@ function flashPriceFor(cosmeticId, price) {
 function dbSaveFlashOffer() {
   if (!db) return;
   db.collection('server_config').updateOne({ _id: 'flash_offer' }, { $set: { value: flashOffer } }, { upsert: true }).catch(() => {});
+}
+
+// ── Catalogue boutique pilote par l'admin ─────────────────────────────────────
+// Par defaut, seules certaines familles sont en vente (meme liste que le
+// client). L'admin peut forcer un article dedans ou dehors, avec un compte a
+// rebours optionnel de disparition. Persiste dans server_config 'shop_overrides'.
+const DEFAULT_SHOP_TYPES = new Set(['color', 'font', 'nameeffect', 'title', 'background', 'cursorsnake', 'snakeskin']);
+const shopOverrides = new Map(); // cosmeticId -> { inShop, until }
+function pruneShopOverrides() {
+  let changed = false;
+  for (const [id, o] of shopOverrides.entries()) {
+    if (o.until && o.until <= Date.now()) { shopOverrides.delete(id); changed = true; }
+  }
+  if (changed) { dbSaveShopOverrides(); io.emit('shop-overrides', shopOverridesPayload()); }
+}
+setInterval(pruneShopOverrides, 60_000);
+function shopHas(cosm) {
+  const o = shopOverrides.get(cosm.id);
+  if (o) return o.inShop && (!o.until || o.until > Date.now());
+  return DEFAULT_SHOP_TYPES.has(cosm.type);
+}
+function shopOverridesPayload() {
+  const out = {};
+  for (const [id, o] of shopOverrides.entries()) {
+    if (o.until && o.until <= Date.now()) continue;
+    out[id] = { inShop: o.inShop, until: o.until || null };
+  }
+  return { overrides: out };
+}
+function dbSaveShopOverrides() {
+  if (!db) return;
+  db.collection('server_config').updateOne({ _id: 'shop_overrides' }, { $set: { value: [...shopOverrides.entries()] } }, { upsert: true }).catch(() => {});
 }
 
 // ── Journal d'audit admin ─────────────────────────────────────────────────────
@@ -1359,7 +1451,7 @@ function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null, streak: null, challenges: null, lifetime: {}, permClaimed: [], referredBy: null, referralRewarded: false, referrals: 0, xp: 0, iq: null, iqAt: 0, wheelDay: null, friends: [], vipUntil: 0, history: [] };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null, streak: null, challenges: null, lifetime: {}, permClaimed: [], referredBy: null, referralRewarded: false, referrals: 0, xp: 0, iq: null, iqAt: 0, wheelDay: null, friends: [], friendRequests: [], pendingGifts: [], giftSentDay: null, vipUntil: 0, history: [] };
     libs.set(id, entry);
   }
   if (typeof entry.xp !== 'number') entry.xp = 0;
@@ -1367,6 +1459,8 @@ function getLibsEntry(id) {
   if (!('iqAt' in entry)) entry.iqAt = 0;
   if (!('wheelDay' in entry)) entry.wheelDay = null;
   if (!Array.isArray(entry.friends)) entry.friends = [];
+  if (!Array.isArray(entry.friendRequests)) entry.friendRequests = [];
+  if (!Array.isArray(entry.pendingGifts)) entry.pendingGifts = [];
   if (typeof entry.vipUntil !== 'number') entry.vipUntil = 0;
   if (!entry.usedCodes)          entry.usedCodes          = [];
   if (!entry.ownedCosmetics)     entry.ownedCosmetics     = [];
@@ -2208,6 +2302,7 @@ io.on('connection', (socket) => {
           pushHistory(room.playerIds?.[winner],    { game: room.gameType, result: 'win' });
           pushHistory(room.playerIds?.[loserRole], { game: room.gameType, result: 'loss' });
           bumpChallenge(room.playerIds?.[winner], 'gamesWon');
+          if (room.gameType === 'ludo') bumpChallenge(room.playerIds?.[winner], 'ludoWins');
         } else {
           updateLeaderboard(room.playerIds?.R || room.playerNames.R, room.playerNames.R, 'draw');
           updateLeaderboard(room.playerIds?.Y || room.playerNames.Y, room.playerNames.Y, 'draw');
@@ -2228,6 +2323,7 @@ io.on('connection', (socket) => {
             updateLeaderboard(humanId, humanName, humanWon ? 'win' : 'loss');
             pushHistory(room.playerIds?.R, { game: room.gameType, result: humanWon ? 'win' : 'loss' });
             if (humanWon) bumpChallenge(room.playerIds?.R, 'gamesWon');
+            if (humanWon && room.gameType === 'ludo') bumpChallenge(room.playerIds?.R, 'ludoWins');
           } else {
             updateLeaderboard(humanId, humanName, 'draw');
             pushHistory(room.playerIds?.R, { game: room.gameType, result: 'draw' });
@@ -2605,7 +2701,7 @@ io.on('connection', (socket) => {
 
     // Défi permanent : progression à vie, réclamable une seule fois,
     // sans bonus « journée parfaite ».
-    const permDef = PERMANENT_CHALLENGES.find(c => c.id === challengeId);
+    const permDef = allPermanentChallenges().find(c => c.id === challengeId);
     if (permDef) {
       const lt = getLifetime(entry);
       if ((lt[permDef.metric] || 0) < permDef.goal) { socket.emit('claim-challenge-result', { ok: false, error: 'not_done' }); return; }
@@ -2710,8 +2806,15 @@ io.on('connection', (socket) => {
     }
 
     const { available: refundCards, nextRefill: refundCardsNextRefill } = getRefundCardsInfo(entry);
-    socket.emit('libs-update', { name: entry.name || '', refCode: _playerRef(id).slice(0, 8), referrals: entry.referrals || 0, xp: entry.xp || 0, level: levelFromXp(entry.xp || 0), iq: entry.iq ?? null, iqUnlocked: (getLifetime(entry).triviaGames || 0) >= IQ_UNLOCK_QUIZZES, vipUntil: entry.vipUntil || 0, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, delta: streakBonus || undefined });
+    socket.emit('libs-update', { name: entry.name || '', refCode: _playerRef(id).slice(0, 8), referrals: entry.referrals || 0, xp: entry.xp || 0, level: levelFromXp(entry.xp || 0), iq: entry.iq ?? null, iqUnlocked: (getLifetime(entry).triviaGames || 0) >= IQ_UNLOCK_QUIZZES, iqQuizDone: getLifetime(entry).triviaGames || 0, vipUntil: entry.vipUntil || 0, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, delta: streakBonus || undefined });
     socket.emit('challenges-update', { challenges: challengesPayload(entry), permanent: permanentPayload(entry) });
+    // Livraisons en attente : demandes d'amis et cadeaux recus hors ligne.
+    const reqs = (entry.friendRequests || []).map(p => {
+      const e = libs.get(p);
+      return e && e.name && e.name !== 'Anonyme' ? { ref: _playerRef(p).slice(0, 8), name: e.name, level: levelFromXp(e.xp || 0) } : null;
+    }).filter(Boolean);
+    if (reqs.length) socket.emit('friend-requests', { requests: reqs });
+    (entry.pendingGifts || []).forEach(g => socket.emit('gift-received', g));
   });
 
   // ── Parrainage : le filleul (nouveau compte) declare son parrain ─────────
@@ -2772,39 +2875,143 @@ io.on('connection', (socket) => {
     for (let i = 0; i < WHEEL_WEIGHTS.length; i++) { roll -= WHEEL_WEIGHTS[i]; if (roll <= 0) { idx = i; break; } }
     const prize = Math.round(WHEEL_PRIZES[idx] * vipMult(entry));
     entry.wheelDay = today;
+    bumpChallenge(id, 'wheelSpins');
     entry.balance = Math.min(MAX_BALANCE, entry.balance + prize);
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
     socket.emit('wheel-result', { index: idx, prize, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, nextAt: nextDistributionAt });
   });
 
-  // ── Amis : suivre un joueur via son code (le meme que le parrainage) ─────
-  socket.on('add-friend', ({ playerId, ref } = {}) => {
+  // ── Amis : DEMANDE d'ami (l'autre accepte ou refuse), amitie mutuelle ────
+  // La cible est designee par son code 8 hex (le meme que le parrainage) OU
+  // par son pseudo exact (fiche joueur des classements).
+  function _resolveFriendTarget(ref, name) {
+    const code = String(ref || '').toLowerCase().replace(/[^a-f0-9]/g, '').slice(0, 8);
+    if (code.length === 8) {
+      for (const p of _allPlayerIds()) { if (_playerRef(p).slice(0, 8) === code) return p; }
+      return null;
+    }
+    const wanted = String(name || '').trim();
+    if (!wanted) return null;
+    for (const [p, e] of libs.entries()) { if (e.name === wanted) return p; }
+    return null;
+  }
+  socket.on('add-friend', ({ playerId, ref, name } = {}) => {
     const id = safePlayerId(playerId);
     if (!id) return;
-    const code = String(ref || '').toLowerCase().replace(/[^a-f0-9]/g, '').slice(0, 8);
-    if (code.length !== 8 || _playerRef(id).slice(0, 8) === code) { socket.emit('friends-error', { reason: 'invalid' }); return; }
-    let pid = null;
-    for (const p of _allPlayerIds()) { if (_playerRef(p).slice(0, 8) === code) { pid = p; break; } }
-    const target = pid ? libs.get(pid) : null;
-    if (!pid || !target || !target.name || target.name === 'Anonyme') { socket.emit('friends-error', { reason: 'notfound' }); return; }
     const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') { socket.emit('friends-error', { reason: 'noname' }); return; }
+    const pid = _resolveFriendTarget(ref, name);
+    if (!pid || pid === id) { socket.emit('friends-error', { reason: ref ? 'notfound' : 'invalid' }); return; }
+    const target = libs.get(pid);
+    if (!target || !target.name || target.name === 'Anonyme') { socket.emit('friends-error', { reason: 'notfound' }); return; }
+    if (entry.friends.includes(pid)) { socket.emit('friends-error', { reason: 'already' }); return; }
     if (entry.friends.length >= 30) { socket.emit('friends-error', { reason: 'full' }); return; }
-    if (!entry.friends.includes(pid)) {
-      entry.friends.push(pid);
-      libs.set(id, entry);
-      dbUpsertLibs(id, entry);
+    // Si l'autre m'avait deja demande : acceptation automatique (mutuel).
+    if ((entry.friendRequests || []).includes(pid)) {
+      makeFriends(id, pid);
+      socket.emit('friend-request-sent', { name: target.name, accepted: true });
+      return;
     }
-    socket.emit('friends-list', friendsPayload(entry));
+    if (!Array.isArray(target.friendRequests)) target.friendRequests = [];
+    if (!target.friendRequests.includes(id)) {
+      target.friendRequests.push(id);
+      target.friendRequests = target.friendRequests.slice(-20);
+      libs.set(pid, target);
+      dbUpsertLibs(pid, target);
+    }
+    socket.emit('friend-request-sent', { name: target.name, accepted: false });
+    _emitToPlayer(pid, 'friend-request', { ref: _playerRef(id).slice(0, 8), name: entry.name, level: levelFromXp(entry.xp || 0) });
+  });
+  socket.on('respond-friend', ({ playerId, ref, accept } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    const entry = getLibsEntry(id);
+    const pid = (entry.friendRequests || []).find(p => _playerRef(p).slice(0, 8) === String(ref || ''));
+    if (!pid) return;
+    entry.friendRequests = entry.friendRequests.filter(p => p !== pid);
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    if (accept) {
+      makeFriends(id, pid);
+      _emitToPlayer(pid, 'friend-accepted', { name: entry.name });
+    } else {
+      socket.emit('friends-list', friendsPayload(entry));
+    }
   });
   socket.on('remove-friend', ({ playerId, ref } = {}) => {
     const id = safePlayerId(playerId);
     if (!id) return;
     const entry = getLibsEntry(id);
-    entry.friends = entry.friends.filter(p => _playerRef(p).slice(0, 8) !== String(ref || ''));
+    const pid = entry.friends.find(p => _playerRef(p).slice(0, 8) === String(ref || ''));
+    entry.friends = entry.friends.filter(p => p !== pid);
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
+    // Retrait mutuel : je disparais aussi de sa liste.
+    if (pid) {
+      const other = libs.get(pid);
+      if (other) {
+        other.friends = (other.friends || []).filter(p => p !== id);
+        libs.set(pid, other);
+        dbUpsertLibs(pid, other);
+        _emitToPlayer(pid, 'friends-list', friendsPayload(other));
+      }
+    }
     socket.emit('friends-list', friendsPayload(entry));
+  });
+  // Cadeau de Libs a un ami (500 max par jour tous cadeaux confondus).
+  socket.on('gift-friend', ({ playerId, ref, amount } = {}) => {
+    if (!allowAction('giftfriend', 10, 60_000)) { socket.emit('gift-friend-result', { ok: false, error: 'rate' }); return; }
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') { socket.emit('gift-friend-result', { ok: false, error: 'noname' }); return; }
+    const pid = entry.friends.find(p => _playerRef(p).slice(0, 8) === String(ref || ''));
+    if (!pid) { socket.emit('gift-friend-result', { ok: false, error: 'notfriend' }); return; }
+    const amt = Math.floor(Number(amount) || 0);
+    if (amt < 10 || amt > 500) { socket.emit('gift-friend-result', { ok: false, error: 'amount' }); return; }
+    const today = _tournamentTodayKey();
+    const sent = (entry.giftSentDay && entry.giftSentDay.day === today) ? entry.giftSentDay.total : 0;
+    if (sent + amt > 500) { socket.emit('gift-friend-result', { ok: false, error: 'daily', left: Math.max(0, 500 - sent) }); return; }
+    if (entry.balance < amt) { socket.emit('gift-friend-result', { ok: false, error: 'insufficient' }); return; }
+    entry.balance -= amt;
+    entry.giftSentDay = { day: today, total: sent + amt };
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    bumpChallenge(id, 'giftsSent');
+    const target = getLibsEntry(pid);
+    target.balance = Math.min(MAX_BALANCE, target.balance + amt);
+    deliverGift(pid, { fromName: entry.name, libsAmount: amt });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, nextAt: nextDistributionAt });
+    socket.emit('gift-friend-result', { ok: true, amount: amt, name: target.name });
+  });
+  // Le destinataire clique OK : le message de cadeau ne se remontre plus.
+  socket.on('gift-ack', ({ playerId, giftId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    const entry = getLibsEntry(id);
+    entry.pendingGifts = (entry.pendingGifts || []).filter(g => g.id !== String(giftId));
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+  });
+  // Fiche joueur (classements) : niveau + statut d'amitie, par pseudo.
+  socket.on('get-player-card', ({ playerId, name } = {}) => {
+    const id = safePlayerId(playerId);
+    const wanted = String(name || '').trim();
+    let pid = null, target = null;
+    for (const [p, e] of libs.entries()) { if (e.name === wanted) { pid = p; target = e; break; } }
+    if (!pid) { socket.emit('player-card', { name: wanted, notFound: true }); return; }
+    const me = id ? getLibsEntry(id) : null;
+    const online = new Set(socketPlayerIds.values());
+    socket.emit('player-card', {
+      name: target.name,
+      level: levelFromXp(target.xp || 0),
+      vip: (target.vipUntil || 0) > Date.now(),
+      online: online.has(pid),
+      isMe: pid === id,
+      isFriend: !!me && me.friends.includes(pid),
+      requested: !!target.friendRequests && !!id && target.friendRequests.includes(id),
+    });
   });
   socket.on('get-friends', ({ playerId } = {}) => {
     const id = safePlayerId(playerId);
@@ -2848,6 +3055,10 @@ io.on('connection', (socket) => {
     const entry = getLibsEntry(id);
     if (!entry.name || entry.name === 'Anonyme') { socket.emit('vip-result', { error: 'noname' }); return; }
     if (entry.balance < VIP_PRICE) { socket.emit('vip-result', { error: 'insufficient', price: VIP_PRICE }); return; }
+    // Plafond : impossible de stocker plus de 3 mois de VIP (2 mois restants + 30 j achetes).
+    if ((entry.vipUntil || 0) - Date.now() > 60 * 24 * 3600 * 1000) {
+      socket.emit('vip-result', { error: 'max', vipUntil: entry.vipUntil }); return;
+    }
     entry.balance -= VIP_PRICE;
     entry.vipUntil = Math.max(Date.now(), entry.vipUntil || 0) + VIP_DURATION_MS;
     libs.set(id, entry);
@@ -2868,6 +3079,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('get-flash-offer', () => socket.emit('flash-offer', flashPayload()));
+  socket.on('get-shop-overrides', () => socket.emit('shop-overrides', shopOverridesPayload()));
 
   socket.on('get-snake-vote', ({ playerId } = {}) => {
     const id = safePlayerId(playerId);
@@ -3002,6 +3214,7 @@ io.on('connection', (socket) => {
     if (db) db.collection('gift_codes').updateOne({ _id: code }, { $set: rec }, { upsert: true }).catch(() => {});
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
     socket.emit('gift-cosmetic-result', { ok: true, code, cosmeticId: rec.cosmeticId || null, bundleId: rec.bundleId || null });
+    bumpChallenge(id, 'giftsSent');
   });
 
   // ── Recevoir un cadeau (cosmetique ou pack) ──────────────────────────────
@@ -3045,6 +3258,8 @@ io.on('connection', (socket) => {
     if (db) db.collection('gift_codes').updateOne({ _id: g }, { $set: { redeemedBy: id, redeemedAt: rec.redeemedAt } }).catch(() => {});
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
     socket.emit('redeem-gift-result', { ok: true, cosmeticId: rec.cosmeticId || null, bundleId: rec.bundleId || null, granted, boostAdded, fromName: rec.fromName });
+    // Message « Untel t'a offert un cadeau » avec bouton OK.
+    deliverGift(id, { fromName: rec.fromName || '', cosmeticId: granted[0] || rec.cosmeticId || rec.bundleId || null });
   });
 
   // ── Réinitialiser le compte ──────────────────────────────────────────────
@@ -4088,6 +4303,77 @@ app.get('/admin/comments', (req, res) => {
 app.get('/api/announcements', (req, res) => {
   res.json({ announcements: announcements.slice(0, 5).map(a => ({ id: a._id, text: a.text, textEn: a.textEn || '', at: a.at })) });
 });
+// Admin : defis personnalises (quotidiens ou permanents).
+app.get('/admin/challenges', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  res.json({ challenges: adminChallenges, metrics: CHALLENGE_METRICS.concat('streakDays') });
+});
+app.post('/admin/challenge', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const { kind, metric, goal, reward, label, labelEn } = req.body || {};
+  if (!['daily', 'permanent'].includes(kind)) return res.status(400).json({ error: 'kind = daily ou permanent.' });
+  if (!CHALLENGE_METRICS.concat('streakDays').includes(String(metric))) return res.status(400).json({ error: 'Métrique inconnue : ' + metric });
+  const g = Math.max(1, Math.min(1_000_000, Math.floor(Number(goal) || 0)));
+  const r = Math.max(1, Math.min(10_000, Math.floor(Number(reward) || 0)));
+  const lbl = String(label || '').trim().slice(0, 80);
+  if (!lbl) return res.status(400).json({ error: 'Libellé (FR) requis.' });
+  const c = { _id: 'adm_' + crypto.randomUUID().slice(0, 8), kind, metric: String(metric), goal: g, reward: r, label: lbl, labelEn: String(labelEn || '').trim().slice(0, 80), at: Date.now() };
+  adminChallenges.push(c);
+  if (db) db.collection('admin_challenges').insertOne({ ...c }).catch(() => {});
+  adminAudit('challenge-create', { id: c._id, kind, metric: c.metric, goal: g, reward: r, label: lbl });
+  // Tous les joueurs connectes voient le nouveau defi tout de suite.
+  for (const [sockId, pid] of socketPlayerIds.entries()) {
+    const e = libs.get(pid);
+    if (e) io.to(sockId).emit('challenges-update', { challenges: challengesPayload(e), permanent: permanentPayload(e) });
+  }
+  res.json({ ok: true, challenge: c });
+});
+app.delete('/admin/challenge/:id', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const idx = adminChallenges.findIndex(c => c._id === String(req.params.id));
+  if (idx < 0) return res.status(404).json({ error: 'Défi introuvable.' });
+  const [c] = adminChallenges.splice(idx, 1);
+  if (db) db.collection('admin_challenges').deleteOne({ _id: c._id }).catch(() => {});
+  adminAudit('challenge-delete', { id: c._id, label: c.label });
+  for (const [sockId, pid] of socketPlayerIds.entries()) {
+    const e = libs.get(pid);
+    if (e) io.to(sockId).emit('challenges-update', { challenges: challengesPayload(e), permanent: permanentPayload(e) });
+  }
+  res.json({ ok: true });
+});
+
+// Admin : catalogue complet des cosmetiques, mise en boutique / retrait,
+// avec compte a rebours optionnel de disparition (affiche sur l'article).
+app.get('/admin/cosmetics', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  pruneShopOverrides();
+  res.json({
+    cosmetics: COSMETICS.filter(c => !c.honorary).map(c => {
+      const o = shopOverrides.get(c.id);
+      return { id: c.id, type: c.type, price: c.price,
+        defaultInShop: DEFAULT_SHOP_TYPES.has(c.type),
+        override: o ? { inShop: o.inShop, until: o.until || null } : null,
+        effective: shopHas(c) };
+    }),
+  });
+});
+app.post('/admin/cosmetic-shop', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const { cosmeticId, inShop, hours } = req.body || {};
+  const cosm = COSMETICS.find(c => c.id === String(cosmeticId) && !c.honorary);
+  if (!cosm) return res.status(400).json({ error: 'Cosmétique inconnu : ' + cosmeticId });
+  const h = Number(hours) > 0 ? Math.min(24 * 30, Math.floor(Number(hours))) : 0;
+  if (inShop === null || inShop === undefined) {
+    shopOverrides.delete(cosm.id); // retour au comportement par defaut
+  } else {
+    shopOverrides.set(cosm.id, { inShop: !!inShop, until: (inShop && h) ? Date.now() + h * 3_600_000 : null });
+  }
+  dbSaveShopOverrides();
+  io.emit('shop-overrides', shopOverridesPayload());
+  adminAudit('shop-toggle', { cosmeticId: cosm.id, inShop: !!inShop, hours: h || undefined });
+  res.json({ ok: true, override: shopOverrides.get(cosm.id) || null });
+});
+
 // Admin : lancer / retirer une offre flash (promo courte sur un cosmetique).
 app.post('/admin/flash', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
@@ -4180,6 +4466,8 @@ app.post('/admin/gift', (req, res) => {
   libs.set(pid, entry);
   dbUpsertLibs(pid, entry);
   _emitToPlayer(pid, 'libs-update', { balance: entry.balance, delta: amount || undefined, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
+  // Message de cadeau (avec bouton OK) chez le destinataire, meme hors ligne.
+  deliverGift(pid, { fromName: 'Libero', libsAmount: amount, cosmeticId: grantedCosmetic });
   adminAudit('gift', { ref: String(ref || ''), libs: amount, cosmeticId: grantedCosmetic });
   res.json({ ok: true, name: entry.name || 'Anonyme', balance: entry.balance, grantedCosmetic });
 });

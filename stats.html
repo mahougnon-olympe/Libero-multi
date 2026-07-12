@@ -204,6 +204,30 @@
         <p id="flash-status" class="sub"></p>
       </section>
 
+      <section>
+        <h2>🎯 Défis personnalisés</h2>
+        <p class="sub" style="margin-top:-4px;">Crée tes propres défis, quotidiens (réclamables chaque jour) ou permanents (compteur à vie, réclamé une fois). Ils apparaissent immédiatement chez tous les joueurs.</p>
+        <div class="field">
+          <select id="chal-kind"><option value="daily">Quotidien</option><option value="permanent">Permanent</option></select>
+          <select id="chal-metric"></select>
+          <input id="chal-goal" type="number" min="1" placeholder="Objectif" style="max-width:110px" />
+          <input id="chal-reward" type="number" min="1" max="10000" placeholder="Récompense ⚡" style="max-width:130px" />
+        </div>
+        <div class="field">
+          <input id="chal-label" placeholder="Libellé (français)" maxlength="80" />
+          <input id="chal-label-en" placeholder="Label (English, optionnel)" maxlength="80" />
+          <button id="btn-chal-create" class="green">Créer</button>
+        </div>
+        <div id="chal-list"></div>
+      </section>
+
+      <section>
+        <h2>🛍️ Catalogue boutique <span id="cosm-pill" class="pill"></span></h2>
+        <p class="sub" style="margin-top:-4px;">Tous les cosmétiques du site. Mets un article en boutique (avec un compte à rebours optionnel, affiché sur l'article) ou retire-le. « Défaut » = comportement normal de sa catégorie.</p>
+        <div class="field"><input id="cosm-search" placeholder="Filtrer (id ou type)…" /></div>
+        <div id="cosm-list" style="max-height:420px;overflow-y:auto"></div>
+      </section>
+
       <section id="inactive-section" class="hidden">
         <h2>😴 Joueurs qui décrochent <span id="inactive-pill" class="pill warn"></span></h2>
         <p class="sub" style="margin-top:-4px;">Joueurs nommés sans activité depuis 7 jours ou plus. Clique pour ouvrir la fiche et envoyer un cadeau de retour.</p>
@@ -601,6 +625,81 @@
       if (row && typeof openPlayer === 'function') openPlayer(row.dataset.openref);
     });
 
+    // ── Défis personnalisés ──
+    var METRIC_LABELS = { gamesWon:'Victoires classiques', gamesPlayed:'Parties jouées', triviaCorrect:'Bonnes réponses quiz', triviaGames:'Quiz terminés', snakeEaten:'⚡ mangés au Snake', luffyRun:'Points Libero Run', luffyGames:'Parties Libero Run', wheelSpins:'Tours de roue', ludoWins:'Victoires Ludo', giftsSent:'Cadeaux envoyés', streakDays:'Jours de série' };
+    async function loadChallenges() {
+      try {
+        var d = await (await api('/admin/challenges')).json();
+        var sel = $('chal-metric');
+        if (!sel.options.length) sel.innerHTML = (d.metrics || []).map(function (m) { return '<option value="' + esc(m) + '">' + esc(METRIC_LABELS[m] || m) + '</option>'; }).join('');
+        $('chal-list').innerHTML = (d.challenges || []).length ? d.challenges.map(function (c) {
+          return '<div class="ann-row"><span class="txt">' + (c.kind === 'daily' ? '📅' : '♾️') + ' ' + esc(c.label)
+            + ' <span class="muted">' + esc(METRIC_LABELS[c.metric] || c.metric) + ' · objectif ' + c.goal + ' · ' + c.reward + ' ⚡</span></span>'
+            + '<button class="red small" data-chaldel="' + esc(c._id) + '">Supprimer</button></div>';
+        }).join('') : '<p class="empty">Aucun défi personnalisé.</p>';
+      } catch (e) {}
+    }
+    $('btn-chal-create').addEventListener('click', async function () {
+      var body = { kind: $('chal-kind').value, metric: $('chal-metric').value, goal: Number($('chal-goal').value), reward: Number($('chal-reward').value), label: $('chal-label').value.trim(), labelEn: $('chal-label-en').value.trim() };
+      if (!body.label || !body.goal || !body.reward) return;
+      this.disabled = true;
+      try {
+        var r = await api('/admin/challenge', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        var d = await r.json();
+        if (d.ok) { $('chal-label').value = ''; $('chal-label-en').value = ''; $('chal-goal').value = ''; $('chal-reward').value = ''; }
+        else alert(d.error || 'Erreur');
+        await loadChallenges();
+      } catch (e) {}
+      this.disabled = false;
+    });
+    $('chal-list').addEventListener('click', async function (e) {
+      var b = e.target.closest('[data-chaldel]'); if (!b) return;
+      b.disabled = true;
+      try { await api('/admin/challenge/' + encodeURIComponent(b.dataset.chaldel), { method:'DELETE' }); await loadChallenges(); }
+      catch (err) { b.disabled = false; }
+    });
+
+    // ── Catalogue boutique ──
+    var COSM_CACHE = [];
+    async function loadCosmetics() {
+      try {
+        var d = await (await api('/admin/cosmetics')).json();
+        COSM_CACHE = d.cosmetics || [];
+        renderCosmetics();
+      } catch (e) {}
+    }
+    function renderCosmetics() {
+      var q = ($('cosm-search').value || '').toLowerCase();
+      var list = COSM_CACHE.filter(function (c) { return !q || c.id.toLowerCase().indexOf(q) >= 0 || c.type.toLowerCase().indexOf(q) >= 0; });
+      $('cosm-pill').textContent = COSM_CACHE.filter(function (c) { return c.effective; }).length + ' en boutique / ' + COSM_CACHE.length;
+      $('cosm-list').innerHTML = list.slice(0, 200).map(function (c) {
+        var status = c.effective
+          ? '<span style="color:var(--green,#22c55e)">🟢 En boutique' + (c.override && c.override.until ? ' (fin ' + new Date(c.override.until).toLocaleString('fr-FR') + ')' : '') + '</span>'
+          : '<span class="muted">⚫ Retiré</span>';
+        var forced = c.override ? ' <span class="pill">forcé</span>' : '';
+        return '<div class="ann-row"><span class="txt"><strong>' + esc(c.id) + '</strong> <span class="muted">' + esc(c.type) + ' · ⚡ ' + c.price + '</span> ' + status + forced + '</span>'
+          + '<input type="number" min="1" max="720" placeholder="h" title="Durée en heures (optionnel)" style="max-width:64px" data-cosmh="' + esc(c.id) + '" />'
+          + '<button class="green small" data-cosmin="' + esc(c.id) + '">Mettre</button>'
+          + '<button class="red small" data-cosmout="' + esc(c.id) + '">Retirer</button>'
+          + (c.override ? '<button class="small" data-cosmdef="' + esc(c.id) + '">Défaut</button>' : '')
+          + '</div>';
+      }).join('') + (list.length > 200 ? '<p class="empty">Affine le filtre (200 max affichés).</p>' : '');
+    }
+    $('cosm-search').addEventListener('input', renderCosmetics);
+    $('cosm-list').addEventListener('click', async function (e) {
+      var btn = e.target.closest('[data-cosmin],[data-cosmout],[data-cosmdef]');
+      if (!btn) return;
+      var id = btn.dataset.cosmin || btn.dataset.cosmout || btn.dataset.cosmdef;
+      var body = { cosmeticId: id };
+      if (btn.dataset.cosmin)  { body.inShop = true; var h = document.querySelector('[data-cosmh="' + id + '"]'); if (h && h.value) body.hours = Number(h.value); }
+      if (btn.dataset.cosmout) body.inShop = false;
+      if (btn.dataset.cosmdef) body.inShop = null;
+      btn.disabled = true;
+      try { await api('/admin/cosmetic-shop', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) }); await loadCosmetics(); }
+      catch (err) {}
+      btn.disabled = false;
+    });
+
     var AUDIT_LABELS = { gift: '🎁 Cadeau', 'restore-player': '🛠 Restauration', 'reset-restore': '↩️ Restitution', announce: '📣 Annonce', push: '🔔 Push', 'flash-offer': '⚡ Offre flash', 'flash-offer-clear': '⚡ Offre retirée' };
     function renderAudit(list) {
       list = list || [];
@@ -671,6 +770,7 @@
         showDash(); render(d);
         $('live-txt').textContent = 'à jour · ' + new Date().toLocaleTimeString('fr-FR');
         startTimer();
+        loadChallenges(); loadCosmetics();
       } catch (e) {
         $('login-err').textContent = e.message || 'Erreur.';
         localStorage.removeItem('libero_admin_key');

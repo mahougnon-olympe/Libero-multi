@@ -423,6 +423,28 @@ const DICT = {
     friendsOnline:'en ligne', friendsOffline:'hors ligne',
     friendsChallengeBtn:'⚔️ Défier', friendsRemoveBtn:'✕',
     friendsErrInvalid:'Code invalide.', friendsErrNotFound:'Aucun joueur avec ce code.', friendsErrFull:'Liste pleine (30 amis max).',
+    friendsErrAlready:'Vous êtes déjà amis.', friendsErrNoName:'Choisis d\'abord un pseudo.',
+    friendRequestSent:name=>`✅ Demande d'ami envoyée à ${name} !`,
+    friendRequestAccepted:name=>`🤝 ${name} et toi êtes maintenant amis !`,
+    friendRequestFrom:name=>`👥 ${name} te demande en ami`,
+    friendReqAccept:'Accepter', friendReqDecline:'Refuser',
+    friendsGiftTitle:name=>`🎁 Offrir des Libs à ${name}`,
+    friendsGiftSent:(n,name)=>`🎁 ${n} ⚡ envoyés à ${name} !`,
+    friendsGiftErrDaily:left=>`Limite de 500 ⚡ offerts par jour atteinte (il te reste ${left} ⚡ offrables).`,
+    friendsGiftErrInsufficient:'Solde insuffisant.',
+    giftRecvTitle:'🎁 Tu as reçu un cadeau !',
+    giftRecvLibs:(from,n)=>`${from || 'Quelqu\'un'} t'a offert ${n} ⚡ !`,
+    giftRecvCosm:from=>`${from || 'Quelqu\'un'} t'a offert un cosmétique ! Retrouve-le dans ton casier.`,
+    giftRecvBoth:(from,n)=>`${from || 'Quelqu\'un'} t'a offert ${n} ⚡ et un cosmétique !`,
+    challengeFriendBtn:'⚔️ Défier un ami',
+    friendPickTitle:'⚔️ Qui veux-tu défier ?',
+    friendPickNone:'Aucun ami en ligne pour le moment. Ajoute des amis dans ton Profil !',
+    friendPickNeedGame:'Choisis d\'abord un jeu.',
+    friendPickNeedTheme:'Choisis d\'abord au moins un thème de quiz.',
+    playerCardLevel:lv=>`⭐ Niveau ${lv}`,
+    playerCardAddFriend:'👥 Demander en ami', playerCardFriends:'✅ Vous êtes amis',
+    playerCardRequested:'⏳ Demande déjà envoyée', playerCardYou:'C\'est toi !',
+    playerCardOnline:'🟢 En ligne', playerCardOffline:'⚪ Hors ligne', playerCardVip:'👑 VIP',
     friendsChallengeSent:name=>`⚔️ Défi envoyé à ${name} ! En attente...`,
     friendChallengeToast:(name)=>`⚔️ ${name} te défie !`,
     friendChallengeAccept:'Accepter', friendChallengeDecline:'Ignorer',
@@ -451,6 +473,7 @@ const DICT = {
     vipActive:d=>`👑 Tu es VIP jusqu'au ${d}. Rachète pour prolonger de 30 jours !`,
     vipDone:'👑 Te voilà VIP pour 30 jours ! Profite de tes +20%.',
     vipInsufficient:price=>`Il te faut ${price} ⚡ pour devenir VIP. Passe par la boutique pour recharger !`,
+    vipMax:'Tu as déjà le maximum de VIP en réserve (3 mois). Reviens plus tard !',
     joinName:{
       title:"🎮 On t'attend !",
       intro:"Un ami t'a invité à une partie. Choisis d'abord ton pseudo pour le rejoindre.",
@@ -816,6 +839,8 @@ const DICT = {
       perm_play500:'Joue 500 parties classiques', perm_trivia1000:'Réponds bien à 1000 questions de quiz',
       perm_snake2000:'Mange 2000 ⚡ au Snake', perm_luffy500k:'Cumule 500 000 pts au Libero Run',
       perm_streak30:'Tiens une série de connexion de 30 jours',
+      perm_wheel30:'Tourne la roue de la fortune 30 fois', perm_ludo25:'Gagne 25 parties de Ludo',
+      perm_gift5:'Envoie 5 cadeaux à d\'autres joueurs',
     },
     permTitle:'🏔️ Défis permanents',
     permSub:'Des exploits de longue haleine : la progression ne se remet jamais à zéro. Récompenses énormes, jusqu\'à 5000 ⚡ !',
@@ -875,14 +900,14 @@ const DICT = {
         { icon:'🗑️', title:'Réinitialiser le compte', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Réinitialiser le compte</strong> supprime <strong>définitivement</strong> toute ta progression : Libs, cosmétiques, série, historique, et tu <strong>disparais de tous les classements</strong>. Le site redémarre ensuite comme à ta toute première visite (animation de bienvenue comprise). Il faut cocher la case de confirmation pour valider. Attention : après la réinitialisation, ton ancien code de récupération ne fonctionne plus." },
         { icon:'🎁', title:'Offrir un cosmétique ou un pack', desc:"Tu peux <strong>offrir</strong> n'importe quel cosmétique payant <strong>ou pack (bundle)</strong> de la boutique ! Ouvre sa fiche et clique <strong>🎁 Offrir</strong> : tu paies son prix en ⚡ et tu reçois un <strong>lien cadeau</strong> à partager (WhatsApp, etc.). Ton ami <strong>ouvre le lien et reçoit le cadeau automatiquement</strong>. Si le lien ne passe pas, un <strong>code cadeau</strong> est aussi fourni, à entrer dans la boutique, section <strong>🎟️ Codes → Recevoir un cadeau</strong>. Chaque cadeau n'est utilisable qu'<strong>une seule fois</strong>." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> · ton serpent mange des <strong>⚡ Libs</strong> pour grandir, et chaque ⚡ mangé est <strong>ajouté à ton solde</strong> (score 10 = 10 Libs gagnés). Les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
-        { icon:'🏆', title:'Tournoi du samedi', desc:"Chaque <strong>samedi</strong>, un tournoi automatique se joue sur tout le site (visible dans <strong>Évents</strong>) : victoires classiques <strong>+10 pts</strong>, bonnes réponses de quiz <strong>+2 pts</strong>, ⚡ mangés au Snake <strong>+1 pt</strong>. À minuit, le meilleur remporte <strong>2000 ⚡</strong> et le titre honorifique <strong>« Champion de la semaine »</strong>, gardé jusqu'au tournoi suivant. Le top 10 s'affiche en direct." },
+        { icon:'🏆', title:'Tournoi du samedi', desc:"Chaque <strong>samedi</strong>, un tournoi automatique se joue sur tout le site (suivi en direct dans la carte <strong>News</strong>) : victoires classiques <strong>+10 pts</strong>, bonnes réponses de quiz <strong>+2 pts</strong>, ⚡ mangés au Snake <strong>+1 pt</strong>. À minuit, le meilleur remporte <strong>2000 ⚡</strong> et le titre honorifique <strong>« Champion de la semaine »</strong>, gardé jusqu'au tournoi suivant. Le top 10 s'affiche en direct." },
         { icon:'🤝', title:'Inviter un ami (parrainage)', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Inviter un ami</strong> te donne ton <strong>lien d'invitation</strong>. Quand un nouveau joueur arrive par ton lien et joue sa <strong>première partie</strong>, vous recevez chacun <strong>+100 ⚡</strong>. Le nombre de joueurs que tu as parrainés s'affiche dans la fenêtre." },
         { icon:'💰', title:'Duels avec mise', desc:"En créant une partie multijoueur classique, tu peux choisir une <strong>mise</strong> (25, 50 ou 100 ⚡). Les deux joueurs paient la mise au départ et <strong>le vainqueur rafle tout</strong> (le double). Match nul ou partie annulée : chacun est <strong>remboursé</strong>. Il faut un pseudo et un solde suffisant des deux côtés ; la revanche remet la même mise si les deux peuvent payer." },
         { icon:'⭐', title:'Niveaux et XP', desc:"Chaque partie te rapporte de l'<strong>XP</strong> (+25 par partie, bonus en cas de <strong>victoire</strong> et selon ton score au <strong>quiz</strong>). Ton <strong>niveau</strong> s'affiche en haut de ton Profil avec une barre de progression. À chaque niveau gagné tu reçois des <strong>⚡ Libs</strong> (de plus en plus), et les paliers <strong>10, 25 et 50</strong> offrent un gros bonus (jusqu'à <strong>+5000 ⚡</strong>)." },
         { icon:'🧠', title:'Test de QI', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Mon QI</strong> se débloque après <strong>10 quiz terminés</strong> (solo ou en groupe). Le test : <strong>15 questions de logique</strong>, 30 secondes chacune. Ta précision et ta vitesse donnent un <strong>QI estimé</strong> (c'est une estimation ludique, pas un test médical !). Tu peux le repasser tous les <strong>3 jours</strong> et <strong>partager</strong> ton score à tes amis." },
         { icon:'🎡', title:'Roue de la fortune', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Roue de la fortune</strong> t'offre <strong>un tour gratuit par jour</strong> : de <strong>5 à 250 ⚡</strong> à gagner à chaque tour. Il faut un pseudo pour jouer. Reviens chaque jour pour ton tour gratuit !" },
-        { icon:'👥', title:'Mes amis', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Mes amis</strong> te permet d'ajouter des amis avec leur <strong>code ami</strong> (le même code que dans « Inviter un ami »). Tu vois qui est <strong>en ligne</strong> (point vert) et tu peux le <strong>défier en un clic</strong> : il reçoit une invitation avec Accepter/Ignorer. Jusqu'à 30 amis." },
-        { icon:'👑', title:'Pass VIP', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Pass VIP</strong> : pour <strong>2000 ⚡</strong>, deviens VIP pendant <strong>30 jours</strong>. Avantages : badge <strong>👑 VIP</strong> sur ton profil et <strong>+20% de Libs</strong> sur tes gains (série de connexion, défis, roue de la fortune, tournoi du samedi). Rachète pour prolonger de 30 jours." },
+        { icon:'👥', title:'Mes amis', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Mes amis</strong> : envoie une <strong>demande d'ami</strong> avec le <strong>code ami</strong> de l'autre (le même code que dans « Inviter un ami »), ou en cliquant un <strong>pseudo dans les classements</strong>. L'autre <strong>accepte ou refuse</strong> ; une fois amis, vous êtes chacun dans la liste de l'autre. Tu vois qui est <strong>en ligne</strong> (point vert), tu peux lui <strong>offrir des Libs</strong> 🎁 (10 à 500 ⚡, max 500 offerts par jour) et le <strong>défier</strong> depuis les zones <strong>Jeux classiques</strong> et <strong>Quiz</strong> (bouton ⚔️ Défier un ami : tu choisis le jeu, les thèmes et la mise). Bonus : parrain et filleul deviennent amis automatiquement. Jusqu'à 30 amis." },
+        { icon:'👑', title:'Pass VIP', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Pass VIP</strong> : pour <strong>2000 ⚡</strong>, deviens VIP pendant <strong>30 jours</strong>. Avantages : badge <strong>👑 VIP</strong> sur ton profil et <strong>+20% de Libs</strong> sur tes gains (série de connexion, défis, roue de la fortune, tournoi du samedi). Rachète pour prolonger (maximum <strong>3 mois</strong> de VIP en réserve)." },
         { icon:'🎲', title:'Ludo', desc:"Le <strong>Ludo</strong> classique en 1 contre 1 : 4 pions chacun, lance le <strong>dé</strong>, il faut un <strong>6</strong> pour sortir un pion. Atterrir sur un pion adverse le <strong>capture</strong> (retour à la base), sauf sur les cases <strong>étoilées ★</strong>. Un 6 ou une capture fait <strong>rejouer</strong>. Fais faire le tour complet à tes 4 pions et remonte la colonne d'arrivée pour gagner. Jouable contre un ami (avec <strong>mise</strong> possible) ou contre le bot." },
         { icon:'🌱', title:'Quiz révisions', desc:"Trois thèmes de quiz <strong>spécial école</strong> sont disponibles : <strong>🌱 SVT</strong>, <strong>🇬🇧 Anglais</strong> et <strong>🇧🇯 Bénin</strong> (histoire et géographie du pays). Révise en t'amusant, seul ou en salon avec ta classe ! Trois niveaux de difficulté comme pour les autres thèmes." },
         { icon:'📱', title:"Installer l'appli et notifications", desc:"Le site s'<strong>installe comme une appli</strong> : dans ton navigateur, menu → <strong>« Ajouter à l'écran d'accueil »</strong> (ou « Installer l'application »). Tu peux aussi activer les <strong>🔔 notifications</strong> dans <strong>Profil → Réglages → Notifications</strong> pour être prévenu des tournois, annonces et offres flash, même quand le site est fermé." },
@@ -975,7 +1000,7 @@ const DICT = {
       landing_lb:'🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10 + meilleur score Libero Run ÷10. Plus tu montes, plus ton serpent 🐍 grandit !',
       landing_btns:'⚙️ Des boutons permanents sont disponibles :<br>▶ Les <strong>Réglages</strong> (thème, langue, serpent, sons, musique, cartes de remboursement) sont dans l\'onglet <strong>Profil</strong>, carte <strong>⚙️ Réglages</strong>.<br>▶ <strong>En bas à droite</strong> : ❓ <strong>Aide</strong> · ✉️ <strong>Commentaire</strong> · 🤖 <strong>Assistant</strong>',
       landing_libs:'⚡ <strong>Libs</strong> : la monnaie virtuelle du site. Tous les joueurs classés en reçoivent toutes les 5h (1er : +10 ⚡, 2e : +5 ⚡, 3e : +3 ⚡, du 4e au 10e : +2 ⚡, ensuite +1 ⚡). Tu en gagnes aussi avec les <strong>défis du jour</strong> et ta <strong>série de connexion</strong>. Dépense-les dans la <strong>boutique</strong> : cosmétiques, boosts quiz, livres exclusifs !',
-      events_snake:'🏆 Le samedi, le <strong>Tournoi</strong> se joue ici : top 10 en direct, 2000 ⚡ et le titre « Champion de la semaine » pour le meilleur !<br>🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les <strong>⚡ Libs</strong> pour grandir : chaque ⚡ mangé est ajouté à ton solde (score 10 = 10 Libs gagnés). Les bords sont traversables, tu ressors de l\'autre côté ! Ton meilleur score <strong>persiste</strong> entre les sessions.',
+      events_snake:'🏆 Le samedi, le <strong>Tournoi</strong> se joue automatiquement (suivi en direct dans la carte <strong>News</strong> : top 10, 2000 ⚡ et le titre « Champion de la semaine » pour le meilleur).<br>🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les <strong>⚡ Libs</strong> pour grandir : chaque ⚡ mangé est ajouté à ton solde (score 10 = 10 Libs gagnés). Les bords sont traversables, tu ressors de l\'autre côté ! Ton meilleur score <strong>persiste</strong> entre les sessions.',
       luffy_runner:'🏃 <strong>Libero Run</strong> : aide Libero à courir le plus loin possible ! Saute (↑ / Espace) par-dessus les obstacles au sol, accroupis-toi (↓) sous les obstacles volants. Attrape l\'⭐ étoile pour être invincible quelques secondes. Ton meilleur score alimente un classement dédié.',
       home_games:'🎮 Choisis ton jeu en haut : <strong>Puissance 4</strong>, <strong>Morpion</strong>, <strong>Échecs</strong>, <strong>Dames</strong> ou <strong>Ludo</strong> 🎲 (aucun n\'est présélectionné). Le classement est partagé entre les cinq jeux.',
       home_bot:'🤖 <strong>Mode Solo</strong> : joue contre le bot à 3 niveaux de difficulté : Facile, Moyen ou Difficile. Tes victoires et défaites sont comptées dans le classement !',
@@ -985,7 +1010,7 @@ const DICT = {
       quiz_themes:'🧠 <strong>Quiz Culture Générale</strong> : sélectionne un ou plusieurs thèmes (Histoire, Cinéma, Sciences…), puis joue en <strong>Solo</strong> ou crée un <strong>salon multijoueur</strong> à partager avec tes amis.',
       quiz_lb:'🏆 Le <strong>classement Quiz</strong> est séparé du classement Classique. Les points sont attribués selon ta vitesse de réponse et le nombre de bonnes réponses. <strong>Réponse éclair</strong> (dans les premières secondes) = <strong>point doublé ⚡</strong>.',
       read_catalogue:'📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Les <strong>romans exclusifs</strong> se lisent directement ici : <strong>⭐ L\'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, puis 1000 ⚡ et 2000 ⚡), <strong>Life of Georgia</strong> (2000 ⚡ le livre entier) et <strong>Life of Georgia · Tome 2</strong>, offert à ceux qui possèdent le Tome 1.',
-      profile_hub:'🎯 Ton <strong>Profil</strong> regroupe ton <strong>niveau</strong> ⭐ (chaque partie donne de l\'XP, chaque niveau des ⚡), ta <strong>série de connexion</strong> 🔥, tes <strong>défis du jour</strong>, ton <strong>casier</strong>, ton <strong>historique</strong>, tes <strong>amis</strong> 👥 (défie-les en un clic), la <strong>roue de la fortune</strong> 🎡 (1 tour gratuit par jour), le <strong>test de QI</strong> 🧠 (après 10 quiz), le <strong>Pass VIP</strong> 👑 (+20% de Libs), la carte <strong>Inviter un ami</strong> 🤝 (+100 ⚡ chacun), tes <strong>émotes</strong> 😎, la <strong>pluie d\'émojis</strong> 🌈, les <strong>Réglages</strong> ⚙️ (avec les 🔔 notifications), ton <strong>code de récupération</strong> 🔐 et la <strong>réinitialisation</strong> du compte.',
+      profile_hub:'🎯 Ton <strong>Profil</strong> regroupe ton <strong>niveau</strong> ⭐ (chaque partie donne de l\'XP, chaque niveau des ⚡), ta <strong>série de connexion</strong> 🔥, tes <strong>défis du jour</strong>, ton <strong>casier</strong>, ton <strong>historique</strong>, tes <strong>amis</strong> 👥 (demandes d\'amis, cadeaux de Libs, défis depuis les zones de jeu), la <strong>roue de la fortune</strong> 🎡 (1 tour gratuit par jour), le <strong>test de QI</strong> 🧠 (après 10 quiz), le <strong>Pass VIP</strong> 👑 (+20% de Libs), la carte <strong>Inviter un ami</strong> 🤝 (+100 ⚡ chacun), tes <strong>émotes</strong> 😎, la <strong>pluie d\'émojis</strong> 🌈, les <strong>Réglages</strong> ⚙️ (avec les 🔔 notifications), ton <strong>code de récupération</strong> 🔐 et la <strong>réinitialisation</strong> du compte.',
       feed_videos:'🎬 La section <strong>Vidéos</strong> : fais défiler verticalement pour découvrir les vidéos de la communauté, comme sur TikTok. Le son se coupe ou se réactive d\'un simple clic sur la vidéo.',
     },
   },
@@ -1060,6 +1085,28 @@ const DICT = {
     friendsOnline:'online', friendsOffline:'offline',
     friendsChallengeBtn:'⚔️ Challenge', friendsRemoveBtn:'✕',
     friendsErrInvalid:'Invalid code.', friendsErrNotFound:'No player with this code.', friendsErrFull:'List full (30 friends max).',
+    friendsErrAlready:'You are already friends.', friendsErrNoName:'Pick a nickname first.',
+    friendRequestSent:name=>`✅ Friend request sent to ${name}!`,
+    friendRequestAccepted:name=>`🤝 You and ${name} are now friends!`,
+    friendRequestFrom:name=>`👥 ${name} wants to be your friend`,
+    friendReqAccept:'Accept', friendReqDecline:'Decline',
+    friendsGiftTitle:name=>`🎁 Gift Libs to ${name}`,
+    friendsGiftSent:(n,name)=>`🎁 ${n} ⚡ sent to ${name}!`,
+    friendsGiftErrDaily:left=>`Daily limit of 500 ⚡ gifted reached (${left} ⚡ left to gift today).`,
+    friendsGiftErrInsufficient:'Insufficient balance.',
+    giftRecvTitle:'🎁 You received a gift!',
+    giftRecvLibs:(from,n)=>`${from || 'Someone'} gifted you ${n} ⚡!`,
+    giftRecvCosm:from=>`${from || 'Someone'} gifted you a cosmetic! Find it in your locker.`,
+    giftRecvBoth:(from,n)=>`${from || 'Someone'} gifted you ${n} ⚡ and a cosmetic!`,
+    challengeFriendBtn:'⚔️ Challenge a friend',
+    friendPickTitle:'⚔️ Who do you want to challenge?',
+    friendPickNone:'No friend online right now. Add friends in your Profile!',
+    friendPickNeedGame:'Choose a game first.',
+    friendPickNeedTheme:'Choose at least one quiz theme first.',
+    playerCardLevel:lv=>`⭐ Level ${lv}`,
+    playerCardAddFriend:'👥 Send friend request', playerCardFriends:'✅ You are friends',
+    playerCardRequested:'⏳ Request already sent', playerCardYou:'That\'s you!',
+    playerCardOnline:'🟢 Online', playerCardOffline:'⚪ Offline', playerCardVip:'👑 VIP',
     friendsChallengeSent:name=>`⚔️ Challenge sent to ${name}! Waiting...`,
     friendChallengeToast:(name)=>`⚔️ ${name} challenges you!`,
     friendChallengeAccept:'Accept', friendChallengeDecline:'Ignore',
@@ -1088,6 +1135,7 @@ const DICT = {
     vipActive:d=>`👑 You are VIP until ${d}. Buy again to extend by 30 days!`,
     vipDone:'👑 You are now VIP for 30 days! Enjoy your +20%.',
     vipInsufficient:price=>`You need ${price} ⚡ to become VIP. Top up in the shop!`,
+    vipMax:'You already have the maximum VIP stored (3 months). Come back later!',
     joinName:{
       title:'🎮 They are waiting for you!',
       intro:'A friend invited you to a game. Pick your nickname first to join them.',
@@ -1453,6 +1501,8 @@ const DICT = {
       perm_play500:'Play 500 classic games', perm_trivia1000:'Answer 1000 quiz questions right',
       perm_snake2000:'Eat 2000 ⚡ in Snake', perm_luffy500k:'Rack up 500,000 pts in Libero Run',
       perm_streak30:'Hold a 30-day login streak',
+      perm_wheel30:'Spin the wheel of fortune 30 times', perm_ludo25:'Win 25 Ludo games',
+      perm_gift5:'Send 5 gifts to other players',
     },
     permTitle:'🏔️ Permanent challenges',
     permSub:'Long-haul feats: progress never resets. Huge rewards, up to 5000 ⚡!',
@@ -1512,14 +1562,14 @@ const DICT = {
         { icon:'🗑️', title:'Reset account', desc:"In the <strong>Profile</strong> tab, the <strong>Reset account</strong> card <strong>permanently</strong> deletes all your progress: Libs, cosmetics, streak, history, and you <strong>disappear from every leaderboard</strong>. The site then restarts as if it were your very first visit (welcome animation included). You must tick the confirmation box to proceed. Warning: after the reset, your old recovery code no longer works." },
         { icon:'🎁', title:'Gift a cosmetic or a pack', desc:"You can <strong>gift</strong> any paid cosmetic <strong>or pack (bundle)</strong> from the shop! Open its detail sheet and click <strong>🎁 Gift</strong>: you pay its price in ⚡ and receive a <strong>gift link</strong> to share (WhatsApp, etc.). Your friend <strong>opens the link and receives the gift automatically</strong>. If the link does not work, a <strong>gift code</strong> is also provided, to enter in the shop, <strong>🎟️ Codes → Receive a gift</strong> section. Each gift can only be used <strong>once</strong>." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> · your snake eats <strong>⚡ Libs</strong> to grow, and every ⚡ eaten is <strong>added to your balance</strong> (score 10 = 10 Libs earned). Walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
-        { icon:'🏆', title:'Saturday tournament', desc:"Every <strong>Saturday</strong>, an automatic tournament runs across the whole site (visible in <strong>Events</strong>): classic wins <strong>+10 pts</strong>, correct quiz answers <strong>+2 pts</strong>, ⚡ eaten in Snake <strong>+1 pt</strong>. At midnight the best player wins <strong>2000 ⚡</strong> and the honorary <strong>\"Weekly Champion\"</strong> title, kept until the next tournament. The top 10 shows live." },
+        { icon:'🏆', title:'Saturday tournament', desc:"Every <strong>Saturday</strong>, an automatic tournament runs across the whole site (followed live in the <strong>News</strong> card): classic wins <strong>+10 pts</strong>, correct quiz answers <strong>+2 pts</strong>, ⚡ eaten in Snake <strong>+1 pt</strong>. At midnight the best player wins <strong>2000 ⚡</strong> and the honorary <strong>\"Weekly Champion\"</strong> title, kept until the next tournament. The top 10 shows live." },
         { icon:'🤝', title:'Invite a friend (referral)', desc:"In the <strong>Profile</strong> tab, the <strong>Invite a friend</strong> card gives you your <strong>invite link</strong>. When a new player arrives through your link and plays their <strong>first game</strong>, you each receive <strong>+100 ⚡</strong>. The number of players you referred shows in the window." },
         { icon:'💰', title:'Stake duels', desc:"When creating a classic multiplayer game, you can pick a <strong>stake</strong> (25, 50 or 100 ⚡). Both players pay the stake at the start and <strong>the winner takes all</strong> (double). Draw or cancelled game: both are <strong>refunded</strong>. A nickname and enough balance are required on both sides; a rematch re-collects the same stake if both can pay." },
         { icon:'⭐', title:'Levels and XP', desc:"Every game earns you <strong>XP</strong> (+25 per game, bonus for a <strong>win</strong> and for your <strong>quiz</strong> score). Your <strong>level</strong> shows at the top of your Profile with a progress bar. Each new level rewards you with <strong>⚡ Libs</strong> (more and more), and milestones <strong>10, 25 and 50</strong> grant a big bonus (up to <strong>+5000 ⚡</strong>)." },
         { icon:'🧠', title:'IQ test', desc:"In your <strong>Profile</strong>, the <strong>My IQ</strong> card unlocks after <strong>10 finished quizzes</strong> (solo or group). The test: <strong>15 logic questions</strong>, 30 seconds each. Your accuracy and speed give an <strong>estimated IQ</strong> (a playful estimate, not a medical test!). You can retake it every <strong>3 days</strong> and <strong>share</strong> your score with friends." },
         { icon:'🎡', title:'Wheel of fortune', desc:"In your <strong>Profile</strong>, the <strong>Wheel of fortune</strong> card gives you <strong>one free spin a day</strong>: win <strong>5 to 250 ⚡</strong> every spin. A nickname is required. Come back every day for your free spin!" },
-        { icon:'👥', title:'My friends', desc:"In your <strong>Profile</strong>, the <strong>My friends</strong> card lets you add friends with their <strong>friend code</strong> (the same code as in \"Invite a friend\"). See who is <strong>online</strong> (green dot) and <strong>challenge them in one click</strong>: they get an invitation with Accept/Ignore. Up to 30 friends." },
-        { icon:'👑', title:'VIP Pass', desc:"In your <strong>Profile</strong>, the <strong>VIP Pass</strong> card: for <strong>2000 ⚡</strong>, become VIP for <strong>30 days</strong>. Perks: a <strong>👑 VIP</strong> badge on your profile and <strong>+20% Libs</strong> on your earnings (login streak, challenges, wheel of fortune, Saturday tournament). Buy again to extend by 30 days." },
+        { icon:'👥', title:'My friends', desc:"In your <strong>Profile</strong>, the <strong>My friends</strong> card: send a <strong>friend request</strong> with the other player's <strong>friend code</strong> (the same code as in \"Invite a friend\"), or by clicking a <strong>name in the leaderboards</strong>. They <strong>accept or decline</strong>; once friends, you are in each other's list. See who is <strong>online</strong> (green dot), <strong>gift them Libs</strong> 🎁 (10 to 500 ⚡, max 500 gifted per day) and <strong>challenge them</strong> from the <strong>Classic Games</strong> and <strong>Quiz</strong> areas (⚔️ Challenge a friend button: you pick the game, themes and stake). Bonus: sponsor and referred player become friends automatically. Up to 30 friends." },
+        { icon:'👑', title:'VIP Pass', desc:"In your <strong>Profile</strong>, the <strong>VIP Pass</strong> card: for <strong>2000 ⚡</strong>, become VIP for <strong>30 days</strong>. Perks: a <strong>👑 VIP</strong> badge on your profile and <strong>+20% Libs</strong> on your earnings (login streak, challenges, wheel of fortune, Saturday tournament). Buy again to extend (maximum <strong>3 months</strong> of VIP stored)." },
         { icon:'🎲', title:'Ludo', desc:"Classic <strong>Ludo</strong> in 1 vs 1: 4 pawns each, roll the <strong>dice</strong>, you need a <strong>6</strong> to leave the base. Landing on an opponent's pawn <strong>captures</strong> it (back to base), except on <strong>starred ★</strong> squares. A 6 or a capture lets you <strong>play again</strong>. Take all 4 pawns around the board and up the home column to win. Play against a friend (with an optional <strong>stake</strong>) or against the bot." },
         { icon:'🌱', title:'Revision quizzes', desc:"Three <strong>school-focused</strong> quiz themes are available: <strong>🌱 Biology</strong>, <strong>🇬🇧 English</strong> and <strong>🇧🇯 Benin</strong> (the country's history and geography). Revise while having fun, solo or in a room with your class! Three difficulty levels like the other themes." },
         { icon:'📱', title:'Install the app and notifications', desc:"The site <strong>installs like an app</strong>: in your browser, menu → <strong>\"Add to Home screen\"</strong> (or \"Install app\"). You can also enable <strong>🔔 notifications</strong> in <strong>Profile → Settings → Notifications</strong> to be alerted about tournaments, news and flash offers, even when the site is closed." },
@@ -1612,7 +1662,7 @@ const DICT = {
       landing_lb:'🌍 The <strong>Global Leaderboard</strong> brings together <em>all</em> players with at least one point. Score = classic wins ×10 + Quiz points + best Snake score ×10 + best Libero Run score ÷10. The higher you climb, the longer your snake 🐍 grows!',
       landing_btns:'⚙️ Permanent buttons are available:<br>▶ <strong>Settings</strong> (theme, language, snake, sounds, music, refund cards) live in the <strong>Profile</strong> tab, <strong>⚙️ Settings</strong> card.<br>▶ <strong>Bottom right</strong>: ❓ <strong>Help</strong> · ✉️ <strong>Comment</strong> · 🤖 <strong>Assistant</strong>',
       landing_libs:'⚡ <strong>Libs</strong>: the site\'s virtual currency. Every ranked player receives some every 5 hours (1st: +10 ⚡, 2nd: +5 ⚡, 3rd: +3 ⚡, 4th to 10th: +2 ⚡, then +1 ⚡). You also earn them through the <strong>daily challenges</strong> and your <strong>login streak</strong>. Spend them in the <strong>shop</strong>: cosmetics, quiz boosts, exclusive books!',
-      events_snake:'🏆 On Saturdays the <strong>Tournament</strong> runs here: live top 10, 2000 ⚡ and the "Weekly Champion" title for the best!<br>🐍 This weekend\'s event: <strong>Snake Challenge</strong>! Click <em>Play</em>, your snake enters the arena. Eat the <strong>⚡ Libs</strong> to grow: every ⚡ eaten is added to your balance (score 10 = 10 Libs earned). Walls wrap around · you reappear on the other side! Your best score <strong>persists</strong> between sessions.',
+      events_snake:'🏆 On Saturdays the <strong>Tournament</strong> runs automatically (followed live in the <strong>News</strong> card: top 10, 2000 ⚡ and the "Weekly Champion" title for the best).<br>🐍 This weekend\'s event: <strong>Snake Challenge</strong>! Click <em>Play</em>, your snake enters the arena. Eat the <strong>⚡ Libs</strong> to grow: every ⚡ eaten is added to your balance (score 10 = 10 Libs earned). Walls wrap around · you reappear on the other side! Your best score <strong>persists</strong> between sessions.',
       luffy_runner:'🏃 <strong>Libero Run</strong>: help Libero run as far as possible! Jump (↑ / Space) over ground obstacles, duck (↓) under flying ones. Grab the ⭐ star to become invincible for a few seconds. Your best score feeds a dedicated leaderboard.',
       home_games:'🎮 Choose your game at the top: <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong>, <strong>Chess</strong>, <strong>Checkers</strong> or <strong>Ludo</strong> 🎲 (none is pre-selected). The leaderboard is shared across all five games.',
       home_bot:'🤖 <strong>Solo mode</strong>: play against the bot at 3 difficulty levels: Easy, Medium or Hard. Your wins and losses count in the leaderboard!',
@@ -1622,7 +1672,7 @@ const DICT = {
       quiz_themes:'🧠 <strong>General Knowledge Quiz</strong>: select one or more themes (History, Movies, Science…), then play <strong>Solo</strong> or create a <strong>multiplayer room</strong> to share with your friends.',
       quiz_lb:'🏆 The <strong>Quiz leaderboard</strong> is separate from the Classic leaderboard. Points are awarded based on your response speed and number of correct answers. A <strong>lightning answer</strong> (within the first seconds) = <strong>double points ⚡</strong>.',
       read_catalogue:'📚 Welcome to the <strong>Reading</strong> section! Search a book by title or author, filter by category, and click a cover to open its sheet. The <strong>exclusive novels</strong> can be read right here: <strong>⭐ L\'Affaire endormie · Tome 1</strong> (chapter 1 free, then 1000 ⚡ and 2000 ⚡), <strong>Life of Georgia</strong> (2000 ⚡ for the whole book) and <strong>Life of Georgia · Volume 2</strong>, free for owners of Volume 1.',
-      profile_hub:'🎯 Your <strong>Profile</strong> gathers your <strong>level</strong> ⭐ (every game gives XP, every level gives ⚡), your <strong>login streak</strong> 🔥, your <strong>daily challenges</strong>, your <strong>locker</strong>, your game <strong>history</strong>, your <strong>friends</strong> 👥 (challenge them in one click), the <strong>wheel of fortune</strong> 🎡 (1 free spin a day), the <strong>IQ test</strong> 🧠 (after 10 quizzes), the <strong>VIP Pass</strong> 👑 (+20% Libs), the <strong>Invite a friend</strong> card 🤝 (+100 ⚡ each), your <strong>emotes</strong> 😎, the <strong>emoji rain</strong> 🌈, the <strong>Settings</strong> ⚙️ (with 🔔 notifications), your <strong>recovery code</strong> 🔐 and the account <strong>reset</strong>.',
+      profile_hub:'🎯 Your <strong>Profile</strong> gathers your <strong>level</strong> ⭐ (every game gives XP, every level gives ⚡), your <strong>login streak</strong> 🔥, your <strong>daily challenges</strong>, your <strong>locker</strong>, your game <strong>history</strong>, your <strong>friends</strong> 👥 (friend requests, Libs gifts, challenges from the game areas), the <strong>wheel of fortune</strong> 🎡 (1 free spin a day), the <strong>IQ test</strong> 🧠 (after 10 quizzes), the <strong>VIP Pass</strong> 👑 (+20% Libs), the <strong>Invite a friend</strong> card 🤝 (+100 ⚡ each), your <strong>emotes</strong> 😎, the <strong>emoji rain</strong> 🌈, the <strong>Settings</strong> ⚙️ (with 🔔 notifications), your <strong>recovery code</strong> 🔐 and the account <strong>reset</strong>.',
       feed_videos:'🎬 The <strong>Videos</strong> section: scroll vertically to discover community videos, TikTok-style. Sound toggles on and off with a simple click on the video.',
     },
   },
@@ -1796,6 +1846,10 @@ function applyLang() {
   const vct = $('vip-card-title');     if (vct) vct.textContent = d.vipCardTitle;
   const vcs = $('vip-card-sub');       if (vcs) vcs.textContent = d.vipCardSub;
   const vtt = $('vip-title');          if (vtt) vtt.textContent = d.vipTitle;
+  const cfb = $('btn-challenge-friend');      if (cfb) cfb.textContent = d.challengeFriendBtn;
+  const cfq = $('btn-challenge-friend-quiz'); if (cfq) cfq.textContent = d.challengeFriendBtn;
+  const grt = $('giftrecv-title');            if (grt) grt.textContent = d.giftRecvTitle;
+  const fpt = $('friendpick-title');          if (fpt) fpt.textContent = d.friendPickTitle;
   if (window._refreshPushBtn) window._refreshPushBtn();
   if (window._renderLevel)  window._renderLevel();
   if (window._renderIqCard) window._renderIqCard();
@@ -3294,7 +3348,7 @@ function _paintGlobalLb() {
   const classes = ['gold', 'silver', 'bronze'];
   const visible = _glbExpanded ? _glbData : _glbData.slice(0, 2);
   const rows = visible.map((entry, i) => `
-    <div class="global-lb-row lb-row-clickable" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
+    <div class="global-lb-row lb-row-clickable" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
       <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <span class="global-lb-score">${entry.globalScore} ${t().globalLbPts}</span>
@@ -3306,10 +3360,8 @@ function _paintGlobalLb() {
   list.innerHTML = rows + moreBtn;
   list.querySelectorAll('.lb-row-clickable').forEach(row => {
     row.addEventListener('click', () => {
-      const _av = row.dataset.avatar;
-      if (_av && AVATAR_ICONS[_av]) { _shopFocusItem(_av); return; }
-      const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
-      if (ids.length) _shopFocusItems(ids); else openShop();
+      // Fiche joueur : niveau + demande d'ami (remplace l'ancien renvoi boutique).
+      window._openPlayerCard?.(row.dataset.pname);
     });
   });
   const btn = $('btn-lb-more');
@@ -3326,7 +3378,7 @@ function renderLeaderboard(data) {
   const medals = ['🥇', '🥈', '🥉'];
   const classes = ['gold', 'silver', 'bronze'];
   list.innerHTML = data.map((entry, i) => `
-    <div class="lb-row lb-row-clickable" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
+    <div class="lb-row lb-row-clickable" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
       <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <div class="lb-stats">
@@ -3338,10 +3390,8 @@ function renderLeaderboard(data) {
   `).join('');
   list.querySelectorAll('.lb-row-clickable').forEach(row => {
     row.addEventListener('click', () => {
-      const _av = row.dataset.avatar;
-      if (_av && AVATAR_ICONS[_av]) { _shopFocusItem(_av); return; }
-      const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
-      if (ids.length) _shopFocusItems(ids); else openShop();
+      // Fiche joueur : niveau + demande d'ami (remplace l'ancien renvoi boutique).
+      window._openPlayerCard?.(row.dataset.pname);
     });
   });
 }
@@ -3355,7 +3405,7 @@ function renderSnakeLeaderboard(data) {
   }
   const medals = ['🥇', '🥈', '🥉'];
   el.innerHTML = data.map((e, i) => `
-    <div class="lb-row lb-row-clickable" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
+    <div class="lb-row lb-row-clickable" data-pname="${_escHtml(e.name)}" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
       <span class="lb-rank">${medals[i] || i + 1}</span>
       <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
       <span class="lb-score-snake">${e.hs} ⚡</span>
@@ -3363,10 +3413,8 @@ function renderSnakeLeaderboard(data) {
   `).join('');
   el.querySelectorAll('.lb-row-clickable').forEach(row => {
     row.addEventListener('click', () => {
-      const _av = row.dataset.avatar;
-      if (_av && AVATAR_ICONS[_av]) { _shopFocusItem(_av); return; }
-      const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
-      if (ids.length) _shopFocusItems(ids); else openShop();
+      // Fiche joueur : niveau + demande d'ami (remplace l'ancien renvoi boutique).
+      window._openPlayerCard?.(row.dataset.pname);
     });
   });
 }
@@ -3380,7 +3428,7 @@ function renderLuffyLeaderboard(data) {
   }
   const medals = ['🥇', '🥈', '🥉'];
   el.innerHTML = data.map((e, i) => `
-    <div class="lb-row lb-row-clickable" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
+    <div class="lb-row lb-row-clickable" data-pname="${_escHtml(e.name)}" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
       <span class="lb-rank">${medals[i] || i + 1}</span>
       <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
       <span class="lb-score-snake">${e.hs} 🏃</span>
@@ -3388,10 +3436,8 @@ function renderLuffyLeaderboard(data) {
   `).join('');
   el.querySelectorAll('.lb-row-clickable').forEach(row => {
     row.addEventListener('click', () => {
-      const _av = row.dataset.avatar;
-      if (_av && AVATAR_ICONS[_av]) { _shopFocusItem(_av); return; }
-      const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
-      if (ids.length) _shopFocusItems(ids); else openShop();
+      // Fiche joueur : niveau + demande d'ami (remplace l'ancien renvoi boutique).
+      window._openPlayerCard?.(row.dataset.pname);
     });
   });
 }
@@ -3848,7 +3894,7 @@ function renderTriviaLeaderboard(data) {
   if (!data || data.length === 0) { list.innerHTML = `<p class="lb-empty">${t().triviaLbEmpty}</p>`; return; }
   const medals = ['🥇','🥈','🥉'];
   list.innerHTML = data.map((entry, i) => `
-    <div class="lb-row lb-row-clickable" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
+    <div class="lb-row lb-row-clickable" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${medals[i] || i+1}</span>
       <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <div class="lb-stats">
@@ -3859,10 +3905,8 @@ function renderTriviaLeaderboard(data) {
   `).join('');
   list.querySelectorAll('.lb-row-clickable').forEach(row => {
     row.addEventListener('click', () => {
-      const _av = row.dataset.avatar;
-      if (_av && AVATAR_ICONS[_av]) { _shopFocusItem(_av); return; }
-      const ids = [row.dataset.font, row.dataset.nameeffect, row.dataset.cosmetic].filter(Boolean);
-      if (ids.length) _shopFocusItems(ids); else openShop();
+      // Fiche joueur : niveau + demande d'ami (remplace l'ancien renvoi boutique).
+      window._openPlayerCard?.(row.dataset.pname);
     });
   });
 }
@@ -4521,12 +4565,13 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal } = {}) => {
+socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal } = {}) => {
   if (refCode !== undefined)   window._myRefCode = refCode;
   if (referrals !== undefined) window._myReferrals = referrals;
   if (xp !== undefined)         { window._myXp = xp; window._myLevel = level; window._renderLevel?.(); }
   if (iq !== undefined)         window._myIq = iq;
   if (iqUnlocked !== undefined) window._myIqUnlocked = iqUnlocked;
+  if (iqQuizDone !== undefined) window._myIqQuizDone = iqQuizDone;
   if (iq !== undefined || iqUnlocked !== undefined) window._renderIqCard?.();
   if (vipUntil !== undefined)   { window._myVipUntil = vipUntil; window._renderVip?.(); }
   const prev = libsBalance;
@@ -4908,6 +4953,7 @@ function openShop() {
   sessionStorage.setItem('shopState', JSON.stringify({ open: true, scrollTop: _prevShopState.scrollTop || 0 }));
   socket.emit('get-shop-rotation', {});
   socket.emit('get-flash-offer');
+  socket.emit('get-shop-overrides');
   _renderShopItems();
   _loadLibsPacks();
   socket.emit('get-libs', { playerId: getPlayerId() });
@@ -5311,6 +5357,18 @@ function _renderShopItems() {
   if (dailyItems.length < 4) _pickKept(_FEATURED_IDS).forEach(it => { if (!dailyItems.some(f => f.id === it.id)) dailyItems.push(it); });
   dailyItems = dailyItems.slice(0, 8);
 
+  // Catalogue pilote par l'admin : retire les articles forces HORS boutique,
+  // et fait apparaitre « À la une » ceux forces DANS la boutique (meme si leur
+  // famille n'est normalement plus vendue). `until` = compte a rebours de retrait.
+  const _ov = window._shopOverrides || {};
+  const _ovState = it => { const o = _ov[it.id]; if (!o) return null; return o.inShop && (!o.until || o.until > Date.now()); };
+  const _applyOv = arr => { for (let i = arr.length - 1; i >= 0; i--) { if (_ovState(arr[i]) === false) arr.splice(i, 1); } };
+  [featuredItems, dailyItems, colorItems, fontItems, bgItems, nameEffectItems, titleItems, cursorSnakeItems, snakeSkinItems].forEach(_applyOv);
+  Object.keys(_ov).forEach(oid => {
+    const it = allItemsById[oid];
+    if (it && _ovState(it) === true && !KEPT_SHOP_TYPES.has(it.type) && !featuredItems.some(f => f.id === oid)) featuredItems.push(it);
+  });
+
   function tileHtml(item, large = false, extraBadge = '') {
     const { id, type, price, name } = item;
     const honorary = item.honorary || false;
@@ -5360,6 +5418,7 @@ function _renderShopItems() {
       </div>
       ${badgeHtml}
       ${extraBadge ? `<div class="shop-tile-daily-badge">${extraBadge}</div>` : ''}
+      ${(() => { const o = (window._shopOverrides || {})[id]; return (o && o.inShop && o.until && o.until > Date.now()) ? `<div class="shop-tile-timer">⏳ ${d.shopCountdown(o.until - Date.now())}</div>` : ''; })()}
       ${owned ? `<div class="shop-tile-owned">${ownedLabel}</div>` : ''}
     </div>`;
   }
@@ -9437,7 +9496,7 @@ const ProfileHub = (() => {
 
   function _challengeRowsHtml(d, items) {
     return items.map(ch => {
-      const name = d.challengesNames[ch.id] || ch.id;
+      const name = d.challengesNames[ch.id] || ((currentLang === 'en' && ch.labelEn) ? ch.labelEn : ch.label) || ch.id;
       const pct  = Math.round(100 * Math.min(ch.progress, ch.goal) / ch.goal);
       let btn;
       if (ch.claimed)   btn = `<span class="challenge-claimed">${_escHtml(d.challengeClaimed)}</span>`;
@@ -9854,6 +9913,7 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
   const listEl = document.getElementById('friends-list');
   const statusEl = document.getElementById('friends-status');
   const input = document.getElementById('friend-code-input');
+  window._myFriends = [];
   function open() {
     statusEl.textContent = window._myRefCode ? t().friendsMyCode(window._myRefCode) : '';
     listEl.innerHTML = '<p class="recovery-warn">…</p>';
@@ -9871,29 +9931,37 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
     input.value = '';
   });
   socket.on('friends-list', ({ friends } = {}) => {
-    const list = friends || [];
+    window._myFriends = friends || [];
+    const list = window._myFriends;
     listEl.innerHTML = list.length ? list.map(f => `
       <div class="friend-row">
         <span class="friend-dot ${f.online ? 'on' : ''}" title="${f.online ? t().friendsOnline : t().friendsOffline}"></span>
         <span class="friend-name">${_escHtml(f.name)} <small class="friend-level">⭐ ${f.level}</small></span>
-        ${f.online ? `<button class="btn btn-secondary friend-challenge" data-ref="${f.ref}" data-name="${_escHtml(f.name)}">${t().friendsChallengeBtn}</button>` : ''}
+        <button class="btn btn-secondary friend-gift" data-ref="${f.ref}" data-name="${_escHtml(f.name)}" title="🎁">🎁</button>
         <button class="friend-remove" data-rm="${f.ref}" title="${t().friendsRemoveBtn}">✕</button>
       </div>`).join('') : `<p class="recovery-warn">${t().friendsEmpty}</p>`;
   });
   socket.on('friends-error', ({ reason } = {}) => {
-    statusEl.textContent = reason === 'notfound' ? t().friendsErrNotFound : reason === 'full' ? t().friendsErrFull : t().friendsErrInvalid;
+    statusEl.textContent = reason === 'notfound' ? t().friendsErrNotFound
+      : reason === 'full' ? t().friendsErrFull
+      : reason === 'already' ? t().friendsErrAlready
+      : reason === 'noname' ? t().friendsErrNoName
+      : t().friendsErrInvalid;
   });
+  // Demande d'ami envoyee (ou acceptation automatique si l'autre m'avait demande).
+  socket.on('friend-request-sent', ({ name, accepted } = {}) => {
+    const msg = accepted ? t().friendRequestAccepted(name) : t().friendRequestSent(name);
+    if (!overlay.classList.contains('hidden')) statusEl.textContent = msg;
+    showCursorSnakeToast(msg);
+  });
+  socket.on('friend-accepted', ({ name } = {}) => showCursorSnakeToast(t().friendRequestAccepted(name)));
   listEl.addEventListener('click', e => {
     const rm = e.target.closest('[data-rm]');
     if (rm) { socket.emit('remove-friend', { playerId: getPlayerId(), ref: rm.dataset.rm }); return; }
-    const ch = e.target.closest('.friend-challenge');
-    if (ch) {
-      // Defi : on cree un salon morpion sans mise, puis on envoie le code a l'ami.
-      window._pendingFriendChallenge = { ref: ch.dataset.ref, name: ch.dataset.name };
-      close();
-      socket.emit('create-room', { gameType: 'tictactoe', name: getPlayerName(), playerId: getPlayerId(), stake: 0 });
-    }
+    const g = e.target.closest('.friend-gift');
+    if (g) window._openFriendGift?.(g.dataset.ref, g.dataset.name);
   });
+  // Salon cree pour un defi d'ami : on transmet le code puis on attend.
   socket.on('room-created', ({ code, gameType } = {}) => {
     const p = window._pendingFriendChallenge;
     if (!p || !code) return;
@@ -9901,14 +9969,22 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
     socket.emit('challenge-friend', { playerId: getPlayerId(), ref: p.ref, code, game: gameType });
     showCursorSnakeToast(t().friendsChallengeSent(p.name));
   });
-  // Invitation recue : petite banniere avec Accepter / Ignorer.
+  socket.on('trivia-room-created', ({ code } = {}) => {
+    const p = window._pendingFriendChallenge;
+    if (!p || !code) return;
+    window._pendingFriendChallenge = null;
+    socket.emit('challenge-friend', { playerId: getPlayerId(), ref: p.ref, code, game: 'quiz' });
+    showCursorSnakeToast(t().friendsChallengeSent(p.name));
+  });
+  // Defi recu : banniere avec Accepter / Ignorer.
   socket.on('friend-challenge', ({ fromName, code, game } = {}) => {
     if (!code) return;
     document.getElementById('friend-challenge-banner')?.remove();
+    const gameLabel = game === 'quiz' ? (currentLang === 'fr' ? 'Quiz' : 'Quiz') : (t().games[game] || game);
     const div = document.createElement('div');
     div.id = 'friend-challenge-banner';
     div.className = 'friend-challenge-banner';
-    div.innerHTML = `<span>${t().friendChallengeToast(_escHtml(fromName))} <small>(${t().games[game] || game})</small></span>
+    div.innerHTML = `<span>${t().friendChallengeToast(_escHtml(fromName))} <small>(${_escHtml(gameLabel)})</small></span>
       <button class="btn btn-primary" id="fc-accept">${t().friendChallengeAccept}</button>
       <button class="btn btn-secondary" id="fc-decline">${t().friendChallengeDecline}</button>`;
     document.body.appendChild(div);
@@ -9919,6 +9995,191 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
     });
     div.querySelector('#fc-decline').addEventListener('click', gone);
     setTimeout(gone, 25000);
+  });
+  // Demande d'ami recue : banniere bloquante Accepter / Refuser (file d'attente).
+  const reqQueue = [];
+  let reqShowing = false;
+  function showNextRequest() {
+    if (reqShowing || !reqQueue.length) return;
+    const r = reqQueue.shift();
+    reqShowing = true;
+    document.getElementById('friend-request-banner')?.remove();
+    const div = document.createElement('div');
+    div.id = 'friend-request-banner';
+    div.className = 'friend-challenge-banner';
+    div.innerHTML = `<span>${t().friendRequestFrom(_escHtml(r.name))} <small>⭐ ${r.level || 1}</small></span>
+      <button class="btn btn-primary" id="fr-accept">${t().friendReqAccept}</button>
+      <button class="btn btn-secondary" id="fr-decline">${t().friendReqDecline}</button>`;
+    document.body.appendChild(div);
+    const done = accept => {
+      div.remove();
+      reqShowing = false;
+      socket.emit('respond-friend', { playerId: getPlayerId(), ref: r.ref, accept });
+      showNextRequest();
+    };
+    div.querySelector('#fr-accept').addEventListener('click', () => done(true));
+    div.querySelector('#fr-decline').addEventListener('click', () => done(false));
+  }
+  socket.on('friend-request', r => { if (r && r.ref) { reqQueue.push(r); showNextRequest(); } });
+  socket.on('friend-requests', ({ requests } = {}) => {
+    (requests || []).forEach(r => { if (!reqQueue.some(x => x.ref === r.ref)) reqQueue.push(r); });
+    showNextRequest();
+  });
+})();
+
+// ── Cadeau recu : message bloquant avec bouton OK ────────────────────────────
+(function initGiftReceived() {
+  const overlay = document.getElementById('overlay-giftrecv');
+  if (!overlay) return;
+  const queue = [];
+  const seen = new Set();
+  let showing = null;
+  function showNext() {
+    if (showing || !queue.length) return;
+    showing = queue.shift();
+    const d = t();
+    document.getElementById('giftrecv-title').textContent = d.giftRecvTitle;
+    const g = showing;
+    document.getElementById('giftrecv-msg').textContent =
+      (g.libs > 0 && g.cosmeticId) ? d.giftRecvBoth(g.fromName, g.libs)
+      : g.libs > 0 ? d.giftRecvLibs(g.fromName, g.libs)
+      : d.giftRecvCosm(g.fromName);
+    overlay.classList.remove('hidden');
+  }
+  document.getElementById('btn-giftrecv-ok')?.addEventListener('click', () => {
+    if (showing) socket.emit('gift-ack', { playerId: getPlayerId(), giftId: showing.id });
+    showing = null;
+    overlay.classList.add('hidden');
+    // Le solde a pu changer : on resynchronise.
+    socket.emit('get-libs', { playerId: getPlayerId() });
+    showNext();
+  });
+  socket.on('gift-received', g => {
+    if (!g || !g.id || seen.has(g.id)) return;
+    seen.add(g.id);
+    queue.push(g);
+    showNext();
+  });
+})();
+
+// ── Offrir des Libs a un ami ─────────────────────────────────────────────────
+(function initFriendGift() {
+  const overlay = document.getElementById('overlay-friendgift');
+  if (!overlay) return;
+  let ref = null;
+  window._openFriendGift = (r, name) => {
+    ref = r;
+    document.getElementById('friendgift-title').textContent = t().friendsGiftTitle(name);
+    document.getElementById('friendgift-status').textContent = '';
+    overlay.classList.remove('hidden');
+  };
+  const close = () => overlay.classList.add('hidden');
+  document.getElementById('btn-friendgift-close')?.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  document.getElementById('friendgift-amounts')?.addEventListener('click', e => {
+    const b = e.target.closest('[data-amt]');
+    if (!b || !ref) return;
+    socket.emit('gift-friend', { playerId: getPlayerId(), ref, amount: Number(b.dataset.amt) });
+  });
+  socket.on('gift-friend-result', ({ ok, error, amount, name, left } = {}) => {
+    const st = document.getElementById('friendgift-status');
+    if (ok) {
+      close();
+      showCursorSnakeToast(t().friendsGiftSent(amount, name));
+      return;
+    }
+    if (st) st.textContent = error === 'daily' ? t().friendsGiftErrDaily(left ?? 0)
+      : error === 'insufficient' ? t().friendsGiftErrInsufficient
+      : t().friendsErrInvalid;
+  });
+})();
+
+// ── Defier un ami depuis les zones Jeux classiques et Quiz ───────────────────
+(function initFriendPick() {
+  const overlay = document.getElementById('overlay-friendpick');
+  if (!overlay) return;
+  const listEl = document.getElementById('friendpick-list');
+  let mode = 'classic'; // 'classic' | 'quiz'
+  function open(m) {
+    mode = m;
+    document.getElementById('friendpick-title').textContent = t().friendPickTitle;
+    listEl.innerHTML = '<p class="recovery-warn">…</p>';
+    socket.emit('get-friends', { playerId: getPlayerId() });
+    // friends-list global (initFriends) remplit window._myFriends ; on re-rend juste apres.
+    setTimeout(render, 400);
+    overlay.classList.remove('hidden');
+  }
+  function render() {
+    const online = (window._myFriends || []).filter(f => f.online);
+    listEl.innerHTML = online.length ? online.map(f => `
+      <div class="friend-row">
+        <span class="friend-dot on"></span>
+        <span class="friend-name">${_escHtml(f.name)} <small class="friend-level">⭐ ${f.level}</small></span>
+        <button class="btn btn-primary friend-pick-go" data-ref="${f.ref}" data-name="${_escHtml(f.name)}">${t().friendsChallengeBtn}</button>
+      </div>`).join('') : `<p class="recovery-warn">${t().friendPickNone}</p>`;
+  }
+  const close = () => overlay.classList.add('hidden');
+  document.getElementById('btn-friendpick-close')?.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  listEl.addEventListener('click', e => {
+    const b = e.target.closest('.friend-pick-go');
+    if (!b) return;
+    window._pendingFriendChallenge = { ref: b.dataset.ref, name: b.dataset.name };
+    close();
+    if (mode === 'classic') {
+      socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), playerId: getPlayerId(), stake: window._selectedStake || 0 });
+    } else {
+      socket.emit('create-trivia-room', { categories: selectedTriviaCategories, name: getTriviaName(), lang: currentLang, difficulty: selectedTriviaDifficulty, amount: getTriviaQCount(), playerId: getPlayerId() });
+    }
+  });
+  document.getElementById('btn-challenge-friend')?.addEventListener('click', () => {
+    if (!selectedGameType) { showCursorSnakeToast(t().friendPickNeedGame); return; }
+    open('classic');
+  });
+  document.getElementById('btn-challenge-friend-quiz')?.addEventListener('click', () => {
+    if (!selectedTriviaCategories.length) { showCursorSnakeToast(t().friendPickNeedTheme); return; }
+    open('quiz');
+  });
+})();
+
+// ── Fiche joueur (clic sur un pseudo dans les classements) ───────────────────
+(function initPlayerCard() {
+  const overlay = document.getElementById('overlay-playercard');
+  if (!overlay) return;
+  let current = null;
+  window._openPlayerCard = (name) => {
+    if (!name) return;
+    current = name;
+    document.getElementById('playercard-name').textContent = name;
+    document.getElementById('playercard-level').textContent = '…';
+    document.getElementById('playercard-status').textContent = '';
+    document.getElementById('btn-playercard-add').classList.add('hidden');
+    overlay.classList.remove('hidden');
+    socket.emit('get-player-card', { playerId: getPlayerId(), name });
+  };
+  const close = () => overlay.classList.add('hidden');
+  document.getElementById('btn-playercard-close')?.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  socket.on('player-card', (c = {}) => {
+    if (!current || c.name !== current) return;
+    const d = t();
+    const lvl = document.getElementById('playercard-level');
+    const st = document.getElementById('playercard-status');
+    const btn = document.getElementById('btn-playercard-add');
+    if (c.notFound) { lvl.textContent = ''; st.textContent = d.friendsErrNotFound; return; }
+    lvl.textContent = d.playerCardLevel(c.level || 1) + (c.vip ? ' · ' + d.playerCardVip : '');
+    st.textContent = (c.online ? d.playerCardOnline : d.playerCardOffline)
+      + (c.isMe ? ' · ' + d.playerCardYou : c.isFriend ? ' · ' + d.playerCardFriends : c.requested ? ' · ' + d.playerCardRequested : '');
+    if (!c.isMe && !c.isFriend && !c.requested) {
+      btn.textContent = d.playerCardAddFriend;
+      btn.classList.remove('hidden');
+    }
+  });
+  document.getElementById('btn-playercard-add')?.addEventListener('click', function () {
+    if (!current) return;
+    socket.emit('add-friend', { playerId: getPlayerId(), name: current });
+    this.classList.add('hidden');
+    document.getElementById('playercard-status').textContent = t().playerCardRequested;
   });
 })();
 
@@ -9955,8 +10216,13 @@ window._renderIqCard = function () {
   if (!sub) return;
   if (window._myIq) sub.textContent = t().iqCardValue(window._myIq);
   else if (window._myIqUnlocked) sub.textContent = t().iqCardUnlocked;
-  else sub.textContent = t().iqCardLocked(IQ_UNLOCK_QUIZZES);
+  else sub.textContent = t().iqCardLocked(Math.max(1, IQ_UNLOCK_QUIZZES - (window._myIqQuizDone || 0)));
 };
+socket.on('iq-progress', ({ done, unlocked } = {}) => {
+  window._myIqQuizDone = done || 0;
+  if (unlocked) window._myIqUnlocked = true;
+  window._renderIqCard();
+});
 (function initIqTest() {
   const overlay = document.getElementById('overlay-iq');
   if (!overlay) return;
@@ -10076,7 +10342,8 @@ window._renderVip = function () {
   socket.on('vip-result', ({ vipUntil, error, price } = {}) => {
     const status = document.getElementById('vip-status');
     if (error) {
-      if (status) status.textContent = error === 'insufficient' ? t().vipInsufficient(price || VIP_PRICE) : t().wheelNoName;
+      if (status) status.textContent = error === 'insufficient' ? t().vipInsufficient(price || VIP_PRICE)
+        : error === 'max' ? t().vipMax : t().wheelNoName;
       return;
     }
     window._myVipUntil = vipUntil;
@@ -10518,5 +10785,10 @@ socket.on('claim-challenge-result', ({ ok, reward, allDoneBonus } = {}) => {
   socket.on('flash-offer', ({ offer } = {}) => {
     window._flashOffer = offer || null;
     window._renderFlashBanner();
+  });
+  // Catalogue boutique pilote par l'admin (articles forces + comptes a rebours).
+  socket.on('shop-overrides', ({ overrides } = {}) => {
+    window._shopOverrides = overrides || {};
+    if (!document.getElementById('overlay-shop')?.classList.contains('hidden')) _renderShopItems();
   });
 })();

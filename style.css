@@ -3779,3 +3779,27 @@ html.light .ludo-cell { background: #fff; border: 1px solid #e2e8f0; }
 .shop-flash-prices strong { color: #fbbf24; font-size: 1rem; }
 .shop-flash-timer { opacity: .85; font-size: .75rem; margin-left: auto; }
 .shop-flash-buy { padding: 6px 14px; font-size: .8rem; }
+
+/* ── Tournoi dans la carte News (deplace depuis Events) ── */
+.news-tournament { margin: 8px 0 0; padding: 10px 12px; }
+.news-tournament h2 { font-size: .85rem; margin: 0 0 4px; }
+.news-tournament .tournament-desc { font-size: .68rem; margin: 0 0 6px; opacity: .8; }
+.news-tournament .tournament-status { font-size: .72rem; }
+.news-tournament .tournament-row { font-size: .72rem; padding: 4px 8px; }
+.news-tournament .tournament-champion { font-size: .72rem; }
+
+/* ── Fiche joueur + cadeaux amis ── */
+.playercard-level { font-size: 1.05rem; font-weight: 900; margin: 4px 0 8px; color: var(--accent); }
+.friend-gift { padding: 5px 9px; font-size: .8rem; }
+.giftrecv-modal { text-align: center; }
+.giftrecv-modal .profile-modal-title { justify-content: center; }
+#friendgift-amounts { justify-content: center; margin: 8px 0; }
+
+/* ── Compte a rebours de retrait d'un article (catalogue admin) ── */
+.shop-tile-timer {
+  position: absolute; bottom: 34px; left: 6px;
+  background: rgba(0,0,0,.65); color: #fbbf24;
+  font-size: .6rem; font-weight: 800;
+  padding: 2px 7px; border-radius: 8px;
+  pointer-events: none;
+}

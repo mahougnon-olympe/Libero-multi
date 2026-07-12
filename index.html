@@ -147,6 +147,7 @@
         </div>
       </div>
       <button id="btn-create" class="btn btn-secondary">Créer une partie multijoueur</button>
+      <button id="btn-challenge-friend" class="btn btn-secondary">⚔️ Défier un ami</button>
       <div class="divider"><span id="divider-join-text">ou rejoindre</span></div>
       <div class="join-group">
         <input
@@ -294,6 +295,7 @@
       <div class="trivia-action-row">
         <button id="btn-solo-trivia" class="btn btn-primary">▶ Solo</button>
         <button id="btn-create-trivia" class="btn btn-secondary">+ Créer un salon</button>
+        <button id="btn-challenge-friend-quiz" class="btn btn-secondary">⚔️ Défier un ami</button>
       </div>
       <div class="join-group">
         <input id="input-trivia-code" type="text" placeholder="Code à 4 lettres"
@@ -366,15 +368,6 @@
       <h1 id="events-screen-title">🎉 Évents</h1>
       <p class="subtitle" id="events-screen-sub">Week-end spécial</p>
     </div>
-    <!-- Tournoi du samedi -->
-    <div class="tournament-card" id="tournament-card">
-      <h2 id="tournament-title">🏆 Tournoi du samedi</h2>
-      <p id="tournament-desc" class="tournament-desc">Chaque samedi : victoires classiques +10 pts, bonnes réponses de quiz +2 pts, ⚡ mangés au Snake +1 pt. Le meilleur gagne 2000 ⚡ et le titre « Champion de la semaine » !</p>
-      <p id="tournament-status" class="tournament-status"></p>
-      <div id="tournament-top" class="tournament-top"></div>
-      <p id="tournament-champion" class="tournament-champion"></p>
-    </div>
-
     <div class="event-intro" id="event-intro">
       <div class="event-badge">🐍</div>
       <h2 id="snake-challenge-title">Snake Challenge</h2>
@@ -554,6 +547,14 @@
     <span class="news-handle">📰</span>
     <p class="news-title" id="news-title-el">📰 News</p>
     <div id="news-announcements"></div>
+    <!-- Tournoi du samedi (statut en direct dans les News) -->
+    <div class="tournament-card news-tournament" id="tournament-card">
+      <h2 id="tournament-title">🏆 Tournoi du samedi</h2>
+      <p id="tournament-desc" class="tournament-desc">Chaque samedi : victoires classiques +10 pts, bonnes réponses de quiz +2 pts, ⚡ mangés au Snake +1 pt. Le meilleur gagne 2000 ⚡ et le titre « Champion de la semaine » !</p>
+      <p id="tournament-status" class="tournament-status"></p>
+      <div id="tournament-top" class="tournament-top"></div>
+      <p id="tournament-champion" class="tournament-champion"></p>
+    </div>
     <div id="news-star" class="news-star hidden"></div>
     <div id="news-comments" class="news-comments"></div>
   </div>
@@ -1050,6 +1051,62 @@
         </div>
         <div id="friends-list" class="friends-list"></div>
         <p id="friends-status" class="recovery-warn"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal : cadeau reçu (bouton OK obligatoire) ── -->
+  <div id="overlay-giftrecv" class="overlay hidden">
+    <div class="recovery-modal giftrecv-modal">
+      <h2 id="giftrecv-title" class="profile-modal-title">🎁 Tu as reçu un cadeau !</h2>
+      <p id="giftrecv-msg" class="recovery-intro"></p>
+      <button id="btn-giftrecv-ok" class="btn btn-primary recovery-reset-btn">OK</button>
+    </div>
+  </div>
+
+  <!-- ── Modal : choisir un ami à défier ── -->
+  <div id="overlay-friendpick" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="friendpick-title" class="profile-modal-title">⚔️ Qui veux-tu défier ?</h2>
+        <button id="btn-friendpick-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <div id="friendpick-list" class="friends-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal : offrir des Libs à un ami ── -->
+  <div id="overlay-friendgift" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="friendgift-title" class="profile-modal-title">🎁 Offrir des Libs</h2>
+        <button id="btn-friendgift-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <div class="stake-btns" id="friendgift-amounts">
+          <button class="stake-btn" data-amt="25">25 ⚡</button>
+          <button class="stake-btn" data-amt="50">50 ⚡</button>
+          <button class="stake-btn" data-amt="100">100 ⚡</button>
+          <button class="stake-btn" data-amt="250">250 ⚡</button>
+        </div>
+        <p id="friendgift-status" class="recovery-warn"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal : fiche joueur (clic sur un pseudo des classements) ── -->
+  <div id="overlay-playercard" class="overlay hidden">
+    <div class="recovery-modal playercard-modal">
+      <div class="profile-modal-header">
+        <h2 id="playercard-name" class="profile-modal-title"></h2>
+        <button id="btn-playercard-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <p id="playercard-level" class="playercard-level"></p>
+        <p id="playercard-status" class="recovery-warn"></p>
+        <button id="btn-playercard-add" class="btn btn-primary recovery-reset-btn hidden"></button>
       </div>
     </div>
   </div>
