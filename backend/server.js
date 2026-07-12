@@ -360,6 +360,29 @@ async function loadData() {
     db.collection('daily_stats').find().toArray(),
   ]);
   annDocs.forEach(d => announcements.push({ _id: d._id, text: d.text, textEn: d.textEn || '', at: d.at }));
+  // Migration unique : les deux news historiques (codees en dur dans le HTML avant)
+  // deviennent des annonces gerables depuis le dashboard (modifier / supprimer).
+  const newsSeeded = configDocs.find(d => d._id === 'news_seeded');
+  if (!newsSeeded) {
+    const seeds = [
+      { _id: 'news-book',
+        text: '📚 Nouveau dans Lecture : le roman ⭐ L\'Affaire endormie, Tome 1, écrit par le créateur ! Chapitre 1 gratuit, la suite se débloque avec tes Libs.',
+        textEn: '📚 New in Reading: the novel ⭐ L\'Affaire endormie, Tome 1, written by the creator! Chapter 1 is free, unlock the rest with your Libs.',
+        at: Date.now() - 1 },
+      { _id: 'news-georgia',
+        text: '⭐ Life of Georgia : la saga exclusive est complète ! Débloque le Tome 1 pour 2000 ⚡ dans la section Lecture, et le Tome 2, « L\'Héritière d\'Aboula », t\'est offert. Disponible en français et en anglais.',
+        textEn: '⭐ Life of Georgia: the exclusive saga is complete! Unlock Volume 1 for 2000 ⚡ in the Reading section, and Volume 2, "The Heiress of Aboula", comes free with it. Available in French and English.',
+        at: Date.now() },
+    ];
+    for (const s of seeds) {
+      if (!announcements.some(a => a._id === s._id)) {
+        announcements.unshift(s);
+        db.collection('announcements').insertOne({ ...s }).catch(() => {});
+      }
+    }
+    announcements.sort((a, b) => b.at - a.at);
+    db.collection('server_config').updateOne({ _id: 'news_seeded' }, { $set: { value: true } }, { upsert: true }).catch(() => {});
+  }
   dailyDocs.forEach(d => dailyStats.set(d._id, { visits: d.visits || 0, games: d.games || 0 }));
   resetDocs.forEach(d => resetArchive.set(d._id, d));
   giftDocs.forEach(d => giftCodes.set(d._id, { cosmeticId: d.cosmeticId, fromName: d.fromName || '', createdAt: d.createdAt || Date.now(), redeemedBy: d.redeemedBy || null, redeemedAt: d.redeemedAt || null }));
@@ -3778,6 +3801,15 @@ app.post('/admin/announce', (req, res) => {
   const text   = String(req.body?.text || '').trim().slice(0, 300);
   const textEn = String(req.body?.textEn || '').trim().slice(0, 300);
   if (!text) return res.status(400).json({ error: 'Texte manquant.' });
+  // Avec un id : modification d'une annonce existante (texte FR/EN), date conservée.
+  if (req.body?.id) {
+    const ex = announcements.find(x => x._id === String(req.body.id));
+    if (!ex) return res.status(404).json({ error: 'Annonce introuvable.' });
+    ex.text = text; ex.textEn = textEn;
+    if (db) db.collection('announcements').updateOne({ _id: ex._id }, { $set: { text, textEn } }).catch(() => {});
+    io.emit('announcements-update', { announcements: announcements.slice(0, 5).map(x => ({ id: x._id, text: x.text, textEn: x.textEn || '', at: x.at })) });
+    return res.json({ ok: true, id: ex._id });
+  }
   const a = { _id: crypto.randomUUID(), text, textEn, at: Date.now() };
   announcements.unshift(a);
   if (announcements.length > 20) announcements.pop();

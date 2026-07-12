@@ -532,6 +532,13 @@ const DICT = {
     triviaWaitHint:'1 à 6 joueurs. Démarre dès que tu es prêt·e.',
     triviaCorrect:'✅ Bonne réponse !', triviaFastBonus:'⚡ Réponse éclair : point doublé !', triviaWrong:'❌ La réponse était : ',
     triviaFinishedTitle:'Résultats finaux', btnLeaveGame:'Retour au menu', btnQuitTrivia:'🚪 Quitter',
+    triviaPodiumWin:'🏆 Champion du quiz !', triviaPodiumTop3:'🎉 Sur le podium !', triviaPodiumOut: r => `Tu finis ${r}e, le podium t'attend la prochaine fois !`,
+    triviaShareBtn:'📣 Partager mon résultat',
+    triviaShareRank: (rank, score) => rank === 1
+      ? `🏆 J'ai fini 1er au quiz de groupe sur Libero's Multi avec ${score} pts ! Tu crois pouvoir me battre ? Viens me défier : https://libero-multi.vercel.app`
+      : `🎯 J'ai fini ${rank}e au quiz de groupe sur Libero's Multi avec ${score} pts ! Viens jouer avec nous : https://libero-multi.vercel.app`,
+    triviaShareSolo: score => `🧠 J'ai marqué ${score} pts au quiz sur Libero's Multi ! Essaie de faire mieux : https://libero-multi.vercel.app`,
+    triviaShareCopied:'📋 Message copié ! Colle-le à tes amis.',
     errNoTheme:'Choisis au moins un thème pour commencer.',
     errLoadQ:'Impossible de charger les questions. Vérifie ta connexion.',
     err4Letters:'Entre un code à 4 lettres.',
@@ -715,8 +722,6 @@ const DICT = {
     eventsLockedCard: days => `📅 Dans ${days} j`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> <u style="cursor:pointer">vote ici</u> !`,
     eventActiveMsg:   '🐍 <strong>Évent ce week-end</strong> : Snake Challenge ! Ton serpent mange des ⚡ et chaque Lib mangé est ajouté à ton solde.',
-    newsGeorgiaMsg: '⭐ <strong>Life of Georgia</strong> : la saga exclusive est complète ! Débloque le Tome 1 pour 2000 ⚡ dans la section Lecture, et le Tome 2, « L\'Héritière d\'Aboula », t\'est offert. Disponible en français et en anglais.',
-    newsBookMsg: '📚 <strong>Nouveau dans Lecture</strong> : le roman ⭐ L\'Affaire endormie, Tome 1, écrit par le créateur ! Chapitre 1 gratuit, la suite se débloque avec tes Libs.',
     snakeVoteTitle:'Snake Challenge',
     snakeVoteSubtitle:'Veux-tu voir le Snake Challenge revenir ?',
     snakeVoteYes:'Oui, ramène-le !',
@@ -1097,6 +1102,13 @@ const DICT = {
     triviaWaitHint:'1 to 6 players. Start whenever you\'re ready.',
     triviaCorrect:'✅ Correct!', triviaFastBonus:'⚡ Lightning answer: double points!', triviaWrong:'❌ The answer was: ',
     triviaFinishedTitle:'Final Results', btnLeaveGame:'Back to menu', btnQuitTrivia:'🚪 Quit',
+    triviaPodiumWin:'🏆 Quiz champion!', triviaPodiumTop3:'🎉 On the podium!', triviaPodiumOut: r => `You finished ${r}th, the podium awaits you next time!`,
+    triviaShareBtn:'📣 Share my result',
+    triviaShareRank: (rank, score) => rank === 1
+      ? `🏆 I finished 1st in a group quiz on Libero's Multi with ${score} pts! Think you can beat me? Come challenge me: https://libero-multi.vercel.app`
+      : `🎯 I finished #${rank} in a group quiz on Libero's Multi with ${score} pts! Come play with us: https://libero-multi.vercel.app`,
+    triviaShareSolo: score => `🧠 I scored ${score} pts in a quiz on Libero's Multi! Try to beat that: https://libero-multi.vercel.app`,
+    triviaShareCopied:'📋 Message copied! Paste it to your friends.',
     errNoTheme:'Choose at least one theme to start.',
     errLoadQ:'Could not load questions. Check your connection.',
     err4Letters:'Enter a 4-letter code.',
@@ -1280,8 +1292,6 @@ const DICT = {
     eventsLockedCard: days => `📅 In ${days}d`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> <u style="cursor:pointer">vote here</u>!`,
     eventActiveMsg:   '🐍 <strong>Event this weekend</strong>: Snake Challenge! Your snake eats ⚡ and every Lib eaten is added to your balance.',
-    newsGeorgiaMsg: '⭐ <strong>Life of Georgia</strong>: the exclusive saga is complete! Unlock Volume 1 for 2000 ⚡ in the Reading section, and Volume 2, "The Heiress of Aboula", comes free with it. Available in French and English.',
-    newsBookMsg: '📚 <strong>New in Reading</strong>: the novel ⭐ L\'Affaire endormie, Tome 1, written by the creator! Chapter 1 is free, unlock the rest with your Libs.',
     snakeVoteTitle:'Snake Challenge',
     snakeVoteSubtitle:'Do you want the Snake Challenge to come back?',
     snakeVoteYes:'Yes, bring it back!',
@@ -1827,8 +1837,6 @@ function applyLang() {
 
   // News
   const nte = $('news-title-el'); if (nte) nte.textContent = d.newsTitle;
-  const ngm = $('news-georgia-msg'); if (ngm) ngm.innerHTML = d.newsGeorgiaMsg;
-  const nbm = $('news-book-msg'); if (nbm) nbm.innerHTML = d.newsBookMsg;
 
   // Floating button tooltips
   const bh = $('btn-help');          if (bh)  bh.title = d.btnHelpTitle;
@@ -3375,13 +3383,55 @@ function showTriviaFinished(scores) {
   $('tg-choices').innerHTML = '';
   $('tg-reveal').classList.add('hidden');
   const medals = ['🥇','🥈','🥉'];
-  $('tg-final-scores').innerHTML = scores.map((s, i) => `
-    <div class="tg-final-row" style="background:${TRIVIA_COLORS[s.colorIndex] || '#64748b'}">
-      <span class="tg-final-rank">${medals[i] || (i+1)+'.'}</span>
-      <span class="tg-final-name">${s.name}</span>
-      <span class="tg-final-score">${s.score} / ${triviaQuestions.length || 10} pts</span>
-    </div>
-  `).join('');
+  const myIdx = triviaIsSolo ? 0 : scores.findIndex(s => s.socketId === triviaMySocketId);
+  let html = '';
+  if (!triviaIsSolo && scores.length >= 2) {
+    // Podium anime pour le top 3 (2e a gauche, 1er au centre, 3e a droite).
+    const order = [1, 0, 2].filter(i => i < scores.length);
+    html += `<div class="tg-podium">${order.map(i => {
+      const s = scores[i];
+      const col = TRIVIA_COLORS[s.colorIndex] || '#64748b';
+      return `<div class="tg-podium-col tg-podium-p${i + 1}${i === myIdx ? ' me' : ''}">
+        ${i === 0 ? '<span class="tg-podium-crown">👑</span>' : ''}
+        <span class="tg-podium-medal">${medals[i]}</span>
+        <span class="tg-podium-name">${_escHtml(s.name)}</span>
+        <span class="tg-podium-pts">${s.score} pts</span>
+        <div class="tg-podium-block" style="background:${col}">${i + 1}</div>
+      </div>`;
+    }).join('')}</div>`;
+    if (scores.length > 3) {
+      html += scores.slice(3).map((s, j) => `
+        <div class="tg-final-row" style="background:${TRIVIA_COLORS[s.colorIndex] || '#64748b'}">
+          <span class="tg-final-rank">${j + 4}.</span>
+          <span class="tg-final-name">${_escHtml(s.name)}</span>
+          <span class="tg-final-score">${s.score} pts</span>
+        </div>`).join('');
+    }
+    if (myIdx >= 0) {
+      const msg = myIdx === 0 ? t().triviaPodiumWin : myIdx <= 2 ? t().triviaPodiumTop3 : t().triviaPodiumOut(myIdx + 1);
+      html += `<p class="tg-podium-msg${myIdx <= 2 ? ' win' : ''}">${msg}</p>`;
+    }
+  } else {
+    html = scores.map((s, i) => `
+      <div class="tg-final-row" style="background:${TRIVIA_COLORS[s.colorIndex] || '#64748b'}">
+        <span class="tg-final-rank">${medals[i] || (i+1)+'.'}</span>
+        <span class="tg-final-name">${_escHtml(s.name)}</span>
+        <span class="tg-final-score">${s.score} pts</span>
+      </div>
+    `).join('');
+  }
+  if (myIdx >= 0) {
+    html += `<button id="tg-share-rank" class="btn btn-primary tg-share-btn">${t().triviaShareBtn}</button>`;
+  }
+  $('tg-final-scores').innerHTML = html;
+  document.getElementById('tg-share-rank')?.addEventListener('click', async () => {
+    const me = scores[myIdx];
+    const text = triviaIsSolo ? t().triviaShareSolo(me.score) : t().triviaShareRank(myIdx + 1, me.score);
+    if (navigator.share) {
+      try { await navigator.share({ text }); return; } catch {}
+    }
+    try { await navigator.clipboard.writeText(text); showCursorSnakeToast(t().triviaShareCopied); } catch {}
+  });
   $('tg-finished').classList.remove('hidden');
 }
 

@@ -437,11 +437,16 @@
       }).join('');
     }
 
+    var _annById = {};
+    var _annEditId = null;
     function renderAnnouncements(list) {
       list = list || [];
+      _annById = {};
+      list.forEach(function (a) { _annById[a.id] = a; });
       $('ann-list').innerHTML = list.length ? list.map(function (a) {
         return '<div class="ann-row"><span class="txt">📣 ' + esc(a.text) + (a.textEn ? ' <span class="muted">/ ' + esc(a.textEn) + '</span>' : '') + '</span>'
           + '<span class="cmt-date">' + esc(new Date(a.at).toLocaleString('fr-FR')) + '</span>'
+          + '<button class="small" data-annedit="' + esc(a.id) + '">✏️ Modifier</button>'
           + '<button class="red small" data-anndel="' + esc(a.id) + '">Retirer</button></div>';
       }).join('') : '<p class="empty">Aucune annonce publiée.</p>';
     }
@@ -460,16 +465,34 @@
       if (!text) return;
       this.disabled = true;
       try {
-        await api('/admin/announce', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ text: text, textEn: $('ann-en').value.trim() }) });
+        var body = { text: text, textEn: $('ann-en').value.trim() };
+        if (_annEditId) body.id = _annEditId;
+        await api('/admin/announce', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
         $('ann-fr').value = ''; $('ann-en').value = '';
+        _annEditId = null; this.textContent = 'Publier';
         await refresh();
       } catch (e) {}
       this.disabled = false;
     });
     $('ann-list').addEventListener('click', async function (e) {
+      var editBtn = e.target.closest('[data-annedit]');
+      if (editBtn) {
+        var a = _annById[editBtn.dataset.annedit];
+        if (!a) return;
+        _annEditId = a.id;
+        $('ann-fr').value = a.text;
+        $('ann-en').value = a.textEn || '';
+        $('btn-ann-send').textContent = '💾 Enregistrer la modification';
+        $('ann-fr').focus();
+        return;
+      }
       var btn = e.target.closest('[data-anndel]'); if (!btn) return;
       btn.disabled = true;
-      try { await api('/admin/announce/' + encodeURIComponent(btn.dataset.anndel), { method:'DELETE' }); await refresh(); }
+      try {
+        await api('/admin/announce/' + encodeURIComponent(btn.dataset.anndel), { method:'DELETE' });
+        if (_annEditId === btn.dataset.anndel) { _annEditId = null; $('btn-ann-send').textContent = 'Publier'; $('ann-fr').value = ''; $('ann-en').value = ''; }
+        await refresh();
+      }
       catch (err) { btn.disabled = false; }
     });
 

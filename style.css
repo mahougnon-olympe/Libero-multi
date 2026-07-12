@@ -2238,7 +2238,7 @@ html.light .chatbot-chip  { color: var(--text); }
 /* ── Libs counter ── */
 .libs-counter {
   position: fixed;
-  top: 16px; right: 68px;
+  top: 16px; right: 16px;
   height: 44px;
   padding: 0 12px;
   border-radius: 22px; border: none;
@@ -3580,3 +3580,43 @@ html.light .tournament-row { background: rgba(0,0,0,.05); }
   background: rgba(124,92,255,.12); border: 1px solid rgba(124,92,255,.3);
   border-radius: 8px; padding: 7px 9px; margin-bottom: 6px;
 }
+
+/* ── Fin de quiz : podium anime + partage ── */
+.tg-podium {
+  display: flex; align-items: flex-end; justify-content: center;
+  gap: 10px; width: 100%; max-width: 420px; margin: 4px auto 6px;
+}
+.tg-podium-col {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  flex: 1; min-width: 0;
+  animation: tgPodiumRise .6s cubic-bezier(.2,1.4,.4,1) backwards;
+}
+.tg-podium-p1 { animation-delay: .45s; }
+.tg-podium-p2 { animation-delay: .15s; }
+.tg-podium-p3 { animation-delay: .3s; }
+@keyframes tgPodiumRise { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+.tg-podium-crown { font-size: 1.5rem; animation: tgCrownBob 1.6s ease-in-out infinite; }
+@keyframes tgCrownBob { 0%,100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-5px) rotate(6deg); } }
+.tg-podium-medal { font-size: 1.6rem; }
+.tg-podium-name {
+  font-weight: 800; font-size: .85rem; max-width: 100%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.tg-podium-pts { font-size: .78rem; font-weight: 700; opacity: .85; }
+.tg-podium-block {
+  width: 100%; border-radius: 10px 10px 4px 4px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 900; font-size: 1.3rem;
+  box-shadow: 0 4px 14px rgba(0,0,0,.3);
+}
+.tg-podium-p1 .tg-podium-block { height: 86px; box-shadow: 0 0 22px rgba(251,191,36,.55); }
+.tg-podium-p2 .tg-podium-block { height: 60px; }
+.tg-podium-p3 .tg-podium-block { height: 44px; }
+.tg-podium-col.me .tg-podium-name { color: var(--accent); }
+.tg-podium-p1 .tg-podium-name { font-size: .95rem; }
+.tg-podium-msg {
+  margin: 2px 0 0; font-weight: 800; font-size: .95rem; text-align: center;
+  animation: tgPodiumRise .5s .7s backwards;
+}
+.tg-podium-msg.win { color: #fbbf24; font-size: 1.05rem; text-shadow: 0 0 14px rgba(251,191,36,.5); }
+.tg-share-btn { margin-top: 10px; animation: tgPodiumRise .5s .85s backwards; }
