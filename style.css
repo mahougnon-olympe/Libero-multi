@@ -3542,3 +3542,41 @@ html.light .challenge-bar { background: rgba(0,0,0,.14); }
   max-height: 86dvh; overflow-y: auto;
   box-shadow: 0 12px 48px rgba(0,0,0,.55);
 }
+
+/* ══ Tournoi du samedi (ecran Events) ══ */
+.tournament-card {
+  width: 100%; max-width: 480px; margin: 0 auto 18px;
+  background: linear-gradient(135deg, rgba(255,206,58,.1), rgba(124,92,255,.08));
+  border: 1px solid rgba(255,206,58,.35); border-radius: var(--radius);
+  padding: 16px 18px;
+}
+.tournament-card h2 { font-size: 1.1rem; margin-bottom: 6px; }
+.tournament-desc { font-size: .78rem; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+.tournament-status { font-size: .84rem; font-weight: 700; margin-bottom: 8px; }
+.tournament-status.live { color: #ffce3a; animation: tournament-blink 1.6s ease infinite; }
+@keyframes tournament-blink { 50% { opacity: .55; } }
+.tournament-row {
+  display: flex; justify-content: space-between; gap: 8px;
+  padding: 6px 10px; border-radius: 8px; margin-bottom: 4px;
+  background: rgba(255,255,255,.05); font-size: .84rem;
+}
+html.light .tournament-row { background: rgba(0,0,0,.05); }
+.tournament-empty { font-size: .8rem; color: var(--muted); }
+.tournament-champion { font-size: .82rem; font-weight: 700; color: #ffce3a; margin-top: 8px; }
+
+/* ══ Mise (duel) ══ */
+.stake-row { margin: 10px 0 4px; }
+.stake-label { display: block; font-size: .8rem; font-weight: 700; margin-bottom: 6px; }
+.stake-btns { display: flex; gap: 6px; }
+.stake-btn {
+  flex: 1; padding: 8px 4px; border-radius: 10px; cursor: pointer;
+  background: var(--card2); border: 1px solid var(--border); color: var(--text);
+  font-size: .8rem; font-weight: 700; transition: border-color .15s;
+}
+.stake-btn.active { border-color: #ffce3a; box-shadow: inset 0 0 0 1px #ffce3a; color: #ffce3a; }
+
+/* ══ Annonces dans la carte News ══ */
+.news-announce {
+  background: rgba(124,92,255,.12); border: 1px solid rgba(124,92,255,.3);
+  border-radius: 8px; padding: 7px 9px; margin-bottom: 6px;
+}

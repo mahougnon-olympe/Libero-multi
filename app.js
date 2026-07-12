@@ -66,6 +66,21 @@ const pendingJoinCode = (() => {
   return null;
 })();
 
+// Lien de parrainage ?ami=CODE : retenu uniquement pour un NOUVEAU visiteur,
+// déclaré au serveur après connexion (récompense à sa première partie).
+(() => {
+  try {
+    const c = new URLSearchParams(location.search).get('ami');
+    if (c) {
+      const clean = location.pathname + location.hash;
+      history.replaceState(null, '', clean);
+      if (!localStorage.getItem('libero_player_id')) {
+        localStorage.setItem('libero_referrer_code', c.toLowerCase().replace(/[^a-f0-9]/g, '').slice(0, 8));
+      }
+    }
+  } catch (e) {}
+})();
+
 // Lien cadeau ?gift=CODE : le destinataire ouvre le lien et le cosmétique (ou
 // le pack) est échangé automatiquement, sans avoir à taper le code.
 const pendingGiftCode = (() => {
@@ -361,6 +376,32 @@ const DICT = {
       invalid:'Ce code est invalide.',
       confirm:'Restaurer cette progression ? La progression actuelle de cet appareil sera remplacée.',
     },
+    tournamentTitle:'🏆 Tournoi du samedi',
+    tournamentDesc:"Chaque samedi : victoires classiques +10 pts, bonnes réponses de quiz +2 pts, ⚡ mangés au Snake +1 pt. Le meilleur gagne 2000 ⚡ et le titre « Champion de la semaine » !",
+    tournamentLive:(h,m)=>`🔴 Tournoi en cours ! Fin dans ${h} h ${m} min`,
+    tournamentNext:days=>`Prochain tournoi samedi (dans ${days} jour${days>1?'s':''})`,
+    tournamentEmpty:'Aucun point marqué pour le moment. Sois le premier !',
+    tournamentChampion:(name,pts)=>`👑 Champion de la semaine : ${name} (${pts} pts)`,
+    stakeLabel:'💰 Mise (le vainqueur rafle tout) :',
+    stakeNone:'Sans',
+    stakeStart:(stake,pot)=>`💰 Mise ${stake} ⚡ chacun : le vainqueur remporte ${pot} ⚡ !`,
+    stakeWon:pot=>`💰 Victoire ! Tu remportes le pot : +${pot} ⚡`,
+    stakeLost:stake=>`💸 Mise perdue (${stake} ⚡). Revanche ?`,
+    stakeRefund:stake=>`💰 Mise remboursée (+${stake} ⚡).`,
+    stakeCancelled:'💰 Mise annulée pour cette revanche (solde insuffisant).',
+    stakeInsufficient:'Solde insuffisant pour cette mise (et il faut un pseudo).',
+    stakeInsufficientJoin:stake=>`Cette partie a une mise de ${stake} ⚡ : il te faut un pseudo et un solde suffisant.`,
+    welcomeBackToast:'🎯 Content de te revoir ! Tes défis du jour t\'attendent dans le Profil.',
+    referralCardTitle:'Inviter un ami', referralCardSub:'+100 ⚡ pour toi et pour lui',
+    referralTitle:'🤝 Invite un ami',
+    referralIntro:"Envoie ton lien d'invitation : quand ton ami jouera sa première partie, vous recevrez chacun 100 ⚡ !",
+    referralLinkLabel:"Ton lien d'invitation",
+    referralShareBtn:'Partager le lien',
+    referralShareTitle:"Rejoins-moi sur Libero's Multi !",
+    referralShareText:url=>`🎮 Viens jouer avec moi sur Libero's Multi ! Utilise mon lien et on gagne chacun 100 ⚡ : ${url}`,
+    referralCount:n=>`🏅 Tu as déjà parrainé ${n} joueur${n>1?'s':''}.`,
+    referralRewardSponsor:(amount,name)=>`🤝 Ton filleul ${name} a joué sa première partie : +${amount} ⚡ !`,
+    referralRewardChild:amount=>`🤝 Bienvenue ! Ton parrainage te rapporte +${amount} ⚡ !`,
     joinName:{
       title:"🎮 On t'attend !",
       intro:"Un ami t'a invité à une partie. Choisis d'abord ton pseudo pour le rejoindre.",
@@ -553,7 +594,7 @@ const DICT = {
     shopNameEffectNames:{'nameeffect-blink':'Clignotement Néon','nameeffect-pulse':'Lueur Pulsée','nameeffect-gradient':'Dégradé Défilant','nameeffect-sparks':'Étincelles','nameeffect-glitch':'Glitch','nameeffect-rainbow':'Vague Arc-en-ciel'},
     shopTitlesTitle:'🏷️ Titres',
     shopTitleNames:{'title-tactician':'Tacticien','title-strategist':'Le Stratège','title-quizmaster':'Quiz Master','title-snakeking':'Roi du Snake','title-unbeaten':'Invaincu','title-champion':'Champion','title-legend':'Légende Vivante'},
-    honorTitleNames:{'honor-rank1-global':'N°1 Global','honor-creator':'Créateur'},
+    honorTitleNames:{'honor-rank1-global':'N°1 Global','honor-weekly-champ':'Champion de la semaine','honor-creator':'Créateur'},
     honorModalTitle:'Titre honorifique !',
     honorModalMsg:(titleName) => `Felicitations ! Tu es N°1 au classement global. En recompense, tu recois le titre <strong>${titleName}</strong>. Il s'affichera a cote de ton pseudo tant que tu restes premier.`,
     honorModalBtn:'Accepter',
@@ -773,6 +814,9 @@ const DICT = {
         { icon:'🗑️', title:'Réinitialiser le compte', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Réinitialiser le compte</strong> supprime <strong>définitivement</strong> toute ta progression : Libs, cosmétiques, série, historique, et tu <strong>disparais de tous les classements</strong>. Le site redémarre ensuite comme à ta toute première visite (animation de bienvenue comprise). Il faut cocher la case de confirmation pour valider. Attention : après la réinitialisation, ton ancien code de récupération ne fonctionne plus." },
         { icon:'🎁', title:'Offrir un cosmétique ou un pack', desc:"Tu peux <strong>offrir</strong> n'importe quel cosmétique payant <strong>ou pack (bundle)</strong> de la boutique ! Ouvre sa fiche et clique <strong>🎁 Offrir</strong> : tu paies son prix en ⚡ et tu reçois un <strong>lien cadeau</strong> à partager (WhatsApp, etc.). Ton ami <strong>ouvre le lien et reçoit le cadeau automatiquement</strong>. Si le lien ne passe pas, un <strong>code cadeau</strong> est aussi fourni, à entrer dans la boutique, section <strong>🎟️ Codes → Recevoir un cadeau</strong>. Chaque cadeau n'est utilisable qu'<strong>une seule fois</strong>." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> · ton serpent mange des <strong>⚡ Libs</strong> pour grandir, et chaque ⚡ mangé est <strong>ajouté à ton solde</strong> (score 10 = 10 Libs gagnés). Les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
+        { icon:'🏆', title:'Tournoi du samedi', desc:"Chaque <strong>samedi</strong>, un tournoi automatique se joue sur tout le site (visible dans <strong>Évents</strong>) : victoires classiques <strong>+10 pts</strong>, bonnes réponses de quiz <strong>+2 pts</strong>, ⚡ mangés au Snake <strong>+1 pt</strong>. À minuit, le meilleur remporte <strong>2000 ⚡</strong> et le titre honorifique <strong>« Champion de la semaine »</strong>, gardé jusqu'au tournoi suivant. Le top 10 s'affiche en direct." },
+        { icon:'🤝', title:'Inviter un ami (parrainage)', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Inviter un ami</strong> te donne ton <strong>lien d'invitation</strong>. Quand un nouveau joueur arrive par ton lien et joue sa <strong>première partie</strong>, vous recevez chacun <strong>+100 ⚡</strong>. Le nombre de joueurs que tu as parrainés s'affiche dans la fenêtre." },
+        { icon:'💰', title:'Duels avec mise', desc:"En créant une partie multijoueur classique, tu peux choisir une <strong>mise</strong> (25, 50 ou 100 ⚡). Les deux joueurs paient la mise au départ et <strong>le vainqueur rafle tout</strong> (le double). Match nul ou partie annulée : chacun est <strong>remboursé</strong>. Il faut un pseudo et un solde suffisant des deux côtés ; la revanche remet la même mise si les deux peuvent payer." },
         { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras les <strong>romans exclusifs</strong> lisibles directement sur le site (en français ou en anglais selon la langue choisie) : <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, 1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10), <strong>Life of Georgia</strong> (livre entier pour 2000 ⚡) et sa suite <strong>Life of Georgia · Tome 2</strong>, <strong>offerte</strong> à tous ceux qui ont débloqué le Tome 1." },
         { icon:'🎮', title:'Créer une partie classique', desc:"Choisis d'abord un jeu parmi <strong>Puissance 4</strong>, <strong>Morpion</strong>, <strong>Échecs</strong> ou <strong>Dames</strong> (aucun n'est présélectionné), entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire, ou le <strong>lien</strong>. Tu peux annuler l'attente si personne ne rejoint. Tu peux aussi jouer <strong>Solo contre le bot</strong> (Facile, Moyen ou Difficile)." },
         { icon:'⛂', title:'Dames', desc:"Le jeu de <strong>Dames</strong> (draughts 8x8, 12 pions chacun). Les pions avancent en diagonale d'une case vers l'avant. <strong>La prise est obligatoire</strong> : si tu peux sauter par-dessus un pion adverse (case libre derrière), tu dois le faire, et tu enchaînes les prises multiples avec la même pièce. Un pion qui atteint la dernière rangée devient une <strong>dame ♛</strong> qui se déplace et prend dans les deux sens. Tu gagnes quand l'adversaire n'a plus de pièces ou ne peut plus jouer. En fin de partie, <em>Rejouer</em> propose une revanche que l'adversaire accepte ou refuse." },
@@ -859,7 +903,7 @@ const DICT = {
       landing_lb:'🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10 + meilleur score Libero Run ÷10. Plus tu montes, plus ton serpent 🐍 grandit !',
       landing_btns:'⚙️ Des boutons permanents sont disponibles :<br>▶ Les <strong>Réglages</strong> (thème, langue, serpent, sons, musique, cartes de remboursement) sont dans l\'onglet <strong>Profil</strong>, carte <strong>⚙️ Réglages</strong>.<br>▶ <strong>En bas à droite</strong> : ❓ <strong>Aide</strong> · ✉️ <strong>Commentaire</strong> · 🤖 <strong>Assistant</strong>',
       landing_libs:'⚡ <strong>Libs</strong> : la monnaie virtuelle du site. Tous les joueurs classés en reçoivent toutes les 5h (1er : +10 ⚡, 2e : +5 ⚡, 3e : +3 ⚡, du 4e au 10e : +2 ⚡, ensuite +1 ⚡). Tu en gagnes aussi avec les <strong>défis du jour</strong> et ta <strong>série de connexion</strong>. Dépense-les dans la <strong>boutique</strong> : cosmétiques, boosts quiz, livres exclusifs !',
-      events_snake:'🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les <strong>⚡ Libs</strong> pour grandir : chaque ⚡ mangé est ajouté à ton solde (score 10 = 10 Libs gagnés). Les bords sont traversables, tu ressors de l\'autre côté ! Ton meilleur score <strong>persiste</strong> entre les sessions.',
+      events_snake:'🏆 Le samedi, le <strong>Tournoi</strong> se joue ici : top 10 en direct, 2000 ⚡ et le titre « Champion de la semaine » pour le meilleur !<br>🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les <strong>⚡ Libs</strong> pour grandir : chaque ⚡ mangé est ajouté à ton solde (score 10 = 10 Libs gagnés). Les bords sont traversables, tu ressors de l\'autre côté ! Ton meilleur score <strong>persiste</strong> entre les sessions.',
       luffy_runner:'🏃 <strong>Libero Run</strong> : aide Libero à courir le plus loin possible ! Saute (↑ / Espace) par-dessus les obstacles au sol, accroupis-toi (↓) sous les obstacles volants. Attrape l\'⭐ étoile pour être invincible quelques secondes. Ton meilleur score alimente un classement dédié.',
       home_games:'🎮 Choisis ton jeu en haut : <strong>Puissance 4</strong>, <strong>Morpion</strong>, <strong>Échecs</strong> ou <strong>Dames</strong> (aucun n\'est présélectionné). Le classement est partagé entre les quatre jeux.',
       home_bot:'🤖 <strong>Mode Solo</strong> : joue contre le bot à 3 niveaux de difficulté : Facile, Moyen ou Difficile. Tes victoires et défaites sont comptées dans le classement !',
@@ -869,7 +913,7 @@ const DICT = {
       quiz_themes:'🧠 <strong>Quiz Culture Générale</strong> : sélectionne un ou plusieurs thèmes (Histoire, Cinéma, Sciences…), puis joue en <strong>Solo</strong> ou crée un <strong>salon multijoueur</strong> à partager avec tes amis.',
       quiz_lb:'🏆 Le <strong>classement Quiz</strong> est séparé du classement Classique. Les points sont attribués selon ta vitesse de réponse et le nombre de bonnes réponses. <strong>Réponse éclair</strong> (dans les premières secondes) = <strong>point doublé ⚡</strong>.',
       read_catalogue:'📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Les <strong>romans exclusifs</strong> se lisent directement ici : <strong>⭐ L\'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, puis 1000 ⚡ et 2000 ⚡), <strong>Life of Georgia</strong> (2000 ⚡ le livre entier) et <strong>Life of Georgia · Tome 2</strong>, offert à ceux qui possèdent le Tome 1.',
-      profile_hub:'🎯 Ton <strong>Profil</strong> regroupe ta <strong>série de connexion</strong> 🔥, tes <strong>défis du jour</strong> (des ⚡ à réclamer chaque jour), ton <strong>casier</strong> (tes cosmétiques, avec aperçus et équipement), ton <strong>historique</strong> de parties, tes <strong>émotes</strong> 😎, la <strong>pluie d\'émojis</strong> 🌈, les <strong>Réglages</strong> ⚙️, ton <strong>code de récupération</strong> 🔐 (note-le pour ne jamais perdre ton compte !) et la <strong>réinitialisation</strong> du compte.',
+      profile_hub:'🎯 Ton <strong>Profil</strong> regroupe ta <strong>série de connexion</strong> 🔥, tes <strong>défis du jour</strong> (des ⚡ à réclamer chaque jour), ton <strong>casier</strong> (tes cosmétiques, avec aperçus et équipement), ton <strong>historique</strong> de parties, la carte <strong>Inviter un ami</strong> 🤝 (+100 ⚡ chacun), tes <strong>émotes</strong> 😎, la <strong>pluie d\'émojis</strong> 🌈, les <strong>Réglages</strong> ⚙️, ton <strong>code de récupération</strong> 🔐 (note-le pour ne jamais perdre ton compte !) et la <strong>réinitialisation</strong> du compte.',
       feed_videos:'🎬 La section <strong>Vidéos</strong> : fais défiler verticalement pour découvrir les vidéos de la communauté, comme sur TikTok. Le son se coupe ou se réactive d\'un simple clic sur la vidéo.',
     },
   },
@@ -897,6 +941,32 @@ const DICT = {
       invalid:'This code is invalid.',
       confirm:'Restore this progress? The current progress on this device will be replaced.',
     },
+    tournamentTitle:'🏆 Saturday tournament',
+    tournamentDesc:'Every Saturday: classic wins +10 pts, correct quiz answers +2 pts, ⚡ eaten in Snake +1 pt. The best player wins 2000 ⚡ and the "Weekly Champion" title!',
+    tournamentLive:(h,m)=>`🔴 Tournament live! Ends in ${h}h ${m}min`,
+    tournamentNext:days=>`Next tournament on Saturday (in ${days} day${days>1?'s':''})`,
+    tournamentEmpty:'No points scored yet. Be the first!',
+    tournamentChampion:(name,pts)=>`👑 Weekly champion: ${name} (${pts} pts)`,
+    stakeLabel:'💰 Stake (winner takes all):',
+    stakeNone:'None',
+    stakeStart:(stake,pot)=>`💰 ${stake} ⚡ stake each: the winner takes ${pot} ⚡!`,
+    stakeWon:pot=>`💰 Victory! You take the pot: +${pot} ⚡`,
+    stakeLost:stake=>`💸 Stake lost (${stake} ⚡). Rematch?`,
+    stakeRefund:stake=>`💰 Stake refunded (+${stake} ⚡).`,
+    stakeCancelled:'💰 Stake cancelled for this rematch (insufficient balance).',
+    stakeInsufficient:'Insufficient balance for this stake (and a nickname is required).',
+    stakeInsufficientJoin:stake=>`This game has a ${stake} ⚡ stake: you need a nickname and enough balance.`,
+    welcomeBackToast:'🎯 Welcome back! Your daily challenges are waiting in your Profile.',
+    referralCardTitle:'Invite a friend', referralCardSub:'+100 ⚡ for you and for them',
+    referralTitle:'🤝 Invite a friend',
+    referralIntro:'Send your invite link: when your friend plays their first game, you both receive 100 ⚡!',
+    referralLinkLabel:'Your invite link',
+    referralShareBtn:'Share the link',
+    referralShareTitle:"Join me on Libero's Multi!",
+    referralShareText:url=>`🎮 Come play with me on Libero's Multi! Use my link and we each earn 100 ⚡: ${url}`,
+    referralCount:n=>`🏅 You already referred ${n} player${n>1?'s':''}.`,
+    referralRewardSponsor:(amount,name)=>`🤝 Your friend ${name} played their first game: +${amount} ⚡!`,
+    referralRewardChild:amount=>`🤝 Welcome! Your referral earns you +${amount} ⚡!`,
     joinName:{
       title:'🎮 They are waiting for you!',
       intro:'A friend invited you to a game. Pick your nickname first to join them.',
@@ -1309,6 +1379,9 @@ const DICT = {
         { icon:'🗑️', title:'Reset account', desc:"In the <strong>Profile</strong> tab, the <strong>Reset account</strong> card <strong>permanently</strong> deletes all your progress: Libs, cosmetics, streak, history, and you <strong>disappear from every leaderboard</strong>. The site then restarts as if it were your very first visit (welcome animation included). You must tick the confirmation box to proceed. Warning: after the reset, your old recovery code no longer works." },
         { icon:'🎁', title:'Gift a cosmetic or a pack', desc:"You can <strong>gift</strong> any paid cosmetic <strong>or pack (bundle)</strong> from the shop! Open its detail sheet and click <strong>🎁 Gift</strong>: you pay its price in ⚡ and receive a <strong>gift link</strong> to share (WhatsApp, etc.). Your friend <strong>opens the link and receives the gift automatically</strong>. If the link does not work, a <strong>gift code</strong> is also provided, to enter in the shop, <strong>🎟️ Codes → Receive a gift</strong> section. Each gift can only be used <strong>once</strong>." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> · your snake eats <strong>⚡ Libs</strong> to grow, and every ⚡ eaten is <strong>added to your balance</strong> (score 10 = 10 Libs earned). Walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
+        { icon:'🏆', title:'Saturday tournament', desc:"Every <strong>Saturday</strong>, an automatic tournament runs across the whole site (visible in <strong>Events</strong>): classic wins <strong>+10 pts</strong>, correct quiz answers <strong>+2 pts</strong>, ⚡ eaten in Snake <strong>+1 pt</strong>. At midnight the best player wins <strong>2000 ⚡</strong> and the honorary <strong>\"Weekly Champion\"</strong> title, kept until the next tournament. The top 10 shows live." },
+        { icon:'🤝', title:'Invite a friend (referral)', desc:"In the <strong>Profile</strong> tab, the <strong>Invite a friend</strong> card gives you your <strong>invite link</strong>. When a new player arrives through your link and plays their <strong>first game</strong>, you each receive <strong>+100 ⚡</strong>. The number of players you referred shows in the window." },
+        { icon:'💰', title:'Stake duels', desc:"When creating a classic multiplayer game, you can pick a <strong>stake</strong> (25, 50 or 100 ⚡). Both players pay the stake at the start and <strong>the winner takes all</strong> (double). Draw or cancelled game: both are <strong>refunded</strong>. A nickname and enough balance are required on both sides; a rematch re-collects the same stake if both can pay." },
         { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll find the <strong>exclusive novels</strong> readable right on the site (in French or English, following the site language): <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapter 1 free, 1000 ⚡ for chapters 2-5, 2000 ⚡ for 6-10), <strong>Life of Georgia</strong> (whole book for 2000 ⚡) and its sequel <strong>Life of Georgia · Volume 2</strong>, <strong>free</strong> for everyone who unlocked Volume 1." },
         { icon:'🎮', title:'Create a classic game', desc:"First choose a game among <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong>, <strong>Chess</strong> or <strong>Checkers</strong> (none is pre-selected), enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent, or the <strong>link</strong>. You can cancel while waiting if nobody joins. You can also play <strong>Solo vs the bot</strong> (Easy, Medium or Hard)." },
         { icon:'⛂', title:'Checkers', desc:"The game of <strong>Checkers</strong> (draughts 8x8, 12 pieces each). Men move diagonally one square forward. <strong>Capturing is mandatory</strong>: if you can jump over an opponent piece (empty square behind), you must, and you chain multiple captures with the same piece. A man reaching the last row becomes a <strong>king ♛</strong> that moves and captures both ways. You win when the opponent has no pieces left or cannot move. At the end, <em>Rematch</em> asks the opponent to accept or decline." },
@@ -1395,7 +1468,7 @@ const DICT = {
       landing_lb:'🌍 The <strong>Global Leaderboard</strong> brings together <em>all</em> players with at least one point. Score = classic wins ×10 + Quiz points + best Snake score ×10 + best Libero Run score ÷10. The higher you climb, the longer your snake 🐍 grows!',
       landing_btns:'⚙️ Permanent buttons are available:<br>▶ <strong>Settings</strong> (theme, language, snake, sounds, music, refund cards) live in the <strong>Profile</strong> tab, <strong>⚙️ Settings</strong> card.<br>▶ <strong>Bottom right</strong>: ❓ <strong>Help</strong> · ✉️ <strong>Comment</strong> · 🤖 <strong>Assistant</strong>',
       landing_libs:'⚡ <strong>Libs</strong>: the site\'s virtual currency. Every ranked player receives some every 5 hours (1st: +10 ⚡, 2nd: +5 ⚡, 3rd: +3 ⚡, 4th to 10th: +2 ⚡, then +1 ⚡). You also earn them through the <strong>daily challenges</strong> and your <strong>login streak</strong>. Spend them in the <strong>shop</strong>: cosmetics, quiz boosts, exclusive books!',
-      events_snake:'🐍 This weekend\'s event: <strong>Snake Challenge</strong>! Click <em>Play</em>, your snake enters the arena. Eat the <strong>⚡ Libs</strong> to grow: every ⚡ eaten is added to your balance (score 10 = 10 Libs earned). Walls wrap around · you reappear on the other side! Your best score <strong>persists</strong> between sessions.',
+      events_snake:'🏆 On Saturdays the <strong>Tournament</strong> runs here: live top 10, 2000 ⚡ and the "Weekly Champion" title for the best!<br>🐍 This weekend\'s event: <strong>Snake Challenge</strong>! Click <em>Play</em>, your snake enters the arena. Eat the <strong>⚡ Libs</strong> to grow: every ⚡ eaten is added to your balance (score 10 = 10 Libs earned). Walls wrap around · you reappear on the other side! Your best score <strong>persists</strong> between sessions.',
       luffy_runner:'🏃 <strong>Libero Run</strong>: help Libero run as far as possible! Jump (↑ / Space) over ground obstacles, duck (↓) under flying ones. Grab the ⭐ star to become invincible for a few seconds. Your best score feeds a dedicated leaderboard.',
       home_games:'🎮 Choose your game at the top: <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong>, <strong>Chess</strong> or <strong>Checkers</strong> (none is pre-selected). The leaderboard is shared across all four games.',
       home_bot:'🤖 <strong>Solo mode</strong>: play against the bot at 3 difficulty levels: Easy, Medium or Hard. Your wins and losses count in the leaderboard!',
@@ -1405,7 +1478,7 @@ const DICT = {
       quiz_themes:'🧠 <strong>General Knowledge Quiz</strong>: select one or more themes (History, Movies, Science…), then play <strong>Solo</strong> or create a <strong>multiplayer room</strong> to share with your friends.',
       quiz_lb:'🏆 The <strong>Quiz leaderboard</strong> is separate from the Classic leaderboard. Points are awarded based on your response speed and number of correct answers. A <strong>lightning answer</strong> (within the first seconds) = <strong>double points ⚡</strong>.',
       read_catalogue:'📚 Welcome to the <strong>Reading</strong> section! Search a book by title or author, filter by category, and click a cover to open its sheet. The <strong>exclusive novels</strong> can be read right here: <strong>⭐ L\'Affaire endormie · Tome 1</strong> (chapter 1 free, then 1000 ⚡ and 2000 ⚡), <strong>Life of Georgia</strong> (2000 ⚡ for the whole book) and <strong>Life of Georgia · Volume 2</strong>, free for owners of Volume 1.',
-      profile_hub:'🎯 Your <strong>Profile</strong> gathers your <strong>login streak</strong> 🔥, your <strong>daily challenges</strong> (⚡ to claim every day), your <strong>locker</strong> (your cosmetics, with previews and equipping), your game <strong>history</strong>, your <strong>emotes</strong> 😎, the <strong>emoji rain</strong> 🌈, the <strong>Settings</strong> ⚙️, your <strong>recovery code</strong> 🔐 (write it down so you never lose your account!) and the account <strong>reset</strong>.',
+      profile_hub:'🎯 Your <strong>Profile</strong> gathers your <strong>login streak</strong> 🔥, your <strong>daily challenges</strong> (⚡ to claim every day), your <strong>locker</strong> (your cosmetics, with previews and equipping), your game <strong>history</strong>, the <strong>Invite a friend</strong> card 🤝 (+100 ⚡ each), your <strong>emotes</strong> 😎, the <strong>emoji rain</strong> 🌈, the <strong>Settings</strong> ⚙️, your <strong>recovery code</strong> 🔐 (write it down so you never lose your account!) and the account <strong>reset</strong>.',
       feed_videos:'🎬 The <strong>Videos</strong> section: scroll vertically to discover community videos, TikTok-style. Sound toggles on and off with a simple click on the video.',
     },
   },
@@ -1499,6 +1572,20 @@ function applyLang() {
   const rrl = $('recovery-restore-label'); if (rrl) rrl.textContent = d.recovery.restoreLabel;
   const rrb = $('btn-recovery-restore');   if (rrb) rrb.textContent = d.recovery.restore;
   const rrh = $('recovery-restore-hint');  if (rrh && !rrh.classList.contains('recovery-err')) rrh.textContent = d.recovery.restoreHint;
+  // Tournoi + mise + parrainage
+  const tnt = $('tournament-title'); if (tnt) tnt.textContent = d.tournamentTitle;
+  const tnd = $('tournament-desc');  if (tnd) tnd.textContent = d.tournamentDesc;
+  if (typeof renderTournament === 'function') renderTournament();
+  const stl = $('stake-label'); if (stl) stl.textContent = d.stakeLabel;
+  const st0 = document.querySelector('.stake-btn[data-stake="0"]'); if (st0) st0.textContent = d.stakeNone;
+  const rfct = $('referral-card-title'); if (rfct) rfct.textContent = d.referralCardTitle;
+  const rfcs = $('referral-card-sub');   if (rfcs) rfcs.textContent = d.referralCardSub;
+  const rft = $('referral-title');       if (rft) rft.textContent = d.referralTitle;
+  const rfi = $('referral-intro');       if (rfi) rfi.textContent = d.referralIntro;
+  const rfl = $('referral-link-label');  if (rfl) rfl.textContent = d.referralLinkLabel;
+  const rfc = $('btn-referral-copy');    if (rfc) rfc.textContent = d.recovery.copy;
+  const rfs = $('btn-referral-share');   if (rfs) rfs.textContent = d.referralShareBtn;
+  if (window._lastAnnouncements) _renderAnnouncements(window._lastAnnouncements);
   // Pseudo pour lien d'invitation
   const jnt = $('joinname-title'); if (jnt) jnt.textContent = d.joinName.title;
   const jni = $('joinname-intro'); if (jni) jni.textContent = d.joinName.intro;
@@ -1863,6 +1950,7 @@ function showScreen(name) {
     else if (name === 'locker')  window._profileHub.enterLocker();
     else if (name === 'history') window._profileHub.enterHistory();
   }
+  if (name === 'events') { socket.emit('get-tournament'); if (typeof renderTournament === 'function') renderTournament(); }
   // Lecture / pause du feed vidéo selon qu'on entre ou quitte l'onglet Vidéos.
   if (window._videoFeed) {
     if (name === 'feed') window._videoFeed.load();
@@ -2055,7 +2143,7 @@ $('btn-create').addEventListener('click', () => {
   if (!getPlayerName()) { showError(t().errNoName); return; }
   if (_nameTaken) { showError(t().errNameTaken); return; }
   clearError();
-  socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), playerId: getPlayerId() });
+  socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), playerId: getPlayerId(), stake: window._selectedStake || 0 });
 });
 
 $('btn-join').addEventListener('click', joinRoom);
@@ -3484,6 +3572,9 @@ $('overlay-help').addEventListener('click', e => {
     casier:['casier','profil'], locker:['casier','profil'], equiper:['casier','equiper'], equip:['casier','equiper'], desequiper:['casier','equiper'], unequip:['casier','equiper'], cosmetique2:['casier'],
     cadeau:['cadeau','offrir'], cadeaux:['cadeau','offrir'], gift:['cadeau','offrir','gift'], offrir:['cadeau','offrir'], offert:['cadeau','offrir'],
     recuperation:['recuperation','sauvegarder'], recuperer:['recuperation','sauvegarder'], recovery:['recuperation','recovery'], recover:['recuperation','recovery'], sauvegarder:['recuperation','sauvegarder','progression'], sauvegarde:['recuperation','sauvegarder'], save:['recuperation','recovery'], progression:['recuperation','progression'], progress:['recuperation','recovery'], appareil:['recuperation'], device:['recuperation','recovery'], telephone:['recuperation'], phone:['recuperation','recovery'], perdu:['recuperation'], lost:['recuperation','recovery'],
+    tournoi:['tournoi','samedi','champion'], tournament:['tournoi','samedi','champion'], samedi:['tournoi','samedi'], champion:['tournoi','champion'],
+    parrain:['parrainage','inviter','ami'], parrainage:['parrainage','inviter','ami'], inviter:['parrainage','inviter','ami'], invitation:['parrainage','inviter'], referral:['parrainage','inviter'], filleul:['parrainage'],
+    mise:['mise','duel','vainqueur'], miser:['mise','duel'], parier:['mise','duel'], pari:['mise','duel'], duel:['mise','duel'], stake:['mise','duel'], bet:['mise','duel'],
     emote:['emotes','reactions','profil'], emotes:['emotes','reactions','profil'], reaction:['emotes'], reactions:['emotes'],
     reglage:['reglages','parametres','profil'], reglages:['reglages','parametres','profil'], parametre:['reglages','parametres'], parametres:['reglages','parametres'], settings:['parametres','profil'],
     eclair:['quiz','vitesse'], vitesse:['quiz','vitesse'], rapide:['quiz','vitesse'], lightning:['quiz','speed'], vite:['quiz','vitesse'],
@@ -3796,12 +3887,20 @@ socket.on('connect', () => {
       window._askJoinName?.(pendingJoinCode);
     }
   }
+  // Parrainage : le nouveau venu déclare son parrain (une seule fois).
+  const _refCode = localStorage.getItem('libero_referrer_code');
+  if (_refCode) {
+    socket.emit('set-referrer', { playerId: getPlayerId(), ref: _refCode });
+    localStorage.removeItem('libero_referrer_code');
+  }
+  socket.emit('get-tournament');
   // Lien cadeau : échange automatique du code (une seule fois par chargement).
   if (pendingGiftCode && pendingGiftCode.length === 8 && !window._giftLinkTried) {
     window._giftLinkTried = true;
     socket.emit('redeem-gift', { code: pendingGiftCode, playerId: getPlayerId(), name: localStorage.getItem('playerName') || '' });
   }
   if (sessionStorage.getItem('libero_screen') === 'events') socket.emit('get-snake-leaderboard');
+  if (sessionStorage.getItem('libero_screen') === 'events') socket.emit('get-tournament');
   if (sessionStorage.getItem('libero_screen') === 'luffy')  socket.emit('get-luffy-leaderboard');
   if (window._profileHub) {
     const _scr = sessionStorage.getItem('libero_screen');
@@ -3868,17 +3967,41 @@ socket.on('trivia-reconnect-success', ({ code, status, scores, question, hostId 
 
 socket.on('trivia-reconnect-failed', () => { clearTriviaSession(); showScreen('landing'); });
 
-socket.on('room-created', ({ code, gameType }) => {
+// Sélecteur de mise (duel) : montants fixes, « Sans » par défaut.
+window._selectedStake = 0;
+document.querySelectorAll('.stake-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.stake-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    window._selectedStake = parseInt(btn.dataset.stake, 10) || 0;
+  });
+});
+
+socket.on('room-created', ({ code, gameType, stake }) => {
   currentRoomCode = code;
   currentGame     = gameType;
   $('room-code').textContent     = code;
-  $('waiting-game-name').textContent = t().games[gameType];
+  $('waiting-game-name').textContent = t().games[gameType] + (stake ? ` · 💰 ${stake} ⚡` : '');
   showScreen('waiting');
 });
 
-socket.on('game-start', ({ gameType, state, yourPlayer, vsBot, botDifficulty, code }) => {
+// Résultats de mise : pot au vainqueur, remboursement, mise annulée.
+socket.on('stake-result', ({ outcome, winnerRole, pot } = {}) => {
+  const d = t();
+  if (outcome === 'won') {
+    const iWon = winnerRole === myPlayer;
+    showCursorSnakeToast(iWon ? d.stakeWon(pot) : d.stakeLost(pot / 2));
+  } else if (outcome === 'refund') {
+    showCursorSnakeToast(d.stakeRefund(pot));
+  } else if (outcome === 'cancelled') {
+    showCursorSnakeToast(d.stakeCancelled);
+  }
+});
+
+socket.on('game-start', ({ gameType, state, yourPlayer, vsBot, botDifficulty, code, stake }) => {
   isBotGame = !!vsBot;
   if (code) currentRoomCode = code; // couvre la jointure inter-sections / par lien
+  if (stake > 0) setTimeout(() => showCursorSnakeToast(t().stakeStart(stake, stake * 2)), 600);
   saveSession(currentRoomCode, yourPlayer);
   applyGameState({ gameType, state, yourPlayer, status: 'playing', winner: null });
   $('chat').classList.toggle('hidden', isBotGame);
@@ -4009,9 +4132,13 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ name: serverName, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal } = {}) => {
+socket.on('libs-update', ({ name: serverName, refCode, referrals, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal } = {}) => {
+  if (refCode !== undefined)   window._myRefCode = refCode;
+  if (referrals !== undefined) window._myReferrals = referrals;
   const prev = libsBalance;
-  libsBalance = balance ?? 0;
+  // Certaines mises a jour partielles (ex. titre honorifique seul) n'ont pas de
+  // champ balance : ne jamais ecraser le solde avec 0 dans ce cas.
+  if (balance !== undefined) libsBalance = balance;
   localStorage.setItem('libero_libs', String(libsBalance));
   // Récupération de progression : sur un appareil neuf (pseudo local vide), on
   // restaure le pseudo mémorisé côté serveur pour ce code.
@@ -4277,7 +4404,11 @@ socket.on('boost-hint-result', ({ eliminateChoice } = {}) => {
   });
 });
 
-socket.on('error', ({ message }) => { showError(message); });
+socket.on('error', ({ message, stake } = {}) => {
+  if (message === 'stake_insufficient')      { showError(t().stakeInsufficient); return; }
+  if (message === 'stake_insufficient_join') { showError(t().stakeInsufficientJoin(stake || 0)); return; }
+  showError(message);
+});
 socket.on('connect_error', () => { showError(t().errConnect); });
 // Echec d'une jointure par lien de partage (code introuvable) : toast neutre.
 socket.on('join-code-failed', ({ message }) => { showCursorSnakeToast(message || t().joinLinkFailed); });
@@ -7672,7 +7803,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'profile_hub',
       screen: 'profile',
-      text: '🎯 Ton <strong>Profil</strong> regroupe ta <strong>série de connexion</strong> 🔥, tes <strong>défis du jour</strong> (des ⚡ à réclamer chaque jour), ton <strong>casier</strong> (tes cosmétiques, avec aperçus et équipement), ton <strong>historique</strong> de parties, tes <strong>émotes</strong> 😎, la <strong>pluie d\'émojis</strong> 🌈, les <strong>Réglages</strong> ⚙️, ton <strong>code de récupération</strong> 🔐 (note-le pour ne jamais perdre ton compte !) et la <strong>réinitialisation</strong> du compte.',
+      text: '🎯 Ton <strong>Profil</strong> regroupe ta <strong>série de connexion</strong> 🔥, tes <strong>défis du jour</strong> (des ⚡ à réclamer chaque jour), ton <strong>casier</strong> (tes cosmétiques, avec aperçus et équipement), ton <strong>historique</strong> de parties, la carte <strong>Inviter un ami</strong> 🤝 (+100 ⚡ chacun), tes <strong>émotes</strong> 😎, la <strong>pluie d\'émojis</strong> 🌈, les <strong>Réglages</strong> ⚙️, ton <strong>code de récupération</strong> 🔐 (note-le pour ne jamais perdre ton compte !) et la <strong>réinitialisation</strong> du compte.',
       target: '.profile-body',
     },
 
@@ -9204,6 +9335,52 @@ window._profileHub = ProfileHub;
   });
 })();
 
+// ── Coucou de retour : absent 2 jours ou plus -> rappel des défis du jour ────
+(() => {
+  try {
+    const KEY = 'libero_last_seen';
+    const last = parseInt(localStorage.getItem(KEY) || '0', 10);
+    const named = (localStorage.getItem('playerName') || '').trim();
+    if (last && named && Date.now() - last >= 2 * 86_400_000) {
+      setTimeout(() => showCursorSnakeToast(t().welcomeBackToast), 2500);
+    }
+    localStorage.setItem(KEY, String(Date.now()));
+  } catch (e) {}
+})();
+
+// ── Parrainage : carte du profil + modal du lien d'invitation ─────────────────
+(function initReferral() {
+  const overlay = document.getElementById('overlay-referral');
+  if (!overlay) return;
+  const linkIn  = document.getElementById('referral-link');
+  const countEl = document.getElementById('referral-count');
+  function open() {
+    const code = window._myRefCode || '';
+    linkIn.value = code ? `${location.origin}${location.pathname}?ami=${code}` : '…';
+    const n = window._myReferrals || 0;
+    countEl.textContent = n > 0 ? t().referralCount(n) : '';
+    overlay.classList.remove('hidden');
+  }
+  function close() { overlay.classList.add('hidden'); }
+  document.getElementById('go-referral')?.addEventListener('click', open);
+  document.getElementById('btn-referral-close')?.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  document.getElementById('btn-referral-copy')?.addEventListener('click', function () {
+    navigator.clipboard.writeText(linkIn.value).then(() => {
+      this.textContent = t().codeCopied;
+      setTimeout(() => { this.textContent = t().recovery.copy; }, 2000);
+    }).catch(() => {});
+  });
+  document.getElementById('btn-referral-share')?.addEventListener('click', function () {
+    const txt = t().referralShareText(linkIn.value);
+    if (navigator.share) navigator.share({ title: t().referralShareTitle, text: txt }).catch(() => {});
+    else navigator.clipboard.writeText(txt).then(() => {
+      this.textContent = t().linkCopied;
+      setTimeout(() => { this.textContent = t().referralShareBtn; }, 2000);
+    }).catch(() => {});
+  });
+})();
+
 // ── Pseudo obligatoire pour rejoindre via un lien d'invitation ────────────────
 (function initJoinName() {
   const overlay = document.getElementById('overlay-joinname');
@@ -9480,6 +9657,61 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
       startBtn.classList.remove('hidden');
     }
   })();
+})();
+
+// ── Tournoi du samedi ────────────────────────────────────────────────────────
+var _tournamentData = null;
+function renderTournament() {
+  const d = t();
+  const card = document.getElementById('tournament-card');
+  if (!card || !_tournamentData) return;
+  const td = _tournamentData;
+  const st = document.getElementById('tournament-status');
+  const top = document.getElementById('tournament-top');
+  const ch = document.getElementById('tournament-champion');
+  if (td.active) {
+    const left = Math.max(0, (td.endsAt || 0) - Date.now());
+    const h = Math.floor(left / 3600000), m = Math.floor((left % 3600000) / 60000);
+    st.textContent = d.tournamentLive(h, m);
+    st.className = 'tournament-status live';
+    top.innerHTML = (td.top || []).length
+      ? td.top.map((x, i) => `<div class="tournament-row"><span>${['🥇','🥈','🥉'][i] || (i + 1) + '.'} ${_escHtml(x.name)}</span><b>${x.pts} pts</b></div>`).join('')
+      : `<p class="tournament-empty">${_escHtml(d.tournamentEmpty)}</p>`;
+  } else {
+    const left = Math.max(0, (td.nextAt || 0) - Date.now());
+    const days = Math.ceil(left / 86400000);
+    st.textContent = d.tournamentNext(days);
+    st.className = 'tournament-status';
+    top.innerHTML = '';
+  }
+  ch.textContent = td.champion ? d.tournamentChampion(td.champion.name, td.champion.pts) : '';
+}
+socket.on('tournament-update', data => { _tournamentData = data; renderTournament(); });
+
+// ── Parrainage : toasts de récompense ────────────────────────────────────────
+socket.on('referral-reward', ({ role, amount, name } = {}) => {
+  const d = t();
+  showCursorSnakeToast(role === 'parrain' ? d.referralRewardSponsor(amount, name) : d.referralRewardChild(amount));
+});
+
+// ── Annonces (bandeau News) ──────────────────────────────────────────────────
+function _renderAnnouncements(list) {
+  const el = document.getElementById('news-announcements');
+  if (!el) return;
+  const fr = currentLang === 'fr';
+  window._lastAnnouncements = list || [];
+  el.innerHTML = (list || []).map(a => {
+    const txt = (!fr && a.textEn) ? a.textEn : a.text;
+    return `<p class="news-msg news-announce">📣 ${_escHtml(txt)}</p>`;
+  }).join('');
+}
+socket.on('announcements-update', ({ announcements } = {}) => _renderAnnouncements(announcements));
+(async () => {
+  try {
+    const r = await fetch(`${window.BACKEND_URL}/api/announcements`);
+    const d = await r.json();
+    _renderAnnouncements(d.announcements);
+  } catch {}
 })();
 
 socket.on('challenges-update', ({ challenges, permanent } = {}) => ProfileHub.setChallenges(challenges, permanent));

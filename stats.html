@@ -86,6 +86,16 @@
     .tag.ok { background:rgba(74,222,128,.16); color:var(--green); }
     .tag.wait { background:rgba(251,191,36,.16); color:var(--amber); }
 
+    .charts { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; }
+    .chart-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px; }
+    .chart-title { font-size:.78rem; color:var(--muted); font-weight:700; margin-bottom:8px; }
+    .chart { display:flex; align-items:flex-end; gap:2px; height:90px; }
+    .chart .bar { flex:1; min-width:3px; background:var(--board); border-radius:3px 3px 0 0; opacity:.85; position:relative; }
+    .chart .bar:hover { opacity:1; }
+    .chart .bar:hover::after { content:attr(data-tip); position:absolute; bottom:100%; left:50%; transform:translateX(-50%); background:var(--card2); border:1px solid var(--border); border-radius:6px; padding:2px 7px; font-size:.68rem; white-space:nowrap; z-index:5; }
+    .ann-row { display:flex; gap:8px; align-items:center; padding:8px 11px; border:1px solid var(--border); border-radius:10px; margin-bottom:6px; background:var(--card); font-size:.84rem; }
+    .ann-row .txt { flex:1; min-width:0; }
+    .fraud-row { padding:8px 11px; border:1px solid rgba(248,113,113,.4); border-radius:10px; margin-bottom:6px; background:rgba(248,113,113,.06); font-size:.83rem; }
     .bot-q { padding:8px 11px; border:1px solid var(--border); border-radius:10px; margin-bottom:6px; font-size:.83rem; background:var(--card); display:flex; justify-content:space-between; gap:10px; align-items:center; }
     .bot-q .t { color:var(--muted); font-size:.72rem; white-space:nowrap; margin-left:auto; }
     .bot-q span:nth-of-type(1) { flex:1; }
@@ -151,6 +161,31 @@
       </div>
 
       <div class="kpis" id="kpis"></div>
+
+      <section>
+        <h2>📈 30 derniers jours
+          <button id="btn-export-players" class="ghost small" style="margin-left:auto">⬇ Joueurs CSV</button>
+          <button id="btn-export-purchases" class="ghost small">⬇ Achats CSV</button>
+        </h2>
+        <div class="charts">
+          <div class="chart-card"><p class="chart-title">Visites / jour</p><div id="chart-visits" class="chart"></div></div>
+          <div class="chart-card"><p class="chart-title">Parties / jour</p><div id="chart-games" class="chart"></div></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>📣 Annonces (bandeau News du site)</h2>
+        <p class="sub" style="margin-top:-4px;">Publie une annonce visible par tous dans la carte News, en direct. L'anglais est optionnel (le français est affiché à défaut).</p>
+        <div class="field"><input id="ann-fr" placeholder="Texte de l'annonce (français)" maxlength="300" /></div>
+        <div class="field"><input id="ann-en" placeholder="English text (optionnel)" maxlength="300" />
+          <button id="btn-ann-send" class="green">Publier</button></div>
+        <div id="ann-list"></div>
+      </section>
+
+      <section id="fraud-section" class="hidden">
+        <h2>🚨 Alertes fraude <span id="fraud-pill" class="pill warn"></span></h2>
+        <div id="fraud-list"></div>
+      </section>
 
       <section>
         <h2>💬 Commentaires <span id="cmt-pending-pill" class="pill warn hidden"></span></h2>
@@ -393,6 +428,63 @@
       }).join('');
     }
 
+    function renderChart(elId, data, field) {
+      var el = $(elId);
+      var max = Math.max(1, ...data.map(function (d) { return d[field]; }));
+      el.innerHTML = data.map(function (d) {
+        var h = Math.max(2, Math.round(d[field] / max * 100));
+        return '<div class="bar" style="height:' + h + '%" data-tip="' + d.d.slice(5) + ' : ' + fmt(d[field]) + '"></div>';
+      }).join('');
+    }
+
+    function renderAnnouncements(list) {
+      list = list || [];
+      $('ann-list').innerHTML = list.length ? list.map(function (a) {
+        return '<div class="ann-row"><span class="txt">📣 ' + esc(a.text) + (a.textEn ? ' <span class="muted">/ ' + esc(a.textEn) + '</span>' : '') + '</span>'
+          + '<span class="cmt-date">' + esc(new Date(a.at).toLocaleString('fr-FR')) + '</span>'
+          + '<button class="red small" data-anndel="' + esc(a.id) + '">Retirer</button></div>';
+      }).join('') : '<p class="empty">Aucune annonce publiée.</p>';
+    }
+
+    function renderFraud(list) {
+      list = list || [];
+      $('fraud-section').classList.toggle('hidden', !list.length);
+      $('fraud-pill').textContent = list.length;
+      $('fraud-list').innerHTML = list.map(function (f) {
+        return '<div class="fraud-row">🚨 ' + esc(f.msg) + ' <span class="cmt-date">' + esc(new Date(f.at).toLocaleString('fr-FR')) + '</span></div>';
+      }).join('');
+    }
+
+    $('btn-ann-send').addEventListener('click', async function () {
+      var text = $('ann-fr').value.trim();
+      if (!text) return;
+      this.disabled = true;
+      try {
+        await api('/admin/announce', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ text: text, textEn: $('ann-en').value.trim() }) });
+        $('ann-fr').value = ''; $('ann-en').value = '';
+        await refresh();
+      } catch (e) {}
+      this.disabled = false;
+    });
+    $('ann-list').addEventListener('click', async function (e) {
+      var btn = e.target.closest('[data-anndel]'); if (!btn) return;
+      btn.disabled = true;
+      try { await api('/admin/announce/' + encodeURIComponent(btn.dataset.anndel), { method:'DELETE' }); await refresh(); }
+      catch (err) { btn.disabled = false; }
+    });
+
+    async function downloadCsv(path, filename) {
+      var res = await api(path);
+      var blob = await res.blob();
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    }
+    $('btn-export-players').addEventListener('click', function () { downloadCsv('/admin/export/players', 'joueurs.csv'); });
+    $('btn-export-purchases').addEventListener('click', function () { downloadCsv('/admin/export/purchases', 'achats.csv'); });
+
     function renderBotLogs(list) {
       list = list || [];
       $('bot-pill').textContent = list.length;
@@ -418,6 +510,10 @@
       renderKpis(d);
       renderComments(d.comments);
       renderResets(d.resets);
+      renderChart('chart-visits', d.daily || [], 'visits');
+      renderChart('chart-games',  d.daily || [], 'games');
+      renderAnnouncements(d.announcements);
+      renderFraud(d.fraudAlerts);
       renderPlayers(d.players);
       renderPurchases(d.purchases);
       renderBotLogs(d.botLogs);
@@ -512,7 +608,9 @@
     var GAME_ICON = { connect4:'🔴', tictactoe:'✕', chess:'♟', trivia:'🧠', snake:'🐍', luffy:'🏃' };
     var RESULT_FR = { win:'Victoire', loss:'Défaite', draw:'Nul' };
 
+    var CURRENT_REF = '';
     async function openPlayer(ref) {
+      CURRENT_REF = ref;
       try {
         var res = await api('/admin/player/' + encodeURIComponent(ref));
         if (!res.ok) return;
@@ -566,7 +664,24 @@
         return '<div class="pd-line"><span>' + (GAME_ICON[h.game] || '🎮') + ' ' + esc(h.game) + ' · ' + esc(detail) + '</span><span class="muted">' + esc(h.at ? ago(h.at) : '') + '</span></div>';
       }).join('') : '<p class="muted">Aucune activité enregistrée.</p>';
 
+      html += '<h3 class="pd-h3">🎁 Faire un cadeau</h3>'
+        + '<div class="field"><input id="gift-libs-amount" type="number" min="0" max="10000" placeholder="Libs à offrir (ex. 200)" />'
+        + '<input id="gift-cosmetic-id" placeholder="Id cosmétique (optionnel, ex. bg-galaxie)" />'
+        + '<button id="btn-admin-gift" class="green" data-ref="' + esc(CURRENT_REF) + '">Envoyer</button></div>'
+        + '<p id="gift-feedback" class="muted" style="font-size:.78rem;"></p>';
       $('pd-body').innerHTML = html;
+      $('btn-admin-gift').addEventListener('click', async function () {
+        var amount = parseInt($('gift-libs-amount').value, 10) || 0;
+        var cosm = $('gift-cosmetic-id').value.trim();
+        if (!amount && !cosm) return;
+        this.disabled = true;
+        try {
+          var res = await api('/admin/gift', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ref: this.dataset.ref, libs: amount, cosmeticId: cosm || undefined }) });
+          var out = await res.json();
+          $('gift-feedback').textContent = res.ok ? ('✅ Envoyé à ' + out.name + ' (solde : ' + fmt(out.balance) + ' ⚡' + (out.grantedCosmetic ? ', + ' + out.grantedCosmetic : '') + ')') : ('❌ ' + (out.error || 'Erreur'));
+        } catch (e) { $('gift-feedback').textContent = '❌ Erreur réseau.'; }
+        this.disabled = false;
+      });
       $('player-modal').classList.remove('hidden');
     }
 

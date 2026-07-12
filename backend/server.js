@@ -217,6 +217,56 @@ const giftCodes = new Map();
 // vider le cache. archiveId -> snapshot
 const resetArchive = new Map();
 
+// ── Tournoi du samedi ────────────────────────────────────────────────────────
+// Chaque samedi (heure du Benin), les joueurs marquent des points de tournoi :
+// victoire classique +10, bonne reponse de quiz +2, ⚡ mange au Snake +1.
+// A la fin du samedi, le meilleur gagne 2000 Libs et le titre honorifique
+// « Champion de la semaine » (garde jusqu'au tournoi suivant).
+const TOURNAMENT_REWARD = 2000;
+let tournament = { week: null, scores: {}, champion: null }; // scores: pid -> {name, pts}
+function _beninDay(ts = Date.now()) { return new Date(ts + 3_600_000); }
+function isTournamentDay() { return _beninDay().getUTCDay() === 6; }
+function _tournamentTodayKey() { return _beninDay().toISOString().slice(0, 10); }
+let _tournamentSaveTimer = null;
+function dbSaveTournament() {
+  if (!db) return;
+  clearTimeout(_tournamentSaveTimer);
+  _tournamentSaveTimer = setTimeout(() => {
+    db.collection('server_config')
+      .updateOne({ _id: 'tournament' }, { $set: { value: JSON.parse(JSON.stringify(tournament)) } }, { upsert: true })
+      .catch(() => {});
+  }, 2000);
+}
+
+// ── Stats quotidiennes (graphiques du dashboard : visites + parties / jour) ──
+const dailyStats = new Map(); // 'YYYY-MM-DD' -> { visits, games }
+function bumpDaily(field, n = 1) {
+  const k = _tournamentTodayKey();
+  const d = dailyStats.get(k) || { visits: 0, games: 0 };
+  d[field] = (d[field] || 0) + n;
+  dailyStats.set(k, d);
+  if (db) db.collection('daily_stats').updateOne({ _id: k }, { $inc: { [field]: n } }, { upsert: true }).catch(() => {});
+}
+
+// ── Alertes fraude (memoire) : plusieurs comptes neufs depuis la meme IP ────
+const fraudAlerts = [];        // { at, msg }
+const _ipNewAccounts = new Map(); // ip -> [timestamps]
+function recordNewAccount(ip) {
+  if (!ip) return;
+  const now = Date.now();
+  const arr = (_ipNewAccounts.get(ip) || []).filter(t => now - t < 86_400_000);
+  arr.push(now);
+  _ipNewAccounts.set(ip, arr);
+  if (arr.length === 4) { // au 4e compte en 24h, une seule alerte
+    const masked = String(ip).replace(/\.\d+$/, '.x');
+    fraudAlerts.unshift({ at: now, msg: `4 comptes ou plus créés en 24h depuis la même IP (${masked}).` });
+    if (fraudAlerts.length > 50) fraudAlerts.pop();
+  }
+}
+
+// ── Annonces (bandeau News), gerees depuis le dashboard admin ────────────────
+const announcements = []; // { _id, text, textEn, at }
+
 // Compteurs globaux de parties solo (Snake / Libero Run), pour le tableau de
 // bord admin. Persistes dans server_config (sauvegarde debouncee).
 const gameCounters = { snakeGames: 0, luffyGames: 0 };
@@ -290,7 +340,7 @@ async function connectDB() {
 
 async function loadData() {
   if (!db) return;
-  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs, feedDocs, bookDocs, purchaseDocs, readerDocs, giftDocs, resetDocs] = await Promise.all([
+  const [lbDocs, tlbDocs, cmtDocs, slbDocs, llbDocs, libsDocs, aliasDocs, configDocs, voteDocs, feedDocs, bookDocs, purchaseDocs, readerDocs, giftDocs, resetDocs, annDocs, dailyDocs] = await Promise.all([
     db.collection('leaderboard').find().toArray(),
     db.collection('trivia_leaderboard').find().toArray(),
     db.collection('comments').find().sort({ date: 1 }).toArray(),
@@ -306,7 +356,11 @@ async function loadData() {
     db.collection('book_readers').find().toArray(),
     db.collection('gift_codes').find().toArray(),
     db.collection('reset_archive').find().toArray(),
+    db.collection('announcements').find().sort({ at: -1 }).toArray(),
+    db.collection('daily_stats').find().toArray(),
   ]);
+  annDocs.forEach(d => announcements.push({ _id: d._id, text: d.text, textEn: d.textEn || '', at: d.at }));
+  dailyDocs.forEach(d => dailyStats.set(d._id, { visits: d.visits || 0, games: d.games || 0 }));
   resetDocs.forEach(d => resetArchive.set(d._id, d));
   giftDocs.forEach(d => giftCodes.set(d._id, { cosmeticId: d.cosmeticId, fromName: d.fromName || '', createdAt: d.createdAt || Date.now(), redeemedBy: d.redeemedBy || null, redeemedAt: d.redeemedAt || null }));
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
@@ -319,7 +373,7 @@ async function loadData() {
   });
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   llbDocs.forEach(d => luffyLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], history: Array.isArray(d.history) ? d.history : [] }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, history: Array.isArray(d.history) ? d.history : [] }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   feedDocs.forEach(d => feedVideos.push({ _id: d._id, url: d.url, titre: d.titre || '', ordre: d.ordre || 0, actif: d.actif !== false, createdAt: d.createdAt || Date.now() }));
@@ -336,6 +390,8 @@ async function loadData() {
   readerDocs.forEach(d => bookReaders.set(d._id, new Set(Array.isArray(d.readers) ? d.readers : [])));
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
+  const tDoc = configDocs.find(d => d._id === 'tournament');
+  if (tDoc?.value) tournament = { week: tDoc.value.week || null, scores: tDoc.value.scores || {}, champion: tDoc.value.champion || null };
   const gcDoc = configDocs.find(d => d._id === 'game_counters');
   if (gcDoc?.value) { gameCounters.snakeGames = gcDoc.value.snakeGames || 0; gameCounters.luffyGames = gcDoc.value.luffyGames || 0; }
   const streakDoc = configDocs.find(d => d._id === 'rank1StreakSince');
@@ -480,7 +536,7 @@ function dbUpsertLibsPurchase(cartId, purchase) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [] } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], referredBy: entry.referredBy || null, referralRewarded: !!entry.referralRewarded, referrals: entry.referrals || 0, history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [] } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -686,10 +742,58 @@ function challengesPayload(entry) {
 }
 
 // Fait progresser un défi et notifie le joueur (barres de progression en direct).
+const TOURNAMENT_POINTS = { gamesWon: 10, triviaCorrect: 2, snakeEaten: 1 };
+let _tournamentEmitTimer = null;
+function tournamentPayload() {
+  const top = Object.values(tournament.scores || {})
+    .sort((a, b) => b.pts - a.pts).slice(0, 10);
+  const now = _beninDay();
+  // Prochain samedi 00:00 (Benin) ou fin du samedi en cours
+  const d = new Date(now); d.setUTCHours(0, 0, 0, 0);
+  const daysToSat = (6 - d.getUTCDay() + 7) % 7 || 7;
+  const nextAt = d.getTime() + daysToSat * 86_400_000 - 3_600_000;
+  const endsAt = d.getTime() + 86_400_000 - 3_600_000;
+  return { active: isTournamentDay(), top, champion: tournament.champion, reward: TOURNAMENT_REWARD, endsAt: isTournamentDay() ? endsAt : null, nextAt: isTournamentDay() ? null : nextAt };
+}
+function bumpTournament(id, entry, metric, amount) {
+  if (!isTournamentDay()) return;
+  const pts = (TOURNAMENT_POINTS[metric] || 0) * amount;
+  if (!pts) return;
+  const today = _tournamentTodayKey();
+  if (tournament.week !== today) { finalizeTournament(); tournament.week = today; tournament.scores = {}; }
+  const sc = tournament.scores[id] || { name: entry.name, pts: 0 };
+  sc.pts += pts; sc.name = entry.name;
+  tournament.scores[id] = sc;
+  dbSaveTournament();
+  clearTimeout(_tournamentEmitTimer);
+  _tournamentEmitTimer = setTimeout(() => io.emit('tournament-update', tournamentPayload()), 800);
+}
+function finalizeTournament() {
+  const entries = Object.entries(tournament.scores || {});
+  if (!tournament.week || !entries.length) { tournament.week = null; tournament.scores = {}; return; }
+  const [pid, best] = entries.sort((a, b) => b[1].pts - a[1].pts)[0];
+  const entry = getLibsEntry(pid);
+  if (entry) {
+    entry.balance = Math.min(MAX_BALANCE, entry.balance + TOURNAMENT_REWARD);
+    libs.set(pid, entry);
+    dbUpsertLibs(pid, entry);
+    _emitToPlayer(pid, 'libs-update', { balance: entry.balance, delta: TOURNAMENT_REWARD, nextAt: nextDistributionAt });
+  }
+  tournament.champion = { name: best.name, pts: best.pts, week: tournament.week };
+  tournament.week = null; tournament.scores = {};
+  dbSaveTournament();
+  refreshAllHonorTitles();
+  io.emit('tournament-update', tournamentPayload());
+  console.log(`[🏆] Tournoi termine : ${best.name} (${best.pts} pts) +${TOURNAMENT_REWARD} ⚡`);
+}
+// Cloture automatique : des qu'on n'est plus samedi, le tournoi en cours est finalise.
+setInterval(() => { if (tournament.week && tournament.week !== _tournamentTodayKey()) finalizeTournament(); }, 5 * 60_000);
+
 function bumpChallenge(id, metric, amount = 1) {
   if (!id) return;
   const entry = getLibsEntry(id);
   if (!entry || !entry.name || entry.name === 'Anonyme') return;
+  bumpTournament(id, entry, metric, amount);
   const c = getChallenges(entry);
   if (!(metric in c.progress)) return;
   c.progress[metric] += amount;
@@ -718,10 +822,30 @@ function touchStreak(entry) {
 }
 
 // Ajoute une partie en tête de l'historique (limité aux 20 dernières).
+const REFERRAL_REWARD = 100;
+function maybeRewardReferral(id, entry) {
+  if (!entry.referredBy || entry.referralRewarded) return;
+  const refId = entry.referredBy;
+  const refEntry = libs.get(refId);
+  entry.referralRewarded = true;
+  entry.balance = Math.min(MAX_BALANCE, entry.balance + REFERRAL_REWARD);
+  _emitToPlayer(id, 'libs-update', { balance: entry.balance, delta: REFERRAL_REWARD, nextAt: nextDistributionAt });
+  _emitToPlayer(id, 'referral-reward', { role: 'filleul', amount: REFERRAL_REWARD, name: refEntry?.name || '' });
+  if (refEntry) {
+    refEntry.balance = Math.min(MAX_BALANCE, refEntry.balance + REFERRAL_REWARD);
+    refEntry.referrals = (refEntry.referrals || 0) + 1;
+    libs.set(refId, refEntry);
+    dbUpsertLibs(refId, refEntry);
+    _emitToPlayer(refId, 'libs-update', { balance: refEntry.balance, delta: REFERRAL_REWARD, nextAt: nextDistributionAt });
+    _emitToPlayer(refId, 'referral-reward', { role: 'parrain', amount: REFERRAL_REWARD, name: entry.name });
+  }
+}
+
 function pushHistory(id, item) {
   if (!id) return;
   const entry = getLibsEntry(id);
   if (!entry || !entry.name || entry.name === 'Anonyme') return;
+  maybeRewardReferral(id, entry); // 1re partie d'un filleul -> +100 ⚡ chacun
   if (!Array.isArray(entry.history)) entry.history = [];
   entry.history.unshift({ game: item.game, result: item.result || null, score: item.score ?? null, at: Date.now() });
   entry.history = entry.history.slice(0, 20);
@@ -909,6 +1033,7 @@ const COSMETICS = [
   { id: 'title-champion',       type: 'title',       price: 100 },
   { id: 'title-legend',         type: 'title',       price: 130 },
   { id: 'honor-rank1-global',   type: 'title',       price: 0,  honorary: true },
+  { id: 'honor-weekly-champ',   type: 'title',       price: 0,  honorary: true },
   // Skins du serpent curseur
   { id: 'cursorsnake-pixel',    type: 'cursorsnake', price: 50  },
   { id: 'cursorsnake-neon',     type: 'cursorsnake', price: 80  },
@@ -1089,7 +1214,7 @@ function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null, streak: null, challenges: null, lifetime: {}, permClaimed: [], history: [] };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null, streak: null, challenges: null, lifetime: {}, permClaimed: [], referredBy: null, referralRewarded: false, referrals: 0, history: [] };
     libs.set(id, entry);
   }
   if (!entry.usedCodes)          entry.usedCodes          = [];
@@ -1154,7 +1279,9 @@ function refreshAllHonorTitles() {
     const name = entry.name;
     if (!name || name === 'Anonyme') continue;
 
-    const newHonor = (name === rank1Global) ? 'honor-rank1-global' : null;
+    const weeklyChamp = tournament.champion?.name || null;
+    const newHonor = (name === rank1Global) ? 'honor-rank1-global'
+                   : (weeklyChamp && name === weeklyChamp) ? 'honor-weekly-champ' : null;
     if (entry.honorTitle === newHonor) continue;
 
     entry.honorTitle = newHonor;
@@ -1507,6 +1634,7 @@ function finishTriviaGame(code) {
   const room = triviaRooms.get(code);
   if (!room) return;
   room.status = 'finished';
+  bumpDaily('games');
   const scores = getRoomScores(room);
 
   for (const s of scores) {
@@ -1631,10 +1759,20 @@ io.on('connection', (socket) => {
   socket.on('announcement-dismissed', () => {});
 
   // ── Créer une room ──────────────────────────────────────────────────────
-  socket.on('create-room', ({ gameType = 'connect4', name = '', vsBot = false, botDifficulty = 'medium', playerId } = {}) => {
+  socket.on('create-room', ({ gameType = 'connect4', name = '', vsBot = false, botDifficulty = 'medium', playerId, stake = 0 } = {}) => {
     if (!VALID_GAMES.has(gameType)) return;
     const playerName = sanitizeName(name, 'Anonyme');
     const diff = ['easy', 'medium', 'hard'].includes(botDifficulty) ? botDifficulty : 'medium';
+    // Duel avec mise : montants fixes, jamais contre le bot, solde suffisant exige.
+    let duelStake = [25, 50, 100].includes(Number(stake)) && !vsBot ? Number(stake) : 0;
+    if (duelStake > 0) {
+      const pid = safePlayerId(playerId);
+      const entry = pid ? getLibsEntry(pid) : null;
+      if (!entry || !entry.name || entry.name === 'Anonyme' || entry.balance < duelStake) {
+        socket.emit('error', { message: 'stake_insufficient' });
+        return;
+      }
+    }
 
     const code = generateCode();
     rooms.set(code, {
@@ -1648,6 +1786,8 @@ io.on('connection', (socket) => {
       vsBot,
       botDifficulty: diff,
       winner: null,
+      stake: duelStake,
+      potPaid: false,
       restartVotes: new Set(),
       reconnectTimers: { R: null, Y: null },
     });
@@ -1659,9 +1799,53 @@ io.on('connection', (socket) => {
     if (vsBot) {
       socket.emit('game-start', { gameType, state: createInitialState(gameType), yourPlayer: 'R', vsBot: true, botDifficulty: diff, code });
     } else {
-      socket.emit('room-created', { code, gameType });
+      socket.emit('room-created', { code, gameType, stake: duelStake });
     }
   });
+
+  // ── Mises de duel : encaissement au depart, reglement a la fin ────────────
+  function _collectStake(room) {
+    if (!room.stake || room.potPaid) return true;
+    const ids = [room.playerIds?.R, room.playerIds?.Y].map(safePlayerId);
+    if (!ids[0] || !ids[1]) return false;
+    const entries = ids.map(getLibsEntry);
+    if (entries.some(e => !e || e.balance < room.stake)) return false;
+    entries.forEach((e, i) => {
+      e.balance -= room.stake;
+      libs.set(ids[i], e);
+      dbUpsertLibs(ids[i], e);
+      _emitToPlayer(ids[i], 'libs-update', { balance: e.balance, delta: -room.stake, nextAt: nextDistributionAt });
+    });
+    room.potPaid = true;
+    return true;
+  }
+  function _settleStake(room, outcome, winnerRole) {
+    if (!room.stake || !room.potPaid) return;
+    room.potPaid = false;
+    const pot = room.stake * 2;
+    if (outcome === 'won') {
+      const pid = safePlayerId(room.playerIds?.[winnerRole]);
+      if (pid) {
+        const e = getLibsEntry(pid);
+        e.balance = Math.min(MAX_BALANCE, e.balance + pot);
+        libs.set(pid, e);
+        dbUpsertLibs(pid, e);
+        _emitToPlayer(pid, 'libs-update', { balance: e.balance, delta: pot, nextAt: nextDistributionAt });
+      }
+      io.to(room.code).emit('stake-result', { outcome: 'won', winnerRole, pot });
+    } else { // nul ou partie annulee : chacun recupere sa mise
+      for (const role of ['R', 'Y']) {
+        const pid = safePlayerId(room.playerIds?.[role]);
+        if (!pid) continue;
+        const e = getLibsEntry(pid);
+        e.balance = Math.min(MAX_BALANCE, e.balance + room.stake);
+        libs.set(pid, e);
+        dbUpsertLibs(pid, e);
+        _emitToPlayer(pid, 'libs-update', { balance: e.balance, delta: room.stake, nextAt: nextDistributionAt });
+      }
+      io.to(room.code).emit('stake-result', { outcome: 'refund', pot: room.stake });
+    }
+  }
 
   // ── Tentatives de jointure (renvoient true si le code correspond à ce
   //    type de salle, qu'elle ait été rejointe ou pleine/déjà lancée). ──────
@@ -1672,6 +1856,15 @@ io.on('connection', (socket) => {
     if (room.players.Y) { socket.emit('error', { message: 'Cette room est déjà pleine.' }); return true; }
 
     const playerName = sanitizeName(name, 'Anonyme');
+    // Duel avec mise : le joignant doit etre nomme et avoir le solde.
+    if (room.stake > 0) {
+      const jid = safePlayerId(playerId);
+      const je  = jid ? getLibsEntry(jid) : null;
+      if (!je || !je.name || je.name === 'Anonyme' || je.balance < room.stake) {
+        socket.emit('error', { message: 'stake_insufficient_join', stake: room.stake });
+        return true;
+      }
+    }
     room.players.Y     = socket.id;
     room.playerNames.Y = playerName;
     if (room.playerIds) room.playerIds.Y = safePlayerId(playerId) || playerName;
@@ -1680,12 +1873,15 @@ io.on('connection', (socket) => {
     myPlayer = 'Y';
     socket.join(key);
 
+    if (room.stake > 0 && !_collectStake(room)) room.stake = 0; // filet de securite
+
     for (const p of ['R', 'Y']) {
       io.to(room.players[p]).emit('game-start', {
         gameType:   room.gameType,
         state:      room.state,
         yourPlayer: p,
         code:       key,
+        stake:      room.stake || 0,
       });
     }
     return true;
@@ -1829,7 +2025,9 @@ io.on('connection', (socket) => {
     io.to(roomCode).emit('game-update', { gameType: room.gameType, state: newState, status, winner });
 
     if (status !== 'playing') {
+      bumpDaily('games');
       if (!room.vsBot) {
+        _settleStake(room, status, winner);
         if (status === 'won') {
           const loserRole = winner === 'R' ? 'Y' : 'R';
           updateLeaderboard(room.playerIds?.[winner]    || room.playerNames[winner],   room.playerNames[winner],   'win');
@@ -1909,12 +2107,18 @@ io.on('connection', (socket) => {
       room.status = 'playing';
       room.winner = null;
       room.restartVotes.clear();
+      // Revanche : on remet la meme mise si les deux peuvent payer, sinon 0.
+      if (room.stake > 0 && !_collectStake(room)) {
+        room.stake = 0;
+        io.to(room.code).emit('stake-result', { outcome: 'cancelled' });
+      }
 
       for (const p of ['R', 'Y']) {
         io.to(room.players[p]).emit('game-start', {
           gameType:   room.gameType,
           state:      room.state,
           yourPlayer: p,
+          stake:      room.stake || 0,
         });
       }
     } else {
@@ -2206,6 +2410,7 @@ io.on('connection', (socket) => {
     // Compteur global de parties jouées (affiché sur le tableau de bord admin).
     if (game === 'snake') gameCounters.snakeGames++; else gameCounters.luffyGames++;
     dbSaveGameCounters();
+    bumpDaily('games');
     pushHistory(id, { game, result: null, score: sc });
     // Défis Luffy Runner (hors week-end) : score cumulé + nombre de parties.
     if (game === 'luffy' && sc > 0) bumpChallenge(id, 'luffyRun', sc);
@@ -2310,6 +2515,11 @@ io.on('connection', (socket) => {
     const id = safePlayerId(playerId);
     if (!id) { socket.emit('libs-update', { balance: 0, pendingBoostHint: 0 }); return; }
     socketPlayerIds.set(socket.id, id);
+    // Alerte fraude : plusieurs comptes tout neufs crees depuis la meme IP.
+    if (!libs.has(id)) {
+      const ip = (socket.handshake.headers['x-forwarded-for']?.split(',')[0] || socket.handshake.address || '').trim();
+      recordNewAccount(ip);
+    }
     const entry = getLibsEntry(id);
 
     // Série de connexion : bonus quotidien croissant, réservé aux joueurs nommés
@@ -2327,9 +2537,31 @@ io.on('connection', (socket) => {
     }
 
     const { available: refundCards, nextRefill: refundCardsNextRefill } = getRefundCardsInfo(entry);
-    socket.emit('libs-update', { name: entry.name || '', balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, delta: streakBonus || undefined });
+    socket.emit('libs-update', { name: entry.name || '', refCode: _playerRef(id).slice(0, 8), referrals: entry.referrals || 0, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, delta: streakBonus || undefined });
     socket.emit('challenges-update', { challenges: challengesPayload(entry), permanent: permanentPayload(entry) });
   });
+
+  // ── Parrainage : le filleul (nouveau compte) declare son parrain ─────────
+  socket.on('set-referrer', ({ playerId, ref } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    const code = String(ref || '').toLowerCase().replace(/[^a-f0-9]/g, '').slice(0, 8);
+    if (code.length !== 8) return;
+    const entry = getLibsEntry(id);
+    // Uniquement les comptes vraiment neufs : jamais de partie jouee, pas deja parraines.
+    if (entry.referredBy || entry.referralRewarded || (entry.history || []).length) return;
+    if (_playerRef(id).slice(0, 8) === code) return; // pas d'auto-parrainage
+    let refPid = null;
+    for (const p of _allPlayerIds()) { if (_playerRef(p).slice(0, 8) === code) { refPid = p; break; } }
+    if (!refPid || refPid === id) return;
+    entry.referredBy = refPid;
+    libs.set(id, entry);
+    dbUpsertLibs(id, entry);
+    socket.emit('referrer-set', { ok: true });
+  });
+
+  // ── Tournoi du samedi ─────────────────────────────────────────────────────
+  socket.on('get-tournament', () => socket.emit('tournament-update', tournamentPayload()));
 
   socket.on('get-shop', () => {
     socket.emit('shop-items', SHOP_ITEMS);
@@ -2765,6 +2997,7 @@ io.on('connection', (socket) => {
           if (room.players[other]) io.to(room.players[other]).emit('opponent-reconnecting');
           room.reconnectTimers[myPlayer] = setTimeout(() => {
             if (room.players[myPlayer] !== null) return;
+            _settleStake(room, 'cancel'); // partie annulee : mises remboursees
             if (room.players[other]) io.to(room.players[other]).emit('player-disconnected');
             rooms.delete(roomCode);
           }, RECONNECT_MS);
@@ -2880,6 +3113,7 @@ const visitFallback = { totalVisits: 0, uniqueVisitors: 0, seen: new Set() };
 const visitRateMap  = new Map(); // ip → [timestamps]
 
 app.post('/api/visit', async (req, res) => {
+  bumpDaily('visits');
   try {
     const raw = typeof req.body?.visitorId === 'string' ? req.body.visitorId : '';
     const visitorId = raw.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
@@ -3223,6 +3457,17 @@ app.get('/admin/stats', async (req, res) => {
         commentsApproved, commentsPending, commentsTotal: commentsPayload.length,
         purchasesCount: purchasesDone.length, libsSold,
       },
+      daily: (() => {
+        const out = [];
+        for (let i = 29; i >= 0; i--) {
+          const k = new Date(Date.now() + 3_600_000 - i * 86_400_000).toISOString().slice(0, 10);
+          const d = dailyStats.get(k) || {};
+          out.push({ d: k, visits: d.visits || 0, games: d.games || 0 });
+        }
+        return out;
+      })(),
+      fraudAlerts: fraudAlerts.slice(0, 20),
+      announcements: announcements.slice(0, 20).map(a => ({ id: a._id, text: a.text, textEn: a.textEn || '', at: a.at })),
       players,
       comments: commentsPayload,
       purchases: recentPurchases,
@@ -3524,6 +3769,78 @@ app.get('/admin/comments', (req, res) => {
 });
 
 // Admin : valide (affiche) ou masque un commentaire.
+// Annonces (bandeau News) : lecture publique, gestion admin.
+app.get('/api/announcements', (req, res) => {
+  res.json({ announcements: announcements.slice(0, 5).map(a => ({ id: a._id, text: a.text, textEn: a.textEn || '', at: a.at })) });
+});
+app.post('/admin/announce', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const text   = String(req.body?.text || '').trim().slice(0, 300);
+  const textEn = String(req.body?.textEn || '').trim().slice(0, 300);
+  if (!text) return res.status(400).json({ error: 'Texte manquant.' });
+  const a = { _id: crypto.randomUUID(), text, textEn, at: Date.now() };
+  announcements.unshift(a);
+  if (announcements.length > 20) announcements.pop();
+  if (db) db.collection('announcements').insertOne({ ...a }).catch(() => {});
+  io.emit('announcements-update', { announcements: announcements.slice(0, 5).map(x => ({ id: x._id, text: x.text, textEn: x.textEn || '', at: x.at })) });
+  res.json({ ok: true, id: a._id });
+});
+app.delete('/admin/announce/:id', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const idx = announcements.findIndex(a => a._id === String(req.params.id));
+  if (idx < 0) return res.status(404).json({ error: 'Annonce introuvable.' });
+  announcements.splice(idx, 1);
+  if (db) db.collection('announcements').deleteOne({ _id: String(req.params.id) }).catch(() => {});
+  io.emit('announcements-update', { announcements: announcements.slice(0, 5).map(x => ({ id: x._id, text: x.text, textEn: x.textEn || '', at: x.at })) });
+  res.json({ ok: true });
+});
+
+// Admin : cadeau direct a un joueur (Libs et/ou cosmetique) depuis sa fiche.
+app.post('/admin/gift', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const { ref, libs: libsAmount, cosmeticId } = req.body || {};
+  let pid = null;
+  for (const id of _allPlayerIds()) { if (_playerRef(id) === String(ref || '')) { pid = id; break; } }
+  if (pid === null) return res.status(404).json({ error: 'Joueur introuvable.' });
+  const entry = getLibsEntry(pid);
+  const amount = Math.max(0, Math.min(10_000, Math.floor(Number(libsAmount) || 0)));
+  let grantedCosmetic = null;
+  if (cosmeticId) {
+    const cosm = COSMETICS.find(c => c.id === String(cosmeticId) && !c.honorary);
+    if (!cosm) return res.status(400).json({ error: 'Cosmétique inconnu : ' + cosmeticId });
+    if (!entry.ownedCosmetics.includes(cosm.id)) { entry.ownedCosmetics.push(cosm.id); grantedCosmetic = cosm.id; }
+  }
+  if (amount > 0) entry.balance = Math.min(MAX_BALANCE, entry.balance + amount);
+  libs.set(pid, entry);
+  dbUpsertLibs(pid, entry);
+  _emitToPlayer(pid, 'libs-update', { balance: entry.balance, delta: amount || undefined, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
+  res.json({ ok: true, name: entry.name || 'Anonyme', balance: entry.balance, grantedCosmetic });
+});
+
+// Admin : exports CSV (joueurs + achats).
+function _csvEscape(v) { const x = String(v ?? ''); return /[",;\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }
+app.get('/admin/export/players', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const rows = [['pseudo','victoires','defaites','nuls','points_quiz','quiz_joues','record_snake','record_run','libs','cosmetiques','serie','parrainages']];
+  for (const p of _aggregatePlayers()) {
+    const e = [...libs.values()].find(x => x.name === p.name) || {};
+    rows.push([p.name, p.wins, p.losses, p.draws, p.points, p.quizzes, p.snakeHs, p.luffyHs, p.libs, (e.ownedCosmetics || []).length, e.streak?.count || 0, e.referrals || 0]);
+  }
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename=joueurs.csv');
+  res.send('\uFEFF' + rows.map(r => r.map(_csvEscape).join(';')).join('\n'));
+});
+app.get('/admin/export/purchases', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const rows = [['pseudo','pack','libs','statut','date']];
+  for (const p of [...libsPurchases.values()].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))) {
+    rows.push([(libs.get(p.playerId)?.name) || 'Anonyme', p.packId || '', p.libsAmount || 0, p.credited ? 'completed' : (p.status || 'pending'), p.createdAt ? new Date(p.createdAt).toISOString() : '']);
+  }
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename=achats.csv');
+  res.send('\uFEFF' + rows.map(r => r.map(_csvEscape).join(';')).join('\n'));
+});
+
 // Admin : flague / deflague une question posee au chatbot (suivi des questions
 // interessantes ou problematiques). Persiste dans bot_logs.
 app.post('/admin/botlog-flag', (req, res) => {

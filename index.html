@@ -130,6 +130,15 @@
         <button class="btn bot-btn" data-diff="medium">🎯 Moyen</button>
         <button class="btn bot-btn" data-diff="hard">💀 Difficile</button>
       </div>
+      <div class="stake-row">
+        <span id="stake-label" class="stake-label">💰 Mise (le vainqueur rafle tout) :</span>
+        <div class="stake-btns">
+          <button class="stake-btn active" data-stake="0">Sans</button>
+          <button class="stake-btn" data-stake="25">25 ⚡</button>
+          <button class="stake-btn" data-stake="50">50 ⚡</button>
+          <button class="stake-btn" data-stake="100">100 ⚡</button>
+        </div>
+      </div>
       <button id="btn-create" class="btn btn-secondary">Créer une partie multijoueur</button>
       <div class="divider"><span id="divider-join-text">ou rejoindre</span></div>
       <div class="join-group">
@@ -350,6 +359,15 @@
       <h1 id="events-screen-title">🎉 Évents</h1>
       <p class="subtitle" id="events-screen-sub">Week-end spécial</p>
     </div>
+    <!-- Tournoi du samedi -->
+    <div class="tournament-card" id="tournament-card">
+      <h2 id="tournament-title">🏆 Tournoi du samedi</h2>
+      <p id="tournament-desc" class="tournament-desc">Chaque samedi : victoires classiques +10 pts, bonnes réponses de quiz +2 pts, ⚡ mangés au Snake +1 pt. Le meilleur gagne 2000 ⚡ et le titre « Champion de la semaine » !</p>
+      <p id="tournament-status" class="tournament-status"></p>
+      <div id="tournament-top" class="tournament-top"></div>
+      <p id="tournament-champion" class="tournament-champion"></p>
+    </div>
+
     <div class="event-intro" id="event-intro">
       <div class="event-badge">🐍</div>
       <h2 id="snake-challenge-title">Snake Challenge</h2>
@@ -528,6 +546,7 @@
   <div id="news-card" class="news-card">
     <span class="news-handle">📰</span>
     <p class="news-title" id="news-title-el">📰 News</p>
+    <div id="news-announcements"></div>
     <p id="news-georgia-msg" class="news-msg">⭐ <strong>Life of Georgia</strong> : la saga exclusive est complète ! Débloque le Tome 1 pour 2000 ⚡ dans la section Lecture, et le Tome 2, « L'Héritière d'Aboula », t'est offert. Disponible en français et en anglais.</p>
     <p id="news-book-msg" class="news-msg news-msg-sep">📚 <strong>Nouveau dans Lecture</strong> : le roman ⭐ L'Affaire endormie, Tome 1, écrit par le créateur ! Chapitre 1 gratuit, la suite se débloque avec tes Libs.</p>
     <div id="news-star" class="news-star hidden"></div>
@@ -854,6 +873,11 @@
           <span class="pnc-text"><span id="recovery-card-title">Sauvegarder ma progression</span><small id="recovery-card-sub">Ne perds jamais ton compte</small></span>
           <span class="pnc-arrow">›</span>
         </button>
+        <button type="button" class="profile-nav-card" id="go-referral">
+          <span class="pnc-icon">🤝</span>
+          <span class="pnc-text"><span id="referral-card-title">Inviter un ami</span><small id="referral-card-sub">+100 ⚡ pour toi et pour lui</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
         <button type="button" class="profile-nav-card" id="go-emotes">
           <span class="pnc-icon">😎</span>
           <span class="pnc-text"><span id="emotes-card-title">Émotes</span><small id="emotes-card-sub">20 réactions à envoyer en partie (5 équipées max)</small></span>
@@ -927,6 +951,26 @@
           <button id="btn-recovery-restore" class="btn btn-primary">Restaurer</button>
         </div>
         <p id="recovery-restore-hint" class="recovery-warn">Attention : restaurer remplace la progression actuelle de cet appareil.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal : parrainage (lien d'invitation) ── -->
+  <div id="overlay-referral" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="referral-title" class="profile-modal-title">🤝 Invite un ami</h2>
+        <button id="btn-referral-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <p id="referral-intro" class="recovery-intro">Envoie ton lien d'invitation : quand ton ami jouera sa première partie, vous recevrez chacun 100 ⚡ !</p>
+        <label id="referral-link-label" class="recovery-label">Ton lien d'invitation</label>
+        <div class="recovery-code-row">
+          <input id="referral-link" class="recovery-input" type="text" readonly />
+          <button id="btn-referral-copy" class="btn btn-secondary">Copier</button>
+        </div>
+        <button id="btn-referral-share" class="btn btn-primary recovery-reset-btn">Partager le lien</button>
+        <p id="referral-count" class="recovery-warn"></p>
       </div>
     </div>
   </div>
