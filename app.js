@@ -8901,15 +8901,26 @@ const ReadFeed = (() => {
 
   function setStatus(msg) {
     const g = wrap(); if (!g) return;
+    g.classList.remove('is-skel');
     catsEl().innerHTML = '';
     const lines = String(msg).split('\n').map(l => `<span>${esc(l)}</span>`).join('');
     g.innerHTML = `<div class="read-status"><span class="feed-status-icon">📚</span><p class="feed-status-text">${lines}</p></div>`;
   }
 
+  // Squelettes shimmer pendant le chargement : perception d'attente reduite.
+  function showSkeleton() {
+    const g = wrap(); if (!g) return;
+    catsEl().innerHTML = '';
+    g.classList.add('is-skel');
+    g.innerHTML = Array.from({ length: 8 }).map(() =>
+      `<div class="skel-card"><div class="skel skel-cover"></div><div class="skel skel-line"></div><div class="skel skel-line short"></div></div>`
+    ).join('');
+  }
+
   async function load(force = false) {
     if (!wrap()) return;
     if (loaded && !force) { render(); return; }
-    setStatus(t().readLoading);
+    showSkeleton();
     const pid = encodeURIComponent(getPlayerId() || '');
     const [booksRes, exclRes] = await Promise.allSettled([
       fetch(`${window.BACKEND_URL}/api/feed-books`).then(r => { if (!r.ok) throw new Error(); return r.json(); }),
@@ -8993,6 +9004,7 @@ const ReadFeed = (() => {
 
   function render() {
     const g = wrap(); if (!g) return;
+    g.classList.remove('is-skel');
     const list = books.filter(matches);
     const exclList = exclusiveBooks.filter(matches);
     if (!list.length && !exclList.length) { g.innerHTML = `<p class="read-empty">${esc(t().readNoResult)}</p>`; return; }

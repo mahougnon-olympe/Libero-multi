@@ -3991,3 +3991,59 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
     scroll-behavior: auto !important;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Finitions visibles : halo pulsant, entrees en cascade, skeletons.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Halo pulsant sous les actions cles (Libs, VIP, CTA principal) ── */
+@keyframes haloIndigo {
+  0%, 100% { box-shadow: 0 4px 14px rgba(0,0,0,.35); }
+  50%      { box-shadow: 0 4px 14px rgba(0,0,0,.35), 0 0 18px var(--glow); }
+}
+@keyframes haloGold {
+  0%, 100% { box-shadow: var(--elev-1); }
+  50%      { box-shadow: var(--elev-1), 0 0 20px rgba(251,191,36,.5); }
+}
+/* Compteur de Libs : respiration lente et discrete (money = point d'attention). */
+.libs-counter:not(.hidden) { animation: haloIndigo 3s var(--ease-out) infinite; }
+/* Carte Pass VIP : halo dore premium. */
+#go-vip { animation: haloGold 3.4s var(--ease-out) infinite; }
+/* CTA principal : glow present (pas de pulse pour ne pas surcharger), qui
+   s'intensifie au survol. */
+.btn-primary { box-shadow: 0 4px 16px rgba(99,102,241,.28); }
+.btn-primary:hover { box-shadow: 0 6px 24px var(--glow); }
+
+/* ── Entrees en cascade (stagger) des grilles principales ── */
+@keyframes cardRise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.landing-card, .profile-nav-card { animation: cardRise .42s var(--ease) backwards; }
+.landing-grid .landing-card:nth-child(1) { animation-delay: .04s; }
+.landing-grid .landing-card:nth-child(2) { animation-delay: .10s; }
+.landing-grid .landing-card:nth-child(3) { animation-delay: .16s; }
+.landing-grid .landing-card:nth-child(4) { animation-delay: .22s; }
+.profile-nav-card:nth-child(1) { animation-delay: .04s; }
+.profile-nav-card:nth-child(2) { animation-delay: .09s; }
+.profile-nav-card:nth-child(3) { animation-delay: .14s; }
+.profile-nav-card:nth-child(4) { animation-delay: .19s; }
+.profile-nav-card:nth-child(5) { animation-delay: .24s; }
+.profile-nav-card:nth-child(n+6) { animation-delay: .28s; }
+/* Un refresh qui restaure un ecran ne rejoue pas les cascades. */
+.screen[data-restored] .landing-card,
+.screen[data-restored] .profile-nav-card { animation: none; }
+
+/* ── Skeletons de chargement (shimmer) ── */
+@keyframes skelShimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.skel {
+  background: linear-gradient(100deg, var(--card2) 40%, rgba(255,255,255,.07) 50%, var(--card2) 60%);
+  background-size: 200% 100%;
+  animation: skelShimmer 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+.read-grid.is-skel { pointer-events: none; }
+.skel-card { display: flex; flex-direction: column; gap: 8px; }
+.skel-cover { width: 100%; aspect-ratio: 2/3; border-radius: var(--radius); }
+.skel-line { height: 12px; border-radius: 6px; }
+.skel-line.short { width: 60%; }
