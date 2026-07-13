@@ -19,7 +19,7 @@
   <meta name="twitter:image" content="https://libero-multi.vercel.app/og-image.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@700&family=Chakra+Petch:wght@700&family=Audiowide&family=Exo+2:wght@700&family=Bungee&family=Black+Ops+One&family=Russo+One&family=Press+Start+2P&family=VT323&family=Share+Tech+Mono&family=Major+Mono+Display&family=Cinzel:wght@700&family=Tektur:wght@700&family=Pacifico&family=Lobster&family=Fredoka:wght@700&family=Monoton&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@700&family=Chakra+Petch:wght@400;500;600;700&family=Audiowide&family=Exo+2:wght@700&family=Bungee&family=Black+Ops+One&family=Russo+One&family=Press+Start+2P&family=VT323&family=Share+Tech+Mono&family=Major+Mono+Display&family=Cinzel:wght@700&family=Tektur:wght@700&family=Pacifico&family=Lobster&family=Fredoka:wght@700&family=Monoton&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <script>(function(){var s=sessionStorage.getItem('libero_screen');if(s&&s!=='landing'){document.documentElement.classList.add('restoring');document.documentElement.setAttribute('data-restore',s);}})();</script>
 </head>
@@ -30,16 +30,16 @@
   <!-- ── Barre de navigation principale (fixe, en haut) ── -->
   <nav id="main-nav" class="main-nav" role="tablist" aria-label="Navigation principale">
     <button id="nav-tab-home" class="nav-tab active" role="tab" aria-selected="true">
-      <span class="nav-tab-icon">🏠</span><span id="nav-tab-home-label">Accueil</span>
+      <span class="nav-tab-icon" data-ic="home">🏠</span><span id="nav-tab-home-label">Accueil</span>
     </button>
     <button id="nav-tab-ideas" class="nav-tab" role="tab" aria-selected="false">
-      <span class="nav-tab-icon">💡</span><span id="nav-tab-ideas-label">Idées</span>
+      <span class="nav-tab-icon" data-ic="bulb">💡</span><span id="nav-tab-ideas-label">Idées</span>
     </button>
     <button id="nav-tab-read" class="nav-tab" role="tab" aria-selected="false">
-      <span class="nav-tab-icon">📚</span><span id="nav-tab-read-label">Lecture</span>
+      <span class="nav-tab-icon" data-ic="book">📚</span><span id="nav-tab-read-label">Lecture</span>
     </button>
     <button id="nav-tab-profile" class="nav-tab" role="tab" aria-selected="false">
-      <span class="nav-tab-icon">🎯</span><span id="nav-tab-profile-label">Profil</span><span id="profile-card-badge" class="profile-card-badge hidden"></span>
+      <span class="nav-tab-icon" data-ic="target">🎯</span><span id="nav-tab-profile-label">Profil</span><span id="profile-card-badge" class="profile-card-badge hidden"></span>
     </button>
   </nav>
 
@@ -52,23 +52,23 @@
 
     <div class="landing-grid">
       <button class="landing-card" id="btn-go-classic">
-        <span class="landing-icon">🎮</span>
+        <span class="landing-icon" data-ic="grid">🎮</span>
         <h2>Jeux Classiques</h2>
         <p>Puissance 4 · Morpion · Échecs</p>
       </button>
       <button class="landing-card" id="btn-go-trivia">
-        <span class="landing-icon">🧠</span>
+        <span class="landing-icon" data-ic="cap">🧠</span>
         <h2>Culture Générale</h2>
         <p>Quiz par thèmes · Solo &amp; Multi</p>
       </button>
       <button class="landing-card" id="btn-go-events">
-        <span class="landing-icon">🎉</span>
+        <span class="landing-icon" data-ic="calendar">🎉</span>
         <h2 id="events-card-title">Évents</h2>
         <p id="events-card-desc">Week-end · Snake Challenge</p>
         <p id="event-card-countdown" class="event-card-countdown"></p>
       </button>
       <button class="landing-card landing-card--community" id="btn-go-community">
-        <span class="landing-icon">🏃</span>
+        <span class="landing-icon" data-ic="zap">🏃</span>
         <h2 id="luffy-card-title">Libero Run</h2>
         <p id="community-card-text">Pour la communauté</p>
       </button>
@@ -952,62 +952,62 @@
 
         <!-- Cartes de navigation (en haut, les défis sont en bas) -->
         <button type="button" class="profile-nav-card" id="go-locker">
-          <span class="pnc-icon">🎒</span>
+          <span class="pnc-icon" data-ic="archive">🎒</span>
           <span class="pnc-text"><span id="locker-title">Mon casier</span><small id="locker-card-sub">Tes cosmétiques et leurs aperçus</small></span>
           <span class="pnc-arrow">›</span>
         </button>
         <button type="button" class="profile-nav-card" id="go-history">
-          <span class="pnc-icon">🕑</span>
+          <span class="pnc-icon" data-ic="clock">🕑</span>
           <span class="pnc-text"><span id="history-title">Mes dernières parties</span><small id="history-card-sub">Ton historique de jeu</small></span>
           <span class="pnc-arrow">›</span>
         </button>
         <button type="button" class="profile-nav-card" id="go-recovery">
-          <span class="pnc-icon">🔐</span>
+          <span class="pnc-icon" data-ic="save">🔐</span>
           <span class="pnc-text"><span id="recovery-card-title">Sauvegarder ma progression</span><small id="recovery-card-sub">Ne perds jamais ton compte</small></span>
           <span class="pnc-arrow">›</span>
         </button>
         <button type="button" class="profile-nav-card" id="go-referral">
-          <span class="pnc-icon">🤝</span>
+          <span class="pnc-icon" data-ic="userplus">🤝</span>
           <span class="pnc-text"><span id="referral-card-title">Inviter un ami</span><small id="referral-card-sub">+100 ⚡ pour toi et pour lui</small></span>
           <span class="pnc-arrow">›</span>
         </button>
         <button type="button" class="profile-nav-card" id="go-friends">
-          <span class="pnc-icon">👥</span>
+          <span class="pnc-icon" data-ic="users">👥</span>
           <span class="pnc-text"><span id="friends-card-title">Mes amis</span><small id="friends-card-sub">Vois qui est en ligne et défie-les</small></span>
           <span class="pnc-arrow">›</span>
         </button>
         <button type="button" class="profile-nav-card" id="go-wheel">
-          <span class="pnc-icon">🎡</span>
+          <span class="pnc-icon" data-ic="wheel">🎡</span>
           <span class="pnc-text"><span id="wheel-card-title">Roue de la fortune</span><small id="wheel-card-sub">1 tour gratuit par jour, jusqu'à 250 ⚡</small></span>
           <span class="pnc-arrow">›</span>
         </button>
         <button type="button" class="profile-nav-card" id="go-iq">
-          <span class="pnc-icon">🧠</span>
+          <span class="pnc-icon" data-ic="pulse">🧠</span>
           <span class="pnc-text"><span id="iq-card-title">Mon QI</span><small id="iq-card-sub"></small></span>
           <span class="pnc-arrow">›</span>
         </button>
         <button type="button" class="profile-nav-card" id="go-vip">
-          <span class="pnc-icon">👑</span>
+          <span class="pnc-icon" data-ic="crown">👑</span>
           <span class="pnc-text"><span id="vip-card-title">Pass VIP</span><small id="vip-card-sub">+20% de Libs sur tes gains pendant 30 jours</small></span>
           <span class="pnc-arrow">›</span>
         </button>
         <button type="button" class="profile-nav-card" id="go-emotes">
-          <span class="pnc-icon">😎</span>
+          <span class="pnc-icon" data-ic="smile">😎</span>
           <span class="pnc-text"><span id="emotes-card-title">Émotes</span><small id="emotes-card-sub">20 réactions à envoyer en partie (5 équipées max)</small></span>
           <span class="pnc-arrow">›</span>
         </button>
         <button type="button" class="profile-nav-card" id="go-settings">
-          <span class="pnc-icon">⚙️</span>
+          <span class="pnc-icon" data-ic="gear">⚙️</span>
           <span class="pnc-text"><span id="settings-card-title">Réglages</span><small id="settings-card-sub">Langue, thème, sons, musique, serpent</small></span>
           <span class="pnc-arrow">›</span>
         </button>
         <button type="button" class="profile-nav-card" id="go-emojirain">
-          <span class="pnc-icon">🌈</span>
+          <span class="pnc-icon" data-ic="sparkle">🌈</span>
           <span class="pnc-text"><span id="emojirain-card-title">Pluie d'émojis</span><small id="emojirain-card-sub">Choisis le thème ou tes propres émojis</small></span>
           <span class="pnc-arrow">›</span>
         </button>
         <button type="button" class="profile-nav-card profile-nav-card-danger" id="go-reset">
-          <span class="pnc-icon">🗑️</span>
+          <span class="pnc-icon" data-ic="trash">🗑️</span>
           <span class="pnc-text"><span id="reset-card-title">Réinitialiser le compte</span><small id="reset-card-sub">Repartir de zéro sur le site</small></span>
           <span class="pnc-arrow">›</span>
         </button>
