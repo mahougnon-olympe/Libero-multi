@@ -16,6 +16,17 @@
   --glow:   rgba(99,102,241,.45);
   --radius: 16px;
   --shadow: 0 8px 32px rgba(0,0,0,.5);
+  /* Mouvement : une seule famille d'easing et de durees pour tout le site. */
+  --ease:     cubic-bezier(.16,1,.3,1);
+  --ease-out: cubic-bezier(.22,.61,.36,1);
+  --dur-fast: .14s;
+  --dur:      .25s;
+  /* Elevation graduee + matiere « verre poli » (liseré de lumiere en haut de carte). */
+  --elev-1:   0 2px 8px rgba(0,0,0,.3);
+  --elev-2:   0 8px 24px rgba(0,0,0,.42);
+  --elev-3:   0 16px 48px rgba(0,0,0,.55);
+  --hairline: rgba(255,255,255,.07);
+  --shine:    linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
   --cell:   min(11vw, 56px);
   --chess-cell: min(10.5vw, 52px);
   --ttt-cell:   min(26vw, 110px);
@@ -1004,6 +1015,98 @@ body.shop-open .main-nav { display: none !important; } /* pas de barre de nav da
 .feed-status-text span:not(:first-child) {
   font-size: .9rem; font-weight: 500; color: var(--muted);
 }
+.feed-submit-empty { margin-top: 6px; }
+
+/* Barre de progression de lecture (bas de la vidéo). */
+.feed-progress {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+  background: rgba(255,255,255,.18); z-index: 3; pointer-events: none;
+}
+.feed-progress i { display: block; height: 100%; width: 0; background: #fff; border-radius: 0 2px 2px 0; }
+
+/* Rail d'actions latéral (like / commentaires / partage / vues). */
+.feed-rail {
+  position: absolute; right: 10px; bottom: 96px; z-index: 4;
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+}
+.feed-act {
+  background: none; border: none; cursor: pointer; padding: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  color: #fff; font-weight: 700;
+}
+.feed-act-ico {
+  font-size: 1.9rem; line-height: 1;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,.6));
+  transition: transform .15s;
+}
+.feed-act-n { font-size: .78rem; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+.feed-act.pop .feed-act-ico { transform: scale(1.35); }
+.feed-act:active .feed-act-ico { transform: scale(.85); }
+.feed-views {
+  color: #fff; font-size: .74rem; font-weight: 600; opacity: .85;
+  text-shadow: 0 1px 3px rgba(0,0,0,.7); margin-top: 2px;
+}
+
+.feed-overlay-author { font-size: .98rem; font-weight: 800; margin: 0 0 4px; }
+.feed-overlay-desc { font-size: .92rem; font-weight: 500; margin: 5px 0 0; line-height: 1.4; opacity: .95; }
+.feed-overlay { padding-right: 68px; }
+
+/* Indicateur son coupé/activé, apparaît brièvement au tap. */
+.feed-mute-ind {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(.6);
+  font-size: 3rem; z-index: 5; opacity: 0; pointer-events: none;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.6));
+}
+.feed-mute-ind.show { animation: feedMutePulse .7s ease; }
+@keyframes feedMutePulse {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(.6); }
+  25% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.1); }
+}
+
+/* Bouton flottant « Proposer une vidéo ». */
+.feed-submit-fab {
+  position: fixed; right: 16px; top: 76px; z-index: 20;
+  width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
+  background: linear-gradient(135deg, #ff4d9d, #ff8a3d); color: #fff;
+  font-size: 1.25rem; line-height: 1; display: none;
+  align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(255,77,157,.5);
+}
+.feed-submit-fab span { font-size: .8rem; font-weight: 800; margin-left: -3px; margin-top: -8px; }
+body.screen-feed-active .feed-submit-fab { display: inline-flex; }
+@media (max-width: 900px) {
+  .feed-rail { bottom: 120px; }
+  .feed-submit-fab { top: auto; bottom: 150px; }
+}
+
+/* Feuille des commentaires vidéo. */
+.videocomments-modal { display: flex; flex-direction: column; max-height: 80vh; }
+.videocomments-list {
+  flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+  padding: 6px 2px; margin: 8px 0; min-height: 120px;
+}
+.videocomment { display: flex; flex-direction: column; gap: 2px; }
+.videocomment-name { font-weight: 800; font-size: .86rem; color: var(--accent, #a78bff); }
+.videocomment-text { margin: 0; font-size: .95rem; line-height: 1.35; color: var(--text); word-break: break-word; }
+.videocomments-empty { text-align: center; color: var(--muted); padding: 24px 0; }
+.videocomments-form { display: flex; gap: 8px; align-items: center; }
+.videocomments-form input {
+  flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border, #333);
+  background: var(--card, #1a1a1a); color: var(--text); font-size: .95rem;
+}
+.videocomments-form .btn { flex: 0 0 auto; width: auto; }
+
+/* Formulaire « proposer une vidéo ». */
+.videosubmit-input {
+  width: 100%; box-sizing: border-box; margin-top: 10px; padding: 10px 12px;
+  border-radius: 10px; border: 1px solid var(--border, #333);
+  background: var(--card, #1a1a1a); color: var(--text); font-size: .95rem; font-family: inherit;
+}
+.videosubmit-send { margin-top: 14px; width: 100%; }
+.videosubmit-status { margin: 10px 0 0; font-size: .9rem; text-align: center; min-height: 1.1em; }
+.videosubmit-status.ok { color: #22c55e; }
+.videosubmit-status.err { color: #ef4444; }
 
 /* ── Écran Lecture : catalogue de livres ── */
 .screen-read { padding: 0; justify-content: flex-start; align-items: stretch; gap: 0; }
@@ -3854,3 +3957,37 @@ html.light .ludo-cell { background: #fff; border: 1px solid #e2e8f0; }
 .friends-section-label:first-child { margin-top: 0; }
 .friend-req-row { border: 1px solid rgba(99,102,241,.45); }
 .friend-req-accept, .friend-req-decline { width: auto; flex: 0 0 auto; padding: 6px 12px; font-size: .78rem; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Finition visuelle (fondations) : matiere, focus clavier, mouvement reduit.
+   Ajoute a l'existant sans le remplacer.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Liseré de lumiere en haut des cartes principales : effet « verre poli »
+   sans blur (leger, GPU-friendly, invisible pour les lecteurs d'ecran). */
+.landing-card, .profile-nav-card { position: relative; }
+.landing-card::before, .profile-nav-card::before {
+  content: ''; position: absolute; top: 0; left: 14%; right: 14%; height: 1px;
+  background: var(--shine); opacity: .4; pointer-events: none; border-radius: 1px;
+}
+html.light .landing-card::before, html.light .profile-nav-card::before {
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,.4), transparent);
+  opacity: .55;
+}
+
+/* Anneau de focus visible UNIQUEMENT au clavier (accessibilite priorite 1).
+   La souris/le tactile ne le declenchent pas, donc aucun changement visuel
+   pour la majorite des joueurs. */
+:focus-visible { outline: 2px solid var(--board); outline-offset: 2px; border-radius: 8px; }
+*:focus:not(:focus-visible) { outline: none; }
+
+/* Respecte le reglage systeme « reduire les animations » : coupe les
+   animations decoratives pour les joueurs sensibles au mouvement. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

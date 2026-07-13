@@ -511,6 +511,40 @@
     <div id="feed-container" class="feed-container">
       <p id="feed-status" class="feed-status">Chargement des vidéos…</p>
     </div>
+    <button id="feed-submit-fab" class="feed-submit-fab" title="Proposer une vidéo" aria-label="Proposer une vidéo">🎬<span>+</span></button>
+  </div>
+
+  <!-- Commentaires d'une vidéo (feuille du bas) -->
+  <div id="overlay-videocomments" class="overlay hidden">
+    <div class="recovery-modal videocomments-modal">
+      <div class="profile-modal-header">
+        <h2 class="profile-modal-title"><span id="videocomments-title">Commentaires</span> · <span id="videocomments-count">0</span></h2>
+        <button id="videocomments-close" class="help-close-btn">✕</button>
+      </div>
+      <div id="videocomments-list" class="videocomments-list"></div>
+      <div class="videocomments-form">
+        <input id="videocomments-input" type="text" maxlength="400" placeholder="Ajoute un commentaire…" autocomplete="off">
+        <button id="videocomments-send" class="btn btn-primary">Envoyer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Proposer une vidéo -->
+  <div id="overlay-videosubmit" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="videosubmit-title" class="profile-modal-title">Proposer une vidéo</h2>
+        <button id="videosubmit-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <p id="videosubmit-intro" class="recovery-label">Colle le lien direct d'une vidéo (mp4). Elle sera vérifiée par l'admin avant d'apparaître dans le feed.</p>
+        <input id="videosubmit-url" type="url" class="videosubmit-input" placeholder="Lien de la vidéo (https://…)" autocomplete="off">
+        <input id="videosubmit-titre" type="text" class="videosubmit-input" maxlength="200" placeholder="Titre (optionnel)" autocomplete="off">
+        <textarea id="videosubmit-desc" class="videosubmit-input" maxlength="400" rows="2" placeholder="Description (optionnel)"></textarea>
+        <button id="videosubmit-send" class="btn btn-primary videosubmit-send">Envoyer</button>
+        <p id="videosubmit-status" class="videosubmit-status"></p>
+      </div>
+    </div>
   </div>
 
   <!-- ── Écran Lecture : catalogue de livres ── -->

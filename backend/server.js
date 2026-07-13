@@ -405,7 +405,14 @@ async function loadData() {
   libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, xp: d.xp || 0, iq: d.iq ?? null, iqAt: d.iqAt || 0, wheelDay: d.wheelDay || null, friends: Array.isArray(d.friends) ? d.friends : [], friendRequests: Array.isArray(d.friendRequests) ? d.friendRequests : [], pendingGifts: Array.isArray(d.pendingGifts) ? d.pendingGifts : [], giftSentDay: d.giftSentDay || null, vipUntil: d.vipUntil || 0, history: Array.isArray(d.history) ? d.history : [] }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
-  feedDocs.forEach(d => feedVideos.push({ _id: d._id, url: d.url, titre: d.titre || '', ordre: d.ordre || 0, actif: d.actif !== false, createdAt: d.createdAt || Date.now() }));
+  feedDocs.forEach(d => feedVideos.push({
+    _id: d._id, url: d.url, titre: d.titre || '', auteur: d.auteur || '', description: d.description || '',
+    ordre: d.ordre || 0, actif: d.actif !== false, pending: !!d.pending,
+    submittedBy: d.submittedBy || null, submittedName: d.submittedName || '',
+    likes: Array.isArray(d.likes) ? d.likes : [], views: d.views || 0, shares: d.shares || 0,
+    comments: Array.isArray(d.comments) ? d.comments : [],
+    createdAt: d.createdAt || Date.now(),
+  }));
   bookDocs.forEach(d => feedBooks.push({
     _id: d._id, titre: d.titre || '', auteur: d.auteur || '', categorie: d.categorie || '',
     couverture: d.couverture || '', url: d.url || '', description: d.description || '',
@@ -542,6 +549,13 @@ function dbDeleteFeedVideo(id) {
   db.collection('feed_videos')
     .deleteOne({ _id: id })
     .catch(e => console.error('Erreur suppression vidéo feed:', e));
+}
+
+function dbUpdateFeedVideo(id, fields) {
+  if (!db) return;
+  db.collection('feed_videos')
+    .updateOne({ _id: id }, { $set: fields })
+    .catch(e => console.error('Erreur mise a jour vidéo feed:', e));
 }
 
 function dbInsertFeedBook(book) {
@@ -4676,20 +4690,149 @@ app.get('/admin/libs-purchases', (req, res) => {
 // ── Feed vidéos (façon TikTok) ──────────────────────────────────────────────
 // MongoDB ne stocke que les URLs + métadonnées : les fichiers vidéo sont hébergés
 // en externe (Bunny.net / Cloudinary / …).
-function _activeFeedVideos() {
-  return feedVideos
-    .filter(v => v.actif)
-    .sort((a, b) => (a.ordre - b.ordre) || (a.createdAt - b.createdAt))
-    .map(v => ({ id: v._id, url: v.url, titre: v.titre, ordre: v.ordre }));
+// Vue publique d'une vidéo (jamais l'identifiant secret du joueur qui a soumis) :
+// on expose les compteurs sociaux + si le joueur courant a liké.
+function _publicVideo(v, playerId) {
+  return {
+    id: v._id, url: v.url, titre: v.titre, auteur: v.auteur || '', description: v.description || '',
+    ordre: v.ordre,
+    likeCount: (v.likes || []).length,
+    liked: !!(playerId && (v.likes || []).includes(playerId)),
+    views: v.views || 0, shares: v.shares || 0,
+    commentCount: (v.comments || []).length,
+  };
 }
 
-// Public : liste des vidéos actives, triées par ordre.
-app.get('/api/feed-videos', (_req, res) => res.json(_activeFeedVideos()));
+function _findVideo(id) { return feedVideos.find(v => v._id === id) || null; }
 
-// Admin : ajoute une vidéo (url + titre).
+// Assainit un texte libre (commentaire vidéo) : garde le texte mais neutralise
+// tout HTML pour éviter l'injection au rendu.
+function sanitizeText(s, max = 400) {
+  return String(s == null ? '' : s).replace(/[<>]/g, '').trim().slice(0, max);
+}
+
+// Publie une vidéo active (retire les soumissions en attente) triée par ordre.
+function _activeFeedVideos(playerId) {
+  return feedVideos
+    .filter(v => v.actif && !v.pending)
+    .sort((a, b) => (a.ordre - b.ordre) || (a.createdAt - b.createdAt))
+    .map(v => _publicVideo(v, playerId));
+}
+
+// Public : liste des vidéos actives, triées par ordre (playerId optionnel pour l'état "liké").
+app.get('/api/feed-videos', (req, res) => res.json(_activeFeedVideos(safePlayerId(req.query.playerId))));
+
+// Public : like / unlike (bascule) d'une vidéo.
+app.post('/api/feed-video/:id/like', (req, res) => {
+  const pid = safePlayerId((req.body || {}).playerId);
+  if (!pid) return res.status(400).json({ error: 'Joueur requis.' });
+  const v = _findVideo(req.params.id);
+  if (!v || !v.actif || v.pending) return res.status(404).json({ error: 'Vidéo introuvable.' });
+  v.likes = v.likes || [];
+  const i = v.likes.indexOf(pid);
+  if (i === -1) v.likes.push(pid); else v.likes.splice(i, 1);
+  dbUpdateFeedVideo(v._id, { likes: v.likes });
+  res.json({ ok: true, likeCount: v.likes.length, liked: i === -1 });
+});
+
+// Public : incrémente le compteur de vues (best-effort, appelé une fois par lecture côté client).
+app.post('/api/feed-video/:id/view', (req, res) => {
+  const v = _findVideo(req.params.id);
+  if (!v || !v.actif || v.pending) return res.status(404).json({ error: 'Vidéo introuvable.' });
+  v.views = (v.views || 0) + 1;
+  dbUpdateFeedVideo(v._id, { views: v.views });
+  res.json({ ok: true, views: v.views });
+});
+
+// Public : incrémente le compteur de partages.
+app.post('/api/feed-video/:id/share', (req, res) => {
+  const v = _findVideo(req.params.id);
+  if (!v || !v.actif || v.pending) return res.status(404).json({ error: 'Vidéo introuvable.' });
+  v.shares = (v.shares || 0) + 1;
+  dbUpdateFeedVideo(v._id, { shares: v.shares });
+  res.json({ ok: true, shares: v.shares });
+});
+
+// Public : commentaires d'une vidéo (les plus récents en premier).
+app.get('/api/feed-video/:id/comments', (req, res) => {
+  const v = _findVideo(req.params.id);
+  if (!v) return res.status(404).json({ error: 'Vidéo introuvable.' });
+  res.json((v.comments || []).slice().sort((a, b) => b.at - a.at)
+    .map(c => ({ id: c.id, name: c.name, text: c.text, at: c.at })));
+});
+
+// Public : ajoute un commentaire à une vidéo (visible immédiatement ; l'admin peut supprimer).
+app.post('/api/feed-video/:id/comment', (req, res) => {
+  const { playerId, name, text } = req.body || {};
+  const v = _findVideo(req.params.id);
+  if (!v || !v.actif || v.pending) return res.status(404).json({ error: 'Vidéo introuvable.' });
+  const clean = sanitizeText(text, 400);
+  if (clean.length < 1) return res.status(400).json({ error: 'Message vide.' });
+  // Limite : 10 commentaires vidéo / IP / 10 min.
+  const ip  = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const key = 'vid:' + ip;
+  const times = (commentRateMap.get(key) || []).filter(t => now - t < 600_000);
+  if (times.length >= 10) return res.status(429).json({ error: 'Trop de commentaires, réessaie plus tard.' });
+  times.push(now); commentRateMap.set(key, times);
+  const comment = { id: 'vc_' + crypto.randomUUID(), playerId: safePlayerId(playerId) || null, name: sanitizeName(name, 'Anonyme'), text: clean, at: now };
+  v.comments = v.comments || [];
+  v.comments.push(comment);
+  dbUpdateFeedVideo(v._id, { comments: v.comments });
+  res.json({ ok: true, comment: { id: comment.id, name: comment.name, text: comment.text, at: comment.at }, commentCount: v.comments.length });
+});
+
+// Public : un joueur propose une vidéo (lien) ; elle passe en attente de modération.
+app.post('/api/feed-video/submit', (req, res) => {
+  const { playerId, name, url, titre, description } = req.body || {};
+  if (!url || typeof url !== 'string' || !/^https?:\/\//i.test(url.trim())) {
+    return res.status(400).json({ error: 'URL invalide (http/https requis).' });
+  }
+  const pid = safePlayerId(playerId);
+  // Limite : 3 propositions / IP / jour.
+  const ip  = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const key = 'sub:' + ip;
+  const times = (commentRateMap.get(key) || []).filter(t => now - t < 86_400_000);
+  if (times.length >= 3) return res.status(429).json({ error: 'Limite de propositions atteinte (3/jour).' });
+  times.push(now); commentRateMap.set(key, times);
+  const video = {
+    _id:       'fv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    url:       url.trim(),
+    titre:     sanitizeText(titre, 200),
+    auteur:    sanitizeName(name, 'Anonyme'),
+    description: sanitizeText(description, 400),
+    ordre:     0, actif: false, pending: true,
+    submittedBy: pid, submittedName: sanitizeName(name, 'Anonyme'),
+    likes: [], views: 0, shares: 0, comments: [],
+    createdAt: now,
+  };
+  feedVideos.push(video);
+  dbInsertFeedVideo(video);
+  console.log(`[🎬📥] Proposition vidéo : ${video.titre || '(sans titre)'} par ${video.submittedName} → ${video.url}`);
+  res.json({ ok: true });
+});
+
+// Admin : liste TOUTES les vidéos (actives, masquées, en attente).
+app.get('/admin/feed-videos', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const all = feedVideos.slice().sort((a, b) => {
+    if (!!a.pending !== !!b.pending) return a.pending ? -1 : 1; // en attente en tête
+    return (a.ordre - b.ordre) || (a.createdAt - b.createdAt);
+  }).map(v => ({
+    id: v._id, url: v.url, titre: v.titre, auteur: v.auteur || '', description: v.description || '',
+    ordre: v.ordre, actif: !!v.actif, pending: !!v.pending, submittedName: v.submittedName || '',
+    likeCount: (v.likes || []).length, views: v.views || 0, shares: v.shares || 0,
+    comments: (v.comments || []).map(c => ({ id: c.id, name: c.name, text: c.text, at: c.at })),
+    createdAt: v.createdAt,
+  }));
+  res.json(all);
+});
+
+// Admin : ajoute une vidéo (url + titre + auteur + description).
 app.post('/admin/feed-video', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
-  const { url, titre, ordre, actif } = req.body || {};
+  const { url, titre, auteur, description, ordre, actif } = req.body || {};
   if (!url || typeof url !== 'string' || !/^https?:\/\//i.test(url.trim())) {
     return res.status(400).json({ error: 'URL invalide (http/https requis).' });
   }
@@ -4697,15 +4840,42 @@ app.post('/admin/feed-video', (req, res) => {
   const video = {
     _id:       'fv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
     url:       url.trim(),
-    titre:     (titre || '').toString().trim().slice(0, 200),
+    titre:     sanitizeText(titre, 200),
+    auteur:    sanitizeText(auteur, 40),
+    description: sanitizeText(description, 400),
     ordre:     Number.isFinite(+ordre) ? +ordre : maxOrdre + 1,
-    actif:     actif !== false,
+    actif:     actif !== false, pending: false, submittedBy: null, submittedName: '',
+    likes: [], views: 0, shares: 0, comments: [],
     createdAt: Date.now(),
   };
   feedVideos.push(video);
   dbInsertFeedVideo(video);
+  adminAudit('feed-video-add', { id: video._id, titre: video.titre, url: video.url });
   console.log(`[🎬] Vidéo feed ajoutée : ${video.titre || '(sans titre)'} → ${video.url}`);
   res.json({ ok: true, video: { id: video._id, url: video.url, titre: video.titre, ordre: video.ordre } });
+});
+
+// Admin : modifie une vidéo (titre/auteur/description/ordre/actif) ou approuve une proposition.
+app.patch('/admin/feed-video/:id', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const v = _findVideo(req.params.id);
+  if (!v) return res.status(404).json({ error: 'Vidéo introuvable.' });
+  const b = req.body || {};
+  const fields = {};
+  if (typeof b.titre === 'string')       fields.titre = v.titre = sanitizeText(b.titre, 200);
+  if (typeof b.auteur === 'string')      fields.auteur = v.auteur = sanitizeText(b.auteur, 40);
+  if (typeof b.description === 'string') fields.description = v.description = sanitizeText(b.description, 400);
+  if (Number.isFinite(+b.ordre))         fields.ordre = v.ordre = +b.ordre;
+  if (typeof b.actif === 'boolean')      fields.actif = v.actif = b.actif;
+  if (b.approve === true) { // publier une proposition
+    v.pending = false; v.actif = true;
+    const maxOrdre = feedVideos.reduce((m, x) => Math.max(m, x.ordre || 0), 0);
+    if (!v.ordre) v.ordre = maxOrdre + 1;
+    fields.pending = false; fields.actif = true; fields.ordre = v.ordre;
+  }
+  dbUpdateFeedVideo(v._id, fields);
+  adminAudit('feed-video-edit', { id: v._id, fields });
+  res.json({ ok: true, video: { id: v._id, ordre: v.ordre, actif: v.actif, pending: v.pending } });
 });
 
 // Admin : supprime une vidéo.
@@ -4715,8 +4885,19 @@ app.delete('/admin/feed-video/:id', (req, res) => {
   if (idx === -1) return res.status(404).json({ error: 'Vidéo introuvable.' });
   const [removed] = feedVideos.splice(idx, 1);
   dbDeleteFeedVideo(removed._id);
+  adminAudit('feed-video-delete', { id: removed._id, titre: removed.titre });
   console.log(`[🗑️] Vidéo feed supprimée : ${removed.titre || '(sans titre)'}`);
   res.json({ ok: true });
+});
+
+// Admin : supprime un commentaire d'une vidéo.
+app.delete('/admin/feed-video/:id/comment/:cid', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const v = _findVideo(req.params.id);
+  if (!v) return res.status(404).json({ error: 'Vidéo introuvable.' });
+  v.comments = (v.comments || []).filter(c => c.id !== req.params.cid);
+  dbUpdateFeedVideo(v._id, { comments: v.comments });
+  res.json({ ok: true, commentCount: v.comments.length });
 });
 
 // ── Lecture (catalogue de livres) ───────────────────────────────────────────

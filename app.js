@@ -355,7 +355,12 @@ const DICT = {
   fr: {
     siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisissez votre catégorie',
     navHome:'Accueil', navFeed:'Vidéos',
-    feedLoading:'Chargement des vidéos…', feedEmpty:'Cette section est en cours de développement.\nReviens bientôt pour découvrir les vidéos !', feedError:'Cette section est en cours de développement.\nReviens bientôt pour découvrir les vidéos !',
+    feedLoading:'Chargement des vidéos…', feedEmpty:'Aucune vidéo pour le moment.\nSois le premier à en proposer une !', feedError:'Impossible de charger les vidéos.\nVérifie ta connexion et réessaie.',
+    feedSubmitBtn:'🎬 Proposer une vidéo', feedShareText:'Regarde cette vidéo sur Libero\'s Multi !', feedShareCopied:'Lien copié !',
+    feedNoComments:'Aucun commentaire. Lance la discussion !', feedSubmitBadUrl:'Lien invalide (http/https requis).', feedSubmitOk:'Merci ! Ta vidéo sera vérifiée avant publication.',
+    feedCommentsTitle:'Commentaires', feedCommentPlaceholder:'Ajoute un commentaire…', feedCommentSend:'Envoyer',
+    feedSubmitTitle:'Proposer une vidéo', feedSubmitIntro:'Colle le lien direct d\'une vidéo (mp4). Elle sera vérifiée par l\'admin avant d\'apparaître dans le feed.',
+    feedSubmitUrl:'Lien de la vidéo (https://…)', feedSubmitTitrePh:'Titre (optionnel)', feedSubmitDescPh:'Description (optionnel)', feedSubmitSend:'Envoyer',
     navRead:'Lecture',
     navProfile:'Profil',
     lockerTitle:'🎒 Mon casier',
@@ -1036,7 +1041,12 @@ const DICT = {
   en: {
     siteTitle:'Multiplayer Games', siteSubtitle:'Choose your category',
     navHome:'Home', navFeed:'Videos',
-    feedLoading:'Loading videos…', feedEmpty:'This section is under development.\nCheck back soon for videos!', feedError:'This section is under development.\nCheck back soon for videos!',
+    feedLoading:'Loading videos…', feedEmpty:'No videos yet.\nBe the first to submit one!', feedError:'Could not load videos.\nCheck your connection and try again.',
+    feedSubmitBtn:'🎬 Submit a video', feedShareText:'Check out this video on Libero\'s Multi!', feedShareCopied:'Link copied!',
+    feedNoComments:'No comments yet. Start the conversation!', feedSubmitBadUrl:'Invalid link (http/https required).', feedSubmitOk:'Thanks! Your video will be reviewed before publishing.',
+    feedCommentsTitle:'Comments', feedCommentPlaceholder:'Add a comment…', feedCommentSend:'Send',
+    feedSubmitTitle:'Submit a video', feedSubmitIntro:'Paste the direct link to a video (mp4). It will be reviewed by the admin before appearing in the feed.',
+    feedSubmitUrl:'Video link (https://…)', feedSubmitTitrePh:'Title (optional)', feedSubmitDescPh:'Description (optional)', feedSubmitSend:'Send',
     navRead:'Reading',
     navProfile:'Profile',
     lockerTitle:'🎒 My locker',
@@ -1905,10 +1915,24 @@ function applyLang() {
   const ntr = $('nav-tab-read-label'); if (ntr) ntr.textContent = d.navRead;
   const ntp = $('nav-tab-profile-label'); if (ntp) ntp.textContent = d.navProfile;
 
+  // Vidéos : modales commentaires + proposition
+  const setTxt = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+  const setPh  = (id, v) => { const el = $(id); if (el) el.placeholder = v; };
+  setTxt('videocomments-title', d.feedCommentsTitle);
+  setPh('videocomments-input', d.feedCommentPlaceholder);
+  setTxt('videocomments-send', d.feedCommentSend);
+  setTxt('videosubmit-title', d.feedSubmitTitle);
+  setTxt('videosubmit-intro', d.feedSubmitIntro);
+  setPh('videosubmit-url', d.feedSubmitUrl);
+  setPh('videosubmit-titre', d.feedSubmitTitrePh);
+  setPh('videosubmit-desc', d.feedSubmitDescPh);
+  setTxt('videosubmit-send', d.feedSubmitSend);
+
   // Lecture
   const rt = $('read-title');        if (rt) rt.textContent  = d.navRead;
   const rs = $('read-search-input'); if (rs) rs.placeholder  = d.readSearch;
   if (window._readFeed) window._readFeed.retexte();
+  if (window._videoFeed) window._videoFeed.retexte();
 
   // Section Recharger + formulaire d'achat de Libs (boutique)
   const ltb = $('libs-topup-back');    if (ltb) ltb.textContent = `← ${d.backLabel}`;
@@ -8508,24 +8532,36 @@ const VideoFeed = (() => {
   let observer = null;
   let videos   = [];
   let muted    = true; // l'autoplay n'est autorisé que muet ; tap pour activer le son
+  const viewed = new Set(); // vidéos déjà comptées comme vues (une fois par chargement)
+  const byId   = new Map(); // id -> objet vidéo (état social à jour)
 
-  function setStatus(msg) {
+  const fmt = n => (n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace('.0', '') + 'k' : String(n || 0));
+  const api = (path, opts) => fetch(`${window.BACKEND_URL}${path}`, opts);
+
+  function playerName() {
+    return (typeof getPlayerName === 'function' && getPlayerName()) || localStorage.getItem('playerName') || 'Anonyme';
+  }
+
+  function setStatus(msg, icon = '🚧') {
     if (!container) return;
     container.classList.add('feed-status-mode'); // fond transparent : laisse voir le décor du site
     const lines = String(msg).split('\n').map(l => `<span>${l}</span>`).join('');
     container.innerHTML =
       `<div class="feed-status">
-         <span class="feed-status-icon">🚧</span>
+         <span class="feed-status-icon">${icon}</span>
          <p class="feed-status-text">${lines}</p>
+         <button id="feed-submit-empty" class="btn btn-primary feed-submit-empty">${t().feedSubmitBtn}</button>
        </div>`;
+    const sb = document.getElementById('feed-submit-empty');
+    if (sb) sb.onclick = openSubmit;
   }
 
   async function load(force = false) {
     if (!container) return;
     if (loaded && !force) { playVisible(); return; }
-    setStatus(t().feedLoading);
+    setStatus(t().feedLoading, '⏳');
     try {
-      const res = await fetch(`${window.BACKEND_URL}/api/feed-videos`);
+      const res = await api(`/api/feed-videos?playerId=${encodeURIComponent(getPlayerId())}`);
       if (!res.ok) throw new Error('http ' + res.status);
       videos = await res.json();
     } catch {
@@ -8533,6 +8569,8 @@ const VideoFeed = (() => {
       return;
     }
     loaded = true;
+    byId.clear();
+    (videos || []).forEach(v => byId.set(v.id, v));
     if (!Array.isArray(videos) || videos.length === 0) { setStatus(t().feedEmpty); return; }
     render();
   }
@@ -8545,6 +8583,7 @@ const VideoFeed = (() => {
     videos.forEach((v, i) => {
       const slide = document.createElement('div');
       slide.className = 'feed-slide';
+      slide.dataset.id = v.id;
 
       const video = document.createElement('video');
       video.className = 'feed-video';
@@ -8557,28 +8596,206 @@ const VideoFeed = (() => {
       video.dataset.src = v.url;
       if (i === 0) video.src = v.url;            // seule la 1re vidéo est préchargée
 
+      // Barre de progression de lecture.
+      const prog = document.createElement('div');
+      prog.className = 'feed-progress';
+      const bar = document.createElement('i');
+      prog.appendChild(bar);
+      video.addEventListener('timeupdate', () => {
+        if (video.duration) bar.style.width = (video.currentTime / video.duration * 100) + '%';
+      });
+
+      // Rail d'actions latéral (like / commentaires / partage).
+      const rail = document.createElement('div');
+      rail.className = 'feed-rail';
+      rail.innerHTML =
+        `<button class="feed-act feed-like${v.liked ? ' on' : ''}" data-act="like" aria-label="J'aime">
+           <span class="feed-act-ico">${v.liked ? '❤️' : '🤍'}</span><span class="feed-act-n">${fmt(v.likeCount)}</span>
+         </button>
+         <button class="feed-act" data-act="comment" aria-label="Commentaires">
+           <span class="feed-act-ico">💬</span><span class="feed-act-n">${fmt(v.commentCount)}</span>
+         </button>
+         <button class="feed-act" data-act="share" aria-label="Partager">
+           <span class="feed-act-ico">🔗</span><span class="feed-act-n">${fmt(v.shares)}</span>
+         </button>
+         <span class="feed-views">👁 ${fmt(v.views)}</span>`;
+
       const overlay = document.createElement('div');
       overlay.className = 'feed-overlay';
+      if (v.auteur) {
+        const au = document.createElement('p');
+        au.className = 'feed-overlay-author';
+        au.textContent = '@' + v.auteur;
+        overlay.appendChild(au);
+      }
       if (v.titre) {
         const tl = document.createElement('p');
         tl.className = 'feed-overlay-title';
         tl.textContent = v.titre;
         overlay.appendChild(tl);
       }
+      if (v.description) {
+        const de = document.createElement('p');
+        de.className = 'feed-overlay-desc';
+        de.textContent = v.description;
+        overlay.appendChild(de);
+      }
+
+      // Indicateur son coupé/activé (apparaît au changement).
+      const mute = document.createElement('div');
+      mute.className = 'feed-mute-ind';
+      mute.textContent = muted ? '🔇' : '🔊';
 
       slide.appendChild(video);
+      slide.appendChild(prog);
+      slide.appendChild(rail);
       slide.appendChild(overlay);
+      slide.appendChild(mute);
       container.appendChild(slide);
+
+      // Actions du rail (ne pas propager au tap son du fond).
+      rail.addEventListener('click', ev => {
+        const btn = ev.target.closest('.feed-act');
+        if (!btn) return;
+        ev.stopPropagation();
+        const act = btn.dataset.act;
+        if (act === 'like')    toggleLike(v, btn);
+        if (act === 'comment') openComments(v);
+        if (act === 'share')   shareVideo(v);
+      });
+
+      // Tap sur la vidéo (pas le rail) : bascule le son.
+      const toggleSound = ev => {
+        if (ev.target.closest('.feed-rail')) return;
+        muted = !muted;
+        container.querySelectorAll('video').forEach(vd => { vd.muted = muted; });
+        container.querySelectorAll('.feed-mute-ind').forEach(m => {
+          m.textContent = muted ? '🔇' : '🔊';
+          m.classList.remove('show'); void m.offsetWidth; m.classList.add('show');
+        });
+      };
+      video.addEventListener('click', toggleSound);
+      overlay.addEventListener('click', toggleSound);
     });
 
     observer = new IntersectionObserver(onIntersect, { root: container, threshold: [0, 0.6, 1] });
     container.querySelectorAll('.feed-slide').forEach(s => observer.observe(s));
+    container.onclick = null; // les taps sont gérés par slide désormais
+  }
 
-    // Tap sur le feed : active / coupe le son de toutes les vidéos.
-    container.onclick = () => {
-      muted = !muted;
-      container.querySelectorAll('video').forEach(vd => { vd.muted = muted; });
+  async function toggleLike(v, btn) {
+    // Optimiste : bascule tout de suite, on corrige avec la réponse serveur.
+    const wasLiked = btn.classList.contains('on');
+    btn.classList.toggle('on', !wasLiked);
+    btn.querySelector('.feed-act-ico').textContent = !wasLiked ? '❤️' : '🤍';
+    btn.classList.add('pop'); setTimeout(() => btn.classList.remove('pop'), 300);
+    try {
+      const res = await api(`/api/feed-video/${v.id}/like`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId: getPlayerId() }),
+      });
+      const d = await res.json();
+      if (d.ok) {
+        v.likeCount = d.likeCount; v.liked = d.liked;
+        btn.classList.toggle('on', d.liked);
+        btn.querySelector('.feed-act-ico').textContent = d.liked ? '❤️' : '🤍';
+        btn.querySelector('.feed-act-n').textContent = fmt(d.likeCount);
+      }
+    } catch { /* silencieux : l'affichage optimiste reste */ }
+  }
+
+  function shareVideo(v) {
+    const url = `${location.origin}${location.pathname}#feed`;
+    const shareData = { title: 'Libero\'s Multi', text: v.titre ? `${v.titre} 🎬` : t().feedShareText, url };
+    const done = () => {
+      api(`/api/feed-video/${v.id}/share`, { method: 'POST' }).then(r => r.json()).then(d => {
+        if (d.ok) { v.shares = d.shares; const n = container.querySelector(`.feed-slide[data-id="${v.id}"] [data-act="share"] .feed-act-n`); if (n) n.textContent = fmt(d.shares); }
+      }).catch(() => {});
     };
+    if (navigator.share) navigator.share(shareData).then(done).catch(() => {});
+    else { navigator.clipboard?.writeText(url).catch(() => {}); if (typeof showToast === 'function') showToast(t().feedShareCopied); done(); }
+  }
+
+  // ── Commentaires (feuille du bas) ──
+  let commentVideo = null;
+  async function openComments(v) {
+    commentVideo = v;
+    const ov = document.getElementById('overlay-videocomments');
+    const list = document.getElementById('videocomments-list');
+    const cnt = document.getElementById('videocomments-count');
+    if (!ov) return;
+    ov.classList.remove('hidden');
+    list.innerHTML = `<p class="videocomments-empty">${t().feedLoading}</p>`;
+    try {
+      const res = await api(`/api/feed-video/${v.id}/comments`);
+      const arr = await res.json();
+      cnt.textContent = arr.length;
+      renderComments(arr);
+    } catch { list.innerHTML = `<p class="videocomments-empty">${t().feedError}</p>`; }
+  }
+  function renderComments(arr) {
+    const list = document.getElementById('videocomments-list');
+    if (!arr.length) { list.innerHTML = `<p class="videocomments-empty">${t().feedNoComments}</p>`; return; }
+    list.innerHTML = '';
+    arr.forEach(c => {
+      const row = document.createElement('div');
+      row.className = 'videocomment';
+      const nm = document.createElement('span'); nm.className = 'videocomment-name'; nm.textContent = c.name || 'Anonyme';
+      const tx = document.createElement('p');   tx.className = 'videocomment-text'; tx.textContent = c.text;
+      row.appendChild(nm); row.appendChild(tx);
+      list.appendChild(row);
+    });
+  }
+  async function sendComment() {
+    if (!commentVideo) return;
+    const inp = document.getElementById('videocomments-input');
+    const text = inp.value.trim();
+    if (!text) return;
+    inp.value = '';
+    try {
+      const res = await api(`/api/feed-video/${commentVideo.id}/comment`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId: getPlayerId(), name: playerName(), text }),
+      });
+      const d = await res.json();
+      if (d.ok) {
+        document.getElementById('videocomments-count').textContent = d.commentCount;
+        commentVideo.commentCount = d.commentCount;
+        const n = container.querySelector(`.feed-slide[data-id="${commentVideo.id}"] [data-act="comment"] .feed-act-n`);
+        if (n) n.textContent = fmt(d.commentCount);
+        // recharge la liste
+        const arr = await (await api(`/api/feed-video/${commentVideo.id}/comments`)).json();
+        renderComments(arr);
+      } else if (typeof showToast === 'function') showToast(d.error || t().feedError);
+    } catch { if (typeof showToast === 'function') showToast(t().feedError); }
+  }
+
+  // ── Proposer une vidéo ──
+  function openSubmit() {
+    const ov = document.getElementById('overlay-videosubmit');
+    if (!ov) return;
+    ov.classList.remove('hidden');
+    document.getElementById('videosubmit-status').textContent = '';
+    document.getElementById('videosubmit-url').value = '';
+    document.getElementById('videosubmit-titre').value = '';
+    document.getElementById('videosubmit-desc').value = '';
+  }
+  async function sendSubmit() {
+    const url = document.getElementById('videosubmit-url').value.trim();
+    const titre = document.getElementById('videosubmit-titre').value.trim();
+    const description = document.getElementById('videosubmit-desc').value.trim();
+    const st = document.getElementById('videosubmit-status');
+    if (!/^https?:\/\//i.test(url)) { st.textContent = t().feedSubmitBadUrl; st.className = 'videosubmit-status err'; return; }
+    st.textContent = '…'; st.className = 'videosubmit-status';
+    try {
+      const res = await api('/api/feed-video/submit', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId: getPlayerId(), name: playerName(), url, titre, description }),
+      });
+      const d = await res.json();
+      if (d.ok) { st.textContent = t().feedSubmitOk; st.className = 'videosubmit-status ok'; setTimeout(() => document.getElementById('overlay-videosubmit')?.classList.add('hidden'), 1600); }
+      else { st.textContent = d.error || t().feedError; st.className = 'videosubmit-status err'; }
+    } catch { st.textContent = t().feedError; st.className = 'videosubmit-status err'; }
   }
 
   function onIntersect(entries) {
@@ -8592,10 +8809,19 @@ const VideoFeed = (() => {
         if (next && !next.src && next.dataset.src) { next.preload = 'auto'; next.src = next.dataset.src; }
         video.muted = muted;
         video.play().catch(() => {});
+        countView(e.target.dataset.id);
       } else {
         video.pause();
       }
     });
+  }
+
+  function countView(id) {
+    if (!id || viewed.has(id)) return;
+    viewed.add(id);
+    api(`/api/feed-video/${id}/view`, { method: 'POST' }).then(r => r.json()).then(d => {
+      if (d.ok) { const n = container.querySelector(`.feed-slide[data-id="${id}"] .feed-views`); if (n) n.textContent = '👁 ' + fmt(d.views); }
+    }).catch(() => {});
   }
 
   function playVisible() {
@@ -8617,7 +8843,23 @@ const VideoFeed = (() => {
     container?.querySelectorAll('video').forEach(v => v.pause());
   }
 
-  return { load, pauseAll, playVisible };
+  function retexte() {
+    // Recharge les libellés si la feuille de statut est affichée.
+    if (container?.classList.contains('feed-status-mode')) {
+      if (!loaded) setStatus(t().feedLoading, '⏳');
+      else if (!videos.length) setStatus(t().feedEmpty);
+    }
+  }
+
+  // Boutons des modales (une seule fois).
+  document.getElementById('videocomments-send')?.addEventListener('click', sendComment);
+  document.getElementById('videocomments-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') sendComment(); });
+  document.getElementById('videocomments-close')?.addEventListener('click', () => document.getElementById('overlay-videocomments')?.classList.add('hidden'));
+  document.getElementById('videosubmit-send')?.addEventListener('click', sendSubmit);
+  document.getElementById('videosubmit-close')?.addEventListener('click', () => document.getElementById('overlay-videosubmit')?.classList.add('hidden'));
+  document.getElementById('feed-submit-fab')?.addEventListener('click', openSubmit);
+
+  return { load, pauseAll, playVisible, retexte, openSubmit };
 })();
 window._videoFeed = VideoFeed;
 

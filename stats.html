@@ -103,6 +103,10 @@
     .chart .bar:hover::after { content:attr(data-tip); position:absolute; bottom:100%; left:50%; transform:translateX(-50%); background:var(--card2); border:1px solid var(--border); border-radius:6px; padding:2px 7px; font-size:.68rem; white-space:nowrap; z-index:5; }
     .ann-row { display:flex; gap:8px; align-items:center; padding:8px 11px; border:1px solid var(--border); border-radius:10px; margin-bottom:6px; background:var(--card); font-size:.84rem; }
     .ann-row .txt { flex:1; min-width:0; }
+    .vid-cmts { margin-top:6px; display:flex; flex-direction:column; gap:3px; }
+    .vid-cmt { font-size:.78rem; padding:3px 6px; background:rgba(255,255,255,.04); border-radius:6px; display:flex; gap:6px; align-items:center; }
+    .vid-cmt b { color:var(--accent, #a78bff); }
+    .vid-cmt button { margin-left:auto; }
     .fraud-row { padding:8px 11px; border:1px solid rgba(248,113,113,.4); border-radius:10px; margin-bottom:6px; background:rgba(248,113,113,.06); font-size:.83rem; }
     .bot-q { padding:8px 11px; border:1px solid var(--border); border-radius:10px; margin-bottom:6px; font-size:.83rem; background:var(--card); display:flex; justify-content:space-between; gap:10px; align-items:center; }
     .bot-q .t { color:var(--muted); font-size:.72rem; white-space:nowrap; margin-left:auto; }
@@ -180,6 +184,7 @@
             <li><strong>⚡ Offre flash</strong> : met un cosmétique en promo quelques heures (bannière + notification automatique).</li>
             <li><strong>🎯 Défis personnalisés</strong> : crée tes propres défis (quotidiens ou permanents) qui apparaissent chez tous les joueurs.</li>
             <li><strong>🛍️ Catalogue boutique</strong> : liste de tous les cosmétiques. Mets-les en boutique ou retire-les, avec un compte à rebours optionnel. Les émotes sont gérées ici aussi (elles s'affichent dans la carte Émotes du profil, pas dans la boutique d'objets).</li>
+            <li><strong>🎬 Vidéos</strong> : le feed façon TikTok de l'onglet Vidéos. Colle un lien direct de vidéo (mp4) pour l'ajouter. Tu peux l'afficher/masquer, la réordonner (▲▼), la supprimer, voir ses compteurs (likes, vues, commentaires, partages) et supprimer un commentaire. Les vidéos proposées par les joueurs arrivent « en attente » (pastille orange, en tête) : clique <em>Approuver</em> pour les publier.</li>
             <li><strong>😴 Joueurs qui décrochent</strong> : joueurs sans activité depuis 7 jours et plus. Clique pour ouvrir leur fiche et leur offrir un cadeau de retour.</li>
             <li><strong>🚨 Alertes fraude</strong> : signalées quand plusieurs comptes tout neufs naissent de la même connexion (IP) en 24h.</li>
             <li><strong>📋 Journal d'audit</strong> : l'historique de TOUTES tes actions admin (cadeaux, restitutions, annonces, push, offres flash), pour ne jamais te demander « est-ce que j'ai déjà fait ça ? ».</li>
@@ -252,6 +257,21 @@
           <button id="btn-chal-create" class="green">Créer</button>
         </div>
         <div id="chal-list"></div>
+      </section>
+
+      <section>
+        <h2>🎬 Vidéos <span id="vid-pending-pill" class="pill warn hidden"></span></h2>
+        <p class="sub" style="margin-top:-4px;">Le feed façon TikTok de l'onglet Vidéos. Ajoute un lien direct de vidéo (mp4) ; tu peux activer/masquer, réordonner (▲▼), supprimer, et approuver les vidéos proposées par les joueurs (en attente, en tête).</p>
+        <div class="field">
+          <input id="vid-url" placeholder="Lien de la vidéo (https://…mp4)" style="min-width:220px" />
+          <input id="vid-titre" placeholder="Titre" maxlength="200" />
+        </div>
+        <div class="field">
+          <input id="vid-auteur" placeholder="Auteur" maxlength="40" style="max-width:150px" />
+          <input id="vid-desc" placeholder="Description (optionnel)" maxlength="400" />
+          <button id="btn-vid-create" class="green">Ajouter</button>
+        </div>
+        <div id="vid-list"></div>
       </section>
 
       <section>
@@ -695,6 +715,83 @@
       catch (err) { b.disabled = false; }
     });
 
+    // ── Vidéos (feed) ──
+    var VID_CACHE = [];
+    async function loadVideos() {
+      try {
+        var d = await (await api('/admin/feed-videos')).json();
+        VID_CACHE = Array.isArray(d) ? d : [];
+        renderVideos();
+      } catch (e) {}
+    }
+    function renderVideos() {
+      var pend = VID_CACHE.filter(function (v) { return v.pending; }).length;
+      var pill = $('vid-pending-pill');
+      if (pend) { pill.textContent = pend + ' en attente'; pill.classList.remove('hidden'); }
+      else pill.classList.add('hidden');
+      if (!VID_CACHE.length) { $('vid-list').innerHTML = '<p class="empty">Aucune vidéo.</p>'; return; }
+      $('vid-list').innerHTML = VID_CACHE.map(function (v) {
+        var tag = v.pending ? '<span class="pill warn">📥 En attente' + (v.submittedName ? ' · ' + esc(v.submittedName) : '') + '</span>'
+          : (v.actif ? '<span class="pill">👁 Visible</span>' : '<span class="pill" style="opacity:.6">🚫 Masquée</span>');
+        var stats = '❤️ ' + (v.likeCount || 0) + ' · 👁 ' + (v.views || 0) + ' · 💬 ' + (v.comments ? v.comments.length : 0) + ' · 🔗 ' + (v.shares || 0);
+        var actions = '';
+        if (v.pending) actions += '<button class="green small" data-vidapprove="' + esc(v.id) + '">Approuver</button>';
+        else {
+          actions += '<button class="small" data-vidup="' + esc(v.id) + '">▲</button>';
+          actions += '<button class="small" data-viddown="' + esc(v.id) + '">▼</button>';
+          actions += '<button class="ghost small" data-vidtoggle="' + esc(v.id) + '">' + (v.actif ? 'Masquer' : 'Afficher') + '</button>';
+        }
+        actions += '<button class="red small" data-viddel="' + esc(v.id) + '">Suppr.</button>';
+        var cmts = (v.comments && v.comments.length) ? '<div class="vid-cmts">' + v.comments.map(function (c) {
+          return '<div class="vid-cmt"><b>' + esc(c.name || 'Anonyme') + '</b> ' + esc(c.text) + ' <button class="red small" data-vidcmt="' + esc(v.id) + '|' + esc(c.id) + '">✕</button></div>';
+        }).join('') + '</div>' : '';
+        return '<div class="ann-row" style="flex-wrap:wrap">'
+          + '<span class="txt" style="flex:1 1 220px">' + tag + ' <b>' + esc(v.titre || '(sans titre)') + '</b>'
+          + (v.auteur ? ' <span class="muted">@' + esc(v.auteur) + '</span>' : '')
+          + '<br><span class="muted" style="font-size:.8rem">' + stats + ' · <a href="' + esc(v.url) + '" target="_blank" rel="noopener">lien</a></span>'
+          + cmts + '</span>'
+          + '<span style="display:flex;gap:4px;flex-wrap:wrap;align-items:flex-start">' + actions + '</span></div>';
+      }).join('');
+    }
+    $('btn-vid-create').addEventListener('click', async function () {
+      var body = { url: $('vid-url').value.trim(), titre: $('vid-titre').value.trim(), auteur: $('vid-auteur').value.trim(), description: $('vid-desc').value.trim() };
+      if (!/^https?:\/\//i.test(body.url)) { alert('Lien invalide (http/https requis).'); return; }
+      this.disabled = true;
+      try {
+        var r = await api('/admin/feed-video', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        var d = await r.json();
+        if (d.ok) { $('vid-url').value = ''; $('vid-titre').value = ''; $('vid-auteur').value = ''; $('vid-desc').value = ''; }
+        else alert(d.error || 'Erreur');
+        await loadVideos();
+      } catch (e) {}
+      this.disabled = false;
+    });
+    async function vidPatch(id, fields) {
+      await api('/admin/feed-video/' + encodeURIComponent(id), { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(fields) });
+      await loadVideos();
+    }
+    $('vid-list').addEventListener('click', async function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.vidapprove) { b.disabled = true; return vidPatch(b.dataset.vidapprove, { approve: true }); }
+      if (b.dataset.vidtoggle) { var v = VID_CACHE.find(function (x) { return x.id === b.dataset.vidtoggle; }); b.disabled = true; return vidPatch(b.dataset.vidtoggle, { actif: !(v && v.actif) }); }
+      if (b.dataset.vidup || b.dataset.viddown) {
+        var id = b.dataset.vidup || b.dataset.viddown;
+        var pub = VID_CACHE.filter(function (x) { return !x.pending; }).sort(function (a, c) { return a.ordre - c.ordre; });
+        var i = pub.findIndex(function (x) { return x.id === id; });
+        var j = b.dataset.vidup ? i - 1 : i + 1;
+        if (i < 0 || j < 0 || j >= pub.length) return;
+        b.disabled = true;
+        // échange les ordres des deux vidéos
+        var oa = pub[i].ordre, ob = pub[j].ordre;
+        if (oa === ob) { ob = oa + (b.dataset.vidup ? -1 : 1); }
+        await api('/admin/feed-video/' + encodeURIComponent(pub[i].id), { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ordre: ob }) });
+        await api('/admin/feed-video/' + encodeURIComponent(pub[j].id), { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ordre: oa }) });
+        return loadVideos();
+      }
+      if (b.dataset.viddel) { if (!confirm('Supprimer cette vidéo ?')) return; b.disabled = true; await api('/admin/feed-video/' + encodeURIComponent(b.dataset.viddel), { method:'DELETE' }); return loadVideos(); }
+      if (b.dataset.vidcmt) { var parts = b.dataset.vidcmt.split('|'); b.disabled = true; await api('/admin/feed-video/' + encodeURIComponent(parts[0]) + '/comment/' + encodeURIComponent(parts[1]), { method:'DELETE' }); return loadVideos(); }
+    });
+
     // ── Catalogue boutique ──
     var COSM_CACHE = [];
     async function loadCosmetics() {
@@ -806,7 +903,7 @@
         showDash(); render(d);
         $('live-txt').textContent = 'à jour · ' + new Date().toLocaleTimeString('fr-FR');
         startTimer();
-        loadChallenges(); loadCosmetics();
+        loadChallenges(); loadCosmetics(); loadVideos();
       } catch (e) {
         $('login-err').textContent = e.message || 'Erreur.';
         localStorage.removeItem('libero_admin_key');

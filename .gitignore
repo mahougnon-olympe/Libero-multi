@@ -17,3 +17,12 @@ integration-maketou-libs.md
 emar
 node
 sdft
+# Contexte local pour Claude Code (non versionne)
+CLAUDE.md
+
+# Permissions locales Claude Code (personnel)
+.claude/settings.local.json
+
+# Artefacts outillage Claude Code (skills installes localement)
+.claude/
+skills-lock.json
