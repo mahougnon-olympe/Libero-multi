@@ -3698,6 +3698,7 @@ function showTriviaQuestion({ questionNum, totalQuestions, question, choices, ti
 function onTriviaSkip() {
   if (triviaAnsweredThis) return;
   triviaAnsweredThis = true;
+  _updateBoostHintBtn();
   $('tg-choices').querySelectorAll('.tg-choice').forEach(b => b.disabled = true);
   const skip = $('tg-skip');
   if (skip) skip.disabled = true;
@@ -3712,6 +3713,7 @@ function onTriviaSkip() {
 function onTriviaChoice(choice, btn) {
   if (triviaAnsweredThis) return;
   triviaAnsweredThis = true; triviaChoiceSelected = choice;
+  _updateBoostHintBtn();
   const _sk = $('tg-skip'); if (_sk) _sk.disabled = true;
   $('tg-choices').querySelectorAll('.tg-choice').forEach(b => b.disabled = true);
   btn.classList.add('wrong'); // will be corrected at reveal
@@ -3726,6 +3728,7 @@ function onTriviaChoice(choice, btn) {
 function onTriviaTimeUp() {
   if (triviaAnsweredThis) return;
   triviaAnsweredThis = true;
+  _updateBoostHintBtn();
   const _sk = $('tg-skip'); if (_sk) _sk.disabled = true;
   $('tg-choices').querySelectorAll('.tg-choice').forEach(b => b.disabled = true);
   if (triviaIsSolo) soloReveal(null);
@@ -3803,6 +3806,7 @@ function renderTriviaScores(scores, gains) {
 function showTriviaFinished(scores) {
   stopTriviaTimer();
   const _skip = $('tg-skip'); if (_skip) _skip.classList.add('hidden');
+  $('btn-boost-hint')?.classList.add('hidden'); // plus d'indice utilisable une fois le quiz fini
   $('tg-choices').innerHTML = '';
   $('tg-reveal').classList.add('hidden');
   const medals = ['🥇','🥈','🥉'];
@@ -6312,11 +6316,24 @@ function _showHonorModal(honorId) {
 }
 
 // ── Libs : boost indice quiz ──────────────────────────────────────────────────
+// Le bouton d'indice n'a de sens que pendant qu'on répond à une question :
+// écran quiz actif, quiz non terminé, et question pas encore répondue.
+function _triviaQuestionActive() {
+  const scr = document.getElementById('screen-trivia-game');
+  if (!scr || !scr.classList.contains('active')) return false;
+  const fin = document.getElementById('tg-finished');
+  if (fin && !fin.classList.contains('hidden')) return false; // quiz terminé
+  if (triviaAnsweredThis) return false;                        // déjà répondu
+  return true;
+}
+
 function _updateBoostHintBtn() {
   const btn = $('btn-boost-hint');
   if (!btn) return;
   btn.textContent = `${t().boostHintBtn} (${pendingHintCharges})`;
-  if (pendingHintCharges > 0) {
+  // Caché s'il n'y a plus d'indices OU si aucune question n'est en cours
+  // (notamment sur l'écran de fin de quiz : plus d'indice défalquable).
+  if (pendingHintCharges > 0 && _triviaQuestionActive()) {
     btn.classList.remove('hidden');
     btn.disabled = hintsUsedThisQ >= 2;
   } else {
@@ -6325,7 +6342,7 @@ function _updateBoostHintBtn() {
 }
 
 $('btn-boost-hint').addEventListener('click', () => {
-  if (pendingHintCharges <= 0 || hintsUsedThisQ >= 2) return;
+  if (pendingHintCharges <= 0 || hintsUsedThisQ >= 2 || !_triviaQuestionActive()) return;
   hintsUsedThisQ++;
   _updateBoostHintBtn();
   if (triviaIsSolo) {
