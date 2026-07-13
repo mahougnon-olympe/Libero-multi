@@ -4169,3 +4169,13 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 .idea-badge-planned  { background: rgba(99,102,241,.2);  color: var(--accent); }
 .idea-badge-done     { background: rgba(52,211,153,.2);  color: #34d399; }
 .idea-badge-rejected { background: rgba(248,113,113,.18); color: #f87171; }
+
+/* ── Icones SVG d'interface (remplacent les emojis, couleurs du theme) ── */
+.nav-tab-icon svg { width: 19px; height: 19px; display: block; }
+.landing-icon svg { width: 40px; height: 40px; display: block; margin: 0 auto; }
+.pnc-icon svg     { width: 24px; height: 24px; display: block; }
+.nav-tab-icon:has(svg), .landing-icon:has(svg), .pnc-icon:has(svg) { line-height: 0; }
+/* Les icones des cartes prennent l'accent indigo ; la nav suit la couleur de l'onglet. */
+.landing-icon { color: var(--accent); }
+.pnc-icon     { color: var(--accent); }
+.profile-nav-card-danger .pnc-icon { color: var(--red); }
