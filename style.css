@@ -3803,3 +3803,20 @@ html.light .ludo-cell { background: #fff; border: 1px solid #e2e8f0; }
   padding: 2px 7px; border-radius: 8px;
   pointer-events: none;
 }
+
+/* ── Indication de difficulte du quiz ── */
+.trivia-diff-hint { font-size: .72rem; opacity: .75; margin: 4px 0 8px; text-align: center; }
+
+/* ── Rayon Emotes du profil (achat + équipement) ── */
+.locker-emote-slots { opacity: .7; font-weight: 600; font-size: .78rem; margin-left: 6px; }
+.locker-emote-buy {
+  border: none; border-radius: 10px; cursor: pointer;
+  background: linear-gradient(135deg,#6366f1,#a855f7); color: #fff;
+  font-weight: 800; font-size: .8rem; padding: 7px 12px;
+  transition: transform .1s, box-shadow .15s;
+}
+.locker-emote-buy:hover  { box-shadow: 0 0 14px rgba(99,102,241,.7); }
+.locker-emote-buy:active { transform: scale(.94); }
+.locker-emote-buy:disabled { opacity: .5; cursor: default; }
+.locker-emote-locked .locker-item-preview { opacity: .82; }
+.locker-emote-timer { display: block; font-size: .62rem; color: #fbbf24; font-weight: 800; margin-top: 2px; }

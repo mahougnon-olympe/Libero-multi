@@ -481,6 +481,7 @@ const DICT = {
       invalid:'Choisis un pseudo d\'au moins 2 caractères.',
     },
     emotesCardTitle:'Émotes', emotesCardSub:'20 réactions à envoyer en partie (5 équipées max)',
+    emoteUnavailable:'Cette émote n\'est plus disponible.',
     settingsCardTitle:'Réglages', settingsCardSub:'Langue, thème, sons, musique, serpent',
     emojirain:{
       cardTitle:"Pluie d'émojis", cardSub:'Choisis le thème ou tes propres émojis',
@@ -589,7 +590,8 @@ const DICT = {
     restartRequestedPrompt:'Ton adversaire veut rejouer.',
     restartDeclined:'L\'adversaire a refusé la revanche.',
     btnCancel:'Annuler', btnAccept:'Accepter', btnRefuse:'Refuser',
-    diffLabels:{ easy:'Facile', medium:'Moyen', hard:'Difficile' },
+    diffLabels:{ easy:'Facile', medium:'Moyen', hard:'Difficile', extreme:'Extrême' },
+    diffHints:{ '':'🎲 Mixte : questions de tous les niveaux mélangées.', easy:'😊 Facile : les grands classiques, parfait pour débuter.', medium:'🎯 Moyen : culture générale de bon niveau.', hard:'💀 Difficile : questions pointues pour connaisseurs.', extreme:'🔥 Extrême : questions pointues ET 15 secondes chrono par question !' },
     triviaHomeTitle:'🧠 Culture Générale',
     triviaHomeSubtitle:'Choisis un ou plusieurs thèmes et joue !',
     triviaNamePh:'Ton pseudo (obligatoire)',
@@ -906,7 +908,7 @@ const DICT = {
         { icon:'⭐', title:'Niveaux et XP', desc:"Chaque partie te rapporte de l'<strong>XP</strong> (+25 par partie, bonus en cas de <strong>victoire</strong> et selon ton score au <strong>quiz</strong>). Ton <strong>niveau</strong> s'affiche en haut de ton Profil avec une barre de progression. À chaque niveau gagné tu reçois des <strong>⚡ Libs</strong> (de plus en plus), et les paliers <strong>10, 25 et 50</strong> offrent un gros bonus (jusqu'à <strong>+5000 ⚡</strong>)." },
         { icon:'🧠', title:'Test de QI', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Mon QI</strong> se débloque après <strong>10 quiz terminés</strong> (solo ou en groupe). Le test : <strong>15 questions de logique</strong>, 30 secondes chacune. Ta précision et ta vitesse donnent un <strong>QI estimé</strong> (c'est une estimation ludique, pas un test médical !). Tu peux le repasser tous les <strong>3 jours</strong> et <strong>partager</strong> ton score à tes amis." },
         { icon:'🎡', title:'Roue de la fortune', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Roue de la fortune</strong> t'offre <strong>un tour gratuit par jour</strong> : de <strong>5 à 250 ⚡</strong> à gagner à chaque tour. Il faut un pseudo pour jouer. Reviens chaque jour pour ton tour gratuit !" },
-        { icon:'👥', title:'Mes amis', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Mes amis</strong> : envoie une <strong>demande d'ami</strong> avec le <strong>code ami</strong> de l'autre (le même code que dans « Inviter un ami »), ou en cliquant un <strong>pseudo dans les classements</strong>. L'autre <strong>accepte ou refuse</strong> ; une fois amis, vous êtes chacun dans la liste de l'autre. Tu vois qui est <strong>en ligne</strong> (point vert), tu peux lui <strong>offrir des Libs</strong> 🎁 (10 à 500 ⚡, max 500 offerts par jour) et le <strong>défier</strong> depuis les zones <strong>Jeux classiques</strong> et <strong>Quiz</strong> (bouton ⚔️ Défier un ami : tu choisis le jeu, les thèmes et la mise). Bonus : parrain et filleul deviennent amis automatiquement. Jusqu'à 30 amis." },
+        { icon:'👥', title:'Mes amis', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Mes amis</strong> : envoie une <strong>demande d'ami</strong> avec le <strong>code ami</strong> de l'autre (le même code que dans « Inviter un ami »), ou en cliquant un <strong>pseudo dans les classements</strong>. L'autre <strong>accepte ou refuse</strong> (les <strong>demandes en attente</strong> s'affichent dans la fenêtre Mes amis) ; une fois amis, vous êtes chacun dans la liste de l'autre. <strong>Retirer un ami</strong> ne le retire que de <strong>ta</strong> liste. Tu vois qui est <strong>en ligne</strong> (point vert), tu peux lui <strong>offrir des Libs</strong> 🎁 (10 à 500 ⚡, max 500 offerts par jour) et le <strong>défier</strong> depuis les zones <strong>Jeux classiques</strong> et <strong>Quiz</strong> (bouton ⚔️ Défier un ami : tu choisis le jeu, les thèmes et la mise). Bonus : parrain et filleul deviennent amis automatiquement. Jusqu'à 30 amis." },
         { icon:'👑', title:'Pass VIP', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Pass VIP</strong> : pour <strong>2000 ⚡</strong>, deviens VIP pendant <strong>30 jours</strong>. Avantages : badge <strong>👑 VIP</strong> sur ton profil et <strong>+20% de Libs</strong> sur tes gains (série de connexion, défis, roue de la fortune, tournoi du samedi). Rachète pour prolonger (maximum <strong>3 mois</strong> de VIP en réserve)." },
         { icon:'🎲', title:'Ludo', desc:"Le <strong>Ludo</strong> classique en 1 contre 1 : 4 pions chacun, lance le <strong>dé</strong>, il faut un <strong>6</strong> pour sortir un pion. Atterrir sur un pion adverse le <strong>capture</strong> (retour à la base), sauf sur les cases <strong>étoilées ★</strong>. Un 6 ou une capture fait <strong>rejouer</strong>. Fais faire le tour complet à tes 4 pions et remonte la colonne d'arrivée pour gagner. Jouable contre un ami (avec <strong>mise</strong> possible) ou contre le bot." },
         { icon:'🌱', title:'Quiz révisions', desc:"Trois thèmes de quiz <strong>spécial école</strong> sont disponibles : <strong>🌱 SVT</strong>, <strong>🇬🇧 Anglais</strong> et <strong>🇧🇯 Bénin</strong> (histoire et géographie du pays). Révise en t'amusant, seul ou en salon avec ta classe ! Trois niveaux de difficulté comme pour les autres thèmes." },
@@ -948,11 +950,11 @@ const DICT = {
         { icon:'🌈', title:'Packs d\'émojis', desc:"Remplace le jeu d'émojis de la pluie animée au premier chargement de la page. Exemples : Pack Fête 🎉, Pack Gaming 🎮, Pack Cosmos 🌌. Rareté : Commun à Rare." },
         { icon:'🏆', title:'Bannières de victoire', desc:"Personnalise le style et l'animation de la bannière de fin de partie (victoire). Visible à l'écran de résultat des jeux classiques et du quiz. Exemples : Triomphe Néon, Flammes de Champion, Couronnement. Rareté : Épique à Légendaire." },
         { icon:'🔊', title:'Packs de sons', desc:"Remplace certains sons du site (achat, victoire, clic, changement du compteur Libs) par un set sonore thématique. Les packs respectent ta préférence de son (⚙️ → Sons). Exemples : Rétro Arcade, Cristal, Épique. Rareté : Rare à Épique." },
-        { icon:'😎', title:'Émotes', desc:"<strong>20 réactions rapides</strong> à envoyer dans le chat des parties classiques multi, dont <strong>3 gratuites</strong> pour tous (👋 Salut, 👍 GG, 😢 Sniff). Gère-les depuis l'onglet <strong>Profil → carte Émotes</strong> : tu peux en <strong>équiper jusqu'à 5</strong>, qui apparaissent dans la barre de réactions en jeu. Les autres s'achètent en Libs (de 10 à 100 ⚡)." },
+        { icon:'😎', title:'Émotes', desc:"<strong>20 réactions rapides</strong> à envoyer dans le chat des parties classiques multi, dont <strong>3 gratuites</strong> pour tous (👋 Salut, 👍 GG, 😢 Sniff). Gère-les depuis l'onglet <strong>Profil → carte Émotes</strong> : tu peux en <strong>équiper jusqu'à 5</strong>, qui apparaissent dans la barre de réactions en jeu. Les autres <strong>s'achètent directement dans cette carte Émotes</strong> (de 10 à 100 ⚡) : les émotes ne sont pas vendues dans la boutique d'objets." },
         { icon:'🎓', title:'Tutoriel', desc:"À ta première visite, un guide apparaît automatiquement pour te présenter chaque fonctionnalité écran par écran. Une fois une étape vue, elle ne s'affiche plus. Pour tout revoir depuis le début, vide le cache de ton navigateur (localStorage)." },
       ],
       quiz:[
-        { icon:'🧠', title:'Culture Générale', desc:"Réponds à des questions à choix multiple. Sélectionne <strong>un ou plusieurs thèmes</strong> parmi 12 catégories : Histoire, Sciences, Cinéma, Musique, etc. Les questions sont mélangées si tu choisis plusieurs thèmes." },
+        { icon:'🧠', title:'Culture Générale', desc:"Réponds à des questions à choix multiple. Sélectionne <strong>un ou plusieurs thèmes</strong> parmi 15 catégories (Histoire, Sciences, Cinéma, Musique, mais aussi <strong>SVT, Anglais, Bénin</strong> pour réviser). Les questions sont mélangées si tu choisis plusieurs thèmes. Choisis ta <strong>difficulté</strong> : Facile, Moyen, Difficile ou <strong>🔥 Extrême</strong> (questions pointues ET 15 secondes chrono par question au lieu de 30)." },
         { icon:'🌐', title:'Langue', desc:"Change la langue via le bouton <strong>⚙️</strong> en haut à droite → <strong>Langue</strong>. En mode <strong>FR</strong>, les questions sont traduites en français (les termes techniques restent en anglais si nécessaire). En mode <strong>EN</strong>, les questions sont en anglais d'origine. Le site détecte automatiquement ta langue au premier lancement." },
         { icon:'▶', title:'Mode Solo', desc:"Sélectionne un ou plusieurs thèmes et clique <em>Solo</em>. Tu joues seul à ton rythme. Ton score est automatiquement ajouté au classement à la fin." },
         { icon:'👥', title:'Mode Multijoueur', desc:"Clique <em>Créer un salon</em> (2 à 6 joueurs). Partage le code à 4 lettres. L'hôte lance la partie quand tout le monde est prêt. Tout le monde voit les mêmes questions en même temps." },
@@ -1143,6 +1145,7 @@ const DICT = {
       invalid:'Pick a nickname of at least 2 characters.',
     },
     emotesCardTitle:'Emotes', emotesCardSub:'20 reactions to send in game (5 equipped max)',
+    emoteUnavailable:'This emote is no longer available.',
     settingsCardTitle:'Settings', settingsCardSub:'Language, theme, sounds, music, snake',
     emojirain:{
       cardTitle:'Emoji rain', cardSub:'Pick a theme or your own emojis',
@@ -1251,7 +1254,8 @@ const DICT = {
     restartRequestedPrompt:'Your opponent wants a rematch.',
     restartDeclined:'Your opponent declined the rematch.',
     btnCancel:'Cancel', btnAccept:'Accept', btnRefuse:'Decline',
-    diffLabels:{ easy:'Easy', medium:'Medium', hard:'Hard' },
+    diffLabels:{ easy:'Easy', medium:'Medium', hard:'Hard', extreme:'Extreme' },
+    diffHints:{ '':'🎲 Mixed: questions from all levels shuffled.', easy:'😊 Easy: the great classics, perfect to start.', medium:'🎯 Medium: solid general knowledge.', hard:'💀 Hard: sharp questions for connoisseurs.', extreme:'🔥 Extreme: sharp questions AND a 15-second timer per question!' },
     triviaHomeTitle:'🧠 General Knowledge',
     triviaHomeSubtitle:'Choose one or more themes and play!',
     triviaNamePh:'Your username (required)',
@@ -1568,7 +1572,7 @@ const DICT = {
         { icon:'⭐', title:'Levels and XP', desc:"Every game earns you <strong>XP</strong> (+25 per game, bonus for a <strong>win</strong> and for your <strong>quiz</strong> score). Your <strong>level</strong> shows at the top of your Profile with a progress bar. Each new level rewards you with <strong>⚡ Libs</strong> (more and more), and milestones <strong>10, 25 and 50</strong> grant a big bonus (up to <strong>+5000 ⚡</strong>)." },
         { icon:'🧠', title:'IQ test', desc:"In your <strong>Profile</strong>, the <strong>My IQ</strong> card unlocks after <strong>10 finished quizzes</strong> (solo or group). The test: <strong>15 logic questions</strong>, 30 seconds each. Your accuracy and speed give an <strong>estimated IQ</strong> (a playful estimate, not a medical test!). You can retake it every <strong>3 days</strong> and <strong>share</strong> your score with friends." },
         { icon:'🎡', title:'Wheel of fortune', desc:"In your <strong>Profile</strong>, the <strong>Wheel of fortune</strong> card gives you <strong>one free spin a day</strong>: win <strong>5 to 250 ⚡</strong> every spin. A nickname is required. Come back every day for your free spin!" },
-        { icon:'👥', title:'My friends', desc:"In your <strong>Profile</strong>, the <strong>My friends</strong> card: send a <strong>friend request</strong> with the other player's <strong>friend code</strong> (the same code as in \"Invite a friend\"), or by clicking a <strong>name in the leaderboards</strong>. They <strong>accept or decline</strong>; once friends, you are in each other's list. See who is <strong>online</strong> (green dot), <strong>gift them Libs</strong> 🎁 (10 to 500 ⚡, max 500 gifted per day) and <strong>challenge them</strong> from the <strong>Classic Games</strong> and <strong>Quiz</strong> areas (⚔️ Challenge a friend button: you pick the game, themes and stake). Bonus: sponsor and referred player become friends automatically. Up to 30 friends." },
+        { icon:'👥', title:'My friends', desc:"In your <strong>Profile</strong>, the <strong>My friends</strong> card: send a <strong>friend request</strong> with the other player's <strong>friend code</strong> (the same code as in \"Invite a friend\"), or by clicking a <strong>name in the leaderboards</strong>. They <strong>accept or decline</strong> (pending <strong>requests</strong> show in the My friends window); once friends, you are in each other's list. <strong>Removing a friend</strong> only removes them from <strong>your</strong> list. See who is <strong>online</strong> (green dot), <strong>gift them Libs</strong> 🎁 (10 to 500 ⚡, max 500 gifted per day) and <strong>challenge them</strong> from the <strong>Classic Games</strong> and <strong>Quiz</strong> areas (⚔️ Challenge a friend button: you pick the game, themes and stake). Bonus: sponsor and referred player become friends automatically. Up to 30 friends." },
         { icon:'👑', title:'VIP Pass', desc:"In your <strong>Profile</strong>, the <strong>VIP Pass</strong> card: for <strong>2000 ⚡</strong>, become VIP for <strong>30 days</strong>. Perks: a <strong>👑 VIP</strong> badge on your profile and <strong>+20% Libs</strong> on your earnings (login streak, challenges, wheel of fortune, Saturday tournament). Buy again to extend (maximum <strong>3 months</strong> of VIP stored)." },
         { icon:'🎲', title:'Ludo', desc:"Classic <strong>Ludo</strong> in 1 vs 1: 4 pawns each, roll the <strong>dice</strong>, you need a <strong>6</strong> to leave the base. Landing on an opponent's pawn <strong>captures</strong> it (back to base), except on <strong>starred ★</strong> squares. A 6 or a capture lets you <strong>play again</strong>. Take all 4 pawns around the board and up the home column to win. Play against a friend (with an optional <strong>stake</strong>) or against the bot." },
         { icon:'🌱', title:'Revision quizzes', desc:"Three <strong>school-focused</strong> quiz themes are available: <strong>🌱 Biology</strong>, <strong>🇬🇧 English</strong> and <strong>🇧🇯 Benin</strong> (the country's history and geography). Revise while having fun, solo or in a room with your class! Three difficulty levels like the other themes." },
@@ -1610,11 +1614,11 @@ const DICT = {
         { icon:'🌈', title:'Emoji Packs', desc:"Replace the emoji set in the animated emoji rain on the first page load. Examples: Party Pack 🎉, Gaming Pack 🎮, Cosmos Pack 🌌. Rarity: Common to Rare." },
         { icon:'🏆', title:'Victory Banners', desc:"Customize the style and animation of the end-of-game banner (win screen). Shown at the result screen of classic games and quizzes. Examples: Neon Triumph, Champion Flames, Coronation. Rarity: Epic to Legendary." },
         { icon:'🔊', title:'Sound Packs', desc:"Replace some site sounds (purchase, win, click, Libs counter change) with a themed audio set. Packs respect your sound preference (⚙️ → Sound). Examples: Retro Arcade, Crystal, Epic. Rarity: Rare to Epic." },
-        { icon:'😎', title:'Emotes', desc:"<strong>20 quick reactions</strong> to send in the chat of classic multiplayer games, including <strong>3 free for everyone</strong> (👋 Hello, 👍 GG, 😢 Sniff). Manage them from the <strong>Profile tab → Emotes card</strong>: you can <strong>equip up to 5</strong>, shown in the in-game reaction bar. The rest cost Libs (10 to 100 ⚡)." },
+        { icon:'😎', title:'Emotes', desc:"<strong>20 quick reactions</strong> to send in the chat of classic multiplayer games, including <strong>3 free for everyone</strong> (👋 Hello, 👍 GG, 😢 Sniff). Manage them from the <strong>Profile tab → Emotes card</strong>: you can <strong>equip up to 5</strong>, shown in the in-game reaction bar. The rest are <strong>bought directly in this Emotes card</strong> (10 to 100 ⚡): emotes are not sold in the object shop." },
         { icon:'🎓', title:'Tutorial', desc:"On your first visit, a guide appears automatically to walk you through each feature screen by screen. Once a step has been seen, it won't show again. To restart from the beginning, clear your browser cache (localStorage)." },
       ],
       quiz:[
-        { icon:'🧠', title:'General Knowledge', desc:"Answer multiple-choice questions. Select <strong>one or more themes</strong> from 12 categories: History, Science, Movies, Music, etc. Questions are shuffled when multiple themes are chosen." },
+        { icon:'🧠', title:'General Knowledge', desc:"Answer multiple-choice questions. Select <strong>one or more themes</strong> from 15 categories (History, Science, Movies, Music, plus <strong>Biology, English, Benin</strong> to revise). Questions are shuffled when multiple themes are chosen. Pick your <strong>difficulty</strong>: Easy, Medium, Hard or <strong>🔥 Extreme</strong> (sharp questions AND a 15-second timer per question instead of 30)." },
         { icon:'🌐', title:'Language', desc:"Change the language via the <strong>⚙️</strong> button (top right) → <strong>Language</strong>. In <strong>FR</strong> mode, questions are translated into French (technical terms may stay in English). In <strong>EN</strong> mode, questions are in their original English. The site auto-detects your language on first load." },
         { icon:'▶', title:'Solo mode', desc:"Select one or more themes and click <em>Solo</em>. You play at your own pace. Your score is automatically added to the leaderboard at the end." },
         { icon:'👥', title:'Multiplayer mode', desc:"Click <em>Create a room</em> (2 to 6 players). Share the 4-letter code. The host starts the game when everyone is ready. All players see the same questions at the same time." },
@@ -1938,9 +1942,10 @@ function applyLang() {
   const tdl  = $('trivia-diff-label');    if (tdl)  tdl.textContent  = d.triviaDiffLabel;
   document.querySelectorAll('.diff-btn').forEach(b => {
     if (!b.dataset.diff) { b.textContent = d.diffMixed; return; }
-    const icons = { easy:'😊', medium:'🎯', hard:'💀' };
+    const icons = { easy:'😊', medium:'🎯', hard:'💀', extreme:'🔥' };
     b.textContent = `${icons[b.dataset.diff]} ${d.diffLabels[b.dataset.diff]}`;
   });
+  const tdh = $('trivia-diff-hint'); if (tdh) tdh.textContent = d.diffHints[selectedTriviaDifficulty] || d.diffHints[''];
   const tnbl = $('trivia-nb-label');      if (tnbl) tnbl.textContent = d.triviaNbLabel;
   const bso  = $('btn-solo-trivia');      if (bso)  bso.textContent  = d.btnSolo;
   const bct2 = $('btn-create-trivia');    if (bct2) bct2.textContent = d.btnCreateTrivia;
@@ -3240,6 +3245,11 @@ const EMOTE_DEFS = {
   'emote-omg':        { emoji:'😱', label:'Incroyable' },
   'emote-crown':      { emoji:'👑', label:'Roi' },
 };
+// Prix des emotes (3 gratuites, les autres payantes). Elles ne se vendent que
+// dans la section Emotes du profil, jamais dans la boutique d'objets.
+const EMOTE_PRICES = {
+  'emote-hello':0,'emote-gg':0,'emote-sad':0,'emote-wellplayed':10,'emote-laugh':15,'emote-think':15,'emote-cool':20,'emote-clap':25,'emote-fire':30,'emote-heart':30,'emote-cry':35,'emote-angry':40,'emote-shock':45,'emote-easy':50,'emote-eyes':55,'emote-skull':60,'emote-party':65,'emote-rocket':70,'emote-omg':80,'emote-crown':100,
+};
 
 function _renderEmoteBar() {
   const chatEl = $('chat');
@@ -3523,6 +3533,8 @@ document.querySelectorAll('#trivia-diff-row .diff-btn').forEach(btn => {
     document.querySelectorAll('#trivia-diff-row .diff-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     selectedTriviaDifficulty = btn.dataset.diff;
+    const hint = document.getElementById('trivia-diff-hint');
+    if (hint) hint.textContent = t().diffHints[selectedTriviaDifficulty] || t().diffHints[''];
     clearTriviaError();
   });
 });
@@ -3869,7 +3881,7 @@ function soloNextQuestion() {
     return;
   }
   const q = triviaQuestions[triviaCurrentQ];
-  showTriviaQuestion({ questionNum: triviaCurrentQ + 1, totalQuestions: triviaQuestions.length, question: q.question, choices: q.choices, timeLimit: 30, scores: null });
+  showTriviaQuestion({ questionNum: triviaCurrentQ + 1, totalQuestions: triviaQuestions.length, question: q.question, choices: q.choices, timeLimit: selectedTriviaDifficulty === 'extreme' ? 15 : 30, scores: null });
 }
 
 function soloReveal(myChoice) {
@@ -3884,7 +3896,7 @@ function soloReveal(myChoice) {
   }
   showTriviaReveal({ correct: q.correct, correctSocketIds: [], scores: null, myChoice, soloGain });
   triviaCurrentQ++;
-  saveTriviaSession({ isSolo: true, questions: triviaQuestions, currentQ: triviaCurrentQ, score: triviaScore });
+  saveTriviaSession({ isSolo: true, questions: triviaQuestions, currentQ: triviaCurrentQ, score: triviaScore, difficulty: selectedTriviaDifficulty });
   setTimeout(soloNextQuestion, 3000);
 }
 
@@ -4279,7 +4291,7 @@ socket.on('trivia-solo-questions', (questions) => {
   hintsUsedThisQ = 0;
   socket.emit('activate-quiz-boost', { playerId: getPlayerId() });
   triviaPaused = false;
-  saveTriviaSession({ isSolo: true, questions: triviaQuestions, currentQ: 0, score: 0 });
+  saveTriviaSession({ isSolo: true, questions: triviaQuestions, currentQ: 0, score: 0, difficulty: selectedTriviaDifficulty });
   $('tg-theme-label').textContent = getCategoryLabel(selectedTriviaCategories);
   $('tg-scores').innerHTML = '';
   $('tg-finished').classList.add('hidden');
@@ -4327,6 +4339,7 @@ socket.on('connect', () => {
     localStorage.removeItem('libero_referrer_code');
   }
   socket.emit('get-tournament');
+  socket.emit('get-shop-overrides'); // pour le rayon Emotes du profil (disponibilités/comptes à rebours)
   // Lien cadeau : échange automatique du code (une seule fois par chargement).
   if (pendingGiftCode && pendingGiftCode.length === 8 && !window._giftLinkTried) {
     window._giftLinkTried = true;
@@ -4363,6 +4376,7 @@ socket.on('connect', () => {
       triviaIsSolo     = true;
       triviaRoomCode   = null;
       triviaPaused     = false;
+      if (data.difficulty) selectedTriviaDifficulty = data.difficulty;
       $('tg-theme-label').textContent = '';
       $('tg-scores').innerHTML = '';
       $('tg-finished').classList.add('hidden');
@@ -4659,12 +4673,16 @@ socket.on('buy-cosmetic-result', ({ ok, cosmeticId, error } = {}) => {
     _showShopFeedback(t().shopCosmeticBought, '#22c55e');
     if (cosmeticId?.startsWith('emote-')) _renderEmoteBar();
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+    // Achat depuis le rayon Emotes du profil (casier) : rafraîchir la vue.
+    if (window._profileHub && document.body.classList.contains('screen-locker-active')) window._profileHub.renderLocker();
   } else {
     const msg = error === 'already_owned'  ? t().shopCosmeticAlreadyOwned
               : error === 'anonymous'      ? t().shopCosmeticAnon
               : error === 'insufficient'   ? t().shopInsufficient
+              : error === 'unavailable'    ? t().emoteUnavailable
               : t().shopBuyError;
-    _showShopFeedback(msg, '#ef4444');
+    if (document.body.classList.contains('screen-locker-active')) { showCursorSnakeToast(msg); if (window._profileHub) window._profileHub.renderLocker(); }
+    else _showShopFeedback(msg, '#ef4444');
   }
 });
 
@@ -5366,7 +5384,8 @@ function _renderShopItems() {
   [featuredItems, dailyItems, colorItems, fontItems, bgItems, nameEffectItems, titleItems, cursorSnakeItems, snakeSkinItems].forEach(_applyOv);
   Object.keys(_ov).forEach(oid => {
     const it = allItemsById[oid];
-    if (it && _ovState(it) === true && !KEPT_SHOP_TYPES.has(it.type) && !featuredItems.some(f => f.id === oid)) featuredItems.push(it);
+    // Les emotes ne remontent JAMAIS dans la boutique d'objets (rayon dedie dans le profil).
+    if (it && it.type !== 'emote' && _ovState(it) === true && !KEPT_SHOP_TYPES.has(it.type) && !featuredItems.some(f => f.id === oid)) featuredItems.push(it);
   });
 
   function tileHtml(item, large = false, extraBadge = '') {
@@ -9591,6 +9610,47 @@ const ProfileHub = (() => {
     ];
   }
 
+  function _emoteAvailable(id) {
+    if (EMOTE_PRICES[id] === 0) return true;
+    const o = (window._shopOverrides || {})[id];
+    if (o) return o.inShop && (!o.until || o.until > Date.now());
+    return true; // disponible par défaut ; l'admin peut retirer
+  }
+  function _renderEmoteStore(d) {
+    const owned = Array.isArray(ownedCosmetics) ? ownedCosmetics : [];
+    const equipped = Array.isArray(equippedEmotes) ? equippedEmotes : [];
+    const n = equipped.length;
+    const slotStr = currentLang === 'fr' ? `${n}/5 équipées` : `${n}/5 equipped`;
+    const ids = Object.keys(EMOTE_PRICES).filter(id => owned.includes(id) || _emoteAvailable(id));
+    const rows = ids.map(id => {
+      const def = EMOTE_DEFS[id] || {};
+      const name = d.shopEmoteNames[id] || id;
+      const isOwned = owned.includes(id);
+      const eq = equipped.includes(id);
+      const price = EMOTE_PRICES[id] || 0;
+      const o = (window._shopOverrides || {})[id];
+      const timer = (o && o.inShop && o.until && o.until > Date.now()) ? `<span class="locker-emote-timer">⏳ ${d.shopCountdown(o.until - Date.now())}</span>` : '';
+      let btn;
+      if (!isOwned) {
+        btn = `<button class="locker-emote-buy" data-buyemote="${_escHtml(id)}">${price} ⚡</button>`;
+      } else if (eq) {
+        btn = `<button class="locker-eq-btn on" data-equip="${_escHtml(id)}" data-type="emote" data-on="1">${_escHtml(d.lockerUnequip)}</button>`;
+      } else {
+        const full = n >= 5;
+        btn = `<button class="locker-eq-btn" data-equip="${_escHtml(id)}" data-type="emote" data-on="0" ${full ? 'disabled' : ''}>${_escHtml(d.lockerEquip)}</button>`;
+      }
+      return `<div class="locker-item${eq ? ' equipped' : ''}${isOwned ? '' : ' locker-emote-locked'}">
+        <div class="locker-item-preview"><div class="shop-emoji-preview">${def.emoji || '😊'}</div></div>
+        <span class="locker-item-name">${_escHtml(name)}${timer}</span>
+        ${btn}
+      </div>`;
+    }).join('');
+    return `
+      <button class="locker-back-cats" data-back="1">← ${_escHtml(d.lockerBackCats)}</button>
+      <h3 class="locker-detail-title">😎 ${_escHtml(d.lockerCats.emotes)} <small class="locker-emote-slots">${slotStr}</small></h3>
+      <div class="locker-items-grid">${rows}</div>`;
+  }
+
   function renderLocker() {
     const d  = t();
     const el = document.getElementById('locker-list');
@@ -9598,6 +9658,13 @@ const ProfileHub = (() => {
     if (!_named()) { el.innerHTML = `<p class="profile-anon">${_escHtml(d.profileAnon)}</p>`; return; }
     const owned = Array.isArray(ownedCosmetics) ? ownedCosmetics : [];
     const cats  = _lockerCategories(d);
+
+    // Vue détail EMOTES : rayon dédié (achat + équipement), la seule boutique
+    // où les émotes se vendent. Montre toutes les émotes disponibles.
+    if (_lockerCat === 'emote') {
+      el.innerHTML = _renderEmoteStore(d);
+      return;
+    }
 
     // Vue détail : les items d'une catégorie choisie (avec un retour aux cartes).
     if (_lockerCat) {
@@ -9652,6 +9719,12 @@ const ProfileHub = (() => {
     if (card && !card.classList.contains('locker-cat-card-static')) {
       _lockerCat = card.dataset.cat;
       renderLocker();
+      return;
+    }
+    const buyEmote = e.target.closest('.locker-emote-buy');
+    if (buyEmote) {
+      buyEmote.disabled = true;
+      socket.emit('buy-cosmetic', { cosmeticId: buyEmote.dataset.buyemote, playerId: getPlayerId() });
       return;
     }
     const eqBtn = e.target.closest('.locker-eq-btn');
@@ -10241,7 +10314,7 @@ socket.on('iq-progress', ({ done, unlocked } = {}) => {
       introEl.textContent = t().iqIntroReady;
       startBtn.classList.remove('hidden');
     } else {
-      introEl.textContent = t().iqIntroLocked(IQ_UNLOCK_QUIZZES);
+      introEl.textContent = t().iqIntroLocked(Math.max(1, IQ_UNLOCK_QUIZZES - (window._myIqQuizDone || 0)));
       startBtn.classList.add('hidden');
     }
     overlay.classList.remove('hidden');
@@ -10790,5 +10863,7 @@ socket.on('claim-challenge-result', ({ ok, reward, allDoneBonus } = {}) => {
   socket.on('shop-overrides', ({ overrides } = {}) => {
     window._shopOverrides = overrides || {};
     if (!document.getElementById('overlay-shop')?.classList.contains('hidden')) _renderShopItems();
+    // Rayon Emotes du profil : refléter les retraits/comptes à rebours de l'admin.
+    if (window._profileHub && document.body.classList.contains('screen-locker-active')) window._profileHub.renderLocker();
   });
 })();

@@ -985,9 +985,20 @@ function pruneShopOverrides() {
 }
 setInterval(pruneShopOverrides, 60_000);
 function shopHas(cosm) {
+  // Les emotes ne sont JAMAIS vendues dans la boutique d'objets : elles ont
+  // leur propre rayon dans la section Emotes du profil (voir emoteAvailable).
+  if (cosm.type === 'emote') return false;
   const o = shopOverrides.get(cosm.id);
   if (o) return o.inShop && (!o.until || o.until > Date.now());
   return DEFAULT_SHOP_TYPES.has(cosm.type);
+}
+// Disponibilite d'une emote dans la section Emotes du profil : disponible par
+// defaut, l'admin peut la retirer (override inShop:false) ou fixer un compte a
+// rebours (override inShop:true + until).
+function emoteAvailable(id) {
+  const o = shopOverrides.get(id);
+  if (o) return o.inShop && (!o.until || o.until > Date.now());
+  return true;
 }
 function shopOverridesPayload() {
   const out = {};
@@ -1059,7 +1070,13 @@ function friendsPayload(entry) {
     if (!f || !f.name || f.name === 'Anonyme') return null;
     return { ref: _playerRef(pid).slice(0, 8), name: f.name, level: levelFromXp(f.xp || 0), online: online.has(pid) };
   }).filter(Boolean);
-  return { friends };
+  // Demandes recues en attente : affichees dans la fenetre Mes amis.
+  const requests = (entry.friendRequests || []).map(pid => {
+    const f = libs.get(pid);
+    if (!f || !f.name || f.name === 'Anonyme') return null;
+    return { ref: _playerRef(pid).slice(0, 8), name: f.name, level: levelFromXp(f.xp || 0) };
+  }).filter(Boolean);
+  return { friends, requests };
 }
 function levelFromXp(xp) { return 1 + Math.floor(Math.sqrt(Math.max(0, xp) / 100)); }
 function awardXp(id, entry, amount) {
@@ -1834,10 +1851,10 @@ function sendTriviaQuestion(code) {
     totalQuestions: room.totalQ,
     question:       q.question,
     choices:        q.choices,
-    timeLimit:      TRIVIA_TIME_MS / 1000,
+    timeLimit:      (room.timeMs || TRIVIA_TIME_MS) / 1000,
     scores:         publicScores(room),
   });
-  room.timer = setTimeout(() => revealTriviaAnswer(code), TRIVIA_TIME_MS);
+  room.timer = setTimeout(() => revealTriviaAnswer(code), room.timeMs || TRIVIA_TIME_MS);
 }
 
 function revealTriviaAnswer(code) {
@@ -1856,7 +1873,7 @@ function revealTriviaAnswer(code) {
       if (p) {
         // Bonus de vitesse : répondre dans les 40% premiers du temps double le point.
         const elapsed = (ans.at || Date.now()) - (room.questionStartAt || 0);
-        const fast = elapsed <= TRIVIA_TIME_MS * 0.4;
+        const fast = elapsed <= (room.timeMs || TRIVIA_TIME_MS) * 0.4;
         const pts  = fast ? 2 : 1;
         p.score += pts;
         gains[sid] = { pts, fast };
@@ -2561,7 +2578,8 @@ io.on('connection', (socket) => {
     if (cats.length === 0) return;
     const playerName = sanitizeName(name, 'Anonyme');
     const roomLang = ['fr', 'en'].includes(lang) ? lang : 'fr';
-    const roomDiff = ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : '';
+    // 'extreme' = questions pointues (pool hard) + chrono reduit a 15 s.
+    const roomDiff = ['easy', 'medium', 'hard', 'extreme'].includes(difficulty) ? difficulty : '';
     const rawN = parseInt(amount) || TRIVIA_Q_COUNT;
     const totalQ = Math.round(Math.min(40, Math.max(10, rawN)) / 5) * 5;
     const code = generateCode();
@@ -2573,6 +2591,7 @@ io.on('connection', (socket) => {
       code, hostId: socket.id, categories: cats,
       categoryName,
       lang: roomLang, difficulty: roomDiff,
+      timeMs: roomDiff === 'extreme' ? 15_000 : TRIVIA_TIME_MS,
       players, questions: null, currentQ: -1,
       status: 'waiting', answersThisRound: new Map(),
       timer: null, revealTimer: null, totalQ,
@@ -2638,7 +2657,7 @@ io.on('connection', (socket) => {
     const l = ['fr', 'en'].includes(lang) ? lang : 'fr';
     const rawN = parseInt(amount) || 10;
     const n = Math.round(Math.min(40, Math.max(10, rawN)) / 5) * 5;
-    const d = ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : '';
+    const d = ['easy', 'medium', 'hard', 'extreme'].includes(difficulty) ? difficulty : '';
     const pid = safePlayerId(playerId);
     try {
       const qs = triviaGame.pickQuestions({ cats, amount: n, lang: l, diff: d, seen: triviaSeen.get(pid)?.set });
@@ -2943,20 +2962,10 @@ io.on('connection', (socket) => {
     const id = safePlayerId(playerId);
     if (!id) return;
     const entry = getLibsEntry(id);
-    const pid = entry.friends.find(p => _playerRef(p).slice(0, 8) === String(ref || ''));
-    entry.friends = entry.friends.filter(p => p !== pid);
+    // Retrait UNILATERAL : seul celui qui retire perd l'ami de sa liste.
+    entry.friends = entry.friends.filter(p => _playerRef(p).slice(0, 8) !== String(ref || ''));
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
-    // Retrait mutuel : je disparais aussi de sa liste.
-    if (pid) {
-      const other = libs.get(pid);
-      if (other) {
-        other.friends = (other.friends || []).filter(p => p !== id);
-        libs.set(pid, other);
-        dbUpsertLibs(pid, other);
-        _emitToPlayer(pid, 'friends-list', friendsPayload(other));
-      }
-    }
     socket.emit('friends-list', friendsPayload(entry));
   });
   // Cadeau de Libs a un ami (500 max par jour tous cadeaux confondus).
@@ -3326,6 +3335,8 @@ io.on('connection', (socket) => {
     if (!cosmetic) { socket.emit('buy-cosmetic-result', { ok: false, error: 'invalid' }); return; }
     if (cosmetic.honorary) { socket.emit('buy-cosmetic-result', { ok: false, error: 'honorary' }); return; }
     if (entry.ownedCosmetics.includes(cosmeticId)) { socket.emit('buy-cosmetic-result', { ok: false, error: 'already_owned' }); return; }
+    // Une emote retiree par l'admin de la section Emotes ne peut plus etre achetee.
+    if (cosmetic.type === 'emote' && !emoteAvailable(cosmeticId)) { socket.emit('buy-cosmetic-result', { ok: false, error: 'unavailable' }); return; }
     const price = flashPriceFor(cosmeticId, cosmetic.price);
     if (entry.balance < price) { socket.emit('buy-cosmetic-result', { ok: false, error: 'insufficient' }); return; }
     entry.balance -= price;
@@ -4350,10 +4361,12 @@ app.get('/admin/cosmetics', (req, res) => {
   res.json({
     cosmetics: COSMETICS.filter(c => !c.honorary).map(c => {
       const o = shopOverrides.get(c.id);
+      const isEmote = c.type === 'emote';
       return { id: c.id, type: c.type, price: c.price,
-        defaultInShop: DEFAULT_SHOP_TYPES.has(c.type),
+        defaultInShop: isEmote ? true : DEFAULT_SHOP_TYPES.has(c.type),
+        emote: isEmote,
         override: o ? { inShop: o.inShop, until: o.until || null } : null,
-        effective: shopHas(c) };
+        effective: isEmote ? emoteAvailable(c.id) : shopHas(c) };
     }),
   });
 });

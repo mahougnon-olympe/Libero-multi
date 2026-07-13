@@ -53,6 +53,20 @@ module.exports = {
       { f: "Quel royaume historique avait sa capitale à Abomey ?", fc: ["Le royaume du Dahomey", "L'empire du Mali", "Le royaume ashanti", "L'empire songhaï"], e: "Which historic kingdom had its capital at Abomey?", ec: ["The Kingdom of Dahomey", "The Mali Empire", "The Ashanti Kingdom", "The Songhai Empire"], a: 0 },
       { f: "Combien de temps met la lumière du Soleil pour atteindre la Terre ?", fc: ["Environ 8 minutes", "Environ 8 secondes", "Environ 8 heures", "Environ 1 minute"], e: "How long does sunlight take to reach the Earth?", ec: ["About 8 minutes", "About 8 seconds", "About 8 hours", "About 1 minute"], a: 0 },
     ],
+    extreme: [
+      { f: "Quel élément chimique a pour symbole « W » ?", fc: ["Le tungstène", "Le vanadium", "Le tantale", "Le wolframite"], e: "Which chemical element has the symbol 'W'?", ec: ["Tungsten", "Vanadium", "Tantalum", "Wolframite"], a: 0 },
+      { f: "En quelle année a été signé le traité de Westphalie ?", fc: ["1648", "1618", "1715", "1789"], e: "In which year was the Peace of Westphalia signed?", ec: ["1648", "1618", "1715", "1789"], a: 0 },
+      { f: "Qui a écrit « La Divine Comédie » ?", fc: ["Dante Alighieri", "Pétrarque", "Boccace", "Machiavel"], e: "Who wrote 'The Divine Comedy'?", ec: ["Dante Alighieri", "Petrarch", "Boccaccio", "Machiavelli"], a: 0 },
+      { f: "Quelle est la capitale du Kazakhstan depuis 2019 ?", fc: ["Astana", "Almaty", "Nour-Soultan", "Bichkek"], e: "What is the capital of Kazakhstan since 2019?", ec: ["Astana", "Almaty", "Nur-Sultan", "Bishkek"], a: 0 },
+      { f: "Combien vaut la constante d'Avogadro (ordre de grandeur) ?", fc: ["6,022 × 10²³", "3,14 × 10⁸", "1,6 × 10⁻¹⁹", "9,81 × 10¹⁰"], e: "What is Avogadro's constant (order of magnitude)?", ec: ["6.022 × 10²³", "3.14 × 10⁸", "1.6 × 10⁻¹⁹", "9.81 × 10¹⁰"], a: 0 },
+      { f: "Quel peintre a réalisé « Le Jardin des délices » ?", fc: ["Jérôme Bosch", "Pieter Brueghel", "Jan van Eyck", "Albrecht Dürer"], e: "Which painter created 'The Garden of Earthly Delights'?", ec: ["Hieronymus Bosch", "Pieter Bruegel", "Jan van Eyck", "Albrecht Dürer"], a: 0 },
+      { f: "Quel fleuve traverse la ville de Budapest ?", fc: ["Le Danube", "Le Rhin", "L'Elbe", "La Vistule"], e: "Which river flows through Budapest?", ec: ["The Danube", "The Rhine", "The Elbe", "The Vistula"], a: 0 },
+      { f: "En mathématiques, comment nomme-t-on un nombre divisible uniquement par 1 et lui-même ?", fc: ["Un nombre premier", "Un nombre parfait", "Un nombre entier", "Un nombre rationnel"], e: "In mathematics, what is a number divisible only by 1 and itself called?", ec: ["A prime number", "A perfect number", "An integer", "A rational number"], a: 0 },
+      { f: "Quel empereur romain a légalisé le christianisme par l'édit de Milan ?", fc: ["Constantin Ier", "Néron", "Auguste", "Dioclétien"], e: "Which Roman emperor legalised Christianity with the Edict of Milan?", ec: ["Constantine I", "Nero", "Augustus", "Diocletian"], a: 0 },
+      { f: "Quelle planète possède la lune nommée Titan ?", fc: ["Saturne", "Jupiter", "Neptune", "Uranus"], e: "Which planet has a moon named Titan?", ec: ["Saturn", "Jupiter", "Neptune", "Uranus"], a: 0 },
+      { f: "Qui a formulé la théorie de la relativité générale ?", fc: ["Albert Einstein", "Isaac Newton", "Niels Bohr", "Max Planck"], e: "Who formulated the theory of general relativity?", ec: ["Albert Einstein", "Isaac Newton", "Niels Bohr", "Max Planck"], a: 0 },
+      { f: "Quelle dynastie chinoise a construit l'essentiel de la Grande Muraille actuelle ?", fc: ["Les Ming", "Les Han", "Les Tang", "Les Qing"], e: "Which Chinese dynasty built most of the current Great Wall?", ec: ["The Ming", "The Han", "The Tang", "The Qing"], a: 0 },
+    ],
   },
 
   // ── 23 · Histoire ───────────────────────────────────────────────────────────
