@@ -32,6 +32,9 @@
   --ttt-cell:   min(26vw, 110px);
 }
 
+/* Aucun defilement horizontal (garde-fou, ex. transitions d'ecran).
+   clip = bloque tout (meme programmatique) ; hidden = repli navigateurs anciens. */
+html { overflow-x: hidden; overflow-x: clip; }
 html, body {
   height: 100%;
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -45,6 +48,7 @@ html, body {
   color: var(--text);
   -webkit-tap-highlight-color: transparent;
 }
+body { overflow-x: hidden; overflow-x: clip; } /* coupe le debordement des transitions d'ecran a la source */
 
 /* ── Screens ── */
 html.restoring #screen-landing,
@@ -4092,3 +4096,12 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
   55%  { transform: scale(1.25) rotate(5deg); }
   100% { transform: scale(1) rotate(0); }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Transitions d'ecran directionnelles entre onglets (etape 5).
+   Plus specifiques que `.screen.active` (screenIn) donc elles priment.
+   ══════════════════════════════════════════════════════════════════════════ */
+@keyframes navSlideRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes navSlideLeft  { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+.screen.active.nav-slide-right { animation: navSlideRight .3s var(--ease); }
+.screen.active.nav-slide-left  { animation: navSlideLeft  .3s var(--ease); }

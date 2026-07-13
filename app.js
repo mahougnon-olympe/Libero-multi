@@ -2194,6 +2194,14 @@ function showScreen(name) {
   document.documentElement.classList.remove('restoring');
   document.documentElement.removeAttribute('data-restore');
   sessionStorage.setItem('libero_screen', name);
+  const TOP = { landing: 0, feed: 1, read: 2, profile: 3 };
+  // Capture l'onglet de premier niveau actuellement actif AVANT de le retirer,
+  // pour connaitre la direction du glissement (robuste des le 1er clic).
+  let prevTop = null;
+  document.querySelectorAll('.screen.active').forEach(s => {
+    const n = s.id.replace('screen-', '');
+    if (n in TOP) prevTop = n;
+  });
   document.querySelectorAll('.screen').forEach(s => {
     s.classList.remove('active');
     if (s !== el) s.removeAttribute('data-restored');
@@ -2201,6 +2209,16 @@ function showScreen(name) {
   if (el) {
     if (!wasRestoring) el.removeAttribute('data-restored');
     el.classList.add('active');
+    // Transition directionnelle entre onglets de premier niveau (facon app native) :
+    // avancer dans l'ordre = entree par la droite, reculer = par la gauche.
+    if (!wasRestoring && name in TOP) {
+      el.classList.remove('nav-slide-left', 'nav-slide-right');
+      if (prevTop != null && prevTop !== name) {
+        const dir = TOP[name] > TOP[prevTop] ? 'nav-slide-right' : 'nav-slide-left';
+        void el.offsetWidth;        // redemarre l'animation
+        el.classList.add(dir);
+      }
+    }
   }
   document.body.classList.toggle('screen-events-active', name === 'events');
   document.body.classList.toggle('screen-luffy-active', name === 'luffy');
