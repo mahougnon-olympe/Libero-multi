@@ -354,7 +354,15 @@ const TRIVIA_API_CAT_MAP = {
 const DICT = {
   fr: {
     siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisissez votre catégorie',
-    navHome:'Accueil', navFeed:'Vidéos',
+    navHome:'Accueil', navFeed:'Vidéos', navIdeas:'Idées',
+    ideasTitle:'Idées & suggestions', ideasSub:'Propose une amélioration du site et vote pour celles des autres.',
+    ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Récentes', ideasNewBtn:'💡 Proposer',
+    ideasLoading:'Chargement des idées…', ideasEmpty:'Aucune idée pour le moment.\nSois le premier à en proposer une !', ideasError:'Impossible de charger les idées.\nVérifie ta connexion et réessaie.',
+    ideaNewTitle:'Proposer une idée', ideaNewIntro:'Décris une fonctionnalité ou une amélioration que tu aimerais voir sur le site.',
+    ideaNewTitrePh:'Titre de ta proposition', ideaNewDescPh:'Détaille ton idée (optionnel)', ideaNewSend:'Publier',
+    ideaNeedName:'Choisis d\'abord un pseudo (dans Jouer) pour proposer une idée.', ideaTitleShort:'Titre trop court (4 caractères min).',
+    ideaPosted:'Merci ! Ton idée est publiée.', ideaByAuthor:(n)=>`par ${n}`, ideaDeleteConfirm:'Supprimer ta suggestion ?', ideaDelete:'Supprimer',
+    ideaStatusOpen:'Ouverte', ideaStatusPlanned:'📌 Prévue', ideaStatusDone:'✅ Faite', ideaStatusRejected:'✖ Refusée',
     feedLoading:'Chargement des vidéos…', feedEmpty:'Aucune vidéo pour le moment.\nSois le premier à en proposer une !', feedError:'Impossible de charger les vidéos.\nVérifie ta connexion et réessaie.',
     feedSubmitBtn:'🎬 Proposer une vidéo', feedShareText:'Regarde cette vidéo sur Libero\'s Multi !', feedShareCopied:'Lien copié !',
     feedNoComments:'Aucun commentaire. Lance la discussion !', feedSubmitBadUrl:'Lien invalide (http/https requis).', feedSubmitOk:'Merci ! Ta vidéo sera vérifiée avant publication.',
@@ -1035,12 +1043,20 @@ const DICT = {
       quiz_lb:'🏆 Le <strong>classement Quiz</strong> est séparé du classement Classique. Les points sont attribués selon ta vitesse de réponse et le nombre de bonnes réponses. <strong>Réponse éclair</strong> (dans les premières secondes) = <strong>point doublé ⚡</strong>.',
       read_catalogue:'📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Les <strong>romans exclusifs</strong> se lisent directement ici : <strong>⭐ L\'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, puis 1000 ⚡ et 2000 ⚡), <strong>Life of Georgia</strong> (2000 ⚡ le livre entier) et <strong>Life of Georgia · Tome 2</strong>, offert à ceux qui possèdent le Tome 1.',
       profile_hub:'🎯 Ton <strong>Profil</strong> regroupe ton <strong>niveau</strong> ⭐ (chaque partie donne de l\'XP, chaque niveau des ⚡), ta <strong>série de connexion</strong> 🔥, tes <strong>défis du jour</strong>, ton <strong>casier</strong>, ton <strong>historique</strong>, tes <strong>amis</strong> 👥 (demandes d\'amis, cadeaux de Libs, défis depuis les zones de jeu), la <strong>roue de la fortune</strong> 🎡 (1 tour gratuit par jour), le <strong>test de QI</strong> 🧠 (après 10 quiz), le <strong>Pass VIP</strong> 👑 (+20% de Libs), la carte <strong>Inviter un ami</strong> 🤝 (+100 ⚡ chacun), tes <strong>émotes</strong> 😎, la <strong>pluie d\'émojis</strong> 🌈, les <strong>Réglages</strong> ⚙️ (avec les 🔔 notifications), ton <strong>code de récupération</strong> 🔐 et la <strong>réinitialisation</strong> du compte.',
-      feed_videos:'🎬 La section <strong>Vidéos</strong> : fais défiler verticalement pour découvrir les vidéos de la communauté, comme sur TikTok. Le son se coupe ou se réactive d\'un simple clic sur la vidéo.',
+      ideas_board:'💡 La section <strong>Idées</strong> : propose une amélioration du site et vote pour (▲) ou contre (▼) celles des autres joueurs. Les meilleures idées remontent en haut.',
     },
   },
   en: {
     siteTitle:'Multiplayer Games', siteSubtitle:'Choose your category',
-    navHome:'Home', navFeed:'Videos',
+    navHome:'Home', navFeed:'Videos', navIdeas:'Ideas',
+    ideasTitle:'Ideas & suggestions', ideasSub:'Suggest a site improvement and vote on others\' ideas.',
+    ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Newest', ideasNewBtn:'💡 Suggest',
+    ideasLoading:'Loading ideas…', ideasEmpty:'No ideas yet.\nBe the first to suggest one!', ideasError:'Could not load ideas.\nCheck your connection and try again.',
+    ideaNewTitle:'Suggest an idea', ideaNewIntro:'Describe a feature or improvement you would like to see on the site.',
+    ideaNewTitrePh:'Title of your suggestion', ideaNewDescPh:'Detail your idea (optional)', ideaNewSend:'Publish',
+    ideaNeedName:'Pick a nickname first (in Play) to suggest an idea.', ideaTitleShort:'Title too short (4 characters min).',
+    ideaPosted:'Thanks! Your idea is published.', ideaByAuthor:(n)=>`by ${n}`, ideaDeleteConfirm:'Delete your suggestion?', ideaDelete:'Delete',
+    ideaStatusOpen:'Open', ideaStatusPlanned:'📌 Planned', ideaStatusDone:'✅ Done', ideaStatusRejected:'✖ Declined',
     feedLoading:'Loading videos…', feedEmpty:'No videos yet.\nBe the first to submit one!', feedError:'Could not load videos.\nCheck your connection and try again.',
     feedSubmitBtn:'🎬 Submit a video', feedShareText:'Check out this video on Libero\'s Multi!', feedShareCopied:'Link copied!',
     feedNoComments:'No comments yet. Start the conversation!', feedSubmitBadUrl:'Invalid link (http/https required).', feedSubmitOk:'Thanks! Your video will be reviewed before publishing.',
@@ -1721,7 +1737,7 @@ const DICT = {
       quiz_lb:'🏆 The <strong>Quiz leaderboard</strong> is separate from the Classic leaderboard. Points are awarded based on your response speed and number of correct answers. A <strong>lightning answer</strong> (within the first seconds) = <strong>double points ⚡</strong>.',
       read_catalogue:'📚 Welcome to the <strong>Reading</strong> section! Search a book by title or author, filter by category, and click a cover to open its sheet. The <strong>exclusive novels</strong> can be read right here: <strong>⭐ L\'Affaire endormie · Tome 1</strong> (chapter 1 free, then 1000 ⚡ and 2000 ⚡), <strong>Life of Georgia</strong> (2000 ⚡ for the whole book) and <strong>Life of Georgia · Volume 2</strong>, free for owners of Volume 1.',
       profile_hub:'🎯 Your <strong>Profile</strong> gathers your <strong>level</strong> ⭐ (every game gives XP, every level gives ⚡), your <strong>login streak</strong> 🔥, your <strong>daily challenges</strong>, your <strong>locker</strong>, your game <strong>history</strong>, your <strong>friends</strong> 👥 (friend requests, Libs gifts, challenges from the game areas), the <strong>wheel of fortune</strong> 🎡 (1 free spin a day), the <strong>IQ test</strong> 🧠 (after 10 quizzes), the <strong>VIP Pass</strong> 👑 (+20% Libs), the <strong>Invite a friend</strong> card 🤝 (+100 ⚡ each), your <strong>emotes</strong> 😎, the <strong>emoji rain</strong> 🌈, the <strong>Settings</strong> ⚙️ (with 🔔 notifications), your <strong>recovery code</strong> 🔐 and the account <strong>reset</strong>.',
-      feed_videos:'🎬 The <strong>Videos</strong> section: scroll vertically to discover community videos, TikTok-style. Sound toggles on and off with a simple click on the video.',
+      ideas_board:'💡 The <strong>Ideas</strong> section: suggest a site improvement and vote up (▲) or down (▼) on other players\' ideas. The best ideas rise to the top.',
     },
   },
 };
@@ -1911,7 +1927,7 @@ function applyLang() {
 
   // Barre de navigation principale
   const nth = $('nav-tab-home-label'); if (nth) nth.textContent = d.navHome;
-  const ntf = $('nav-tab-feed-label'); if (ntf) ntf.textContent = d.navFeed;
+  const ntf = $('nav-tab-ideas-label'); if (ntf) ntf.textContent = d.navIdeas;
   const ntr = $('nav-tab-read-label'); if (ntr) ntr.textContent = d.navRead;
   const ntp = $('nav-tab-profile-label'); if (ntp) ntp.textContent = d.navProfile;
 
@@ -1927,6 +1943,19 @@ function applyLang() {
   setPh('videosubmit-titre', d.feedSubmitTitrePh);
   setPh('videosubmit-desc', d.feedSubmitDescPh);
   setTxt('videosubmit-send', d.feedSubmitSend);
+
+  // Idées & suggestions
+  setTxt('ideas-title', d.ideasTitle);
+  setTxt('ideas-sub', d.ideasSub);
+  setTxt('ideas-sort-top', d.ideasSortTop);
+  setTxt('ideas-sort-new', d.ideasSortNew);
+  setTxt('ideas-new-btn', d.ideasNewBtn);
+  setTxt('ideanew-title', d.ideaNewTitle);
+  setTxt('ideanew-intro', d.ideaNewIntro);
+  setPh('ideanew-titre', d.ideaNewTitrePh);
+  setPh('ideanew-desc', d.ideaNewDescPh);
+  setTxt('ideanew-send', d.ideaNewSend);
+  if (window._ideasBoard) window._ideasBoard.retexte();
 
   // Lecture
   const rt = $('read-title');        if (rt) rt.textContent  = d.navRead;
@@ -2194,7 +2223,7 @@ function showScreen(name) {
   document.documentElement.classList.remove('restoring');
   document.documentElement.removeAttribute('data-restore');
   sessionStorage.setItem('libero_screen', name);
-  const TOP = { landing: 0, feed: 1, read: 2, profile: 3 };
+  const TOP = { landing: 0, ideas: 1, read: 2, profile: 3 };
   // Capture l'onglet de premier niveau actuellement actif AVANT de le retirer,
   // pour connaitre la direction du glissement (robuste des le 1er clic).
   let prevTop = null;
@@ -2223,6 +2252,7 @@ function showScreen(name) {
   document.body.classList.toggle('screen-events-active', name === 'events');
   document.body.classList.toggle('screen-luffy-active', name === 'luffy');
   document.body.classList.toggle('screen-feed-active', name === 'feed');
+  document.body.classList.toggle('screen-ideas-active', name === 'ideas');
   document.body.classList.toggle('screen-read-active', name === 'read');
   document.body.classList.toggle('screen-profile-active', name === 'profile');
   document.body.classList.toggle('screen-locker-active', name === 'locker');
@@ -2232,17 +2262,17 @@ function showScreen(name) {
   // onglet actif synchronisé avec l'écran courant.
   const nav = document.getElementById('main-nav');
   if (nav) {
-    const onTopLevel = (name === 'landing' || name === 'feed' || name === 'read' || name === 'profile');
+    const onTopLevel = (name === 'landing' || name === 'ideas' || name === 'read' || name === 'profile');
     nav.classList.toggle('hidden', !onTopLevel);
     // Sur mobile la barre de nav est en bas : on marque ces écrans pour remonter
     // les boutons flottants (aide / commentaire) au-dessus d'elle.
     document.body.classList.toggle('nav-bottom-visible', onTopLevel);
     const homeTab = document.getElementById('nav-tab-home');
-    const feedTab = document.getElementById('nav-tab-feed');
+    const feedTab = document.getElementById('nav-tab-ideas');
     const readTab = document.getElementById('nav-tab-read');
     const profTab = document.getElementById('nav-tab-profile');
     if (homeTab) { homeTab.classList.toggle('active', name === 'landing'); homeTab.setAttribute('aria-selected', String(name === 'landing')); }
-    if (feedTab) { feedTab.classList.toggle('active', name === 'feed');    feedTab.setAttribute('aria-selected', String(name === 'feed')); }
+    if (feedTab) { feedTab.classList.toggle('active', name === 'ideas');   feedTab.setAttribute('aria-selected', String(name === 'ideas')); }
     if (readTab) { readTab.classList.toggle('active', name === 'read');    readTab.setAttribute('aria-selected', String(name === 'read')); }
     if (profTab) { profTab.classList.toggle('active', name === 'profile'); profTab.setAttribute('aria-selected', String(name === 'profile')); }
   }
@@ -2257,6 +2287,7 @@ function showScreen(name) {
     if (name === 'feed') window._videoFeed.load();
     else                 window._videoFeed.pauseAll();
   }
+  if (window._ideasBoard && name === 'ideas') window._ideasBoard.load();
   if (window._readFeed && name === 'read') window._readFeed.load();
 
   const nc = document.getElementById('news-card');
@@ -8413,11 +8444,11 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
       target: '.profile-body',
     },
 
-    // ── Vidéos ──
+    // ── Idées ──
     {
-      id: 'feed_videos',
-      screen: 'feed',
-      text: '🎬 La section <strong>Vidéos</strong> : fais défiler verticalement pour découvrir les vidéos de la communauté, comme sur TikTok. Le son se coupe ou se réactive d\'un simple clic sur la vidéo.',
+      id: 'ideas_board',
+      screen: 'ideas',
+      text: '💡 La section <strong>Idées</strong> : propose une amélioration du site et vote pour (▲) ou contre (▼) celles des autres joueurs. Les meilleures idées remontent en haut.',
       target: null,
     },
 
@@ -8948,6 +8979,151 @@ const VideoFeed = (() => {
 })();
 window._videoFeed = VideoFeed;
 
+// ── Idées & suggestions (tableau communautaire, votes ▲▼ facon Steam) ────────
+const IdeasBoard = (() => {
+  const listEl = () => document.getElementById('ideas-list');
+  const api = (path, opts) => fetch(`${window.BACKEND_URL}${path}`, opts);
+  let loaded = false, items = [], sort = 'top';
+
+  function playerName() {
+    return (typeof getPlayerName === 'function' && getPlayerName()) || localStorage.getItem('playerName') || '';
+  }
+  const esc = s => String(s || '').replace(/[<>&"']/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;' }[c]));
+  const fmt = n => (n >= 1000 ? (n/1000).toFixed(1).replace('.0','') + 'k' : String(n || 0));
+
+  function setStatus(msg, icon = '💡') {
+    const g = listEl(); if (!g) return;
+    const lines = String(msg).split('\n').map(l => `<span>${esc(l)}</span>`).join('');
+    g.innerHTML = `<div class="ideas-status"><span class="feed-status-icon">${icon}</span><p class="feed-status-text">${lines}</p></div>`;
+  }
+
+  async function load(force = false) {
+    if (!listEl()) return;
+    if (loaded && !force) { render(); return; }
+    setStatus(t().ideasLoading, '⏳');
+    try {
+      const res = await api(`/api/suggestions?playerId=${encodeURIComponent(getPlayerId())}`);
+      if (!res.ok) throw new Error('http ' + res.status);
+      items = await res.json();
+    } catch { setStatus(t().ideasError); return; }
+    loaded = true;
+    render();
+  }
+
+  function sorted() {
+    const arr = items.slice();
+    if (sort === 'new') arr.sort((a, b) => (b.pinned - a.pinned) || (b.createdAt - a.createdAt));
+    else arr.sort((a, b) => (b.pinned - a.pinned) || (b.score - a.score) || (b.createdAt - a.createdAt));
+    return arr;
+  }
+
+  function statusBadge(st) {
+    if (!st || st === 'open') return '';
+    const map = { planned: ['idea-badge-planned', t().ideaStatusPlanned], done: ['idea-badge-done', t().ideaStatusDone], rejected: ['idea-badge-rejected', t().ideaStatusRejected] };
+    const m = map[st]; if (!m) return '';
+    return `<span class="idea-badge ${m[0]}">${esc(m[1])}</span>`;
+  }
+
+  function render() {
+    const g = listEl(); if (!g) return;
+    if (!items.length) { setStatus(t().ideasEmpty); return; }
+    g.innerHTML = sorted().map(s => `
+      <div class="idea-card${s.pinned ? ' idea-pinned' : ''}" data-id="${esc(s.id)}">
+        <div class="idea-votes">
+          <button class="idea-vote up${s.myVote === 1 ? ' on' : ''}" data-dir="1" aria-label="Pour">▲</button>
+          <span class="idea-score">${s.score > 0 ? '+' : ''}${fmt(s.score)}</span>
+          <button class="idea-vote down${s.myVote === -1 ? ' on' : ''}" data-dir="-1" aria-label="Contre">▼</button>
+        </div>
+        <div class="idea-body">
+          <p class="idea-title">${esc(s.title)} ${statusBadge(s.status)}</p>
+          ${s.description ? `<p class="idea-desc">${esc(s.description)}</p>` : ''}
+          <p class="idea-meta">${esc(t().ideaByAuthor(s.authorName))}${s.mine ? ` · <button class="idea-del" data-id="${esc(s.id)}">${esc(t().ideaDelete)}</button>` : ''}</p>
+        </div>
+      </div>`).join('');
+  }
+
+  async function vote(id, dir) {
+    const s = items.find(x => x.id === id); if (!s) return;
+    // Bascule : re-cliquer le meme sens retire le vote.
+    const newDir = s.myVote === dir ? 0 : dir;
+    try {
+      const res = await api(`/api/suggestion/${id}/vote`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId: getPlayerId(), dir: newDir }),
+      });
+      const d = await res.json();
+      if (d.ok) { Object.assign(s, { up: d.up, down: d.down, score: d.score, myVote: d.myVote }); render(); }
+    } catch { /* silencieux */ }
+  }
+
+  async function del(id) {
+    if (!confirm(t().ideaDeleteConfirm)) return;
+    try {
+      const res = await api(`/api/suggestion/${id}`, {
+        method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId: getPlayerId() }),
+      });
+      const d = await res.json();
+      if (d.ok) { items = items.filter(x => x.id !== id); render(); }
+    } catch { /* silencieux */ }
+  }
+
+  function openNew() {
+    if (!playerName()) { if (typeof showCursorSnakeToast === 'function') showCursorSnakeToast(t().ideaNeedName); return; }
+    const ov = document.getElementById('overlay-ideanew'); if (!ov) return;
+    ov.classList.remove('hidden');
+    document.getElementById('ideanew-titre').value = '';
+    document.getElementById('ideanew-desc').value = '';
+    document.getElementById('ideanew-status').textContent = '';
+  }
+  async function sendNew() {
+    const title = document.getElementById('ideanew-titre').value.trim();
+    const description = document.getElementById('ideanew-desc').value.trim();
+    const st = document.getElementById('ideanew-status');
+    if (title.length < 4) { st.textContent = t().ideaTitleShort; st.className = 'videosubmit-status err'; return; }
+    st.textContent = '…'; st.className = 'videosubmit-status';
+    try {
+      const res = await api('/api/suggestions', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId: getPlayerId(), name: playerName(), title, description }),
+      });
+      const d = await res.json();
+      if (d.ok) {
+        st.textContent = t().ideaPosted; st.className = 'videosubmit-status ok';
+        items.unshift(d.suggestion); loaded = true; render();
+        setTimeout(() => document.getElementById('overlay-ideanew')?.classList.add('hidden'), 1200);
+      } else { st.textContent = d.error || t().ideasError; st.className = 'videosubmit-status err'; }
+    } catch { st.textContent = t().ideasError; st.className = 'videosubmit-status err'; }
+  }
+
+  function setSort(s) {
+    sort = s;
+    document.getElementById('ideas-sort-top')?.classList.toggle('active', s === 'top');
+    document.getElementById('ideas-sort-new')?.classList.toggle('active', s === 'new');
+    render();
+  }
+
+  function retexte() {
+    if (loaded) render();
+    else if (listEl()?.querySelector('.ideas-status')) setStatus(t().ideasLoading, '⏳');
+  }
+
+  // Delegation des clics de la liste (votes + suppression).
+  document.getElementById('ideas-list')?.addEventListener('click', e => {
+    const del1 = e.target.closest('.idea-del'); if (del1) { del(del1.dataset.id); return; }
+    const vb = e.target.closest('.idea-vote'); if (!vb) return;
+    const card = vb.closest('.idea-card'); if (card) vote(card.dataset.id, +vb.dataset.dir);
+  });
+  document.getElementById('ideas-new-btn')?.addEventListener('click', openNew);
+  document.getElementById('ideas-sort-top')?.addEventListener('click', () => setSort('top'));
+  document.getElementById('ideas-sort-new')?.addEventListener('click', () => setSort('new'));
+  document.getElementById('ideanew-send')?.addEventListener('click', sendNew);
+  document.getElementById('ideanew-close')?.addEventListener('click', () => document.getElementById('overlay-ideanew')?.classList.add('hidden'));
+
+  return { load, retexte };
+})();
+window._ideasBoard = IdeasBoard;
+
 // ── Lecture (catalogue de livres) ────────────────────────────────────────────
 const ReadFeed = (() => {
   const wrap    = () => document.getElementById('read-grid');
@@ -9359,9 +9535,9 @@ document.getElementById('nav-tab-home')?.addEventListener('click', () => {
   if (sessionStorage.getItem('libero_screen') === 'landing') return;
   showScreen('landing');
 });
-document.getElementById('nav-tab-feed')?.addEventListener('click', () => {
-  if (sessionStorage.getItem('libero_screen') === 'feed') { VideoFeed.playVisible(); return; }
-  showScreen('feed');
+document.getElementById('nav-tab-ideas')?.addEventListener('click', () => {
+  if (sessionStorage.getItem('libero_screen') === 'ideas') return;
+  showScreen('ideas');
 });
 document.getElementById('nav-tab-read')?.addEventListener('click', () => {
   if (sessionStorage.getItem('libero_screen') === 'read') return;

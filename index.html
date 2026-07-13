@@ -32,8 +32,8 @@
     <button id="nav-tab-home" class="nav-tab active" role="tab" aria-selected="true">
       <span class="nav-tab-icon">🏠</span><span id="nav-tab-home-label">Accueil</span>
     </button>
-    <button id="nav-tab-feed" class="nav-tab" role="tab" aria-selected="false">
-      <span class="nav-tab-icon">📺</span><span id="nav-tab-feed-label">Vidéos</span>
+    <button id="nav-tab-ideas" class="nav-tab" role="tab" aria-selected="false">
+      <span class="nav-tab-icon">💡</span><span id="nav-tab-ideas-label">Idées</span>
     </button>
     <button id="nav-tab-read" class="nav-tab" role="tab" aria-selected="false">
       <span class="nav-tab-icon">📚</span><span id="nav-tab-read-label">Lecture</span>
@@ -543,6 +543,41 @@
         <textarea id="videosubmit-desc" class="videosubmit-input" maxlength="400" rows="2" placeholder="Description (optionnel)"></textarea>
         <button id="videosubmit-send" class="btn btn-primary videosubmit-send">Envoyer</button>
         <p id="videosubmit-status" class="videosubmit-status"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Écran Idées : tableau de suggestions communautaires (votes ▲▼) ── -->
+  <div id="screen-ideas" class="screen screen-ideas">
+    <div class="ideas-wrap">
+      <div class="ideas-head">
+        <h1 id="ideas-title" class="ideas-h1">Idées &amp; suggestions</h1>
+        <p id="ideas-sub" class="ideas-sub">Propose une amélioration du site et vote pour celles des autres.</p>
+        <div class="ideas-toolbar">
+          <div class="ideas-sort">
+            <button id="ideas-sort-top" class="ideas-sort-btn active" data-sort="top">🔥 Top</button>
+            <button id="ideas-sort-new" class="ideas-sort-btn" data-sort="new">🆕 Récentes</button>
+          </div>
+          <button id="ideas-new-btn" class="btn btn-primary ideas-new-btn">💡 Proposer</button>
+        </div>
+      </div>
+      <div id="ideas-list" class="ideas-list"></div>
+    </div>
+  </div>
+
+  <!-- Proposer une idée -->
+  <div id="overlay-ideanew" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="ideanew-title" class="profile-modal-title">Proposer une idée</h2>
+        <button id="ideanew-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <p id="ideanew-intro" class="recovery-label">Décris une fonctionnalité ou une amélioration que tu aimerais voir sur le site.</p>
+        <input id="ideanew-titre" class="videosubmit-input" maxlength="120" placeholder="Titre de ta proposition" autocomplete="off" />
+        <textarea id="ideanew-desc" class="videosubmit-input" maxlength="800" rows="4" placeholder="Détaille ton idée (optionnel)"></textarea>
+        <button id="ideanew-send" class="btn btn-primary videosubmit-send">Publier</button>
+        <p id="ideanew-status" class="videosubmit-status"></p>
       </div>
     </div>
   </div>

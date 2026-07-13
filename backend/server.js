@@ -55,6 +55,7 @@ const snakeVotes        = new Map(); // playerId -> 'yes'|'no'
 const comments        = [];
 const feedVideos      = []; // [{ _id, url, titre, ordre, actif, createdAt }]
 const feedBooks       = []; // [{ _id, titre, auteur, categorie, couverture, url, description, ordre, actif, createdAt }]
+const suggestions     = []; // [{ _id, title, description, authorId, authorName, up[], down[], status, pinned, createdAt }]
 
 // ── Livres exclusifs ────────────────────────────────────────────────────────
 // Les chapitres vivent dans backend/books/ (jamais sur le site statique) et ne
@@ -441,6 +442,14 @@ async function loadData() {
   db.collection('admin_challenges').find().toArray()
     .then(docs => { adminChallenges = docs.map(d => ({ _id: d._id, kind: d.kind, metric: d.metric, goal: d.goal, reward: d.reward, label: d.label, labelEn: d.labelEn || '', at: d.at })); })
     .catch(() => {});
+  db.collection('suggestions').find().toArray()
+    .then(docs => docs.forEach(d => suggestions.push({
+      _id: d._id, title: d.title || '', description: d.description || '',
+      authorId: d.authorId || null, authorName: d.authorName || 'Anonyme',
+      up: Array.isArray(d.up) ? d.up : [], down: Array.isArray(d.down) ? d.down : [],
+      status: d.status || 'open', pinned: !!d.pinned, createdAt: d.createdAt || Date.now(),
+    })))
+    .catch(() => {});
   console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${llbDocs.length} luffy, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias, ${voteDocs.length} votes snake, ${feedDocs.length} vidéos feed, ${bookDocs.length} livres, ${purchaseDocs.length} achats Libs.`);
 }
 
@@ -556,6 +565,19 @@ function dbUpdateFeedVideo(id, fields) {
   db.collection('feed_videos')
     .updateOne({ _id: id }, { $set: fields })
     .catch(e => console.error('Erreur mise a jour vidéo feed:', e));
+}
+
+function dbInsertSuggestion(s) {
+  if (!db) return;
+  db.collection('suggestions').insertOne(s).catch(e => console.error('Erreur sauvegarde suggestion:', e));
+}
+function dbUpdateSuggestion(id, fields) {
+  if (!db) return;
+  db.collection('suggestions').updateOne({ _id: id }, { $set: fields }).catch(e => console.error('Erreur mise a jour suggestion:', e));
+}
+function dbDeleteSuggestion(id) {
+  if (!db) return;
+  db.collection('suggestions').deleteOne({ _id: id }).catch(e => console.error('Erreur suppression suggestion:', e));
 }
 
 function dbInsertFeedBook(book) {
@@ -4898,6 +4920,124 @@ app.delete('/admin/feed-video/:id/comment/:cid', (req, res) => {
   v.comments = (v.comments || []).filter(c => c.id !== req.params.cid);
   dbUpdateFeedVideo(v._id, { comments: v.comments });
   res.json({ ok: true, commentCount: v.comments.length });
+});
+
+// ── Idées & suggestions (tableau communautaire type Steam) ──────────────────
+const SUGGESTION_STATUSES = ['open', 'planned', 'done', 'rejected'];
+function _findSuggestion(id) { return suggestions.find(s => s._id === id) || null; }
+
+// Vue publique : compteurs + le vote du joueur courant (jamais son id secret).
+function _publicSuggestion(s, playerId) {
+  const up = (s.up || []).length, down = (s.down || []).length;
+  return {
+    id: s._id, title: s.title, description: s.description, authorName: s.authorName || 'Anonyme',
+    up, down, score: up - down,
+    myVote: playerId && (s.up || []).includes(playerId) ? 1 : (playerId && (s.down || []).includes(playerId) ? -1 : 0),
+    mine: !!(playerId && s.authorId === playerId),
+    status: s.status || 'open', pinned: !!s.pinned, createdAt: s.createdAt,
+  };
+}
+// Tri : epinglees d'abord, puis meilleur score, puis plus recentes.
+function _sortSuggestions(a, b) {
+  if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+  const sa = (a.up || []).length - (a.down || []).length, sb = (b.up || []).length - (b.down || []).length;
+  return (sb - sa) || (b.createdAt - a.createdAt);
+}
+
+// Public : liste des suggestions (playerId optionnel pour l'etat de vote).
+app.get('/api/suggestions', (req, res) => {
+  const pid = safePlayerId(req.query.playerId);
+  res.json(suggestions.slice().sort(_sortSuggestions).map(s => _publicSuggestion(s, pid)));
+});
+
+// Public : poste une nouvelle suggestion (pseudo requis).
+app.post('/api/suggestions', (req, res) => {
+  const { playerId, name, title, description } = req.body || {};
+  const pid = safePlayerId(playerId);
+  const cleanTitle = sanitizeText(title, 120);
+  const cleanDesc  = sanitizeText(description, 800);
+  const cleanName  = sanitizeName(name, '');
+  if (!pid) return res.status(400).json({ error: 'Joueur requis.' });
+  if (!cleanName || cleanName === 'Anonyme') return res.status(400).json({ error: 'Pseudo requis.' });
+  if (cleanTitle.length < 4) return res.status(400).json({ error: 'Titre trop court.' });
+  // Limite : 5 suggestions / IP / jour.
+  const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const key = 'sugg:' + ip;
+  const times = (commentRateMap.get(key) || []).filter(t => now - t < 86_400_000);
+  if (times.length >= 5) return res.status(429).json({ error: 'Limite atteinte (5 suggestions/jour).' });
+  times.push(now); commentRateMap.set(key, times);
+  const s = {
+    _id: 'sg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    title: cleanTitle, description: cleanDesc,
+    authorId: pid, authorName: cleanName,
+    up: [pid], down: [], status: 'open', pinned: false, createdAt: now, // l'auteur vote pour d'office
+  };
+  suggestions.push(s);
+  dbInsertSuggestion(s);
+  console.log(`[💡] Suggestion de ${cleanName} : ${cleanTitle}`);
+  res.json({ ok: true, suggestion: _publicSuggestion(s, pid) });
+});
+
+// Public : vote (dir = 1 pour, -1 contre, 0 pour retirer son vote) ; un seul vote par joueur.
+app.post('/api/suggestion/:id/vote', (req, res) => {
+  const { playerId, dir } = req.body || {};
+  const pid = safePlayerId(playerId);
+  if (!pid) return res.status(400).json({ error: 'Joueur requis.' });
+  const s = _findSuggestion(req.params.id);
+  if (!s) return res.status(404).json({ error: 'Suggestion introuvable.' });
+  s.up = (s.up || []).filter(x => x !== pid);
+  s.down = (s.down || []).filter(x => x !== pid);
+  if (+dir === 1) s.up.push(pid);
+  else if (+dir === -1) s.down.push(pid);
+  dbUpdateSuggestion(s._id, { up: s.up, down: s.down });
+  res.json({ ok: true, ...(_publicSuggestion(s, pid)) });
+});
+
+// Public : l'auteur supprime sa propre suggestion.
+app.delete('/api/suggestion/:id', (req, res) => {
+  const pid = safePlayerId((req.body || {}).playerId);
+  const idx = suggestions.findIndex(s => s._id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Suggestion introuvable.' });
+  if (!pid || suggestions[idx].authorId !== pid) return res.status(403).json({ error: 'Non autorise.' });
+  const [removed] = suggestions.splice(idx, 1);
+  dbDeleteSuggestion(removed._id);
+  res.json({ ok: true });
+});
+
+// Admin : liste complete (tout statut).
+app.get('/admin/suggestions', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  res.json(suggestions.slice().sort(_sortSuggestions).map(s => {
+    const up = (s.up || []).length, down = (s.down || []).length;
+    return { id: s._id, title: s.title, description: s.description, authorName: s.authorName || 'Anonyme',
+      up, down, score: up - down, status: s.status || 'open', pinned: !!s.pinned, createdAt: s.createdAt };
+  }));
+});
+
+// Admin : change le statut / epingle une suggestion.
+app.patch('/admin/suggestion/:id', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const s = _findSuggestion(req.params.id);
+  if (!s) return res.status(404).json({ error: 'Suggestion introuvable.' });
+  const b = req.body || {};
+  const fields = {};
+  if (typeof b.status === 'string' && SUGGESTION_STATUSES.includes(b.status)) fields.status = s.status = b.status;
+  if (typeof b.pinned === 'boolean') fields.pinned = s.pinned = b.pinned;
+  dbUpdateSuggestion(s._id, fields);
+  adminAudit('suggestion-edit', { id: s._id, fields });
+  res.json({ ok: true, status: s.status, pinned: s.pinned });
+});
+
+// Admin : supprime une suggestion.
+app.delete('/admin/suggestion/:id', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const idx = suggestions.findIndex(s => s._id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Suggestion introuvable.' });
+  const [removed] = suggestions.splice(idx, 1);
+  dbDeleteSuggestion(removed._id);
+  adminAudit('suggestion-delete', { id: removed._id, title: removed.title });
+  res.json({ ok: true });
 });
 
 // ── Lecture (catalogue de livres) ───────────────────────────────────────────

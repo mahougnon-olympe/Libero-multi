@@ -185,6 +185,7 @@
             <li><strong>🎯 Défis personnalisés</strong> : crée tes propres défis (quotidiens ou permanents) qui apparaissent chez tous les joueurs.</li>
             <li><strong>🛍️ Catalogue boutique</strong> : liste de tous les cosmétiques. Mets-les en boutique ou retire-les, avec un compte à rebours optionnel. Les émotes sont gérées ici aussi (elles s'affichent dans la carte Émotes du profil, pas dans la boutique d'objets).</li>
             <li><strong>🎬 Vidéos</strong> : le feed façon TikTok de l'onglet Vidéos. Colle un lien direct de vidéo (mp4) pour l'ajouter. Tu peux l'afficher/masquer, la réordonner (▲▼), la supprimer, voir ses compteurs (likes, vues, commentaires, partages) et supprimer un commentaire. Les vidéos proposées par les joueurs arrivent « en attente » (pastille orange, en tête) : clique <em>Approuver</em> pour les publier.</li>
+            <li><strong>💡 Idées &amp; suggestions</strong> : les propositions d'amélioration postées par les joueurs (onglet Idées), triées par score de votes. Change le statut (Prévue / Faite / Refusée), épingle une idée en tête, ou supprime.</li>
             <li><strong>😴 Joueurs qui décrochent</strong> : joueurs sans activité depuis 7 jours et plus. Clique pour ouvrir leur fiche et leur offrir un cadeau de retour.</li>
             <li><strong>🚨 Alertes fraude</strong> : signalées quand plusieurs comptes tout neufs naissent de la même connexion (IP) en 24h.</li>
             <li><strong>📋 Journal d'audit</strong> : l'historique de TOUTES tes actions admin (cadeaux, restitutions, annonces, push, offres flash), pour ne jamais te demander « est-ce que j'ai déjà fait ça ? ».</li>
@@ -272,6 +273,12 @@
           <button id="btn-vid-create" class="green">Ajouter</button>
         </div>
         <div id="vid-list"></div>
+      </section>
+
+      <section>
+        <h2>💡 Idées &amp; suggestions <span id="sugg-pill" class="pill"></span></h2>
+        <p class="sub" style="margin-top:-4px;">Les propositions postées par les joueurs dans l'onglet Idées, triées par score (votes pour moins votes contre). Change leur statut (Prévue / Faite / Refusée), épingle-les en tête, ou supprime.</p>
+        <div id="sugg-list"></div>
       </section>
 
       <section>
@@ -792,6 +799,39 @@
       if (b.dataset.vidcmt) { var parts = b.dataset.vidcmt.split('|'); b.disabled = true; await api('/admin/feed-video/' + encodeURIComponent(parts[0]) + '/comment/' + encodeURIComponent(parts[1]), { method:'DELETE' }); return loadVideos(); }
     });
 
+    // ── Idées & suggestions ──
+    var SUGG_STATUS = { open:'Ouverte', planned:'📌 Prévue', done:'✅ Faite', rejected:'✖ Refusée' };
+    async function loadSuggestions() {
+      try {
+        var d = await (await api('/admin/suggestions')).json();
+        var arr = Array.isArray(d) ? d : [];
+        $('sugg-pill').textContent = arr.length;
+        if (!arr.length) { $('sugg-list').innerHTML = '<p class="empty">Aucune suggestion.</p>'; return; }
+        $('sugg-list').innerHTML = arr.map(function (s) {
+          var st = s.status || 'open';
+          var statusBtns = ['open','planned','done','rejected'].map(function (k) {
+            return '<button class="small' + (k === st ? ' green' : '') + '" data-suggstatus="' + esc(s.id) + '|' + k + '">' + esc(SUGG_STATUS[k]) + '</button>';
+          }).join('');
+          return '<div class="ann-row" style="flex-wrap:wrap">'
+            + '<span class="txt" style="flex:1 1 240px"><b>' + (s.pinned ? '📌 ' : '') + esc(s.title) + '</b>'
+            + ' <span class="muted">▲' + s.up + ' ▼' + s.down + ' · score ' + s.score + ' · ' + esc(s.authorName) + '</span>'
+            + (s.description ? '<br><span class="muted" style="font-size:.8rem">' + esc(s.description) + '</span>' : '') + '</span>'
+            + '<span style="display:flex;gap:4px;flex-wrap:wrap;align-items:flex-start">' + statusBtns
+            + '<button class="small" data-suggpin="' + esc(s.id) + '|' + (s.pinned ? '0' : '1') + '">' + (s.pinned ? 'Désépingler' : 'Épingler') + '</button>'
+            + '<button class="red small" data-suggdel="' + esc(s.id) + '">Suppr.</button></span></div>';
+        }).join('');
+      } catch (e) {}
+    }
+    $('sugg-list').addEventListener('click', async function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      b.disabled = true;
+      try {
+        if (b.dataset.suggstatus) { var p = b.dataset.suggstatus.split('|'); await api('/admin/suggestion/' + encodeURIComponent(p[0]), { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ status: p[1] }) }); return loadSuggestions(); }
+        if (b.dataset.suggpin) { var q = b.dataset.suggpin.split('|'); await api('/admin/suggestion/' + encodeURIComponent(q[0]), { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ pinned: q[1] === '1' }) }); return loadSuggestions(); }
+        if (b.dataset.suggdel) { if (!confirm('Supprimer cette suggestion ?')) { b.disabled = false; return; } await api('/admin/suggestion/' + encodeURIComponent(b.dataset.suggdel), { method:'DELETE' }); return loadSuggestions(); }
+      } catch (err) { b.disabled = false; }
+    });
+
     // ── Catalogue boutique ──
     var COSM_CACHE = [];
     async function loadCosmetics() {
@@ -903,7 +943,7 @@
         showDash(); render(d);
         $('live-txt').textContent = 'à jour · ' + new Date().toLocaleTimeString('fr-FR');
         startTimer();
-        loadChallenges(); loadCosmetics(); loadVideos();
+        loadChallenges(); loadCosmetics(); loadVideos(); loadSuggestions();
       } catch (e) {
         $('login-err').textContent = e.message || 'Erreur.';
         localStorage.removeItem('libero_admin_key');
