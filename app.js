@@ -8534,6 +8534,28 @@ const VideoFeed = (() => {
   let muted    = true; // l'autoplay n'est autorisé que muet ; tap pour activer le son
   const viewed = new Set(); // vidéos déjà comptées comme vues (une fois par chargement)
   const byId   = new Map(); // id -> objet vidéo (état social à jour)
+  let   lastTap = 0;        // horodatage du dernier tap (détection du double-tap)
+
+  // Applique l'état muet à toutes les vidéos + affiche brièvement l'indicateur son.
+  function applyMute() {
+    container.querySelectorAll('video').forEach(vd => { vd.muted = muted; });
+    container.querySelectorAll('.feed-mute-ind').forEach(m => {
+      m.textContent = muted ? '🔇' : '🔊';
+      m.classList.remove('show'); void m.offsetWidth; m.classList.add('show');
+    });
+  }
+
+  // Cœur qui éclate à l'endroit du double-tap (retiré après l'animation).
+  function heartBurst(slide, ev) {
+    const h = document.createElement('div');
+    h.className = 'feed-heart';
+    h.textContent = '❤️';
+    const r = slide.getBoundingClientRect();
+    h.style.left = ((ev && ev.clientX ? ev.clientX - r.left : r.width / 2)) + 'px';
+    h.style.top  = ((ev && ev.clientY ? ev.clientY - r.top  : r.height / 2)) + 'px';
+    slide.appendChild(h);
+    setTimeout(() => h.remove(), 800);
+  }
 
   const fmt = n => (n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace('.0', '') + 'k' : String(n || 0));
   const api = (path, opts) => fetch(`${window.BACKEND_URL}${path}`, opts);
@@ -8641,7 +8663,7 @@ const VideoFeed = (() => {
         overlay.appendChild(de);
       }
 
-      // Indicateur son coupé/activé (apparaît au changement).
+      // Indicateur son coupé/activé (badge frosté, apparaît au changement).
       const mute = document.createElement('div');
       mute.className = 'feed-mute-ind';
       mute.textContent = muted ? '🔇' : '🔊';
@@ -8664,18 +8686,23 @@ const VideoFeed = (() => {
         if (act === 'share')   shareVideo(v);
       });
 
-      // Tap sur la vidéo (pas le rail) : bascule le son.
-      const toggleSound = ev => {
+      // Tap = bascule le son ; double-tap = like + cœur (façon TikTok).
+      const onTap = ev => {
         if (ev.target.closest('.feed-rail')) return;
-        muted = !muted;
-        container.querySelectorAll('video').forEach(vd => { vd.muted = muted; });
-        container.querySelectorAll('.feed-mute-ind').forEach(m => {
-          m.textContent = muted ? '🔇' : '🔊';
-          m.classList.remove('show'); void m.offsetWidth; m.classList.add('show');
-        });
+        const now = Date.now();
+        if (now - lastTap < 300) {                 // double-tap detecté
+          lastTap = 0;
+          muted = !muted; applyMute();             // annule la bascule son du 1er tap
+          heartBurst(slide, ev);
+          const likeBtn = rail.querySelector('.feed-like');
+          if (!v.liked && likeBtn) toggleLike(v, likeBtn);
+          return;
+        }
+        lastTap = now;
+        muted = !muted; applyMute();
       };
-      video.addEventListener('click', toggleSound);
-      overlay.addEventListener('click', toggleSound);
+      video.addEventListener('click', onTap);
+      overlay.addEventListener('click', onTap);
     });
 
     observer = new IntersectionObserver(onIntersect, { root: container, threshold: [0, 0.6, 1] });
@@ -8802,7 +8829,9 @@ const VideoFeed = (() => {
     entries.forEach(e => {
       const video = e.target.querySelector('video');
       if (!video) return;
-      if (e.isIntersecting && e.intersectionRatio >= 0.6) {
+      const active = e.isIntersecting && e.intersectionRatio >= 0.6;
+      e.target.classList.toggle('in-view', active); // déclenche l'apparition du rail + overlay
+      if (active) {
         if (!video.src && video.dataset.src) video.src = video.dataset.src;
         // précharge la slide suivante pour un défilement fluide
         const next = e.target.nextElementSibling?.querySelector('video');
