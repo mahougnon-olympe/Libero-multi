@@ -4078,3 +4078,17 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 .skel-cover { width: 100%; aspect-ratio: 2/3; border-radius: var(--radius); }
 .skel-line { height: 12px; border-radius: 6px; }
 .skel-line.short { width: 60%; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Navigation : reaction vivante de l'onglet qui devient actif (etape 4).
+   ══════════════════════════════════════════════════════════════════════════ */
+.nav-tab .nav-tab-icon { transition: transform .18s var(--ease); }
+/* L'onglet actif se souleve d'un cheveu (au-dela du fond pilule existant). */
+.nav-tab.active { transform: translateY(-1px); }
+/* Son icone rebondit a chaque activation (rejouee car la classe est re-ajoutee). */
+.nav-tab.active .nav-tab-icon { animation: navPop .42s var(--ease); }
+@keyframes navPop {
+  0%   { transform: scale(.72) rotate(-8deg); }
+  55%  { transform: scale(1.25) rotate(5deg); }
+  100% { transform: scale(1) rotate(0); }
+}
