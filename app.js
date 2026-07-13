@@ -9581,44 +9581,6 @@ document.body.classList.add('nav-bottom-visible');
 // Lance le timer de repli News dès le chargement (landing active par défaut)
 _scheduleNewsCollapse();
 
-// ── Icônes SVG (remplacent les emojis d'interface : nav, cartes) ─────────────
-// Jeu d'icones « trait » coherent (24x24, currentColor) style Lucide. Chaque
-// element portant data-ic recoit l'icone correspondante ; l'emoji reste en
-// repli si le script ne s'execute pas.
-const UI_ICONS = (() => {
-  const S = (inner) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
-  return {
-    home:    S('<path d="M3 11l9-8 9 8"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/>'),
-    bulb:    S('<path d="M12 3a6 6 0 0 0-3.5 10.9c.3.2.5.6.5 1V16h6v-1.1c0-.4.2-.8.5-1A6 6 0 0 0 12 3Z"/><path d="M9.5 19h5M10.5 21.5h3"/>'),
-    book:    S('<path d="M6 4h9a2 2 0 0 1 2 2v13a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M8 4v16"/>'),
-    target:  S('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/>'),
-    grid:    S('<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>'),
-    cap:     S('<path d="M2 9l10-5 10 5-10 5L2 9Z"/><path d="M6 11v5c0 1.3 2.7 2.5 6 2.5s6-1.2 6-2.5v-5"/><path d="M22 9v5"/>'),
-    calendar:S('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/>'),
-    zap:     S('<path d="M13 3l-8 10h6l-2 8 8-10h-6l2-8Z"/>'),
-    archive: S('<rect x="4" y="5" width="16" height="4" rx="1"/><path d="M5 9v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"/><path d="M10 13h4"/>'),
-    clock:   S('<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/>'),
-    save:    S('<path d="M12 4v9"/><path d="M8.5 10.5 12 14l3.5-3.5"/><path d="M5 18h14"/>'),
-    userplus:S('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.3 2.9-6 6.5-6s6.5 2.7 6.5 6"/><path d="M18 8v6M15 11h6"/>'),
-    users:   S('<circle cx="8.5" cy="8" r="3"/><path d="M2.5 20c0-3.2 2.7-5.5 6-5.5s6 2.3 6 5.5"/><path d="M15.5 5.2a3 3 0 0 1 0 5.8M17.5 20c0-2-.6-3.8-1.7-5.2"/>'),
-    wheel:   S('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2"/>'),
-    pulse:   S('<path d="M3 12h4l2.5-7 4 15 2.5-8H21"/>'),
-    crown:   S('<path d="M4 8l3.6 3.2L12 5l4.4 6.2L20 8l-1.4 10.5H5.4L4 8Z"/>'),
-    smile:   S('<circle cx="12" cy="12" r="9"/><path d="M8.5 14c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8"/><path d="M9 9.5h.01M15 9.5h.01"/>'),
-    gear:    S('<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2.5 12h3M18.5 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'),
-    sparkle: S('<path d="M12 3l1.7 5L19 9.5l-5.3 1.5L12 16l-1.7-5L5 9.5l5.3-1.5L12 3Z"/><path d="M18.5 15l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6.6-1.9Z"/>'),
-    trash:   S('<path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M6.5 7l1 12a1 1 0 0 0 1 .9h7a1 1 0 0 0 1-.9l1-12"/><path d="M10 11v6M14 11v6"/>'),
-  };
-})();
-function paintUiIcons(root = document) {
-  root.querySelectorAll('[data-ic]').forEach(el => {
-    const svg = UI_ICONS[el.getAttribute('data-ic')];
-    if (svg && !el.querySelector('svg')) el.innerHTML = svg;
-  });
-}
-window.paintUiIcons = paintUiIcons;
-paintUiIcons();
-
 // ── Background Manager ────────────────────────────────────────────────────────
 const BGManager = (() => {
   const layer  = document.getElementById('bg-layer');
