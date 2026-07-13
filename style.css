@@ -4105,3 +4105,19 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 @keyframes navSlideLeft  { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
 .screen.active.nav-slide-right { animation: navSlideRight .3s var(--ease); }
 .screen.active.nav-slide-left  { animation: navSlideLeft  .3s var(--ease); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Confettis de victoire (etape 6) : declenches sur victoire, champion de quiz
+   et passage de niveau. DOM leger, plafonne cote JS, respecte reduced-motion.
+   ══════════════════════════════════════════════════════════════════════════ */
+.confetti-layer { position: fixed; inset: 0; pointer-events: none; z-index: 4000; overflow: hidden; }
+.confetti-bit {
+  position: absolute; top: 0; left: 0;
+  will-change: transform, opacity;
+  animation: confettiFall var(--dur, 1.4s) cubic-bezier(.2,.6,.35,1) forwards;
+}
+@keyframes confettiFall {
+  0%   { transform: translate3d(0, 0, 0) rotate(0); opacity: 1; }
+  10%  { opacity: 1; }
+  100% { transform: translate3d(var(--dx, 0), var(--dy, 100vh), 0) rotate(var(--rot, 360deg)); opacity: 0; }
+}

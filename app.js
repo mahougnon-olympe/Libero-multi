@@ -2567,6 +2567,42 @@ function goToHome() {
 // ── Fin de partie ─────────────────────────────────────────────────────────────
 const VICTORY_BANNER_CLASSES = ['victoryban-neon','victoryban-confetti','victoryban-flames','victoryban-lightning','victoryban-crown'];
 
+// Burst de confettis reutilisable : DOM leger, auto-nettoye, plafonne, et
+// desactive si le joueur a demande « reduire les animations ».
+function celebrate(opts = {}) {
+  try { if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch {}
+  const count = Math.min(opts.count || 90, 120);
+  const layer = document.createElement('div');
+  layer.className = 'confetti-layer';
+  document.body.appendChild(layer);
+  const colors = ['#6366f1', '#a855f7', '#22d3ee', '#fbbf24', '#f87171', '#34d399', '#f472b6'];
+  const originX = opts.x != null ? opts.x : window.innerWidth / 2;
+  const originY = opts.y != null ? opts.y : window.innerHeight * 0.22;
+  let maxDur = 0;
+  for (let i = 0; i < count; i++) {
+    const b = document.createElement('i');
+    b.className = 'confetti-bit';
+    const dx  = (Math.random() * 2 - 1) * window.innerWidth * 0.55;
+    const dy  = window.innerHeight * (0.55 + Math.random() * 0.45);
+    const dur = 1.1 + Math.random() * 0.9;
+    const size = 7 + Math.random() * 7;
+    maxDur = Math.max(maxDur, dur);
+    b.style.left = originX + 'px';
+    b.style.top = originY + 'px';
+    b.style.width = size + 'px';
+    b.style.height = (size * 1.4) + 'px';
+    b.style.background = colors[i % colors.length];
+    if (Math.random() < 0.35) b.style.borderRadius = '50%';
+    b.style.setProperty('--dx', dx + 'px');
+    b.style.setProperty('--dy', dy + 'px');
+    b.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+    b.style.setProperty('--dur', dur + 's');
+    layer.appendChild(b);
+  }
+  setTimeout(() => layer.remove(), maxDur * 1000 + 250);
+}
+window._celebrate = celebrate;
+
 function showGameOver(status, winner) {
   gameActive = false;
   if (currentGame === 'connect4') setArrowsEnabled(false);
@@ -2580,6 +2616,7 @@ function showGameOver(status, winner) {
     $('status-text').textContent = isWinner ? t().youWon : t().youLost;
     if (isWinner) {
       SFX.win();
+      celebrate();
       if (equippedVictoryBan) gs.classList.add(equippedVictoryBan);
     } else SFX.lose();
   } else {
@@ -3902,6 +3939,7 @@ function showTriviaFinished(scores) {
     try { await navigator.clipboard.writeText(text); showCursorSnakeToast(t().triviaShareCopied); } catch {}
   });
   $('tg-finished').classList.remove('hidden');
+  if (!triviaIsSolo && myIdx === 0) celebrate(); // champion du quiz multi
 }
 
 $('btn-leave-trivia-game').addEventListener('click', goToTriviaHome);
@@ -10288,7 +10326,7 @@ window._renderLevel = function () {
 socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
   window._myXp = xp; window._myLevel = level;
   window._renderLevel();
-  if (levelUp) showCursorSnakeToast(t().levelUpToast(levelUp, reward || 0));
+  if (levelUp) { showCursorSnakeToast(t().levelUpToast(levelUp, reward || 0)); if (typeof celebrate === 'function') celebrate(); }
 });
 
 // ── Roue de la fortune (1 tour par jour) ─────────────────────────────────────
