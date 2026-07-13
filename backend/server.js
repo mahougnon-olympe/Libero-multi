@@ -921,10 +921,10 @@ function makeFriends(idA, idB) {
 
 // Depose un cadeau chez un joueur : credite tout de suite, et le message
 // (avec bouton OK) est affiche en direct ou a la prochaine connexion.
-function deliverGift(pid, { fromName, libsAmount = 0, cosmeticId = null }) {
+function deliverGift(pid, { fromName, libsAmount = 0, cosmeticId = null, vip = false }) {
   const entry = getLibsEntry(pid);
   if (!entry) return false;
-  const gift = { id: crypto.randomUUID(), fromName: String(fromName || '').slice(0, 20), libs: Math.max(0, Math.floor(libsAmount)), cosmeticId: cosmeticId || null, at: Date.now() };
+  const gift = { id: crypto.randomUUID(), fromName: String(fromName || '').slice(0, 20), libs: Math.max(0, Math.floor(libsAmount)), cosmeticId: cosmeticId || null, vip: !!vip, at: Date.now() };
   if (!Array.isArray(entry.pendingGifts)) entry.pendingGifts = [];
   entry.pendingGifts.push(gift);
   entry.pendingGifts = entry.pendingGifts.slice(-10);
@@ -3076,6 +3076,31 @@ io.on('connection', (socket) => {
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, vipUntil: entry.vipUntil, nextAt: nextDistributionAt });
   });
 
+  // Offrir un Pass VIP a un ami (paye par l'offreur, credite chez l'ami, message OK).
+  socket.on('gift-vip', ({ playerId, ref } = {}) => {
+    if (!allowAction('giftvip', 10, 60_000)) { socket.emit('gift-vip-result', { ok: false, error: 'rate' }); return; }
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') { socket.emit('gift-vip-result', { ok: false, error: 'noname' }); return; }
+    const pid = entry.friends.find(p => _playerRef(p).slice(0, 8) === String(ref || ''));
+    if (!pid) { socket.emit('gift-vip-result', { ok: false, error: 'notfriend' }); return; }
+    if (entry.balance < VIP_PRICE) { socket.emit('gift-vip-result', { ok: false, error: 'insufficient' }); return; }
+    const target = getLibsEntry(pid);
+    // Meme plafond de 3 mois chez le destinataire.
+    if ((target.vipUntil || 0) - Date.now() > 60 * 24 * 3600 * 1000) {
+      socket.emit('gift-vip-result', { ok: false, error: 'targetmax', name: target.name }); return;
+    }
+    entry.balance -= VIP_PRICE;
+    target.vipUntil = Math.max(Date.now(), target.vipUntil || 0) + VIP_DURATION_MS;
+    libs.set(id, entry); libs.set(pid, target);
+    dbUpsertLibs(id, entry); dbUpsertLibs(pid, target);
+    _emitToPlayer(pid, 'libs-update', { vipUntil: target.vipUntil, nextAt: nextDistributionAt });
+    deliverGift(pid, { fromName: entry.name, vip: true });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, nextAt: nextDistributionAt });
+    socket.emit('gift-vip-result', { ok: true, name: target.name });
+  });
+
   // ── Tournoi du samedi ─────────────────────────────────────────────────────
   socket.on('get-tournament', () => socket.emit('tournament-update', tournamentPayload()));
 
@@ -3223,6 +3248,48 @@ io.on('connection', (socket) => {
     if (db) db.collection('gift_codes').updateOne({ _id: code }, { $set: rec }, { upsert: true }).catch(() => {});
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
     socket.emit('gift-cosmetic-result', { ok: true, code, cosmeticId: rec.cosmeticId || null, bundleId: rec.bundleId || null });
+    bumpChallenge(id, 'giftsSent');
+  });
+
+  // Offrir un cosmetique/pack DIRECTEMENT a un ami (sans code) : debite l'offreur,
+  // credite l'ami tout de suite, message avec bouton OK chez lui.
+  socket.on('gift-cosmetic-friend', ({ playerId, cosmeticId, bundleId, ref } = {}) => {
+    if (!allowAction('buy')) { socket.emit('gift-cosmetic-result', { ok: false, error: 'rate' }); return; }
+    const id = safePlayerId(playerId);
+    if (!id) { socket.emit('gift-cosmetic-result', { ok: false, error: 'invalid' }); return; }
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') { socket.emit('gift-cosmetic-result', { ok: false, error: 'anonymous' }); return; }
+    const pid = entry.friends.find(p => _playerRef(p).slice(0, 8) === String(ref || ''));
+    if (!pid) { socket.emit('gift-cosmetic-result', { ok: false, error: 'notfriend' }); return; }
+    const target = getLibsEntry(pid);
+    let price, granted = [], boostAdded = 0;
+    if (bundleId) {
+      const bundle = BUNDLES.find(b => b.id === bundleId);
+      if (!bundle) { socket.emit('gift-cosmetic-result', { ok: false, error: 'invalid' }); return; }
+      price = bundle.bundlePrice;
+      const bundleCosmetics = bundle.items.filter(itemId => COSMETICS.some(c => c.id === itemId));
+      const bundleBoosts    = bundle.items.filter(itemId => SHOP_ITEMS.some(s => s.id === itemId));
+      granted = bundleCosmetics.filter(itemId => !target.ownedCosmetics.includes(itemId));
+      if (!granted.length && !bundleBoosts.length) { socket.emit('gift-cosmetic-result', { ok: false, error: 'target_owns' }); return; }
+      if (entry.balance < price) { socket.emit('gift-cosmetic-result', { ok: false, error: 'insufficient' }); return; }
+      granted.forEach(itemId => target.ownedCosmetics.push(itemId));
+      bundleBoosts.forEach(itemId => { const it = SHOP_ITEMS.find(s => s.id === itemId); if (it) { target.pendingBoostHint = (target.pendingBoostHint || 0) + it.amount; boostAdded += it.amount; } });
+    } else {
+      const cosmetic = COSMETICS.find(c => c.id === cosmeticId);
+      if (!cosmetic || cosmetic.honorary || cosmetic.price <= 0) { socket.emit('gift-cosmetic-result', { ok: false, error: 'invalid' }); return; }
+      price = cosmetic.price;
+      if (target.ownedCosmetics.includes(cosmeticId)) { socket.emit('gift-cosmetic-result', { ok: false, error: 'target_owns' }); return; }
+      if (entry.balance < price) { socket.emit('gift-cosmetic-result', { ok: false, error: 'insufficient' }); return; }
+      target.ownedCosmetics.push(cosmeticId);
+      granted = [cosmeticId];
+    }
+    entry.balance -= price;
+    libs.set(id, entry); libs.set(pid, target);
+    dbUpsertLibs(id, entry); dbUpsertLibs(pid, target);
+    _emitToPlayer(pid, 'libs-update', { ownedCosmetics: target.ownedCosmetics, pendingBoostHint: target.pendingBoostHint, ..._equippedPayload(target), nextAt: nextDistributionAt });
+    deliverGift(pid, { fromName: entry.name, cosmeticId: granted[0] || null });
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, nextAt: nextDistributionAt });
+    socket.emit('gift-cosmetic-result', { ok: true, toFriend: target.name });
     bumpChallenge(id, 'giftsSent');
   });
 

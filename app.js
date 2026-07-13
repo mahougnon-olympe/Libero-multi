@@ -428,13 +428,20 @@ const DICT = {
     friendRequestAccepted:name=>`🤝 ${name} et toi êtes maintenant amis !`,
     friendRequestFrom:name=>`👥 ${name} te demande en ami`,
     friendReqAccept:'Accepter', friendReqDecline:'Refuser',
+    friendsPendingLabel:'📥 Demandes en attente', friendsListLabel:'👥 Mes amis',
     friendsGiftTitle:name=>`🎁 Offrir des Libs à ${name}`,
     friendsGiftSent:(n,name)=>`🎁 ${n} ⚡ envoyés à ${name} !`,
     friendsGiftErrDaily:left=>`Limite de 500 ⚡ offerts par jour atteinte (il te reste ${left} ⚡ offrables).`,
     friendsGiftErrInsufficient:'Solde insuffisant.',
+    friendsGiftLibsLabel:'Montant en Libs', friendsGiftVipLabel:'Ou offre-lui un Pass VIP',
+    friendsGiftVipBtn:price=>`👑 Pass VIP 30 j (${price} ⚡)`, friendsGiftVipShort:price=>`un Pass VIP (${price} ⚡)`,
+    friendsGiftConfirm:(what,name)=>`✅ Confirmer : offrir ${what} à ${name}`,
+    friendsGiftVipSent:name=>`👑 Pass VIP offert à ${name} !`,
+    friendsGiftVipTargetMax:name=>`${name} a déjà le maximum de VIP en réserve (3 mois).`,
     giftRecvTitle:'🎁 Tu as reçu un cadeau !',
     giftRecvLibs:(from,n)=>`${from || 'Quelqu\'un'} t'a offert ${n} ⚡ !`,
     giftRecvCosm:from=>`${from || 'Quelqu\'un'} t'a offert un cosmétique ! Retrouve-le dans ton casier.`,
+    giftRecvVip:from=>`👑 ${from || 'Quelqu\'un'} t'a offert un Pass VIP de 30 jours ! Profite de tes +20% de Libs.`,
     giftRecvBoth:(from,n)=>`${from || 'Quelqu\'un'} t'a offert ${n} ⚡ et un cosmétique !`,
     challengeFriendBtn:'⚔️ Défier un ami',
     friendPickTitle:'⚔️ Qui veux-tu défier ?',
@@ -514,6 +521,16 @@ const DICT = {
     },
     lockerBackCats:'Toutes les catégories',
     shopGiftBtn:price=>`🎁 Offrir (${price} ⚡)`,
+    giftChoiceTitle:name=>`🎁 Offrir ${name}`,
+    giftChoiceIntro:price=>`Cet article coûte ${price} ⚡. Choisis comment l'offrir :`,
+    giftChoiceFriendsLabel:'Choisis un ami à qui l\'envoyer directement :',
+    giftChoiceNoFriends:'Aucun ami pour le moment. Ajoute des amis dans ton Profil, ou offre par lien/code.',
+    giftChoiceSendBtn:'Choisir',
+    giftChoiceConfirmLink:(name,price)=>`Tu vas payer ${price} ⚡ et recevoir un lien + un code cadeau pour ${name}, à partager à la personne de ton choix.`,
+    giftChoiceConfirmFriend:(name,friend,price)=>`Tu vas payer ${price} ⚡ pour offrir ${name} directement à ${friend}. Il le recevra tout de suite avec un message.`,
+    giftChoiceConfirmBtn:price=>`✅ Confirmer (${price} ⚡)`,
+    giftChoiceSentFriend:name=>`🎁 Cadeau envoyé à ${name} !`,
+    giftChoiceTargetOwns:'Ton ami possède déjà cet article.',
     shopGiftReceiveTitle:'🎁 Recevoir un cadeau',
     shopGiftReceiveDesc:"Un ami t'a offert un cosmétique ? Entre le code cadeau qu'il t'a envoyé pour le débloquer.",
     shopGiftReceiveBtn:'Recevoir',
@@ -900,7 +917,7 @@ const DICT = {
         { icon:'🎒', title:'Mon casier', desc:"Dans l'onglet <strong>Profil</strong>, le <strong>casier</strong> range tout ce que tu possèdes, <strong>classé par catégorie</strong>. Chaque catégorie est une <strong>carte</strong> : clique dessus pour voir les articles de ce type avec leur <strong>aperçu visuel</strong>, puis <strong>équipe</strong> ou <strong>déséquipe</strong> directement, sans passer par la boutique. Bonus : <strong>3 fonds d'écran gratuits</strong> (Nuit Calme, Ardoise Profonde, Brume Violette) sont offerts à tous les joueurs et t'attendent déjà dedans. Les articles retirés de la vente que tu avais achetés restent disponibles ici." },
         { icon:'🔐', title:'Code de récupération', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Sauvegarder ma progression</strong> affiche ton <strong>code de récupération</strong> : c'est la clé de ton compte. Note-le en lieu sûr ! Si tu changes ou perds ton appareil, colle ce code sur le nouvel appareil (même carte → <em>Restaurer</em>) pour retrouver <strong>toute ta progression</strong> : Libs, cosmétiques, série, historique et pseudo. À la toute première visite, le site te propose aussi de récupérer une progression existante. Ne partage ce code avec personne." },
         { icon:'🗑️', title:'Réinitialiser le compte', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Réinitialiser le compte</strong> supprime <strong>définitivement</strong> toute ta progression : Libs, cosmétiques, série, historique, et tu <strong>disparais de tous les classements</strong>. Le site redémarre ensuite comme à ta toute première visite (animation de bienvenue comprise). Il faut cocher la case de confirmation pour valider. Attention : après la réinitialisation, ton ancien code de récupération ne fonctionne plus." },
-        { icon:'🎁', title:'Offrir un cosmétique ou un pack', desc:"Tu peux <strong>offrir</strong> n'importe quel cosmétique payant <strong>ou pack (bundle)</strong> de la boutique ! Ouvre sa fiche et clique <strong>🎁 Offrir</strong> : tu paies son prix en ⚡ et tu reçois un <strong>lien cadeau</strong> à partager (WhatsApp, etc.). Ton ami <strong>ouvre le lien et reçoit le cadeau automatiquement</strong>. Si le lien ne passe pas, un <strong>code cadeau</strong> est aussi fourni, à entrer dans la boutique, section <strong>🎟️ Codes → Recevoir un cadeau</strong>. Chaque cadeau n'est utilisable qu'<strong>une seule fois</strong>." },
+        { icon:'🎁', title:'Offrir un cosmétique ou un pack', desc:"Tu peux <strong>offrir</strong> n'importe quel cosmétique payant <strong>ou pack (bundle)</strong> de la boutique ! Ouvre sa fiche et clique <strong>🎁 Offrir</strong>, puis choisis comment l'offrir : <strong>👥 directement à un ami</strong> (il le reçoit tout de suite avec un message), <strong>🔗 par un lien</strong> à partager (WhatsApp, etc.) ou <strong>🔢 par un code</strong>. Un <strong>bouton de confirmation</strong> t'indique le prix avant de débiter tes ⚡, rien n'est envoyé tant que tu ne confirmes pas. Lien et code ne sont utilisables qu'<strong>une seule fois</strong>." },
         { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> · ton serpent mange des <strong>⚡ Libs</strong> pour grandir, et chaque ⚡ mangé est <strong>ajouté à ton solde</strong> (score 10 = 10 Libs gagnés). Les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
         { icon:'🏆', title:'Tournoi du samedi', desc:"Chaque <strong>samedi</strong>, un tournoi automatique se joue sur tout le site (suivi en direct dans la carte <strong>News</strong>) : victoires classiques <strong>+10 pts</strong>, bonnes réponses de quiz <strong>+2 pts</strong>, ⚡ mangés au Snake <strong>+1 pt</strong>. À minuit, le meilleur remporte <strong>2000 ⚡</strong> et le titre honorifique <strong>« Champion de la semaine »</strong>, gardé jusqu'au tournoi suivant. Le top 10 s'affiche en direct." },
         { icon:'🤝', title:'Inviter un ami (parrainage)', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Inviter un ami</strong> te donne ton <strong>lien d'invitation</strong>. Quand un nouveau joueur arrive par ton lien et joue sa <strong>première partie</strong>, vous recevez chacun <strong>+100 ⚡</strong>. Le nombre de joueurs que tu as parrainés s'affiche dans la fenêtre." },
@@ -908,8 +925,8 @@ const DICT = {
         { icon:'⭐', title:'Niveaux et XP', desc:"Chaque partie te rapporte de l'<strong>XP</strong> (+25 par partie, bonus en cas de <strong>victoire</strong> et selon ton score au <strong>quiz</strong>). Ton <strong>niveau</strong> s'affiche en haut de ton Profil avec une barre de progression. À chaque niveau gagné tu reçois des <strong>⚡ Libs</strong> (de plus en plus), et les paliers <strong>10, 25 et 50</strong> offrent un gros bonus (jusqu'à <strong>+5000 ⚡</strong>)." },
         { icon:'🧠', title:'Test de QI', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Mon QI</strong> se débloque après <strong>10 quiz terminés</strong> (solo ou en groupe). Le test : <strong>15 questions de logique</strong>, 30 secondes chacune. Ta précision et ta vitesse donnent un <strong>QI estimé</strong> (c'est une estimation ludique, pas un test médical !). Tu peux le repasser tous les <strong>3 jours</strong> et <strong>partager</strong> ton score à tes amis." },
         { icon:'🎡', title:'Roue de la fortune', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Roue de la fortune</strong> t'offre <strong>un tour gratuit par jour</strong> : de <strong>5 à 250 ⚡</strong> à gagner à chaque tour. Il faut un pseudo pour jouer. Reviens chaque jour pour ton tour gratuit !" },
-        { icon:'👥', title:'Mes amis', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Mes amis</strong> : envoie une <strong>demande d'ami</strong> avec le <strong>code ami</strong> de l'autre (le même code que dans « Inviter un ami »), ou en cliquant un <strong>pseudo dans les classements</strong>. L'autre <strong>accepte ou refuse</strong> (les <strong>demandes en attente</strong> s'affichent dans la fenêtre Mes amis) ; une fois amis, vous êtes chacun dans la liste de l'autre. <strong>Retirer un ami</strong> ne le retire que de <strong>ta</strong> liste. Tu vois qui est <strong>en ligne</strong> (point vert), tu peux lui <strong>offrir des Libs</strong> 🎁 (10 à 500 ⚡, max 500 offerts par jour) et le <strong>défier</strong> depuis les zones <strong>Jeux classiques</strong> et <strong>Quiz</strong> (bouton ⚔️ Défier un ami : tu choisis le jeu, les thèmes et la mise). Bonus : parrain et filleul deviennent amis automatiquement. Jusqu'à 30 amis." },
-        { icon:'👑', title:'Pass VIP', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Pass VIP</strong> : pour <strong>2000 ⚡</strong>, deviens VIP pendant <strong>30 jours</strong>. Avantages : badge <strong>👑 VIP</strong> sur ton profil et <strong>+20% de Libs</strong> sur tes gains (série de connexion, défis, roue de la fortune, tournoi du samedi). Rachète pour prolonger (maximum <strong>3 mois</strong> de VIP en réserve)." },
+        { icon:'👥', title:'Mes amis', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Mes amis</strong> : envoie une <strong>demande d'ami</strong> avec le <strong>code ami</strong> de l'autre (le même code que dans « Inviter un ami »), ou en cliquant un <strong>pseudo dans les classements</strong>. L'autre <strong>accepte ou refuse</strong> (les <strong>demandes en attente</strong> s'affichent dans la fenêtre Mes amis) ; une fois amis, vous êtes chacun dans la liste de l'autre. <strong>Retirer un ami</strong> ne le retire que de <strong>ta</strong> liste. Tu vois qui est <strong>en ligne</strong> (point vert), tu peux lui <strong>offrir des Libs ou un Pass VIP</strong> 🎁 (avec une confirmation avant l'envoi), et le <strong>défier</strong> depuis les zones <strong>Jeux classiques</strong> et <strong>Quiz</strong> (bouton ⚔️ Défier un ami : tu choisis le jeu, les thèmes et la mise). Bonus : parrain et filleul deviennent amis automatiquement. Jusqu'à 30 amis." },
+        { icon:'👑', title:'Pass VIP', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Pass VIP</strong> : pour <strong>2000 ⚡</strong>, deviens VIP pendant <strong>30 jours</strong>. Avantages : badge <strong>👑 VIP</strong> sur ton profil et <strong>+20% de Libs</strong> sur tes gains (série de connexion, défis, roue de la fortune, tournoi du samedi). Rachète pour prolonger (maximum <strong>3 mois</strong> de VIP en réserve). Tu peux aussi <strong>offrir un Pass VIP à un ami</strong> depuis la fenêtre 🎁 de ta liste d'amis." },
         { icon:'🎲', title:'Ludo', desc:"Le <strong>Ludo</strong> classique en 1 contre 1 : 4 pions chacun, lance le <strong>dé</strong>, il faut un <strong>6</strong> pour sortir un pion. Atterrir sur un pion adverse le <strong>capture</strong> (retour à la base), sauf sur les cases <strong>étoilées ★</strong>. Un 6 ou une capture fait <strong>rejouer</strong>. Fais faire le tour complet à tes 4 pions et remonte la colonne d'arrivée pour gagner. Jouable contre un ami (avec <strong>mise</strong> possible) ou contre le bot." },
         { icon:'🌱', title:'Quiz révisions', desc:"Trois thèmes de quiz <strong>spécial école</strong> sont disponibles : <strong>🌱 SVT</strong>, <strong>🇬🇧 Anglais</strong> et <strong>🇧🇯 Bénin</strong> (histoire et géographie du pays). Révise en t'amusant, seul ou en salon avec ta classe ! Trois niveaux de difficulté comme pour les autres thèmes." },
         { icon:'📱', title:"Installer l'appli et notifications", desc:"Le site s'<strong>installe comme une appli</strong> : dans ton navigateur, menu → <strong>« Ajouter à l'écran d'accueil »</strong> (ou « Installer l'application »). Tu peux aussi activer les <strong>🔔 notifications</strong> dans <strong>Profil → Réglages → Notifications</strong> pour être prévenu des tournois, annonces et offres flash, même quand le site est fermé." },
@@ -1092,13 +1109,20 @@ const DICT = {
     friendRequestAccepted:name=>`🤝 You and ${name} are now friends!`,
     friendRequestFrom:name=>`👥 ${name} wants to be your friend`,
     friendReqAccept:'Accept', friendReqDecline:'Decline',
+    friendsPendingLabel:'📥 Pending requests', friendsListLabel:'👥 My friends',
     friendsGiftTitle:name=>`🎁 Gift Libs to ${name}`,
     friendsGiftSent:(n,name)=>`🎁 ${n} ⚡ sent to ${name}!`,
     friendsGiftErrDaily:left=>`Daily limit of 500 ⚡ gifted reached (${left} ⚡ left to gift today).`,
     friendsGiftErrInsufficient:'Insufficient balance.',
+    friendsGiftLibsLabel:'Amount in Libs', friendsGiftVipLabel:'Or gift them a VIP Pass',
+    friendsGiftVipBtn:price=>`👑 VIP Pass 30d (${price} ⚡)`, friendsGiftVipShort:price=>`a VIP Pass (${price} ⚡)`,
+    friendsGiftConfirm:(what,name)=>`✅ Confirm: gift ${what} to ${name}`,
+    friendsGiftVipSent:name=>`👑 VIP Pass gifted to ${name}!`,
+    friendsGiftVipTargetMax:name=>`${name} already has the maximum VIP stored (3 months).`,
     giftRecvTitle:'🎁 You received a gift!',
     giftRecvLibs:(from,n)=>`${from || 'Someone'} gifted you ${n} ⚡!`,
     giftRecvCosm:from=>`${from || 'Someone'} gifted you a cosmetic! Find it in your locker.`,
+    giftRecvVip:from=>`👑 ${from || 'Someone'} gifted you a 30-day VIP Pass! Enjoy your +20% Libs.`,
     giftRecvBoth:(from,n)=>`${from || 'Someone'} gifted you ${n} ⚡ and a cosmetic!`,
     challengeFriendBtn:'⚔️ Challenge a friend',
     friendPickTitle:'⚔️ Who do you want to challenge?',
@@ -1178,6 +1202,16 @@ const DICT = {
     },
     lockerBackCats:'All categories',
     shopGiftBtn:price=>`🎁 Gift (${price} ⚡)`,
+    giftChoiceTitle:name=>`🎁 Gift ${name}`,
+    giftChoiceIntro:price=>`This item costs ${price} ⚡. Choose how to gift it:`,
+    giftChoiceFriendsLabel:'Choose a friend to send it to directly:',
+    giftChoiceNoFriends:'No friends yet. Add friends in your Profile, or gift by link/code.',
+    giftChoiceSendBtn:'Choose',
+    giftChoiceConfirmLink:(name,price)=>`You will pay ${price} ⚡ and get a gift link + code for ${name}, to share with anyone.`,
+    giftChoiceConfirmFriend:(name,friend,price)=>`You will pay ${price} ⚡ to gift ${name} directly to ${friend}. They receive it right away with a message.`,
+    giftChoiceConfirmBtn:price=>`✅ Confirm (${price} ⚡)`,
+    giftChoiceSentFriend:name=>`🎁 Gift sent to ${name}!`,
+    giftChoiceTargetOwns:'Your friend already owns this item.',
     shopGiftReceiveTitle:'🎁 Receive a gift',
     shopGiftReceiveDesc:'A friend gifted you a cosmetic? Enter the gift code they sent you to unlock it.',
     shopGiftReceiveBtn:'Receive',
@@ -1564,7 +1598,7 @@ const DICT = {
         { icon:'🎒', title:'My locker', desc:"In the <strong>Profile</strong> tab, the <strong>locker</strong> holds everything you own, <strong>sorted by category</strong>. Each category is a <strong>card</strong>: tap it to see the items of that type with their <strong>visual preview</strong>, then <strong>equip</strong> or <strong>unequip</strong> directly, without opening the shop. Bonus: <strong>3 free backgrounds</strong> (Calm Night, Deep Slate, Violet Mist) are gifted to every player and are already waiting inside. Items you had bought that were later removed from sale are still available here." },
         { icon:'🔐', title:'Recovery code', desc:"In the <strong>Profile</strong> tab, the <strong>Save my progress</strong> card shows your <strong>recovery code</strong>: it is the key to your account. Write it down somewhere safe! If you change or lose your device, paste this code on the new device (same card → <em>Restore</em>) to get <strong>all your progress</strong> back: Libs, cosmetics, streak, history and nickname. On your very first visit, the site also offers to recover an existing progress. Never share this code with anyone." },
         { icon:'🗑️', title:'Reset account', desc:"In the <strong>Profile</strong> tab, the <strong>Reset account</strong> card <strong>permanently</strong> deletes all your progress: Libs, cosmetics, streak, history, and you <strong>disappear from every leaderboard</strong>. The site then restarts as if it were your very first visit (welcome animation included). You must tick the confirmation box to proceed. Warning: after the reset, your old recovery code no longer works." },
-        { icon:'🎁', title:'Gift a cosmetic or a pack', desc:"You can <strong>gift</strong> any paid cosmetic <strong>or pack (bundle)</strong> from the shop! Open its detail sheet and click <strong>🎁 Gift</strong>: you pay its price in ⚡ and receive a <strong>gift link</strong> to share (WhatsApp, etc.). Your friend <strong>opens the link and receives the gift automatically</strong>. If the link does not work, a <strong>gift code</strong> is also provided, to enter in the shop, <strong>🎟️ Codes → Receive a gift</strong> section. Each gift can only be used <strong>once</strong>." },
+        { icon:'🎁', title:'Gift a cosmetic or a pack', desc:"You can <strong>gift</strong> any paid cosmetic <strong>or pack (bundle)</strong> from the shop! Open its detail sheet and click <strong>🎁 Gift</strong>, then choose how: <strong>👥 straight to a friend</strong> (they get it right away with a message), <strong>🔗 via a link</strong> to share, or <strong>🔢 via a code</strong>. A <strong>confirmation button</strong> shows the price before charging your ⚡, nothing is sent until you confirm. Link and code can only be used <strong>once</strong>." },
         { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> · your snake eats <strong>⚡ Libs</strong> to grow, and every ⚡ eaten is <strong>added to your balance</strong> (score 10 = 10 Libs earned). Walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
         { icon:'🏆', title:'Saturday tournament', desc:"Every <strong>Saturday</strong>, an automatic tournament runs across the whole site (followed live in the <strong>News</strong> card): classic wins <strong>+10 pts</strong>, correct quiz answers <strong>+2 pts</strong>, ⚡ eaten in Snake <strong>+1 pt</strong>. At midnight the best player wins <strong>2000 ⚡</strong> and the honorary <strong>\"Weekly Champion\"</strong> title, kept until the next tournament. The top 10 shows live." },
         { icon:'🤝', title:'Invite a friend (referral)', desc:"In the <strong>Profile</strong> tab, the <strong>Invite a friend</strong> card gives you your <strong>invite link</strong>. When a new player arrives through your link and plays their <strong>first game</strong>, you each receive <strong>+100 ⚡</strong>. The number of players you referred shows in the window." },
@@ -1573,7 +1607,7 @@ const DICT = {
         { icon:'🧠', title:'IQ test', desc:"In your <strong>Profile</strong>, the <strong>My IQ</strong> card unlocks after <strong>10 finished quizzes</strong> (solo or group). The test: <strong>15 logic questions</strong>, 30 seconds each. Your accuracy and speed give an <strong>estimated IQ</strong> (a playful estimate, not a medical test!). You can retake it every <strong>3 days</strong> and <strong>share</strong> your score with friends." },
         { icon:'🎡', title:'Wheel of fortune', desc:"In your <strong>Profile</strong>, the <strong>Wheel of fortune</strong> card gives you <strong>one free spin a day</strong>: win <strong>5 to 250 ⚡</strong> every spin. A nickname is required. Come back every day for your free spin!" },
         { icon:'👥', title:'My friends', desc:"In your <strong>Profile</strong>, the <strong>My friends</strong> card: send a <strong>friend request</strong> with the other player's <strong>friend code</strong> (the same code as in \"Invite a friend\"), or by clicking a <strong>name in the leaderboards</strong>. They <strong>accept or decline</strong> (pending <strong>requests</strong> show in the My friends window); once friends, you are in each other's list. <strong>Removing a friend</strong> only removes them from <strong>your</strong> list. See who is <strong>online</strong> (green dot), <strong>gift them Libs</strong> 🎁 (10 to 500 ⚡, max 500 gifted per day) and <strong>challenge them</strong> from the <strong>Classic Games</strong> and <strong>Quiz</strong> areas (⚔️ Challenge a friend button: you pick the game, themes and stake). Bonus: sponsor and referred player become friends automatically. Up to 30 friends." },
-        { icon:'👑', title:'VIP Pass', desc:"In your <strong>Profile</strong>, the <strong>VIP Pass</strong> card: for <strong>2000 ⚡</strong>, become VIP for <strong>30 days</strong>. Perks: a <strong>👑 VIP</strong> badge on your profile and <strong>+20% Libs</strong> on your earnings (login streak, challenges, wheel of fortune, Saturday tournament). Buy again to extend (maximum <strong>3 months</strong> of VIP stored)." },
+        { icon:'👑', title:'VIP Pass', desc:"In your <strong>Profile</strong>, the <strong>VIP Pass</strong> card: for <strong>2000 ⚡</strong>, become VIP for <strong>30 days</strong>. Perks: a <strong>👑 VIP</strong> badge on your profile and <strong>+20% Libs</strong> on your earnings (login streak, challenges, wheel of fortune, Saturday tournament). Buy again to extend (maximum <strong>3 months</strong> of VIP stored). You can also <strong>gift a VIP Pass to a friend</strong> from the 🎁 window in your friends list." },
         { icon:'🎲', title:'Ludo', desc:"Classic <strong>Ludo</strong> in 1 vs 1: 4 pawns each, roll the <strong>dice</strong>, you need a <strong>6</strong> to leave the base. Landing on an opponent's pawn <strong>captures</strong> it (back to base), except on <strong>starred ★</strong> squares. A 6 or a capture lets you <strong>play again</strong>. Take all 4 pawns around the board and up the home column to win. Play against a friend (with an optional <strong>stake</strong>) or against the bot." },
         { icon:'🌱', title:'Revision quizzes', desc:"Three <strong>school-focused</strong> quiz themes are available: <strong>🌱 Biology</strong>, <strong>🇬🇧 English</strong> and <strong>🇧🇯 Benin</strong> (the country's history and geography). Revise while having fun, solo or in a room with your class! Three difficulty levels like the other themes." },
         { icon:'📱', title:'Install the app and notifications', desc:"The site <strong>installs like an app</strong>: in your browser, menu → <strong>\"Add to Home screen\"</strong> (or \"Install app\"). You can also enable <strong>🔔 notifications</strong> in <strong>Profile → Settings → Notifications</strong> to be alerted about tournaments, news and flash offers, even when the site is closed." },
@@ -5824,7 +5858,7 @@ function _openBundleDetail(bundle, allItemsById) {
   const actionHtml = (allOwned
     ? `<button class="btn btn-secondary" disabled>${d.shopBundleAlreadyOwned}</button>`
     : `<button class="btn btn-primary shop-detail-action-btn" data-bundle-id="${bundle.id}" data-action="buy-bundle">${d.shopBundleBuy(adjPrice)}</button>`)
-    + `<button class="btn btn-secondary shop-detail-action-btn shop-gift-offer-btn" data-bundle-id="${bundle.id}" data-action="gift-bundle">${d.shopGiftBtn(bundle.bundlePrice)}</button>`;
+    + `<button class="btn btn-secondary shop-detail-action-btn shop-gift-offer-btn" data-bundle-id="${bundle.id}" data-price="${bundle.bundlePrice}" data-name="${_escHtml(d.shopBundleNames[bundle.id] || bundle.id)}" data-action="gift-bundle">${d.shopGiftBtn(bundle.bundlePrice)}</button>`;
 
   panel.innerHTML = `
     <button class="shop-fn-detail-back" id="shop-detail-back">← ${fr ? 'Retour' : 'Back'}</button>
@@ -5850,7 +5884,7 @@ function _openBundleDetail(bundle, allItemsById) {
   });
   panel.querySelectorAll('[data-action="gift-bundle"]').forEach(btn => {
     btn.addEventListener('click', () => {
-      socket.emit('gift-cosmetic', { bundleId: btn.dataset.bundleId, playerId: getPlayerId() });
+      window._openGiftChoice?.({ bundleId: btn.dataset.bundleId }, Number(btn.dataset.price) || 0, btn.dataset.name || '');
     });
   });
 }
@@ -5956,7 +5990,7 @@ function _openShopDetail(item) {
   // Offrir : disponible pour tout cosmétique payant non honorifique (même si on
   // ne le possède pas). L'acheteur paie et reçoit un code cadeau à partager.
   const giftBtn = (!honorary && price > 0)
-    ? `<button class="btn btn-secondary shop-detail-action-btn shop-gift-offer-btn" data-id="${id}" data-action="gift">${d.shopGiftBtn(price)}</button>`
+    ? `<button class="btn btn-secondary shop-detail-action-btn shop-gift-offer-btn" data-id="${id}" data-price="${price}" data-giftname="${_escHtml(name || id)}" data-action="gift">${d.shopGiftBtn(price)}</button>`
     : '';
 
   panel.innerHTML = `
@@ -5987,7 +6021,7 @@ function _openShopDetail(item) {
       else if (action === 'equip')   socket.emit('equip-cosmetic',  { cosmeticId: bId,  type: bType, playerId: getPlayerId() });
       else if (action === 'unequip') socket.emit('equip-cosmetic',  { cosmeticId: bType === 'emote' ? bId : null, type: bType, playerId: getPlayerId(), remove: bType === 'emote' });
       else if (action === 'refund')  socket.emit('refund-cosmetic', { cosmeticId: bId,  playerId: getPlayerId() });
-      else if (action === 'gift')    socket.emit('gift-cosmetic',   { cosmeticId: bId,  playerId: getPlayerId() });
+      else if (action === 'gift')    window._openGiftChoice?.({ cosmeticId: bId }, Number(btn.dataset.price) || 0, btn.dataset.giftname || bId);
     });
   });
 }
@@ -9926,6 +9960,12 @@ window._renderLevel = function () {
   if (main) main.textContent = t().levelMain(lv);
   if (sub)  sub.textContent  = t().levelSub(xp, next);
   if (fill) fill.style.width = `${Math.min(100, Math.round(((xp - cur) / (next - cur)) * 100))}%`;
+  // Palette de la bande selon le palier de niveau (de plus en plus prestigieuse).
+  const banner = document.getElementById('level-banner');
+  if (banner) {
+    const tier = lv >= 50 ? 5 : lv >= 30 ? 4 : lv >= 15 ? 3 : lv >= 5 ? 2 : 1;
+    banner.className = 'level-banner level-tier-' + tier;
+  }
 };
 socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
   window._myXp = xp; window._myLevel = level;
@@ -10003,16 +10043,30 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
     socket.emit('add-friend', { playerId: getPlayerId(), ref: code });
     input.value = '';
   });
-  socket.on('friends-list', ({ friends } = {}) => {
+  socket.on('friends-list', ({ friends, requests } = {}) => {
     window._myFriends = friends || [];
+    window._myFriendRequests = requests || [];
     const list = window._myFriends;
-    listEl.innerHTML = list.length ? list.map(f => `
+    const reqs = window._myFriendRequests;
+    // En-tete « Demandes en attente » (Accepter / Refuser), puis la liste d'amis.
+    const reqHtml = reqs.length ? `
+      <p class="friends-section-label">${t().friendsPendingLabel}</p>
+      ${reqs.map(r => `
+        <div class="friend-row friend-req-row">
+          <span class="friend-dot"></span>
+          <span class="friend-name">${_escHtml(r.name)} <small class="friend-level">⭐ ${r.level}</small></span>
+          <button class="btn btn-primary friend-req-accept" data-ref="${r.ref}" data-name="${_escHtml(r.name)}">${t().friendReqAccept}</button>
+          <button class="btn btn-secondary friend-req-decline" data-ref="${r.ref}">${t().friendReqDecline}</button>
+        </div>`).join('')}
+      <p class="friends-section-label">${t().friendsListLabel}</p>` : '';
+    const listHtml = list.length ? list.map(f => `
       <div class="friend-row">
         <span class="friend-dot ${f.online ? 'on' : ''}" title="${f.online ? t().friendsOnline : t().friendsOffline}"></span>
         <span class="friend-name">${_escHtml(f.name)} <small class="friend-level">⭐ ${f.level}</small></span>
         <button class="btn btn-secondary friend-gift" data-ref="${f.ref}" data-name="${_escHtml(f.name)}" title="🎁">🎁</button>
         <button class="friend-remove" data-rm="${f.ref}" title="${t().friendsRemoveBtn}">✕</button>
       </div>`).join('') : `<p class="recovery-warn">${t().friendsEmpty}</p>`;
+    listEl.innerHTML = reqHtml + listHtml;
   });
   socket.on('friends-error', ({ reason } = {}) => {
     statusEl.textContent = reason === 'notfound' ? t().friendsErrNotFound
@@ -10029,6 +10083,19 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
   });
   socket.on('friend-accepted', ({ name } = {}) => showCursorSnakeToast(t().friendRequestAccepted(name)));
   listEl.addEventListener('click', e => {
+    const acc = e.target.closest('.friend-req-accept');
+    if (acc) {
+      socket.emit('respond-friend', { playerId: getPlayerId(), ref: acc.dataset.ref, accept: true });
+      statusEl.textContent = t().friendRequestAccepted(acc.dataset.name);
+      socket.emit('get-friends', { playerId: getPlayerId() });
+      return;
+    }
+    const dec = e.target.closest('.friend-req-decline');
+    if (dec) {
+      socket.emit('respond-friend', { playerId: getPlayerId(), ref: dec.dataset.ref, accept: false });
+      socket.emit('get-friends', { playerId: getPlayerId() });
+      return;
+    }
     const rm = e.target.closest('[data-rm]');
     if (rm) { socket.emit('remove-friend', { playerId: getPlayerId(), ref: rm.dataset.rm }); return; }
     const g = e.target.closest('.friend-gift');
@@ -10114,7 +10181,8 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
     document.getElementById('giftrecv-title').textContent = d.giftRecvTitle;
     const g = showing;
     document.getElementById('giftrecv-msg').textContent =
-      (g.libs > 0 && g.cosmeticId) ? d.giftRecvBoth(g.fromName, g.libs)
+      g.vip ? d.giftRecvVip(g.fromName)
+      : (g.libs > 0 && g.cosmeticId) ? d.giftRecvBoth(g.fromName, g.libs)
       : g.libs > 0 ? d.giftRecvLibs(g.fromName, g.libs)
       : d.giftRecvCosm(g.fromName);
     overlay.classList.remove('hidden');
@@ -10139,31 +10207,71 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
 (function initFriendGift() {
   const overlay = document.getElementById('overlay-friendgift');
   if (!overlay) return;
-  let ref = null;
+  const confirmBtn = document.getElementById('btn-friendgift-confirm');
+  const vipBtn = document.getElementById('friendgift-vip');
+  const statusEl = document.getElementById('friendgift-status');
+  let ref = null, friendName = '', pending = null; // pending = { kind:'libs'|'vip', amount }
+  function clearSel() {
+    document.querySelectorAll('#friendgift-amounts .stake-btn, #friendgift-vip').forEach(b => b.classList.remove('active'));
+    pending = null;
+    confirmBtn.classList.add('hidden');
+  }
   window._openFriendGift = (r, name) => {
-    ref = r;
-    document.getElementById('friendgift-title').textContent = t().friendsGiftTitle(name);
-    document.getElementById('friendgift-status').textContent = '';
+    ref = r; friendName = name || '';
+    document.getElementById('friendgift-title').textContent = t().friendsGiftTitle(friendName);
+    document.getElementById('friendgift-libs-label').textContent = t().friendsGiftLibsLabel;
+    document.getElementById('friendgift-vip-label').textContent = t().friendsGiftVipLabel;
+    vipBtn.textContent = t().friendsGiftVipBtn(VIP_PRICE);
+    statusEl.textContent = '';
+    clearSel();
     overlay.classList.remove('hidden');
   };
   const close = () => overlay.classList.add('hidden');
   document.getElementById('btn-friendgift-close')?.addEventListener('click', close);
   overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  // 1er clic = sélection (met en surbrillance) + affiche le bouton de confirmation.
   document.getElementById('friendgift-amounts')?.addEventListener('click', e => {
     const b = e.target.closest('[data-amt]');
     if (!b || !ref) return;
-    socket.emit('gift-friend', { playerId: getPlayerId(), ref, amount: Number(b.dataset.amt) });
+    clearSel();
+    b.classList.add('active');
+    pending = { kind: 'libs', amount: Number(b.dataset.amt) };
+    confirmBtn.textContent = t().friendsGiftConfirm(pending.amount + ' ⚡', friendName);
+    confirmBtn.classList.remove('hidden');
+    statusEl.textContent = '';
+  });
+  vipBtn?.addEventListener('click', () => {
+    if (!ref) return;
+    clearSel();
+    vipBtn.classList.add('active');
+    pending = { kind: 'vip' };
+    confirmBtn.textContent = t().friendsGiftConfirm(t().friendsGiftVipShort(VIP_PRICE), friendName);
+    confirmBtn.classList.remove('hidden');
+    statusEl.textContent = '';
+  });
+  // 2e clic (confirmation) = envoi réel.
+  confirmBtn?.addEventListener('click', () => {
+    if (!pending || !ref) return;
+    confirmBtn.disabled = true;
+    if (pending.kind === 'vip') socket.emit('gift-vip', { playerId: getPlayerId(), ref });
+    else socket.emit('gift-friend', { playerId: getPlayerId(), ref, amount: pending.amount });
   });
   socket.on('gift-friend-result', ({ ok, error, amount, name, left } = {}) => {
-    const st = document.getElementById('friendgift-status');
-    if (ok) {
-      close();
-      showCursorSnakeToast(t().friendsGiftSent(amount, name));
-      return;
-    }
-    if (st) st.textContent = error === 'daily' ? t().friendsGiftErrDaily(left ?? 0)
+    confirmBtn.disabled = false;
+    if (ok) { close(); showCursorSnakeToast(t().friendsGiftSent(amount, name)); return; }
+    statusEl.textContent = error === 'daily' ? t().friendsGiftErrDaily(left ?? 0)
       : error === 'insufficient' ? t().friendsGiftErrInsufficient
       : t().friendsErrInvalid;
+    clearSel();
+  });
+  socket.on('gift-vip-result', ({ ok, error, name } = {}) => {
+    confirmBtn.disabled = false;
+    if (ok) { close(); showCursorSnakeToast(t().friendsGiftVipSent(name)); return; }
+    statusEl.textContent = error === 'insufficient' ? t().vipInsufficient(VIP_PRICE)
+      : error === 'targetmax' ? t().friendsGiftVipTargetMax(name)
+      : error === 'notfriend' ? t().friendsErrInvalid
+      : t().friendsErrInvalid;
+    clearSel();
   });
 })();
 
@@ -10545,6 +10653,77 @@ window._renderVip = function () {
   window._emojiRainRetexte = () => { if (!overlay.classList.contains('hidden')) render(); };
 })();
 
+// ── Offrir depuis la boutique : choix de la méthode + confirmation ──────────
+(function initGiftChoice() {
+  const overlay = document.getElementById('overlay-giftchoice');
+  if (!overlay) return;
+  const methodsView = document.getElementById('giftchoice-methods');
+  const friendsView = document.getElementById('giftchoice-friends');
+  const confirmView = document.getElementById('giftchoice-confirm');
+  const statusEl = document.getElementById('giftchoice-status');
+  const confirmBtn = document.getElementById('btn-giftchoice-confirm');
+  let payload = null, price = 0, itemName = '', deliverVia = null; // 'link'|'code'|friendRef
+  function showView(v) {
+    methodsView.classList.toggle('hidden', v !== 'methods');
+    friendsView.classList.toggle('hidden', v !== 'friends');
+    confirmView.classList.toggle('hidden', v !== 'confirm');
+  }
+  window._openGiftChoice = (pl, pr, name) => {
+    payload = pl; price = pr || 0; itemName = name || ''; deliverVia = null;
+    statusEl.textContent = '';
+    document.getElementById('giftchoice-title').textContent = t().giftChoiceTitle(itemName);
+    document.getElementById('giftchoice-intro').textContent = t().giftChoiceIntro(price);
+    document.getElementById('giftchoice-friends-label').textContent = t().giftChoiceFriendsLabel;
+    confirmBtn.disabled = false;
+    showView('methods');
+    overlay.classList.remove('hidden');
+  };
+  const close = () => overlay.classList.add('hidden');
+  document.getElementById('btn-giftchoice-close')?.addEventListener('click', close);
+  document.getElementById('btn-giftchoice-back')?.addEventListener('click', () => showView('methods'));
+  document.getElementById('btn-giftchoice-back2')?.addEventListener('click', () => showView('methods'));
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  methodsView.addEventListener('click', e => {
+    const b = e.target.closest('.giftchoice-method');
+    if (!b) return;
+    const m = b.dataset.method;
+    if (m === 'friend') {
+      const online = window._myFriends || [];
+      document.getElementById('giftchoice-friend-list').innerHTML = online.length
+        ? online.map(f => `<div class="friend-row"><span class="friend-dot ${f.online ? 'on' : ''}"></span>
+            <span class="friend-name">${_escHtml(f.name)} <small class="friend-level">⭐ ${f.level}</small></span>
+            <button class="btn btn-primary giftchoice-pick" data-ref="${f.ref}" data-name="${_escHtml(f.name)}">${t().giftChoiceSendBtn}</button></div>`).join('')
+        : `<p class="recovery-warn">${t().giftChoiceNoFriends}</p>`;
+      showView('friends');
+    } else {
+      deliverVia = m; // 'link' | 'code'
+      document.getElementById('giftchoice-confirm-text').textContent = t().giftChoiceConfirmLink(itemName, price);
+      confirmBtn.textContent = t().giftChoiceConfirmBtn(price);
+      showView('confirm');
+    }
+  });
+  // Choisir un ami = confirmation directe (envoi immédiat).
+  document.getElementById('giftchoice-friend-list').addEventListener('click', e => {
+    const b = e.target.closest('.giftchoice-pick');
+    if (!b || !payload) return;
+    deliverVia = b.dataset.ref;
+    document.getElementById('giftchoice-confirm-text').textContent = t().giftChoiceConfirmFriend(itemName, b.dataset.name, price);
+    confirmBtn.textContent = t().giftChoiceConfirmBtn(price);
+    showView('confirm');
+  });
+  confirmBtn?.addEventListener('click', () => {
+    if (!payload || !deliverVia) return;
+    confirmBtn.disabled = true;
+    window._giftDeliverVia = deliverVia; // 'link'|'code'|<ref> : lu dans gift-cosmetic-result
+    if (deliverVia === 'link' || deliverVia === 'code') {
+      socket.emit('gift-cosmetic', { ...payload, playerId: getPlayerId() });
+    } else {
+      socket.emit('gift-cosmetic-friend', { ...payload, ref: deliverVia, playerId: getPlayerId() });
+    }
+  });
+  window._closeGiftChoice = close;
+})();
+
 // ── Offrir un cosmétique ou un pack (modal du lien + code cadeau) ────────────
 function buildGiftUrl(code) {
   return `${location.origin}${location.pathname}?gift=${code}`;
@@ -10559,10 +10738,15 @@ function buildGiftUrl(code) {
   const copyLinkBtn = document.getElementById('btn-gift-link-copy');
   const shareBtn    = document.getElementById('btn-gift-share');
   function close() { overlay.classList.add('hidden'); }
-  window._openGiftModal = code => {
+  window._openGiftModal = (code, via) => {
     codeInput.value = code;
     if (linkInput) linkInput.value = buildGiftUrl(code);
     overlay.classList.remove('hidden');
+    // Met en avant l'élément correspondant à la méthode choisie (lien ou code).
+    setTimeout(() => {
+      const target = via === 'code' ? codeInput : linkInput;
+      if (target) { target.focus(); target.select?.(); }
+    }, 120);
   };
   closeBtn?.addEventListener('click', close);
   overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
@@ -10593,16 +10777,29 @@ function _showGiftFeedback(msg, color) {
   fb._t = setTimeout(() => { fb.textContent = ''; }, 3500);
 }
 
-socket.on('gift-cosmetic-result', ({ ok, code, error } = {}) => {
+socket.on('gift-cosmetic-result', ({ ok, code, error, toFriend } = {}) => {
   if (ok) {
     SFX.shopBuy?.();
-    window._openGiftModal?.(code);
+    window._closeGiftChoice?.();
+    if (toFriend) {
+      // Envoi direct à un ami : pas de code, juste un toast de confirmation.
+      showCursorSnakeToast(t().giftChoiceSentFriend(toFriend));
+    } else {
+      // Lien ou code : ouvre la modal, en mettant en avant la méthode choisie.
+      window._openGiftModal?.(code, window._giftDeliverVia);
+    }
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
   } else {
     const msg = error === 'insufficient' ? t().shopInsufficient
               : error === 'anonymous'    ? t().shopCosmeticAnon
+              : error === 'target_owns'  ? t().giftChoiceTargetOwns
+              : error === 'notfriend'    ? t().friendsErrInvalid
               : t().shopBuyError;
-    _showShopFeedback(msg, '#ef4444');
+    const gc = document.getElementById('giftchoice-status');
+    if (gc && !document.getElementById('overlay-giftchoice').classList.contains('hidden')) {
+      gc.textContent = msg;
+      const cb = document.getElementById('btn-giftchoice-confirm'); if (cb) cb.disabled = false;
+    } else _showShopFeedback(msg, '#ef4444');
   }
 });
 

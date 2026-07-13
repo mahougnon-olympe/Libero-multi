@@ -36,6 +36,14 @@
     }
     button:active { transform:scale(.95); }
     button.ghost { background:var(--card2); color:var(--text); border:1px solid var(--border); }
+    .admin-guide { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px 16px; margin-bottom:14px; }
+    .admin-guide summary { cursor:pointer; font-weight:800; font-size:.92rem; color:var(--accent); list-style:none; }
+    .admin-guide summary::-webkit-details-marker { display:none; }
+    .admin-guide[open] summary { margin-bottom:8px; }
+    .admin-guide-body { font-size:.85rem; color:var(--text); }
+    .admin-guide-body p { margin-bottom:8px; }
+    .admin-guide-body ul { margin:0 0 4px; padding-left:18px; }
+    .admin-guide-body li { margin-bottom:6px; }
     button.green { background:#16a34a; }
     button.red   { background:#b91c1c; }
     button.small { padding:5px 10px; font-size:.76rem; }
@@ -160,6 +168,30 @@
         </div>
       </div>
 
+      <details id="admin-guide" class="admin-guide">
+        <summary>❓ Guide du tableau de bord (clique pour ouvrir/fermer)</summary>
+        <div class="admin-guide-body">
+          <p>Bienvenue dans ton espace admin. Voici à quoi sert chaque zone, de haut en bas :</p>
+          <ul>
+            <li><strong>Chiffres clés (en haut)</strong> : visites, joueurs nommés, parties Snake et Libero Run, achats en argent réel, abonnés aux notifications. Un coup d'œil rapide sur la santé du site.</li>
+            <li><strong>📈 30 derniers jours</strong> : deux graphiques (visites/jour et parties/jour) + les boutons d'export CSV (liste des joueurs et des achats, ouvrables dans Excel).</li>
+            <li><strong>📣 Annonces</strong> : publie un message qui apparaît en direct dans la carte News du site (français + anglais optionnel). Tu peux modifier ou retirer une annonce existante.</li>
+            <li><strong>🔔 Notification push</strong> : envoie une notification à tous les joueurs abonnés, même site fermé (nécessite les clés VAPID sur Render).</li>
+            <li><strong>⚡ Offre flash</strong> : met un cosmétique en promo quelques heures (bannière + notification automatique).</li>
+            <li><strong>🎯 Défis personnalisés</strong> : crée tes propres défis (quotidiens ou permanents) qui apparaissent chez tous les joueurs.</li>
+            <li><strong>🛍️ Catalogue boutique</strong> : liste de tous les cosmétiques. Mets-les en boutique ou retire-les, avec un compte à rebours optionnel. Les émotes sont gérées ici aussi (elles s'affichent dans la carte Émotes du profil, pas dans la boutique d'objets).</li>
+            <li><strong>😴 Joueurs qui décrochent</strong> : joueurs sans activité depuis 7 jours et plus. Clique pour ouvrir leur fiche et leur offrir un cadeau de retour.</li>
+            <li><strong>🚨 Alertes fraude</strong> : signalées quand plusieurs comptes tout neufs naissent de la même connexion (IP) en 24h.</li>
+            <li><strong>📋 Journal d'audit</strong> : l'historique de TOUTES tes actions admin (cadeaux, restitutions, annonces, push, offres flash), pour ne jamais te demander « est-ce que j'ai déjà fait ça ? ».</li>
+            <li><strong>💬 Commentaires</strong> : les nouveaux commentaires attendent ta validation avant d'apparaître sur le site. Valide ou supprime.</li>
+            <li><strong>🗑️ Comptes réinitialisés</strong> : progression archivée quand un joueur réinitialise. Tu peux la restituer.</li>
+            <li><strong>👥 Joueurs</strong> : la liste de tous les joueurs. Clique un pseudo pour voir sa fiche complète (stats, cosmétiques, historique) et lui offrir des Libs ou un cosmétique.</li>
+            <li><strong>💳 Achats en argent réel</strong> : les recharges FedaPay (qui, quel pack, statut).</li>
+            <li><strong>🤖 Questions à l'assistant</strong> : ce que les joueurs demandent au chatbot. Clique le drapeau 🚩 pour marquer une question mal comprise à améliorer ; les questions flaguées remontent en tête.</li>
+          </ul>
+        </div>
+      </details>
+
       <div class="kpis" id="kpis"></div>
 
       <section>
@@ -167,6 +199,7 @@
           <button id="btn-export-players" class="ghost small" style="margin-left:auto">⬇ Joueurs CSV</button>
           <button id="btn-export-purchases" class="ghost small">⬇ Achats CSV</button>
         </h2>
+        <p class="sub" style="margin-top:-4px;">Évolution des visites et des parties. Les deux boutons exportent la liste des joueurs et des achats au format CSV (Excel).</p>
         <div class="charts">
           <div class="chart-card"><p class="chart-title">Visites / jour</p><div id="chart-visits" class="chart"></div></div>
           <div class="chart-card"><p class="chart-title">Parties / jour</p><div id="chart-games" class="chart"></div></div>
@@ -236,6 +269,7 @@
 
       <section id="fraud-section" class="hidden">
         <h2>🚨 Alertes fraude <span id="fraud-pill" class="pill warn"></span></h2>
+        <p class="sub" style="margin-top:-4px;">Apparaît quand 4 comptes tout neufs ou plus sont créés depuis la même connexion (IP) en 24h : signe possible de triche (multi-comptes).</p>
         <div id="fraud-list"></div>
       </section>
 
@@ -266,6 +300,7 @@
 
       <section>
         <h2>💳 Achats en argent réel <span id="purchases-pill" class="pill"></span></h2>
+        <p class="sub" style="margin-top:-4px;">Les recharges de Libs payées via FedaPay : qui a acheté, quel pack, et si le paiement est allé au bout.</p>
         <div class="tbl-wrap">
           <table>
             <thead><tr><th>Joueur</th><th>Pack</th><th class="num">Libs</th><th>Statut</th><th>Date</th></tr></thead>
@@ -276,6 +311,7 @@
 
       <section>
         <h2>🤖 Questions posées à l'assistant <span id="bot-pill" class="pill"></span> <span id="bot-flagged-pill" class="pill hidden" style="background:rgba(251,191,36,.15);color:var(--amber)"></span></h2>
+        <p class="sub" style="margin-top:-4px;">Ce que les joueurs tapent au chatbot d'aide. Clique le drapeau 🚩 pour marquer une question à laquelle il a mal répondu : elle remonte en tête pour que tu penses à enrichir l'aide. Ça n'a aucun effet visible côté joueur.</p>
         <div id="botlogs"></div>
       </section>
 

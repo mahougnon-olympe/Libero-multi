@@ -1087,12 +1087,17 @@
         <button id="btn-friendgift-close" class="help-close-btn">✕</button>
       </div>
       <div class="recovery-body">
+        <p id="friendgift-libs-label" class="recovery-label">Montant en Libs</p>
         <div class="stake-btns" id="friendgift-amounts">
           <button class="stake-btn" data-amt="25">25 ⚡</button>
           <button class="stake-btn" data-amt="50">50 ⚡</button>
           <button class="stake-btn" data-amt="100">100 ⚡</button>
           <button class="stake-btn" data-amt="250">250 ⚡</button>
+          <button class="stake-btn" data-amt="500">500 ⚡</button>
         </div>
+        <p id="friendgift-vip-label" class="recovery-label">Ou offre-lui un Pass VIP</p>
+        <button class="stake-btn friendgift-vip-btn" id="friendgift-vip">👑 Pass VIP (30 j)</button>
+        <button id="btn-friendgift-confirm" class="btn btn-primary recovery-reset-btn hidden"></button>
         <p id="friendgift-status" class="recovery-warn"></p>
       </div>
     </div>
@@ -1241,6 +1246,38 @@
         </div>
         <button id="btn-gift-share" class="btn btn-primary recovery-reset-btn">Partager le cadeau</button>
         <p id="gift-warn" class="recovery-warn">Le cadeau n'est utilisable qu'une seule fois (lien ou code).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal : choisir comment offrir un cadeau de la boutique ── -->
+  <div id="overlay-giftchoice" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="giftchoice-title" class="profile-modal-title">🎁 Offrir</h2>
+        <button id="btn-giftchoice-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <p id="giftchoice-intro" class="recovery-intro"></p>
+        <!-- Vue 1 : choix de la méthode -->
+        <div id="giftchoice-methods">
+          <button class="btn btn-primary recovery-reset-btn giftchoice-method" data-method="friend">👥 Envoyer à un ami</button>
+          <button class="btn btn-secondary recovery-reset-btn giftchoice-method" data-method="link">🔗 Partager un lien</button>
+          <button class="btn btn-secondary recovery-reset-btn giftchoice-method" data-method="code">🔢 Obtenir un code</button>
+        </div>
+        <!-- Vue 2 : liste d'amis (méthode "ami") -->
+        <div id="giftchoice-friends" class="hidden">
+          <p id="giftchoice-friends-label" class="recovery-label"></p>
+          <div id="giftchoice-friend-list" class="friends-list"></div>
+          <button id="btn-giftchoice-back" class="btn btn-secondary">← Retour</button>
+        </div>
+        <!-- Vue 3 : confirmation (lien/code) -->
+        <div id="giftchoice-confirm" class="hidden">
+          <p id="giftchoice-confirm-text" class="recovery-intro"></p>
+          <button id="btn-giftchoice-confirm" class="btn btn-primary recovery-reset-btn"></button>
+          <button id="btn-giftchoice-back2" class="btn btn-secondary">← Retour</button>
+        </div>
+        <p id="giftchoice-status" class="recovery-warn"></p>
       </div>
     </div>
   </div>

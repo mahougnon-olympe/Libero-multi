@@ -3626,7 +3626,29 @@ html.light .tournament-row { background: rgba(0,0,0,.05); }
   display: flex; align-items: center; gap: 12px;
   background: var(--board); border-radius: 14px;
   padding: 10px 14px; margin-bottom: 12px;
+  position: relative; overflow: hidden;
+  border: 1px solid transparent;
+  transition: background .6s, border-color .6s, box-shadow .6s;
 }
+/* Paliers : la bande devient de plus en plus belle avec le niveau. */
+.level-tier-1 { background: linear-gradient(135deg, #334155, #1e293b); }
+.level-tier-2 { background: linear-gradient(135deg, #0e7490, #155e75); border-color: rgba(34,211,238,.4); }
+.level-tier-3 { background: linear-gradient(135deg, #6d28d9, #4c1d95); border-color: rgba(167,139,250,.5); box-shadow: 0 0 18px rgba(139,92,246,.35); }
+.level-tier-4 { background: linear-gradient(135deg, #b45309, #92400e); border-color: rgba(251,191,36,.55); box-shadow: 0 0 20px rgba(245,158,11,.4); }
+.level-tier-5 {
+  background: linear-gradient(135deg, #f59e0b, #ea580c, #db2777, #7c3aed);
+  background-size: 300% 300%;
+  border-color: rgba(251,191,36,.8);
+  box-shadow: 0 0 26px rgba(236,72,153,.5);
+  animation: levelShine 6s ease infinite;
+}
+@keyframes levelShine { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+/* Sur bande coloree, le texte et la barre restent bien lisibles. */
+.level-tier-2 .level-main, .level-tier-3 .level-main, .level-tier-4 .level-main, .level-tier-5 .level-main,
+.level-tier-2 .level-badge, .level-tier-3 .level-badge, .level-tier-4 .level-badge, .level-tier-5 .level-badge,
+.level-tier-2 .level-sub, .level-tier-3 .level-sub, .level-tier-4 .level-sub, .level-tier-5 .level-sub { color: #fff; }
+.level-tier-2 .level-bar, .level-tier-3 .level-bar, .level-tier-4 .level-bar, .level-tier-5 .level-bar { background: rgba(255,255,255,.25); }
+.level-tier-3 .level-bar-fill, .level-tier-4 .level-bar-fill, .level-tier-5 .level-bar-fill { background: linear-gradient(90deg,#fff,#fde68a); }
 .level-badge { font-size: 1.05rem; font-weight: 900; white-space: nowrap; }
 .level-texts { flex: 1; min-width: 0; }
 .level-main { margin: 0; font-weight: 800; font-size: .9rem; }
@@ -3672,6 +3694,12 @@ html.light .level-bar { background: rgba(0,0,0,.12); }
 .friend-name { flex: 1; font-weight: 700; font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .friend-level { opacity: .7; font-weight: 800; }
 .friend-challenge { padding: 5px 10px; font-size: .75rem; }
+/* Les boutons .btn valent width:100% par defaut : dans une ligne d'ami en flex,
+   il faut les remettre en largeur auto pour ne pas ecraser le nom (flex:1). */
+.friend-gift, .friend-challenge, .friend-pick-go, .friend-row .btn {
+  width: auto; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+}
+.friend-gift { padding: 6px 10px; font-size: .95rem; }
 .friend-remove { background: none; border: none; color: inherit; opacity: .55; cursor: pointer; font-size: .95rem; padding: 4px; }
 .friend-remove:hover { opacity: 1; color: #ef4444; }
 .friend-challenge-banner {
@@ -3820,3 +3848,9 @@ html.light .ludo-cell { background: #fff; border: 1px solid #e2e8f0; }
 .locker-emote-buy:disabled { opacity: .5; cursor: default; }
 .locker-emote-locked .locker-item-preview { opacity: .82; }
 .locker-emote-timer { display: block; font-size: .62rem; color: #fbbf24; font-weight: 800; margin-top: 2px; }
+
+/* ── Sections Mes amis (demandes en attente + liste) ── */
+.friends-section-label { font-size: .75rem; font-weight: 800; opacity: .7; margin: 10px 2px 4px; text-transform: uppercase; letter-spacing: .04em; }
+.friends-section-label:first-child { margin-top: 0; }
+.friend-req-row { border: 1px solid rgba(99,102,241,.45); }
+.friend-req-accept, .friend-req-decline { width: auto; flex: 0 0 auto; padding: 6px 12px; font-size: .78rem; }
