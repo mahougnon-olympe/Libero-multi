@@ -323,16 +323,145 @@ const BGM = (() => {
   };
 })();
 
-// Démarrage BGM au premier clic (politique autoplay navigateur)
-document.addEventListener('click', function _bgmInit() {
-  document.removeEventListener('click', _bgmInit);
-  BGM.start();
-}, { once: true });
+// Note : la musique synthetisee (BGM ci-dessus) est desormais dormante. L'audio
+// du site passe par SoundManager (fichiers dans sounds/). BGM n'est plus demarre.
 
-// Pause / reprise quand l'onglet est masqué
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) BGM.pause(); else BGM.resume();
-});
+// ── SoundManager : musique de fond + sons d'interface (fichiers) ─────────────
+// L'audio est un bonus : toute defaillance doit rester invisible (jamais
+// d'exception non capturee, jamais de fonctionnalite bloquee). Si le module
+// echoue a l'init, window._sound reste un stub aux methodes vides.
+let musicEnabled = (() => { try { return localStorage.getItem('libero_music') === '1'; } catch { return false; } })();
+let SoundManager;
+try {
+  SoundManager = (() => {
+    const SFX_FILES = {
+      click: 'sounds/click.ogg', 'click-ok': 'sounds/click-ok.ogg', 'click-back': 'sounds/click-back.ogg',
+      pop: 'sounds/pop.ogg', success: 'sounds/success.ogg', error: 'sounds/error.ogg',
+      coin: 'sounds/coin.ogg', notify: 'sounds/notify.ogg',
+    };
+    const MUSIC_FILE = 'sounds/bg-music.mp3';
+    const DEF_SFX_VOL = 0.5, DEF_MUSIC_VOL = 0.25;
+
+    const LS = {
+      get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch { return d; } },
+      set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+    };
+    const sfxOn    = () => LS.get('sfxEnabled', 'true') !== 'false';
+    const musicOn  = () => LS.get('libero_music', '0') === '1';
+    const sfxVol   = () => { const v = parseFloat(LS.get('sfxVolume', String(DEF_SFX_VOL))); return isNaN(v) ? DEF_SFX_VOL : v; };
+    const musicVol = () => { const v = parseFloat(LS.get('bgmVolume', String(DEF_MUSIC_VOL))); return isNaN(v) ? DEF_MUSIC_VOL : v; };
+
+    let started = false;               // 1re interaction utilisateur faite ?
+    let sfxSupported = true, musicSupported = true;
+    const buffers = {};                // name -> Audio de reference
+    const unavailable = new Set();     // sons 404 / illisibles -> no-op
+    let warned = false;
+    const warn = (msg) => { if (!warned) { warned = true; try { console.warn('[sound] ' + msg); } catch {} } };
+
+    // Format : si l'ogg/vorbis n'est pas lisible (vieux iOS/Safari), on coupe
+    // les sons d'interface en silence ; la musique .mp3 peut rester valide.
+    try {
+      const a = new Audio();
+      sfxSupported   = !!(a.canPlayType && a.canPlayType('audio/ogg; codecs=vorbis'));
+      musicSupported = !!(a.canPlayType && a.canPlayType('audio/mpeg'));
+    } catch { sfxSupported = false; musicSupported = false; }
+
+    function preload() {
+      if (!sfxSupported) return;
+      for (const [name, src] of Object.entries(SFX_FILES)) {
+        try {
+          const a = new Audio();
+          a.preload = 'auto';
+          a.addEventListener('error', () => { unavailable.add(name); warn('fichier manquant: ' + src.split('/').pop()); });
+          a.src = src;
+          a.volume = sfxVol();
+          buffers[name] = a;
+        } catch {}
+      }
+    }
+
+    function play(name) {
+      try {
+        if (!started || !sfxOn() || !sfxSupported) return;
+        if (unavailable.has(name)) return;
+        const base = buffers[name];
+        if (!base) return;
+        let node;
+        try { node = base.cloneNode(true); } catch { node = base; }
+        try { node.volume = sfxVol(); node.currentTime = 0; } catch {}
+        const p = node.play();
+        if (p && p.catch) p.catch(() => {}); // NotAllowedError / AbortError : on ignore
+      } catch {}
+    }
+
+    // ── Musique de fond ──
+    let music = null, musicWanted = false, fadeTimer = null, retryArmed = false;
+    function ensureMusic() {
+      if (music || !musicSupported) return;
+      try {
+        music = new Audio();
+        music.loop = true; music.preload = 'auto'; music.volume = 0;
+        music.addEventListener('error', () => { musicSupported = false; warn('musique illisible: bg-music.mp3'); });
+        music.src = MUSIC_FILE;
+      } catch { musicSupported = false; }
+    }
+    function fadeTo(target, ms) {
+      if (!music) return;
+      try { clearInterval(fadeTimer); } catch {}
+      const from = music.volume || 0, steps = 24, dt = Math.max(16, ms / steps);
+      let i = 0;
+      fadeTimer = setInterval(() => {
+        i++; const v = from + (target - from) * (i / steps);
+        try { music.volume = Math.max(0, Math.min(1, v)); } catch {}
+        if (i >= steps) { try { clearInterval(fadeTimer); } catch {} }
+      }, dt);
+    }
+    function armRetry() {
+      if (retryArmed) return; retryArmed = true;
+      const h = () => { retryArmed = false; if (musicWanted) musicStart(); };
+      document.addEventListener('click', h, { once: true });
+      document.addEventListener('touchstart', h, { once: true });
+    }
+    function musicStart() {
+      musicWanted = true;
+      if (!musicSupported) return;
+      ensureMusic();
+      if (!music || !started) return; // avant la 1re interaction : on attend
+      try { music.volume = 0; } catch {}
+      const p = music.play();
+      if (p && p.catch) p.catch(err => { if (err && err.name === 'NotAllowedError') armRetry(); });
+      fadeTo(musicVol(), 1600);
+    }
+    function musicStop() {
+      musicWanted = false;
+      if (!music) return;
+      try { clearInterval(fadeTimer); music.pause(); } catch {}
+    }
+
+    function onFirstInteraction() {
+      if (started) return; started = true;
+      preload();
+      if (musicOn()) musicStart();
+    }
+
+    // Onglet en arriere-plan : coupe la musique, reprend au retour si active.
+    document.addEventListener('visibilitychange', () => {
+      if (!music || !musicWanted) return;
+      if (document.hidden) { try { music.pause(); } catch {} }
+      else { const p = music.play(); if (p && p.catch) p.catch(() => armRetry()); fadeTo(musicVol(), 500); }
+    });
+    document.addEventListener('click', onFirstInteraction, { once: true });
+    document.addEventListener('touchstart', onFirstInteraction, { once: true });
+
+    return {
+      play,
+      music: { start: musicStart, stop: musicStop, setVolume(v) { if (music && !music.paused) fadeTo(v, 200); } },
+      _state() { return { started, sfxSupported, musicSupported, unavailable: [...unavailable] }; },
+    };
+  })();
+} catch (e) { SoundManager = null; }
+// Stub de secours : les appels _sound.* disperses dans app.js ne plantent jamais.
+window._sound = SoundManager || { play() {}, music: { start() {}, stop() {}, setVolume() {} }, _state() { return { stub: true }; } };
 
 let myPlayer        = null;   // 'R' | 'Y'
 let gameActive      = false;
@@ -2601,6 +2730,7 @@ const VICTORY_BANNER_CLASSES = ['victoryban-neon','victoryban-confetti','victory
 // Burst de confettis reutilisable : DOM leger, auto-nettoye, plafonne, et
 // desactive si le joueur a demande « reduire les animations ».
 function celebrate(opts = {}) {
+  try { window._sound?.play('success'); } catch {} // son de reussite (victoire, champion, level up)
   try { if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch {}
   const count = Math.min(opts.count || 90, 120);
   const layer = document.createElement('div');
@@ -2646,8 +2776,7 @@ function showGameOver(status, winner) {
   if (status === 'won') {
     $('status-text').textContent = isWinner ? t().youWon : t().youLost;
     if (isWinner) {
-      SFX.win();
-      celebrate();
+      celebrate(); // joue le son 'success' (fichier)
       if (equippedVictoryBan) gs.classList.add(equippedVictoryBan);
     } else SFX.lose();
   } else {
@@ -4795,7 +4924,7 @@ socket.on('buy-boost-result', ({ ok, balance, pendingBoostHint, error } = {}) =>
     const shopBal = $('shop-balance-display');
     if (shopBal) shopBal.textContent = `⚡ ${libsBalance} Libs`;
     _updateShopPending(pendingBoostHint);
-    SFX.shopBuy();
+    window._sound?.play("coin");
     _showShopFeedback(t().shopBuyOk, '#22c55e');
   } else {
     _showShopFeedback(error === 'insufficient' ? t().shopInsufficient : t().shopBuyError, '#ef4444');
@@ -4818,7 +4947,7 @@ socket.on('redeem-result', ({ ok, delta, error } = {}) => {
 socket.on('buy-cosmetic-result', ({ ok, cosmeticId, error } = {}) => {
   if (ok) {
     if (!ownedCosmetics.includes(cosmeticId)) ownedCosmetics.push(cosmeticId);
-    SFX.shopBuy();
+    window._sound?.play("coin");
     _showShopFeedback(t().shopCosmeticBought, '#22c55e');
     if (cosmeticId?.startsWith('emote-')) _renderEmoteBar();
     if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
@@ -4864,7 +4993,7 @@ socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippe
 socket.on('refund-cosmetic-result', ({ ok, refundCards: newCards, delta, error } = {}) => {
   if (ok) {
     if (newCards !== undefined) refundCards = newCards;
-    SFX.shopBuy();
+    window._sound?.play("coin");
     _showShopFeedback(t().shopRefundOk(delta), '#22c55e');
     _shopDetailItem = null;
     const panel = $('shop-detail-panel');
@@ -4888,7 +5017,7 @@ socket.on('shop-rotation', data => {
 socket.on('buy-bundle-result', ({ ok, error } = {}) => {
   const d = t();
   if (ok) {
-    SFX.shopBuy();
+    window._sound?.play("coin");
     _showShopFeedback(d.shopBundleBuyOk, '#22c55e');
   } else {
     const msg = error === 'insufficient' ? d.shopBundleInsufficientFunds
@@ -6159,6 +6288,7 @@ function _bubbleClass(bubble) {
 function _showShopFeedback(msg, color) {
   const fb = $('shop-feedback');
   if (!fb) return;
+  if (color === '#ef4444') window._sound?.play('error');
   fb.textContent = msg;
   fb.style.color = color || '#fff';
   fb.classList.remove('hidden');
@@ -6169,6 +6299,7 @@ function _showShopFeedback(msg, color) {
 function _showPromoFeedback(msg, color) {
   const fb = $('shop-promo-feedback');
   if (!fb) return;
+  if (color === '#ef4444') window._sound?.play('error');
   fb.textContent = msg;
   fb.style.color = color;
   clearTimeout(fb._t);
@@ -6216,8 +6347,8 @@ function _updateSettingsPanel() {
 
   const bgmBtn = document.getElementById('sp-bgm-btn');
   if (bgmBtn) {
-    bgmBtn.textContent = bgmEnabled ? d.settingsBgmOn : d.settingsBgmOff;
-    bgmBtn.classList.toggle('sp-off', !bgmEnabled);
+    bgmBtn.textContent = musicEnabled ? d.settingsBgmOn : d.settingsBgmOff;
+    bgmBtn.classList.toggle('sp-off', !musicEnabled);
   }
   const bgmSlider = document.getElementById('sp-bgm-vol');
   if (bgmSlider) bgmSlider.value = String(Math.round(bgmVolume * 100));
@@ -6235,7 +6366,7 @@ function _openSettingsPanel() {
   const panel = document.getElementById('settings-panel');
   if (!panel) return;
   panel.classList.remove('hidden');
-  SFX.openPanel();
+  window._sound?.play('pop');
   _updateSettingsPanel();
   setTimeout(() => {
     document.addEventListener('click', _settingsOutsideClick);
@@ -6297,22 +6428,42 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('sp-vol-slider')?.addEventListener('input', e => {
     sfxVolume = parseInt(e.target.value, 10) / 100;
     localStorage.setItem('sfxVolume', String(sfxVolume));
-    SFX.placePiece(); // aperçu du volume
+    window._sound?.play('click'); // aperçu du volume
   });
   document.getElementById('sp-bgm-btn')?.addEventListener('click', () => {
-    bgmEnabled = !bgmEnabled;
-    localStorage.setItem('bgmEnabled', String(bgmEnabled));
-    if (bgmEnabled) BGM.start(); else BGM.stop();
+    musicEnabled = !musicEnabled;
+    try { localStorage.setItem('libero_music', musicEnabled ? '1' : '0'); } catch {}
+    if (musicEnabled) window._sound?.music.start(); else window._sound?.music.stop();
     _updateSettingsPanel();
   });
   document.getElementById('sp-bgm-vol')?.addEventListener('input', e => {
-    BGM.setVol(parseInt(e.target.value, 10) / 100);
+    bgmVolume = parseInt(e.target.value, 10) / 100;
+    try { localStorage.setItem('bgmVolume', String(bgmVolume)); } catch {}
+    window._sound?.music.setVolume(bgmVolume);
   });
 });
 
-// Son sur tous les boutons (capture = avant les handlers spécifiques)
+// ── Sons d'interface (fichiers) : delegation unique sur tout le document ──────
+// On classe le clic (retour/refus -> click-back ; valider/accepter/equiper ->
+// click-ok ; le reste des boutons/onglets/cartes -> click) pour ne pas empiler
+// un listener par element. La lecture est un no-op si l'audio est indispo.
+const _SND_BACK_RE = /(close|cancel|annul|refus|decline|back|retour|quit|fermer|leave|×|✕)/i;
+const _SND_OK_RE   = /(equip|équip|accept|confirm|valid|buy|acheter|redeem|échang|echang|ok\b|✓|start|démarr|demarr|create|creer|créer|send|envoy|publier|offrir|reclam|réclam)/i;
+function _classifyClick(el) {
+  const id = (el.id || '') + ' ' + (el.className || '') + ' ' + (el.dataset ? JSON.stringify(el.dataset) : '');
+  const txt = (el.textContent || '').slice(0, 40);
+  const hay = id + ' ' + txt;
+  if (_SND_BACK_RE.test(hay) || el.classList.contains('help-close-btn') || el.classList.contains('modal-x')) return 'click-back';
+  if (_SND_OK_RE.test(hay) || el.classList.contains('btn-primary')) return 'click-ok';
+  return 'click';
+}
 document.addEventListener('click', e => {
-  if (e.target.closest('button')) SFX.btnClick();
+  try {
+    if (!e.isTrusted) return; // ignore les .click() programmatiques
+    const el = e.target.closest('button, .nav-tab, .landing-card, .profile-nav-card, .stake-btn, .idea-vote, .shop-tile');
+    if (!el) return;
+    window._sound?.play(_classifyClick(el));
+  } catch {}
 }, true);
 
 $('libs-counter').addEventListener('click', openShop);
@@ -9406,7 +9557,6 @@ const ReadFeed = (() => {
   socket.on('buy-book-pack-result', async ({ ok, error } = {}) => {
     const d = t();
     if (ok) {
-      SFX.btnClick();
       if (sheetBook) {
         await reloadExclusive(sheetBook.id);
         // Un achat peut débloquer une suite (ex. tome 1 acheté → tome 2 offert) :
@@ -10689,6 +10839,7 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
   // Defi recu : banniere avec Accepter / Ignorer.
   socket.on('friend-challenge', ({ fromName, code, game } = {}) => {
     if (!code) return;
+    window._sound?.play('notify'); // defi d'ami recu
     document.getElementById('friend-challenge-banner')?.remove();
     const gameLabel = game === 'quiz' ? (currentLang === 'fr' ? 'Quiz' : 'Quiz') : (t().games[game] || game);
     const div = document.createElement('div');
@@ -10730,7 +10881,7 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
     div.querySelector('#fr-accept').addEventListener('click', () => done(true));
     div.querySelector('#fr-decline').addEventListener('click', () => done(false));
   }
-  socket.on('friend-request', r => { if (r && r.ref) { reqQueue.push(r); showNextRequest(); } });
+  socket.on('friend-request', r => { if (r && r.ref) { window._sound?.play('notify'); reqQueue.push(r); showNextRequest(); } });
   socket.on('friend-requests', ({ requests } = {}) => {
     (requests || []).forEach(r => { if (!reqQueue.some(x => x.ref === r.ref)) reqQueue.push(r); });
     showNextRequest();
@@ -10758,6 +10909,7 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
     overlay.classList.remove('hidden');
   }
   document.getElementById('btn-giftrecv-ok')?.addEventListener('click', () => {
+    window._sound?.play('success'); // ouverture du cadeau
     if (showing) socket.emit('gift-ack', { playerId: getPlayerId(), giftId: showing.id });
     showing = null;
     overlay.classList.add('hidden');
@@ -10768,9 +10920,31 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
   socket.on('gift-received', g => {
     if (!g || !g.id || seen.has(g.id)) return;
     seen.add(g.id);
+    window._sound?.play('notify'); // arrivee du cadeau
     queue.push(g);
     showNext();
   });
+})();
+
+// ── Sons declenches par evenements : coin sur gain de Libs, pop a l'ouverture ─
+// d'un overlay/modal (via MutationObserver, sans editer chaque point d'ouverture).
+try {
+  socket.on('libs-update', ({ delta } = {}) => { if (delta > 0) { try { window._sound?.play('coin'); } catch {} } });
+} catch {}
+(function initOverlayPop() {
+  try {
+    const shown = new WeakSet();
+    const check = el => {
+      const vis = !el.classList.contains('hidden');
+      if (vis && !shown.has(el)) { shown.add(el); window._sound?.play('pop'); }
+      else if (!vis) shown.delete(el);
+    };
+    const obs = new MutationObserver(ms => { for (const m of ms) if (m.attributeName === 'class') check(m.target); });
+    document.querySelectorAll('.overlay, #overlay-shop').forEach(el => {
+      if (!el.classList.contains('hidden')) shown.add(el);
+      obs.observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
+  } catch {}
 })();
 
 // ── Offrir des Libs a un ami ─────────────────────────────────────────────────
@@ -11349,7 +11523,7 @@ function _showGiftFeedback(msg, color) {
 
 socket.on('gift-cosmetic-result', ({ ok, code, error, toFriend } = {}) => {
   if (ok) {
-    SFX.shopBuy?.();
+    window._sound?.play("coin");
     window._closeGiftChoice?.();
     if (toFriend) {
       // Envoi direct à un ami : pas de code, juste un toast de confirmation.
@@ -11378,7 +11552,7 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
   if (ok) {
     (Array.isArray(granted) && granted.length ? granted : (cosmeticId ? [cosmeticId] : []))
       .forEach(id => { if (!ownedCosmetics.includes(id)) ownedCosmetics.push(id); });
-    SFX.shopBuy?.();
+    window._sound?.play("coin");
     const msg = bundleId ? t().giftReceivedBundle(fromName || '') : t().giftReceived(fromName || '');
     if (shopOpen) { _showGiftFeedback(msg, '#22c55e'); _renderShopItems(); }
     else showCursorSnakeToast(msg); // arrivée par lien cadeau : la boutique est fermée
@@ -11533,7 +11707,6 @@ socket.on('streak-update',     ({ count, longest, bonus } = {}) => {
 });
 socket.on('claim-challenge-result', ({ ok, reward, allDoneBonus } = {}) => {
   if (!ok) return;
-  SFX.btnClick?.();
   showCursorSnakeToast(t().challengeClaimToast(reward));
   // Journée parfaite : les 3 défis réclamés → petit bonus + toast dédié.
   if (allDoneBonus > 0) setTimeout(() => showCursorSnakeToast(t().challengePerfectDay(allDoneBonus)), 1800);
