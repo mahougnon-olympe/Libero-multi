@@ -1,7 +1,7 @@
 const { Chess } = require('chess.js');
 
 // ══════════════════════════════════════════════════════════════════
-//  TIC TAC TOE — minimax parfait (arbre petit, solution exacte)
+//  TIC TAC TOE : minimax parfait (arbre petit, solution exacte)
 // ══════════════════════════════════════════════════════════════════
 const TTT_LINES = [
   [0,1,2],[3,4,5],[6,7,8],
@@ -53,7 +53,7 @@ function botMoveTTT(board, difficulty = 'hard') {
 }
 
 // ══════════════════════════════════════════════════════════════════
-//  CONNECT4 — minimax avec élagage alpha-bêta (profondeur 5-6)
+//  CONNECT4 : minimax avec élagage alpha-bêta (profondeur 5-6)
 // ══════════════════════════════════════════════════════════════════
 const ROWS = 6, COLS = 7;
 
@@ -147,7 +147,7 @@ function botMoveConnect4(board, difficulty = 'hard') {
 }
 
 // ══════════════════════════════════════════════════════════════════
-//  CHESS — minimax 3 demi-coups + élagage alpha-bêta
+//  CHESS : minimax 3 demi-coups + élagage alpha-bêta
 //  Bot joue les Noirs (Y), humain joue les Blancs (R)
 // ══════════════════════════════════════════════════════════════════
 const P_VAL = { p: 10, n: 30, b: 32, r: 50, q: 90, k: 0 };

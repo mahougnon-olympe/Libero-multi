@@ -1,0 +1,51 @@
+name: CI
+
+# Filet de securite : verifie la syntaxe, la validite des JSON et l'absence de
+# tirets em AVANT que Vercel/Render ne deploient. Se declenche a chaque push et
+# pull request sur main.
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Syntaxe JavaScript (frontend)
+        run: |
+          for f in app.js config.js sw.js; do
+            echo "node --check $f"
+            node --check "$f"
+          done
+
+      - name: Syntaxe JavaScript (backend)
+        run: |
+          for f in backend/server.js backend/game-*.js backend/trivia-questions.js; do
+            [ -f "$f" ] || continue
+            echo "node --check $f"
+            node --check "$f"
+          done
+
+      - name: JSON valides
+        run: |
+          for f in manifest.json vercel.json backend/package.json; do
+            [ -f "$f" ] || continue
+            echo "check $f"
+            node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))"
+          done
+
+      - name: Aucun tiret em (regle du projet)
+        run: |
+          if grep -RnP '\x{2014}' app.js index.html style.css stats.html legal.html config.js sw.js backend/server.js backend/game-*.js 2>/dev/null; then
+            echo "::error::Tiret em (—) detecte. Utiliser virgule, parentheses ou un tiret simple."
+            exit 1
+          fi
+          echo "OK : aucun tiret em."
