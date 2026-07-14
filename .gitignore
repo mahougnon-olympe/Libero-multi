@@ -30,3 +30,4 @@ skills-lock.json
 # Pack audio brut (seuls les fichiers choisis dans sounds/ sont deployes)
 Audio/
 bg-game-song.mp3
+quiz-thinking-timer-loop.mp3

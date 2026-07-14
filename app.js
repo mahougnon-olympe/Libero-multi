@@ -458,6 +458,26 @@ try {
       try { clearInterval(fadeTimer); music.pause(); } catch {}
     }
 
+    // ── Boucle « reflexion » du quiz (par question) ──
+    // Streaming en boucle (comme la musique), mais rattachee au toggle Sons
+    // (c'est un retour de gameplay, pas la musique de fond).
+    let quizAudio = null, quizBroken = false;
+    function quizLoopStart() {
+      try {
+        if (!started || !sfxOn() || quizBroken) return;
+        if (!quizAudio) {
+          quizAudio = new Audio('sounds/quiz-thinking.mp3');
+          quizAudio.loop = true;
+          quizAudio.addEventListener('error', () => { quizBroken = true; quizAudio = null; });
+        }
+        quizAudio.volume = Math.min(0.55, sfxVol());
+        try { quizAudio.currentTime = 0; } catch {}
+        const p = quizAudio.play();
+        if (p && p.catch) p.catch(() => {});
+      } catch {}
+    }
+    function quizLoopStop() { try { if (quizAudio) quizAudio.pause(); } catch {} }
+
     function onFirstInteraction() {
       if (started) return; started = true;
       preload();
@@ -476,12 +496,13 @@ try {
     return {
       play,
       music: { start: musicStart, stop: musicStop, setVolume(v) { if (music && !music.paused) fadeTo(v, 200); } },
+      quizLoop: { start: quizLoopStart, stop: quizLoopStop },
       _state() { return { started, sfxSupported, musicSupported, unavailable: [...unavailable] }; },
     };
   })();
 } catch (e) { SoundManager = null; }
 // Stub de secours : les appels _sound.* disperses dans app.js ne plantent jamais.
-window._sound = SoundManager || { play() {}, music: { start() {}, stop() {}, setVolume() {} }, _state() { return { stub: true }; } };
+window._sound = SoundManager || { play() {}, music: { start() {}, stop() {}, setVolume() {} }, quizLoop: { start() {}, stop() {} }, _state() { return { stub: true }; } };
 
 let myPlayer        = null;   // 'R' | 'Y'
 let gameActive      = false;
@@ -503,7 +524,7 @@ const TRIVIA_API_CAT_MAP = {
 const DICT = {
   fr: {
     siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisissez votre catégorie',
-    navHome:'Accueil', navFeed:'Vidéos', navIdeas:'Idées',
+    navHome:'Accueil', navFeed:'Vidéos', navIdeas:'Idées', navShop:'Boutique',
     ideasTitle:'Idées & suggestions', ideasSub:'Propose une amélioration du site et vote pour celles des autres.',
     ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Récentes', ideasNewBtn:'💡 Proposer',
     ideasLoading:'Chargement des idées…', ideasEmpty:'Aucune idée pour le moment.\nSois le premier à en proposer une !', ideasError:'Impossible de charger les idées.\nVérifie ta connexion et réessaie.',
@@ -1197,7 +1218,7 @@ const DICT = {
   },
   en: {
     siteTitle:'Multiplayer Games', siteSubtitle:'Choose your category',
-    navHome:'Home', navFeed:'Videos', navIdeas:'Ideas',
+    navHome:'Home', navFeed:'Videos', navIdeas:'Ideas', navShop:'Shop',
     ideasTitle:'Ideas & suggestions', ideasSub:'Suggest a site improvement and vote on others\' ideas.',
     ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Newest', ideasNewBtn:'💡 Suggest',
     ideasLoading:'Loading ideas…', ideasEmpty:'No ideas yet.\nBe the first to suggest one!', ideasError:'Could not load ideas.\nCheck your connection and try again.',
@@ -2078,6 +2099,7 @@ function applyLang() {
   const nth = $('nav-tab-home-label'); if (nth) nth.textContent = d.navHome;
   const ntf = $('nav-tab-ideas-label'); if (ntf) ntf.textContent = d.navIdeas;
   const ntr = $('nav-tab-read-label'); if (ntr) ntr.textContent = d.navRead;
+  const nts = $('nav-tab-shop-label'); if (nts) nts.textContent = d.navShop;
   const ntp = $('nav-tab-profile-label'); if (ntp) ntp.textContent = d.navProfile;
 
   // Vidéos : modales commentaires + proposition
@@ -3912,12 +3934,15 @@ function startTriviaTimer(seconds, onExpire) {
   let rem = seconds;
   $('tg-timer').textContent = rem;
   $('tg-timer').classList.remove('warning');
+  // Boucle « reflexion » pendant la question (coupee a 5 s par le compte a rebours).
+  if (seconds > 5 && !triviaAnsweredThis) { try { window._sound?.quizLoop.start(); } catch {} }
   triviaTimerInterval = setInterval(() => {
     rem--;
     $('tg-timer').textContent = rem;
     $('tg-timer').classList.toggle('warning', rem <= 5);
-    // Compte a rebours sonore de la derniere ligne droite : « top top top top top » (rem 5->1)
-    // puis un « tip » different a l'expiration. Muet si le joueur a deja repondu.
+    // A 5 secondes : on coupe la boucle « reflexion » et le compte a rebours
+    // sonore prend le relais (« top top top top top », puis « tip » a la fin).
+    if (rem === 5) { try { window._sound?.quizLoop.stop(); } catch {} }
     if (!triviaAnsweredThis) {
       if (rem > 0 && rem <= 5) { try { window._sound?.play('tick'); } catch {} }
       else if (rem <= 0)      { try { window._sound?.play('tick-final'); } catch {} }
@@ -3927,6 +3952,7 @@ function startTriviaTimer(seconds, onExpire) {
 }
 function stopTriviaTimer() {
   if (triviaTimerInterval) { clearInterval(triviaTimerInterval); triviaTimerInterval = null; }
+  try { window._sound?.quizLoop.stop(); } catch {} // securite : coupe la boucle quiz
 }
 
 // ── Trivia : affichage question ───────────────────────────────────────────────
@@ -3962,7 +3988,7 @@ function showTriviaQuestion({ questionNum, totalQuestions, question, choices, ti
 // au serveur qu'on a « répondu » pour ne pas retenir les autres (multi).
 function onTriviaSkip() {
   if (triviaAnsweredThis) return;
-  triviaAnsweredThis = true;
+  triviaAnsweredThis = true; try { window._sound?.quizLoop.stop(); } catch {}
   _updateBoostHintBtn();
   $('tg-choices').querySelectorAll('.tg-choice').forEach(b => b.disabled = true);
   const skip = $('tg-skip');
@@ -3977,7 +4003,7 @@ function onTriviaSkip() {
 
 function onTriviaChoice(choice, btn) {
   if (triviaAnsweredThis) return;
-  triviaAnsweredThis = true; triviaChoiceSelected = choice;
+  triviaAnsweredThis = true; triviaChoiceSelected = choice; try { window._sound?.quizLoop.stop(); } catch {}
   _updateBoostHintBtn();
   const _sk = $('tg-skip'); if (_sk) _sk.disabled = true;
   $('tg-choices').querySelectorAll('.tg-choice').forEach(b => b.disabled = true);
@@ -3992,7 +4018,7 @@ function onTriviaChoice(choice, btn) {
 
 function onTriviaTimeUp() {
   if (triviaAnsweredThis) return;
-  triviaAnsweredThis = true;
+  triviaAnsweredThis = true; try { window._sound?.quizLoop.stop(); } catch {}
   _updateBoostHintBtn();
   const _sk = $('tg-skip'); if (_sk) _sk.disabled = true;
   $('tg-choices').querySelectorAll('.tg-choice').forEach(b => b.disabled = true);
@@ -8357,7 +8383,7 @@ window._playEmojiRain = function () {
     clearInterval(countdownTimer);
   }
 
-  $('btn-comment').addEventListener('click', openModal);
+  document.getElementById('btn-comment')?.addEventListener('click', openModal);
   $('btn-comment-close').addEventListener('click', closeModal);
   overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
 
@@ -9719,6 +9745,8 @@ document.getElementById('nav-tab-read')?.addEventListener('click', () => {
   if (sessionStorage.getItem('libero_screen') === 'read') return;
   showScreen('read');
 });
+// La boutique est un overlay (pas un ecran de nav) : l'onglet l'ouvre directement.
+document.getElementById('nav-tab-shop')?.addEventListener('click', () => { if (typeof openShop === 'function') openShop(); });
 document.getElementById('nav-tab-profile')?.addEventListener('click', () => {
   if (sessionStorage.getItem('libero_screen') === 'profile') return;
   showScreen('profile');
@@ -9784,6 +9812,7 @@ const UI_ICONS = (() => {
     gear:    S('<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2.5 12h3M18.5 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'),
     sparkle: S('<path d="M12 3l1.7 5L19 9.5l-5.3 1.5L12 16l-1.7-5L5 9.5l5.3-1.5L12 3Z"/><path d="M18.5 15l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6.6-1.9Z"/>'),
     trash:   S('<path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M6.5 7l1 12a1 1 0 0 0 1 .9h7a1 1 0 0 0 1-.9l1-12"/><path d="M10 11v6M14 11v6"/>'),
+    cart:    S('<path d="M6 8h13l-1.3 8.4a1 1 0 0 1-1 .85H8.3a1 1 0 0 1-1-.85L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>'),
   };
 })();
 function paintUiIcons(root = document) {

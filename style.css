@@ -4179,3 +4179,6 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 .landing-icon { color: var(--accent); }
 .pnc-icon     { color: var(--accent); }
 .profile-nav-card-danger .pnc-icon { color: var(--red); }
+
+/* Compteur de Libs retire de l'en-tete (boutique desormais dans la barre de nav) */
+.libs-counter { display: none !important; }
