@@ -4,7 +4,7 @@
    - Recoit les notifications push (tournoi, defis, annonces). */
 
 const CACHE = 'libero-v1';
-const SHELL = ['./', './index.html', './style.css', './app.js', './config.js', './manifest.json', './icon-192.png', './logo-full.svg', './logo-icon.svg'];
+const SHELL = ['./', './index.html', './style.css', './app.js', './config.js', './manifest.json', './assets/icon-192.png', './assets/logo-full.svg', './assets/logo-icon.svg'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).catch(() => {}));
@@ -42,8 +42,8 @@ self.addEventListener('push', (e) => {
   const title = data.title || "Libero's Multi";
   e.waitUntil(self.registration.showNotification(title, {
     body: data.body || '',
-    icon: './icon-192.png',
-    badge: './icon-192.png',
+    icon: './assets/icon-192.png',
+    badge: './assets/icon-192.png',
     data: { url: data.url || './index.html' },
   }));
 });
