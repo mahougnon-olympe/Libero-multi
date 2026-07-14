@@ -26,3 +26,7 @@ CLAUDE.md
 # Artefacts outillage Claude Code (skills installes localement)
 .claude/
 skills-lock.json
+
+# Pack audio brut (seuls les fichiers choisis dans sounds/ sont deployes)
+Audio/
+bg-game-song.mp3
