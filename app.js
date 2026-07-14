@@ -338,6 +338,7 @@ try {
       click: 'sounds/click.ogg', 'click-ok': 'sounds/click-ok.ogg', 'click-back': 'sounds/click-back.ogg',
       pop: 'sounds/pop.ogg', success: 'sounds/success.ogg', error: 'sounds/error.ogg',
       coin: 'sounds/coin.ogg', notify: 'sounds/notify.ogg',
+      tick: 'sounds/tick.ogg', 'tick-final': 'sounds/tick-final.ogg',
     };
     const MUSIC_FILE = 'sounds/bg-music.mp3';
     const DEF_SFX_VOL = 0.5, DEF_MUSIC_VOL = 0.25;
@@ -353,30 +354,46 @@ try {
 
     let started = false;               // 1re interaction utilisateur faite ?
     let sfxSupported = true, musicSupported = true;
-    const buffers = {};                // name -> Audio de reference
+    const buffers = {};                // name -> AudioBuffer decode (Web Audio)
     const unavailable = new Set();     // sons 404 / illisibles -> no-op
     let warned = false;
     const warn = (msg) => { if (!warned) { warned = true; try { console.warn('[sound] ' + msg); } catch {} } };
 
-    // Format : si l'ogg/vorbis n'est pas lisible (vieux iOS/Safari), on coupe
-    // les sons d'interface en silence ; la musique .mp3 peut rester valide.
+    // Sons d'interface via Web Audio API : on decode chaque fichier UNE fois en
+    // AudioBuffer, puis chaque lecture cree un BufferSource instantane. C'est ce
+    // qui elimine la latence des <audio>.cloneNode().play() (clics « en retard »).
+    let actx = null;
+    function ac() {
+      if (actx) return actx;
+      try { actx = new (window.AudioContext || window['webkitAudioContext'])(); }
+      catch { actx = null; sfxSupported = false; }
+      return actx;
+    }
+
+    // La musique reste en <audio> (streaming en boucle), donc test mp3 utile.
     try {
       const a = new Audio();
-      sfxSupported   = !!(a.canPlayType && a.canPlayType('audio/ogg; codecs=vorbis'));
       musicSupported = !!(a.canPlayType && a.canPlayType('audio/mpeg'));
-    } catch { sfxSupported = false; musicSupported = false; }
+    } catch { musicSupported = false; }
 
     function preload() {
-      if (!sfxSupported) return;
+      const ctx = ac();
+      if (!ctx || !sfxSupported) return;
       for (const [name, src] of Object.entries(SFX_FILES)) {
-        try {
-          const a = new Audio();
-          a.preload = 'auto';
-          a.addEventListener('error', () => { unavailable.add(name); warn('fichier manquant: ' + src.split('/').pop()); });
-          a.src = src;
-          a.volume = sfxVol();
-          buffers[name] = a;
-        } catch {}
+        (async () => {
+          try {
+            const res = await fetch(src);
+            if (!res.ok) { unavailable.add(name); warn('fichier manquant: ' + src.split('/').pop()); return; }
+            const arr = await res.arrayBuffer();
+            // decodeAudioData : callback ET promesse selon les navigateurs.
+            const buf = await new Promise((resolve, reject) => {
+              let done = false;
+              const p = ctx.decodeAudioData(arr, b => { if (!done) { done = true; resolve(b); } }, e => { if (!done) { done = true; reject(e); } });
+              if (p && p.then) p.then(b => { if (!done) { done = true; resolve(b); } }, e => { if (!done) { done = true; reject(e); } });
+            });
+            buffers[name] = buf;
+          } catch { unavailable.add(name); warn('son illisible: ' + src.split('/').pop()); }
+        })();
       }
     }
 
@@ -384,13 +401,16 @@ try {
       try {
         if (!started || !sfxOn() || !sfxSupported) return;
         if (unavailable.has(name)) return;
-        const base = buffers[name];
-        if (!base) return;
-        let node;
-        try { node = base.cloneNode(true); } catch { node = base; }
-        try { node.volume = sfxVol(); node.currentTime = 0; } catch {}
-        const p = node.play();
-        if (p && p.catch) p.catch(() => {}); // NotAllowedError / AbortError : on ignore
+        const buf = buffers[name];
+        const ctx = actx;
+        if (!buf || !ctx) return;               // pas encore decode : on ignore (jamais d'attente)
+        if (ctx.state === 'suspended') { try { ctx.resume(); } catch {} }
+        const src = ctx.createBufferSource();
+        const g = ctx.createGain();
+        g.gain.value = sfxVol();
+        src.buffer = buf;
+        src.connect(g); g.connect(ctx.destination);
+        src.start(0);
       } catch {}
     }
 
@@ -3896,6 +3916,12 @@ function startTriviaTimer(seconds, onExpire) {
     rem--;
     $('tg-timer').textContent = rem;
     $('tg-timer').classList.toggle('warning', rem <= 5);
+    // Compte a rebours sonore de la derniere ligne droite : « top top top top top » (rem 5->1)
+    // puis un « tip » different a l'expiration. Muet si le joueur a deja repondu.
+    if (!triviaAnsweredThis) {
+      if (rem > 0 && rem <= 5) { try { window._sound?.play('tick'); } catch {} }
+      else if (rem <= 0)      { try { window._sound?.play('tick-final'); } catch {} }
+    }
     if (rem <= 0) { stopTriviaTimer(); onExpire(); }
   }, 1000);
 }
