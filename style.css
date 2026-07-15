@@ -4268,3 +4268,7 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
   word-break: break-word;
 }
 .profile-screen-sub { text-align: center; color: var(--muted); font-size: .8rem; font-weight: 700; margin: 2px 0 6px; text-transform: uppercase; letter-spacing: .08em; }
+
+/* ── Idées : recherche + réponse de l'équipe ── */
+.ideas-search { width: 100%; margin-top: 8px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: .92rem; box-sizing: border-box; }
+.idea-reply { margin: 8px 0 0; padding: 8px 10px; background: rgba(99,102,241,.12); border-left: 3px solid var(--board); border-radius: 8px; font-size: .88rem; line-height: 1.4; color: var(--text); }

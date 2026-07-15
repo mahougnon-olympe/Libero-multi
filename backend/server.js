@@ -451,7 +451,7 @@ async function loadData() {
       _id: d._id, title: d.title || '', description: d.description || '',
       authorId: d.authorId || null, authorName: d.authorName || 'Anonyme',
       up: Array.isArray(d.up) ? d.up : [], down: Array.isArray(d.down) ? d.down : [],
-      status: d.status || 'open', pinned: !!d.pinned, createdAt: d.createdAt || Date.now(),
+      status: d.status || 'open', pinned: !!d.pinned, reply: d.reply || '', createdAt: d.createdAt || Date.now(),
     })))
     .catch(() => {});
   console.log(`📦 Chargé: ${lbDocs.length} classique, ${tlbDocs.length} quiz, ${slbDocs.length} snake, ${llbDocs.length} luffy, ${cmtDocs.length} commentaires, ${libsDocs.length} libs, ${aliasDocs.length} alias, ${voteDocs.length} votes snake, ${feedDocs.length} vidéos feed, ${bookDocs.length} livres, ${purchaseDocs.length} achats Libs.`);
@@ -4938,7 +4938,7 @@ function _publicSuggestion(s, playerId) {
     up, down, score: up - down,
     myVote: playerId && (s.up || []).includes(playerId) ? 1 : (playerId && (s.down || []).includes(playerId) ? -1 : 0),
     mine: !!(playerId && s.authorId === playerId),
-    status: s.status || 'open', pinned: !!s.pinned, createdAt: s.createdAt,
+    status: s.status || 'open', pinned: !!s.pinned, reply: s.reply || '', createdAt: s.createdAt,
   };
 }
 // Tri : epinglees d'abord, puis meilleur score, puis plus recentes.
@@ -5015,7 +5015,7 @@ app.get('/admin/suggestions', (req, res) => {
   res.json(suggestions.slice().sort(_sortSuggestions).map(s => {
     const up = (s.up || []).length, down = (s.down || []).length;
     return { id: s._id, title: s.title, description: s.description, authorName: s.authorName || 'Anonyme',
-      up, down, score: up - down, status: s.status || 'open', pinned: !!s.pinned, createdAt: s.createdAt };
+      up, down, score: up - down, status: s.status || 'open', pinned: !!s.pinned, reply: s.reply || '', createdAt: s.createdAt };
   }));
 });
 
@@ -5028,6 +5028,7 @@ app.patch('/admin/suggestion/:id', (req, res) => {
   const fields = {};
   if (typeof b.status === 'string' && SUGGESTION_STATUSES.includes(b.status)) fields.status = s.status = b.status;
   if (typeof b.pinned === 'boolean') fields.pinned = s.pinned = b.pinned;
+  if (typeof b.reply === 'string') fields.reply = s.reply = sanitizeText(b.reply, 300);
   dbUpdateSuggestion(s._id, fields);
   adminAudit('suggestion-edit', { id: s._id, fields });
   res.json({ ok: true, status: s.status, pinned: s.pinned });

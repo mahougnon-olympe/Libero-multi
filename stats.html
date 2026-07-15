@@ -815,7 +815,8 @@
           return '<div class="ann-row" style="flex-wrap:wrap">'
             + '<span class="txt" style="flex:1 1 240px"><b>' + (s.pinned ? '📌 ' : '') + esc(s.title) + '</b>'
             + ' <span class="muted">▲' + s.up + ' ▼' + s.down + ' · score ' + s.score + ' · ' + esc(s.authorName) + '</span>'
-            + (s.description ? '<br><span class="muted" style="font-size:.8rem">' + esc(s.description) + '</span>' : '') + '</span>'
+            + (s.description ? '<br><span class="muted" style="font-size:.8rem">' + esc(s.description) + '</span>' : '')
+            + '<div style="display:flex;gap:4px;margin-top:6px"><input class="sugg-reply-input" data-id="' + esc(s.id) + '" value="' + esc(s.reply || '') + '" placeholder="Réponse publique (visible par les joueurs)" style="flex:1;min-width:0" /><button class="small green" data-suggreply="' + esc(s.id) + '">Répondre</button></div></span>'
             + '<span style="display:flex;gap:4px;flex-wrap:wrap;align-items:flex-start">' + statusBtns
             + '<button class="small" data-suggpin="' + esc(s.id) + '|' + (s.pinned ? '0' : '1') + '">' + (s.pinned ? 'Désépingler' : 'Épingler') + '</button>'
             + '<button class="red small" data-suggdel="' + esc(s.id) + '">Suppr.</button></span></div>';
@@ -828,6 +829,7 @@
       try {
         if (b.dataset.suggstatus) { var p = b.dataset.suggstatus.split('|'); await api('/admin/suggestion/' + encodeURIComponent(p[0]), { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ status: p[1] }) }); return loadSuggestions(); }
         if (b.dataset.suggpin) { var q = b.dataset.suggpin.split('|'); await api('/admin/suggestion/' + encodeURIComponent(q[0]), { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ pinned: q[1] === '1' }) }); return loadSuggestions(); }
+        if (b.dataset.suggreply) { var inp = $('sugg-list').querySelector('.sugg-reply-input[data-id="' + b.dataset.suggreply + '"]'); var reply = inp ? inp.value : ''; await api('/admin/suggestion/' + encodeURIComponent(b.dataset.suggreply), { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ reply: reply }) }); return loadSuggestions(); }
         if (b.dataset.suggdel) { if (!confirm('Supprimer cette suggestion ?')) { b.disabled = false; return; } await api('/admin/suggestion/' + encodeURIComponent(b.dataset.suggdel), { method:'DELETE' }); return loadSuggestions(); }
       } catch (err) { b.disabled = false; }
     });

@@ -538,7 +538,7 @@ const DICT = {
     wordleNeed5:'Il faut 5 lettres.', wordleWin:(n)=>`Bravo ! Trouvé en ${n} essai${n>1?'s':''} 🎉`, wordleLose:(w)=>`Perdu ! Le mot était ${w}.`, wordleAlreadyWin:'Déjà trouvé aujourd\'hui, reviens demain !',
     wordleStreak:(n)=>`🔥 ${n}`, wordleShareTitle:(d,sc)=>`Le Mot #${d} ${sc} sur Libero's Multi`, wordleCopied:'Résultat copié !',
     ideasTitle:'Idées & suggestions', ideasSub:'Propose une amélioration du site et vote pour celles des autres.',
-    ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Récentes', ideasNewBtn:'💡 Proposer',
+    ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Récentes', ideasNewBtn:'💡 Proposer', ideasFilterMine:'👤 Les miennes', ideasSearchPh:'Rechercher une idée…', ideasNoResult:'Aucune idée ne correspond.', ideaReplyLabel:'Réponse de l\'équipe :',
     ideasLoading:'Chargement des idées…', ideasEmpty:'Aucune idée pour le moment.\nSois le premier à en proposer une !', ideasError:'Impossible de charger les idées.\nVérifie ta connexion et réessaie.',
     ideaNewTitle:'Proposer une idée', ideaNewIntro:'Décris une fonctionnalité ou une amélioration que tu aimerais voir sur le site.',
     ideaNewTitrePh:'Titre de ta proposition', ideaNewDescPh:'Détaille ton idée (optionnel)', ideaNewSend:'Publier',
@@ -1244,7 +1244,7 @@ const DICT = {
     wordleNeed5:'5 letters needed.', wordleWin:(n)=>`Well done! Solved in ${n} tr${n>1?'ies':'y'} 🎉`, wordleLose:(w)=>`Missed! The word was ${w}.`, wordleAlreadyWin:'Already solved today, come back tomorrow!',
     wordleStreak:(n)=>`🔥 ${n}`, wordleShareTitle:(d,sc)=>`The Word #${d} ${sc} on Libero's Multi`, wordleCopied:'Result copied!',
     ideasTitle:'Ideas & suggestions', ideasSub:'Suggest a site improvement and vote on others\' ideas.',
-    ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Newest', ideasNewBtn:'💡 Suggest',
+    ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Newest', ideasNewBtn:'💡 Suggest', ideasFilterMine:'👤 Mine', ideasSearchPh:'Search an idea…', ideasNoResult:'No matching idea.', ideaReplyLabel:'Team reply:',
     ideasLoading:'Loading ideas…', ideasEmpty:'No ideas yet.\nBe the first to suggest one!', ideasError:'Could not load ideas.\nCheck your connection and try again.',
     ideaNewTitle:'Suggest an idea', ideaNewIntro:'Describe a feature or improvement you would like to see on the site.',
     ideaNewTitrePh:'Title of your suggestion', ideaNewDescPh:'Detail your idea (optional)', ideaNewSend:'Publish',
@@ -2152,6 +2152,7 @@ function applyLang() {
   setPh('ideanew-titre', d.ideaNewTitrePh);
   setPh('ideanew-desc', d.ideaNewDescPh);
   setTxt('ideanew-send', d.ideaNewSend);
+  setTxt('ideas-filter-mine', d.ideasFilterMine); setPh('ideas-search', d.ideasSearchPh);
   if (window._ideasBoard) window._ideasBoard.retexte();
   setTxt('account-title', d.accountTitle); setTxt('account-tab-create', d.accountTabCreate); setTxt('account-tab-login', d.accountTabLogin);
   setTxt('account-pseudo-label', d.accountPseudoLabel); setTxt('account-pw-label', d.accountPwLabel);
@@ -9235,7 +9236,7 @@ window._videoFeed = VideoFeed;
 const IdeasBoard = (() => {
   const listEl = () => document.getElementById('ideas-list');
   const api = (path, opts) => fetch(`${window.BACKEND_URL}${path}`, opts);
-  let loaded = false, items = [], sort = 'top';
+  let loaded = false, items = [], sort = 'top', query = '', onlyMine = false;
 
   function playerName() {
     return (typeof getPlayerName === 'function' && getPlayerName()) || localStorage.getItem('playerName') || '';
@@ -9263,7 +9264,10 @@ const IdeasBoard = (() => {
   }
 
   function sorted() {
-    const arr = items.slice();
+    let arr = items.slice();
+    if (onlyMine) arr = arr.filter(s => s.mine);
+    const q = query.trim().toLowerCase();
+    if (q) arr = arr.filter(s => (s.title + ' ' + (s.description || '') + ' ' + s.authorName).toLowerCase().includes(q));
     if (sort === 'new') arr.sort((a, b) => (b.pinned - a.pinned) || (b.createdAt - a.createdAt));
     else arr.sort((a, b) => (b.pinned - a.pinned) || (b.score - a.score) || (b.createdAt - a.createdAt));
     return arr;
@@ -9279,7 +9283,9 @@ const IdeasBoard = (() => {
   function render() {
     const g = listEl(); if (!g) return;
     if (!items.length) { setStatus(t().ideasEmpty); return; }
-    g.innerHTML = sorted().map(s => `
+    const list = sorted();
+    if (!list.length) { g.innerHTML = `<p class="videocomments-empty">${esc(t().ideasNoResult)}</p>`; return; }
+    g.innerHTML = list.map(s => `
       <div class="idea-card${s.pinned ? ' idea-pinned' : ''}" data-id="${esc(s.id)}">
         <div class="idea-votes">
           <button class="idea-vote up${s.myVote === 1 ? ' on' : ''}" data-dir="1" aria-label="Pour">▲</button>
@@ -9290,6 +9296,7 @@ const IdeasBoard = (() => {
           <p class="idea-title">${esc(s.title)} ${statusBadge(s.status)}</p>
           ${s.description ? `<p class="idea-desc">${esc(s.description)}</p>` : ''}
           <p class="idea-meta">${esc(t().ideaByAuthor(s.authorName))}${s.mine ? ` · <button class="idea-del" data-id="${esc(s.id)}">${esc(t().ideaDelete)}</button>` : ''}</p>
+          ${s.reply ? `<p class="idea-reply">💬 <b>${esc(t().ideaReplyLabel)}</b> ${esc(s.reply)}</p>` : ''}
         </div>
       </div>`).join('');
   }
@@ -9369,6 +9376,12 @@ const IdeasBoard = (() => {
   document.getElementById('ideas-new-btn')?.addEventListener('click', openNew);
   document.getElementById('ideas-sort-top')?.addEventListener('click', () => setSort('top'));
   document.getElementById('ideas-sort-new')?.addEventListener('click', () => setSort('new'));
+  document.getElementById('ideas-filter-mine')?.addEventListener('click', () => {
+    onlyMine = !onlyMine;
+    document.getElementById('ideas-filter-mine')?.classList.toggle('active', onlyMine);
+    render();
+  });
+  document.getElementById('ideas-search')?.addEventListener('input', e => { query = e.target.value || ''; if (loaded) render(); });
   document.getElementById('ideanew-send')?.addEventListener('click', sendNew);
   document.getElementById('ideanew-close')?.addEventListener('click', () => document.getElementById('overlay-ideanew')?.classList.add('hidden'));
 
