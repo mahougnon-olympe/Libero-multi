@@ -4142,6 +4142,28 @@ function renderTriviaScores(scores, gains) {
   }).join('');
 }
 
+// Genere une image carree du score de quiz (a partager sur WhatsApp).
+function _makeQuizShareBlob({ name, score, line }) {
+  return new Promise(resolve => {
+    try {
+      const S = 1080, c = document.createElement('canvas'); c.width = S; c.height = S;
+      const x = c.getContext('2d');
+      const g = x.createLinearGradient(0, 0, S, S); g.addColorStop(0, '#141733'); g.addColorStop(1, '#0a0c18');
+      x.fillStyle = g; x.fillRect(0, 0, S, S);
+      x.strokeStyle = 'rgba(99,102,241,.5)'; x.lineWidth = 14; x.strokeRect(44, 44, S - 88, S - 88);
+      x.textAlign = 'center';
+      x.fillStyle = '#a5b4fc'; x.font = "bold 66px 'Segoe UI', system-ui, sans-serif"; x.fillText("LIBERO'S MULTI", S / 2, 180);
+      x.fillStyle = '#e2e8f0'; x.font = "600 46px 'Segoe UI', system-ui, sans-serif"; x.fillText('Culture Generale', S / 2, 285);
+      x.fillStyle = '#fbbf24'; x.font = "bold 300px 'Segoe UI', system-ui, sans-serif"; x.fillText(String(score), S / 2, 640);
+      x.fillStyle = '#94a3b8'; x.font = "600 56px 'Segoe UI', system-ui, sans-serif"; x.fillText('points', S / 2, 720);
+      x.fillStyle = '#e2e8f0'; x.font = "bold 60px 'Segoe UI', system-ui, sans-serif"; x.fillText(line || '', S / 2, 840);
+      x.fillStyle = '#a5b4fc'; x.font = "600 50px 'Segoe UI', system-ui, sans-serif"; x.fillText(name || 'Joueur', S / 2, 920);
+      x.fillStyle = '#64748b'; x.font = "500 40px 'Segoe UI', system-ui, sans-serif"; x.fillText('libero-multi.vercel.app', S / 2, 1015);
+      c.toBlob(b => resolve(b), 'image/png');
+    } catch { resolve(null); }
+  });
+}
+
 function showTriviaFinished(scores) {
   stopTriviaTimer();
   const _skip = $('tg-skip'); if (_skip) _skip.classList.add('hidden');
@@ -4193,9 +4215,16 @@ function showTriviaFinished(scores) {
   document.getElementById('tg-share-rank')?.addEventListener('click', async () => {
     const me = scores[myIdx];
     const text = triviaIsSolo ? t().triviaShareSolo(me.score) : t().triviaShareRank(myIdx + 1, me.score);
-    if (navigator.share) {
-      try { await navigator.share({ text }); return; } catch {}
-    }
+    const line = triviaIsSolo ? '🎯 Solo' : ((['🥇', '🥈', '🥉'][myIdx] || '#' + (myIdx + 1)) + '  ' + (myIdx + 1) + '/' + scores.length);
+    // Priorite : partager une image du score (ideal pour WhatsApp).
+    try {
+      const blob = await _makeQuizShareBlob({ name: me.name, score: me.score, line });
+      if (blob && navigator.canShare) {
+        const file = new File([blob], 'libero-quiz.png', { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text }); return; }
+      }
+    } catch {}
+    if (navigator.share) { try { await navigator.share({ text }); return; } catch {} }
     try { await navigator.clipboard.writeText(text); showCursorSnakeToast(t().triviaShareCopied); } catch {}
   });
   $('tg-finished').classList.remove('hidden');
