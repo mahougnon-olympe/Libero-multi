@@ -4209,3 +4209,9 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
   }
   .nav-tab-icon svg { width: 23px; height: 23px; }
 }
+
+/* ── Compte optionnel : onglets Creer / Se connecter ── */
+.account-tabs { display: flex; gap: 4px; padding: 4px; background: var(--card2); border: 1px solid var(--border); border-radius: 999px; margin-bottom: 12px; }
+.account-tab { flex: 1; border: none; background: transparent; color: var(--muted); font-weight: 800; font-size: .9rem; padding: 8px 10px; border-radius: 999px; cursor: pointer; transition: background var(--dur-fast,.14s), color var(--dur-fast,.14s); }
+.account-tab.active { background: var(--board); color: #fff; }
+.recovery-warn.recovery-ok { color: #22c55e; }

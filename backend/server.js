@@ -56,6 +56,7 @@ const comments        = [];
 const feedVideos      = []; // [{ _id, url, titre, ordre, actif, createdAt }]
 const feedBooks       = []; // [{ _id, titre, auteur, categorie, couverture, url, description, ordre, actif, createdAt }]
 const suggestions     = []; // [{ _id, title, description, authorId, authorName, up[], down[], status, pinned, createdAt }]
+const accounts        = new Map(); // pseudoLower -> { pseudo, salt, hash, playerId, createdAt } (compte optionnel pseudo+mdp)
 
 // ── Livres exclusifs ────────────────────────────────────────────────────────
 // Les chapitres vivent dans backend/books/ (jamais sur le site statique) et ne
@@ -441,6 +442,9 @@ async function loadData() {
   if (Array.isArray(shopOvDoc?.value)) shopOvDoc.value.forEach(([id, o]) => { if (o && (!o.until || o.until > Date.now())) shopOverrides.set(id, o); });
   db.collection('admin_challenges').find().toArray()
     .then(docs => { adminChallenges = docs.map(d => ({ _id: d._id, kind: d.kind, metric: d.metric, goal: d.goal, reward: d.reward, label: d.label, labelEn: d.labelEn || '', at: d.at })); })
+    .catch(() => {});
+  db.collection('accounts').find().toArray()
+    .then(docs => docs.forEach(d => accounts.set(d._id, { pseudo: d.pseudo, salt: d.salt, hash: d.hash, playerId: d.playerId, createdAt: d.createdAt })))
     .catch(() => {});
   db.collection('suggestions').find().toArray()
     .then(docs => docs.forEach(d => suggestions.push({
@@ -5038,6 +5042,61 @@ app.delete('/admin/suggestion/:id', (req, res) => {
   dbDeleteSuggestion(removed._id);
   adminAudit('suggestion-delete', { id: removed._id, title: removed.title });
   res.json({ ok: true });
+});
+
+// ── Compte optionnel (pseudo + mot de passe) ────────────────────────────────
+// Lie un pseudo + mot de passe a un playerId (la progression). Permet de se
+// reconnecter sur un autre appareil. Le code de recuperation reste en secours.
+// Hachage avec le module crypto natif (scrypt), aucune dependance externe.
+function _hashPw(password, salt) {
+  return crypto.scryptSync(String(password), salt, 64).toString('hex');
+}
+function dbUpsertAccount(key, acc) {
+  if (!db) return;
+  db.collection('accounts').updateOne({ _id: key }, { $set: acc }, { upsert: true })
+    .catch(e => console.error('Erreur sauvegarde compte:', e));
+}
+// Anti brute-force : limite les tentatives de login par IP.
+function _accountRateLimited(req) {
+  const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const key = 'acct:' + ip;
+  const times = (commentRateMap.get(key) || []).filter(t => now - t < 600_000);
+  if (times.length >= 12) return true;
+  times.push(now); commentRateMap.set(key, times);
+  return false;
+}
+
+// Creer un compte : lie le pseudo+mdp au playerId courant (progression actuelle).
+app.post('/api/account/register', (req, res) => {
+  const { pseudo, password, playerId } = req.body || {};
+  const clean = sanitizeName(pseudo, '');
+  const pid = safePlayerId(playerId);
+  if (!clean || clean === 'Anonyme') return res.status(400).json({ error: 'Pseudo invalide.' });
+  if (!password || String(password).length < 4) return res.status(400).json({ error: 'Mot de passe trop court (4 min).' });
+  if (!pid) return res.status(400).json({ error: 'Joueur requis.' });
+  const key = clean.toLowerCase();
+  if (accounts.has(key)) return res.status(409).json({ error: 'Ce pseudo a deja un compte.' });
+  const salt = crypto.randomBytes(16).toString('hex');
+  const acc = { pseudo: clean, salt, hash: _hashPw(password, salt), playerId: pid, createdAt: Date.now() };
+  accounts.set(key, acc);
+  dbUpsertAccount(key, acc);
+  console.log(`[🔑] Compte cree : ${clean}`);
+  res.json({ ok: true, pseudo: clean });
+});
+
+// Se connecter : renvoie le playerId lie (le client le restaure + recharge).
+app.post('/api/account/login', (req, res) => {
+  if (_accountRateLimited(req)) return res.status(429).json({ error: 'Trop de tentatives, reessaie plus tard.' });
+  const { pseudo, password } = req.body || {};
+  const clean = sanitizeName(pseudo, '');
+  const acc = accounts.get((clean || '').toLowerCase());
+  if (!acc) return res.status(404).json({ error: 'Compte introuvable.' });
+  const h = _hashPw(password || '', acc.salt);
+  let ok = false;
+  try { ok = h.length === acc.hash.length && crypto.timingSafeEqual(Buffer.from(h), Buffer.from(acc.hash)); } catch { ok = false; }
+  if (!ok) return res.status(401).json({ error: 'Mot de passe incorrect.' });
+  res.json({ ok: true, playerId: acc.playerId, pseudo: acc.pseudo });
 });
 
 // ── Lecture (catalogue de livres) ───────────────────────────────────────────

@@ -970,6 +970,11 @@
           <span class="pnc-text"><span id="history-title">Mes dernières parties</span><small id="history-card-sub">Ton historique de jeu</small></span>
           <span class="pnc-arrow">›</span>
         </button>
+        <button type="button" class="profile-nav-card" id="go-account">
+          <span class="pnc-icon" data-ic="key">🔑</span>
+          <span class="pnc-text"><span id="account-card-title">Mon compte</span><small id="account-card-sub">Créer un compte ou se connecter</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
         <button type="button" class="profile-nav-card" id="go-recovery">
           <span class="pnc-icon" data-ic="save">🔐</span>
           <span class="pnc-text"><span id="recovery-card-title">Sauvegarder ma progression</span><small id="recovery-card-sub">Ne perds jamais ton compte</small></span>
@@ -1390,7 +1395,32 @@
         </div>
         <p id="onboard-hint" class="recovery-warn"></p>
         <hr class="recovery-sep" />
-        <button id="btn-onboard-new" class="btn btn-secondary recovery-reset-btn">Non, je suis nouveau, commencer</button>
+        <button id="btn-onboard-account" class="btn btn-primary recovery-reset-btn">Créer un compte</button>
+        <button id="btn-onboard-login" class="btn btn-secondary recovery-reset-btn">J'ai déjà un compte, me connecter</button>
+        <button id="btn-onboard-new" class="btn btn-secondary recovery-reset-btn">Non merci, commencer sans compte</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compte optionnel : creer / se connecter (pseudo + mot de passe) -->
+  <div id="overlay-account" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="account-title" class="profile-modal-title">🔑 Mon compte</h2>
+        <button id="btn-account-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <div class="account-tabs">
+          <button id="account-tab-create" class="account-tab active">Créer</button>
+          <button id="account-tab-login" class="account-tab">Se connecter</button>
+        </div>
+        <p id="account-intro" class="recovery-intro">Crée un compte pour ne jamais perdre ta progression et te reconnecter sur un autre appareil.</p>
+        <label id="account-pseudo-label" class="recovery-label">Pseudo</label>
+        <input id="account-pseudo" class="recovery-input" type="text" maxlength="20" placeholder="Ton pseudo" autocomplete="username" spellcheck="false" />
+        <label id="account-pw-label" class="recovery-label">Mot de passe</label>
+        <input id="account-pw" class="recovery-input" type="password" maxlength="64" placeholder="Au moins 4 caractères" autocomplete="current-password" />
+        <button id="btn-account-submit" class="btn btn-primary recovery-reset-btn">Créer mon compte</button>
+        <p id="account-status" class="recovery-warn"></p>
       </div>
     </div>
   </div>

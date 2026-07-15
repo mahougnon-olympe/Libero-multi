@@ -525,6 +525,14 @@ const DICT = {
   fr: {
     siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisissez votre catégorie',
     navHome:'Accueil', navFeed:'Vidéos', navIdeas:'Idées', navShop:'Boutique', profileBalanceLabel:'Solde',
+    accountTitle:'🔑 Mon compte', accountTabCreate:'Créer', accountTabLogin:'Se connecter',
+    accountCreateIntro:'Crée un compte pour ne jamais perdre ta progression et te reconnecter sur un autre appareil.',
+    accountLoginIntro:'Connecte-toi avec ton pseudo et ton mot de passe pour retrouver ta progression.',
+    accountPseudoLabel:'Pseudo', accountPwLabel:'Mot de passe', accountCreateBtn:'Créer mon compte', accountLoginBtn:'Se connecter',
+    accountNeedPseudo:'Choisis un pseudo.', accountShortPw:'Mot de passe trop court (4 caractères min).',
+    accountCreated:'Compte créé ! Ta progression est protégée.', accountError:'Une erreur est survenue, réessaie.', accountWelcome:(n)=>`Bienvenue ${n} ! Chargement…`,
+    accountCardTitle:'Mon compte', accountCardSub:'Créer un compte ou se connecter',
+    onboardAccountBtn:'Créer un compte', onboardLoginBtn:'J\'ai déjà un compte, me connecter', onboardNewBtn:'Non merci, commencer sans compte',
     ideasTitle:'Idées & suggestions', ideasSub:'Propose une amélioration du site et vote pour celles des autres.',
     ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Récentes', ideasNewBtn:'💡 Proposer',
     ideasLoading:'Chargement des idées…', ideasEmpty:'Aucune idée pour le moment.\nSois le premier à en proposer une !', ideasError:'Impossible de charger les idées.\nVérifie ta connexion et réessaie.',
@@ -1219,6 +1227,14 @@ const DICT = {
   en: {
     siteTitle:'Multiplayer Games', siteSubtitle:'Choose your category',
     navHome:'Home', navFeed:'Videos', navIdeas:'Ideas', navShop:'Shop', profileBalanceLabel:'Balance',
+    accountTitle:'🔑 My account', accountTabCreate:'Create', accountTabLogin:'Log in',
+    accountCreateIntro:'Create an account so you never lose your progress and can log back in on another device.',
+    accountLoginIntro:'Log in with your nickname and password to get your progress back.',
+    accountPseudoLabel:'Nickname', accountPwLabel:'Password', accountCreateBtn:'Create my account', accountLoginBtn:'Log in',
+    accountNeedPseudo:'Choose a nickname.', accountShortPw:'Password too short (4 characters min).',
+    accountCreated:'Account created! Your progress is safe.', accountError:'Something went wrong, try again.', accountWelcome:(n)=>`Welcome ${n}! Loading…`,
+    accountCardTitle:'My account', accountCardSub:'Create an account or log in',
+    onboardAccountBtn:'Create an account', onboardLoginBtn:'I already have an account, log in', onboardNewBtn:'No thanks, start without an account',
     ideasTitle:'Ideas & suggestions', ideasSub:'Suggest a site improvement and vote on others\' ideas.',
     ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Newest', ideasNewBtn:'💡 Suggest',
     ideasLoading:'Loading ideas…', ideasEmpty:'No ideas yet.\nBe the first to suggest one!', ideasError:'Could not load ideas.\nCheck your connection and try again.',
@@ -2128,6 +2144,10 @@ function applyLang() {
   setPh('ideanew-desc', d.ideaNewDescPh);
   setTxt('ideanew-send', d.ideaNewSend);
   if (window._ideasBoard) window._ideasBoard.retexte();
+  setTxt('account-title', d.accountTitle); setTxt('account-tab-create', d.accountTabCreate); setTxt('account-tab-login', d.accountTabLogin);
+  setTxt('account-pseudo-label', d.accountPseudoLabel); setTxt('account-pw-label', d.accountPwLabel);
+  setTxt('account-card-title', d.accountCardTitle); setTxt('account-card-sub', d.accountCardSub);
+  setTxt('btn-onboard-account', d.onboardAccountBtn); setTxt('btn-onboard-login', d.onboardLoginBtn); setTxt('btn-onboard-new', d.onboardNewBtn);
 
   // Lecture
   const rt = $('read-title');        if (rt) rt.textContent  = d.navRead;
@@ -9817,6 +9837,7 @@ const UI_ICONS = (() => {
     sparkle: S('<path d="M12 3l1.7 5L19 9.5l-5.3 1.5L12 16l-1.7-5L5 9.5l5.3-1.5L12 3Z"/><path d="M18.5 15l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6.6-1.9Z"/>'),
     trash:   S('<path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M6.5 7l1 12a1 1 0 0 0 1 .9h7a1 1 0 0 0 1-.9l1-12"/><path d="M10 11v6M14 11v6"/>'),
     cart:    S('<path d="M6 8h13l-1.3 8.4a1 1 0 0 1-1 .85H8.3a1 1 0 0 1-1-.85L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>'),
+    key:     S('<circle cx="8" cy="9" r="4"/><path d="M11 11l8 8M17 17l2-2M15 15l1.5-1.5"/>'),
   };
 })();
 function paintUiIcons(root = document) {
@@ -11004,6 +11025,83 @@ try {
       obs.observe(el, { attributes: true, attributeFilter: ['class'] });
     });
   } catch {}
+})();
+
+// ── Compte optionnel (pseudo + mot de passe) ─────────────────────────────────
+(function initAccount() {
+  const ov = document.getElementById('overlay-account');
+  if (!ov) return;
+  const pseudo = document.getElementById('account-pseudo');
+  const pw = document.getElementById('account-pw');
+  const status = document.getElementById('account-status');
+  const submit = document.getElementById('btn-account-submit');
+  const tabCreate = document.getElementById('account-tab-create');
+  const tabLogin = document.getElementById('account-tab-login');
+  let mode = 'create', fromOnboard = false;
+
+  function setMode(m) {
+    mode = m; const d = t();
+    tabCreate.classList.toggle('active', m === 'create');
+    tabLogin.classList.toggle('active', m === 'login');
+    document.getElementById('account-intro').textContent = m === 'create' ? d.accountCreateIntro : d.accountLoginIntro;
+    submit.textContent = m === 'create' ? d.accountCreateBtn : d.accountLoginBtn;
+    pw.setAttribute('autocomplete', m === 'create' ? 'new-password' : 'current-password');
+    status.textContent = '';
+  }
+  function open(m) {
+    fromOnboard = !document.getElementById('overlay-onboard')?.classList.contains('hidden');
+    ov.classList.remove('hidden');
+    pseudo.value = (localStorage.getItem('playerName') || '').trim();
+    pw.value = '';
+    setMode(m || 'create');
+  }
+  window._openAccount = open;
+
+  tabCreate.addEventListener('click', () => setMode('create'));
+  tabLogin.addEventListener('click', () => setMode('login'));
+  document.getElementById('btn-account-close').addEventListener('click', () => ov.classList.add('hidden'));
+
+  async function doSubmit() {
+    const d = t();
+    const p = pseudo.value.trim();
+    const w = pw.value;
+    if (!p) { status.textContent = d.accountNeedPseudo; status.className = 'recovery-warn recovery-err'; return; }
+    if (!w || w.length < 4) { status.textContent = d.accountShortPw; status.className = 'recovery-warn recovery-err'; return; }
+    submit.disabled = true; status.textContent = '…'; status.className = 'recovery-warn';
+    try {
+      const path = mode === 'create' ? '/api/account/register' : '/api/account/login';
+      const body = mode === 'create'
+        ? { pseudo: p, password: w, playerId: getPlayerId() }
+        : { pseudo: p, password: w };
+      const res = await fetch(`${window.BACKEND_URL}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const j = await res.json();
+      if (!j.ok) { status.textContent = j.error || d.accountError; status.className = 'recovery-warn recovery-err'; submit.disabled = false; return; }
+      if (mode === 'create') {
+        try { localStorage.setItem('playerName', j.pseudo); localStorage.setItem('libero_onboarded', '1'); } catch {}
+        window._sound?.play('success');
+        submit.disabled = false;
+        status.textContent = d.accountCreated; status.className = 'recovery-warn recovery-ok';
+        setTimeout(() => {
+          ov.classList.add('hidden');
+          if (fromOnboard) { // nouveau joueur : on termine l'onboarding et on lance le guide
+            document.getElementById('overlay-onboard')?.classList.add('hidden');
+            window._tutoBegin?.('landing');
+          }
+        }, 1000);
+      } else {
+        window._tutoSkipAll?.(); // un joueur qui se connecte connait deja le site
+        try { localStorage.setItem('libero_player_id', j.playerId); localStorage.removeItem('playerName'); localStorage.setItem('libero_onboarded', '1'); } catch {}
+        status.textContent = d.accountWelcome(j.pseudo); status.className = 'recovery-warn recovery-ok';
+        setTimeout(() => location.reload(), 700);
+      }
+    } catch { status.textContent = d.accountError; status.className = 'recovery-warn recovery-err'; submit.disabled = false; }
+  }
+  submit.addEventListener('click', doSubmit);
+  pw.addEventListener('keydown', e => { if (e.key === 'Enter') doSubmit(); });
+
+  document.getElementById('go-account')?.addEventListener('click', () => open('create'));
+  document.getElementById('btn-onboard-account')?.addEventListener('click', () => open('create'));
+  document.getElementById('btn-onboard-login')?.addEventListener('click', () => open('login'));
 })();
 
 // ── Offrir des Libs a un ami ─────────────────────────────────────────────────
