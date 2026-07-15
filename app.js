@@ -6678,8 +6678,23 @@ function _settingsOutsideClick(e) {
   }
 }
 
+// Banniere de maintenance : recuperee au chargement (et rafraichie toutes les 2 min).
+function _checkMaintenance() {
+  fetch(`${window.BACKEND_URL}/api/status`).then(r => r.json()).then(s => {
+    const el = document.getElementById('maintenance-banner');
+    if (!el) return;
+    if (s && s.maintenance) {
+      const msg = (currentLang === 'en' && s.messageEn) ? s.messageEn : (s.message || '');
+      el.textContent = '🛠️ ' + (msg || (currentLang === 'en' ? 'Maintenance in progress, some features may be unavailable.' : 'Maintenance en cours, certaines fonctions peuvent etre indisponibles.'));
+      el.classList.remove('hidden');
+    } else { el.classList.add('hidden'); }
+  }).catch(() => {});
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   _loadNewsComments();
+  _checkMaintenance();
+  setInterval(_checkMaintenance, 120_000);
 
   const settingsBtn = document.getElementById('btn-settings');
   if (settingsBtn) {

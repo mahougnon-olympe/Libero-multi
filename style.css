@@ -4197,6 +4197,15 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 .profile-balance-row:hover  { border-color: var(--board); }
 .profile-balance-row:active { transform: scale(.99); }
 /* Affichage seul : ni curseur main, ni effet de survol/appui. */
+/* Banniere de maintenance (bandeau haut, non bloquant). */
+.maintenance-banner {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 3000;
+  background: linear-gradient(90deg, #b45309, #d97706);
+  color: #fff; text-align: center; font-weight: 700; font-size: .9rem;
+  padding: 8px 40px 8px 14px; box-shadow: 0 2px 12px rgba(0,0,0,.3);
+}
+.maintenance-banner.hidden { display: none; }
+
 .profile-balance-static { cursor: default; }
 .profile-balance-static:hover  { border-color: var(--border); }
 .profile-balance-static:active { transform: none; }

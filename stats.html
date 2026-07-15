@@ -201,6 +201,12 @@
       <div class="kpis" id="kpis"></div>
 
       <section>
+        <h2>📊 Cette semaine vs la précédente</h2>
+        <p class="sub" style="margin-top:-4px;">Évolution sur 7 jours glissants (visites et parties) par rapport aux 7 jours d'avant.</p>
+        <div class="kpis" id="periods"></div>
+      </section>
+
+      <section>
         <h2>📈 30 derniers jours
           <button id="btn-export-players" class="ghost small" style="margin-left:auto">⬇ Joueurs CSV</button>
           <button id="btn-export-purchases" class="ghost small">⬇ Achats CSV</button>
@@ -239,6 +245,46 @@
         </div>
         <p id="push-audience" class="sub" style="margin-top:-2px"></p>
         <p id="push-status" class="sub"></p>
+        <div class="field" style="margin-top:8px">
+          <label for="sched-when" style="font-size:.85rem;opacity:.85">Programmer pour plus tard :</label>
+          <input id="sched-when" type="datetime-local" style="flex:1" />
+          <button id="btn-sched-add" class="green">Programmer</button>
+        </div>
+        <p class="sub" style="margin-top:-2px">Programme l'envoi ci-dessus (annonce si le titre est vide, sinon push) à la date choisie.</p>
+        <div id="scheduled-list"></div>
+      </section>
+
+      <section>
+        <h2>🛠️ Mode maintenance</h2>
+        <p class="sub" style="margin-top:-4px;">Affiche un bandeau d'avertissement en haut du site (non bloquant). Utile pendant une mise à jour.</p>
+        <div class="field">
+          <input id="maint-msg" placeholder="Message (ex : Retour à 18h)" maxlength="300" style="flex:1" />
+          <button id="btn-maint-on" class="red">Activer</button>
+          <button id="btn-maint-off" class="green">Désactiver</button>
+        </div>
+        <p id="maint-status" class="sub"></p>
+      </section>
+
+      <section>
+        <h2>🚫 Mots interdits <span id="banned-pill" class="pill"></span></h2>
+        <p class="sub" style="margin-top:-4px;">Auto-modération : tout pseudo, commentaire, suggestion ou commentaire vidéo contenant un de ces mots est refusé automatiquement.</p>
+        <div class="field">
+          <input id="banned-input" placeholder="Ajouter un mot" maxlength="40" style="flex:1" />
+          <button id="btn-banned-add" class="green">Ajouter</button>
+        </div>
+        <div id="banned-list"></div>
+      </section>
+
+      <section>
+        <h2>📖 Prix des livres</h2>
+        <p class="sub" style="margin-top:-4px;">Change le prix en Libs d'un pack de chapitres. Laisse vide et valide pour revenir au prix de base.</p>
+        <div id="book-prices"></div>
+      </section>
+
+      <section>
+        <h2>💾 Sauvegarde</h2>
+        <p class="sub" style="margin-top:-4px;">Télécharge un instantané JSON des données clés (soldes, classements, annonces, suggestions, config).</p>
+        <button id="btn-backup" class="green">Télécharger la sauvegarde</button>
       </section>
 
       <section>
@@ -742,9 +788,64 @@
       }).join('');
     }
 
+    function renderPeriods(p) {
+      p = p || {};
+      function delta(pct) {
+        if (pct > 0) return '<span style="color:#22c55e">▲ ' + pct + '%</span>';
+        if (pct < 0) return '<span style="color:#f87171">▼ ' + Math.abs(pct) + '%</span>';
+        return '<span style="opacity:.6">= 0%</span>';
+      }
+      var items = [
+        { l:'Visites (7 j)', v:p.visitsThis||0, sub:'avant : ' + (p.visitsPrev||0) + ' · ' + delta(p.visitsPct||0) },
+        { l:'Parties (7 j)', v:p.gamesThis||0,  sub:'avant : ' + (p.gamesPrev||0) + ' · ' + delta(p.gamesPct||0) },
+      ];
+      $('periods').innerHTML = items.map(function (i) {
+        return '<div class="kpi"><div class="num">' + i.v + '</div><div class="lbl">' + i.l + '</div><div class="sub" style="margin:4px 0 0">' + i.sub + '</div></div>';
+      }).join('');
+    }
+
+    function renderScheduled(list) {
+      list = list || [];
+      if (!list.length) { $('scheduled-list').innerHTML = ''; return; }
+      $('scheduled-list').innerHTML = list.map(function (t) {
+        var when = new Date(t.fireAt).toLocaleString('fr-FR');
+        var what = t.kind === 'announce' ? ('📣 ' + esc((t.text||'').slice(0,60))) : ('🔔 ' + esc((t.title||t.body||'').slice(0,60)) + ' [' + (t.segment||'all') + ']');
+        return '<div class="bot-q' + (t.done ? '' : ' flagged') + '"><span>' + what + ' <span class="t">' + esc(when) + (t.done ? ' · envoyé' : '') + '</span></span>'
+          + '<button type="button" class="sched-del" data-id="' + esc(t.id) + '" style="background:none;border:none;cursor:pointer">🗑️</button></div>';
+      }).join('');
+    }
+
+    function renderBanned(list) {
+      list = list || [];
+      var bp = $('banned-pill'); if (bp) bp.textContent = list.length;
+      $('banned-list').innerHTML = list.length ? list.map(function (w) {
+        return '<span class="chip" style="display:inline-flex;gap:6px;align-items:center;margin:3px">' + esc(w)
+          + '<button type="button" class="banned-del" data-w="' + esc(w) + '" style="background:none;border:none;color:#f87171;cursor:pointer">✕</button></span>';
+      }).join('') : '<p class="empty">Aucun mot interdit.</p>';
+    }
+
+    function renderBookPrices(books) {
+      books = books || [];
+      if (!books.length) { $('book-prices').innerHTML = ''; return; }
+      $('book-prices').innerHTML = books.map(function (b) {
+        return '<div style="margin:8px 0"><strong>' + esc(b.titre) + '</strong>'
+          + b.packs.map(function (p) {
+            return '<div class="field" style="margin-top:4px"><span class="sub" style="min-width:150px">Ch. ' + p.from + '–' + p.to + ' (base ' + p.basePrice + ' ⚡)</span>'
+              + '<input type="number" class="book-price-in" data-book="' + esc(b.id) + '" data-pack="' + esc(p.id) + '" value="' + p.price + '" min="0" style="max-width:110px" />'
+              + '<button type="button" class="book-price-save green" data-book="' + esc(b.id) + '" data-pack="' + esc(p.id) + '">OK</button></div>';
+          }).join('') + '</div>';
+      }).join('');
+    }
+
     function render(d) {
       LAST_PLAYERS = d.players || [];
       renderKpis(d);
+      renderPeriods(d.periods);
+      renderScheduled(d.scheduled);
+      renderBanned(d.bannedWords);
+      renderBookPrices(d.bookPrices);
+      if ($('maint-status')) $('maint-status').textContent = d.maintenance && d.maintenance.on ? ('🛠️ Maintenance ACTIVE : ' + (d.maintenance.message || '(sans message)')) : 'Maintenance désactivée.';
+      if ($('maint-msg') && d.maintenance && d.maintenance.message && !$('maint-msg').value) $('maint-msg').value = d.maintenance.message;
       renderComments(d.comments);
       renderResets(d.resets);
       renderChart('chart-visits', d.daily || [], 'visits');
@@ -1146,6 +1247,57 @@
       catch (e) {} this.disabled = false;
     });
 
+    // Programmer une annonce / un push.
+    if ($('btn-sched-add')) $('btn-sched-add').addEventListener('click', async function () {
+      var when = $('sched-when').value;
+      if (!when) { alert('Choisis une date.'); return; }
+      var fireAt = new Date(when).getTime();
+      var title = $('push-title').value.trim(), body = $('push-body').value.trim();
+      var text = $('ann-fr') ? $('ann-fr').value.trim() : '';
+      var payload;
+      if (title || (body && !text)) payload = { kind:'push', title:title, body:body, segment: $('push-segment') ? $('push-segment').value : 'all', fireAt:fireAt };
+      else payload = { kind:'announce', text: text || body, textEn: $('ann-en') ? $('ann-en').value.trim() : '', fireAt:fireAt };
+      if (!payload.text && !payload.title && !payload.body) { alert('Remplis un titre/texte de push ou une annonce d\'abord.'); return; }
+      this.disabled = true;
+      try { var r = await api('/admin/schedule', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) }); var dd = await r.json(); if (!dd.ok) alert(dd.error||'Erreur'); await refresh(); }
+      catch (e) {} this.disabled = false;
+    });
+    if ($('scheduled-list')) $('scheduled-list').addEventListener('click', async function (e) {
+      var b = e.target.closest('.sched-del'); if (!b) return;
+      b.disabled = true;
+      try { await api('/admin/schedule/' + encodeURIComponent(b.dataset.id), { method:'DELETE' }); await refresh(); } catch (e2) { b.disabled = false; }
+    });
+
+    // Maintenance.
+    async function setMaint(on) {
+      try { await api('/admin/maintenance', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ on:on, message: $('maint-msg').value.trim() }) }); await refresh(); } catch (e) {}
+    }
+    if ($('btn-maint-on'))  $('btn-maint-on').addEventListener('click', function () { setMaint(true); });
+    if ($('btn-maint-off')) $('btn-maint-off').addEventListener('click', function () { setMaint(false); });
+
+    // Mots interdits.
+    if ($('btn-banned-add')) $('btn-banned-add').addEventListener('click', async function () {
+      var w = $('banned-input').value.trim(); if (!w) return;
+      try { await api('/admin/banned-words', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ word:w }) }); $('banned-input').value=''; await refresh(); } catch (e) {}
+    });
+    if ($('banned-list')) $('banned-list').addEventListener('click', async function (e) {
+      var b = e.target.closest('.banned-del'); if (!b) return;
+      try { await api('/admin/banned-words/' + encodeURIComponent(b.dataset.w), { method:'DELETE' }); await refresh(); } catch (e2) {}
+    });
+
+    // Prix des livres.
+    if ($('book-prices')) $('book-prices').addEventListener('click', async function (e) {
+      var b = e.target.closest('.book-price-save'); if (!b) return;
+      var inp = document.querySelector('.book-price-in[data-book="' + b.dataset.book + '"][data-pack="' + b.dataset.pack + '"]');
+      var val = inp && inp.value !== '' ? Number(inp.value) : null;
+      b.disabled = true;
+      try { await api('/admin/book-price', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ bookId:b.dataset.book, packId:b.dataset.pack, price:val }) }); await refresh(); }
+      catch (e2) {} b.disabled = false;
+    });
+
+    // Sauvegarde JSON.
+    if ($('btn-backup')) $('btn-backup').addEventListener('click', function () { downloadCsv('/admin/export/backup', 'libero-backup.json'); });
+
     // ---- Détail d'un joueur ----
     var GAME_ICON = { connect4:'🔴', tictactoe:'✕', chess:'♟', trivia:'🧠', snake:'🐍', luffy:'🏃' };
     var RESULT_FR = { win:'Victoire', loss:'Défaite', draw:'Nul' };
@@ -1211,7 +1363,27 @@
         + '<input id="gift-cosmetic-id" placeholder="Id cosmétique (optionnel, ex. bg-galaxie)" />'
         + '<button id="btn-admin-gift" class="green" data-ref="' + esc(CURRENT_REF) + '">Envoyer</button></div>'
         + '<p id="gift-feedback" class="muted" style="font-size:.78rem;"></p>';
+
+      html += '<h3 class="pd-h3">🔔 Alertes admin</h3>'
+        + '<p class="muted" style="font-size:.78rem;margin-top:-4px">Ce compte reçoit-il les notifications d\'alerte (achats, fraude, erreurs) ? Le joueur doit avoir activé les notifications push.</p>'
+        + '<button id="btn-alert-on" class="green" data-ref="' + esc(CURRENT_REF) + '">Activer les alertes</button> '
+        + '<button id="btn-alert-off" class="red" data-ref="' + esc(CURRENT_REF) + '">Désactiver</button>'
+        + '<p id="alert-feedback" class="muted" style="font-size:.78rem;"></p>';
+
       $('pd-body').innerHTML = html;
+      function alertToggle(on) {
+        return async function () {
+          this.disabled = true;
+          try {
+            var res = await api('/admin/alert-recipient', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ref: this.dataset.ref, on: on }) });
+            var out = await res.json();
+            $('alert-feedback').textContent = res.ok ? (on ? ('✅ Alertes activées' + (out.subscribed ? '' : ' (mais ce compte n\'est pas abonné au push)')) : '✅ Alertes désactivées') : ('❌ ' + (out.error || 'Erreur'));
+          } catch (e) { $('alert-feedback').textContent = '❌ Erreur réseau.'; }
+          this.disabled = false;
+        };
+      }
+      $('btn-alert-on').addEventListener('click', alertToggle(true));
+      $('btn-alert-off').addEventListener('click', alertToggle(false));
       $('btn-admin-gift').addEventListener('click', async function () {
         var amount = parseInt($('gift-libs-amount').value, 10) || 0;
         var cosm = $('gift-cosmetic-id').value.trim();

@@ -264,6 +264,7 @@ function recordNewAccount(ip) {
     const masked = String(ip).replace(/\.\d+$/, '.x');
     fraudAlerts.unshift({ at: now, msg: `4 comptes ou plus créés en 24h depuis la même IP (${masked}).` });
     if (fraudAlerts.length > 50) fraudAlerts.pop();
+    adminAlert('🚨 Alerte fraude', `4 comptes ou plus créés en 24h depuis ${masked}.`);
   }
 }
 
@@ -451,6 +452,17 @@ async function loadData() {
   if (flashDoc?.value && flashDoc.value.endsAt > Date.now()) flashOffer = flashDoc.value;
   const shopOvDoc = configDocs.find(d => d._id === 'shop_overrides');
   if (Array.isArray(shopOvDoc?.value)) shopOvDoc.value.forEach(([id, o]) => { if (o && (!o.until || o.until > Date.now())) shopOverrides.set(id, o); });
+  const bannedDoc = configDocs.find(d => d._id === 'banned_words');
+  if (Array.isArray(bannedDoc?.value)) bannedWords = bannedDoc.value.filter(w => typeof w === 'string');
+  const bpoDoc = configDocs.find(d => d._id === 'book_price_overrides');
+  if (bpoDoc?.value && typeof bpoDoc.value === 'object') bookPriceOverrides = bpoDoc.value;
+  const alertDoc = configDocs.find(d => d._id === 'admin_alert_subs');
+  if (Array.isArray(alertDoc?.value)) adminAlertSubs = alertDoc.value.filter(x => typeof x === 'string');
+  const maintDoc = configDocs.find(d => d._id === 'maintenance');
+  if (maintDoc?.value && typeof maintDoc.value === 'object') maintenance = { on: !!maintDoc.value.on, message: maintDoc.value.message || '', messageEn: maintDoc.value.messageEn || '' };
+  db.collection('scheduled_tasks').find().toArray()
+    .then(docs => { scheduledTasks = docs.map(d => ({ id: d.id || d._id, kind: d.kind, at: d.at || 0, fireAt: d.fireAt || 0, done: !!d.done, title: d.title || '', body: d.body || '', text: d.text || '', textEn: d.textEn || '', segment: d.segment || 'all' })); })
+    .catch(() => {});
   db.collection('admin_challenges').find().toArray()
     .then(docs => { adminChallenges = docs.map(d => ({ _id: d._id, kind: d.kind, metric: d.metric, goal: d.goal, reward: d.reward, label: d.label, labelEn: d.labelEn || '', at: d.at })); })
     .catch(() => {});
@@ -512,6 +524,8 @@ function sanitizeName(name, fallback = '') {
     .trim()
     .slice(0, 20)
     .trim();
+  // Auto-moderation : un pseudo contenant un mot interdit est refuse (repli).
+  if (cleaned && containsBanned(cleaned)) return fallback;
   return cleaned || fallback;
 }
 
@@ -722,6 +736,7 @@ function creditLibsPurchase(purchase) {
     if (pid === purchase.playerId) io.to(sockId).emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: purchase.libsAmount, nextAt: nextDistributionAt });
   }
   console.log(`[💳] +${purchase.libsAmount} Libs crédités (achat FedaPay ${purchase._id}) → ${entry.name || purchase.playerId}`);
+  adminAlert('💳 Nouvel achat', `${entry.name || 'Un joueur'} a acheté ${purchase.libsAmount} Libs.`);
   return true;
 }
 
@@ -1089,10 +1104,75 @@ function logServerError(where, err) {
     if (serverErrors.length > SERVER_ERROR_MAX) serverErrors.pop();
     if (db) db.collection('server_errors').insertOne({ ...entry }).catch(() => {});
     console.error(`[⚠️ ${entry.where}]`, message);
+    adminAlert('⚠️ Erreur serveur', `${entry.where}: ${message.slice(0, 120)}`, { throttleErr: true });
   } catch (_) {}
 }
 process.on('uncaughtException',  e => logServerError('uncaughtException', e));
 process.on('unhandledRejection', e => logServerError('unhandledRejection', e));
+
+// ── Etat admin persiste dans server_config ───────────────────────────────────
+function saveConfig(id, value) {
+  if (db) db.collection('server_config').updateOne({ _id: id }, { $set: { value } }, { upsert: true }).catch(() => {});
+}
+let scheduledTasks   = [];              // { id, kind:'announce'|'push', at, fireAt, done, ... }
+let bannedWords      = [];              // mots interdits (minuscules)
+let bookPriceOverrides = {};            // 'bookId:packId' -> prix
+let adminAlertSubs   = [];              // playerIds recevant les alertes admin
+let maintenance      = { on: false, message: '', messageEn: '' };
+
+function containsBanned(str) {
+  if (!bannedWords.length || !str) return false;
+  const low = String(str).toLowerCase();
+  return bannedWords.some(w => w && low.includes(w));
+}
+// Alerte poussee vers les appareils du proprietaire (jamais bloquant).
+let _lastAlertErrAt = 0;
+function adminAlert(title, body, opts = {}) {
+  try {
+    if (!adminAlertSubs.length) return;
+    // Les alertes d'erreur sont limitees a une toutes les 10 min pour ne pas spammer.
+    if (opts.throttleErr) { const now = Date.now(); if (now - _lastAlertErrAt < 10 * 60_000) return; _lastAlertErrAt = now; }
+    sendPush(adminAlertSubs.slice(), { title, body, url: 'https://libero-multi.vercel.app/stats.html' });
+  } catch (_) {}
+}
+// Prix effectif d'un pack de livre (override admin sinon prix de base).
+function bookPackPrice(bookId, pack) {
+  const k = `${bookId}:${pack.id}`;
+  return Object.prototype.hasOwnProperty.call(bookPriceOverrides, k) ? bookPriceOverrides[k] : pack.price;
+}
+
+// Publie une annonce (immediate) : memoire + Mongo + diffusion + push a tous.
+function publishAnnouncement(text, textEn) {
+  const a = { _id: crypto.randomUUID(), text, textEn: textEn || '', at: Date.now() };
+  announcements.unshift(a);
+  if (announcements.length > 20) announcements.pop();
+  if (db) db.collection('announcements').insertOne({ ...a }).catch(() => {});
+  io.emit('announcements-update', { announcements: announcements.slice(0, 5).map(x => ({ id: x._id, text: x.text, textEn: x.textEn || '', at: x.at })) });
+  sendPush(null, { title: "📣 Libero's Multi", body: text.slice(0, 180), url: 'https://libero-multi.vercel.app' });
+  return a;
+}
+
+// ── Taches programmees (annonce/push a une date/heure) ──
+function _persistTask(t) {
+  if (db) db.collection('scheduled_tasks').updateOne({ id: t.id }, { $set: t }, { upsert: true }).catch(() => {});
+}
+function _runScheduledTasks() {
+  const now = Date.now();
+  for (const t of scheduledTasks) {
+    if (t.done || t.fireAt > now) continue;
+    try {
+      if (t.kind === 'announce') {
+        if (t.text) publishAnnouncement(t.text, t.textEn);
+      } else if (t.kind === 'push') {
+        const target = t.segment === 'all' ? null : _segmentPlayerIds(t.segment);
+        sendPush(target, { title: t.title || "Libero's Multi", body: t.body || '', url: 'https://libero-multi.vercel.app' });
+      }
+      adminAudit('scheduled-fire', { kind: t.kind, segment: t.segment });
+    } catch (e) { logServerError('scheduled task', e); }
+    t.done = true; _persistTask(t);
+  }
+}
+setInterval(_runScheduledTasks, 30_000);
 
 // ── Notifications push (web-push) ────────────────────────────────────────────
 // Activees seulement si les cles VAPID sont dans l'environnement (Render).
@@ -3534,14 +3614,15 @@ io.on('connection', (socket) => {
     let anyAvailable = false;
     for (let n = pack.from; n <= pack.to; n++) if (chapters.has(n)) { anyAvailable = true; break; }
     if (!anyAvailable) { socket.emit('buy-book-pack-result', { ok: false, error: 'not_available' }); return; }
-    if (entry.balance < pack.price) { socket.emit('buy-book-pack-result', { ok: false, error: 'insufficient' }); return; }
-    entry.balance -= pack.price;
+    const effPrice = bookPackPrice(book.id, pack);
+    if (entry.balance < effPrice) { socket.emit('buy-book-pack-result', { ok: false, error: 'insufficient' }); return; }
+    entry.balance -= effPrice;
     entry.ownedBooks.push(key);
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, nextAt: nextDistributionAt });
     socket.emit('buy-book-pack-result', { ok: true, packId });
-    console.log(`[📖] ${entry.name} a débloqué ${key} (−${pack.price} Libs)`);
+    console.log(`[📖] ${entry.name} a débloqué ${key} (−${effPrice} Libs)`);
   });
 
   socket.on('honor-modal-seen', ({ playerId } = {}) => {
@@ -4223,6 +4304,26 @@ app.get('/admin/stats', async (req, res) => {
         }
         return out;
       })(),
+      scheduled: scheduledTasks.slice().sort((a, b) => a.fireAt - b.fireAt).map(t => ({
+        id: t.id, kind: t.kind, fireAt: t.fireAt, done: !!t.done, segment: t.segment,
+        title: t.title, body: t.body, text: t.text,
+      })),
+      bannedWords,
+      maintenance,
+      alertRecipients: adminAlertSubs.length,
+      bookPrices: Object.values(LIBERO_BOOKS).map(b => ({
+        id: b.id, titre: b.titre,
+        packs: b.packs.map(p => ({ id: p.id, from: p.from, to: p.to, basePrice: p.price, price: bookPackPrice(b.id, p) })),
+      })),
+      // Comparaison de periodes : 7 derniers jours vs les 7 precedents.
+      periods: (() => {
+        const dayKey = i => new Date(Date.now() + 3_600_000 - i * 86_400_000).toISOString().slice(0, 10);
+        let vThis = 0, gThis = 0, vPrev = 0, gPrev = 0;
+        for (let i = 0; i < 7; i++)  { const d = dailyStats.get(dayKey(i))      || {}; vThis += d.visits || 0; gThis += d.games || 0; }
+        for (let i = 7; i < 14; i++) { const d = dailyStats.get(dayKey(i))      || {}; vPrev += d.visits || 0; gPrev += d.games || 0; }
+        const pct = (a, b) => b > 0 ? Math.round(((a - b) / b) * 100) : (a > 0 ? 100 : 0);
+        return { visitsThis: vThis, visitsPrev: vPrev, visitsPct: pct(vThis, vPrev), gamesThis: gThis, gamesPrev: gPrev, gamesPct: pct(gThis, gPrev) };
+      })(),
       // Comptes reinitialises (cache restituable) : les plus recents d'abord.
       resets: [...resetArchive.values()]
         .sort((a, b) => (b.at || 0) - (a.at || 0))
@@ -4294,6 +4395,9 @@ app.post('/api/comment', (req, res) => {
   }
   if (message.trim().length > 1000) {
     return res.status(400).json({ error: 'Message trop long (max 1000 caractères).' });
+  }
+  if (containsBanned(message) || containsBanned(pseudo)) {
+    return res.status(400).json({ error: 'Ton message contient un terme interdit.' });
   }
 
   // Limite : 3 commentaires par IP par heure
@@ -4626,6 +4730,11 @@ app.get('/api/push-key', (req, res) => {
   res.json({ key: webpush ? process.env.VAPID_PUBLIC_KEY : null });
 });
 
+// Statut public : sert la banniere de maintenance cote site.
+app.get('/api/status', (req, res) => {
+  res.json({ maintenance: !!maintenance.on, message: maintenance.message || '', messageEn: maintenance.messageEn || '' });
+});
+
 // Admin : notification push manuelle a tous les abonnes.
 app.post('/admin/push', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
@@ -4650,6 +4759,128 @@ app.get('/admin/push-audience', (req, res) => {
   res.json({ ok: true, audience: out });
 });
 
+// ── Taches programmees (annonce/push a une date/heure) ──
+app.post('/admin/schedule', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const kind = req.body?.kind === 'push' ? 'push' : 'announce';
+  const fireAt = Number(req.body?.fireAt) || 0;
+  if (!fireAt || fireAt < Date.now() - 60_000) return res.status(400).json({ error: 'Date invalide (dans le passé).' });
+  const t = { id: crypto.randomUUID(), kind, at: Date.now(), fireAt, done: false, segment: 'all', title: '', body: '', text: '', textEn: '' };
+  if (kind === 'announce') {
+    t.text   = String(req.body?.text || '').trim().slice(0, 300);
+    t.textEn = String(req.body?.textEn || '').trim().slice(0, 300);
+    if (!t.text) return res.status(400).json({ error: 'Texte manquant.' });
+  } else {
+    t.title = String(req.body?.title || '').trim().slice(0, 80);
+    t.body  = String(req.body?.body || '').trim().slice(0, 200);
+    t.segment = ['all', 'inactive7', 'active7', 'vip', 'big'].includes(req.body?.segment) ? req.body.segment : 'all';
+    if (!t.title && !t.body) return res.status(400).json({ error: 'Titre ou texte requis.' });
+  }
+  scheduledTasks.push(t); _persistTask(t);
+  adminAudit('schedule-add', { kind, fireAt });
+  res.json({ ok: true, id: t.id });
+});
+app.delete('/admin/schedule/:id', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const id = String(req.params.id || '');
+  scheduledTasks = scheduledTasks.filter(t => t.id !== id);
+  if (db) db.collection('scheduled_tasks').deleteOne({ id }).catch(() => {});
+  res.json({ ok: true });
+});
+
+// ── Mots interdits (auto-moderation) ──
+app.get('/admin/banned-words', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  res.json({ ok: true, words: bannedWords });
+});
+app.post('/admin/banned-words', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const w = String(req.body?.word || '').trim().toLowerCase().slice(0, 40);
+  if (!w) return res.status(400).json({ error: 'Mot manquant.' });
+  if (!bannedWords.includes(w)) { bannedWords.push(w); saveConfig('banned_words', bannedWords); }
+  res.json({ ok: true, words: bannedWords });
+});
+app.delete('/admin/banned-words/:word', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const w = String(req.params.word || '').toLowerCase();
+  bannedWords = bannedWords.filter(x => x !== w);
+  saveConfig('banned_words', bannedWords);
+  res.json({ ok: true, words: bannedWords });
+});
+
+// ── Prix des livres (override admin) ──
+app.get('/admin/book-prices', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const books = Object.values(LIBERO_BOOKS).map(b => ({
+    id: b.id, titre: b.titre,
+    packs: b.packs.map(p => ({ id: p.id, from: p.from, to: p.to, basePrice: p.price, price: bookPackPrice(b.id, p) })),
+  }));
+  res.json({ ok: true, books });
+});
+app.post('/admin/book-price', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const bookId = String(req.body?.bookId || '');
+  const packId = String(req.body?.packId || '');
+  const book = LIBERO_BOOKS[bookId];
+  if (!book || !book.packs.some(p => p.id === packId)) return res.status(404).json({ error: 'Pack introuvable.' });
+  const key = `${bookId}:${packId}`;
+  if (req.body?.price === null || req.body?.price === '') {
+    delete bookPriceOverrides[key]; // retour au prix de base
+  } else {
+    const price = Math.max(0, Math.min(100_000, Math.floor(Number(req.body?.price) || 0)));
+    bookPriceOverrides[key] = price;
+  }
+  saveConfig('book_price_overrides', bookPriceOverrides);
+  adminAudit('book-price', { bookId, packId, price: bookPriceOverrides[key] ?? 'base' });
+  res.json({ ok: true, price: bookPriceOverrides[key] ?? book.packs.find(p => p.id === packId).price });
+});
+
+// ── Destinataires des alertes admin (par ref joueur) ──
+app.post('/admin/alert-recipient', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const ref = String(req.body?.ref || '');
+  let pid = null;
+  for (const id of _allPlayerIds()) { if (_playerRef(id) === ref) { pid = id; break; } }
+  if (!pid) return res.status(404).json({ error: 'Joueur introuvable.' });
+  const on = req.body?.on !== false;
+  if (on && !adminAlertSubs.includes(pid)) adminAlertSubs.push(pid);
+  if (!on) adminAlertSubs = adminAlertSubs.filter(x => x !== pid);
+  saveConfig('admin_alert_subs', adminAlertSubs);
+  res.json({ ok: true, on, count: adminAlertSubs.length, subscribed: pushSubs.has(pid) });
+});
+
+// ── Mode maintenance ──
+app.post('/admin/maintenance', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  maintenance = {
+    on: !!req.body?.on,
+    message:   String(req.body?.message   || '').trim().slice(0, 300),
+    messageEn: String(req.body?.messageEn || '').trim().slice(0, 300),
+  };
+  saveConfig('maintenance', maintenance);
+  adminAudit('maintenance', { on: maintenance.on });
+  res.json({ ok: true, maintenance });
+});
+
+// ── Sauvegarde JSON en un clic ──
+app.get('/admin/export/backup', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const dump = {
+    at: new Date().toISOString(),
+    libs: [...libs.entries()].map(([id, e]) => ({ id, ...e })),
+    leaderboard: [...leaderboard.entries()],
+    triviaLeaderboard: [...triviaLeaderboard.entries()],
+    snakeLeaderboard: [...snakeLeaderboard.entries()],
+    luffyLeaderboard: [...luffyLeaderboard.entries()],
+    announcements, suggestions,
+    tournament, gameCounters,
+    config: { bannedWords, bookPriceOverrides, maintenance, adminAlertSubs: adminAlertSubs.length },
+  };
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename=libero-backup-${Date.now()}.json`);
+  res.send(JSON.stringify(dump, null, 2));
+});
+
 app.post('/admin/announce', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   const text   = String(req.body?.text || '').trim().slice(0, 300);
@@ -4664,12 +4895,7 @@ app.post('/admin/announce', (req, res) => {
     io.emit('announcements-update', { announcements: announcements.slice(0, 5).map(x => ({ id: x._id, text: x.text, textEn: x.textEn || '', at: x.at })) });
     return res.json({ ok: true, id: ex._id });
   }
-  const a = { _id: crypto.randomUUID(), text, textEn, at: Date.now() };
-  announcements.unshift(a);
-  if (announcements.length > 20) announcements.pop();
-  if (db) db.collection('announcements').insertOne({ ...a }).catch(() => {});
-  io.emit('announcements-update', { announcements: announcements.slice(0, 5).map(x => ({ id: x._id, text: x.text, textEn: x.textEn || '', at: x.at })) });
-  sendPush(null, { title: '📣 Libero\'s Multi', body: text.slice(0, 180), url: 'https://libero-multi.vercel.app' });
+  const a = publishAnnouncement(text, textEn);
   res.json({ ok: true, id: a._id });
 });
 app.delete('/admin/announce/:id', (req, res) => {
@@ -4939,6 +5165,7 @@ app.post('/api/feed-video/:id/comment', (req, res) => {
   if (!v || !v.actif || v.pending) return res.status(404).json({ error: 'Vidéo introuvable.' });
   const clean = sanitizeText(text, 400);
   if (clean.length < 1) return res.status(400).json({ error: 'Message vide.' });
+  if (containsBanned(clean)) return res.status(400).json({ error: 'Ton message contient un terme interdit.' });
   // Limite : 10 commentaires vidéo / IP / 10 min.
   const ip  = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown';
   const now = Date.now();
@@ -5109,6 +5336,7 @@ app.post('/api/suggestions', (req, res) => {
   if (!pid) return res.status(400).json({ error: 'Joueur requis.' });
   if (!cleanName || cleanName === 'Anonyme') return res.status(400).json({ error: 'Pseudo requis.' });
   if (cleanTitle.length < 4) return res.status(400).json({ error: 'Titre trop court.' });
+  if (containsBanned(cleanTitle) || containsBanned(cleanDesc)) return res.status(400).json({ error: 'Ta suggestion contient un terme interdit.' });
   // Limite : 5 suggestions / IP / jour.
   const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown';
   const now = Date.now();
@@ -5297,7 +5525,7 @@ function bookFiche(book, entry) {
     copyright: book.copyright, copyrightEn: book.copyrightEn || book.copyright,
     hasCover: !!book.hasCover, readers: bookReaderCount(book.id),
     packs: book.packs.map(p => ({
-      id: p.id, price: p.price, from: p.from, to: p.to, requires: p.requires,
+      id: p.id, price: bookPackPrice(book.id, p), from: p.from, to: p.to, requires: p.requires,
       owned: !!entry && entry.ownedBooks.includes(`${book.id}:${p.id}`),
     })),
     chapters,
