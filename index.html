@@ -75,6 +75,11 @@
         <h2 id="luffy-card-title">Libero Run</h2>
         <p id="community-card-text">Pour la communauté</p>
       </button>
+      <button class="landing-card" id="btn-go-wordle">
+        <span class="landing-icon" data-ic="letter">🔤</span>
+        <h2 id="wordle-card-title">Le Mot</h2>
+        <p id="wordle-card-desc">Un mot mystère par jour</p>
+      </button>
     </div>
 
     <div class="global-lb-card" id="global-lb-card">
@@ -658,6 +663,22 @@
   <button id="btn-lang" class="btn-hidden" aria-hidden="true">🇬🇧 EN</button>
   <button id="btn-snake-toggle" class="btn-hidden" aria-hidden="true">🐍</button>
   <button id="btn-theme-toggle" class="btn-hidden" aria-hidden="true">☀️</button>
+
+  <!-- ── Écran Le Mot (façon Wordle) : mot mystère du jour ── -->
+  <div id="screen-wordle" class="screen screen-wordle">
+    <div class="wordle-wrap">
+      <div class="wordle-head">
+        <button id="wordle-back" class="btn-back">← <span id="wordle-back-label">Retour</span></button>
+        <h1 id="wordle-title" class="wordle-h1">Le Mot</h1>
+        <span id="wordle-streak" class="wordle-streak"></span>
+      </div>
+      <p id="wordle-sub" class="wordle-sub">Devine le mot de 5 lettres du jour en 6 essais.</p>
+      <div id="wordle-board" class="wordle-board"></div>
+      <p id="wordle-msg" class="wordle-msg"></p>
+      <div id="wordle-keyboard" class="wordle-keyboard"></div>
+      <button id="wordle-share" class="btn btn-primary wordle-share hidden">📣 Partager mon résultat</button>
+    </div>
+  </div>
 
   <!-- ── Bouton Paramètres ── -->
   <button id="btn-settings" class="btn-settings-float" title="Paramètres">⚙️</button>
@@ -1427,6 +1448,7 @@
 
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="config.js"></script>
+  <script src="wordle-words.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

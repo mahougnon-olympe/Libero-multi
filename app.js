@@ -533,6 +533,10 @@ const DICT = {
     accountCreated:'Compte créé ! Ta progression est protégée.', accountError:'Une erreur est survenue, réessaie.', accountWelcome:(n)=>`Bienvenue ${n} ! Chargement…`,
     accountCardTitle:'Mon compte', accountCardSub:'Créer un compte ou se connecter',
     onboardAccountBtn:'Créer un compte', onboardLoginBtn:'J\'ai déjà un compte, me connecter', onboardNewBtn:'Non merci, commencer sans compte',
+    wordleTitle:'Le Mot', wordleSub:'Devine le mot de 5 lettres du jour en 6 essais.', wordleBack:'Retour', wordleShare:'📣 Partager mon résultat',
+    wordleCardTitle:'Le Mot', wordleCardDesc:'Un mot mystère par jour',
+    wordleNeed5:'Il faut 5 lettres.', wordleWin:(n)=>`Bravo ! Trouvé en ${n} essai${n>1?'s':''} 🎉`, wordleLose:(w)=>`Perdu ! Le mot était ${w}.`, wordleAlreadyWin:'Déjà trouvé aujourd\'hui, reviens demain !',
+    wordleStreak:(n)=>`🔥 ${n}`, wordleShareTitle:(d,sc)=>`Le Mot #${d} ${sc} sur Libero's Multi`, wordleCopied:'Résultat copié !',
     ideasTitle:'Idées & suggestions', ideasSub:'Propose une amélioration du site et vote pour celles des autres.',
     ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Récentes', ideasNewBtn:'💡 Proposer',
     ideasLoading:'Chargement des idées…', ideasEmpty:'Aucune idée pour le moment.\nSois le premier à en proposer une !', ideasError:'Impossible de charger les idées.\nVérifie ta connexion et réessaie.',
@@ -1235,6 +1239,10 @@ const DICT = {
     accountCreated:'Account created! Your progress is safe.', accountError:'Something went wrong, try again.', accountWelcome:(n)=>`Welcome ${n}! Loading…`,
     accountCardTitle:'My account', accountCardSub:'Create an account or log in',
     onboardAccountBtn:'Create an account', onboardLoginBtn:'I already have an account, log in', onboardNewBtn:'No thanks, start without an account',
+    wordleTitle:'The Word', wordleSub:'Guess the 5-letter word of the day in 6 tries.', wordleBack:'Back', wordleShare:'📣 Share my result',
+    wordleCardTitle:'The Word', wordleCardDesc:'A mystery word every day',
+    wordleNeed5:'5 letters needed.', wordleWin:(n)=>`Well done! Solved in ${n} tr${n>1?'ies':'y'} 🎉`, wordleLose:(w)=>`Missed! The word was ${w}.`, wordleAlreadyWin:'Already solved today, come back tomorrow!',
+    wordleStreak:(n)=>`🔥 ${n}`, wordleShareTitle:(d,sc)=>`The Word #${d} ${sc} on Libero's Multi`, wordleCopied:'Result copied!',
     ideasTitle:'Ideas & suggestions', ideasSub:'Suggest a site improvement and vote on others\' ideas.',
     ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Newest', ideasNewBtn:'💡 Suggest',
     ideasLoading:'Loading ideas…', ideasEmpty:'No ideas yet.\nBe the first to suggest one!', ideasError:'Could not load ideas.\nCheck your connection and try again.',
@@ -2148,6 +2156,9 @@ function applyLang() {
   setTxt('account-pseudo-label', d.accountPseudoLabel); setTxt('account-pw-label', d.accountPwLabel);
   setTxt('account-card-title', d.accountCardTitle); setTxt('account-card-sub', d.accountCardSub);
   setTxt('btn-onboard-account', d.onboardAccountBtn); setTxt('btn-onboard-login', d.onboardLoginBtn); setTxt('btn-onboard-new', d.onboardNewBtn);
+  setTxt('wordle-title', d.wordleTitle); setTxt('wordle-sub', d.wordleSub); setTxt('wordle-back-label', d.wordleBack); setTxt('wordle-share', d.wordleShare);
+  setTxt('wordle-card-title', d.wordleCardTitle); setTxt('wordle-card-desc', d.wordleCardDesc);
+  if (window._wordle) window._wordle.retexte();
 
   // Lecture
   const rt = $('read-title');        if (rt) rt.textContent  = d.navRead;
@@ -2480,6 +2491,7 @@ function showScreen(name) {
     else                 window._videoFeed.pauseAll();
   }
   if (window._ideasBoard && name === 'ideas') window._ideasBoard.load();
+  if (window._wordle && name === 'wordle') window._wordle.enter();
   if (window._readFeed && name === 'read') window._readFeed.load();
 
   const nc = document.getElementById('news-card');
@@ -2568,6 +2580,7 @@ const PLAYER_ICONS = {
 // ── Landing ───────────────────────────────────────────────────────────────────
 $('btn-go-classic').addEventListener('click', () => showScreen('home'));
 $('btn-go-trivia').addEventListener('click',  () => { buildTriviaThemes(); showScreen('trivia-home'); socket.emit('get-trivia-leaderboard'); });
+$('btn-go-wordle')?.addEventListener('click', () => showScreen('wordle'));
 $('btn-back-classic').addEventListener('click', () => showScreen('landing'));
 
 // ── Pseudo ────────────────────────────────────────────────────────────────────
@@ -9350,6 +9363,187 @@ const IdeasBoard = (() => {
 })();
 window._ideasBoard = IdeasBoard;
 
+// ── Le Mot (façon Wordle) : mot mystère du jour, 6 essais ────────────────────
+const Wordle = (() => {
+  const ROWS = 6, COLS = 5;
+  const KB = [['Q','W','E','R','T','Y','U','I','O','P'], ['A','S','D','F','G','H','J','K','L'], ['ENTER','Z','X','C','V','B','N','M','DEL']];
+  let guesses = [], current = '', done = null, built = false;
+
+  const board = () => document.getElementById('wordle-board');
+  const kbEl  = () => document.getElementById('wordle-keyboard');
+  const msgEl = () => document.getElementById('wordle-msg');
+
+  function words() {
+    const all = (window.WORDLE_WORDS && window.WORDLE_WORDS[currentLang]) || [];
+    return [...new Set(all.filter(w => /^[A-Z]{5}$/.test(w)))];
+  }
+  function dayIndex() { return Math.floor(Date.now() / 86_400_000); }
+  function answer() { const w = words(); return w.length ? w[dayIndex() % w.length] : 'ARBRE'; }
+  const skey = () => `libero_wordle_${currentLang}_${dayIndex()}`;
+
+  function loadState() {
+    guesses = []; current = ''; done = null;
+    try {
+      const raw = localStorage.getItem(skey());
+      if (raw) { const s = JSON.parse(raw); guesses = Array.isArray(s.guesses) ? s.guesses : []; done = s.done || null; }
+    } catch {}
+  }
+  function saveState() { try { localStorage.setItem(skey(), JSON.stringify({ guesses, done })); } catch {} }
+
+  // Evaluation « vert / jaune / gris » avec gestion correcte des lettres en double.
+  function evaluate(guess, ans) {
+    const res = Array(COLS).fill('absent'); const counts = {};
+    for (const c of ans) counts[c] = (counts[c] || 0) + 1;
+    for (let i = 0; i < COLS; i++) if (guess[i] === ans[i]) { res[i] = 'correct'; counts[guess[i]]--; }
+    for (let i = 0; i < COLS; i++) { if (res[i] === 'correct') continue; if (counts[guess[i]] > 0) { res[i] = 'present'; counts[guess[i]]--; } }
+    return res;
+  }
+
+  function buildBoard() {
+    const b = board(); if (!b) return;
+    b.innerHTML = '';
+    for (let r = 0; r < ROWS; r++) {
+      const row = document.createElement('div'); row.className = 'wordle-row';
+      for (let c = 0; c < COLS; c++) { const cell = document.createElement('div'); cell.className = 'wordle-cell'; row.appendChild(cell); }
+      b.appendChild(row);
+    }
+  }
+  function buildKeyboard() {
+    const k = kbEl(); if (!k) return;
+    k.innerHTML = '';
+    KB.forEach(rowKeys => {
+      const row = document.createElement('div'); row.className = 'wordle-kb-row';
+      rowKeys.forEach(key => {
+        const btn = document.createElement('button');
+        btn.className = 'wordle-key' + (key.length > 1 ? ' wordle-key-wide' : '');
+        btn.textContent = key === 'DEL' ? '⌫' : (key === 'ENTER' ? '⏎' : key);
+        btn.dataset.key = key;
+        btn.addEventListener('click', () => onKey(key));
+        row.appendChild(btn);
+      });
+      k.appendChild(row);
+    });
+  }
+
+  function render() {
+    const b = board(); if (!b) return;
+    const ans = answer();
+    const rows = b.querySelectorAll('.wordle-row');
+    for (let r = 0; r < ROWS; r++) {
+      const cells = rows[r].querySelectorAll('.wordle-cell');
+      const guess = guesses[r];
+      for (let c = 0; c < COLS; c++) {
+        const cell = cells[c];
+        cell.className = 'wordle-cell';
+        if (guess) {
+          const ev = evaluate(guess, ans);
+          cell.textContent = guess[c];
+          cell.classList.add('filled', 'wordle-' + ev[c]);
+        } else if (r === guesses.length && !done) {
+          cell.textContent = current[c] || '';
+          if (current[c]) cell.classList.add('filled');
+        } else {
+          cell.textContent = '';
+        }
+      }
+    }
+    renderKeyboard(ans);
+  }
+  function renderKeyboard(ans) {
+    const best = {}; // lettre -> meilleur statut
+    const rank = { absent: 0, present: 1, correct: 2 };
+    guesses.forEach(g => { const ev = evaluate(g, ans); for (let i = 0; i < COLS; i++) { const l = g[i]; if (!(l in best) || rank[ev[i]] > rank[best[l]]) best[l] = ev[i]; } });
+    kbEl()?.querySelectorAll('.wordle-key').forEach(btn => {
+      const k = btn.dataset.key; btn.classList.remove('wordle-correct', 'wordle-present', 'wordle-absent');
+      if (best[k]) btn.classList.add('wordle-' + best[k]);
+    });
+  }
+
+  function setMsg(txt) { const m = msgEl(); if (m) m.textContent = txt || ''; }
+  function shake() { const rows = board()?.querySelectorAll('.wordle-row'); const row = rows && rows[guesses.length]; if (row) { row.classList.remove('wordle-shake'); void row.offsetWidth; row.classList.add('wordle-shake'); } }
+
+  function onKey(key) {
+    if (done) return;
+    if (key === 'ENTER') return submit();
+    if (key === 'DEL') { current = current.slice(0, -1); window._sound?.play('click'); render(); return; }
+    if (/^[A-Z]$/.test(key) && current.length < COLS) { current += key; window._sound?.play('click'); render(); }
+  }
+
+  function submit() {
+    if (current.length < COLS) { setMsg(t().wordleNeed5); shake(); window._sound?.play('error'); return; }
+    const ans = answer();
+    const guess = current;
+    guesses.push(guess); current = '';
+    window._sound?.play('pop');
+    if (guess === ans) {
+      done = 'win'; _updateStreak(true);
+      setMsg(t().wordleWin(guesses.length));
+      document.getElementById('wordle-share')?.classList.remove('hidden');
+      if (typeof celebrate === 'function') celebrate();
+    } else if (guesses.length >= ROWS) {
+      done = 'lose'; _updateStreak(false);
+      setMsg(t().wordleLose(ans));
+      document.getElementById('wordle-share')?.classList.remove('hidden');
+      window._sound?.play('error');
+    } else { setMsg(''); }
+    saveState(); render(); _renderStreak();
+  }
+
+  function _updateStreak(win) {
+    try {
+      const day = dayIndex();
+      if (win) {
+        const last = parseInt(localStorage.getItem('libero_wordle_lastwin') || '-99', 10);
+        let s = parseInt(localStorage.getItem('libero_wordle_streak') || '0', 10);
+        s = (last === day - 1) ? s + 1 : 1;
+        localStorage.setItem('libero_wordle_streak', String(s));
+        localStorage.setItem('libero_wordle_lastwin', String(day));
+      } else {
+        localStorage.setItem('libero_wordle_streak', '0');
+      }
+    } catch {}
+  }
+  function _renderStreak() {
+    const el = document.getElementById('wordle-streak'); if (!el) return;
+    let s = 0; try { s = parseInt(localStorage.getItem('libero_wordle_streak') || '0', 10); } catch {}
+    el.textContent = s > 0 ? t().wordleStreak(s) : '';
+  }
+
+  function share() {
+    const ans = answer();
+    const grid = guesses.map(g => evaluate(g, ans).map(e => e === 'correct' ? '🟩' : e === 'present' ? '🟨' : '⬛').join('')).join('\n');
+    const score = done === 'win' ? `${guesses.length}/6` : 'X/6';
+    const text = `${t().wordleShareTitle(dayIndex(), score)}\n${grid}\n${location.origin}${location.pathname}`;
+    if (navigator.share) { navigator.share({ text }).catch(() => {}); }
+    else { navigator.clipboard?.writeText(text).catch(() => {}); if (typeof showCursorSnakeToast === 'function') showCursorSnakeToast(t().wordleCopied); }
+  }
+
+  function enter() {
+    if (!built) { buildBoard(); buildKeyboard(); built = true; }
+    loadState();
+    document.getElementById('wordle-share')?.classList.toggle('hidden', !done);
+    if (done === 'win') setMsg(t().wordleAlreadyWin);
+    else if (done === 'lose') setMsg(t().wordleLose(answer()));
+    else setMsg('');
+    render(); _renderStreak();
+  }
+
+  // Clavier physique quand l'ecran est actif.
+  document.addEventListener('keydown', e => {
+    const scr = document.getElementById('screen-wordle');
+    if (!scr || !scr.classList.contains('active')) return;
+    if (e.key === 'Enter') { e.preventDefault(); onKey('ENTER'); }
+    else if (e.key === 'Backspace') { e.preventDefault(); onKey('DEL'); }
+    else { const k = e.key.toUpperCase(); if (/^[A-Z]$/.test(k)) onKey(k); }
+  });
+  document.getElementById('wordle-share')?.addEventListener('click', share);
+  document.getElementById('wordle-back')?.addEventListener('click', () => showScreen('landing'));
+
+  function retexte() { if (document.getElementById('screen-wordle')?.classList.contains('active')) enter(); }
+  return { enter, retexte };
+})();
+window._wordle = Wordle;
+
 // ── Lecture (catalogue de livres) ────────────────────────────────────────────
 const ReadFeed = (() => {
   const wrap    = () => document.getElementById('read-grid');
@@ -9838,6 +10032,7 @@ const UI_ICONS = (() => {
     trash:   S('<path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M6.5 7l1 12a1 1 0 0 0 1 .9h7a1 1 0 0 0 1-.9l1-12"/><path d="M10 11v6M14 11v6"/>'),
     cart:    S('<path d="M6 8h13l-1.3 8.4a1 1 0 0 1-1 .85H8.3a1 1 0 0 1-1-.85L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>'),
     key:     S('<circle cx="8" cy="9" r="4"/><path d="M11 11l8 8M17 17l2-2M15 15l1.5-1.5"/>'),
+    letter:  S('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 15l2.5-6 2.5 6M8.8 13h3.4"/><path d="M16 9v6"/>'),
   };
 })();
 function paintUiIcons(root = document) {
