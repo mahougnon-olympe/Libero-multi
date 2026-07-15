@@ -34,12 +34,15 @@ FR + EN). Le Pendu et Le Mot en ont besoin ; le Petit Bac peut se valider par vo
 
 ## Pistes secondaires (experience joueur / admin)
 Joueur :
-- [ ] Recherche / filtre dans la section Idees (par score, recentes, « les miennes »).
+- [x] Recherche / filtre dans la section Idees (recherche + « les miennes »).
 - [ ] Fiche joueur publique enrichie (avatar, badges, meilleurs scores).
-- [ ] Partage de resultats ameliore (image generee du score de quiz pour WhatsApp).
+- [x] Partage de resultats ameliore (image generee du score de quiz pour WhatsApp).
 
 Admin :
-- [ ] Recherche + tri dans la liste des joueurs (par Libs, activite, date).
-- [ ] Repondre publiquement a une idee depuis le dashboard.
-- [ ] Monitoring d'erreurs backend (Sentry) pour etre alerte avant les joueurs.
+- [x] Recherche + tri dans la liste des joueurs (activite, Libs, recents, A-Z).
+- [x] Repondre publiquement a une idee depuis le dashboard.
+- [ ] Monitoring d'erreurs backend (Sentry) pour etre alerte avant les joueurs. *(necessite un projet Sentry + DSN a fournir)*
 - [ ] Notifications push ciblees (par segment : inactifs, VIP, gros joueurs).
+
+## Bonus faits en passant
+- [x] Compte : afficher/masquer le mot de passe + confirmation a la creation.
