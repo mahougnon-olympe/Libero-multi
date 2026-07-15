@@ -2445,6 +2445,7 @@ function showScreen(name) {
   // jamais coince dans l'overlay boutique sans acces a la barre de nav).
   const _shopOv = document.getElementById('overlay-shop');
   if (_shopOv && !_shopOv.classList.contains('hidden')) { _shopOv.classList.add('hidden'); document.body.classList.remove('shop-open'); }
+  { const shopTab = document.getElementById('nav-tab-shop'); if (shopTab) { shopTab.classList.remove('active'); shopTab.setAttribute('aria-selected', 'false'); } }
   const el = document.getElementById('screen-' + name);
   // Marquer avant de retirer restoring : supprime l'animation quand JS active l'écran
   if (wasRestoring && el) el.setAttribute('data-restored', '');
@@ -5511,7 +5512,20 @@ function openShop() {
   _loadLibsPacks();
   socket.emit('get-libs', { playerId: getPlayerId() });
   $('overlay-shop').classList.remove('hidden');
-  document.body.classList.add('shop-open'); // masque la barre de navigation pendant la boutique
+  document.body.classList.add('shop-open'); // la barre de nav reste visible pendant la boutique
+  _setShopNavActive(true); // le bleu de l'onglet se pose sur Boutique
+}
+
+// Marque (ou non) l'onglet Boutique comme actif ; quand actif, deselectionne les autres.
+function _setShopNavActive(on) {
+  const shopTab = document.getElementById('nav-tab-shop');
+  if (shopTab) { shopTab.classList.toggle('active', on); shopTab.setAttribute('aria-selected', String(on)); }
+  if (on) {
+    ['nav-tab-home', 'nav-tab-ideas', 'nav-tab-read', 'nav-tab-profile'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.classList.remove('active'); el.setAttribute('aria-selected', 'false'); }
+    });
+  }
 }
 
 // Charge une fois la liste des packs de Libs (prix, dispo) puis rafraîchit
@@ -6741,6 +6755,12 @@ $('btn-shop-close').addEventListener('click', () => {
   _pendingShopFocusIds = null;
   clearTimeout(_focusDebounceTimer);
   _focusDebounceTimer  = null;
+  // Retire le bleu de l'onglet Boutique et le redonne a l'ecran de fond courant.
+  _setShopNavActive(false);
+  const _cur = (() => { try { return sessionStorage.getItem('libero_screen'); } catch { return null; } })();
+  const _map = { landing: 'nav-tab-home', ideas: 'nav-tab-ideas', read: 'nav-tab-read', profile: 'nav-tab-profile' };
+  const _tabId = _map[_cur];
+  if (_tabId) { const el = document.getElementById(_tabId); if (el) { el.classList.add('active'); el.setAttribute('aria-selected', 'true'); } }
 });
 
 // Affichage initial du compteur
