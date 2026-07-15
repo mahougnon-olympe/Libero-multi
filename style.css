@@ -780,7 +780,7 @@ html.light .news-star { background: rgba(234,179,8,.08); }
 /* ── Bouton aide flottant ── */
 .btn-help-float {
   position: fixed;
-  bottom: 20px; right: 20px;
+  bottom: 20px; left: 20px;
   width: 44px; height: 44px;
   border-radius: 50%; border: none;
   background: var(--board); color: #fff;
@@ -946,9 +946,9 @@ body.shop-open .main-nav { display: none !important; } /* pas de barre de nav da
   /* Remonte le titre de la vidéo pour qu'il ne passe pas sous la barre du bas. */
   .feed-overlay { padding-bottom: 78px; }
   /* Quand la barre de nav est en bas, on remonte les boutons flottants
-     (aide / commentaire) au-dessus d'elle pour qu'elle ne les masque plus. */
+     (aide a gauche, chatbot a droite) au-dessus d'elle pour qu'elle ne les masque plus. */
   body.nav-bottom-visible .btn-help-float,
-  body.nav-bottom-visible .btn-comment-float { bottom: 74px; }
+  body.nav-bottom-visible .btn-chatbot-float { bottom: 74px; }
 }
 
 /* Très petits écrans : on compacte encore les onglets pour qu'ils tiennent. */
@@ -2102,7 +2102,7 @@ html.light .shop-fn-promo-input::placeholder { color: var(--muted); }
 /* ── Assistant / Chatbot d'aide (flottant, 100% local) ──────────────────────── */
 .btn-chatbot-float {
   position: fixed;
-  right: 20px; bottom: 72px;
+  right: 20px; bottom: 20px;
   width: 44px; height: 44px;
   border-radius: 50%; border: none;
   background: var(--board); color: #fff;
@@ -2213,7 +2213,7 @@ body.screen-feed-active   .btn-chatbot-float,
 body.screen-feed-active   .chatbot-panel { display: none !important; }
 
 @media (max-width: 600px) {
-  body.nav-bottom-visible .btn-chatbot-float { bottom: 126px; }
+  body.nav-bottom-visible .btn-chatbot-float { bottom: 74px; }
   .chatbot-panel {
     right: 12px; left: 12px; width: auto;
     bottom: 126px; height: auto; max-height: calc(100vh - 200px);
