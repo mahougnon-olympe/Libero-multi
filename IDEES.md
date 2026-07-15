@@ -46,3 +46,5 @@ Admin :
 
 ## Bonus faits en passant
 - [x] Compte : afficher/masquer le mot de passe + confirmation a la creation.
+- [x] Le Mot : bouton Indice (phrase enigmatique du jour, sans jamais contenir la reponse, FR + EN, une par mot).
+- [x] Quiz : la musique de fond s'ecarte pendant la boucle du quiz (pas de chevauchement) et reprend apres.

@@ -461,10 +461,16 @@ try {
     // ── Boucle « reflexion » du quiz (par question) ──
     // Streaming en boucle (comme la musique), mais rattachee au toggle Sons
     // (c'est un retour de gameplay, pas la musique de fond).
-    let quizAudio = null, quizBroken = false;
+    let quizAudio = null, quizBroken = false, musicDucked = false;
     function quizLoopStart() {
       try {
         if (!started || !sfxOn() || quizBroken) return;
+        // Ecarte la musique de fond pour eviter le chevauchement avec le son du quiz.
+        if (music && musicWanted && !music.paused) {
+          musicDucked = true;
+          try { clearInterval(fadeTimer); } catch {}
+          try { music.pause(); } catch {}
+        }
         if (!quizAudio) {
           quizAudio = new Audio('sounds/quiz-thinking.mp3');
           quizAudio.loop = true;
@@ -476,7 +482,18 @@ try {
         if (p && p.catch) p.catch(() => {});
       } catch {}
     }
-    function quizLoopStop() { try { if (quizAudio) quizAudio.pause(); } catch {} }
+    function quizLoopStop() {
+      try { if (quizAudio) quizAudio.pause(); } catch {}
+      // Reprend la musique de fond si c'est nous qui l'avions coupee.
+      if (musicDucked) {
+        musicDucked = false;
+        if (music && musicWanted && !document.hidden) {
+          try { music.volume = 0; } catch {}
+          const p = music.play(); if (p && p.catch) p.catch(() => armRetry());
+          fadeTo(musicVol(), 800);
+        }
+      }
+    }
 
     function onFirstInteraction() {
       if (started) return; started = true;
@@ -536,7 +553,7 @@ const DICT = {
     wordleTitle:'Le Mot', wordleSub:'Devine le mot de 5 lettres du jour en 6 essais.', wordleBack:'Retour', wordleShare:'📣 Partager mon résultat',
     wordleCardTitle:'Le Mot', wordleCardDesc:'Un mot mystère par jour',
     wordleNeed5:'Il faut 5 lettres.', wordleWin:(n)=>`Bravo ! Trouvé en ${n} essai${n>1?'s':''} 🎉`, wordleLose:(w)=>`Perdu ! Le mot était ${w}.`, wordleAlreadyWin:'Déjà trouvé aujourd\'hui, reviens demain !',
-    wordleStreak:(n)=>`🔥 ${n}`, wordleShareTitle:(d,sc)=>`Le Mot #${d} ${sc} sur Libero's Multi`, wordleCopied:'Résultat copié !',
+    wordleStreak:(n)=>`🔥 ${n}`, wordleShareTitle:(d,sc)=>`Le Mot #${d} ${sc} sur Libero's Multi`, wordleCopied:'Résultat copié !', wordleHint:'Indice',
     ideasTitle:'Idées & suggestions', ideasSub:'Propose une amélioration du site et vote pour celles des autres.',
     ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Récentes', ideasNewBtn:'💡 Proposer', ideasFilterMine:'👤 Les miennes', ideasSearchPh:'Rechercher une idée…', ideasNoResult:'Aucune idée ne correspond.', ideaReplyLabel:'Réponse de l\'équipe :',
     ideasLoading:'Chargement des idées…', ideasEmpty:'Aucune idée pour le moment.\nSois le premier à en proposer une !', ideasError:'Impossible de charger les idées.\nVérifie ta connexion et réessaie.',
@@ -1242,7 +1259,7 @@ const DICT = {
     wordleTitle:'The Word', wordleSub:'Guess the 5-letter word of the day in 6 tries.', wordleBack:'Back', wordleShare:'📣 Share my result',
     wordleCardTitle:'The Word', wordleCardDesc:'A mystery word every day',
     wordleNeed5:'5 letters needed.', wordleWin:(n)=>`Well done! Solved in ${n} tr${n>1?'ies':'y'} 🎉`, wordleLose:(w)=>`Missed! The word was ${w}.`, wordleAlreadyWin:'Already solved today, come back tomorrow!',
-    wordleStreak:(n)=>`🔥 ${n}`, wordleShareTitle:(d,sc)=>`The Word #${d} ${sc} on Libero's Multi`, wordleCopied:'Result copied!',
+    wordleStreak:(n)=>`🔥 ${n}`, wordleShareTitle:(d,sc)=>`The Word #${d} ${sc} on Libero's Multi`, wordleCopied:'Result copied!', wordleHint:'Hint',
     ideasTitle:'Ideas & suggestions', ideasSub:'Suggest a site improvement and vote on others\' ideas.',
     ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Newest', ideasNewBtn:'💡 Suggest', ideasFilterMine:'👤 Mine', ideasSearchPh:'Search an idea…', ideasNoResult:'No matching idea.', ideaReplyLabel:'Team reply:',
     ideasLoading:'Loading ideas…', ideasEmpty:'No ideas yet.\nBe the first to suggest one!', ideasError:'Could not load ideas.\nCheck your connection and try again.',
@@ -2161,6 +2178,7 @@ function applyLang() {
   setTxt('onboard-pseudo-label', d.onboardPseudoLabel);
   setTxt('wordle-title', d.wordleTitle); setTxt('wordle-sub', d.wordleSub); setTxt('wordle-back-label', d.wordleBack); setTxt('wordle-share', d.wordleShare);
   setTxt('wordle-card-title', d.wordleCardTitle); setTxt('wordle-card-desc', d.wordleCardDesc);
+  setTxt('wordle-hint-label', d.wordleHint);
   if (window._wordle) window._wordle.retexte();
 
   // Lecture
@@ -9435,6 +9453,8 @@ const Wordle = (() => {
   function dayIndex() { return Math.floor(Date.now() / 86_400_000); }
   function answer() { const w = words(); return w.length ? w[dayIndex() % w.length] : 'ARBRE'; }
   const skey = () => `libero_wordle_${currentLang}_${dayIndex()}`;
+  const hkey = () => `libero_wordle_hint_${currentLang}_${dayIndex()}`;
+  function hintText() { const h = (window.WORDLE_HINTS && window.WORDLE_HINTS[currentLang]) || {}; return h[answer()] || ''; }
 
   function loadState() {
     guesses = []; current = ''; done = null;
@@ -9541,7 +9561,7 @@ const Wordle = (() => {
       document.getElementById('wordle-share')?.classList.remove('hidden');
       window._sound?.play('error');
     } else { setMsg(''); }
-    saveState(); render(); _renderStreak();
+    saveState(); render(); _renderStreak(); _renderHint();
   }
 
   function _updateStreak(win) {
@@ -9573,6 +9593,24 @@ const Wordle = (() => {
     else { navigator.clipboard?.writeText(text).catch(() => {}); if (typeof showCursorSnakeToast === 'function') showCursorSnakeToast(t().wordleCopied); }
   }
 
+  function _renderHint() {
+    const btn = document.getElementById('wordle-hint-btn');
+    const el = document.getElementById('wordle-hint');
+    if (!btn || !el) return;
+    const txt = hintText();
+    let shown = false; try { shown = localStorage.getItem(hkey()) === '1'; } catch {}
+    if (!txt || done) { btn.classList.add('hidden'); }
+    else { btn.classList.remove('hidden'); btn.disabled = shown; }
+    if (shown && txt) { el.textContent = txt; el.classList.remove('hidden'); }
+    else { el.textContent = ''; el.classList.add('hidden'); }
+  }
+  function revealHint() {
+    const txt = hintText(); if (!txt) return;
+    try { localStorage.setItem(hkey(), '1'); } catch {}
+    window._sound?.play('click');
+    _renderHint();
+  }
+
   function enter() {
     if (!built) { buildBoard(); buildKeyboard(); built = true; }
     loadState();
@@ -9580,7 +9618,7 @@ const Wordle = (() => {
     if (done === 'win') setMsg(t().wordleAlreadyWin);
     else if (done === 'lose') setMsg(t().wordleLose(answer()));
     else setMsg('');
-    render(); _renderStreak();
+    render(); _renderStreak(); _renderHint();
   }
 
   // Clavier physique quand l'ecran est actif.
@@ -9592,6 +9630,7 @@ const Wordle = (() => {
     else { const k = e.key.toUpperCase(); if (/^[A-Z]$/.test(k)) onKey(k); }
   });
   document.getElementById('wordle-share')?.addEventListener('click', share);
+  document.getElementById('wordle-hint-btn')?.addEventListener('click', revealHint);
   document.getElementById('wordle-back')?.addEventListener('click', () => showScreen('landing'));
 
   function retexte() { if (document.getElementById('screen-wordle')?.classList.contains('active')) enter(); }
