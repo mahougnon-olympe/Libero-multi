@@ -4370,6 +4370,8 @@ body.shop-open .notif-panel { display: none !important; }
 /* ── Champ mot de passe : bouton afficher/masquer + confirmation ── */
 .pw-field { position: relative; }
 .pw-field .recovery-input { padding-right: 44px; width: 100%; box-sizing: border-box; }
-.pw-toggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 4px 6px; line-height: 1; opacity: .8; }
+.pw-toggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 4px 6px; line-height: 0; opacity: .8; color: var(--muted); display: flex; align-items: center; }
+.pw-toggle svg { width: 20px; height: 20px; display: block; }
+.pw-toggle.on { color: var(--accent); opacity: 1; }
 .pw-toggle:active { transform: translateY(-50%) scale(.9); }
 .account-confirm.hidden { display: none !important; }

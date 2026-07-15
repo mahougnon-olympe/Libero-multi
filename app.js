@@ -5159,9 +5159,10 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard } = {}) => {
+socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount } = {}) => {
   if (newBadges !== undefined) { window._myBadges = newBadges; window._renderBadges?.('profile-badges', newBadges, newHonorTitle); }
   if (newOnboard !== undefined) { window._myOnboard = newOnboard; window._renderOnboard?.(); }
+  if (newHasAccount !== undefined) { window._hasAccount = newHasAccount; if (newHasAccount) { try { localStorage.setItem('libero_has_account', '1'); } catch {} } window._refreshAccountTabs?.(); }
   if (refCode !== undefined)   window._myRefCode = refCode;
   if (referrals !== undefined) window._myReferrals = referrals;
   if (xp !== undefined)         { window._myXp = xp; window._myLevel = level; window._renderLevel?.(); }
@@ -10336,6 +10337,8 @@ const UI_ICONS = (() => {
     rocket:  S('<path d="M12 3c3.5 2 5 5.5 5 9 0 2-1 4-2 5H9c-1-1-2-3-2-5 0-3.5 1.5-7 5-9Z"/><circle cx="12" cy="10" r="1.6" fill="currentColor"/><path d="M9 17l-2 4M15 17l2 4M12 17v3"/>'),
     check:   S('<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/>'),
     circle:  S('<circle cx="12" cy="12" r="9"/>'),
+    eye:     S('<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.7"/>'),
+    eyeoff:  S('<path d="M4 4l16 16"/><path d="M9.5 5.6A9.6 9.6 0 0 1 12 5.5c6.4 0 10 6.5 10 6.5a17 17 0 0 1-3.3 4"/><path d="M6.2 7.6A17 17 0 0 0 2 12s3.6 6.5 10 6.5a9.8 9.8 0 0 0 3.3-.6"/><path d="M9.8 9.9a2.7 2.7 0 0 0 3.9 3.8"/>'),
   };
 })();
 function paintUiIcons(root = document) {
@@ -11713,13 +11716,29 @@ try {
   const tabLogin = document.getElementById('account-tab-login');
   let mode = 'create', fromOnboard = false, pwShown = false;
 
+  // Un joueur qui a deja un compte ne voit plus l'onglet « Creer » (login seul).
+  function hasAccount() {
+    if (window._hasAccount) return true;
+    try { return localStorage.getItem('libero_has_account') === '1'; } catch { return false; }
+  }
+  function refreshTabs() {
+    const owns = hasAccount();
+    tabCreate.classList.toggle('hidden', owns);
+    if (owns) { tabLogin.classList.add('active'); if (mode === 'create') setMode('login'); }
+  }
+  window._refreshAccountTabs = refreshTabs;
+
   // Le champ de confirmation n'apparait qu'a la creation (pas pour se connecter).
   function toggleConfirm(show) { document.querySelectorAll('#overlay-account .account-confirm').forEach(el => el.classList.toggle('hidden', !show)); }
   function setShown(shown) {
     pwShown = shown;
     const type = shown ? 'text' : 'password';
     pw.type = type; if (pw2) pw2.type = type;
-    if (pwToggle) { pwToggle.textContent = shown ? '🙈' : '👁'; pwToggle.classList.toggle('on', shown); }
+    if (pwToggle) {
+      pwToggle.innerHTML = `<span data-ic="${shown ? 'eyeoff' : 'eye'}"></span>`;
+      window.paintUiIcons?.(pwToggle);
+      pwToggle.classList.toggle('on', shown);
+    }
   }
 
   function setMode(m) {
@@ -11739,7 +11758,11 @@ try {
     pseudo.value = (onb && onb.value.trim()) || (localStorage.getItem('playerName') || '').trim();
     pw.value = ''; if (pw2) pw2.value = '';
     setShown(false);
-    setMode(m || 'create');
+    // Deja un compte -> on force la connexion et on masque « Creer ».
+    let want = m || 'create';
+    if (hasAccount() && want === 'create') want = 'login';
+    setMode(want);
+    refreshTabs();
   }
   pwToggle?.addEventListener('click', () => setShown(!pwShown));
   window._openAccount = open;
@@ -11765,7 +11788,8 @@ try {
       const j = await res.json();
       if (!j.ok) { status.textContent = j.error || d.accountError; status.className = 'recovery-warn recovery-err'; submit.disabled = false; return; }
       if (mode === 'create') {
-        try { localStorage.setItem('playerName', j.pseudo); localStorage.setItem('libero_onboarded', '1'); } catch {}
+        try { localStorage.setItem('playerName', j.pseudo); localStorage.setItem('libero_onboarded', '1'); localStorage.setItem('libero_has_account', '1'); } catch {}
+        window._hasAccount = true; refreshTabs();
         window._sound?.play('success');
         submit.disabled = false;
         status.textContent = d.accountCreated; status.className = 'recovery-warn recovery-ok';
@@ -11778,7 +11802,7 @@ try {
         }, 1000);
       } else {
         window._tutoSkipAll?.(); // un joueur qui se connecte connait deja le site
-        try { localStorage.setItem('libero_player_id', j.playerId); localStorage.removeItem('playerName'); localStorage.setItem('libero_onboarded', '1'); } catch {}
+        try { localStorage.setItem('libero_player_id', j.playerId); localStorage.removeItem('playerName'); localStorage.setItem('libero_onboarded', '1'); localStorage.setItem('libero_has_account', '1'); } catch {}
         status.textContent = d.accountWelcome(j.pseudo); status.className = 'recovery-warn recovery-ok';
         setTimeout(() => location.reload(), 700);
       }
