@@ -528,7 +528,7 @@ const DICT = {
     accountTitle:'🔑 Mon compte', accountTabCreate:'Créer', accountTabLogin:'Se connecter',
     accountCreateIntro:'Crée un compte pour ne jamais perdre ta progression et te reconnecter sur un autre appareil.',
     accountLoginIntro:'Connecte-toi avec ton pseudo et ton mot de passe pour retrouver ta progression.',
-    accountPseudoLabel:'Pseudo', accountPwLabel:'Mot de passe', accountCreateBtn:'Créer mon compte', accountLoginBtn:'Se connecter',
+    accountPseudoLabel:'Pseudo', accountPwLabel:'Mot de passe', accountPwConfirmLabel:'Confirme le mot de passe', accountPwMismatch:'Les mots de passe ne correspondent pas.', accountCreateBtn:'Créer mon compte', accountLoginBtn:'Se connecter',
     accountNeedPseudo:'Choisis un pseudo.', accountShortPw:'Mot de passe trop court (4 caractères min).',
     accountCreated:'Compte créé ! Ta progression est protégée.', accountError:'Une erreur est survenue, réessaie.', accountWelcome:(n)=>`Bienvenue ${n} ! Chargement…`,
     accountCardTitle:'Mon compte', accountCardSub:'Créer un compte ou se connecter',
@@ -1234,7 +1234,7 @@ const DICT = {
     accountTitle:'🔑 My account', accountTabCreate:'Create', accountTabLogin:'Log in',
     accountCreateIntro:'Create an account so you never lose your progress and can log back in on another device.',
     accountLoginIntro:'Log in with your nickname and password to get your progress back.',
-    accountPseudoLabel:'Nickname', accountPwLabel:'Password', accountCreateBtn:'Create my account', accountLoginBtn:'Log in',
+    accountPseudoLabel:'Nickname', accountPwLabel:'Password', accountPwConfirmLabel:'Confirm password', accountPwMismatch:'Passwords do not match.', accountCreateBtn:'Create my account', accountLoginBtn:'Log in',
     accountNeedPseudo:'Choose a nickname.', accountShortPw:'Password too short (4 characters min).',
     accountCreated:'Account created! Your progress is safe.', accountError:'Something went wrong, try again.', accountWelcome:(n)=>`Welcome ${n}! Loading…`,
     accountCardTitle:'My account', accountCardSub:'Create an account or log in',
@@ -2155,7 +2155,7 @@ function applyLang() {
   setTxt('ideas-filter-mine', d.ideasFilterMine); setPh('ideas-search', d.ideasSearchPh);
   if (window._ideasBoard) window._ideasBoard.retexte();
   setTxt('account-title', d.accountTitle); setTxt('account-tab-create', d.accountTabCreate); setTxt('account-tab-login', d.accountTabLogin);
-  setTxt('account-pseudo-label', d.accountPseudoLabel); setTxt('account-pw-label', d.accountPwLabel);
+  setTxt('account-pseudo-label', d.accountPseudoLabel); setTxt('account-pw-label', d.accountPwLabel); setTxt('account-pw2-label', d.accountPwConfirmLabel);
   setTxt('account-card-title', d.accountCardTitle); setTxt('account-card-sub', d.accountCardSub);
   setTxt('btn-onboard-account', d.onboardAccountBtn); setTxt('btn-onboard-login', d.onboardLoginBtn); setTxt('btn-onboard-new', d.onboardNewBtn);
   setTxt('onboard-pseudo-label', d.onboardPseudoLabel);
@@ -11255,11 +11255,22 @@ try {
   if (!ov) return;
   const pseudo = document.getElementById('account-pseudo');
   const pw = document.getElementById('account-pw');
+  const pw2 = document.getElementById('account-pw2');
+  const pwToggle = document.getElementById('account-pw-toggle');
   const status = document.getElementById('account-status');
   const submit = document.getElementById('btn-account-submit');
   const tabCreate = document.getElementById('account-tab-create');
   const tabLogin = document.getElementById('account-tab-login');
-  let mode = 'create', fromOnboard = false;
+  let mode = 'create', fromOnboard = false, pwShown = false;
+
+  // Le champ de confirmation n'apparait qu'a la creation (pas pour se connecter).
+  function toggleConfirm(show) { document.querySelectorAll('#overlay-account .account-confirm').forEach(el => el.classList.toggle('hidden', !show)); }
+  function setShown(shown) {
+    pwShown = shown;
+    const type = shown ? 'text' : 'password';
+    pw.type = type; if (pw2) pw2.type = type;
+    if (pwToggle) { pwToggle.textContent = shown ? '🙈' : '👁'; pwToggle.classList.toggle('on', shown); }
+  }
 
   function setMode(m) {
     mode = m; const d = t();
@@ -11268,6 +11279,7 @@ try {
     document.getElementById('account-intro').textContent = m === 'create' ? d.accountCreateIntro : d.accountLoginIntro;
     submit.textContent = m === 'create' ? d.accountCreateBtn : d.accountLoginBtn;
     pw.setAttribute('autocomplete', m === 'create' ? 'new-password' : 'current-password');
+    toggleConfirm(m === 'create');
     status.textContent = '';
   }
   function open(m) {
@@ -11275,9 +11287,11 @@ try {
     ov.classList.remove('hidden');
     const onb = document.getElementById('onboard-pseudo');
     pseudo.value = (onb && onb.value.trim()) || (localStorage.getItem('playerName') || '').trim();
-    pw.value = '';
+    pw.value = ''; if (pw2) pw2.value = '';
+    setShown(false);
     setMode(m || 'create');
   }
+  pwToggle?.addEventListener('click', () => setShown(!pwShown));
   window._openAccount = open;
 
   tabCreate.addEventListener('click', () => setMode('create'));
@@ -11290,6 +11304,7 @@ try {
     const w = pw.value;
     if (!p) { status.textContent = d.accountNeedPseudo; status.className = 'recovery-warn recovery-err'; return; }
     if (!w || w.length < 4) { status.textContent = d.accountShortPw; status.className = 'recovery-warn recovery-err'; return; }
+    if (mode === 'create' && pw2 && w !== pw2.value) { status.textContent = d.accountPwMismatch; status.className = 'recovery-warn recovery-err'; pw2.focus(); return; }
     submit.disabled = true; status.textContent = '…'; status.className = 'recovery-warn';
     try {
       const path = mode === 'create' ? '/api/account/register' : '/api/account/login';

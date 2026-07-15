@@ -4272,3 +4272,10 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 /* ── Idées : recherche + réponse de l'équipe ── */
 .ideas-search { width: 100%; margin-top: 8px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: .92rem; box-sizing: border-box; }
 .idea-reply { margin: 8px 0 0; padding: 8px 10px; background: rgba(99,102,241,.12); border-left: 3px solid var(--board); border-radius: 8px; font-size: .88rem; line-height: 1.4; color: var(--text); }
+
+/* ── Champ mot de passe : bouton afficher/masquer + confirmation ── */
+.pw-field { position: relative; }
+.pw-field .recovery-input { padding-right: 44px; width: 100%; box-sizing: border-box; }
+.pw-toggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 4px 6px; line-height: 1; opacity: .8; }
+.pw-toggle:active { transform: translateY(-50%) scale(.9); }
+.account-confirm.hidden { display: none !important; }
