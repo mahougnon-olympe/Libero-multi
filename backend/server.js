@@ -3840,9 +3840,9 @@ function _aggregatePlayers() {
   for (const [pid, v] of triviaLeaderboard) { const p = get(pid); setName(p, v.name); p.points = v.points || 0; p.quizzes = v.games || 0; }
   for (const [pid, v] of snakeLeaderboard)  { const p = get(pid); setName(p, v.name); p.snakeHs = v.hs || 0; }
   for (const [pid, v] of luffyLeaderboard)  { const p = get(pid); setName(p, v.name); p.luffyHs = v.hs || 0; }
-  for (const [pid, v] of libs)              { const p = get(pid); setName(p, v.name); p.libs = v.balance || 0; }
+  for (const [pid, v] of libs)              { const p = get(pid); setName(p, v.name); p.libs = v.balance || 0; p.lastActive = v.lastActive || 0; }
   return [...map.entries()]
-    .map(([pid, p]) => ({ ...p, name: p.name || 'Anonyme', games: p.wins + p.losses + p.draws, ref: _playerRef(pid) }))
+    .map(([pid, p]) => ({ ...p, name: p.name || 'Anonyme', games: p.wins + p.losses + p.draws, lastActive: p.lastActive || 0, ref: _playerRef(pid) }))
     .sort((a, b) => (b.games + b.quizzes) - (a.games + a.quizzes))
     .slice(0, 300);
 }

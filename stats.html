@@ -321,7 +321,14 @@
 
       <section>
         <h2>👥 Joueurs <span id="players-pill" class="pill"></span></h2>
-        <p class="sub" style="margin-top:-4px;">Clique sur un pseudo pour voir toutes ses infos et son activité.</p>
+        <p class="sub" style="margin-top:-4px;">Clique sur un pseudo pour voir toutes ses infos. Recherche par pseudo et trie la liste.</p>
+        <div class="field" style="align-items:center">
+          <input id="players-search" placeholder="Rechercher un pseudo…" style="flex:1;min-width:160px" />
+          <button class="small green" data-psort="games">Tri : activité</button>
+          <button class="small" data-psort="libs">Libs</button>
+          <button class="small" data-psort="recent">Récents</button>
+          <button class="small" data-psort="name">A-Z</button>
+        </div>
         <div id="players-list" class="players-list"></div>
       </section>
 
@@ -525,16 +532,34 @@
       } catch (err) {}
     });
 
+    var PLAYERS_SORT = 'games', PLAYERS_QUERY = '';
     function renderPlayers(list) {
-      list = list || [];
-      $('players-pill').textContent = list.length;
-      if (!list.length) { $('players-list').innerHTML = '<p class="empty">Aucun joueur.</p>'; return; }
-      $('players-list').innerHTML = list.map(function (p) {
+      if (list) LAST_PLAYERS = list;
+      var arr = (LAST_PLAYERS || []).slice();
+      var q = PLAYERS_QUERY.trim().toLowerCase();
+      if (q) arr = arr.filter(function (p) { return (p.name || '').toLowerCase().indexOf(q) !== -1; });
+      arr.sort(function (a, b) {
+        if (PLAYERS_SORT === 'libs') return (b.libs || 0) - (a.libs || 0);
+        if (PLAYERS_SORT === 'recent') return (b.lastActive || 0) - (a.lastActive || 0);
+        if (PLAYERS_SORT === 'name') return (a.name || '').localeCompare(b.name || '');
+        return ((b.games || 0) + (b.quizzes || 0)) - ((a.games || 0) + (a.quizzes || 0));
+      });
+      $('players-pill').textContent = arr.length + (q ? ' / ' + (LAST_PLAYERS || []).length : '');
+      if (!arr.length) { $('players-list').innerHTML = '<p class="empty">Aucun joueur.</p>'; return; }
+      $('players-list').innerHTML = arr.map(function (p) {
         return '<button type="button" class="player-chip" data-ref="' + esc(p.ref) + '">'
           + '<span class="player-chip-name">' + esc(p.name) + '</span>'
+          + '<span class="muted" style="font-size:.72rem">' + (p.libs || 0) + ' ⚡ · ' + ((p.games || 0) + (p.quizzes || 0)) + ' j</span>'
           + '<span class="chev">›</span></button>';
       }).join('');
     }
+    document.getElementById('players-search').addEventListener('input', function (e) { PLAYERS_QUERY = e.target.value || ''; renderPlayers(); });
+    document.querySelector('.field [data-psort]').parentNode.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-psort]'); if (!b) return;
+      PLAYERS_SORT = b.dataset.psort;
+      b.parentNode.querySelectorAll('[data-psort]').forEach(function (x) { x.classList.toggle('green', x === b); });
+      renderPlayers();
+    });
 
     function renderPurchases(list) {
       list = list || [];
