@@ -524,7 +524,7 @@ const TRIVIA_API_CAT_MAP = {
 const DICT = {
   fr: {
     siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisissez votre catégorie',
-    navHome:'Accueil', navFeed:'Vidéos', navIdeas:'Idées', navShop:'Boutique',
+    navHome:'Accueil', navFeed:'Vidéos', navIdeas:'Idées', navShop:'Boutique', profileBalanceLabel:'Solde',
     ideasTitle:'Idées & suggestions', ideasSub:'Propose une amélioration du site et vote pour celles des autres.',
     ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Récentes', ideasNewBtn:'💡 Proposer',
     ideasLoading:'Chargement des idées…', ideasEmpty:'Aucune idée pour le moment.\nSois le premier à en proposer une !', ideasError:'Impossible de charger les idées.\nVérifie ta connexion et réessaie.',
@@ -1218,7 +1218,7 @@ const DICT = {
   },
   en: {
     siteTitle:'Multiplayer Games', siteSubtitle:'Choose your category',
-    navHome:'Home', navFeed:'Videos', navIdeas:'Ideas', navShop:'Shop',
+    navHome:'Home', navFeed:'Videos', navIdeas:'Ideas', navShop:'Shop', profileBalanceLabel:'Balance',
     ideasTitle:'Ideas & suggestions', ideasSub:'Suggest a site improvement and vote on others\' ideas.',
     ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Newest', ideasNewBtn:'💡 Suggest',
     ideasLoading:'Loading ideas…', ideasEmpty:'No ideas yet.\nBe the first to suggest one!', ideasError:'Could not load ideas.\nCheck your connection and try again.',
@@ -2100,6 +2100,7 @@ function applyLang() {
   const ntf = $('nav-tab-ideas-label'); if (ntf) ntf.textContent = d.navIdeas;
   const ntr = $('nav-tab-read-label'); if (ntr) ntr.textContent = d.navRead;
   const nts = $('nav-tab-shop-label'); if (nts) nts.textContent = d.navShop;
+  const pbl = $('profile-balance-label'); if (pbl) pbl.textContent = d.profileBalanceLabel;
   const ntp = $('nav-tab-profile-label'); if (ntp) ntp.textContent = d.navProfile;
 
   // Vidéos : modales commentaires + proposition
@@ -5241,6 +5242,8 @@ function _refreshLibsUI(prev, next, delta) {
   const counter = $('libs-counter');
   if (counter) counter.classList.toggle('hidden', !name || name === 'Anonyme');
 
+  const pbal = $('profile-balance');
+  if (pbal) pbal.textContent = next; // ligne « Solde » du profil
   const balEl = $('libs-balance');
   if (!balEl) return;
   const diff = next - prev;
@@ -9747,6 +9750,7 @@ document.getElementById('nav-tab-read')?.addEventListener('click', () => {
 });
 // La boutique est un overlay (pas un ecran de nav) : l'onglet l'ouvre directement.
 document.getElementById('nav-tab-shop')?.addEventListener('click', () => { if (typeof openShop === 'function') openShop(); });
+document.getElementById('profile-balance-row')?.addEventListener('click', () => { if (typeof openShop === 'function') openShop(); });
 document.getElementById('nav-tab-profile')?.addEventListener('click', () => {
   if (sessionStorage.getItem('libero_screen') === 'profile') return;
   showScreen('profile');
