@@ -227,6 +227,17 @@
         <div class="field"><input id="push-title" placeholder="Titre (ex : 🏆 Tournoi ce samedi !)" maxlength="80" /></div>
         <div class="field"><input id="push-body" placeholder="Texte de la notification" maxlength="200" />
           <button id="btn-push-send" class="green">Envoyer</button></div>
+        <div class="field">
+          <label for="push-segment" style="font-size:.85rem;opacity:.85">Cible :</label>
+          <select id="push-segment" style="flex:1">
+            <option value="all">Tous les abonnés</option>
+            <option value="inactive7">Inactifs (7 j et plus)</option>
+            <option value="active7">Actifs (moins de 7 j)</option>
+            <option value="vip">Membres VIP</option>
+            <option value="big">Gros joueurs (1000 ⚡ et plus)</option>
+          </select>
+        </div>
+        <p id="push-audience" class="sub" style="margin-top:-2px"></p>
         <p id="push-status" class="sub"></p>
       </section>
 
@@ -353,6 +364,13 @@
         <h2>🐛 Signalements de bugs <span id="bug-pill" class="pill"></span> <span id="bug-open-pill" class="pill hidden" style="background:rgba(248,113,113,.15);color:#f87171"></span></h2>
         <p class="sub" style="margin-top:-4px;">Ce que les joueurs signalent via la carte « Signaler un bug » du profil. Marque « Traité » ce qui est corrigé (il descend en bas), ou supprime. La référence joueur est anonyme (hash).</p>
         <div id="bugreports"></div>
+      </section>
+
+      <section>
+        <h2>⚠️ Erreurs serveur récentes <span id="err-pill" class="pill"></span>
+          <button id="btn-err-clear" class="red" style="float:right;font-size:.8rem">Vider</button></h2>
+        <p class="sub" style="margin-top:-4px;">Les erreurs non gérées du backend (routes, exceptions, promesses rejetées) remontent ici : tu es au courant avant les joueurs. Aucune dépendance externe. Vide la liste une fois les soucis traités.</p>
+        <div id="servererrors"></div>
       </section>
 
       <p class="sub"><a href="index.html">← Retour au site</a></p>
@@ -710,6 +728,20 @@
       }).join('');
     }
 
+    function renderServerErrors(list) {
+      list = list || [];
+      var ep = $('err-pill');
+      if (ep) { ep.textContent = list.length; ep.style.background = list.length ? 'rgba(248,113,113,.15)' : ''; ep.style.color = list.length ? '#f87171' : ''; }
+      if (!list.length) { $('servererrors').innerHTML = '<p class="empty">Aucune erreur. Tout va bien 👍</p>'; return; }
+      $('servererrors').innerHTML = list.map(function (e) {
+        return '<div class="bot-q flagged" style="align-items:flex-start;flex-direction:column">'
+          + '<div style="font-weight:600">' + esc(e.where || 'app') + ' <span class="t" style="font-weight:400">' + esc(ago(e.at)) + '</span></div>'
+          + '<div style="margin-top:2px">' + esc(e.message || '') + '</div>'
+          + (e.stack ? '<pre style="margin-top:6px;white-space:pre-wrap;font-size:.72rem;opacity:.7;max-height:120px;overflow:auto">' + esc(e.stack) + '</pre>' : '')
+          + '</div>';
+      }).join('');
+    }
+
     function render(d) {
       LAST_PLAYERS = d.players || [];
       renderKpis(d);
@@ -723,8 +755,10 @@
       renderPurchases(d.purchases);
       renderBotLogs(d.botLogs);
       renderBugReports(d.bugReports);
+      renderServerErrors(d.serverErrors);
       renderInactive(d.inactive7);
       renderAudit(d.audit);
+      renderPushAudience(d.pushAudience);
       var pp = $('push-pill');
       if (pp) pp.textContent = (d.pushSubscribers || 0) + ' abonné(s)';
       var fs = $('flash-status');
@@ -947,14 +981,26 @@
       }).join('') : '<p class="empty">Aucune action pour le moment.</p>';
     }
 
+    var PUSH_AUDIENCE = {};
+    var SEGMENT_LABEL = { all:'tous les abonnés', inactive7:'inactifs (7 j+)', active7:'actifs (< 7 j)', vip:'membres VIP', big:'gros joueurs' };
+    function renderPushAudience(a) {
+      if (a) PUSH_AUDIENCE = a;
+      var seg = $('push-segment') ? $('push-segment').value : 'all';
+      var n = (PUSH_AUDIENCE && PUSH_AUDIENCE[seg] != null) ? PUSH_AUDIENCE[seg] : '?';
+      var el = $('push-audience');
+      if (el) el.textContent = 'Cette cible touche ' + n + ' abonné(s) joignable(s).';
+    }
+    if ($('push-segment')) $('push-segment').addEventListener('change', function () { renderPushAudience(); });
+
     $('btn-push-send').addEventListener('click', async function () {
       var title = $('push-title').value.trim(), body = $('push-body').value.trim();
       if (!title && !body) return;
+      var segment = $('push-segment') ? $('push-segment').value : 'all';
       this.disabled = true;
       try {
-        var r = await api('/admin/push', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ title: title, body: body }) });
+        var r = await api('/admin/push', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ title: title, body: body, segment: segment }) });
         var d = await r.json();
-        $('push-status').textContent = d.ok ? ('Envoyée à ' + d.subscribers + ' abonné(s).') : (d.error || 'Erreur.');
+        $('push-status').textContent = d.ok ? ('Envoyée à ' + d.sent + ' abonné(s) (' + (SEGMENT_LABEL[d.segment] || d.segment) + ').') : (d.error || 'Erreur.');
         if (d.ok) { $('push-title').value = ''; $('push-body').value = ''; }
       } catch (e) { $('push-status').textContent = 'Erreur : ' + (e.message || e); }
       this.disabled = false;
@@ -1090,6 +1136,14 @@
           await refresh();
         } catch (err) { del.disabled = false; }
       }
+    });
+
+    // Vider le journal d'erreurs serveur.
+    if ($('btn-err-clear')) $('btn-err-clear').addEventListener('click', async function () {
+      if (!confirm('Vider le journal des erreurs serveur ?')) return;
+      this.disabled = true;
+      try { await api('/admin/server-errors', { method: 'DELETE' }); await refresh(); }
+      catch (e) {} this.disabled = false;
     });
 
     // ---- Détail d'un joueur ----

@@ -398,6 +398,11 @@ async function loadData() {
       ref: d.ref || '', page: d.page || '', lang: d.lang || 'fr', ua: d.ua || '', at: d.at || 0, resolved: !!d.resolved,
     })))
     .catch(() => {});
+  db.collection('server_errors').find().sort({ at: -1 }).limit(SERVER_ERROR_MAX).toArray()
+    .then(docs => docs.forEach(d => serverErrors.push({
+      id: d.id || String(d.at), at: d.at || 0, where: d.where || 'app', message: d.message || '', stack: d.stack || '',
+    })))
+    .catch(() => {});
   resetDocs.forEach(d => resetArchive.set(d._id, d));
   giftDocs.forEach(d => giftCodes.set(d._id, { cosmeticId: d.cosmeticId, fromName: d.fromName || '', createdAt: d.createdAt || Date.now(), redeemedBy: d.redeemedBy || null, redeemedAt: d.redeemedAt || null }));
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
@@ -1070,6 +1075,25 @@ function adminAudit(action, details = {}) {
   if (db) db.collection('admin_audit').insertOne({ ...entry }).catch(() => {});
 }
 
+// ── Journal d'erreurs serveur (visible dans le dashboard) ─────────────────────
+// Permet au proprietaire d'etre alerte des soucis avant les joueurs, sans
+// dependance externe (pas de compte Sentry a gerer).
+const serverErrors = []; // { at, where, message, stack }
+const SERVER_ERROR_MAX = 100;
+function logServerError(where, err) {
+  try {
+    const message = (err && err.message) ? String(err.message) : String(err);
+    const stack   = (err && err.stack) ? String(err.stack).slice(0, 2000) : '';
+    const entry = { id: crypto.randomUUID(), at: Date.now(), where: String(where || 'app').slice(0, 60), message: message.slice(0, 500), stack };
+    serverErrors.unshift(entry);
+    if (serverErrors.length > SERVER_ERROR_MAX) serverErrors.pop();
+    if (db) db.collection('server_errors').insertOne({ ...entry }).catch(() => {});
+    console.error(`[⚠️ ${entry.where}]`, message);
+  } catch (_) {}
+}
+process.on('uncaughtException',  e => logServerError('uncaughtException', e));
+process.on('unhandledRejection', e => logServerError('unhandledRejection', e));
+
 // ── Notifications push (web-push) ────────────────────────────────────────────
 // Activees seulement si les cles VAPID sont dans l'environnement (Render).
 // Abonnements en memoire + Mongo `push_subs` (cle = playerId canonique).
@@ -1086,12 +1110,19 @@ if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
     console.log('🔔 Notifications push activées.');
   } catch (e) { console.error('web-push indisponible:', e.message); webpush = null; }
 }
-function sendPush(pid, payload) {
-  if (!webpush) return;
+// target : null = tous les abonnes, une chaine = un joueur, un tableau = plusieurs joueurs.
+// Renvoie le nombre d'abonnements effectivement vises.
+function sendPush(target, payload) {
+  if (!webpush) return 0;
   const body = JSON.stringify(payload);
-  const targets = pid ? [[pid, pushSubs.get(pid)]] : [...pushSubs.entries()];
-  for (const [id, sub] of targets) {
+  let entries;
+  if (target == null)            entries = [...pushSubs.entries()];
+  else if (Array.isArray(target)) entries = target.map(id => [id, pushSubs.get(id)]);
+  else                            entries = [[target, pushSubs.get(target)]];
+  let count = 0;
+  for (const [id, sub] of entries) {
     if (!sub) continue;
+    count++;
     webpush.sendNotification(sub, body).catch(err => {
       // Abonnement expire ou revoque : on le retire.
       if (err.statusCode === 404 || err.statusCode === 410) {
@@ -1100,6 +1131,27 @@ function sendPush(pid, payload) {
       }
     });
   }
+  return count;
+}
+
+// Ensemble des playerId d'un segment (pour les push ciblees).
+const PUSH_BIG_LIBS = 1000; // seuil « gros joueur »
+function _segmentPlayerIds(segment) {
+  const now = Date.now();
+  const ids = [];
+  for (const [pid, e] of libs.entries()) {
+    if (segment === 'inactive7') {
+      if (!e.name || e.name === 'Anonyme') continue;
+      if ((now - (e.lastActive || 0)) >= 7 * 86_400_000) ids.push(pid);
+    } else if (segment === 'active7') {
+      if ((now - (e.lastActive || 0)) < 7 * 86_400_000) ids.push(pid);
+    } else if (segment === 'vip') {
+      if ((e.vipUntil || 0) > now) ids.push(pid);
+    } else if (segment === 'big') {
+      if ((e.balance || 0) >= PUSH_BIG_LIBS) ids.push(pid);
+    }
+  }
+  return ids;
 }
 
 // Pass VIP : 30 jours, +20% sur les gains de Libs (serie, defis, roue, tournoi).
@@ -4163,6 +4215,14 @@ app.get('/admin/stats', async (req, res) => {
         id: b.id, text: b.text, contact: b.contact, name: b.name, page: b.page,
         lang: b.lang, ua: b.ua, at: b.at, resolved: !!b.resolved,
       })),
+      serverErrors: serverErrors.slice(0, 50),
+      pushAudience: (() => {
+        const out = { all: pushSubs.size };
+        for (const seg of ['inactive7', 'active7', 'vip', 'big']) {
+          out[seg] = _segmentPlayerIds(seg).filter(id => pushSubs.has(id)).length;
+        }
+        return out;
+      })(),
       // Comptes reinitialises (cache restituable) : les plus recents d'abord.
       resets: [...resetArchive.values()]
         .sort((a, b) => (b.at || 0) - (a.at || 0))
@@ -4573,9 +4633,21 @@ app.post('/admin/push', (req, res) => {
   const title = String(req.body?.title || '').trim().slice(0, 80);
   const body  = String(req.body?.body || '').trim().slice(0, 200);
   if (!title && !body) return res.status(400).json({ error: 'Titre ou texte requis.' });
-  sendPush(null, { title: title || "Libero's Multi", body, url: 'https://libero-multi.vercel.app' });
-  adminAudit('push', { title, body });
-  res.json({ ok: true, subscribers: pushSubs.size });
+  const segment = ['all', 'inactive7', 'active7', 'vip', 'big'].includes(req.body?.segment) ? req.body.segment : 'all';
+  const target = segment === 'all' ? null : _segmentPlayerIds(segment);
+  const sent = sendPush(target, { title: title || "Libero's Multi", body, url: 'https://libero-multi.vercel.app' });
+  adminAudit('push', { title, body, segment, sent });
+  res.json({ ok: true, sent, segment, subscribers: pushSubs.size });
+});
+
+// Estimation de l'audience (abonnes joignables) par segment, pour le dashboard.
+app.get('/admin/push-audience', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const out = { all: pushSubs.size };
+  for (const seg of ['inactive7', 'active7', 'vip', 'big']) {
+    out[seg] = _segmentPlayerIds(seg).filter(id => pushSubs.has(id)).length;
+  }
+  res.json({ ok: true, audience: out });
 });
 
 app.post('/admin/announce', (req, res) => {
@@ -4695,6 +4767,14 @@ app.delete('/admin/bug-report/:id', (req, res) => {
   const idx = bugReports.findIndex(b => String(b.id) === id);
   if (idx !== -1) bugReports.splice(idx, 1);
   if (db) db.collection('bug_reports').deleteOne({ id }).catch(() => {});
+  res.json({ ok: true });
+});
+
+// Admin : vide le journal d'erreurs serveur (memoire + Mongo).
+app.delete('/admin/server-errors', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  serverErrors.length = 0;
+  if (db) db.collection('server_errors').deleteMany({}).catch(() => {});
   res.json({ ok: true });
 });
 
@@ -5509,6 +5589,14 @@ async function mergeDuplicateNames() {
     }
   }
   setInterval(_recheckPendingLibsPurchases, 10 * 60 * 1000);
+
+  // Filet de securite Express : toute erreur non geree dans une route est
+  // journalisee (dashboard) au lieu de passer inapercue.
+  app.use((err, req, res, next) => {
+    logServerError(`route ${req.method} ${req.path}`, err);
+    if (res.headersSent) return next(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  });
 
   const PORT = process.env.PORT || 3001;
   server.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));

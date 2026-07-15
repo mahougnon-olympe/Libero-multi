@@ -41,8 +41,8 @@ Joueur :
 Admin :
 - [x] Recherche + tri dans la liste des joueurs (activite, Libs, recents, A-Z).
 - [x] Repondre publiquement a une idee depuis le dashboard.
-- [ ] Monitoring d'erreurs backend (Sentry) pour etre alerte avant les joueurs. *(necessite un projet Sentry + DSN a fournir)*
-- [ ] Notifications push ciblees (par segment : inactifs, VIP, gros joueurs).
+- [x] Monitoring d'erreurs backend : journal d'erreurs serveur dans le dashboard (routes, exceptions, promesses rejetees), sans dependance externe -> remplace le besoin de Sentry pour etre alerte avant les joueurs.
+- [x] Notifications push ciblees par segment (tous, inactifs 7 j+, actifs, VIP, gros joueurs) avec estimation de l'audience joignable.
 
 ## Bonus faits en passant
 - [x] Compte : afficher/masquer le mot de passe + confirmation a la creation.
@@ -53,6 +53,9 @@ Admin :
 - [x] Profil : solde de Libs en affichage seul (non cliquable).
 - [x] Profil : carte « Signaler un bug » (modal -> /api/bug-report, section dediee + traiter/supprimer dans le dashboard).
 - [x] Reglages : le curseur de volume musique applique le changement immediatement (meme en pause), plus seulement quand la musique joue deja.
+- [x] Boutique : depuis l'overlay boutique, cliquer un onglet la ferme et affiche l'ecran meme si c'est l'ecran de fond (le garde-fou meme-ecran bloquait).
+- [x] Admin : notifications push ciblees par segment + estimation d'audience.
+- [x] Admin : journal d'erreurs serveur dans le dashboard (alerte avant les joueurs, sans Sentry).
 
 ## Nouvelles idees d'amelioration de l'experience (a discuter / prioriser)
 Retention et habitude :
