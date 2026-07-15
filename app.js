@@ -10190,22 +10190,29 @@ socket.on('book-readers-update', ({ bookId, count } = {}) => {
   if (bookId != null && typeof count === 'number') ReadFeed.setReaders(bookId, count);
 });
 
+// La boutique est un overlay : quand elle est ouverte, cliquer un onglet doit
+// toujours la fermer et afficher l'ecran, meme si c'est l'ecran de fond courant
+// (sinon le garde-fou « meme ecran » bloque et la boutique reste coincee).
+function _shopIsOpen() {
+  const ov = document.getElementById('overlay-shop');
+  return !!ov && !ov.classList.contains('hidden');
+}
 document.getElementById('nav-tab-home')?.addEventListener('click', () => {
-  if (sessionStorage.getItem('libero_screen') === 'landing') return;
+  if (!_shopIsOpen() && sessionStorage.getItem('libero_screen') === 'landing') return;
   showScreen('landing');
 });
 document.getElementById('nav-tab-ideas')?.addEventListener('click', () => {
-  if (sessionStorage.getItem('libero_screen') === 'ideas') return;
+  if (!_shopIsOpen() && sessionStorage.getItem('libero_screen') === 'ideas') return;
   showScreen('ideas');
 });
 document.getElementById('nav-tab-read')?.addEventListener('click', () => {
-  if (sessionStorage.getItem('libero_screen') === 'read') return;
+  if (!_shopIsOpen() && sessionStorage.getItem('libero_screen') === 'read') return;
   showScreen('read');
 });
 // La boutique est un overlay (pas un ecran de nav) : l'onglet l'ouvre directement.
 document.getElementById('nav-tab-shop')?.addEventListener('click', () => { if (typeof openShop === 'function') openShop(); });
 document.getElementById('nav-tab-profile')?.addEventListener('click', () => {
-  if (sessionStorage.getItem('libero_screen') === 'profile') return;
+  if (!_shopIsOpen() && sessionStorage.getItem('libero_screen') === 'profile') return;
   showScreen('profile');
 });
 
