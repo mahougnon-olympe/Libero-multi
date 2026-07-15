@@ -2178,6 +2178,7 @@ function applyLang() {
   setTxt('onboard-pseudo-label', d.onboardPseudoLabel);
   setTxt('wordle-title', d.wordleTitle); setTxt('wordle-sub', d.wordleSub); setTxt('wordle-back-label', d.wordleBack); setTxt('wordle-share', d.wordleShare);
   setTxt('wordle-card-title', d.wordleCardTitle); setTxt('wordle-card-desc', d.wordleCardDesc);
+  setTxt('wordle-hint-label', d.wordleHint);
   if (window._wordle) window._wordle.retexte();
 
   // Lecture
@@ -9700,15 +9701,22 @@ const Wordle = (() => {
     else { navigator.clipboard?.writeText(text).catch(() => {}); if (typeof showCursorSnakeToast === 'function') showCursorSnakeToast(t().wordleCopied); }
   }
 
-  // L'indice du jour est offert : affiche directement, sans clic ni cout.
+  // L'indice du jour est gratuit : un clic sur le bouton le revele (memorise pour la journee).
   function _renderHint() {
     const btn = document.getElementById('wordle-hint-btn');
     const el = document.getElementById('wordle-hint');
-    if (btn) btn.classList.add('hidden'); // l'ancien bouton n'est plus necessaire
     if (!el) return;
     const txt = hintText();
-    if (txt && !done) { el.textContent = '💡 ' + txt; el.classList.remove('hidden'); }
+    let shown = false; try { shown = localStorage.getItem(hkey()) === '1'; } catch {}
+    if (btn) btn.classList.toggle('hidden', !txt || !!done || shown);
+    if (txt && !done && shown) { el.textContent = '💡 ' + txt; el.classList.remove('hidden'); }
     else { el.textContent = ''; el.classList.add('hidden'); }
+  }
+  function revealHint() {
+    const txt = hintText(); if (!txt) return;
+    try { localStorage.setItem(hkey(), '1'); } catch {}
+    window._sound?.play('click');
+    _renderHint();
   }
 
   function enter() {
@@ -9730,6 +9738,7 @@ const Wordle = (() => {
     else { const k = e.key.toUpperCase(); if (/^[A-Z]$/.test(k)) onKey(k); }
   });
   document.getElementById('wordle-share')?.addEventListener('click', share);
+  document.getElementById('wordle-hint-btn')?.addEventListener('click', revealHint);
   document.getElementById('wordle-back')?.addEventListener('click', () => showScreen('landing'));
 
   function retexte() { if (document.getElementById('screen-wordle')?.classList.contains('active')) enter(); }
