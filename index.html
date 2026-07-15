@@ -981,6 +981,12 @@
           <span id="vip-badge" class="vip-badge hidden">👑 VIP</span>
         </div>
 
+        <!-- Badges / hauts faits du joueur -->
+        <div class="profile-badges-wrap">
+          <p id="profile-badges-title" class="profile-badges-title">🏅 Mes hauts faits</p>
+          <div id="profile-badges" class="badge-grid"></div>
+        </div>
+
         <!-- Solde de Libs (affichage seul, non cliquable ; la boutique est un onglet a part) -->
         <div id="profile-balance-row" class="profile-balance-row profile-balance-static">
           <span class="pbr-icon">⚡</span>
@@ -1201,6 +1207,16 @@
     </div>
   </div>
 
+  <!-- ── Modal : Cadeau du jour (theme ete) ── -->
+  <div id="overlay-dailygift" class="overlay hidden">
+    <div class="recovery-modal giftrecv-modal">
+      <div id="dailygift-emoji" class="dailygift-emoji">☀️</div>
+      <h2 id="dailygift-title" class="profile-modal-title">☀️ Cadeau du jour</h2>
+      <p id="dailygift-msg" class="recovery-intro"></p>
+      <button id="btn-dailygift-ok" class="btn btn-primary recovery-reset-btn">Génial !</button>
+    </div>
+  </div>
+
   <!-- ── Modal : choisir un ami à défier ── -->
   <div id="overlay-friendpick" class="overlay hidden">
     <div class="recovery-modal">
@@ -1247,6 +1263,7 @@
       </div>
       <div class="recovery-body">
         <p id="playercard-level" class="playercard-level"></p>
+        <div id="playercard-badges" class="badge-grid"></div>
         <p id="playercard-status" class="recovery-warn"></p>
         <button id="btn-playercard-add" class="btn btn-primary recovery-reset-btn hidden"></button>
       </div>

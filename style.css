@@ -4206,6 +4206,23 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 }
 .maintenance-banner.hidden { display: none; }
 
+/* Cadeau du jour : gros emoji anime au-dessus du message. */
+/* Badges / hauts faits */
+.profile-badges-wrap { margin: 10px 0 0; }
+.profile-badges-title { font-weight: 800; font-size: .9rem; margin: 0 0 6px; color: var(--text); }
+.badge-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 999px; font-size: .78rem; font-weight: 700;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); color: var(--text);
+}
+.badge-honor { background: linear-gradient(90deg, rgba(251,191,36,.22), rgba(217,119,6,.18)); border-color: rgba(251,191,36,.5); }
+.badge-empty { font-size: .8rem; color: var(--muted); }
+
+.dailygift-emoji { font-size: 3.4rem; text-align: center; margin: 4px 0 2px; animation: dgPop .5s var(--ease, ease) both; }
+@keyframes dgPop { 0% { transform: scale(.3); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+
 .profile-balance-static { cursor: default; }
 .profile-balance-static:hover  { border-color: var(--border); }
 .profile-balance-static:active { transform: none; }

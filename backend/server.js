@@ -404,6 +404,13 @@ async function loadData() {
       id: d.id || String(d.at), at: d.at || 0, where: d.where || 'app', message: d.message || '', stack: d.stack || '',
     })))
     .catch(() => {});
+  // Anti-repetition des quiz : restaure les questions deja vues par joueur.
+  db.collection('trivia_seen').find().toArray()
+    .then(docs => docs.forEach(d => {
+      const ids = Array.isArray(d.ids) ? d.ids.slice(-TRIVIA_SEEN_MAX) : [];
+      if (d._id && ids.length) triviaSeen.set(d._id, { set: new Set(ids), order: ids.slice() });
+    }))
+    .catch(() => {});
   resetDocs.forEach(d => resetArchive.set(d._id, d));
   giftDocs.forEach(d => giftCodes.set(d._id, { cosmeticId: d.cosmeticId, fromName: d.fromName || '', createdAt: d.createdAt || Date.now(), redeemedBy: d.redeemedBy || null, redeemedAt: d.redeemedAt || null }));
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
@@ -416,7 +423,7 @@ async function loadData() {
   });
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   llbDocs.forEach(d => luffyLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, xp: d.xp || 0, iq: d.iq ?? null, iqAt: d.iqAt || 0, wheelDay: d.wheelDay || null, friends: Array.isArray(d.friends) ? d.friends : [], friendRequests: Array.isArray(d.friendRequests) ? d.friendRequests : [], pendingGifts: Array.isArray(d.pendingGifts) ? d.pendingGifts : [], giftSentDay: d.giftSentDay || null, vipUntil: d.vipUntil || 0, history: Array.isArray(d.history) ? d.history : [] }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, xp: d.xp || 0, iq: d.iq ?? null, iqAt: d.iqAt || 0, wheelDay: d.wheelDay || null, friends: Array.isArray(d.friends) ? d.friends : [], friendRequests: Array.isArray(d.friendRequests) ? d.friendRequests : [], pendingGifts: Array.isArray(d.pendingGifts) ? d.pendingGifts : [], giftSentDay: d.giftSentDay || null, vipUntil: d.vipUntil || 0, dailyGiftDay: d.dailyGiftDay || null, badges: Array.isArray(d.badges) ? d.badges : [], onboardRewards: Array.isArray(d.onboardRewards) ? d.onboardRewards : [], history: Array.isArray(d.history) ? d.history : [] }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   feedDocs.forEach(d => feedVideos.push({
@@ -637,7 +644,7 @@ function dbUpsertLibsPurchase(cartId, purchase) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], referredBy: entry.referredBy || null, referralRewarded: !!entry.referralRewarded, referrals: entry.referrals || 0, xp: entry.xp || 0, iq: entry.iq ?? null, iqAt: entry.iqAt || 0, wheelDay: entry.wheelDay || null, friends: entry.friends || [], friendRequests: entry.friendRequests || [], pendingGifts: entry.pendingGifts || [], giftSentDay: entry.giftSentDay || null, vipUntil: entry.vipUntil || 0, history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [] } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], referredBy: entry.referredBy || null, referralRewarded: !!entry.referralRewarded, referrals: entry.referrals || 0, xp: entry.xp || 0, iq: entry.iq ?? null, iqAt: entry.iqAt || 0, wheelDay: entry.wheelDay || null, friends: entry.friends || [], friendRequests: entry.friendRequests || [], pendingGifts: entry.pendingGifts || [], giftSentDay: entry.giftSentDay || null, vipUntil: entry.vipUntil || 0, dailyGiftDay: entry.dailyGiftDay || null, badges: entry.badges || [], onboardRewards: entry.onboardRewards || [], history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [] } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -805,6 +812,45 @@ function adminPermanent() { return adminChallenges.filter(c => c.kind === 'perma
 function getLifetime(entry) {
   if (!entry.lifetime || typeof entry.lifetime !== 'object') entry.lifetime = {};
   return entry.lifetime;
+}
+
+// ── Badges / hauts faits (calcules depuis les stats, non stockes) ────────────
+// Renvoie la liste des badges obtenus par un joueur, pour la fiche joueur et le
+// profil. Chaque badge : { id, icon, label (fr), labelEn }.
+const BADGE_DEFS = [
+  { id: 'level10', icon: '🎓', label: 'Niveau 10',        labelEn: 'Level 10',        test: c => c.level >= 10 },
+  { id: 'level25', icon: '🏅', label: 'Niveau 25',        labelEn: 'Level 25',        test: c => c.level >= 25 },
+  { id: 'level50', icon: '👑', label: 'Niveau 50',        labelEn: 'Level 50',        test: c => c.level >= 50 },
+  { id: 'win1',    icon: '⚔️', label: 'Première victoire', labelEn: 'First win',       test: c => c.wins >= 1 },
+  { id: 'win25',   icon: '🛡️', label: '25 victoires',     labelEn: '25 wins',         test: c => c.wins >= 25 },
+  { id: 'win100',  icon: '🏆', label: '100 victoires',    labelEn: '100 wins',        test: c => c.wins >= 100 },
+  { id: 'quiz500', icon: '🧠', label: 'Cerveau (500 pts quiz)', labelEn: 'Brain (500 quiz pts)', test: c => c.quizPoints >= 500 },
+  { id: 'snake50', icon: '🐍', label: 'Serpent d\'or (50)', labelEn: 'Golden snake (50)', test: c => c.snakeHs >= 50 },
+  { id: 'streak7', icon: '🔥', label: 'Série de 7 jours',  labelEn: '7-day streak',    test: c => c.streak >= 7 },
+  { id: 'streak30',icon: '☄️', label: 'Série de 30 jours', labelEn: '30-day streak',   test: c => c.streak >= 30 },
+  { id: 'vip',     icon: '💎', label: 'Membre VIP',        labelEn: 'VIP member',      test: c => c.vip },
+  { id: 'friend5', icon: '🤝', label: '5 amis',            labelEn: '5 friends',       test: c => c.friends >= 5 },
+  { id: 'ref1',    icon: '📣', label: 'Parrain',           labelEn: 'Referrer',        test: c => c.referrals >= 1 },
+  { id: 'iq',      icon: '🧩', label: 'Test de QI passé',  labelEn: 'IQ test taken',   test: c => c.iq },
+  { id: 'wheel',   icon: '🎡', label: 'Roue tournée',      labelEn: 'Spun the wheel',  test: c => c.wheelSpins >= 1 },
+];
+function computeBadges(pid, entry) {
+  const lt = getLifetime(entry);
+  const lb = leaderboard.get(pid) || {};
+  const ctx = {
+    level: levelFromXp(entry.xp || 0),
+    wins: (lb.wins || 0),
+    quizPoints: (triviaLeaderboard.get(pid)?.points || 0),
+    snakeHs: (snakeLeaderboard.get(pid)?.hs || 0),
+    streak: (entry.streak?.longest || entry.streak?.count || 0),
+    vip: (entry.vipUntil || 0) > Date.now(),
+    friends: (entry.friends || []).length,
+    referrals: entry.referrals || 0,
+    iq: entry.iq != null,
+    wheelSpins: lt.wheelSpins || 0,
+  };
+  return BADGE_DEFS.filter(b => { try { return b.test(ctx); } catch { return false; } })
+    .map(b => ({ id: b.id, icon: b.icon, label: b.label, labelEn: b.labelEn }));
 }
 
 function allPermanentChallenges() {
@@ -1012,6 +1058,44 @@ const IQ_RETAKE_MS = 3 * 24 * 3600 * 1000; // 3 jours entre deux tests
 // et poids en pourcentage.
 const WHEEL_PRIZES  = [5, 10, 20, 50, 100, 250];
 const WHEEL_WEIGHTS = [30, 25, 20, 15, 8, 2];
+
+// ── Cadeau du jour (theme ete / canicule) ────────────────────────────────────
+// Un petit lot aleatoire offert a la 1re connexion de la journee, pour creer
+// l'habitude. Remplace l'ancien bonus de Libs de la serie de connexion.
+const SUMMER_GIFT_COSMETICS = [
+  'bg-vagues', 'bg-aurore-deg', 'bg-particules', 'bg-pluie', 'bg-crepuscule',
+  'emote-cool', 'emote-fire', 'emote-heart', 'emote-laugh', 'emote-clap',
+];
+const SUMMER_EMOJIRAIN = ['☀️🌴🍹', '🏖️🌊🐚', '🍉🍦🕶️', '🌺🦩🥥'];
+// Tire le cadeau du jour et le remet directement au joueur. Renvoie le payload
+// a envoyer au client (pour la modale), ou null si deja recu aujourd'hui.
+function drawDailyGift(entry) {
+  const today = _dayKey();
+  if (entry.dailyGiftDay === today) return null;
+  entry.dailyGiftDay = today;
+  const owned = new Set(entry.ownedCosmetics || []);
+  const freeCosmetics = SUMMER_GIFT_COSMETICS.filter(id => !owned.has(id));
+  const roll = Math.random();
+  let gift;
+  if (freeCosmetics.length && roll < 0.35) {
+    const id = freeCosmetics[Math.floor(Math.random() * freeCosmetics.length)];
+    (entry.ownedCosmetics = entry.ownedCosmetics || []).push(id);
+    const type = id.startsWith('emote-') ? 'emote' : 'cosmetic';
+    gift = { type, cosmeticId: id };
+  } else if (roll < 0.5) {
+    // Pluie d'emojis d'ete (cote client, juste un theme suggere).
+    gift = { type: 'emojirain', emojis: SUMMER_EMOJIRAIN[Math.floor(Math.random() * SUMMER_EMOJIRAIN.length)] };
+  } else {
+    // Petit lot de Libs (jamais gros, c'est le cadeau d'habitude).
+    const amounts = [10, 15, 20, 25, 30, 40, 60];
+    const weights = [26, 22, 18, 14, 10, 6, 4];
+    let r = Math.random() * weights.reduce((a, b) => a + b, 0), amt = amounts[0];
+    for (let i = 0; i < amounts.length; i++) { r -= weights[i]; if (r <= 0) { amt = amounts[i]; break; } }
+    entry.balance = Math.min(MAX_BALANCE, (entry.balance || 0) + amt);
+    gift = { type: 'libs', amount: amt };
+  }
+  return gift;
+}
 
 // ── Offre flash ───────────────────────────────────────────────────────────────
 // Un cosmetique en promo pendant quelques heures, gere depuis le dashboard.
@@ -1646,7 +1730,7 @@ function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null, streak: null, challenges: null, lifetime: {}, permClaimed: [], referredBy: null, referralRewarded: false, referrals: 0, xp: 0, iq: null, iqAt: 0, wheelDay: null, friends: [], friendRequests: [], pendingGifts: [], giftSentDay: null, vipUntil: 0, history: [] };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null, streak: null, challenges: null, lifetime: {}, permClaimed: [], referredBy: null, referralRewarded: false, referrals: 0, xp: 0, iq: null, iqAt: 0, wheelDay: null, friends: [], friendRequests: [], pendingGifts: [], giftSentDay: null, vipUntil: 0, dailyGiftDay: null, badges: [], onboardRewards: [], history: [] };
     libs.set(id, entry);
   }
   if (typeof entry.xp !== 'number') entry.xp = 0;
@@ -1979,16 +2063,23 @@ function triviaSeenFor(playerId) {
   if (!e) { e = { set: new Set(), order: [] }; triviaSeen.set(playerId, e); }
   return e;
 }
+function _persistTriviaSeen(pid, e) {
+  if (db) db.collection('trivia_seen').updateOne({ _id: pid }, { $set: { ids: e.order.slice(-TRIVIA_SEEN_MAX) } }, { upsert: true }).catch(() => {});
+}
 function markTriviaSeen(playerIds, questions) {
   for (const pid of playerIds) {
     const e = triviaSeenFor(pid);
     if (!e) continue;
+    let changed = false;
     for (const q of questions) {
       if (!q.id || e.set.has(q.id)) continue;
       e.set.add(q.id);
       e.order.push(q.id);
+      changed = true;
     }
     while (e.order.length > TRIVIA_SEEN_MAX) e.set.delete(e.order.shift());
+    // Persiste pour que l'anti-repetition survive aux redemarrages du serveur.
+    if (changed) _persistTriviaSeen(pid, e);
   }
 }
 
@@ -2988,22 +3079,20 @@ io.on('connection', (socket) => {
     }
     const entry = getLibsEntry(id);
 
-    // Série de connexion : bonus quotidien croissant, réservé aux joueurs nommés
-    // (empêche le farm avec des identités fraîches anonymes).
-    let streakBonus = 0;
+    // Série de connexion : on garde le compteur (défis, tournoi), mais le bonus
+    // de Libs est retiré au profit du Cadeau du jour (ci-dessous).
+    let dailyGift = null;
     if (entry.name && entry.name !== 'Anonyme') {
-      const { streak, bonus } = touchStreak(entry);
-      streakBonus = Math.round(bonus * vipMult(entry));
-      if (streakBonus > 0) {
-        entry.balance = Math.min(MAX_BALANCE, entry.balance + streakBonus);
-        libs.set(id, entry);
-      }
+      const { streak } = touchStreak(entry);
+      dailyGift = drawDailyGift(entry); // null si déjà reçu aujourd'hui
+      libs.set(id, entry);
       dbUpsertLibs(id, entry);
-      socket.emit('streak-update', { count: streak.count, longest: streak.longest, bonus: streakBonus });
+      socket.emit('streak-update', { count: streak.count, longest: streak.longest, bonus: 0 });
+      if (dailyGift) socket.emit('daily-gift', dailyGift);
     }
 
     const { available: refundCards, nextRefill: refundCardsNextRefill } = getRefundCardsInfo(entry);
-    socket.emit('libs-update', { name: entry.name || '', refCode: _playerRef(id).slice(0, 8), referrals: entry.referrals || 0, xp: entry.xp || 0, level: levelFromXp(entry.xp || 0), iq: entry.iq ?? null, iqUnlocked: (getLifetime(entry).triviaGames || 0) >= IQ_UNLOCK_QUIZZES, iqQuizDone: getLifetime(entry).triviaGames || 0, vipUntil: entry.vipUntil || 0, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, delta: streakBonus || undefined });
+    socket.emit('libs-update', { name: entry.name || '', refCode: _playerRef(id).slice(0, 8), referrals: entry.referrals || 0, xp: entry.xp || 0, level: levelFromXp(entry.xp || 0), iq: entry.iq ?? null, iqUnlocked: (getLifetime(entry).triviaGames || 0) >= IQ_UNLOCK_QUIZZES, iqQuizDone: getLifetime(entry).triviaGames || 0, vipUntil: entry.vipUntil || 0, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, badges: computeBadges(id, entry), delta: (dailyGift && dailyGift.type === 'libs') ? dailyGift.amount : undefined });
     socket.emit('challenges-update', { challenges: challengesPayload(entry), permanent: permanentPayload(entry) });
     // Livraisons en attente : demandes d'amis et cadeaux recus hors ligne.
     const reqs = (entry.friendRequests || []).map(p => {
@@ -3198,6 +3287,8 @@ io.on('connection', (socket) => {
       isMe: pid === id,
       isFriend: !!me && me.friends.includes(pid),
       requested: !!target.friendRequests && !!id && target.friendRequests.includes(id),
+      badges: computeBadges(pid, target),
+      honorTitle: target.honorTitle || null,
     });
   });
   socket.on('get-friends', ({ playerId } = {}) => {

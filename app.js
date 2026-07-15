@@ -660,6 +660,11 @@ const DICT = {
     friendsGiftConfirm:(what,name)=>`✅ Confirmer : offrir ${what} à ${name}`,
     friendsGiftVipSent:name=>`👑 Pass VIP offert à ${name} !`,
     friendsGiftVipTargetMax:name=>`${name} a déjà le maximum de VIP en réserve (3 mois).`,
+    profileBadgesTitle:'🏅 Mes hauts faits',
+    dailyGiftLibs:(n)=>`Tu gagnes ${n} ⚡ pour bien démarrer la journée !`,
+    dailyGiftEmote:'Tu gagnes une émote estivale ! Retrouve-la dans ta carte Émotes.',
+    dailyGiftCosmetic:'Tu gagnes un fond d\'écran de saison ! Équipe-le depuis ton casier.',
+    dailyGiftRain:'Une pluie d\'émojis rien que pour toi ! Reviens demain pour un nouveau cadeau.',
     giftRecvTitle:'🎁 Tu as reçu un cadeau !',
     giftRecvLibs:(from,n)=>`${from || 'Quelqu\'un'} t'a offert ${n} ⚡ !`,
     giftRecvCosm:from=>`${from || 'Quelqu\'un'} t'a offert un cosmétique ! Retrouve-le dans ton casier.`,
@@ -1371,6 +1376,11 @@ const DICT = {
     friendsGiftConfirm:(what,name)=>`✅ Confirm: gift ${what} to ${name}`,
     friendsGiftVipSent:name=>`👑 VIP Pass gifted to ${name}!`,
     friendsGiftVipTargetMax:name=>`${name} already has the maximum VIP stored (3 months).`,
+    profileBadgesTitle:'🏅 My achievements',
+    dailyGiftLibs:(n)=>`You get ${n} ⚡ to kick off your day!`,
+    dailyGiftEmote:'You get a summer emote! Find it in your Emotes card.',
+    dailyGiftCosmetic:'You get a seasonal wallpaper! Equip it from your locker.',
+    dailyGiftRain:'A shower of emojis just for you! Come back tomorrow for a new gift.',
     giftRecvTitle:'🎁 You received a gift!',
     giftRecvLibs:(from,n)=>`${from || 'Someone'} gifted you ${n} ⚡!`,
     giftRecvCosm:from=>`${from || 'Someone'} gifted you a cosmetic! Find it in your locker.`,
@@ -2194,6 +2204,8 @@ function applyLang() {
   setTxt('wordle-title', d.wordleTitle); setTxt('wordle-sub', d.wordleSub); setTxt('wordle-back-label', d.wordleBack); setTxt('wordle-share', d.wordleShare);
   setTxt('wordle-card-title', d.wordleCardTitle); setTxt('wordle-card-desc', d.wordleCardDesc);
   setTxt('wordle-hint-label', d.wordleHint);
+  setTxt('profile-badges-title', d.profileBadgesTitle);
+  if (window._renderBadges && window._myBadges) window._renderBadges('profile-badges', window._myBadges, window._myHonorTitle);
   setTxt('bug-card-title', d.bugCardTitle); setTxt('bug-card-sub', d.bugCardSub); setTxt('bug-title', d.bugTitle);
   setTxt('bug-intro', d.bugIntro); setTxt('bug-text-label', d.bugTextLabel); setTxt('bug-contact-label', d.bugContactLabel);
   setTxt('btn-bug-send', d.bugSend); setPh('bug-text', d.bugTextPh); setPh('bug-contact', d.bugContactPh);
@@ -5131,7 +5143,8 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal } = {}) => {
+socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges } = {}) => {
+  if (newBadges !== undefined) { window._myBadges = newBadges; window._renderBadges?.('profile-badges', newBadges, newHonorTitle); }
   if (refCode !== undefined)   window._myRefCode = refCode;
   if (referrals !== undefined) window._myReferrals = referrals;
   if (xp !== undefined)         { window._myXp = xp; window._myLevel = level; window._renderLevel?.(); }
@@ -8533,8 +8546,12 @@ function _currentEmojiSet() {
 }
 
 // Joue la pluie (au chargement de l'accueil, et via « Tester » dans le menu).
-window._playEmojiRain = function () {
-  const EMOJIS = _currentEmojiSet();
+window._playEmojiRain = function (emojisOverride) {
+  let EMOJIS = _currentEmojiSet();
+  if (typeof emojisOverride === 'string' && emojisOverride.trim()) {
+    const m = emojisOverride.match(/\p{Extended_Pictographic}️?/gu);
+    if (m && m.length) EMOJIS = m;
+  }
   const wrap = document.createElement('div');
   wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9998;';
   document.body.appendChild(wrap);
@@ -11246,6 +11263,21 @@ window._profileHub = ProfileHub;
 })();
 
 // ── Niveaux et XP ─────────────────────────────────────────────────────────────
+// Rend une grille de badges (hauts faits) dans le conteneur donne. Le titre
+// honorifique, s'il existe, apparait en premier comme un badge dore special.
+window._renderBadges = function (containerId, badges, honorTitle) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const en = (typeof currentLang !== 'undefined' && currentLang === 'en');
+  const items = [];
+  if (honorTitle) items.push(`<span class="badge badge-honor" title="${honorTitle}">🏆 ${_escHtml ? _escHtml(honorTitle) : honorTitle}</span>`);
+  (badges || []).forEach(b => {
+    const lbl = en ? (b.labelEn || b.label) : b.label;
+    items.push(`<span class="badge" title="${lbl}">${b.icon} ${lbl}</span>`);
+  });
+  el.innerHTML = items.length ? items.join('') : `<span class="badge-empty">${en ? 'No badge yet, keep playing!' : 'Aucun badge pour l\'instant, continue de jouer !'}</span>`;
+};
+
 // Courbe identique au serveur : niveau lv atteint a 100 x (lv-1)^2 XP.
 window._renderLevel = function () {
   const lv = window._myLevel || 1;
@@ -11507,6 +11539,32 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
   });
 })();
 
+// ── Cadeau du jour (theme ete) : petite modale a la 1re connexion du jour ─────
+socket.on('daily-gift', g => {
+  if (!g || !g.type) return;
+  const d = t();
+  const overlay = document.getElementById('overlay-dailygift');
+  const emojiEl = document.getElementById('dailygift-emoji');
+  const msgEl   = document.getElementById('dailygift-msg');
+  if (!overlay || !msgEl) return;
+  let emoji = '☀️', msg = '';
+  if (g.type === 'libs') { emoji = '⚡'; msg = d.dailyGiftLibs(g.amount); }
+  else if (g.type === 'emote') { emoji = '😎'; msg = d.dailyGiftEmote; }
+  else if (g.type === 'cosmetic') { emoji = '🖼️'; msg = d.dailyGiftCosmetic; }
+  else if (g.type === 'emojirain') { emoji = (g.emojis || '🎉').slice(0, 2); msg = d.dailyGiftRain; }
+  if (emojiEl) emojiEl.textContent = emoji;
+  msgEl.textContent = msg;
+  overlay.classList.remove('hidden');
+  window._sound?.play('success');
+  if (g.type === 'emojirain' && window._playEmojiRain) { try { window._playEmojiRain(g.emojis); } catch {} }
+  // Rafraichit le casier si un cosmetique a ete recu.
+  if ((g.type === 'cosmetic' || g.type === 'emote')) { try { socket.emit('get-libs', { playerId: getPlayerId() }); } catch {} }
+});
+document.getElementById('btn-dailygift-ok')?.addEventListener('click', () => {
+  document.getElementById('overlay-dailygift')?.classList.add('hidden');
+  if (window._playEmojiRain) { try { window._playEmojiRain('☀️🌴🍹🏖️🍉'); } catch {} }
+});
+
 // ── Sons declenches par evenements : coin sur gain de Libs, pop a l'ouverture ─
 // d'un overlay/modal (via MutationObserver, sans editer chaque point d'ouverture).
 try {
@@ -11752,6 +11810,7 @@ try {
     document.getElementById('playercard-name').textContent = name;
     document.getElementById('playercard-level').textContent = '…';
     document.getElementById('playercard-status').textContent = '';
+    const bg = document.getElementById('playercard-badges'); if (bg) bg.innerHTML = '';
     document.getElementById('btn-playercard-add').classList.add('hidden');
     overlay.classList.remove('hidden');
     socket.emit('get-player-card', { playerId: getPlayerId(), name });
@@ -11767,6 +11826,7 @@ try {
     const btn = document.getElementById('btn-playercard-add');
     if (c.notFound) { lvl.textContent = ''; st.textContent = d.friendsErrNotFound; return; }
     lvl.textContent = d.playerCardLevel(c.level || 1) + (c.vip ? ' · ' + d.playerCardVip : '');
+    window._renderBadges('playercard-badges', c.badges, c.honorTitle);
     st.textContent = (c.online ? d.playerCardOnline : d.playerCardOffline)
       + (c.isMe ? ' · ' + d.playerCardYou : c.isFriend ? ' · ' + d.playerCardFriends : c.requested ? ' · ' + d.playerCardRequested : '');
     if (!c.isMe && !c.isFriend && !c.requested) {
