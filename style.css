@@ -686,7 +686,7 @@ h1 {
 
 /* ── Cadre News ── */
 .news-card {
-  position: fixed;
+  position: absolute;
   top: 10px; left: 0;
   z-index: 900;
   background: var(--card);
@@ -2112,8 +2112,11 @@ html.light .shop-fn-promo-input::placeholder { color: var(--muted); }
   font-size: 1.3rem; line-height: 1; cursor: pointer;
   box-shadow: 0 0 20px rgba(99,102,241,.55);
   z-index: 50;
+  display: flex; align-items: center; justify-content: center;
   transition: transform .15s, box-shadow .15s, opacity .15s;
 }
+.btn-chatbot-float > span,
+.btn-chatbot-float svg { display: block; }
 .btn-chatbot-float:hover  { box-shadow: 0 0 30px rgba(99,102,241,.85); }
 .btn-chatbot-float:active { transform: scale(.92); }
 .btn-chatbot-float.chatbot-fab-open { opacity: .85; transform: scale(.9); }
@@ -4220,12 +4223,15 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 /* Cadeau du jour : gros emoji anime au-dessus du message. */
 /* Centre de notifications (cloche) */
 .notif-bell {
-  position: fixed; top: 14px; right: 12px; z-index: 950;
+  position: absolute; top: 14px; right: 12px; z-index: 950;
   width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--border);
   background: var(--card2); color: var(--text); font-size: 1.2rem; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
 }
 .notif-bell.hidden { display: none; }
+/* Jamais de cloche par-dessus la boutique. */
+body.shop-open .notif-bell,
+body.shop-open .notif-panel { display: none !important; }
 .notif-bell.has-unread { animation: bellRing 1.4s ease-in-out infinite; }
 @keyframes bellRing { 0%,92%,100% { transform: rotate(0); } 94% { transform: rotate(12deg); } 96% { transform: rotate(-10deg); } 98% { transform: rotate(6deg); } }
 .notif-count {
@@ -4235,7 +4241,7 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 }
 .notif-count.hidden { display: none; }
 .notif-panel {
-  position: fixed; top: 60px; right: 12px; z-index: 951; width: min(320px, calc(100vw - 24px));
+  position: absolute; top: 60px; right: 12px; z-index: 951; width: min(320px, calc(100vw - 24px));
   max-height: 60vh; overflow-y: auto; background: var(--card); border: 1px solid var(--border);
   border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.35);
 }
