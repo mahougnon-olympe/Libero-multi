@@ -1355,11 +1355,32 @@ function awardXp(id, entry, amount) {
   _emitToPlayer(id, 'xp-update', { xp: entry.xp, level: after, gained: Math.floor(amount), levelUp: after > before ? after : null, reward: reward || undefined });
 }
 
+// ── Onboarding gamifie : 3 mini-etapes recompensees en Libs ──────────────────
+const ONBOARD_STEPS = { play: 50, win: 100, perso: 50 };
+// Marque une etape comme faite (une seule fois), credite et notifie le joueur.
+function completeOnboardStep(id, entry, step) {
+  if (!ONBOARD_STEPS[step]) return;
+  if (!entry || !entry.name || entry.name === 'Anonyme') return;
+  if (!Array.isArray(entry.onboardRewards)) entry.onboardRewards = [];
+  if (entry.onboardRewards.includes(step)) return;
+  entry.onboardRewards.push(step);
+  const reward = ONBOARD_STEPS[step];
+  entry.balance = Math.min(MAX_BALANCE, (entry.balance || 0) + reward);
+  libs.set(id, entry);
+  dbUpsertLibs(id, entry);
+  _emitToPlayer(id, 'onboard-update', { steps: entry.onboardRewards, reward, step, balance: entry.balance });
+  for (const [sockId, pid] of socketPlayerIds.entries()) {
+    if (pid === id) io.to(sockId).emit('libs-update', { balance: entry.balance, delta: reward });
+  }
+}
+
 function pushHistory(id, item) {
   if (!id) return;
   const entry = getLibsEntry(id);
   if (!entry || !entry.name || entry.name === 'Anonyme') return;
   maybeRewardReferral(id, entry); // 1re partie d'un filleul -> +100 ⚡ chacun
+  completeOnboardStep(id, entry, 'play');
+  if (item.result === 'win') completeOnboardStep(id, entry, 'win');
   // XP : chaque partie en rapporte, gagner ou briller au quiz en rapporte plus.
   awardXp(id, entry, 25 + (item.result === 'win' ? 25 : 0) + (item.game === 'trivia' ? Math.min(60, (item.score || 0) * 2) : 0));
   if (!Array.isArray(entry.history)) entry.history = [];
@@ -3092,7 +3113,7 @@ io.on('connection', (socket) => {
     }
 
     const { available: refundCards, nextRefill: refundCardsNextRefill } = getRefundCardsInfo(entry);
-    socket.emit('libs-update', { name: entry.name || '', refCode: _playerRef(id).slice(0, 8), referrals: entry.referrals || 0, xp: entry.xp || 0, level: levelFromXp(entry.xp || 0), iq: entry.iq ?? null, iqUnlocked: (getLifetime(entry).triviaGames || 0) >= IQ_UNLOCK_QUIZZES, iqQuizDone: getLifetime(entry).triviaGames || 0, vipUntil: entry.vipUntil || 0, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, badges: computeBadges(id, entry), delta: (dailyGift && dailyGift.type === 'libs') ? dailyGift.amount : undefined });
+    socket.emit('libs-update', { name: entry.name || '', refCode: _playerRef(id).slice(0, 8), referrals: entry.referrals || 0, xp: entry.xp || 0, level: levelFromXp(entry.xp || 0), iq: entry.iq ?? null, iqUnlocked: (getLifetime(entry).triviaGames || 0) >= IQ_UNLOCK_QUIZZES, iqQuizDone: getLifetime(entry).triviaGames || 0, vipUntil: entry.vipUntil || 0, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, badges: computeBadges(id, entry), onboard: entry.onboardRewards || [], delta: (dailyGift && dailyGift.type === 'libs') ? dailyGift.amount : undefined });
     socket.emit('challenges-update', { challenges: challengesPayload(entry), permanent: permanentPayload(entry) });
     // Livraisons en attente : demandes d'amis et cadeaux recus hors ligne.
     const reqs = (entry.friendRequests || []).map(p => {
@@ -3760,6 +3781,8 @@ io.on('connection', (socket) => {
       else entry.equippedCosmetic = cosmeticId;
       libs.set(id, entry);
       dbUpsertLibs(id, entry);
+      // Onboarding : equiper un cosmetique valide l'etape "personnalisation".
+      if (cosmeticId !== null && !remove) completeOnboardStep(id, entry, 'perso');
       socket.emit('equip-cosmetic-result', { ok: true, ..._equippedPayload(entry) });
       io.emit('leaderboard-update', getLeaderboardData());
       io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());

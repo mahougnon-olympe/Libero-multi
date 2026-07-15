@@ -4207,6 +4207,48 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 .maintenance-banner.hidden { display: none; }
 
 /* Cadeau du jour : gros emoji anime au-dessus du message. */
+/* Centre de notifications (cloche) */
+.notif-bell {
+  position: fixed; top: 14px; right: 128px; z-index: 950;
+  width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--border);
+  background: var(--card2); color: var(--text); font-size: 1.2rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.notif-bell.has-unread { animation: bellRing 1.4s ease-in-out infinite; }
+@keyframes bellRing { 0%,92%,100% { transform: rotate(0); } 94% { transform: rotate(12deg); } 96% { transform: rotate(-10deg); } 98% { transform: rotate(6deg); } }
+.notif-count {
+  position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 4px;
+  border-radius: 999px; background: #ef4444; color: #fff; font-size: .68rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+.notif-count.hidden { display: none; }
+.notif-panel {
+  position: fixed; top: 60px; right: 12px; z-index: 951; width: min(320px, calc(100vw - 24px));
+  max-height: 60vh; overflow-y: auto; background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.35);
+}
+.notif-panel.hidden { display: none; }
+.notif-panel-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid var(--hairline, var(--border)); font-weight: 800; }
+.notif-clear { background: none; border: none; color: var(--muted); font-size: .78rem; cursor: pointer; }
+.notif-list { padding: 6px; }
+.notif-item { display: flex; gap: 8px; align-items: flex-start; padding: 8px 8px; border-radius: 10px; }
+.notif-item.unread { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.notif-ic { font-size: 1.1rem; flex-shrink: 0; }
+.notif-tx { flex: 1; font-size: .85rem; line-height: 1.35; }
+.notif-tx small { display: block; color: var(--muted); font-size: .72rem; margin-top: 2px; }
+.notif-empty { color: var(--muted); text-align: center; padding: 18px; font-size: .85rem; }
+@media (max-width: 600px) { .notif-bell { right: 112px; top: 12px; width: 36px; height: 36px; } }
+
+/* Onboarding gamifie (3 mini-etapes) */
+.onboard-quest { margin: 10px 0 0; padding: 12px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.onboard-quest.hidden { display: none; }
+.onboard-quest-title { font-weight: 800; font-size: .92rem; margin: 0 0 8px; }
+.onboard-steps { display: flex; flex-direction: column; gap: 6px; }
+.onboard-step { display: flex; align-items: center; gap: 8px; font-size: .86rem; }
+.onboard-step.done .ob-tx { opacity: .6; text-decoration: line-through; }
+.onboard-step .ob-tx b { color: var(--accent); }
+.ob-check { flex-shrink: 0; }
+
 /* Badges / hauts faits */
 .profile-badges-wrap { margin: 10px 0 0; }
 .profile-badges-title { font-weight: 800; font-size: .9rem; margin: 0 0 6px; color: var(--text); }

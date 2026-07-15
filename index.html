@@ -741,6 +741,18 @@
     <span id="libs-dist-countdown" class="libs-dist-countdown"></span>
   </button>
 
+  <!-- ── Centre de notifications (cloche) ── -->
+  <button id="notif-bell" class="notif-bell" title="Notifications" aria-label="Notifications">
+    🔔<span id="notif-count" class="notif-count hidden">0</span>
+  </button>
+  <div id="notif-panel" class="notif-panel hidden">
+    <div class="notif-panel-head">
+      <span id="notif-panel-title">Notifications</span>
+      <button id="notif-clear" class="notif-clear">Tout effacer</button>
+    </div>
+    <div id="notif-list" class="notif-list"></div>
+  </div>
+
   <!-- ── Modal : Pour la communauté ── -->
   <div id="overlay-community" class="overlay hidden">
     <div class="community-modal">
@@ -979,6 +991,16 @@
             <p id="level-sub" class="level-sub"></p>
           </div>
           <span id="vip-badge" class="vip-badge hidden">👑 VIP</span>
+        </div>
+
+        <!-- Onboarding gamifie : 3 mini-etapes recompensees (masque une fois fini) -->
+        <div id="onboard-quest" class="onboard-quest hidden">
+          <p id="onboard-quest-title" class="onboard-quest-title">🚀 Premiers pas (gagne des Libs !)</p>
+          <div class="onboard-steps">
+            <div class="onboard-step" data-step="play"><span class="ob-check">⬜</span><span class="ob-tx" id="ob-play">Joue ta première partie <b>+50 ⚡</b></span></div>
+            <div class="onboard-step" data-step="win"><span class="ob-check">⬜</span><span class="ob-tx" id="ob-win">Remporte une partie <b>+100 ⚡</b></span></div>
+            <div class="onboard-step" data-step="perso"><span class="ob-check">⬜</span><span class="ob-tx" id="ob-perso">Personnalise-toi (équipe un cosmétique) <b>+50 ⚡</b></span></div>
+          </div>
         </div>
 
         <!-- Badges / hauts faits du joueur -->

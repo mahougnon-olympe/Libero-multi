@@ -661,6 +661,9 @@ const DICT = {
     friendsGiftVipSent:name=>`👑 Pass VIP offert à ${name} !`,
     friendsGiftVipTargetMax:name=>`${name} a déjà le maximum de VIP en réserve (3 mois).`,
     profileBadgesTitle:'🏅 Mes hauts faits',
+    notifTitle:'Notifications', notifClear:'Tout effacer',
+    onboardQuestTitle:'🚀 Premiers pas (gagne des Libs !)',
+    obPlay:'Joue ta première partie', obWin:'Remporte une partie', obPerso:'Personnalise-toi (équipe un cosmétique)',
     dailyGiftLibs:(n)=>`Tu gagnes ${n} ⚡ pour bien démarrer la journée !`,
     dailyGiftEmote:'Tu gagnes une émote estivale ! Retrouve-la dans ta carte Émotes.',
     dailyGiftCosmetic:'Tu gagnes un fond d\'écran de saison ! Équipe-le depuis ton casier.',
@@ -1377,6 +1380,9 @@ const DICT = {
     friendsGiftVipSent:name=>`👑 VIP Pass gifted to ${name}!`,
     friendsGiftVipTargetMax:name=>`${name} already has the maximum VIP stored (3 months).`,
     profileBadgesTitle:'🏅 My achievements',
+    notifTitle:'Notifications', notifClear:'Clear all',
+    onboardQuestTitle:'🚀 First steps (earn Libs!)',
+    obPlay:'Play your first game', obWin:'Win a game', obPerso:'Personalize yourself (equip a cosmetic)',
     dailyGiftLibs:(n)=>`You get ${n} ⚡ to kick off your day!`,
     dailyGiftEmote:'You get a summer emote! Find it in your Emotes card.',
     dailyGiftCosmetic:'You get a seasonal wallpaper! Equip it from your locker.',
@@ -2205,6 +2211,11 @@ function applyLang() {
   setTxt('wordle-card-title', d.wordleCardTitle); setTxt('wordle-card-desc', d.wordleCardDesc);
   setTxt('wordle-hint-label', d.wordleHint);
   setTxt('profile-badges-title', d.profileBadgesTitle);
+  setTxt('onboard-quest-title', d.onboardQuestTitle);
+  { const op = document.getElementById('ob-play');  if (op) op.innerHTML = d.obPlay  + ' <b>+50 ⚡</b>'; }
+  { const ow = document.getElementById('ob-win');   if (ow) ow.innerHTML = d.obWin   + ' <b>+100 ⚡</b>'; }
+  { const oc = document.getElementById('ob-perso'); if (oc) oc.innerHTML = d.obPerso + ' <b>+50 ⚡</b>'; }
+  if (window._notify?.retexte) window._notify.retexte();
   if (window._renderBadges && window._myBadges) window._renderBadges('profile-badges', window._myBadges, window._myHonorTitle);
   setTxt('bug-card-title', d.bugCardTitle); setTxt('bug-card-sub', d.bugCardSub); setTxt('bug-title', d.bugTitle);
   setTxt('bug-intro', d.bugIntro); setTxt('bug-text-label', d.bugTextLabel); setTxt('bug-contact-label', d.bugContactLabel);
@@ -5143,8 +5154,9 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges } = {}) => {
+socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard } = {}) => {
   if (newBadges !== undefined) { window._myBadges = newBadges; window._renderBadges?.('profile-badges', newBadges, newHonorTitle); }
+  if (newOnboard !== undefined) { window._myOnboard = newOnboard; window._renderOnboard?.(); }
   if (refCode !== undefined)   window._myRefCode = refCode;
   if (referrals !== undefined) window._myReferrals = referrals;
   if (xp !== undefined)         { window._myXp = xp; window._myLevel = level; window._renderLevel?.(); }
@@ -11278,6 +11290,32 @@ window._renderBadges = function (containerId, badges, honorTitle) {
   el.innerHTML = items.length ? items.join('') : `<span class="badge-empty">${en ? 'No badge yet, keep playing!' : 'Aucun badge pour l\'instant, continue de jouer !'}</span>`;
 };
 
+// Onboarding gamifie : coche les etapes faites ; masque la carte quand les 3
+// sont validees.
+window._renderOnboard = function () {
+  const wrap = document.getElementById('onboard-quest');
+  if (!wrap) return;
+  const done = window._myOnboard || [];
+  const all = ['play', 'win', 'perso'];
+  if (all.every(s => done.includes(s))) { wrap.classList.add('hidden'); return; }
+  wrap.classList.remove('hidden');
+  wrap.querySelectorAll('.onboard-step').forEach(row => {
+    const s = row.getAttribute('data-step');
+    const ok = done.includes(s);
+    const chk = row.querySelector('.ob-check'); if (chk) chk.textContent = ok ? '✅' : '⬜';
+    row.classList.toggle('done', ok);
+  });
+};
+socket.on('onboard-update', ({ steps, reward } = {}) => {
+  window._myOnboard = steps || window._myOnboard || [];
+  window._renderOnboard?.();
+  window._sound?.play('success');
+  if (reward && typeof showCursorSnakeToast === 'function') {
+    showCursorSnakeToast((currentLang === 'en' ? 'Step done! +' : 'Étape validée ! +') + reward + ' ⚡');
+  }
+  if (typeof celebrate === 'function') { try { celebrate(); } catch {} }
+});
+
 // Courbe identique au serveur : niveau lv atteint a 100 x (lv-1)^2 XP.
 window._renderLevel = function () {
   const lv = window._myLevel || 1;
@@ -11453,6 +11491,7 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
   socket.on('friend-challenge', ({ fromName, code, game } = {}) => {
     if (!code) return;
     window._sound?.play('notify'); // defi d'ami recu
+    window._notify?.add({ type:'challenge', icon:'⚔️', text: t().friendChallengeToast(fromName || '') });
     document.getElementById('friend-challenge-banner')?.remove();
     const gameLabel = game === 'quiz' ? (currentLang === 'fr' ? 'Quiz' : 'Quiz') : (t().games[game] || game);
     const div = document.createElement('div');
@@ -11494,12 +11533,69 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
     div.querySelector('#fr-accept').addEventListener('click', () => done(true));
     div.querySelector('#fr-decline').addEventListener('click', () => done(false));
   }
-  socket.on('friend-request', r => { if (r && r.ref) { window._sound?.play('notify'); reqQueue.push(r); showNextRequest(); } });
+  socket.on('friend-request', r => { if (r && r.ref) { window._sound?.play('notify'); reqQueue.push(r); showNextRequest(); window._notify?.add({ type:'friend', icon:'🤝', text: t().friendRequestFrom(r.name || '') }); } });
   socket.on('friend-requests', ({ requests } = {}) => {
     (requests || []).forEach(r => { if (!reqQueue.some(x => x.ref === r.ref)) reqQueue.push(r); });
     showNextRequest();
   });
 })();
+
+// ── Centre de notifications (cloche) : historique persistant + badge non-lus ──
+const NotificationCenter = (() => {
+  const KEY = 'libero_notifs';
+  let items = [];
+  try { items = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { items = []; }
+  const bell  = () => document.getElementById('notif-bell');
+  const panel = () => document.getElementById('notif-panel');
+  const listEl= () => document.getElementById('notif-list');
+  const countEl=() => document.getElementById('notif-count');
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(items.slice(0, 30))); } catch {} }
+  function unread() { return items.filter(n => !n.read).length; }
+  function renderCount() {
+    const c = countEl(); if (!c) return;
+    const n = unread();
+    c.textContent = n > 9 ? '9+' : String(n);
+    c.classList.toggle('hidden', n === 0);
+    bell()?.classList.toggle('has-unread', n > 0);
+  }
+  function fmtAgo(at) {
+    const s = Math.floor((Date.now() - at) / 1000);
+    if (s < 60) return currentLang === 'en' ? 'just now' : "à l'instant";
+    const m = Math.floor(s / 60); if (m < 60) return m + ' min';
+    const h = Math.floor(m / 60); if (h < 24) return h + ' h';
+    return Math.floor(h / 24) + ' j';
+  }
+  function render() {
+    const l = listEl(); if (!l) return;
+    if (!items.length) { l.innerHTML = `<p class="notif-empty">${currentLang === 'en' ? 'Nothing new.' : 'Rien de nouveau.'}</p>`; return; }
+    l.innerHTML = items.map(n => `<div class="notif-item${n.read ? '' : ' unread'}"><span class="notif-ic">${n.icon || '🔔'}</span><span class="notif-tx">${_escHtml(n.text || '')}<small>${fmtAgo(n.at)}</small></span></div>`).join('');
+  }
+  function add({ type, icon, text }) {
+    if (!text) return;
+    items.unshift({ id: Date.now() + '_' + Math.random().toString(36).slice(2, 6), type, icon, text, at: Date.now(), read: false });
+    items = items.slice(0, 30);
+    save(); renderCount(); render();
+  }
+  function markAllRead() { items.forEach(n => n.read = true); save(); renderCount(); render(); }
+  function clearAll() { items = []; save(); renderCount(); render(); }
+  function toggle() {
+    const p = panel(); if (!p) return;
+    const willOpen = p.classList.contains('hidden');
+    p.classList.toggle('hidden', !willOpen);
+    if (willOpen) { render(); markAllRead(); window._sound?.play('pop'); }
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    bell()?.addEventListener('click', e => { e.stopPropagation(); toggle(); });
+    document.getElementById('notif-clear')?.addEventListener('click', e => { e.stopPropagation(); clearAll(); });
+    document.addEventListener('click', e => {
+      const p = panel(); if (!p || p.classList.contains('hidden')) return;
+      if (!p.contains(e.target) && e.target !== bell()) p.classList.add('hidden');
+    });
+    renderCount(); render();
+  });
+  return { add, retexte() { const tt = document.getElementById('notif-panel-title'); if (tt) tt.textContent = t().notifTitle; const cb = document.getElementById('notif-clear'); if (cb) cb.textContent = t().notifClear; render(); } };
+})();
+window._notify = NotificationCenter;
 
 // ── Cadeau recu : message bloquant avec bouton OK ────────────────────────────
 (function initGiftReceived() {
@@ -11534,6 +11630,7 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
     if (!g || !g.id || seen.has(g.id)) return;
     seen.add(g.id);
     window._sound?.play('notify'); // arrivee du cadeau
+    window._notify?.add({ type:'gift', icon:'🎁', text: (g.libs ? t().giftRecvLibs(g.fromName, g.libs) : g.vip ? t().giftRecvVip(g.fromName) : t().giftRecvCosm(g.fromName)) });
     queue.push(g);
     showNext();
   });
@@ -11556,6 +11653,7 @@ socket.on('daily-gift', g => {
   msgEl.textContent = msg;
   overlay.classList.remove('hidden');
   window._sound?.play('success');
+  window._notify?.add({ type:'daily', icon:'☀️', text: (currentLang === 'en' ? 'Daily gift collected!' : 'Cadeau du jour récupéré !') });
   if (g.type === 'emojirain' && window._playEmojiRain) { try { window._playEmojiRain(g.emojis); } catch {} }
   // Rafraichit le casier si un cosmetique a ete recu.
   if ((g.type === 'cosmetic' || g.type === 'emote')) { try { socket.emit('get-libs', { playerId: getPlayerId() }); } catch {} }
