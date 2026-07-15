@@ -951,7 +951,8 @@
   <!-- ── Écran Profil ── -->
   <div id="screen-profile" class="screen">
     <div class="profile-screen-inner">
-      <h2 id="profile-modal-title" class="profile-screen-title">Mon profil</h2>
+      <h2 id="profile-pseudo" class="profile-pseudo">Joueur</h2>
+      <p id="profile-modal-title" class="profile-screen-sub">Mon profil</p>
       <div class="profile-body">
         <!-- Série de connexion -->
         <div id="streak-banner" class="streak-banner">
@@ -1407,6 +1408,9 @@
           <button type="button" id="onboard-theme-day" class="btn btn-secondary onboard-theme-btn">☀️ Jour</button>
           <button type="button" id="onboard-theme-night" class="btn btn-secondary onboard-theme-btn">🌙 Nuit</button>
         </div>
+        <hr class="recovery-sep" />
+        <label id="onboard-pseudo-label" class="recovery-label">Choisis ton pseudo</label>
+        <input id="onboard-pseudo" class="recovery-input" type="text" maxlength="20" placeholder="Ton pseudo" autocomplete="off" spellcheck="false" />
         <hr class="recovery-sep" />
         <p id="onboard-intro" class="recovery-intro">Tu as déjà un compte sur un autre appareil ? Colle ton code de récupération pour retrouver ta progression. Sinon, commence une nouvelle aventure.</p>
         <label id="onboard-label" class="recovery-label">J'ai déjà un code de récupération</label>

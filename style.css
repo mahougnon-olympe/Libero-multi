@@ -922,7 +922,9 @@ html.light .news-star { background: rgba(234,179,8,.08); }
 .main-nav::-webkit-scrollbar { display: none; }
 .nav-tab { flex-shrink: 0; }
 .main-nav.hidden { display: none !important; }
-body.shop-open .main-nav { display: none !important; } /* pas de barre de nav dans la boutique */
+/* La barre de nav reste visible au-dessus de la boutique (z-index 901 > overlay 100)
+   pour qu'on puisse toujours revenir a l'accueil ; cliquer un onglet ferme la boutique. */
+body.shop-open .main-nav { z-index: 2000; }
 .nav-tab {
   display: flex; align-items: center; gap: 6px;
   padding: 7px 18px;
@@ -4257,3 +4259,12 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 .wordle-key.wordle-absent  { background: #3a3f52; color: var(--muted); }
 .wordle-msg { min-height: 1.4em; font-weight: 700; text-align: center; color: var(--text); }
 .wordle-share { width: auto; }
+
+/* ── En-tete du Profil : pseudo en grand + sous-titre ── */
+.profile-pseudo {
+  text-align: center; margin: 0; font-size: 1.7rem; font-weight: 800; letter-spacing: -.3px;
+  background: linear-gradient(135deg, var(--accent), #22d3ee);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  word-break: break-word;
+}
+.profile-screen-sub { text-align: center; color: var(--muted); font-size: .8rem; font-weight: 700; margin: 2px 0 6px; text-transform: uppercase; letter-spacing: .08em; }
