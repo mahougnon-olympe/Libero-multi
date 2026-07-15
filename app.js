@@ -2178,7 +2178,6 @@ function applyLang() {
   setTxt('onboard-pseudo-label', d.onboardPseudoLabel);
   setTxt('wordle-title', d.wordleTitle); setTxt('wordle-sub', d.wordleSub); setTxt('wordle-back-label', d.wordleBack); setTxt('wordle-share', d.wordleShare);
   setTxt('wordle-card-title', d.wordleCardTitle); setTxt('wordle-card-desc', d.wordleCardDesc);
-  setTxt('wordle-hint-label', d.wordleHint);
   if (window._wordle) window._wordle.retexte();
 
   // Lecture
@@ -4161,22 +4160,130 @@ function renderTriviaScores(scores, gains) {
 }
 
 // Genere une image carree du score de quiz (a partager sur WhatsApp).
-function _makeQuizShareBlob({ name, score, line }) {
+function _makeQuizShareBlob({ name, score, line, category }) {
   return new Promise(resolve => {
     try {
       const S = 1080, c = document.createElement('canvas'); c.width = S; c.height = S;
       const x = c.getContext('2d');
-      const g = x.createLinearGradient(0, 0, S, S); g.addColorStop(0, '#141733'); g.addColorStop(1, '#0a0c18');
-      x.fillStyle = g; x.fillRect(0, 0, S, S);
-      x.strokeStyle = 'rgba(99,102,241,.5)'; x.lineWidth = 14; x.strokeRect(44, 44, S - 88, S - 88);
+
+      // Petit utilitaire : rectangle a coins arrondis.
+      const rr = (X, Y, W, H, r) => {
+        x.beginPath();
+        x.moveTo(X + r, Y);
+        x.arcTo(X + W, Y, X + W, Y + H, r);
+        x.arcTo(X + W, Y + H, X, Y + H, r);
+        x.arcTo(X, Y + H, X, Y, r);
+        x.arcTo(X, Y, X + W, Y, r);
+        x.closePath();
+      };
+
+      // ── Fond : degrade nuit profond ──
+      const bg = x.createLinearGradient(0, 0, S, S);
+      bg.addColorStop(0, '#0b0e22'); bg.addColorStop(.55, '#080a17'); bg.addColorStop(1, '#04050d');
+      x.fillStyle = bg; x.fillRect(0, 0, S, S);
+
+      // Halo indigo central diffus.
+      const halo = x.createRadialGradient(S / 2, 470, 40, S / 2, 470, 520);
+      halo.addColorStop(0, 'rgba(99,102,241,.28)'); halo.addColorStop(1, 'rgba(99,102,241,0)');
+      x.fillStyle = halo; x.fillRect(0, 0, S, S);
+
+      // ── Carte « verre » ──
+      const M = 70, CW = S - M * 2;
+      x.save();
+      rr(M, M, CW, CW, 52);
+      const glass = x.createLinearGradient(0, M, 0, M + CW);
+      glass.addColorStop(0, 'rgba(40,46,86,.55)'); glass.addColorStop(1, 'rgba(20,24,50,.45)');
+      x.fillStyle = glass; x.fill();
+      x.lineWidth = 3; x.strokeStyle = 'rgba(129,140,248,.55)';
+      x.shadowColor = 'rgba(99,102,241,.65)'; x.shadowBlur = 40; x.stroke();
+      x.restore();
+
       x.textAlign = 'center';
-      x.fillStyle = '#a5b4fc'; x.font = "bold 66px 'Segoe UI', system-ui, sans-serif"; x.fillText("LIBERO'S MULTI", S / 2, 180);
-      x.fillStyle = '#e2e8f0'; x.font = "600 46px 'Segoe UI', system-ui, sans-serif"; x.fillText('Culture Generale', S / 2, 285);
-      x.fillStyle = '#fbbf24'; x.font = "bold 300px 'Segoe UI', system-ui, sans-serif"; x.fillText(String(score), S / 2, 640);
-      x.fillStyle = '#94a3b8'; x.font = "600 56px 'Segoe UI', system-ui, sans-serif"; x.fillText('points', S / 2, 720);
-      x.fillStyle = '#e2e8f0'; x.font = "bold 60px 'Segoe UI', system-ui, sans-serif"; x.fillText(line || '', S / 2, 840);
-      x.fillStyle = '#a5b4fc'; x.font = "600 50px 'Segoe UI', system-ui, sans-serif"; x.fillText(name || 'Joueur', S / 2, 920);
-      x.fillStyle = '#64748b'; x.font = "500 40px 'Segoe UI', system-ui, sans-serif"; x.fillText('libero-multi.vercel.app', S / 2, 1015);
+
+      // ── Titre serif ──
+      x.fillStyle = '#eef1ff';
+      x.font = "700 60px Georgia, 'Times New Roman', serif";
+      x.fillText("LIBERO'S MULTI", S / 2, 205);
+
+      // ── Pastille categorie ──
+      const cat = (category || '').trim() || (currentLang === 'en' ? 'Quiz' : 'Culture Generale');
+      x.font = "600 40px 'Segoe UI', system-ui, sans-serif";
+      const catW = Math.min(CW - 120, x.measureText(cat).width + 90);
+      rr((S - catW) / 2, 268, catW, 74, 37);
+      x.fillStyle = 'rgba(15,18,40,.55)'; x.fill();
+      x.lineWidth = 2; x.strokeStyle = 'rgba(148,163,184,.5)'; x.shadowBlur = 0; x.stroke();
+      x.fillStyle = '#dbe2f5'; x.fillText(cat, S / 2, 318);
+
+      // ── Confettis / etincelles decoratifs ──
+      const spark = (px, py, r, col) => {
+        x.fillStyle = col;
+        x.beginPath();
+        for (let i = 0; i < 8; i++) {
+          const a = Math.PI / 4 * i, rad = i % 2 ? r * .4 : r;
+          const fx = px + Math.cos(a) * rad, fy = py + Math.sin(a) * rad;
+          i ? x.lineTo(fx, fy) : x.moveTo(fx, fy);
+        }
+        x.closePath(); x.fill();
+      };
+      const cols = ['#fcd34d', '#a5b4fc', '#e2e8f0', '#fbbf24'];
+      const deco = [
+        [235, 360, 12], [800, 350, 10], [300, 470, 8], [770, 500, 12],
+        [210, 560, 10], [845, 440, 8], [265, 410, 7], [815, 590, 9],
+      ];
+      deco.forEach((d, i) => spark(d[0], d[1], d[2], cols[i % cols.length]));
+      // Petits confettis rectangulaires.
+      const conf = [[340, 340, '#fcd34d'], [720, 400, '#a5b4fc'], [250, 500, '#fbbf24'], [830, 360, '#e2e8f0'], [780, 560, '#fcd34d']];
+      conf.forEach(([cx2, cy2, col], i) => { x.save(); x.translate(cx2, cy2); x.rotate(i * 0.9); x.fillStyle = col; x.fillRect(-12, -6, 24, 12); x.restore(); });
+
+      // ── Lauriers autour du chiffre ──
+      const laurel = (cx, cy, dir) => {
+        x.save(); x.translate(cx, cy); x.scale(dir, 1);
+        x.strokeStyle = 'rgba(165,180,252,.8)'; x.lineWidth = 5;
+        x.beginPath(); x.moveTo(0, -110); x.quadraticCurveTo(-70, 0, -30, 120); x.stroke();
+        x.fillStyle = 'rgba(165,180,252,.75)';
+        for (let i = 0; i < 7; i++) {
+          const t2 = i / 6, ly = -110 + t2 * 230;
+          const lx = -Math.sin(t2 * Math.PI) * 62 + 6;
+          x.save(); x.translate(lx, ly); x.rotate(-0.6 - t2 * 0.7);
+          x.beginPath(); x.ellipse(0, 0, 26, 11, 0, 0, Math.PI * 2); x.fill(); x.restore();
+        }
+        x.restore();
+      };
+      laurel(300, 480, 1);
+      laurel(780, 480, -1);
+
+      // ── Grand chiffre dore ──
+      const num = String(score);
+      x.font = "800 300px 'Segoe UI', system-ui, sans-serif";
+      const gold = x.createLinearGradient(0, 330, 0, 620);
+      gold.addColorStop(0, '#fff3c4'); gold.addColorStop(.5, '#fbbf24'); gold.addColorStop(1, '#d97706');
+      x.fillStyle = gold; x.shadowColor = 'rgba(251,191,36,.6)'; x.shadowBlur = 50;
+      x.fillText(num, S / 2, 590);
+      x.shadowBlur = 0;
+
+      // ── « points » ──
+      x.fillStyle = '#cbd5e1'; x.font = "700 62px 'Segoe UI', system-ui, sans-serif";
+      x.fillText(currentLang === 'en' ? 'points' : 'points', S / 2, 685);
+
+      // ── Pastille Solo / rang ──
+      const md = (line || '').trim();
+      if (md) {
+        x.font = "700 42px 'Segoe UI', system-ui, sans-serif";
+        const mW = Math.min(CW - 120, x.measureText(md).width + 90);
+        rr((S - mW) / 2, 745, mW, 78, 39);
+        x.fillStyle = 'rgba(8,10,24,.75)'; x.fill();
+        x.lineWidth = 2; x.strokeStyle = 'rgba(129,140,248,.45)'; x.stroke();
+        x.fillStyle = '#e2e8f0'; x.fillText(md, S / 2, 799);
+      }
+
+      // ── Pseudo ──
+      x.fillStyle = '#a5b4fc'; x.font = "700 56px 'Segoe UI', system-ui, sans-serif";
+      x.fillText(name || 'Libero', S / 2, 905);
+
+      // ── Pied de page ──
+      x.fillStyle = '#64748b'; x.font = "500 38px 'Segoe UI', system-ui, sans-serif";
+      x.fillText('libero-multi.vercel.app', S / 2, 985);
+
       c.toBlob(b => resolve(b), 'image/png');
     } catch { resolve(null); }
   });
@@ -4236,7 +4343,7 @@ function showTriviaFinished(scores) {
     const line = triviaIsSolo ? '🎯 Solo' : ((['🥇', '🥈', '🥉'][myIdx] || '#' + (myIdx + 1)) + '  ' + (myIdx + 1) + '/' + scores.length);
     // Priorite : partager une image du score (ideal pour WhatsApp).
     try {
-      const blob = await _makeQuizShareBlob({ name: me.name, score: me.score, line });
+      const blob = await _makeQuizShareBlob({ name: me.name, score: me.score, line, category: getCategoryLabel(selectedTriviaCategories) });
       if (blob && navigator.canShare) {
         const file = new File([blob], 'libero-quiz.png', { type: 'image/png' });
         if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text }); return; }
@@ -9593,22 +9700,15 @@ const Wordle = (() => {
     else { navigator.clipboard?.writeText(text).catch(() => {}); if (typeof showCursorSnakeToast === 'function') showCursorSnakeToast(t().wordleCopied); }
   }
 
+  // L'indice du jour est offert : affiche directement, sans clic ni cout.
   function _renderHint() {
     const btn = document.getElementById('wordle-hint-btn');
     const el = document.getElementById('wordle-hint');
-    if (!btn || !el) return;
+    if (btn) btn.classList.add('hidden'); // l'ancien bouton n'est plus necessaire
+    if (!el) return;
     const txt = hintText();
-    let shown = false; try { shown = localStorage.getItem(hkey()) === '1'; } catch {}
-    if (!txt || done) { btn.classList.add('hidden'); }
-    else { btn.classList.remove('hidden'); btn.disabled = shown; }
-    if (shown && txt) { el.textContent = txt; el.classList.remove('hidden'); }
+    if (txt && !done) { el.textContent = '💡 ' + txt; el.classList.remove('hidden'); }
     else { el.textContent = ''; el.classList.add('hidden'); }
-  }
-  function revealHint() {
-    const txt = hintText(); if (!txt) return;
-    try { localStorage.setItem(hkey(), '1'); } catch {}
-    window._sound?.play('click');
-    _renderHint();
   }
 
   function enter() {
@@ -9630,7 +9730,6 @@ const Wordle = (() => {
     else { const k = e.key.toUpperCase(); if (/^[A-Z]$/.test(k)) onKey(k); }
   });
   document.getElementById('wordle-share')?.addEventListener('click', share);
-  document.getElementById('wordle-hint-btn')?.addEventListener('click', revealHint);
   document.getElementById('wordle-back')?.addEventListener('click', () => showScreen('landing'));
 
   function retexte() { if (document.getElementById('screen-wordle')?.classList.contains('active')) enter(); }
