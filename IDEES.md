@@ -27,7 +27,7 @@ FR + EN). Le Pendu et Le Mot en ont besoin ; le Petit Bac peut se valider par vo
 
 ## Gros chantiers valides (a faire un par un)
 - [x] **Compte optionnel** (pseudo + mot de passe, restauration sur un autre appareil).
-- [ ] **Recompense de connexion quotidienne** (visible joueur, faible risque).
+- [x] **Cadeau du jour** a la 1re connexion (theme ete : fond, emote, petit lot de Libs, pluie d'emojis) -> remplace le bonus de Libs de la serie de connexion.
 - [ ] **Analytics d'entonnoir** dans le dashboard (visite -> 1re partie -> retour J+1).
 - [ ] **Decoupe du monolithe `app.js`** pour accelerer le premier chargement (delicat,
   a faire en etapes prudentes).
@@ -35,14 +35,24 @@ FR + EN). Le Pendu et Le Mot en ont besoin ; le Petit Bac peut se valider par vo
 ## Pistes secondaires (experience joueur / admin)
 Joueur :
 - [x] Recherche / filtre dans la section Idees (recherche + « les miennes »).
-- [ ] Fiche joueur publique enrichie (avatar, badges, meilleurs scores).
+- [x] Fiche joueur enrichie : badges / hauts faits calcules (niveau, victoires, quiz, serie, VIP, amis...) visibles sur la fiche joueur et le profil.
 - [x] Partage de resultats ameliore (image generee du score de quiz pour WhatsApp).
+- [x] Centre de notifications in-app (cloche 🔔) regroupant cadeaux, demandes d'amis et defis, avec badge non-lus.
+- [x] Onboarding gamifie : 3 mini-etapes recompensees (jouer +50, gagner +100, personnaliser +50 Libs).
+- [x] Quiz : anti-repetition des questions persistee en base (survit aux redemarrages Render).
 
 Admin :
 - [x] Recherche + tri dans la liste des joueurs (activite, Libs, recents, A-Z).
 - [x] Repondre publiquement a une idee depuis le dashboard.
 - [x] Monitoring d'erreurs backend : journal d'erreurs serveur dans le dashboard (routes, exceptions, promesses rejetees), sans dependance externe -> remplace le besoin de Sentry pour etre alerte avant les joueurs.
 - [x] Notifications push ciblees par segment (tous, inactifs 7 j+, actifs, VIP, gros joueurs) avec estimation de l'audience joignable.
+- [x] Annonces / push programmes (a une date/heure).
+- [x] Comparaison de periodes (7 j vs 7 j) dans le dashboard.
+- [x] Auto-moderation par mots interdits (pseudos, commentaires, suggestions, commentaires video).
+- [x] Gestion des prix de livres depuis le dashboard.
+- [x] Alertes admin par push (achat, fraude, erreur serveur) avec destinataires configurables depuis la fiche joueur.
+- [x] Mode maintenance (banniere sur le site + bascule au dashboard).
+- [x] Sauvegarde JSON en un clic.
 
 ## Bonus faits en passant
 - [x] Compte : afficher/masquer le mot de passe + confirmation a la creation.
