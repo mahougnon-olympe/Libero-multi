@@ -392,6 +392,12 @@ async function loadData() {
   db.collection('admin_audit').find().sort({ at: -1 }).limit(200).toArray()
     .then(docs => docs.forEach(d => adminAudits.push({ at: d.at, action: d.action, details: d.details || {} })))
     .catch(() => {});
+  db.collection('bug_reports').find().sort({ at: 1 }).limit(BUG_REPORT_MAX).toArray()
+    .then(docs => docs.forEach(d => bugReports.push({
+      id: d.id || String(d.at), text: d.text || '', contact: d.contact || '', name: d.name || '',
+      ref: d.ref || '', page: d.page || '', lang: d.lang || 'fr', ua: d.ua || '', at: d.at || 0, resolved: !!d.resolved,
+    })))
+    .catch(() => {});
   resetDocs.forEach(d => resetArchive.set(d._id, d));
   giftDocs.forEach(d => giftCodes.set(d._id, { cosmeticId: d.cosmeticId, fromName: d.fromName || '', createdAt: d.createdAt || Date.now(), redeemedBy: d.redeemedBy || null, redeemedAt: d.redeemedAt || null }));
   lbDocs.forEach(d  => leaderboard.set(d._id, { name: d.name || '', wins: d.wins, losses: d.losses, draws: d.draws }));
@@ -3813,6 +3819,39 @@ app.post('/api/bot-log', (req, res) => {
   }
 });
 
+// ── Signalements de bugs par les joueurs ──
+const bugReports = []; // ring buffer memoire
+const BUG_REPORT_MAX = 500;
+const bugReportRateMap = new Map(); // ip -> [timestamps]
+app.post('/api/bug-report', (req, res) => {
+  try {
+    const text = sanitizeText(typeof req.body?.text === 'string' ? req.body.text : '', 1000);
+    if (!text || text.length < 5) return res.status(400).json({ ok: false });
+    const ip  = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown').trim();
+    const now = Date.now();
+    const hits = (bugReportRateMap.get(ip) || []).filter(ts => now - ts < 60 * 60_000);
+    if (hits.length >= 10) return res.status(429).json({ ok: false }); // 10/h/IP
+    hits.push(now); bugReportRateMap.set(ip, hits);
+    const entry = {
+      id: crypto.randomUUID(),
+      text,
+      contact: sanitizeText(typeof req.body?.contact === 'string' ? req.body.contact : '', 80),
+      name: sanitizeText(typeof req.body?.name === 'string' ? req.body.name : '', 30),
+      ref: req.body?.playerId ? _playerRef(String(req.body.playerId)) : '',
+      page: sanitizeText(typeof req.body?.page === 'string' ? req.body.page : '', 30),
+      lang: req.body?.lang === 'en' ? 'en' : 'fr',
+      ua: sanitizeText(typeof req.body?.ua === 'string' ? req.body.ua : '', 200),
+      at: now, resolved: false,
+    };
+    bugReports.push(entry);
+    if (bugReports.length > BUG_REPORT_MAX) bugReports.shift();
+    if (db) db.collection('bug_reports').insertOne({ ...entry }).catch(() => {});
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ ok: false });
+  }
+});
+
 // Reference opaque d'un joueur pour l'admin : hash du playerId (jamais le vrai
 // identifiant secret, pour qu'il ne puisse pas fuiter du tableau de bord).
 function _playerRef(pid) {
@@ -4120,6 +4159,10 @@ app.get('/admin/stats', async (req, res) => {
       comments: commentsPayload,
       purchases: recentPurchases,
       botLogs: botLogsOut,
+      bugReports: bugReports.slice(-100).reverse().map(b => ({
+        id: b.id, text: b.text, contact: b.contact, name: b.name, page: b.page,
+        lang: b.lang, ua: b.ua, at: b.at, resolved: !!b.resolved,
+      })),
       // Comptes reinitialises (cache restituable) : les plus recents d'abord.
       resets: [...resetArchive.values()]
         .sort((a, b) => (b.at || 0) - (a.at || 0))
@@ -4631,6 +4674,28 @@ app.post('/admin/botlog-flag', (req, res) => {
       .catch(() => {});
   }
   res.json({ ok: true, flagged: flag });
+});
+
+// Admin : marque un signalement de bug comme traite (ou non).
+app.post('/admin/bug-resolve', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const { id, resolved } = req.body || {};
+  if (!id) return res.status(400).json({ error: 'Id manquant.' });
+  const done = resolved !== false;
+  const mem = bugReports.find(b => String(b.id) === String(id));
+  if (mem) mem.resolved = done;
+  if (db) db.collection('bug_reports').updateOne({ id: String(id) }, { $set: { resolved: done } }).catch(() => {});
+  res.json({ ok: true, resolved: done });
+});
+
+// Admin : supprime un signalement de bug.
+app.delete('/admin/bug-report/:id', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const id = String(req.params.id || '');
+  const idx = bugReports.findIndex(b => String(b.id) === id);
+  if (idx !== -1) bugReports.splice(idx, 1);
+  if (db) db.collection('bug_reports').deleteOne({ id }).catch(() => {});
+  res.json({ ok: true });
 });
 
 app.post('/admin/comment-approve', (req, res) => {

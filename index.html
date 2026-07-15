@@ -978,12 +978,11 @@
           <span id="vip-badge" class="vip-badge hidden">👑 VIP</span>
         </div>
 
-        <!-- Solde de Libs (la boutique est desormais un onglet a part) -->
-        <button type="button" id="profile-balance-row" class="profile-balance-row" title="Ouvrir la boutique">
+        <!-- Solde de Libs (affichage seul, non cliquable ; la boutique est un onglet a part) -->
+        <div id="profile-balance-row" class="profile-balance-row profile-balance-static">
           <span class="pbr-icon">⚡</span>
           <span class="pbr-text"><span id="profile-balance-label">Solde</span> : <span id="profile-balance">0</span> Libs</span>
-          <span class="pbr-go">›</span>
-        </button>
+        </div>
 
         <!-- Cartes de navigation (en haut, les défis sont en bas) -->
         <button type="button" class="profile-nav-card" id="go-locker">
@@ -1044,6 +1043,11 @@
         <button type="button" class="profile-nav-card" id="go-emojirain">
           <span class="pnc-icon" data-ic="sparkle">🌈</span>
           <span class="pnc-text"><span id="emojirain-card-title">Pluie d'émojis</span><small id="emojirain-card-sub">Choisis le thème ou tes propres émojis</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
+        <button type="button" class="profile-nav-card" id="go-bug">
+          <span class="pnc-icon" data-ic="bug">🐛</span>
+          <span class="pnc-text"><span id="bug-card-title">Signaler un bug</span><small id="bug-card-sub">Un souci ? Aide-nous à l'améliorer</small></span>
           <span class="pnc-arrow">›</span>
         </button>
         <button type="button" class="profile-nav-card profile-nav-card-danger" id="go-reset">
@@ -1124,6 +1128,25 @@
         </div>
         <button id="btn-referral-share" class="btn btn-primary recovery-reset-btn">Partager le lien</button>
         <p id="referral-count" class="recovery-warn"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal : Signaler un bug ── -->
+  <div id="overlay-bug" class="overlay hidden">
+    <div class="recovery-modal">
+      <div class="profile-modal-header">
+        <h2 id="bug-title" class="profile-modal-title">🐛 Signaler un bug</h2>
+        <button id="btn-bug-close" class="help-close-btn">✕</button>
+      </div>
+      <div class="recovery-body">
+        <p id="bug-intro" class="recovery-intro">Décris le problème que tu as rencontré (ce que tu faisais, ce qui s'est passé). Plus c'est précis, plus vite on le corrige.</p>
+        <label id="bug-text-label" class="recovery-label">Description du bug</label>
+        <textarea id="bug-text" class="recovery-input" rows="5" maxlength="1000" placeholder="Exemple : quand je clique sur..."></textarea>
+        <label id="bug-contact-label" class="recovery-label">Pour te recontacter (facultatif)</label>
+        <input id="bug-contact" class="recovery-input" type="text" maxlength="80" placeholder="Pseudo, e-mail ou WhatsApp" />
+        <button id="btn-bug-send" class="btn btn-primary recovery-reset-btn">Envoyer</button>
+        <p id="bug-msg" class="recovery-warn"></p>
       </div>
     </div>
   </div>

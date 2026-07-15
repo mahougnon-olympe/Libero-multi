@@ -512,7 +512,12 @@ try {
 
     return {
       play,
-      music: { start: musicStart, stop: musicStop, setVolume(v) { if (music && !music.paused) fadeTo(v, 200); } },
+      music: { start: musicStart, stop: musicStop, setVolume(v) {
+        // Applique le volume immediatement (meme si la musique est en pause :
+        // la valeur sera prise au prochain demarrage) et coupe tout fondu en cours.
+        const nv = Math.max(0, Math.min(1, Number(v) || 0));
+        if (music) { try { clearInterval(fadeTimer); } catch {} try { music.volume = nv; } catch {} }
+      } },
       quizLoop: { start: quizLoopStart, stop: quizLoopStop },
       _state() { return { started, sfxSupported, musicSupported, unavailable: [...unavailable] }; },
     };
@@ -554,6 +559,11 @@ const DICT = {
     wordleCardTitle:'Le Mot', wordleCardDesc:'Un mot mystère par jour',
     wordleNeed5:'Il faut 5 lettres.', wordleWin:(n)=>`Bravo ! Trouvé en ${n} essai${n>1?'s':''} 🎉`, wordleLose:(w)=>`Perdu ! Le mot était ${w}.`, wordleAlreadyWin:'Déjà trouvé aujourd\'hui, reviens demain !',
     wordleStreak:(n)=>`🔥 ${n}`, wordleShareTitle:(d,sc)=>`Le Mot #${d} ${sc} sur Libero's Multi`, wordleCopied:'Résultat copié !', wordleHint:'Indice',
+    bugCardTitle:'Signaler un bug', bugCardSub:"Un souci ? Aide-nous à l'améliorer", bugTitle:'🐛 Signaler un bug',
+    bugIntro:"Décris le problème que tu as rencontré (ce que tu faisais, ce qui s'est passé). Plus c'est précis, plus vite on le corrige.",
+    bugTextLabel:'Description du bug', bugContactLabel:'Pour te recontacter (facultatif)', bugSend:'Envoyer',
+    bugTooShort:'Merci de décrire un peu plus le problème.', bugThanks:'Merci ! Ton signalement a bien été envoyé.', bugError:"Envoi impossible, réessaie dans un instant.",
+    bugTextPh:'Exemple : quand je clique sur...', bugContactPh:'Pseudo, e-mail ou WhatsApp',
     ideasTitle:'Idées & suggestions', ideasSub:'Propose une amélioration du site et vote pour celles des autres.',
     ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Récentes', ideasNewBtn:'💡 Proposer', ideasFilterMine:'👤 Les miennes', ideasSearchPh:'Rechercher une idée…', ideasNoResult:'Aucune idée ne correspond.', ideaReplyLabel:'Réponse de l\'équipe :',
     ideasLoading:'Chargement des idées…', ideasEmpty:'Aucune idée pour le moment.\nSois le premier à en proposer une !', ideasError:'Impossible de charger les idées.\nVérifie ta connexion et réessaie.',
@@ -1260,6 +1270,11 @@ const DICT = {
     wordleCardTitle:'The Word', wordleCardDesc:'A mystery word every day',
     wordleNeed5:'5 letters needed.', wordleWin:(n)=>`Well done! Solved in ${n} tr${n>1?'ies':'y'} 🎉`, wordleLose:(w)=>`Missed! The word was ${w}.`, wordleAlreadyWin:'Already solved today, come back tomorrow!',
     wordleStreak:(n)=>`🔥 ${n}`, wordleShareTitle:(d,sc)=>`The Word #${d} ${sc} on Libero's Multi`, wordleCopied:'Result copied!', wordleHint:'Hint',
+    bugCardTitle:'Report a bug', bugCardSub:'Something wrong? Help us improve', bugTitle:'🐛 Report a bug',
+    bugIntro:'Describe the problem you ran into (what you were doing, what happened). The more precise, the faster we fix it.',
+    bugTextLabel:'Bug description', bugContactLabel:'So we can reach you (optional)', bugSend:'Send',
+    bugTooShort:'Please describe the problem a bit more.', bugThanks:'Thanks! Your report has been sent.', bugError:'Could not send, please try again in a moment.',
+    bugTextPh:'Example: when I click on...', bugContactPh:'Nickname, e-mail or WhatsApp',
     ideasTitle:'Ideas & suggestions', ideasSub:'Suggest a site improvement and vote on others\' ideas.',
     ideasSortTop:'🔥 Top', ideasSortNew:'🆕 Newest', ideasNewBtn:'💡 Suggest', ideasFilterMine:'👤 Mine', ideasSearchPh:'Search an idea…', ideasNoResult:'No matching idea.', ideaReplyLabel:'Team reply:',
     ideasLoading:'Loading ideas…', ideasEmpty:'No ideas yet.\nBe the first to suggest one!', ideasError:'Could not load ideas.\nCheck your connection and try again.',
@@ -2179,6 +2194,9 @@ function applyLang() {
   setTxt('wordle-title', d.wordleTitle); setTxt('wordle-sub', d.wordleSub); setTxt('wordle-back-label', d.wordleBack); setTxt('wordle-share', d.wordleShare);
   setTxt('wordle-card-title', d.wordleCardTitle); setTxt('wordle-card-desc', d.wordleCardDesc);
   setTxt('wordle-hint-label', d.wordleHint);
+  setTxt('bug-card-title', d.bugCardTitle); setTxt('bug-card-sub', d.bugCardSub); setTxt('bug-title', d.bugTitle);
+  setTxt('bug-intro', d.bugIntro); setTxt('bug-text-label', d.bugTextLabel); setTxt('bug-contact-label', d.bugContactLabel);
+  setTxt('btn-bug-send', d.bugSend); setPh('bug-text', d.bugTextPh); setPh('bug-contact', d.bugContactPh);
   if (window._wordle) window._wordle.retexte();
 
   // Lecture
@@ -10186,7 +10204,6 @@ document.getElementById('nav-tab-read')?.addEventListener('click', () => {
 });
 // La boutique est un overlay (pas un ecran de nav) : l'onglet l'ouvre directement.
 document.getElementById('nav-tab-shop')?.addEventListener('click', () => { if (typeof openShop === 'function') openShop(); });
-document.getElementById('profile-balance-row')?.addEventListener('click', () => { if (typeof openShop === 'function') openShop(); });
 document.getElementById('nav-tab-profile')?.addEventListener('click', () => {
   if (sessionStorage.getItem('libero_screen') === 'profile') return;
   showScreen('profile');
@@ -11159,6 +11176,50 @@ window._profileHub = ProfileHub;
       this.textContent = t().linkCopied;
       setTimeout(() => { this.textContent = t().referralShareBtn; }, 2000);
     }).catch(() => {});
+  });
+})();
+
+// ── Signaler un bug : carte du profil + modal + envoi au serveur ──────────────
+(function initBugReport() {
+  const overlay = document.getElementById('overlay-bug');
+  if (!overlay) return;
+  const txtEl   = document.getElementById('bug-text');
+  const contact = document.getElementById('bug-contact');
+  const msgEl   = document.getElementById('bug-msg');
+  const sendBtn = document.getElementById('btn-bug-send');
+  function open() {
+    if (msgEl) { msgEl.textContent = ''; msgEl.classList.remove('ok'); }
+    if (sendBtn) sendBtn.disabled = false;
+    overlay.classList.remove('hidden');
+    setTimeout(() => txtEl?.focus(), 50);
+  }
+  function close() { overlay.classList.add('hidden'); }
+  document.getElementById('go-bug')?.addEventListener('click', open);
+  document.getElementById('btn-bug-close')?.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  sendBtn?.addEventListener('click', async () => {
+    const text = (txtEl?.value || '').trim();
+    if (text.length < 5) { if (msgEl) { msgEl.classList.remove('ok'); msgEl.textContent = t().bugTooShort; } return; }
+    sendBtn.disabled = true;
+    try {
+      const res = await fetch(`${window.BACKEND_URL}/api/bug-report`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text, contact: (contact?.value || '').trim(),
+          playerId: getPlayerId(), name: (typeof playerName !== 'undefined' ? playerName : '') || '',
+          page: sessionStorage.getItem('libero_screen') || '', lang: currentLang,
+          ua: navigator.userAgent || '',
+        }),
+      });
+      if (!res.ok) throw new Error('http');
+      if (msgEl) { msgEl.classList.add('ok'); msgEl.textContent = t().bugThanks; }
+      if (txtEl) txtEl.value = ''; if (contact) contact.value = '';
+      window._sound?.play('success');
+      setTimeout(close, 1600);
+    } catch {
+      if (msgEl) { msgEl.classList.remove('ok'); msgEl.textContent = t().bugError; }
+      sendBtn.disabled = false;
+    }
   });
 })();
 

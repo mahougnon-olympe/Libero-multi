@@ -4196,6 +4196,10 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 }
 .profile-balance-row:hover  { border-color: var(--board); }
 .profile-balance-row:active { transform: scale(.99); }
+/* Affichage seul : ni curseur main, ni effet de survol/appui. */
+.profile-balance-static { cursor: default; }
+.profile-balance-static:hover  { border-color: var(--border); }
+.profile-balance-static:active { transform: none; }
 .pbr-icon { font-size: 1.3rem; flex-shrink: 0; }
 .pbr-text { flex: 1; font-weight: 800; font-size: 1rem; }
 .pbr-text #profile-balance { color: var(--accent); }
@@ -4218,6 +4222,7 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 .account-tab { flex: 1; border: none; background: transparent; color: var(--muted); font-weight: 800; font-size: .9rem; padding: 8px 10px; border-radius: 999px; cursor: pointer; transition: background var(--dur-fast,.14s), color var(--dur-fast,.14s); }
 .account-tab.active { background: var(--board); color: #fff; }
 .recovery-warn.recovery-ok { color: #22c55e; }
+.recovery-warn.ok { color: #22c55e; }
 
 /* ══════════════════════════════════════════════════════════════════════════
    Le Mot (facon Wordle)
