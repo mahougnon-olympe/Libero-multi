@@ -4183,6 +4183,17 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 .pnc-icon     { color: var(--accent); }
 .profile-nav-card-danger .pnc-icon { color: var(--red); }
 
+/* Icones dans la cloche, le chatbot et les petits libelles du profil. */
+.notif-bell-ic svg { width: 22px; height: 22px; display: block; }
+.btn-chatbot-float svg { width: 26px; height: 26px; display: block; }
+.level-badge-ic svg { width: 15px; height: 15px; display: inline-block; vertical-align: -2px; }
+.vip-badge-ic svg   { width: 15px; height: 15px; display: inline-block; vertical-align: -2px; }
+.pbr-icon svg       { width: 20px; height: 20px; display: block; color: var(--accent); }
+.oqt-ic svg, .pbt-ic svg { width: 18px; height: 18px; display: inline-block; vertical-align: -3px; color: var(--accent); }
+.ob-check svg       { width: 18px; height: 18px; display: block; }
+.onboard-step.done .ob-check { color: #22c55e; }
+.onboard-step:not(.done) .ob-check { color: var(--muted); }
+
 /* Compteur de Libs retire de l'en-tete (boutique desormais dans la barre de nav) */
 .libs-counter { display: none !important; }
 
@@ -4209,11 +4220,12 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 /* Cadeau du jour : gros emoji anime au-dessus du message. */
 /* Centre de notifications (cloche) */
 .notif-bell {
-  position: fixed; top: 14px; right: 128px; z-index: 950;
+  position: fixed; top: 14px; right: 12px; z-index: 950;
   width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--border);
   background: var(--card2); color: var(--text); font-size: 1.2rem; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
 }
+.notif-bell.hidden { display: none; }
 .notif-bell.has-unread { animation: bellRing 1.4s ease-in-out infinite; }
 @keyframes bellRing { 0%,92%,100% { transform: rotate(0); } 94% { transform: rotate(12deg); } 96% { transform: rotate(-10deg); } 98% { transform: rotate(6deg); } }
 .notif-count {
@@ -4237,7 +4249,7 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 .notif-tx { flex: 1; font-size: .85rem; line-height: 1.35; }
 .notif-tx small { display: block; color: var(--muted); font-size: .72rem; margin-top: 2px; }
 .notif-empty { color: var(--muted); text-align: center; padding: 18px; font-size: .85rem; }
-@media (max-width: 600px) { .notif-bell { right: 112px; top: 12px; width: 36px; height: 36px; } }
+@media (max-width: 600px) { .notif-bell { right: 10px; top: 10px; width: 36px; height: 36px; } }
 
 /* Onboarding gamifie (3 mini-etapes) */
 .onboard-quest { margin: 10px 0 0; padding: 12px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); background: color-mix(in srgb, var(--accent) 8%, transparent); }

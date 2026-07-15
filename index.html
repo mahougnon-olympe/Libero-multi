@@ -647,7 +647,7 @@
   <button id="btn-help" class="btn-help-float" title="Aide">?</button>
 
   <!-- ── Assistant / Chatbot d'aide (flottant, 100% local, aucune API) ── -->
-  <button id="btn-chatbot" class="btn-chatbot-float" title="Assistant Libero" aria-label="Assistant Libero">🤖</button>
+  <button id="btn-chatbot" class="btn-chatbot-float" title="Assistant Libero" aria-label="Assistant Libero"><span data-ic="robot">🤖</span></button>
   <div id="chatbot-panel" class="chatbot-panel hidden" role="dialog" aria-label="Assistant Libero">
     <div class="chatbot-header">
       <div class="chatbot-header-txt">
@@ -743,7 +743,7 @@
 
   <!-- ── Centre de notifications (cloche) ── -->
   <button id="notif-bell" class="notif-bell" title="Notifications" aria-label="Notifications">
-    🔔<span id="notif-count" class="notif-count hidden">0</span>
+    <span class="notif-bell-ic" data-ic="bell">🔔</span><span id="notif-count" class="notif-count hidden">0</span>
   </button>
   <div id="notif-panel" class="notif-panel hidden">
     <div class="notif-panel-head">
@@ -984,34 +984,34 @@
 
         <!-- Niveau et XP -->
         <div id="level-banner" class="level-banner">
-          <span class="level-badge" id="level-badge">⭐ 1</span>
+          <span class="level-badge" id="level-badge"><span class="level-badge-ic" data-ic="star">⭐</span> 1</span>
           <div class="level-texts">
             <p id="level-main" class="level-main"></p>
             <div class="level-bar"><div id="level-bar-fill" class="level-bar-fill"></div></div>
             <p id="level-sub" class="level-sub"></p>
           </div>
-          <span id="vip-badge" class="vip-badge hidden">👑 VIP</span>
+          <span id="vip-badge" class="vip-badge hidden"><span class="vip-badge-ic" data-ic="crown">👑</span> VIP</span>
         </div>
 
         <!-- Onboarding gamifie : 3 mini-etapes recompensees (masque une fois fini) -->
         <div id="onboard-quest" class="onboard-quest hidden">
-          <p id="onboard-quest-title" class="onboard-quest-title">🚀 Premiers pas (gagne des Libs !)</p>
+          <p class="onboard-quest-title"><span class="oqt-ic" data-ic="rocket">🚀</span> <span id="onboard-quest-title">Premiers pas (gagne des Libs !)</span></p>
           <div class="onboard-steps">
-            <div class="onboard-step" data-step="play"><span class="ob-check">⬜</span><span class="ob-tx" id="ob-play">Joue ta première partie <b>+50 ⚡</b></span></div>
-            <div class="onboard-step" data-step="win"><span class="ob-check">⬜</span><span class="ob-tx" id="ob-win">Remporte une partie <b>+100 ⚡</b></span></div>
-            <div class="onboard-step" data-step="perso"><span class="ob-check">⬜</span><span class="ob-tx" id="ob-perso">Personnalise-toi (équipe un cosmétique) <b>+50 ⚡</b></span></div>
+            <div class="onboard-step" data-step="play"><span class="ob-check" data-ic="circle">⬜</span><span class="ob-tx" id="ob-play">Joue ta première partie <b>+50 ⚡</b></span></div>
+            <div class="onboard-step" data-step="win"><span class="ob-check" data-ic="circle">⬜</span><span class="ob-tx" id="ob-win">Remporte une partie <b>+100 ⚡</b></span></div>
+            <div class="onboard-step" data-step="perso"><span class="ob-check" data-ic="circle">⬜</span><span class="ob-tx" id="ob-perso">Personnalise-toi (équipe un cosmétique) <b>+50 ⚡</b></span></div>
           </div>
         </div>
 
         <!-- Badges / hauts faits du joueur -->
         <div class="profile-badges-wrap">
-          <p id="profile-badges-title" class="profile-badges-title">🏅 Mes hauts faits</p>
+          <p class="profile-badges-title"><span class="pbt-ic" data-ic="medal">🏅</span> <span id="profile-badges-title">Mes hauts faits</span></p>
           <div id="profile-badges" class="badge-grid"></div>
         </div>
 
         <!-- Solde de Libs (affichage seul, non cliquable ; la boutique est un onglet a part) -->
         <div id="profile-balance-row" class="profile-balance-row profile-balance-static">
-          <span class="pbr-icon">⚡</span>
+          <span class="pbr-icon" data-ic="zap">⚡</span>
           <span class="pbr-text"><span id="profile-balance-label">Solde</span> : <span id="profile-balance">0</span> Libs</span>
         </div>
 

@@ -660,9 +660,9 @@ const DICT = {
     friendsGiftConfirm:(what,name)=>`✅ Confirmer : offrir ${what} à ${name}`,
     friendsGiftVipSent:name=>`👑 Pass VIP offert à ${name} !`,
     friendsGiftVipTargetMax:name=>`${name} a déjà le maximum de VIP en réserve (3 mois).`,
-    profileBadgesTitle:'🏅 Mes hauts faits',
+    profileBadgesTitle:'Mes hauts faits',
     notifTitle:'Notifications', notifClear:'Tout effacer',
-    onboardQuestTitle:'🚀 Premiers pas (gagne des Libs !)',
+    onboardQuestTitle:'Premiers pas (gagne des Libs !)',
     obPlay:'Joue ta première partie', obWin:'Remporte une partie', obPerso:'Personnalise-toi (équipe un cosmétique)',
     dailyGiftLibs:(n)=>`Tu gagnes ${n} ⚡ pour bien démarrer la journée !`,
     dailyGiftEmote:'Tu gagnes une émote estivale ! Retrouve-la dans ta carte Émotes.',
@@ -1379,9 +1379,9 @@ const DICT = {
     friendsGiftConfirm:(what,name)=>`✅ Confirm: gift ${what} to ${name}`,
     friendsGiftVipSent:name=>`👑 VIP Pass gifted to ${name}!`,
     friendsGiftVipTargetMax:name=>`${name} already has the maximum VIP stored (3 months).`,
-    profileBadgesTitle:'🏅 My achievements',
+    profileBadgesTitle:'My achievements',
     notifTitle:'Notifications', notifClear:'Clear all',
-    onboardQuestTitle:'🚀 First steps (earn Libs!)',
+    onboardQuestTitle:'First steps (earn Libs!)',
     obPlay:'Play your first game', obWin:'Win a game', obPerso:'Personalize yourself (equip a cosmetic)',
     dailyGiftLibs:(n)=>`You get ${n} ⚡ to kick off your day!`,
     dailyGiftEmote:'You get a summer emote! Find it in your Emotes card.',
@@ -2534,6 +2534,11 @@ function showScreen(name) {
   if (nav) {
     const onTopLevel = (name === 'landing' || name === 'ideas' || name === 'read' || name === 'profile');
     nav.classList.toggle('hidden', !onTopLevel);
+    // La cloche de notifications n'apparait que sur les ecrans de 1er niveau.
+    const _bell = document.getElementById('notif-bell');
+    if (_bell) _bell.classList.toggle('hidden', !onTopLevel);
+    const _bpanel = document.getElementById('notif-panel');
+    if (_bpanel && !onTopLevel) _bpanel.classList.add('hidden');
     // Sur mobile la barre de nav est en bas : on marque ces écrans pour remonter
     // les boutons flottants (aide / commentaire) au-dessus d'elle.
     document.body.classList.toggle('nav-bottom-visible', onTopLevel);
@@ -10323,6 +10328,14 @@ const UI_ICONS = (() => {
     cart:    S('<path d="M6 8h13l-1.3 8.4a1 1 0 0 1-1 .85H8.3a1 1 0 0 1-1-.85L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>'),
     key:     S('<circle cx="8" cy="9" r="4"/><path d="M11 11l8 8M17 17l2-2M15 15l1.5-1.5"/>'),
     letter:  S('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 15l2.5-6 2.5 6M8.8 13h3.4"/><path d="M16 9v6"/>'),
+    bell:    S('<path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z"/><path d="M10 20a2 2 0 0 0 4 0"/>'),
+    robot:   S('<rect x="4.5" y="8" width="15" height="11" rx="2.5"/><path d="M12 4.5V8M8 4.5h8"/><circle cx="9.5" cy="13" r="1.1" fill="currentColor"/><circle cx="14.5" cy="13" r="1.1" fill="currentColor"/><path d="M9.5 16h5M2.5 12v3M21.5 12v3"/>'),
+    bug:     S('<path d="M8 8a4 4 0 0 1 8 0v3a4 4 0 0 1-8 0V8Z"/><path d="M8 4.5l1.5 2M16 4.5l-1.5 2M4 10h4M16 10h4M4 15h4M16 15h4M4.5 20l3.5-3M19.5 20l-3.5-3M12 12v7"/>'),
+    star:    S('<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.7l5.9-.9L12 3.5Z"/>'),
+    medal:   S('<circle cx="12" cy="14" r="6"/><path d="M12 11.5l1.3 2.6 2.8.4-2 2 .5 2.8-2.6-1.4-2.6 1.4.5-2.8-2-2 2.8-.4L12 11.5Z"/><path d="M8.5 3l2.5 5M15.5 3L13 8"/>'),
+    rocket:  S('<path d="M12 3c3.5 2 5 5.5 5 9 0 2-1 4-2 5H9c-1-1-2-3-2-5 0-3.5 1.5-7 5-9Z"/><circle cx="12" cy="10" r="1.6" fill="currentColor"/><path d="M9 17l-2 4M15 17l2 4M12 17v3"/>'),
+    check:   S('<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/>'),
+    circle:  S('<circle cx="12" cy="12" r="9"/>'),
   };
 })();
 function paintUiIcons(root = document) {
@@ -11302,7 +11315,8 @@ window._renderOnboard = function () {
   wrap.querySelectorAll('.onboard-step').forEach(row => {
     const s = row.getAttribute('data-step');
     const ok = done.includes(s);
-    const chk = row.querySelector('.ob-check'); if (chk) chk.textContent = ok ? '✅' : '⬜';
+    const chk = row.querySelector('.ob-check');
+    if (chk) { chk.setAttribute('data-ic', ok ? 'check' : 'circle'); chk.innerHTML = ''; window.paintUiIcons?.(row); }
     row.classList.toggle('done', ok);
   });
 };
@@ -11327,7 +11341,8 @@ window._renderLevel = function () {
   if (!badge) return;
   const cur  = 100 * (lv - 1) * (lv - 1);
   const next = 100 * lv * lv;
-  badge.textContent = `⭐ ${lv}`;
+  badge.innerHTML = `<span class="level-badge-ic" data-ic="star"></span> ${lv}`;
+  window.paintUiIcons?.(badge);
   if (main) main.textContent = t().levelMain(lv);
   if (sub)  sub.textContent  = t().levelSub(xp, next);
   if (fill) fill.style.width = `${Math.min(100, Math.round(((xp - cur) / (next - cur)) * 100))}%`;
