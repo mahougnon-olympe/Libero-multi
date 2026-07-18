@@ -23,9 +23,12 @@ function poolFor(cat, diff) {
   if (!catBank) return [];
   // 'extreme' : questions du pool `extreme` du thème si présent, sinon repli
   // sur les questions `hard` (le chrono raccourci est géré côté serveur).
+  // Mixte ('' ou valeur inconnue) : on EXCLUT le pool `easy` (trop trivial) et
+  // on INCLUT `extreme` la ou il existe, pour un mixte reellement stimulant.
   let diffs;
   if (diff === 'extreme') diffs = catBank.extreme ? ['extreme'] : ['hard'];
-  else diffs = DIFFS.includes(diff) ? [diff] : DIFFS;
+  else if (DIFFS.includes(diff)) diffs = [diff];
+  else diffs = ['medium', 'hard', 'extreme'];
   const out = [];
   for (const d of diffs) {
     (catBank[d] || []).forEach((q, i) => out.push({ id: `${cat}:${d}:${i}`, q }));
