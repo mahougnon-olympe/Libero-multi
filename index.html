@@ -1507,10 +1507,15 @@
         <div class="account-tabs">
           <button id="account-tab-create" class="account-tab active">Créer</button>
           <button id="account-tab-login" class="account-tab">Se connecter</button>
+          <button id="account-tab-change" class="account-tab hidden">Mot de passe</button>
         </div>
         <p id="account-intro" class="recovery-intro">Crée un compte pour ne jamais perdre ta progression et te reconnecter sur un autre appareil.</p>
         <label id="account-pseudo-label" class="recovery-label">Pseudo</label>
         <input id="account-pseudo" class="recovery-input" type="text" maxlength="20" placeholder="Ton pseudo" autocomplete="username" spellcheck="false" />
+        <label id="account-oldpw-label" class="recovery-label account-change hidden">Mot de passe actuel</label>
+        <div class="pw-field account-change hidden">
+          <input id="account-oldpw" class="recovery-input" type="password" maxlength="64" placeholder="Ton mot de passe actuel" autocomplete="current-password" />
+        </div>
         <label id="account-pw-label" class="recovery-label">Mot de passe</label>
         <div class="pw-field">
           <input id="account-pw" class="recovery-input" type="password" maxlength="64" placeholder="Au moins 4 caractères" autocomplete="current-password" />

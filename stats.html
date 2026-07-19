@@ -266,6 +266,18 @@
       </section>
 
       <section>
+        <h2>🔑 Réinitialiser un mot de passe <span id="acct-pill" class="pill"></span></h2>
+        <p class="sub" style="margin-top:-4px;">SAV : un joueur a oublié son mot de passe. Les comptes n'ont pas d'e-mail, donc tu poses toi-même un mot de passe provisoire ; le joueur se reconnecte avec, puis le change dans Mon compte -> Mot de passe. La progression n'est jamais touchée.</p>
+        <div class="field">
+          <input id="acct-reset-pseudo" placeholder="Pseudo exact du compte" maxlength="20" style="flex:1" />
+          <input id="acct-reset-pw" placeholder="Mot de passe provisoire (4 min)" maxlength="64" style="flex:1" />
+          <button id="btn-acct-reset" class="green">Réinitialiser</button>
+        </div>
+        <p id="acct-reset-status" class="sub"></p>
+        <div id="acct-list" style="margin-top:8px;"></div>
+      </section>
+
+      <section>
         <h2>🚫 Mots interdits <span id="banned-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Auto-modération : tout pseudo, commentaire, suggestion ou commentaire vidéo contenant un de ces mots est refusé automatiquement.</p>
         <div class="field">
@@ -1072,7 +1084,7 @@
       btn.disabled = false;
     });
 
-    var AUDIT_LABELS = { gift: '🎁 Cadeau', 'restore-player': '🛠 Restauration', 'reset-restore': '↩️ Restitution', announce: '📣 Annonce', push: '🔔 Push', 'flash-offer': '⚡ Offre flash', 'flash-offer-clear': '⚡ Offre retirée' };
+    var AUDIT_LABELS = { gift: '🎁 Cadeau', 'restore-player': '🛠 Restauration', 'reset-restore': '↩️ Restitution', announce: '📣 Annonce', push: '🔔 Push', 'flash-offer': '⚡ Offre flash', 'flash-offer-clear': '⚡ Offre retirée', 'account-reset': '🔑 Reset mot de passe' };
     function renderAudit(list) {
       list = list || [];
       $('audit-list').innerHTML = list.length ? list.map(function (a) {
@@ -1274,6 +1286,40 @@
     }
     if ($('btn-maint-on'))  $('btn-maint-on').addEventListener('click', function () { setMaint(true); });
     if ($('btn-maint-off')) $('btn-maint-off').addEventListener('click', function () { setMaint(false); });
+
+    // SAV : reinitialisation d'un mot de passe.
+    async function loadAccounts() {
+      if (!$('acct-list')) return;
+      try {
+        var r = await api('/admin/accounts'); var d = await r.json();
+        var list = d.accounts || [];
+        if ($('acct-pill')) $('acct-pill').textContent = list.length + ' compte' + (list.length > 1 ? 's' : '');
+        $('acct-list').innerHTML = list.length
+          ? '<p class="sub">Comptes existants : ' + list.map(function (a) { return '<span class="pill" style="cursor:pointer" data-pseudo="' + a.pseudo.replace(/"/g, '&quot;') + '">' + a.pseudo + '</span>'; }).join(' ') + '</p>'
+          : '<p class="sub">Aucun compte enregistré.</p>';
+      } catch (e) {}
+    }
+    if ($('acct-list')) $('acct-list').addEventListener('click', function (e) {
+      var s = e.target.closest('[data-pseudo]'); if (!s) return;
+      $('acct-reset-pseudo').value = s.dataset.pseudo;
+      $('acct-reset-pw').focus();
+    });
+    if ($('btn-acct-reset')) $('btn-acct-reset').addEventListener('click', async function () {
+      var pseudo = $('acct-reset-pseudo').value.trim();
+      var pw = $('acct-reset-pw').value;
+      var st = $('acct-reset-status');
+      if (!pseudo) { st.textContent = 'Entre le pseudo du compte.'; st.style.color = '#f87171'; return; }
+      if (!pw || pw.length < 4) { st.textContent = 'Mot de passe provisoire trop court (4 min).'; st.style.color = '#f87171'; return; }
+      this.disabled = true; st.textContent = '…'; st.style.color = '';
+      try {
+        var r = await api('/admin/account-reset', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ pseudo:pseudo, newPassword:pw }) });
+        var d = await r.json();
+        if (d.ok) { st.textContent = '✅ Mot de passe de « ' + d.pseudo + ' » réinitialisé. Transmets-lui : ' + pw; st.style.color = '#34d399'; $('acct-reset-pw').value = ''; }
+        else { st.textContent = d.error || 'Erreur.'; st.style.color = '#f87171'; }
+      } catch (e) { st.textContent = 'Erreur réseau.'; st.style.color = '#f87171'; }
+      this.disabled = false;
+    });
+    loadAccounts();
 
     // Mots interdits.
     if ($('btn-banned-add')) $('btn-banned-add').addEventListener('click', async function () {

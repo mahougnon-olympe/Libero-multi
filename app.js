@@ -552,6 +552,7 @@ const DICT = {
     accountLoginIntro:'Connecte-toi avec ton pseudo et ton mot de passe pour retrouver ta progression.',
     accountPseudoLabel:'Pseudo', accountPwLabel:'Mot de passe', accountPwConfirmLabel:'Confirme le mot de passe', accountPwMismatch:'Les mots de passe ne correspondent pas.', accountCreateBtn:'Créer mon compte', accountLoginBtn:'Se connecter',
     accountNeedPseudo:'Choisis un pseudo.', accountShortPw:'Mot de passe trop court (4 caractères min).',
+    accountTabChange:'Mot de passe', accountChangeIntro:'Choisis un nouveau mot de passe. Il faut connaitre ton mot de passe actuel.', accountChangeBtn:'Changer mon mot de passe', accountOldPwLabel:'Mot de passe actuel', accountNewPwLabel:'Nouveau mot de passe', accountNeedOldPw:'Entre ton mot de passe actuel.', accountPwChanged:'Mot de passe changé !',
     accountCreated:'Compte créé ! Ta progression est protégée.', accountError:'Une erreur est survenue, réessaie.', accountWelcome:(n)=>`Bienvenue ${n} ! Chargement…`,
     accountCardTitle:'Mon compte', accountCardSub:'Créer un compte ou se connecter',
     onboardAccountBtn:'Créer un compte', onboardLoginBtn:'J\'ai déjà un compte, me connecter', onboardNewBtn:'Non merci, commencer sans compte', onboardPseudoLabel:'Choisis ton pseudo', onboardNeedPseudo:'Entre un pseudo pour continuer.',
@@ -1273,6 +1274,7 @@ const DICT = {
     accountLoginIntro:'Log in with your nickname and password to get your progress back.',
     accountPseudoLabel:'Nickname', accountPwLabel:'Password', accountPwConfirmLabel:'Confirm password', accountPwMismatch:'Passwords do not match.', accountCreateBtn:'Create my account', accountLoginBtn:'Log in',
     accountNeedPseudo:'Choose a nickname.', accountShortPw:'Password too short (4 characters min).',
+    accountTabChange:'Password', accountChangeIntro:'Choose a new password. You need to know your current password.', accountChangeBtn:'Change my password', accountOldPwLabel:'Current password', accountNewPwLabel:'New password', accountNeedOldPw:'Enter your current password.', accountPwChanged:'Password changed!',
     accountCreated:'Account created! Your progress is safe.', accountError:'Something went wrong, try again.', accountWelcome:(n)=>`Welcome ${n}! Loading…`,
     accountCardTitle:'My account', accountCardSub:'Create an account or log in',
     onboardAccountBtn:'Create an account', onboardLoginBtn:'I already have an account, log in', onboardNewBtn:'No thanks, start without an account', onboardPseudoLabel:'Choose your nickname', onboardNeedPseudo:'Enter a nickname to continue.',
@@ -2206,8 +2208,8 @@ function applyLang() {
   setTxt('ideanew-send', d.ideaNewSend);
   setTxt('ideas-filter-mine', d.ideasFilterMine); setPh('ideas-search', d.ideasSearchPh);
   if (window._ideasBoard) window._ideasBoard.retexte();
-  setTxt('account-title', d.accountTitle); setTxt('account-tab-create', d.accountTabCreate); setTxt('account-tab-login', d.accountTabLogin);
-  setTxt('account-pseudo-label', d.accountPseudoLabel); setTxt('account-pw-label', d.accountPwLabel); setTxt('account-pw2-label', d.accountPwConfirmLabel);
+  setTxt('account-title', d.accountTitle); setTxt('account-tab-create', d.accountTabCreate); setTxt('account-tab-login', d.accountTabLogin); setTxt('account-tab-change', d.accountTabChange);
+  setTxt('account-pseudo-label', d.accountPseudoLabel); setTxt('account-pw-label', d.accountPwLabel); setTxt('account-pw2-label', d.accountPwConfirmLabel); setTxt('account-oldpw-label', d.accountOldPwLabel);
   setTxt('account-card-title', d.accountCardTitle); setTxt('account-card-sub', d.accountCardSub);
   setTxt('btn-onboard-account', d.onboardAccountBtn); setTxt('btn-onboard-login', d.onboardLoginBtn); setTxt('btn-onboard-new', d.onboardNewBtn);
   setTxt('onboard-pseudo-label', d.onboardPseudoLabel);
@@ -11717,11 +11719,14 @@ try {
   const pwToggle = document.getElementById('account-pw-toggle');
   const status = document.getElementById('account-status');
   const submit = document.getElementById('btn-account-submit');
+  const pwOld = document.getElementById('account-oldpw');
   const tabCreate = document.getElementById('account-tab-create');
   const tabLogin = document.getElementById('account-tab-login');
+  const tabChange = document.getElementById('account-tab-change');
   let mode = 'create', fromOnboard = false, pwShown = false;
 
-  // Un joueur qui a deja un compte ne voit plus l'onglet « Creer » (login seul).
+  // Un joueur qui a deja un compte ne voit plus l'onglet « Creer » (login seul),
+  // mais gagne l'onglet « Mot de passe » pour changer son mdp.
   function hasAccount() {
     if (window._hasAccount) return true;
     try { return localStorage.getItem('libero_has_account') === '1'; } catch { return false; }
@@ -11729,16 +11734,19 @@ try {
   function refreshTabs() {
     const owns = hasAccount();
     tabCreate.classList.toggle('hidden', owns);
-    if (owns) { tabLogin.classList.add('active'); if (mode === 'create') setMode('login'); }
+    tabChange?.classList.toggle('hidden', !owns);
+    if (owns) { if (mode === 'create') setMode('login'); }
   }
   window._refreshAccountTabs = refreshTabs;
 
-  // Le champ de confirmation n'apparait qu'a la creation (pas pour se connecter).
+  // Le champ de confirmation n'apparait qu'a la creation/changement (pas au login).
   function toggleConfirm(show) { document.querySelectorAll('#overlay-account .account-confirm').forEach(el => el.classList.toggle('hidden', !show)); }
+  // Le champ « mot de passe actuel » n'apparait qu'en mode changement.
+  function toggleOld(show) { document.querySelectorAll('#overlay-account .account-change').forEach(el => el.classList.toggle('hidden', !show)); }
   function setShown(shown) {
     pwShown = shown;
     const type = shown ? 'text' : 'password';
-    pw.type = type; if (pw2) pw2.type = type;
+    pw.type = type; if (pw2) pw2.type = type; if (pwOld) pwOld.type = type;
     if (pwToggle) {
       pwToggle.innerHTML = `<span data-ic="${shown ? 'eyeoff' : 'eye'}"></span>`;
       window.paintUiIcons?.(pwToggle);
@@ -11750,10 +11758,16 @@ try {
     mode = m; const d = t();
     tabCreate.classList.toggle('active', m === 'create');
     tabLogin.classList.toggle('active', m === 'login');
-    document.getElementById('account-intro').textContent = m === 'create' ? d.accountCreateIntro : d.accountLoginIntro;
-    submit.textContent = m === 'create' ? d.accountCreateBtn : d.accountLoginBtn;
-    pw.setAttribute('autocomplete', m === 'create' ? 'new-password' : 'current-password');
-    toggleConfirm(m === 'create');
+    tabChange?.classList.toggle('active', m === 'change');
+    const intro = m === 'create' ? d.accountCreateIntro : (m === 'change' ? d.accountChangeIntro : d.accountLoginIntro);
+    document.getElementById('account-intro').textContent = intro;
+    submit.textContent = m === 'create' ? d.accountCreateBtn : (m === 'change' ? d.accountChangeBtn : d.accountLoginBtn);
+    document.getElementById('account-pw-label').textContent = m === 'change' ? d.accountNewPwLabel : d.accountPwLabel;
+    pw.setAttribute('autocomplete', m === 'login' ? 'current-password' : 'new-password');
+    const p2 = document.getElementById('account-pseudo');
+    if (p2) p2.readOnly = (m === 'change');
+    toggleConfirm(m === 'create' || m === 'change');
+    toggleOld(m === 'change');
     status.textContent = '';
   }
   function open(m) {
@@ -11761,7 +11775,7 @@ try {
     ov.classList.remove('hidden');
     const onb = document.getElementById('onboard-pseudo');
     pseudo.value = (onb && onb.value.trim()) || (localStorage.getItem('playerName') || '').trim();
-    pw.value = ''; if (pw2) pw2.value = '';
+    pw.value = ''; if (pw2) pw2.value = ''; if (pwOld) pwOld.value = '';
     setShown(false);
     // Deja un compte -> on force la connexion et on masque « Creer ».
     let want = m || 'create';
@@ -11774,6 +11788,7 @@ try {
 
   tabCreate.addEventListener('click', () => setMode('create'));
   tabLogin.addEventListener('click', () => setMode('login'));
+  tabChange?.addEventListener('click', () => setMode('change'));
   document.getElementById('btn-account-close').addEventListener('click', () => ov.classList.add('hidden'));
 
   async function doSubmit() {
@@ -11781,18 +11796,27 @@ try {
     const p = pseudo.value.trim();
     const w = pw.value;
     if (!p) { status.textContent = d.accountNeedPseudo; status.className = 'recovery-warn recovery-err'; return; }
+    if (mode === 'change' && (!pwOld || !pwOld.value)) { status.textContent = d.accountNeedOldPw; status.className = 'recovery-warn recovery-err'; return; }
     if (!w || w.length < 4) { status.textContent = d.accountShortPw; status.className = 'recovery-warn recovery-err'; return; }
-    if (mode === 'create' && pw2 && w !== pw2.value) { status.textContent = d.accountPwMismatch; status.className = 'recovery-warn recovery-err'; pw2.focus(); return; }
+    if ((mode === 'create' || mode === 'change') && pw2 && w !== pw2.value) { status.textContent = d.accountPwMismatch; status.className = 'recovery-warn recovery-err'; pw2.focus(); return; }
     submit.disabled = true; status.textContent = '…'; status.className = 'recovery-warn';
     try {
-      const path = mode === 'create' ? '/api/account/register' : '/api/account/login';
+      const path = mode === 'create' ? '/api/account/register' : (mode === 'change' ? '/api/account/change-password' : '/api/account/login');
       const body = mode === 'create'
         ? { pseudo: p, password: w, playerId: getPlayerId() }
-        : { pseudo: p, password: w };
+        : (mode === 'change'
+          ? { pseudo: p, oldPassword: pwOld.value, newPassword: w }
+          : { pseudo: p, password: w });
       const res = await fetch(`${window.BACKEND_URL}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const j = await res.json();
       if (!j.ok) { status.textContent = j.error || d.accountError; status.className = 'recovery-warn recovery-err'; submit.disabled = false; return; }
-      if (mode === 'create') {
+      if (mode === 'change') {
+        window._sound?.play('success');
+        submit.disabled = false;
+        status.textContent = d.accountPwChanged; status.className = 'recovery-warn recovery-ok';
+        if (pwOld) pwOld.value = ''; pw.value = ''; if (pw2) pw2.value = '';
+        setTimeout(() => ov.classList.add('hidden'), 1200);
+      } else if (mode === 'create') {
         try { localStorage.setItem('playerName', j.pseudo); localStorage.setItem('libero_onboarded', '1'); localStorage.setItem('libero_has_account', '1'); } catch {}
         window._hasAccount = true; refreshTabs();
         window._sound?.play('success');

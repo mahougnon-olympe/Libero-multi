@@ -5587,6 +5587,57 @@ app.post('/api/account/login', (req, res) => {
   res.json({ ok: true, playerId: acc.playerId, pseudo: acc.pseudo });
 });
 
+// Changer son mot de passe : exige l'ancien (preuve d'identite), pose le nouveau.
+app.post('/api/account/change-password', (req, res) => {
+  if (_accountRateLimited(req)) return res.status(429).json({ error: 'Trop de tentatives, reessaie plus tard.' });
+  const { pseudo, oldPassword, newPassword } = req.body || {};
+  const clean = sanitizeName(pseudo, '');
+  const acc = accounts.get((clean || '').toLowerCase());
+  if (!acc) return res.status(404).json({ error: 'Compte introuvable.' });
+  const h = _hashPw(oldPassword || '', acc.salt);
+  let ok = false;
+  try { ok = h.length === acc.hash.length && crypto.timingSafeEqual(Buffer.from(h), Buffer.from(acc.hash)); } catch { ok = false; }
+  if (!ok) return res.status(401).json({ error: 'Mot de passe actuel incorrect.' });
+  if (!newPassword || String(newPassword).length < 4) return res.status(400).json({ error: 'Nouveau mot de passe trop court (4 min).' });
+  const salt = crypto.randomBytes(16).toString('hex');
+  acc.salt = salt;
+  acc.hash = _hashPw(newPassword, salt);
+  const key = (clean || '').toLowerCase();
+  accounts.set(key, acc);
+  dbUpsertAccount(key, acc);
+  console.log(`[🔑] Mot de passe change : ${acc.pseudo}`);
+  res.json({ ok: true });
+});
+
+// SAV : liste des comptes (pseudo seul, pas de hash) pour le dashboard.
+app.get('/admin/accounts', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const list = [...accounts.values()]
+    .map(a => ({ pseudo: a.pseudo, ref: _playerRef(a.playerId), createdAt: a.createdAt || 0 }))
+    .sort((x, y) => (y.createdAt - x.createdAt));
+  res.json({ accounts: list });
+});
+
+// SAV : reinitialisation admin du mot de passe (aucun e-mail sur les comptes,
+// donc seul le proprietaire peut depanner un joueur qui a oublie son mdp).
+app.post('/admin/account-reset', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const { pseudo, newPassword } = req.body || {};
+  const clean = sanitizeName(pseudo, '');
+  const key = (clean || '').toLowerCase();
+  const acc = accounts.get(key);
+  if (!acc) return res.status(404).json({ error: 'Compte introuvable.' });
+  if (!newPassword || String(newPassword).length < 4) return res.status(400).json({ error: 'Mot de passe trop court (4 min).' });
+  const salt = crypto.randomBytes(16).toString('hex');
+  acc.salt = salt;
+  acc.hash = _hashPw(newPassword, salt);
+  accounts.set(key, acc);
+  dbUpsertAccount(key, acc);
+  adminAudit('account-reset', { pseudo: acc.pseudo });
+  console.log(`[🔑] Mot de passe reinitialise (admin) : ${acc.pseudo}`);
+  res.json({ ok: true, pseudo: acc.pseudo });
+});
+
 // ── Lecture (catalogue de livres) ───────────────────────────────────────────
 // Même modèle que le feed vidéos : MongoDB ne stocke que les métadonnées et
 // URLs, les fichiers (couvertures, PDF) sont hébergés en externe.
