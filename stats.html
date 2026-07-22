@@ -313,6 +313,19 @@
       </section>
 
       <section>
+        <h2>🔄 Rotation automatique de la boutique <span id="rot-pill" class="pill"></span></h2>
+        <p class="sub" style="margin-top:-4px;">Une fois lancée, elle tourne toute seule : chaque jour un nouvel arrivage est publié et un lot d'anciens objets est annoncé « part dans 1 jour », puis « dans 1 heure », puis retiré, avec une notification à chaque étape. Le plan des 14 jours est défini dans le code (voir PLAN-ROTATION-BOUTIQUE.md). Les arrivages dont le cosmétique n'existe pas encore en code sont ignorés (tu les codes au fur et à mesure).</p>
+        <div class="field">
+          <label style="font-size:.85rem">Intervalle (heures, défaut 24) <input id="rot-step" type="number" min="1" max="720" value="24" style="max-width:90px" /></label>
+          <button id="btn-rot-start" class="green">Démarrer maintenant</button>
+          <button id="btn-rot-stop" class="red small">Arrêter</button>
+          <button id="btn-rot-reset" class="small" title="Annule la rotation et réintègre les objets retirés">Réinitialiser</button>
+        </div>
+        <p id="rot-status" class="sub"></p>
+        <div id="rot-plan" style="margin-top:6px;"></div>
+      </section>
+
+      <section>
         <h2>🎯 Défis personnalisés</h2>
         <p class="sub" style="margin-top:-4px;">Crée tes propres défis, quotidiens (réclamables chaque jour) ou permanents (compteur à vie, réclamé une fois). Ils apparaissent immédiatement chez tous les joueurs.</p>
         <div class="field">
@@ -1084,7 +1097,7 @@
       btn.disabled = false;
     });
 
-    var AUDIT_LABELS = { gift: '🎁 Cadeau', 'restore-player': '🛠 Restauration', 'reset-restore': '↩️ Restitution', announce: '📣 Annonce', push: '🔔 Push', 'flash-offer': '⚡ Offre flash', 'flash-offer-clear': '⚡ Offre retirée', 'account-reset': '🔑 Reset mot de passe' };
+    var AUDIT_LABELS = { gift: '🎁 Cadeau', 'restore-player': '🛠 Restauration', 'reset-restore': '↩️ Restitution', announce: '📣 Annonce', push: '🔔 Push', 'flash-offer': '⚡ Offre flash', 'flash-offer-clear': '⚡ Offre retirée', 'account-reset': '🔑 Reset mot de passe', 'rotation-start': '🔄 Rotation démarrée', 'rotation-stop': '🔄 Rotation arrêtée', 'rotation-reset': '🔄 Rotation réinit', 'rotation-arrival': '🔄 Arrivage', 'rotation-remove': '🔄 Retrait' };
     function renderAudit(list) {
       list = list || [];
       $('audit-list').innerHTML = list.length ? list.map(function (a) {
@@ -1320,6 +1333,40 @@
       this.disabled = false;
     });
     loadAccounts();
+
+    // Rotation automatique de la boutique.
+    function fmtWhen(ms) { if (!ms) return '-'; var d = new Date(ms); return d.toLocaleDateString() + ' ' + d.toLocaleTimeString().slice(0,5); }
+    async function loadRotation() {
+      if (!$('rot-status')) return;
+      try {
+        var r = await api('/admin/shop-rotation'); var s = await r.json();
+        if ($('rot-pill')) $('rot-pill').textContent = s.active ? 'EN COURS' : 'arrêtée';
+        var msg = s.active
+          ? ('▶️ Active. Jour ' + (s.currentDay == null ? '(pas encore commencé)' : (s.currentDay + 1) + '/' + s.days) + '. Prochain drop : ' + fmtWhen(s.nextDropAt) + '. Arrivages faits : ' + s.doneArrivals + ', retraits faits : ' + s.doneRemovals + '.')
+          : '⏸️ Arrêtée.';
+        msg += ' Arrivages codés : ' + s.knownArrivals + '/' + s.totalArrivals + '.';
+        $('rot-status').textContent = msg;
+        if ($('rot-plan')) {
+          $('rot-plan').innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:.8rem"><tr><th style="text-align:left">Jour</th><th style="text-align:left">Arrivage</th><th style="text-align:left">Départs</th><th>État</th></tr>' +
+            s.plan.map(function (p) {
+              var miss = p.missing.length ? ' <span style="color:#f87171">(à coder: ' + p.missing.join(', ') + ')</span>' : '';
+              var state = p.removed ? '✅ retiré' : (p.arrived ? '🟢 publié' : '·');
+              return '<tr><td>J' + (p.day + 1) + '</td><td>' + (p.arrivals.join(', ') || '-') + miss + '</td><td style="color:#94a3b8">' + (p.departures.join(', ') || '-') + '</td><td style="text-align:center">' + state + '</td></tr>';
+            }).join('') + '</table>';
+        }
+      } catch (e) {}
+    }
+    async function rotAction(action, extra) {
+      var body = Object.assign({ action: action }, extra || {});
+      try { var r = await api('/admin/shop-rotation', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) }); await r.json(); await loadRotation(); } catch (e) {}
+    }
+    if ($('btn-rot-start')) $('btn-rot-start').addEventListener('click', function () {
+      if (!confirm('Démarrer la rotation automatique maintenant ?')) return;
+      rotAction('start', { stepHours: Number($('rot-step').value) || 24 });
+    });
+    if ($('btn-rot-stop')) $('btn-rot-stop').addEventListener('click', function () { rotAction('stop'); });
+    if ($('btn-rot-reset')) $('btn-rot-reset').addEventListener('click', function () { if (confirm('Réinitialiser : arrête la rotation et réintègre les objets retirés. Continuer ?')) rotAction('reset'); });
+    loadRotation();
 
     // Mots interdits.
     if ($('btn-banned-add')) $('btn-banned-add').addEventListener('click', async function () {

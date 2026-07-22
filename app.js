@@ -670,6 +670,10 @@ const DICT = {
     dailyGiftCosmetic:'Tu gagnes un fond d\'écran de saison ! Équipe-le depuis ton casier.',
     dailyGiftRain:'Une pluie d\'émojis rien que pour toi ! Reviens demain pour un nouveau cadeau.',
     dailyGiftInLocker:'✅ C\'est déjà dans ton casier, prêt à équiper.',
+    rotationArrival:(n)=>`🛍️ ${n} arrive en boutique !`,
+    rotationLeaving1d:(n)=>`⏳ ${n} quitte la boutique dans 1 jour.`,
+    rotationLeaving1h:(n)=>`⏳ ${n} quitte la boutique dans 1 heure !`,
+    rotationGone:(n)=>`👋 ${n} a quitté la boutique.`,
     giftRecvTitle:'🎁 Tu as reçu un cadeau !',
     giftRecvLibs:(from,n)=>`${from || 'Quelqu\'un'} t'a offert ${n} ⚡ !`,
     giftRecvCosm:from=>`${from || 'Quelqu\'un'} t'a offert un cosmétique ! Retrouve-le dans ton casier.`,
@@ -1393,6 +1397,10 @@ const DICT = {
     dailyGiftCosmetic:'You get a seasonal wallpaper! Equip it from your locker.',
     dailyGiftRain:'A shower of emojis just for you! Come back tomorrow for a new gift.',
     dailyGiftInLocker:'✅ It\'s already in your locker, ready to equip.',
+    rotationArrival:(n)=>`🛍️ ${n} just landed in the shop!`,
+    rotationLeaving1d:(n)=>`⏳ ${n} leaves the shop in 1 day.`,
+    rotationLeaving1h:(n)=>`⏳ ${n} leaves the shop in 1 hour!`,
+    rotationGone:(n)=>`👋 ${n} has left the shop.`,
     giftRecvTitle:'🎁 You received a gift!',
     giftRecvLibs:(from,n)=>`${from || 'Someone'} gifted you ${n} ⚡!`,
     giftRecvCosm:from=>`${from || 'Someone'} gifted you a cosmetic! Find it in your locker.`,
@@ -6891,6 +6899,19 @@ function _cosmeticPreviewHtml(type, id, itemName) {
     case 'emote':       return `<div class="shop-emoji-preview">${_LOCKER_EMOJI.emote[id] || '😊'}</div>`;
     default: return '';
   }
+}
+
+// Nom localise d'un cosmetique a partir de son id (cherche dans toutes les maps
+// de noms du DICT courant). Repli sur l'id si introuvable.
+function _cosmeticNameById(id) {
+  if (!id) return '';
+  const d = t();
+  const maps = ['shopBgNames', 'shopEmoteNames', 'shopCosmeticNames', 'shopNameEffectNames',
+    'shopTitleNames', 'shopCursorSnakeNames', 'shopSnakeSkinNames', 'shopAvatarNames',
+    'shopBubbleNames', 'shopChessNames', 'shopClickFxNames', 'shopEmojiPackNames',
+    'shopSoundPackNames', 'shopTttNames', 'shopVictoryBanNames', 'shopBundleNames'];
+  for (const m of maps) { const mp = d[m]; if (mp && mp[id]) return mp[id]; }
+  return id;
 }
 
 function _nameEffectClass(nameEffect) {
@@ -12737,5 +12758,18 @@ socket.on('claim-challenge-result', ({ ok, reward, allDoneBonus } = {}) => {
     if (!document.getElementById('overlay-shop')?.classList.contains('hidden')) _renderShopItems();
     // Rayon Emotes du profil : refléter les retraits/comptes à rebours de l'admin.
     if (window._profileHub && document.body.classList.contains('screen-locker-active')) window._profileHub.renderLocker();
+  });
+
+  // Rotation automatique de la boutique : arrivage / depart (dans 1 jour / 1 heure) / parti.
+  socket.on('shop-rotation-notice', ({ kind, cosmeticId, in: when } = {}) => {
+    const d = t();
+    const name = _cosmeticNameById(cosmeticId);
+    let text = '', icon = '🛍️';
+    if (kind === 'arrival')      { text = d.rotationArrival(name); icon = '🛍️'; window._sound?.play('coin'); }
+    else if (kind === 'leaving') { text = when === '1h' ? d.rotationLeaving1h(name) : d.rotationLeaving1d(name); icon = '⏳'; window._sound?.play('notify'); }
+    else if (kind === 'gone')    { text = d.rotationGone(name); icon = '👋'; }
+    if (!text) return;
+    try { showCursorSnakeToast(text); } catch {}
+    window._notify?.add({ type: 'shop', icon, text });
   });
 })();

@@ -467,6 +467,8 @@ async function loadData() {
   if (Array.isArray(alertDoc?.value)) adminAlertSubs = alertDoc.value.filter(x => typeof x === 'string');
   const maintDoc = configDocs.find(d => d._id === 'maintenance');
   if (maintDoc?.value && typeof maintDoc.value === 'object') maintenance = { on: !!maintDoc.value.on, message: maintDoc.value.message || '', messageEn: maintDoc.value.messageEn || '' };
+  const rotDoc = configDocs.find(d => d._id === 'shop_rotation');
+  if (rotDoc?.value && typeof rotDoc.value === 'object') shopRotation = { ...shopRotation, ...rotDoc.value };
   db.collection('scheduled_tasks').find().toArray()
     .then(docs => { scheduledTasks = docs.map(d => ({ id: d.id || d._id, kind: d.kind, at: d.at || 0, fireAt: d.fireAt || 0, done: !!d.done, title: d.title || '', body: d.body || '', text: d.text || '', textEn: d.textEn || '', segment: d.segment || 'all' })); })
     .catch(() => {});
@@ -1162,6 +1164,111 @@ function dbSaveShopOverrides() {
   if (!db) return;
   db.collection('server_config').updateOne({ _id: 'shop_overrides' }, { $set: { value: [...shopOverrides.entries()] } }, { upsert: true }).catch(() => {});
 }
+
+// ── Rotation automatique de la boutique ───────────────────────────────────────
+// Chaque jour : un nouvel arrivage (arrivals) est publie et un lot d'anciens
+// (departures) est annonce comme « bientot retire ». Un objet annonce partant le
+// jour i disparait au drop du jour i+1 ; on previent « dans 1 jour » au moment de
+// l'annonce, puis « dans 1 heure » 1 h avant, puis on notifie « a disparu ».
+// Tout est automatique une fois lance (admin: start/stop). Idempotent : on rejoue
+// les sous-evenements non encore traites en comparant l'heure a startAt.
+//
+// ROTATION_PLAN : index = numero de jour (0 = premier drop). Les ids d'arrivage
+// qui n'existent pas encore dans COSMETICS sont ignores en silence (on peut donc
+// pre-remplir le plan et coder les nouveaux cosmetiques au fur et a mesure). Les
+// departures reprennent le catalogue actuel (voir PLAN-ROTATION-BOUTIQUE.md).
+const ROTATION_PLAN = [
+  // Semaine 1
+  { arrivals: ['bg-wax'],            departures: ['font-pacifico', 'font-lobster', 'font-fredoka'] },      // J1
+  { arrivals: ['bg-marche-nuit'],    departures: ['bg-nuit', 'bg-brume'] },                                // J2
+  { arrivals: ['color-benin'],       departures: ['font-pressstart', 'font-vt323'] },                      // J3
+  { arrivals: ['bg-terrain'],        departures: ['font-sharetech', 'font-majormono', 'bg-aurore-deg'] },  // J4
+  { arrivals: ['bg-matrice'],        departures: ['bg-crepuscule', 'bg-cyber'] },                          // J5
+  { arrivals: ['snakeskin-8bit'],    departures: ['bg-circuit', 'nameeffect-blink', 'cursorsnake-pixel'] },// J6
+  { arrivals: ['bg-harmattan'],      departures: ['bg-hexagones', 'bg-etoile'] },                          // J7
+  // Semaine 2
+  { arrivals: ['bg-orage'],          departures: ['nameeffect-pulse', 'title-strategist', 'cursorsnake-neon'] }, // J8
+  { arrivals: ['nameeffect-flammes'],departures: ['bg-particules', 'bg-pluie', 'bg-vagues'] },             // J9
+  { arrivals: ['nameeffect-glace'],  departures: ['cursorsnake-comet', 'cursorsnake-electric', 'snakeskin-gems', 'snakeskin-cyber'] }, // J10
+  { arrivals: ['color-pagne'],       departures: ['nameeffect-gradient', 'nameeffect-sparks', 'nameeffect-glitch', 'font-orbitron', 'font-rajdhani'] }, // J11
+  { arrivals: ['title-sage'],        departures: ['font-chakra', 'font-audiowide', 'font-exo2', 'font-bungee', 'font-blackops', 'font-russo'] }, // J12
+  { arrivals: ['title-wordking'],    departures: ['title-quizmaster', 'title-snakeking', 'title-unbeaten'] }, // J13
+  { arrivals: ['bg-lagune'],         departures: ['bg-synthwave', 'bg-nebuleuse', 'bg-aurores', 'bg-galaxie', 'bg-tempete', 'bg-hologramme', 'nameeffect-rainbow', 'cursorsnake-stars', 'cursorsnake-fire', 'snakeskin-lava', 'snakeskin-galaxy', 'snakeskin-rainbow', 'font-cinzel', 'font-tektur', 'gold', 'diamond', 'rainbow', 'galaxy', 'title-champion', 'title-legend'] }, // J14
+];
+
+let shopRotation = {
+  active: false,
+  startAt: 0,          // ms du 1er drop
+  stepMs: 86_400_000,  // 1 jour entre deux drops
+  arrived: [],         // index de jours dont l'arrivage a ete publie
+  warned1d: [],        // index de jours dont le « dans 1 jour » est parti
+  warned1h: [],        // index de jours dont le « dans 1 heure » est parti
+  removed: [],         // index de jours dont les departures ont ete retirees
+};
+function dbSaveShopRotation() { saveConfig('shop_rotation', shopRotation); }
+
+// Notice in-app (toast + centre de notifs cote client, qui localise le nom) :
+// une par cosmetique, comme demande.
+function _rotationNotify(kind, cosmeticId, opts = {}) {
+  io.emit('shop-rotation-notice', { kind, cosmeticId: cosmeticId || null, in: opts.in || null });
+}
+// Push groupe (un seul par etape/jour, pour ne pas envoyer 20 push identiques).
+function _rotationPush(body) {
+  if (!body) return;
+  try { sendPush(null, { title: "🛍️ Boutique Libero", body, url: 'https://libero-multi.vercel.app' }); } catch (_) {}
+}
+// Publie un cosmetique dans la boutique (si connu). until optionnel = compte a
+// rebours de disparition affiche sur l'article.
+function _rotationSetShop(id, inShop, untilMs) {
+  const cosm = COSMETICS.find(c => c.id === id && !c.honorary);
+  if (!cosm) return false;
+  if (inShop) shopOverrides.set(id, { inShop: true, until: untilMs || null });
+  else        shopOverrides.set(id, { inShop: false, until: null });
+  return true;
+}
+function _runShopRotation() {
+  const r = shopRotation;
+  if (!r.active || !r.startAt) return;
+  const now = Date.now();
+  let changed = false, shopChanged = false;
+  for (let i = 0; i < ROTATION_PLAN.length; i++) {
+    const drop     = r.startAt + i * r.stepMs;   // arrivage + annonce de depart
+    const removeAt = drop + r.stepMs;            // disparition effective des departures[i]
+    const warn1hAt = removeAt - 3_600_000;       // 1 h avant la disparition
+    if (now < drop) break;                       // jours suivants pas encore atteints
+    const day = ROTATION_PLAN[i];
+    // 1) Arrivage du jour.
+    if (!r.arrived.includes(i)) {
+      let published = 0;
+      (day.arrivals || []).forEach(id => { if (_rotationSetShop(id, true)) { published++; shopChanged = true; _rotationNotify('arrival', id); } });
+      r.arrived.push(i); changed = true;
+      if (published) { adminAudit('rotation-arrival', { day: i, ids: day.arrivals }); _rotationPush(published > 1 ? `${published} nouveaux cosmetiques en boutique, viens voir !` : 'Un nouveau cosmetique est en boutique, viens le decouvrir !'); }
+    }
+    // 2) Annonce « part dans 1 jour » (au moment du drop) + compte a rebours.
+    if (!r.warned1d.includes(i)) {
+      const deps = day.departures || [];
+      deps.forEach(id => { if (_rotationSetShop(id, true, removeAt)) { shopChanged = true; } _rotationNotify('leaving', id, { in: '1d' }); });
+      r.warned1d.push(i); changed = true;
+      if (deps.length) _rotationPush(deps.length > 1 ? `${deps.length} objets quittent la boutique dans 1 jour, dernier moment !` : "Un objet quitte la boutique dans 1 jour, c'est le moment !");
+    }
+    // 3) Annonce « part dans 1 heure ».
+    if (now >= warn1hAt && !r.warned1h.includes(i)) {
+      const deps = day.departures || [];
+      deps.forEach(id => _rotationNotify('leaving', id, { in: '1h' }));
+      r.warned1h.push(i); changed = true;
+      if (deps.length) _rotationPush('Derniere heure pour des objets de la boutique, fonce !');
+    }
+    // 4) Disparition effective.
+    if (now >= removeAt && !r.removed.includes(i)) {
+      (day.departures || []).forEach(id => { if (_rotationSetShop(id, false)) { shopChanged = true; _rotationNotify('gone', id); } });
+      r.removed.push(i); changed = true;
+      adminAudit('rotation-remove', { day: i, ids: day.departures });
+    }
+  }
+  if (shopChanged) { dbSaveShopOverrides(); io.emit('shop-overrides', shopOverridesPayload()); }
+  if (changed) dbSaveShopRotation();
+}
+setInterval(_runShopRotation, 60_000);
 
 // ── Journal d'audit admin ─────────────────────────────────────────────────────
 // Trace toutes les actions d'administration (cadeaux, restitutions,
@@ -4813,6 +4920,66 @@ app.post('/admin/cosmetic-shop', (req, res) => {
   io.emit('shop-overrides', shopOverridesPayload());
   adminAudit('shop-toggle', { cosmeticId: cosm.id, inShop: !!inShop, hours: h || undefined });
   res.json({ ok: true, override: shopOverrides.get(cosm.id) || null });
+});
+
+// Admin : rotation automatique de la boutique (start/stop) + etat + apercu.
+function _rotationStatus() {
+  const r = shopRotation;
+  const knownArrivals = ROTATION_PLAN.reduce((n, d) => n + (d.arrivals || []).filter(id => COSMETICS.some(c => c.id === id)).length, 0);
+  const totalArrivals = ROTATION_PLAN.reduce((n, d) => n + (d.arrivals || []).length, 0);
+  const now = Date.now();
+  let currentDay = null, nextDropAt = null;
+  if (r.active && r.startAt) {
+    currentDay = Math.floor((now - r.startAt) / r.stepMs);
+    if (currentDay < 0) { nextDropAt = r.startAt; currentDay = null; }
+    else if (currentDay < ROTATION_PLAN.length) nextDropAt = r.startAt + (currentDay + 1) * r.stepMs;
+  }
+  return {
+    active: r.active, startAt: r.startAt, stepMs: r.stepMs,
+    days: ROTATION_PLAN.length, currentDay, nextDropAt,
+    doneArrivals: r.arrived.length, doneRemovals: r.removed.length,
+    knownArrivals, totalArrivals, // combien d'ids d'arrivage existent deja en code
+    plan: ROTATION_PLAN.map((d, i) => ({
+      day: i, arrivals: d.arrivals || [], departures: d.departures || [],
+      missing: (d.arrivals || []).filter(id => !COSMETICS.some(c => c.id === id)),
+      arrived: r.arrived.includes(i), removed: r.removed.includes(i),
+    })),
+  };
+}
+app.get('/admin/shop-rotation', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  res.json(_rotationStatus());
+});
+app.post('/admin/shop-rotation', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const { action, startAt, stepHours } = req.body || {};
+  if (action === 'start') {
+    shopRotation.active = true;
+    shopRotation.startAt = Number(startAt) > 0 ? Number(startAt) : Date.now();
+    const h = Number(stepHours);
+    shopRotation.stepMs = (h >= 1 && h <= 24 * 30) ? Math.floor(h) * 3_600_000 : 86_400_000;
+    // Repart d'une progression neuve.
+    shopRotation.arrived = []; shopRotation.warned1d = []; shopRotation.warned1h = []; shopRotation.removed = [];
+    dbSaveShopRotation();
+    adminAudit('rotation-start', { startAt: shopRotation.startAt, stepMs: shopRotation.stepMs });
+    _runShopRotation(); // applique tout de suite le jour 0 si deja atteint
+  } else if (action === 'stop') {
+    shopRotation.active = false;
+    dbSaveShopRotation();
+    adminAudit('rotation-stop', {});
+  } else if (action === 'reset') {
+    // Annule les retraits de la rotation (les articles reviennent au defaut).
+    const ids = new Set();
+    ROTATION_PLAN.forEach(d => (d.departures || []).forEach(id => ids.add(id)));
+    ids.forEach(id => { if (shopOverrides.get(id) && shopOverrides.get(id).inShop === false) shopOverrides.delete(id); });
+    shopRotation.active = false; shopRotation.arrived = []; shopRotation.warned1d = []; shopRotation.warned1h = []; shopRotation.removed = [];
+    dbSaveShopOverrides(); dbSaveShopRotation();
+    io.emit('shop-overrides', shopOverridesPayload());
+    adminAudit('rotation-reset', {});
+  } else {
+    return res.status(400).json({ error: 'Action inconnue (start|stop|reset).' });
+  }
+  res.json({ ok: true, status: _rotationStatus() });
 });
 
 // Admin : lancer / retirer une offre flash (promo courte sur un cosmetique).
