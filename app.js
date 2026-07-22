@@ -669,6 +669,7 @@ const DICT = {
     dailyGiftEmote:'Tu gagnes une émote estivale ! Retrouve-la dans ta carte Émotes.',
     dailyGiftCosmetic:'Tu gagnes un fond d\'écran de saison ! Équipe-le depuis ton casier.',
     dailyGiftRain:'Une pluie d\'émojis rien que pour toi ! Reviens demain pour un nouveau cadeau.',
+    dailyGiftInLocker:'✅ C\'est déjà dans ton casier, prêt à équiper.',
     giftRecvTitle:'🎁 Tu as reçu un cadeau !',
     giftRecvLibs:(from,n)=>`${from || 'Quelqu\'un'} t'a offert ${n} ⚡ !`,
     giftRecvCosm:from=>`${from || 'Quelqu\'un'} t'a offert un cosmétique ! Retrouve-le dans ton casier.`,
@@ -1391,6 +1392,7 @@ const DICT = {
     dailyGiftEmote:'You get a summer emote! Find it in your Emotes card.',
     dailyGiftCosmetic:'You get a seasonal wallpaper! Equip it from your locker.',
     dailyGiftRain:'A shower of emojis just for you! Come back tomorrow for a new gift.',
+    dailyGiftInLocker:'✅ It\'s already in your locker, ready to equip.',
     giftRecvTitle:'🎁 You received a gift!',
     giftRecvLibs:(from,n)=>`${from || 'Someone'} gifted you ${n} ⚡!`,
     giftRecvCosm:from=>`${from || 'Someone'} gifted you a cosmetic! Find it in your locker.`,
@@ -2533,6 +2535,7 @@ function showScreen(name) {
   document.body.classList.toggle('screen-profile-active', name === 'profile');
   document.body.classList.toggle('screen-locker-active', name === 'locker');
   document.body.classList.toggle('screen-history-active', name === 'history');
+  document.body.classList.toggle('screen-wordle-active', name === 'wordle');
 
   // Barre de navigation principale : visible sur les écrans de premier niveau,
   // onglet actif synchronisé avec l'écran courant.
@@ -9744,7 +9747,12 @@ const Wordle = (() => {
     if (done) return;
     if (key === 'ENTER') return submit();
     if (key === 'DEL') { current = current.slice(0, -1); window._sound?.play('click'); render(); return; }
-    if (/^[A-Z]$/.test(key) && current.length < COLS) { current += key; window._sound?.play('click'); render(); }
+    if (/^[A-Z]$/.test(key) && current.length < COLS) {
+      current += key; window._sound?.play('click'); render();
+      // Auto-validation : des que les 5 lettres sont posees, on valide tout seul
+      // (petit delai pour laisser l'animation de remplissage se voir).
+      if (current.length === COLS) setTimeout(() => { if (!done && current.length === COLS) submit(); }, 220);
+    }
   }
 
   function submit() {
@@ -11669,10 +11677,27 @@ socket.on('daily-gift', g => {
   const emojiEl = document.getElementById('dailygift-emoji');
   const msgEl   = document.getElementById('dailygift-msg');
   if (!overlay || !msgEl) return;
+  const prevEl = document.getElementById('dailygift-preview');
+  const itemEl = document.getElementById('dailygift-itemname');
+  const lockEl = document.getElementById('dailygift-locker');
+  // Reset des blocs optionnels (apercu / nom / mention casier).
+  [prevEl, itemEl, lockEl].forEach(el => { if (el) { el.classList.add('hidden'); el.innerHTML = ''; el.textContent = ''; } });
   let emoji = '☀️', msg = '';
   if (g.type === 'libs') { emoji = '⚡'; msg = d.dailyGiftLibs(g.amount); }
-  else if (g.type === 'emote') { emoji = '😎'; msg = d.dailyGiftEmote; }
-  else if (g.type === 'cosmetic') { emoji = '🖼️'; msg = d.dailyGiftCosmetic; }
+  else if (g.type === 'emote' || g.type === 'cosmetic') {
+    const isEmote = g.type === 'emote';
+    emoji = isEmote ? '😎' : '🖼️';
+    msg = isEmote ? d.dailyGiftEmote : d.dailyGiftCosmetic;
+    // Apercu visuel + nom du cosmetique recu, et rappel qu'il est au casier.
+    const id = g.cosmeticId;
+    const names = isEmote ? d.shopEmoteNames : d.shopBgNames;
+    const name = (names && names[id]) || id;
+    if (prevEl && typeof _cosmeticPreviewHtml === 'function') {
+      try { prevEl.innerHTML = _cosmeticPreviewHtml(isEmote ? 'emote' : 'background', id, name); prevEl.classList.remove('hidden'); } catch {}
+    }
+    if (itemEl) { itemEl.textContent = name; itemEl.classList.remove('hidden'); }
+    if (lockEl) { lockEl.textContent = d.dailyGiftInLocker; lockEl.classList.remove('hidden'); }
+  }
   else if (g.type === 'emojirain') { emoji = (g.emojis || '🎉').slice(0, 2); msg = d.dailyGiftRain; }
   if (emojiEl) emojiEl.textContent = emoji;
   msgEl.textContent = msg;

@@ -1697,6 +1697,12 @@ body.screen-feed-active .btn-comment-float,
 body.screen-feed-active #libs-counter,
 body.screen-feed-active .btn-settings-float { display: none !important; }
 
+/* Le Mot : sur mobile, les boutons flottants Aide/Assistant se superposent au
+   clavier du jeu (touche Entrée/Suppr masquee). On les retire sur cet ecran. */
+body.screen-wordle-active .btn-help-float,
+body.screen-wordle-active .btn-chatbot-float,
+body.screen-wordle-active .btn-comment-float { display: none !important; }
+
 /* ── Classement Global (landing) ── */
 .global-lb-card {
   width: 100%; max-width: 480px;
@@ -4282,6 +4288,12 @@ body.shop-open .notif-panel { display: none !important; }
 
 .dailygift-emoji { font-size: 3.4rem; text-align: center; margin: 4px 0 2px; animation: dgPop .5s var(--ease, ease) both; }
 @keyframes dgPop { 0% { transform: scale(.3); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+/* Apercu du cosmetique offert dans le cadeau du jour. */
+.dailygift-preview { display: flex; align-items: center; justify-content: center; margin: 6px auto 2px; min-height: 60px; }
+.dailygift-preview .shop-bg-preview { width: 160px; height: 90px; border-radius: 10px; }
+.dailygift-preview .shop-emoji-preview { font-size: 2.6rem; }
+.dailygift-itemname { text-align: center; font-weight: 700; color: var(--accent); margin: 2px 0; }
+.dailygift-locker { text-align: center; font-size: .82rem; color: var(--muted); margin: 2px 0 6px; }
 
 .profile-balance-static { cursor: default; }
 .profile-balance-static:hover  { border-color: var(--border); }
