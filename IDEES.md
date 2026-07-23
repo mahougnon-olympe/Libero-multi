@@ -28,7 +28,8 @@ FR + EN). Le Pendu et Le Mot en ont besoin ; le Petit Bac peut se valider par vo
 ## Gros chantiers valides (a faire un par un)
 - [x] **Compte optionnel** (pseudo + mot de passe, restauration sur un autre appareil).
 - [x] **Cadeau du jour** a la 1re connexion (theme ete : fond, emote, petit lot de Libs, pluie d'emojis) -> remplace le bonus de Libs de la serie de connexion.
-- [ ] **Analytics d'entonnoir** dans le dashboard (visite -> 1re partie -> retour J+1).
+- [x] **Analytics d'entonnoir** dans le dashboard (visiteur -> pseudo -> 1re partie -> revenu J+1, barres, section « Entonnoir d'acquisition »).
+- [x] **Rotation automatique de la boutique** (arrivage/jour + disparition progressive + notifications 1j/1h), voir PLAN-ROTATION-BOUTIQUE.md.
 - [ ] **Decoupe du monolithe `app.js`** pour accelerer le premier chargement (delicat,
   a faire en etapes prudentes).
 
@@ -100,6 +101,15 @@ Technique / pilotage :
 - [ ] **Monitoring d'erreurs backend** (Sentry) : alerte avant les joueurs. *(necessite un DSN a fournir)*
 - [ ] **Notifications push ciblees** (segments : inactifs, VIP, gros joueurs).
 - [ ] **Decoupe du monolithe `app.js`** pour accelerer le premier chargement (par etapes prudentes).
+
+## Cosmetiques : STATUT (coches = codes)
+- [x] **Fonds** (7) : wax, marche-nuit, terrain, matrice, harmattan, orage, lagune (+ themes de boutons assortis).
+- [x] **Couleurs** : drapeau Benin, pagne. **Effets de nom** : flammes, givre, Or royal. *(Machine a ecrire : non fait, difficile en CSS pur.)*
+- [x] **Titres** (6) : Le Sage, Roi du Mot, L'Increvable, Le Genereux, Cerveau, Vagabond.
+- [x] **Avatars** (5 nouveaux) : ballon, lion, fantome, licorne, dragon.
+- [x] **Emotes** (5) : GOAT, Respect (salute), Tu dors ?, Dans le mille, Clown.
+- [x] **Snake** : serpent 8-bit, serpent dore.
+- [ ] **Restants** : jetons P4, paires Morpion, pieces d'echecs (maps de rendu eparses), effets de clic, packs de son (fichiers audio a fournir), bannieres de victoire, bulles, et les NOUVEAUX TYPES (cadre de profil, theme complet, banniere, animation d'entree, skin de la roue).
 
 ## Cosmetiques & themes a ajouter en boutique (idees)
 Toutes les idees sont bilingues (nom FR / EN) et reutilisent les types deja en place

@@ -207,6 +207,12 @@
       </section>
 
       <section>
+        <h2>🫙 Entonnoir d'acquisition</h2>
+        <p class="sub" style="margin-top:-4px;">Où en sont les joueurs, étape par étape : chaque appareil connu compte pour un visiteur. « Revenu » = a tenu une série de 2 jours et plus (proxy d'un retour un autre jour). Les pourcentages sont calculés par rapport à l'étape précédente.</p>
+        <div id="funnel"></div>
+      </section>
+
+      <section>
         <h2>📈 30 derniers jours
           <button id="btn-export-players" class="ghost small" style="margin-left:auto">⬇ Joueurs CSV</button>
           <button id="btn-export-purchases" class="ghost small">⬇ Achats CSV</button>
@@ -829,6 +835,31 @@
       }).join('');
     }
 
+    function renderFunnel(f) {
+      if (!$('funnel')) return;
+      f = f || {};
+      var steps = [
+        { l:'Visiteurs (appareils connus)', v:f.visitors||0, icon:'👣', color:'#6366f1' },
+        { l:'Ont choisi un pseudo',         v:f.named||0,    icon:'📝', color:'#8b5cf6' },
+        { l:'Ont joué au moins 1 partie',   v:f.played||0,   icon:'🎮', color:'#22c55e' },
+        { l:'Sont revenus (série 2 j+)',    v:f.returned||0, icon:'🔁', color:'#f59e0b' },
+      ];
+      var base = steps[0].v || 1;
+      $('funnel').innerHTML = steps.map(function (s, i) {
+        var prev = i === 0 ? s.v : steps[i-1].v;
+        var pctPrev = prev > 0 ? Math.round((s.v / prev) * 100) : 0;
+        var pctBase = Math.round((s.v / base) * 100);
+        var width = Math.max(4, pctBase);
+        var conv = i === 0 ? (pctBase + '% du total') : (pctPrev + '% de l\'étape précédente');
+        return '<div style="margin:7px 0">'
+          + '<div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:3px">'
+          + '<span>' + s.icon + ' ' + s.l + '</span><strong>' + s.v + ' <span class="sub" style="font-weight:400">(' + conv + ')</span></strong></div>'
+          + '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;height:20px;overflow:hidden">'
+          + '<div style="width:' + width + '%;height:100%;background:' + s.color + ';border-radius:8px 0 0 8px;transition:width .5s"></div></div>'
+          + '</div>';
+      }).join('');
+    }
+
     function renderScheduled(list) {
       list = list || [];
       if (!list.length) { $('scheduled-list').innerHTML = ''; return; }
@@ -866,6 +897,7 @@
       LAST_PLAYERS = d.players || [];
       renderKpis(d);
       renderPeriods(d.periods);
+      renderFunnel(d.funnel);
       renderScheduled(d.scheduled);
       renderBanned(d.bannedWords);
       renderBookPrices(d.bookPrices);

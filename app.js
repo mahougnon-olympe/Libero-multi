@@ -929,9 +929,9 @@ const DICT = {
     shopBgTitle:'🖼 Fonds d\'écran',
     shopBgNames:{'bg-nuit':'Nuit Calme','bg-ardoise':'Ardoise Profonde','bg-brume':'Brume Violette','bg-aurore-deg':'Dégradé Aurore','bg-crepuscule':'Crépuscule Néon','bg-cyber':'Grille Cyber','bg-circuit':'Circuit','bg-hexagones':'Hexagones','bg-etoile':'Ciel Étoilé','bg-particules':'Particules Flottantes','bg-pluie':'Pluie Néon','bg-vagues':'Vagues Lumineuses','bg-synthwave':'Synthwave','bg-nebuleuse':'Nébuleuse','bg-aurores':'Aurores Mouvantes','bg-galaxie':'Galaxie Vivante','bg-tempete':'Tempête Néon','bg-hologramme':'Hologramme','bg-wax':'Motifs Pagne','bg-marche-nuit':'Marché de Nuit','bg-terrain':'Terrain de Foot','bg-matrice':'Matrice Verte','bg-harmattan':'Néons Harmattan','bg-orage':'Ciel d\'Orage','bg-lagune':'Coucher sur la Lagune'},
     shopNameEffectsTitle:'✨ Effets de pseudo',
-    shopNameEffectNames:{'nameeffect-blink':'Clignotement Néon','nameeffect-pulse':'Lueur Pulsée','nameeffect-gradient':'Dégradé Défilant','nameeffect-sparks':'Étincelles','nameeffect-glitch':'Glitch','nameeffect-rainbow':'Vague Arc-en-ciel','nameeffect-flammes':'Flammes','nameeffect-glace':'Givre'},
+    shopNameEffectNames:{'nameeffect-blink':'Clignotement Néon','nameeffect-pulse':'Lueur Pulsée','nameeffect-gradient':'Dégradé Défilant','nameeffect-sparks':'Étincelles','nameeffect-glitch':'Glitch','nameeffect-rainbow':'Vague Arc-en-ciel','nameeffect-flammes':'Flammes','nameeffect-glace':'Givre','nameeffect-or':'Or Royal'},
     shopTitlesTitle:'🏷️ Titres',
-    shopTitleNames:{'title-tactician':'Tacticien','title-strategist':'Le Stratège','title-quizmaster':'Quiz Master','title-snakeking':'Roi du Snake','title-unbeaten':'Invaincu','title-champion':'Champion','title-legend':'Légende Vivante','title-sage':'Le Sage','title-wordking':'Roi du Mot'},
+    shopTitleNames:{'title-tactician':'Tacticien','title-strategist':'Le Stratège','title-quizmaster':'Quiz Master','title-snakeking':'Roi du Snake','title-unbeaten':'Invaincu','title-champion':'Champion','title-legend':'Légende Vivante','title-sage':'Le Sage','title-wordking':'Roi du Mot','title-unstoppable':'L\'Increvable','title-generous':'Le Généreux','title-brain':'Cerveau','title-globetrotter':'Vagabond'},
     honorTitleNames:{'honor-rank1-global':'N°1 Global','honor-weekly-champ':'Champion de la semaine','honor-creator':'Créateur'},
     honorModalTitle:'Titre honorifique !',
     honorModalMsg:(titleName) => `Felicitations ! Tu es N°1 au classement global. En recompense, tu recois le titre <strong>${titleName}</strong>. Il s'affichera a cote de ton pseudo tant que tu restes premier.`,
@@ -941,10 +941,10 @@ const DICT = {
     shopHonoraryNote:'Deviens 1er au classement global pour obtenir ce titre.',
     shopCursorSnakesTitle:'🖱️ Skins de curseur',
     shopSnakeSkinsTitle:'🐍 Skins Snake (Évents)',
-    shopSnakeSkinNames:{'snakeskin-gems':'Serpent de Gemmes','snakeskin-cyber':'Serpent Cyber','snakeskin-lava':'Serpent de Lave','snakeskin-galaxy':'Serpent Galaxie','snakeskin-rainbow':'Serpent Arc-en-ciel','snakeskin-8bit':'Serpent 8-bit'},
+    shopSnakeSkinNames:{'snakeskin-gems':'Serpent de Gemmes','snakeskin-cyber':'Serpent Cyber','snakeskin-lava':'Serpent de Lave','snakeskin-galaxy':'Serpent Galaxie','snakeskin-rainbow':'Serpent Arc-en-ciel','snakeskin-8bit':'Serpent 8-bit','snakeskin-gold':'Serpent Doré'},
     shopCursorSnakeNames:{'cursorsnake-pixel':'Serpent Pixel','cursorsnake-neon':'Serpent Néon','cursorsnake-comet':'Comète','cursorsnake-electric':'Anguille Électrique','cursorsnake-stars':'Traînée Étoilée','cursorsnake-fire':'Dragon de Feu'},
     shopAvatarsTitle:'🎭 Avatars',
-    shopAvatarNames:{'avatar-gamepad':'Manette','avatar-cat':'Chat Pixel','avatar-lightning':'Éclair','avatar-rocket':'Fusée','avatar-robot':'Robot','avatar-skull':'Crâne','avatar-crown':'Couronne'},
+    shopAvatarNames:{'avatar-gamepad':'Manette','avatar-cat':'Chat Pixel','avatar-lightning':'Éclair','avatar-rocket':'Fusée','avatar-robot':'Robot','avatar-skull':'Crâne','avatar-crown':'Couronne','avatar-ball':'Ballon de Foot','avatar-lion':'Lion','avatar-ghost':'Fantôme','avatar-unicorn':'Licorne','avatar-dragon':'Dragon'},
     shopP4TokensTitle:'🔴 Jetons Puissance 4',
     shopP4TokenNames:{'p4token-goldsilver':'Or & Argent','p4token-neon':'Jetons Néon','p4token-lavalice':'Lave & Glace','p4token-galaxy':'Galaxie'},
     shopTttTitle:'✖️ Symboles Morpion',
@@ -960,7 +960,7 @@ const DICT = {
     shopSoundPacksTitle:'🔊 Packs de sons',
     shopSoundPackNames:{'soundpack-8bit':'8-bit','soundpack-retro':'Rétro Arcade','soundpack-crystal':'Cristal','soundpack-cyber':'Cyber','soundpack-epic':'Épique'},
     shopEmotesTitle:'😎 Emotes',
-    shopEmoteNames:{'emote-hello':'Salut 👋', 'emote-gg':'GG 👍', 'emote-sad':'Sniff 😢', 'emote-wellplayed':'Bien joué 🤝', 'emote-laugh':'MDR 😂', 'emote-think':'Hmm 🤔', 'emote-cool':'Cool 🆒', 'emote-clap':'Bravo 👏', 'emote-fire':'En feu 🔥', 'emote-heart':'Cœur ❤️', 'emote-cry':'Larmes 😭', 'emote-angry':'Grr 😤', 'emote-shock':'Explosé 🤯', 'emote-easy':'Trop facile 😎', 'emote-eyes':'Vu 👀', 'emote-skull':'Mort de rire 💀', 'emote-party':'La fête 🥳', 'emote-rocket':'Fusée 🚀', 'emote-omg':'Incroyable 😱', 'emote-crown':'Roi 👑'},
+    shopEmoteNames:{'emote-hello':'Salut 👋', 'emote-gg':'GG 👍', 'emote-sad':'Sniff 😢', 'emote-wellplayed':'Bien joué 🤝', 'emote-laugh':'MDR 😂', 'emote-think':'Hmm 🤔', 'emote-cool':'Cool 🆒', 'emote-clap':'Bravo 👏', 'emote-fire':'En feu 🔥', 'emote-heart':'Cœur ❤️', 'emote-cry':'Larmes 😭', 'emote-angry':'Grr 😤', 'emote-shock':'Explosé 🤯', 'emote-easy':'Trop facile 😎', 'emote-eyes':'Vu 👀', 'emote-skull':'Mort de rire 💀', 'emote-party':'La fête 🥳', 'emote-rocket':'Fusée 🚀', 'emote-omg':'Incroyable 😱', 'emote-crown':'Roi 👑', 'emote-goat':'GOAT 🐐', 'emote-salute':'Respect 🫡', 'emote-sleep':'Tu dors ? 😴', 'emote-target':'Dans le mille 🎯', 'emote-clown':'Clown 🤡'},
     shopFeaturedTitle:'⭐ À la une',
     shopDailyTitle:'📅 Quotidien',
     shopBundlesTitle:'🎁 Bundles',
@@ -1656,9 +1656,9 @@ const DICT = {
     shopBgTitle:'🖼 Wallpapers',
     shopBgNames:{'bg-nuit':'Calm Night','bg-ardoise':'Deep Slate','bg-brume':'Violet Mist','bg-aurore-deg':'Aurora Gradient','bg-crepuscule':'Neon Dusk','bg-cyber':'Cyber Grid','bg-circuit':'Circuit','bg-hexagones':'Hexagons','bg-etoile':'Starry Sky','bg-particules':'Floating Particles','bg-pluie':'Neon Rain','bg-vagues':'Light Waves','bg-synthwave':'Synthwave','bg-nebuleuse':'Nebula','bg-aurores':'Moving Auroras','bg-galaxie':'Living Galaxy','bg-tempete':'Neon Storm','bg-hologramme':'Hologram','bg-wax':'Wax Patterns','bg-marche-nuit':'Night Market','bg-terrain':'Football Pitch','bg-matrice':'Green Matrix','bg-harmattan':'Harmattan Neon','bg-orage':'Thunder Sky','bg-lagune':'Lagoon Sunset'},
     shopNameEffectsTitle:'✨ Name Effects',
-    shopNameEffectNames:{'nameeffect-blink':'Neon Blink','nameeffect-pulse':'Pulsing Glow','nameeffect-gradient':'Scrolling Gradient','nameeffect-sparks':'Sparks','nameeffect-glitch':'Glitch','nameeffect-rainbow':'Rainbow Wave','nameeffect-flammes':'Flames','nameeffect-glace':'Frost'},
+    shopNameEffectNames:{'nameeffect-blink':'Neon Blink','nameeffect-pulse':'Pulsing Glow','nameeffect-gradient':'Scrolling Gradient','nameeffect-sparks':'Sparks','nameeffect-glitch':'Glitch','nameeffect-rainbow':'Rainbow Wave','nameeffect-flammes':'Flames','nameeffect-glace':'Frost','nameeffect-or':'Royal Gold'},
     shopTitlesTitle:'🏷️ Titles',
-    shopTitleNames:{'title-tactician':'Tactician','title-strategist':'The Strategist','title-quizmaster':'Quiz Master','title-snakeking':'Snake King','title-unbeaten':'Undefeated','title-champion':'Champion','title-legend':'Living Legend','title-sage':'The Wise','title-wordking':'Word King'},
+    shopTitleNames:{'title-tactician':'Tactician','title-strategist':'The Strategist','title-quizmaster':'Quiz Master','title-snakeking':'Snake King','title-unbeaten':'Undefeated','title-champion':'Champion','title-legend':'Living Legend','title-sage':'The Wise','title-wordking':'Word King','title-unstoppable':'Unstoppable','title-generous':'The Generous','title-brain':'Big Brain','title-globetrotter':'Globetrotter'},
     honorTitleNames:{'honor-rank1-global':'#1 Global','honor-creator':'Creator'},
     shopHonoraryBadge:'🏆 Honorary',
     shopHonoraryOwned:'Earned',
@@ -1668,10 +1668,10 @@ const DICT = {
     honorModalBtn:'Accept',
     shopCursorSnakesTitle:'🖱️ Cursor Skins',
     shopSnakeSkinsTitle:'🐍 Snake skins (Events)',
-    shopSnakeSkinNames:{'snakeskin-gems':'Gem Snake','snakeskin-cyber':'Cyber Snake','snakeskin-lava':'Lava Snake','snakeskin-galaxy':'Galaxy Snake','snakeskin-rainbow':'Rainbow Snake','snakeskin-8bit':'8-bit Snake'},
+    shopSnakeSkinNames:{'snakeskin-gems':'Gem Snake','snakeskin-cyber':'Cyber Snake','snakeskin-lava':'Lava Snake','snakeskin-galaxy':'Galaxy Snake','snakeskin-rainbow':'Rainbow Snake','snakeskin-8bit':'8-bit Snake','snakeskin-gold':'Golden Snake'},
     shopCursorSnakeNames:{'cursorsnake-pixel':'Pixel Snake','cursorsnake-neon':'Neon Snake','cursorsnake-comet':'Comet','cursorsnake-electric':'Electric Eel','cursorsnake-stars':'Starry Trail','cursorsnake-fire':'Fire Dragon'},
     shopAvatarsTitle:'🎭 Avatars',
-    shopAvatarNames:{'avatar-gamepad':'Gamepad','avatar-cat':'Pixel Cat','avatar-lightning':'Lightning','avatar-rocket':'Rocket','avatar-robot':'Robot','avatar-skull':'Skull','avatar-crown':'Crown'},
+    shopAvatarNames:{'avatar-gamepad':'Gamepad','avatar-cat':'Pixel Cat','avatar-lightning':'Lightning','avatar-rocket':'Rocket','avatar-robot':'Robot','avatar-skull':'Skull','avatar-crown':'Crown','avatar-ball':'Football','avatar-lion':'Lion','avatar-ghost':'Ghost','avatar-unicorn':'Unicorn','avatar-dragon':'Dragon'},
     shopP4TokensTitle:'🔴 Connect 4 Tokens',
     shopP4TokenNames:{'p4token-goldsilver':'Gold & Silver','p4token-neon':'Neon Tokens','p4token-lavalice':'Lava & Ice','p4token-galaxy':'Galaxy'},
     shopTttTitle:'✖️ Tic-Tac-Toe Symbols',
@@ -1687,7 +1687,7 @@ const DICT = {
     shopSoundPacksTitle:'🔊 Sound Packs',
     shopSoundPackNames:{'soundpack-8bit':'8-bit','soundpack-retro':'Retro Arcade','soundpack-crystal':'Crystal','soundpack-cyber':'Cyber','soundpack-epic':'Epic'},
     shopEmotesTitle:'😎 Emotes',
-    shopEmoteNames:{'emote-hello':'Hello 👋', 'emote-gg':'GG 👍', 'emote-sad':'Sniff 😢', 'emote-wellplayed':'Well played 🤝', 'emote-laugh':'LOL 😂', 'emote-think':'Hmm 🤔', 'emote-cool':'Cool 🆒', 'emote-clap':'Bravo 👏', 'emote-fire':'On fire 🔥', 'emote-heart':'Heart ❤️', 'emote-cry':'Tears 😭', 'emote-angry':'Grr 😤', 'emote-shock':'Mind blown 🤯', 'emote-easy':'Too easy 😎', 'emote-eyes':'Seen 👀', 'emote-skull':'Dead 💀', 'emote-party':'Party 🥳', 'emote-rocket':'Rocket 🚀', 'emote-omg':'OMG 😱', 'emote-crown':'King 👑'},
+    shopEmoteNames:{'emote-hello':'Hello 👋', 'emote-gg':'GG 👍', 'emote-sad':'Sniff 😢', 'emote-wellplayed':'Well played 🤝', 'emote-laugh':'LOL 😂', 'emote-think':'Hmm 🤔', 'emote-cool':'Cool 🆒', 'emote-clap':'Bravo 👏', 'emote-fire':'On fire 🔥', 'emote-heart':'Heart ❤️', 'emote-cry':'Tears 😭', 'emote-angry':'Grr 😤', 'emote-shock':'Mind blown 🤯', 'emote-easy':'Too easy 😎', 'emote-eyes':'Seen 👀', 'emote-skull':'Dead 💀', 'emote-party':'Party 🥳', 'emote-rocket':'Rocket 🚀', 'emote-omg':'OMG 😱', 'emote-crown':'King 👑', 'emote-goat':'GOAT 🐐', 'emote-salute':'Respect 🫡', 'emote-sleep':'Asleep? 😴', 'emote-target':'Bullseye 🎯', 'emote-clown':'Clown 🤡'},
     shopFeaturedTitle:'⭐ Featured',
     shopDailyTitle:'📅 Daily',
     shopBundlesTitle:'🎁 Bundles',
@@ -3689,11 +3689,16 @@ const EMOTE_DEFS = {
   'emote-rocket':     { emoji:'🚀', label:'Fusée' },
   'emote-omg':        { emoji:'😱', label:'Incroyable' },
   'emote-crown':      { emoji:'👑', label:'Roi' },
+  'emote-goat':       { emoji:'🐐', label:'GOAT' },
+  'emote-salute':     { emoji:'🫡', label:'Respect' },
+  'emote-sleep':      { emoji:'😴', label:'Tu dors ?' },
+  'emote-target':     { emoji:'🎯', label:'Dans le mille' },
+  'emote-clown':      { emoji:'🤡', label:'Clown' },
 };
 // Prix des emotes (3 gratuites, les autres payantes). Elles ne se vendent que
 // dans la section Emotes du profil, jamais dans la boutique d'objets.
 const EMOTE_PRICES = {
-  'emote-hello':0,'emote-gg':0,'emote-sad':0,'emote-wellplayed':10,'emote-laugh':15,'emote-think':15,'emote-cool':20,'emote-clap':25,'emote-fire':30,'emote-heart':30,'emote-cry':35,'emote-angry':40,'emote-shock':45,'emote-easy':50,'emote-eyes':55,'emote-skull':60,'emote-party':65,'emote-rocket':70,'emote-omg':80,'emote-crown':100,
+  'emote-hello':0,'emote-gg':0,'emote-sad':0,'emote-wellplayed':10,'emote-laugh':15,'emote-think':15,'emote-cool':20,'emote-clap':25,'emote-fire':30,'emote-heart':30,'emote-cry':35,'emote-angry':40,'emote-shock':45,'emote-easy':50,'emote-eyes':55,'emote-skull':60,'emote-party':65,'emote-rocket':70,'emote-omg':80,'emote-crown':100,'emote-goat':60,'emote-salute':30,'emote-sleep':25,'emote-target':40,'emote-clown':45,
 };
 
 function _renderEmoteBar() {
@@ -5902,12 +5907,13 @@ function _renderShopItems() {
   const ALL_NAMEEFFECTS = [
     {id:'nameeffect-blink',price:90},{id:'nameeffect-pulse',price:100},{id:'nameeffect-gradient',price:120},
     {id:'nameeffect-sparks',price:130},{id:'nameeffect-glitch',price:160},{id:'nameeffect-rainbow',price:180},
-    {id:'nameeffect-flammes',price:140},{id:'nameeffect-glace',price:150},
+    {id:'nameeffect-flammes',price:140},{id:'nameeffect-glace',price:150},{id:'nameeffect-or',price:170},
   ];
   const ALL_TITLES = [
     {id:'title-tactician',price:15},{id:'title-strategist',price:40},{id:'title-quizmaster',price:60},
     {id:'title-snakeking',price:60},{id:'title-unbeaten',price:90},{id:'title-champion',price:100},{id:'title-legend',price:130},
     {id:'title-sage',price:80},{id:'title-wordking',price:90},
+    {id:'title-unstoppable',price:110},{id:'title-generous',price:70},{id:'title-brain',price:90},{id:'title-globetrotter',price:60},
     {id:'honor-rank1-global',price:0,honorary:true},
   ];
   const ALL_CURSORSNAKES = [
@@ -5917,11 +5923,12 @@ function _renderShopItems() {
   const ALL_SNAKESKINS = [
     {id:'snakeskin-gems',price:50},{id:'snakeskin-cyber',price:80},{id:'snakeskin-lava',price:120},
     {id:'snakeskin-galaxy',price:140},{id:'snakeskin-rainbow',price:180},
-    {id:'snakeskin-8bit',price:100},
+    {id:'snakeskin-8bit',price:100},{id:'snakeskin-gold',price:160},
   ];
   const ALL_AVATARS = [
     {id:'avatar-gamepad',price:15},{id:'avatar-cat',price:15},{id:'avatar-lightning',price:25},
     {id:'avatar-rocket',price:40},{id:'avatar-robot',price:70},{id:'avatar-skull',price:90},{id:'avatar-crown',price:120},
+    {id:'avatar-ball',price:25},{id:'avatar-lion',price:60},{id:'avatar-ghost',price:40},{id:'avatar-unicorn',price:90},{id:'avatar-dragon',price:130},
   ];
   const ALL_P4TOKENS = [
     {id:'p4token-goldsilver',price:50},{id:'p4token-neon',price:80},{id:'p4token-lavalice',price:110},{id:'p4token-galaxy',price:140},
@@ -5950,7 +5957,7 @@ function _renderShopItems() {
     {id:'soundpack-cyber',price:100},{id:'soundpack-epic',price:130},
   ];
   const ALL_EMOTES = [
-    {id:'emote-hello',price:0},{id:'emote-gg',price:0},{id:'emote-sad',price:0},{id:'emote-wellplayed',price:10},{id:'emote-laugh',price:15},{id:'emote-think',price:15},{id:'emote-cool',price:20},{id:'emote-clap',price:25},{id:'emote-fire',price:30},{id:'emote-heart',price:30},{id:'emote-cry',price:35},{id:'emote-angry',price:40},{id:'emote-shock',price:45},{id:'emote-easy',price:50},{id:'emote-eyes',price:55},{id:'emote-skull',price:60},{id:'emote-party',price:65},{id:'emote-rocket',price:70},{id:'emote-omg',price:80},{id:'emote-crown',price:100},
+    {id:'emote-hello',price:0},{id:'emote-gg',price:0},{id:'emote-sad',price:0},{id:'emote-wellplayed',price:10},{id:'emote-laugh',price:15},{id:'emote-think',price:15},{id:'emote-cool',price:20},{id:'emote-clap',price:25},{id:'emote-fire',price:30},{id:'emote-heart',price:30},{id:'emote-cry',price:35},{id:'emote-angry',price:40},{id:'emote-shock',price:45},{id:'emote-easy',price:50},{id:'emote-eyes',price:55},{id:'emote-skull',price:60},{id:'emote-party',price:65},{id:'emote-rocket',price:70},{id:'emote-omg',price:80},{id:'emote-crown',price:100},{id:'emote-goat',price:60},{id:'emote-salute',price:30},{id:'emote-sleep',price:25},{id:'emote-target',price:40},{id:'emote-clown',price:45},
   ];
 
   const colorItems       = ALL_COLORS.map(c  => ({ ...c, type:'color',       name: d.shopCosmeticNames[c.id] }));
@@ -6022,7 +6029,7 @@ function _renderShopItems() {
       equippedClickFx, equippedEmojiPack, equippedVictoryBan, equippedSoundPack, ...equippedEmotes,
     ].includes(id);
     const safeName = (name || id).replace(/"/g, '&quot;');
-    const _AV = {'avatar-gamepad':'🎮','avatar-cat':'🐱','avatar-lightning':'⚡','avatar-rocket':'🚀','avatar-robot':'🤖','avatar-skull':'💀','avatar-crown':'👑'};
+    const _AV = {'avatar-gamepad':'🎮','avatar-cat':'🐱','avatar-lightning':'⚡','avatar-rocket':'🚀','avatar-robot':'🤖','avatar-skull':'💀','avatar-crown':'👑','avatar-ball':'⚽','avatar-lion':'🦁','avatar-ghost':'👻','avatar-unicorn':'🦄','avatar-dragon':'🐉'};
     const _TTT_E = {'ttt-neon':'✖️⭕','ttt-sunmoon':'☀️🌙','ttt-heartstar':'❤️⭐','ttt-catdog':'🐱🐶','ttt-skulllightning':'💀⚡'};
     const _CFX = {'clickfx-bubbles':'🫧','clickfx-confetti':'🎊','clickfx-neon':'⚡','clickfx-stars':'🌟','clickfx-firework':'🎆'};
     const _EP = {'emojipack-animals':'🐾','emojipack-hearts':'💜','emojipack-party':'🎉','emojipack-gaming':'🎮','emojipack-cosmos':'🌌'};
@@ -6036,7 +6043,7 @@ function _renderShopItems() {
     else if (type === 'title' && honorary) previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="player-honor-tag">${name || ''}</span></span>`;
     else if (type === 'title')      previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="shop-title-tag">${name || ''}</span></span>`;
     else if (type === 'cursorsnake') previewHtml = `<div class="shop-emoji-preview">🐍</div>`;
-    else if (type === 'snakeskin')  previewHtml = `<div class="shop-emoji-preview">${({'snakeskin-gems':'💎','snakeskin-cyber':'⬡','snakeskin-lava':'🔥','snakeskin-galaxy':'⭐','snakeskin-rainbow':'🌈','snakeskin-8bit':'👾'})[id]||'🐍'}</div>`;
+    else if (type === 'snakeskin')  previewHtml = `<div class="shop-emoji-preview">${({'snakeskin-gems':'💎','snakeskin-cyber':'⬡','snakeskin-lava':'🔥','snakeskin-galaxy':'⭐','snakeskin-rainbow':'🌈','snakeskin-8bit':'👾','snakeskin-gold':'🪙'})[id]||'🐍'}</div>`;
     else if (type === 'avatar')     previewHtml = `<div class="shop-emoji-preview">${_AV[id]||'🎭'}</div>`;
     else if (type === 'p4token')    previewHtml = `<div class="shop-emoji-preview">🔴🟡</div>`;
     else if (type === 'ttt')        previewHtml = `<div class="shop-emoji-preview">${_TTT_E[id]||'✖️⭕'}</div>`;
@@ -6517,7 +6524,7 @@ function _openShopDetail(item) {
       'p4token':'🔴🟡',
     };
     const _ITEM_EMOJI = {
-      'avatar-gamepad':'🎮','avatar-cat':'🐱','avatar-lightning':'⚡','avatar-rocket':'🚀','avatar-robot':'🤖','avatar-skull':'💀','avatar-crown':'👑',
+      'avatar-gamepad':'🎮','avatar-cat':'🐱','avatar-lightning':'⚡','avatar-rocket':'🚀','avatar-robot':'🤖','avatar-skull':'💀','avatar-crown':'👑','avatar-ball':'⚽','avatar-lion':'🦁','avatar-ghost':'👻','avatar-unicorn':'🦄','avatar-dragon':'🐉',
       'ttt-neon':'✖️⭕','ttt-sunmoon':'☀️🌙','ttt-heartstar':'❤️⭐','ttt-catdog':'🐱🐶','ttt-skulllightning':'💀⚡',
       'clickfx-bubbles':'🫧','clickfx-confetti':'🎊','clickfx-neon':'⚡','clickfx-stars':'🌟','clickfx-firework':'🎆',
       'emojipack-animals':'🐾🐶🐱','emojipack-hearts':'💜💙💚','emojipack-party':'🎉🎊🎈','emojipack-gaming':'🎮🕹️👾','emojipack-cosmos':'🌌🪐✨',
@@ -6878,11 +6885,11 @@ function _fontClass(font) {
 // Aperçu visuel d'un cosmétique (réutilise les classes de la boutique), pour le
 // casier. `type` = famille du cosmétique, `id` = son identifiant.
 const _LOCKER_EMOJI = {
-  avatar:{'avatar-gamepad':'🎮','avatar-cat':'🐱','avatar-lightning':'⚡','avatar-rocket':'🚀','avatar-robot':'🤖','avatar-skull':'💀','avatar-crown':'👑'},
+  avatar:{'avatar-gamepad':'🎮','avatar-cat':'🐱','avatar-lightning':'⚡','avatar-rocket':'🚀','avatar-robot':'🤖','avatar-skull':'💀','avatar-crown':'👑','avatar-ball':'⚽','avatar-lion':'🦁','avatar-ghost':'👻','avatar-unicorn':'🦄','avatar-dragon':'🐉'},
   ttt:{'ttt-neon':'✖️⭕','ttt-sunmoon':'☀️🌙','ttt-heartstar':'❤️⭐','ttt-catdog':'🐱🐶','ttt-skulllightning':'💀⚡'},
   clickfx:{'clickfx-bubbles':'🫧','clickfx-confetti':'🎊','clickfx-neon':'⚡','clickfx-stars':'🌟','clickfx-firework':'🎆'},
   emojipack:{'emojipack-animals':'🐾','emojipack-hearts':'💜','emojipack-party':'🎉','emojipack-gaming':'🎮','emojipack-cosmos':'🌌'},
-  emote:{'emote-hello':'👋','emote-gg':'👍','emote-sad':'😢','emote-wellplayed':'🤝','emote-laugh':'😂','emote-think':'🤔','emote-cool':'🆒','emote-clap':'👏','emote-fire':'🔥','emote-heart':'❤️','emote-cry':'😭','emote-angry':'😤','emote-shock':'🤯','emote-easy':'😎','emote-eyes':'👀','emote-skull':'💀','emote-party':'🥳','emote-rocket':'🚀','emote-omg':'😱','emote-crown':'👑'},
+  emote:{'emote-hello':'👋','emote-gg':'👍','emote-sad':'😢','emote-wellplayed':'🤝','emote-laugh':'😂','emote-think':'🤔','emote-cool':'🆒','emote-clap':'👏','emote-fire':'🔥','emote-heart':'❤️','emote-cry':'😭','emote-angry':'😤','emote-shock':'🤯','emote-easy':'😎','emote-eyes':'👀','emote-skull':'💀','emote-party':'🥳','emote-rocket':'🚀','emote-omg':'😱','emote-crown':'👑','emote-goat':'🐐','emote-salute':'🫡','emote-sleep':'😴','emote-target':'🎯','emote-clown':'🤡'},
 };
 function _cosmeticPreviewHtml(type, id, itemName) {
   const nm = _escHtml(localStorage.getItem('playerName') || 'Aa');
@@ -6894,7 +6901,7 @@ function _cosmeticPreviewHtml(type, id, itemName) {
     case 'nameeffect':  return `<span class="shop-nameeffect-preview ${id}">${nm}</span>`;
     case 'title':       return `<span class="shop-title-tag">${_escHtml(itemName || '')}</span>`;
     case 'cursorsnake': return `<div class="shop-emoji-preview">🐍</div>`;
-    case 'snakeskin':   return `<div class="shop-emoji-preview">${({'snakeskin-gems':'💎','snakeskin-cyber':'⬡','snakeskin-lava':'🔥','snakeskin-galaxy':'⭐','snakeskin-rainbow':'🌈','snakeskin-8bit':'👾'})[id] || '🐍'}</div>`;
+    case 'snakeskin':   return `<div class="shop-emoji-preview">${({'snakeskin-gems':'💎','snakeskin-cyber':'⬡','snakeskin-lava':'🔥','snakeskin-galaxy':'⭐','snakeskin-rainbow':'🌈','snakeskin-8bit':'👾','snakeskin-gold':'🪙'})[id] || '🐍'}</div>`;
     case 'avatar':      return `<div class="shop-emoji-preview">${_LOCKER_EMOJI.avatar[id] || '🎭'}</div>`;
     case 'p4token':     return `<div class="shop-emoji-preview">🔴🟡</div>`;
     case 'ttt':         return `<div class="shop-emoji-preview">${_LOCKER_EMOJI.ttt[id] || '✖️⭕'}</div>`;
@@ -6923,7 +6930,7 @@ function _cosmeticNameById(id) {
 
 function _nameEffectClass(nameEffect) {
   const valid = ['nameeffect-blink','nameeffect-pulse','nameeffect-gradient',
-    'nameeffect-sparks','nameeffect-glitch','nameeffect-rainbow','nameeffect-flammes','nameeffect-glace'];
+    'nameeffect-sparks','nameeffect-glitch','nameeffect-rainbow','nameeffect-flammes','nameeffect-glace','nameeffect-or'];
   return nameEffect && valid.includes(nameEffect) ? nameEffect : '';
 }
 
@@ -7447,6 +7454,7 @@ function showCursorSnakeToast(msg) {
     'snakeskin-galaxy':  { bg:(_t,p)=>`hsla(${260+p*40},80%,${55-p*20}%,${1-p*0.55})`,          food:'⭐', boardBg:'#05001a', glow:()=>'#9966ff' },
     'snakeskin-gems':    { bg:(_t,p)=>`hsla(${140+p*80},70%,${58-p*18}%,${1-p*0.5})`,           food:'💎', boardBg:'#001a0a', glow:()=>'#00ff88' },
     'snakeskin-8bit':    { bg:(_t,p)=>(p%2===0?'#8bd600':'#5aa800'),                            food:'🍎', boardBg:'#0f2000', glow:()=>'#8bd600', square:true },
+    'snakeskin-gold':    { bg:(_t,p)=>`hsla(${45-p*8},90%,${62-p*22}%,${1-p*0.5})`,              food:'🪙', boardBg:'#1a1400', glow:()=>'#ffd700' },
   };
   let _skinTick = 0;
 

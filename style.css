@@ -3119,6 +3119,18 @@ html.light #bg-layer.bg-lagune,     html.light .shop-bg-preview.bg-lagune     { 
   color: #dff3ff;
   animation: nameeffect-glace-kf 2s ease-in-out infinite;
 }
+@keyframes nameeffect-or-kf {
+  0%   { background-position:0% 50%; }
+  100% { background-position:200% 50%; }
+}
+.nameeffect-or {
+  background: linear-gradient(90deg,#a67c00,#ffd700,#fff7a0,#ffd700,#a67c00);
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 6px rgba(255,215,0,.35);
+  animation: nameeffect-or-kf 2.2s linear infinite;
+}
 
 /* ── Titres joueur ───────────────────────────────────────────────────────── */
 .player-title-tag {

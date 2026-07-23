@@ -1679,6 +1679,7 @@ const COSMETICS = [
   { id: 'nameeffect-rainbow',   type: 'nameeffect',  price: 180 },
   { id: 'nameeffect-flammes',   type: 'nameeffect',  price: 140 },
   { id: 'nameeffect-glace',     type: 'nameeffect',  price: 150 },
+  { id: 'nameeffect-or',        type: 'nameeffect',  price: 170 },
   // Titres
   { id: 'title-tactician',      type: 'title',       price: 15  },
   { id: 'title-strategist',     type: 'title',       price: 40  },
@@ -1689,6 +1690,10 @@ const COSMETICS = [
   { id: 'title-legend',         type: 'title',       price: 130 },
   { id: 'title-sage',           type: 'title',       price: 80  },
   { id: 'title-wordking',       type: 'title',       price: 90  },
+  { id: 'title-unstoppable',    type: 'title',       price: 110 },
+  { id: 'title-generous',       type: 'title',       price: 70  },
+  { id: 'title-brain',          type: 'title',       price: 90  },
+  { id: 'title-globetrotter',   type: 'title',       price: 60  },
   { id: 'honor-rank1-global',   type: 'title',       price: 0,  honorary: true },
   { id: 'honor-weekly-champ',   type: 'title',       price: 0,  honorary: true },
   // Skins du serpent curseur
@@ -1706,6 +1711,11 @@ const COSMETICS = [
   { id: 'avatar-robot',         type: 'avatar',      price: 70  },
   { id: 'avatar-skull',         type: 'avatar',      price: 90  },
   { id: 'avatar-crown',         type: 'avatar',      price: 120 },
+  { id: 'avatar-ball',          type: 'avatar',      price: 25  },
+  { id: 'avatar-lion',          type: 'avatar',      price: 60  },
+  { id: 'avatar-ghost',         type: 'avatar',      price: 40  },
+  { id: 'avatar-unicorn',       type: 'avatar',      price: 90  },
+  { id: 'avatar-dragon',        type: 'avatar',      price: 130 },
   // Jetons Puissance 4
   { id: 'p4token-goldsilver',   type: 'p4token',     price: 50  },
   { id: 'p4token-neon',         type: 'p4token',     price: 80  },
@@ -1729,6 +1739,7 @@ const COSMETICS = [
   { id: 'snakeskin-galaxy',     type: 'snakeskin',   price: 140 },
   { id: 'snakeskin-rainbow',    type: 'snakeskin',   price: 180 },
   { id: 'snakeskin-8bit',       type: 'snakeskin',   price: 100 },
+  { id: 'snakeskin-gold',       type: 'snakeskin',   price: 160 },
   // Particules de clic
   { id: 'clickfx-bubbles',      type: 'clickfx',     price: 15  },
   { id: 'clickfx-confetti',     type: 'clickfx',     price: 30  },
@@ -1774,6 +1785,11 @@ const COSMETICS = [
   { id: 'emote-rocket',       type: 'emote',       price: 70 },
   { id: 'emote-omg',          type: 'emote',       price: 80 },
   { id: 'emote-crown',        type: 'emote',       price: 100},
+  { id: 'emote-goat',         type: 'emote',       price: 60 },
+  { id: 'emote-salute',       type: 'emote',       price: 30 },
+  { id: 'emote-sleep',        type: 'emote',       price: 25 },
+  { id: 'emote-target',       type: 'emote',       price: 40 },
+  { id: 'emote-clown',        type: 'emote',       price: 45 },
 ];
 
 const ROTATION_INTERVAL_MS = 24 * 3600 * 1000;
@@ -4558,6 +4574,22 @@ app.get('/admin/stats', async (req, res) => {
         for (let i = 7; i < 14; i++) { const d = dailyStats.get(dayKey(i))      || {}; vPrev += d.visits || 0; gPrev += d.games || 0; }
         const pct = (a, b) => b > 0 ? Math.round(((a - b) / b) * 100) : (a > 0 ? 100 : 0);
         return { visitsThis: vThis, visitsPrev: vPrev, visitsPct: pct(vThis, vPrev), gamesThis: gThis, gamesPrev: gPrev, gamesPct: pct(gThis, gPrev) };
+      })(),
+      // Entonnoir d'acquisition : visiteur -> pseudo -> 1re partie -> revenu (J+1).
+      // Calcule sur les joueurs connus (chaque playerId = un appareil/visiteur).
+      // « Revenu » = a tenu une serie de 2 jours et plus (streak.longest >= 2),
+      // proxy fiable d'un retour un autre jour (pas de cohorte a stocker).
+      funnel: (() => {
+        let visitors = 0, named = 0, played = 0, returned = 0;
+        for (const [, e] of libs.entries()) {
+          visitors++;
+          const hasName = e.name && e.name !== 'Anonyme';
+          if (hasName) named++;
+          const hasPlayed = Array.isArray(e.history) && e.history.length > 0;
+          if (hasName && hasPlayed) played++;
+          if (hasName && hasPlayed && (e.streak && (e.streak.longest || 0) >= 2)) returned++;
+        }
+        return { visitors, named, played, returned };
       })(),
       // Comptes reinitialises (cache restituable) : les plus recents d'abord.
       resets: [...resetArchive.values()]
