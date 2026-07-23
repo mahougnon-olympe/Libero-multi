@@ -1604,6 +1604,8 @@ const COSMETICS = [
   { id: 'bronze',          type: 'color', price: 20  },
   { id: 'gold',            type: 'color', price: 70  },
   { id: 'diamond',         type: 'color', price: 70  },
+  { id: 'color-benin',     type: 'color', price: 80  },
+  { id: 'color-pagne',     type: 'color', price: 90  },
   { id: 'font-orbitron',   type: 'font',  price: 100 },
   { id: 'font-rajdhani',   type: 'font',  price: 100 },
   { id: 'font-chakra',     type: 'font',  price: 100 },
@@ -1661,6 +1663,13 @@ const COSMETICS = [
   { id: 'bg-galaxie',      type: 'background', price: 240 },
   { id: 'bg-tempete',      type: 'background', price: 270 },
   { id: 'bg-hologramme',   type: 'background', price: 300 },
+  { id: 'bg-wax',          type: 'background', price: 90  },
+  { id: 'bg-marche-nuit',  type: 'background', price: 110 },
+  { id: 'bg-terrain',      type: 'background', price: 130 },
+  { id: 'bg-matrice',      type: 'background', price: 150 },
+  { id: 'bg-harmattan',    type: 'background', price: 170 },
+  { id: 'bg-orage',        type: 'background', price: 190 },
+  { id: 'bg-lagune',       type: 'background', price: 220 },
   // Effets de pseudo animés
   { id: 'nameeffect-blink',     type: 'nameeffect',  price: 90  },
   { id: 'nameeffect-pulse',     type: 'nameeffect',  price: 100 },
@@ -1668,6 +1677,8 @@ const COSMETICS = [
   { id: 'nameeffect-sparks',    type: 'nameeffect',  price: 130 },
   { id: 'nameeffect-glitch',    type: 'nameeffect',  price: 160 },
   { id: 'nameeffect-rainbow',   type: 'nameeffect',  price: 180 },
+  { id: 'nameeffect-flammes',   type: 'nameeffect',  price: 140 },
+  { id: 'nameeffect-glace',     type: 'nameeffect',  price: 150 },
   // Titres
   { id: 'title-tactician',      type: 'title',       price: 15  },
   { id: 'title-strategist',     type: 'title',       price: 40  },
@@ -1676,6 +1687,8 @@ const COSMETICS = [
   { id: 'title-unbeaten',       type: 'title',       price: 90  },
   { id: 'title-champion',       type: 'title',       price: 100 },
   { id: 'title-legend',         type: 'title',       price: 130 },
+  { id: 'title-sage',           type: 'title',       price: 80  },
+  { id: 'title-wordking',       type: 'title',       price: 90  },
   { id: 'honor-rank1-global',   type: 'title',       price: 0,  honorary: true },
   { id: 'honor-weekly-champ',   type: 'title',       price: 0,  honorary: true },
   // Skins du serpent curseur
@@ -1715,6 +1728,7 @@ const COSMETICS = [
   { id: 'snakeskin-lava',       type: 'snakeskin',   price: 120 },
   { id: 'snakeskin-galaxy',     type: 'snakeskin',   price: 140 },
   { id: 'snakeskin-rainbow',    type: 'snakeskin',   price: 180 },
+  { id: 'snakeskin-8bit',       type: 'snakeskin',   price: 100 },
   // Particules de clic
   { id: 'clickfx-bubbles',      type: 'clickfx',     price: 15  },
   { id: 'clickfx-confetti',     type: 'clickfx',     price: 30  },

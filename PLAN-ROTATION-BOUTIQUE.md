@@ -43,8 +43,11 @@ Fichier de travail, non publie (les `*.md` sont exclus du deploiement Vercel).
 
 ## 3. Pre-requis
 
-- [ ] **Coder les nouveaux cosmetiques** collection par collection (COSMETICS + rendu
-  CSS/emoji + noms FR et EN dans `shop*Names`), en suivant les ids du plan ci-dessous.
+- [x] **Coder les nouveaux cosmetiques** : les 14 ids d'arrivage du plan existent
+  desormais (7 fonds, 2 couleurs, 2 effets de nom, 1 skin snake, 2 titres), avec rendu
+  CSS et noms FR/EN. `GET /admin/shop-rotation` renvoie `knownArrivals: 14/14`. Les autres
+  cosmetiques des collections (avatars, jetons, sons, bannieres, emotes) restent a coder
+  si tu veux etoffer chaque collection au dela de son item phare.
 - [ ] **Noyau permanent** (jamais retire, pour qu'un nouveau joueur ait toujours de quoi
   se personnaliser a petit prix) : `font-monoton` (gratuit), `bg-ardoise` (15),
   `silver` (20), `bronze` (20), `title-tactician` (15).

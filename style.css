@@ -2880,6 +2880,17 @@ html.light .boost-hint-btn:hover:not(:disabled) { background: rgba(180,83,9,.2);
   background-size: 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   animation: shimmer-scroll 1.8s linear infinite;
 }
+/* Couleurs des collections rotation. */
+.name-color-benin {
+  background: linear-gradient(90deg,#008751,#008751,#fcd116,#fcd116,#e8112d,#e8112d,#008751);
+  background-size: 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: shimmer-scroll 2.5s linear infinite;
+}
+.name-color-pagne {
+  background: linear-gradient(90deg,#c0392b,#e08a2b,#2e8b57,#f4c542,#c0392b,#e08a2b,#2e8b57);
+  background-size: 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: rainbow-scroll 3.5s linear infinite;
+}
 
 .shop-font-group       { margin-top: 12px; }
 .shop-font-group-label { font-size: .7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 4px; }
@@ -2980,6 +2991,14 @@ html.light body.bg-theme-void      { --board:#475569;--board2:#334155;--border:r
 #bg-layer.bg-galaxie,    .shop-bg-preview.bg-galaxie    { background:#000208; }
 #bg-layer.bg-tempete,    .shop-bg-preview.bg-tempete    { background:#030008; }
 #bg-layer.bg-hologramme, .shop-bg-preview.bg-hologramme { background:linear-gradient(135deg,#010d14,#020810); }
+/* Nouveaux fonds (collections rotation) · version nuit */
+#bg-layer.bg-wax,        .shop-bg-preview.bg-wax        { background-color:#1a0d05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M30 4L56 30L30 56L4 30Z' fill='none' stroke='%23e08a2b' stroke-width='2'/%3E%3Ccircle cx='30' cy='30' r='6' fill='%23c0392b'/%3E%3Cpath d='M0 0L12 12M60 0L48 12M0 60L12 48M60 60L48 48' stroke='%232e8b57' stroke-width='2'/%3E%3C/svg%3E");background-size:60px 60px; }
+#bg-layer.bg-marche-nuit,.shop-bg-preview.bg-marche-nuit{ background:radial-gradient(circle at 20% 30%,rgba(255,180,80,.5),transparent 8%),radial-gradient(circle at 70% 20%,rgba(255,120,60,.45),transparent 7%),radial-gradient(circle at 40% 72%,rgba(255,210,120,.4),transparent 6%),radial-gradient(circle at 85% 65%,rgba(255,150,70,.45),transparent 7%),linear-gradient(180deg,#0a1424,#050a16); }
+#bg-layer.bg-terrain,    .shop-bg-preview.bg-terrain    { background-color:#0c6b25;background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 40px,rgba(0,0,0,.05) 40px 80px),linear-gradient(180deg,rgba(255,255,255,.05),transparent 40%); }
+#bg-layer.bg-matrice,    .shop-bg-preview.bg-matrice    { background-color:#000600;background-image:repeating-linear-gradient(90deg,rgba(0,255,80,.14) 0 2px,transparent 2px 14px),linear-gradient(180deg,rgba(0,45,0,.55),rgba(0,10,0,.92)); }
+#bg-layer.bg-harmattan,  .shop-bg-preview.bg-harmattan  { background:radial-gradient(circle at 75% 80%,rgba(255,60,180,.22),transparent 32%),radial-gradient(ellipse at 45% 38%,rgba(214,158,74,.38) 0%,rgba(40,24,10,.9) 70%),linear-gradient(180deg,#2a1a0a,#140c04); }
+#bg-layer.bg-orage,      .shop-bg-preview.bg-orage      { background:radial-gradient(circle at 62% 28%,rgba(180,200,255,.14),transparent 26%),linear-gradient(180deg,#0a0e1a 0%,#161d33 52%,#090d18 100%); }
+#bg-layer.bg-lagune,     .shop-bg-preview.bg-lagune     { background:linear-gradient(180deg,#2a0a3a 0%,#7a1f5a 34%,#d0603a 70%,#f0a050 100%); }
 
 /* Static CSS backgrounds · version jour (mode clair) */
 html.light #bg-layer.bg-nuit,     html.light .shop-bg-preview.bg-nuit     { background:linear-gradient(135deg,#e3f2fd,#bbdefb); }
@@ -3001,6 +3020,14 @@ html.light #bg-layer.bg-aurores,    html.light .shop-bg-preview.bg-aurores    { 
 html.light #bg-layer.bg-galaxie,    html.light .shop-bg-preview.bg-galaxie    { background:#e8eaf6; }
 html.light #bg-layer.bg-tempete,    html.light .shop-bg-preview.bg-tempete    { background:#eceff1; }
 html.light #bg-layer.bg-hologramme, html.light .shop-bg-preview.bg-hologramme { background:linear-gradient(135deg,#e0f7fa,#e1f5fe); }
+/* Nouveaux fonds (collections rotation) · version jour */
+html.light #bg-layer.bg-wax,        html.light .shop-bg-preview.bg-wax        { background-color:#fff3e0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M30 4L56 30L30 56L4 30Z' fill='none' stroke='%23c0392b' stroke-width='2'/%3E%3Ccircle cx='30' cy='30' r='6' fill='%23e08a2b'/%3E%3Cpath d='M0 0L12 12M60 0L48 12M0 60L12 48M60 60L48 48' stroke='%232e8b57' stroke-width='2'/%3E%3C/svg%3E");background-size:60px 60px; }
+html.light #bg-layer.bg-marche-nuit,html.light .shop-bg-preview.bg-marche-nuit{ background:radial-gradient(circle at 20% 30%,rgba(255,170,60,.35),transparent 8%),radial-gradient(circle at 70% 20%,rgba(255,120,60,.3),transparent 7%),linear-gradient(180deg,#fff3e0,#ffe0b2); }
+html.light #bg-layer.bg-terrain,    html.light .shop-bg-preview.bg-terrain    { background-color:#66bb6a;background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.18) 0 40px,rgba(0,0,0,.05) 40px 80px); }
+html.light #bg-layer.bg-matrice,    html.light .shop-bg-preview.bg-matrice    { background-color:#e8f5e9;background-image:repeating-linear-gradient(90deg,rgba(0,150,40,.18) 0 2px,transparent 2px 14px); }
+html.light #bg-layer.bg-harmattan,  html.light .shop-bg-preview.bg-harmattan  { background:radial-gradient(ellipse at 45% 40%,rgba(214,158,74,.4) 0%,rgba(255,236,200,.9) 70%),linear-gradient(180deg,#ffecc7,#ffe0b2); }
+html.light #bg-layer.bg-orage,      html.light .shop-bg-preview.bg-orage      { background:linear-gradient(180deg,#cfd8dc 0%,#b0bec5 52%,#cfd8dc 100%); }
+html.light #bg-layer.bg-lagune,     html.light .shop-bg-preview.bg-lagune     { background:linear-gradient(180deg,#e1bee7 0%,#f8bbd0 34%,#ffcc80 70%,#ffe0b2 100%); }
 
 /* Shop bg preview card */
 .shop-bg-preview { width:100%;height:56px;border-radius:8px;margin-bottom:2px; }
@@ -3073,6 +3100,22 @@ html.light #bg-layer.bg-hologramme, html.light .shop-bg-preview.bg-hologramme { 
 }
 .nameeffect-rainbow {
   animation: nameeffect-rainbow-kf 1.5s linear infinite;
+}
+@keyframes nameeffect-flammes-kf {
+  0%,100% { text-shadow:0 -1px 4px #ffcc00,0 -3px 8px #ff6600,0 -5px 12px #ff2200; }
+  50%     { text-shadow:0 -2px 6px #ffe680,0 -5px 12px #ff8800,0 -8px 18px #ff3300; }
+}
+.nameeffect-flammes {
+  color: #ffd24d;
+  animation: nameeffect-flammes-kf 0.6s ease-in-out infinite;
+}
+@keyframes nameeffect-glace-kf {
+  0%,100% { text-shadow:0 0 4px #cdeeff,0 0 9px #7ec8ff; }
+  50%     { text-shadow:0 0 7px #ffffff,0 0 15px #a9dbff,0 1px 10px #6fb7ff; }
+}
+.nameeffect-glace {
+  color: #dff3ff;
+  animation: nameeffect-glace-kf 2s ease-in-out infinite;
 }
 
 /* ── Titres joueur ───────────────────────────────────────────────────────── */
