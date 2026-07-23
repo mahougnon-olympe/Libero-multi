@@ -10408,8 +10408,11 @@ const BGManager = (() => {
     'bg-brume':'violet','bg-crepuscule':'violet','bg-nebuleuse':'violet',
     'bg-aurore-deg':'aurora','bg-particules':'aurora','bg-vagues':'aurora','bg-aurores':'aurora',
     'bg-cyber':'cyber','bg-circuit':'cyber','bg-hexagones':'cyber','bg-pluie':'cyber','bg-tempete':'cyber','bg-hologramme':'cyber',
-    'bg-etoile':'space','bg-galaxie':'space',
+    'bg-etoile':'space','bg-galaxie':'space','bg-orage':'space',
     'bg-synthwave':'synthwave',
+    // Nouveaux fonds (collections rotation).
+    'bg-terrain':'aurora','bg-matrice':'aurora',
+    'bg-wax':'sunset','bg-marche-nuit':'sunset','bg-harmattan':'sunset','bg-lagune':'sunset',
   };
 
   function stop() {
@@ -10419,7 +10422,7 @@ const BGManager = (() => {
     if (canvas) canvas.style.display = 'none';
     if (layer) layer.className = '';
     document.body.classList.remove('has-bg',
-      'bg-theme-void','bg-theme-violet','bg-theme-aurora','bg-theme-cyber','bg-theme-space','bg-theme-synthwave');
+      'bg-theme-void','bg-theme-violet','bg-theme-aurora','bg-theme-cyber','bg-theme-space','bg-theme-synthwave','bg-theme-sunset');
   }
 
   function start(id) {
