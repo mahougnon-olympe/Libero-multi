@@ -802,6 +802,8 @@ const DICT = {
     bookChapterLocked:'🔒 Ce chapitre est verrouillé.',
     classicTitle:'Jeux Classiques', classicDesc:'Puissance 4 · Morpion · Échecs · Dames',
     landingTagClassic:"En tête d'affiche", landingTagTrivia:'Le plus joué',
+    profileSecPlay:'Jouer et gagner', profileSecCollection:'Ma collection',
+    profileSecActivity:'Mon activité', profileSecAccount:'Mon compte',
     landingChipDuel:'Duel en ligne', landingChipBot:'Contre le bot',
     landingChipThemes:'30 thèmes', landingChipSpeed:'Bonus de vitesse',
     triviaTitle:'Culture Générale', triviaDesc:'Quiz par thèmes · Solo & Multi',
@@ -1532,6 +1534,8 @@ const DICT = {
     bookChapterLocked:'🔒 This chapter is locked.',
     classicTitle:'Classic Games', classicDesc:'Connect 4 · Tic Tac Toe · Chess · Draughts',
     landingTagClassic:'Top billing', landingTagTrivia:'Most played',
+    profileSecPlay:'Play and earn', profileSecCollection:'My collection',
+    profileSecActivity:'My activity', profileSecAccount:'My account',
     landingChipDuel:'Online duel', landingChipBot:'Versus the bot',
     landingChipThemes:'30 themes', landingChipSpeed:'Speed bonus',
     triviaTitle:'General Knowledge', triviaDesc:'Themed quizzes · Solo & Multi',
@@ -2184,6 +2188,7 @@ function applyLang() {
   if (window._renderIqCard) window._renderIqCard();
   if (window._renderVip)    window._renderVip();
   if (window._profileHub) window._profileHub.retexte();
+  if (window._profileSections) window._profileSections.retexte();
   if (window._chatbot) window._chatbot.retexte();
   const bl = $('btn-lang');
   if (bl) bl.textContent = currentLang === 'fr' ? '🇫🇷 FR ⇄' : '🇬🇧 EN ⇄';
@@ -11232,6 +11237,45 @@ const ProfileHub = (() => {
   return { open, enter, enterLocker, enterHistory, setChallenges, setStreak, setHistory, retexte, updateBadge, renderLocker };
 })();
 window._profileHub = ProfileHub;
+
+// ── Hub Profil : memoire des sections repliables ─────────────────────────────
+// Regle du site : toute UI a etat doit survivre a un rafraichissement. On retient
+// donc quelles sections du profil sont ouvertes, et on les rouvre a l'identique.
+const ProfileSections = (() => {
+  const KEY = 'libero_profile_sections';
+  const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch { return {}; } };
+  const secs = () => document.querySelectorAll('#screen-profile .profile-section');
+
+  function restore() {
+    const saved = read();
+    secs().forEach(d => {
+      const k = d.dataset.sec;
+      if (k && Object.prototype.hasOwnProperty.call(saved, k)) d.open = !!saved[k];
+    });
+  }
+  function save() {
+    const out = {};
+    secs().forEach(d => { if (d.dataset.sec) out[d.dataset.sec] = d.open; });
+    try { localStorage.setItem(KEY, JSON.stringify(out)); } catch {}
+  }
+
+  secs().forEach(d => d.addEventListener('toggle', save));
+  restore();
+
+  // i18n des intitules de section.
+  function retexte() {
+    const d = t();
+    const L = { play: d.profileSecPlay, collection: d.profileSecCollection,
+                activity: d.profileSecActivity, account: d.profileSecAccount };
+    secs().forEach(sec => {
+      const el = document.getElementById(sec.id + '-label');
+      if (el && L[sec.dataset.sec]) el.textContent = L[sec.dataset.sec];
+    });
+  }
+  retexte();
+  return { restore, retexte };
+})();
+window._profileSections = ProfileSections;
 
 // ── Sauvegarde / restauration de progression (code de récupération) ──────────
 // Le code EST l'identifiant du joueur (libero_player_id). Le sauvegarder permet

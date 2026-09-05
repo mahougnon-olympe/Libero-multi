@@ -3481,6 +3481,34 @@ html.light .honor-reward-title { color: #d97706; }
 .pnc-text small { color: var(--muted); font-size: .78rem; margin-top: 2px; }
 .pnc-arrow { color: var(--muted); font-size: 1.4rem; font-weight: 900; flex-shrink: 0; }
 
+/* ── Hub Profil : sections repliables ──────────────────────────────────────
+   Quatorze cartes identiques a la suite ne se hierarchisaient pas. Elles sont
+   regroupees en quatre sections ; « Mon compte » est repliee par defaut et
+   l'etat de chacune est retenu (voir ProfileSections dans app.js). */
+.profile-section { width: 100%; margin: 18px 0 0; }
+.profile-section > .profile-nav-card:first-of-type { margin-top: 8px; }
+.profile-sec-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 2px; cursor: pointer; list-style: none;
+  font-family: var(--font-display);
+  font-size: .68rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--hairline);
+  transition: color .15s;
+}
+.profile-sec-head::-webkit-details-marker { display: none; }
+.profile-sec-head:hover { color: var(--accent); }
+.pst-chevron {
+  margin-left: auto; width: 8px; height: 8px; flex-shrink: 0;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(45deg); transform-origin: 60% 60%;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.profile-section[open] > .profile-sec-head .pst-chevron { transform: rotate(-135deg); }
+.profile-section[open] > .profile-sec-head { color: var(--accent); }
+/* Une section repliee ne doit pas garder la marge de sa derniere carte. */
+.profile-section:not([open]) { margin-bottom: 0; }
+
 /* Sous-pages (Casier / Historique) */
 #screen-locker, #screen-history { justify-content: flex-start; }
 .subpage-inner { width: 100%; max-width: 600px; margin: 0 auto; }
