@@ -19,6 +19,9 @@
   <meta name="twitter:image" content="https://libero-multi.vercel.app/assets/og-image.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Typographie de l'interface (Space Grotesk pour les titres, Karla pour le
+       texte) : chargee avant les polices cosmetiques, qui restent des articles. -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Karla:wght@400;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@700&family=Chakra+Petch:wght@700&family=Audiowide&family=Exo+2:wght@700&family=Bungee&family=Black+Ops+One&family=Russo+One&family=Press+Start+2P&family=VT323&family=Share+Tech+Mono&family=Major+Mono+Display&family=Cinzel:wght@700&family=Tektur:wght@700&family=Pacifico&family=Lobster&family=Fredoka:wght@700&family=Monoton&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <script>(function(){var s=sessionStorage.getItem('libero_screen');if(s&&s!=='landing'){document.documentElement.classList.add('restoring');document.documentElement.setAttribute('data-restore',s);}})();</script>
@@ -57,32 +60,51 @@
     </div>
 
     <div class="landing-grid">
-      <button class="landing-card" id="btn-go-classic">
-        <span class="landing-icon" data-ic="grid">🎮</span>
+      <!-- Les deux jeux phares tiennent toute la largeur : c'est la hierarchie
+           de l'accueil (les trois autres entrees passent en tuiles dessous). -->
+      <button class="landing-card landing-card--hero" id="btn-go-classic">
+        <span class="landing-hero-top">
+          <span class="landing-eyebrow" id="landing-tag-classic">En tête d'affiche</span>
+          <span class="landing-icon" data-ic="grid">🎮</span>
+        </span>
         <h2>Jeux Classiques</h2>
-        <p>Puissance 4 · Morpion · Échecs</p>
+        <p>Puissance 4 · Morpion · Échecs · Dames</p>
+        <span class="landing-chips">
+          <span class="landing-chip" id="landing-chip-duel">Duel en ligne</span>
+          <span class="landing-chip" id="landing-chip-bot">Contre le bot</span>
+        </span>
       </button>
-      <button class="landing-card" id="btn-go-trivia">
-        <span class="landing-icon" data-ic="cap">🧠</span>
+      <button class="landing-card landing-card--hero landing-card--hero-alt" id="btn-go-trivia">
+        <span class="landing-hero-top">
+          <span class="landing-eyebrow" id="landing-tag-trivia">Le plus joué</span>
+          <span class="landing-icon" data-ic="cap">🧠</span>
+        </span>
         <h2>Culture Générale</h2>
         <p>Quiz par thèmes · Solo &amp; Multi</p>
+        <span class="landing-chips">
+          <span class="landing-chip" id="landing-chip-themes">30 thèmes</span>
+          <span class="landing-chip" id="landing-chip-speed">Bonus de vitesse</span>
+        </span>
       </button>
-      <button class="landing-card" id="btn-go-events">
-        <span class="landing-icon" data-ic="calendar">🎉</span>
-        <h2 id="events-card-title">Évents</h2>
-        <p id="events-card-desc">Week-end · Snake Challenge</p>
-        <p id="event-card-countdown" class="event-card-countdown"></p>
-      </button>
-      <button class="landing-card landing-card--community" id="btn-go-community">
-        <span class="landing-icon" data-ic="zap">🏃</span>
-        <h2 id="luffy-card-title">Libero Run</h2>
-        <p id="community-card-text">Pour la communauté</p>
-      </button>
-      <button class="landing-card" id="btn-go-wordle">
-        <span class="landing-icon" data-ic="letter">🔤</span>
-        <h2 id="wordle-card-title">Le Mot</h2>
-        <p id="wordle-card-desc">Un mot mystère par jour</p>
-      </button>
+
+      <div class="landing-tiles">
+        <button class="landing-card landing-card--tile landing-card--tile-event" id="btn-go-events">
+          <span class="landing-icon" data-ic="calendar">🎉</span>
+          <h2 id="events-card-title">Évents</h2>
+          <p id="events-card-desc">Week-end · Snake Challenge</p>
+          <p id="event-card-countdown" class="event-card-countdown"></p>
+        </button>
+        <button class="landing-card landing-card--tile landing-card--community" id="btn-go-community">
+          <span class="landing-icon" data-ic="zap">🏃</span>
+          <h2 id="luffy-card-title">Libero Run</h2>
+          <p id="community-card-text">Pour la communauté</p>
+        </button>
+        <button class="landing-card landing-card--tile" id="btn-go-wordle">
+          <span class="landing-icon" data-ic="letter">🔤</span>
+          <h2 id="wordle-card-title">Le Mot</h2>
+          <p id="wordle-card-desc">Un mot mystère par jour</p>
+        </button>
+      </div>
     </div>
 
     <div class="global-lb-card" id="global-lb-card">

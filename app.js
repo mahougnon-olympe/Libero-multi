@@ -800,7 +800,10 @@ const DICT = {
     bookUnlocked:'✅ Chapitres débloqués ! Bonne lecture.',
     bookPrev:'← Précédent', bookNext:'Suivant →', bookReaderClose:'✕',
     bookChapterLocked:'🔒 Ce chapitre est verrouillé.',
-    classicTitle:'Jeux Classiques', classicDesc:'Puissance 4 · Morpion · Échecs',
+    classicTitle:'Jeux Classiques', classicDesc:'Puissance 4 · Morpion · Échecs · Dames',
+    landingTagClassic:"En tête d'affiche", landingTagTrivia:'Le plus joué',
+    landingChipDuel:'Duel en ligne', landingChipBot:'Contre le bot',
+    landingChipThemes:'30 thèmes', landingChipSpeed:'Bonus de vitesse',
     triviaTitle:'Culture Générale', triviaDesc:'Quiz par thèmes · Solo & Multi',
     homeSubtitle:'2 joueurs • Temps réel',
     botLabel:'🤖 Jouer seul contre le robot :',
@@ -1527,7 +1530,10 @@ const DICT = {
     bookUnlocked:'✅ Chapters unlocked! Enjoy.',
     bookPrev:'← Previous', bookNext:'Next →', bookReaderClose:'✕',
     bookChapterLocked:'🔒 This chapter is locked.',
-    classicTitle:'Classic Games', classicDesc:'Connect 4 · Tic Tac Toe · Chess',
+    classicTitle:'Classic Games', classicDesc:'Connect 4 · Tic Tac Toe · Chess · Draughts',
+    landingTagClassic:'Top billing', landingTagTrivia:'Most played',
+    landingChipDuel:'Online duel', landingChipBot:'Versus the bot',
+    landingChipThemes:'30 themes', landingChipSpeed:'Speed bonus',
     triviaTitle:'General Knowledge', triviaDesc:'Themed quizzes · Solo & Multi',
     homeSubtitle:'2 players • Real time',
     botLabel:'🤖 Play solo against the bot:',
@@ -2260,6 +2266,14 @@ function applyLang() {
   if (bc) { bc.querySelector('h2').textContent = d.classicTitle; bc.querySelector('p').textContent = d.classicDesc; }
   const bgt = $('btn-go-trivia');
   if (bgt) { bgt.querySelector('h2').textContent = d.triviaTitle; bgt.querySelector('p').textContent = d.triviaDesc; }
+  // Reperes de hierarchie et puces des deux cartes phares.
+  const _setTxt = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+  _setTxt('landing-tag-classic',  d.landingTagClassic);
+  _setTxt('landing-tag-trivia',   d.landingTagTrivia);
+  _setTxt('landing-chip-duel',    d.landingChipDuel);
+  _setTxt('landing-chip-bot',     d.landingChipBot);
+  _setTxt('landing-chip-themes',  d.landingChipThemes);
+  _setTxt('landing-chip-speed',   d.landingChipSpeed);
 
   // Home classic
   const hs = $('home-subtitle');   if (hs) hs.textContent = d.homeSubtitle;
@@ -5817,7 +5831,18 @@ const _FONT_DISPLAY_NAMES = {
 
 // Sélection « À la une » : un mélange varié (fonds, couleurs, effet, titre) mis
 // en avant. Sert de repli si le serveur ne fournit pas de rotation featured.
-const _FEATURED_IDS = ['bg-hologramme', 'bg-galaxie', 'bg-synthwave', 'rainbow', 'gold', 'nameeffect-rainbow', 'title-champion', 'diamond'];
+// Les arrivages de la rotation viennent en tête, les anciens premiums restent en
+// secours : ils sont filtrés tout seuls dès que la rotation les retire de la
+// boutique (voir _applyOv), donc le rayon n'est jamais vide, avant comme après J14.
+const _FEATURED_IDS = [
+  // Arrivages de la rotation (ROTATION_PLAN, backend/server.js)
+  'bg-wax', 'bg-marche-nuit', 'color-benin', 'bg-terrain', 'bg-matrice',
+  'snakeskin-8bit', 'bg-harmattan', 'bg-orage', 'nameeffect-flammes',
+  'nameeffect-glace', 'color-pagne', 'title-sage', 'title-wordking', 'bg-lagune',
+  // Anciens premiums (retirés au J14, filtrés automatiquement ensuite)
+  'bg-hologramme', 'bg-galaxie', 'bg-synthwave', 'rainbow', 'gold',
+  'nameeffect-rainbow', 'title-champion', 'diamond',
+];
 
 const ALL_BUNDLES = [
   { id:'bundle-debutant',    items:['silver','bubble-ardoise','bg-nuit','boost_hint_10'], totalPrice:38,  bundlePrice:25  },
