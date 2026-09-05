@@ -68,6 +68,7 @@ html.restoring[data-restore="luffy"]         #screen-luffy,
 html.restoring[data-restore="feed"]          #screen-feed,
 html.restoring[data-restore="ideas"]         #screen-ideas,
 html.restoring[data-restore="wordle"]        #screen-wordle,
+html.restoring[data-restore="shop"]          #screen-shop,
 html.restoring[data-restore="read"]          #screen-read { display: flex !important; }
 
 .screen[data-restored] { animation: none !important; }
@@ -719,7 +720,7 @@ h1 {
   border-radius: 0 var(--radius) var(--radius) 0;
 }
 .news-card:not(.collapsed) .news-handle { display: none; }
-body:has(#overlay-shop:not(.hidden)) #news-card { display: none !important; }
+body.screen-shop-active #news-card { display: none !important; }
 .news-title {
   font-size: .7rem; font-weight: 700;
   color: var(--accent); text-transform: uppercase;
@@ -927,7 +928,7 @@ html.light .news-star { background: rgba(234,179,8,.08); }
 .main-nav.hidden { display: none !important; }
 /* La barre de nav reste visible au-dessus de la boutique (z-index 901 > overlay 100)
    pour qu'on puisse toujours revenir a l'accueil ; cliquer un onglet ferme la boutique. */
-body.shop-open .main-nav { z-index: 2000; }
+
 .nav-tab {
   display: flex; align-items: center; gap: 6px;
   padding: 7px 18px;
@@ -955,6 +956,9 @@ body.shop-open .main-nav { z-index: 2000; }
      (aide a gauche, chatbot a droite) au-dessus d'elle pour qu'elle ne les masque plus. */
   body.nav-bottom-visible .btn-help-float,
   body.nav-bottom-visible .btn-chatbot-float { bottom: 74px; }
+  /* Boutique en pleine page : le dernier article ne doit pas finir sous la barre. */
+  body.screen-shop-active .shop-fn-body,
+  body.screen-shop-active .shop-fn-detail { padding-bottom: 86px; }
 }
 
 /* Très petits écrans : on compacte encore les onglets pour qu'ils tiennent. */
@@ -2088,7 +2092,7 @@ html.light .overlay                { background: rgba(30,27,75,.55); }
 html.light #screen-landing         { background: radial-gradient(ellipse at 50% 5%, rgba(99,102,241,.1) 0%, transparent 65%); }
 
 /* ── Boutique · thème jour ��─ */
-html.light #overlay-shop { background: rgba(99,102,241,.18); }
+
 html.light .shop-fortnite {
   background: linear-gradient(180deg, #eef1ff 0%, #f4f6ff 60%, #e8ecff 100%);
 }
@@ -2515,7 +2519,11 @@ html.light .chatbot-chip  { color: var(--text); }
 }
 
 /* ── Shop Fortnite ── */
-#overlay-shop { padding: 0; background: rgba(0,0,0,.88); backdrop-filter: blur(4px); }
+
+/* Boutique en pleine page (elle etait un overlay centre). */
+#screen-shop { padding: 0; justify-content: flex-start; }
+#screen-shop .shop-fortnite { border-radius: 0; max-width: none; }
+
 .shop-fortnite {
   width: 100%; height: 100%;
   background: linear-gradient(180deg,#0d0d1a 0%,#131326 60%,#0a0a14 100%);
@@ -4410,8 +4418,8 @@ html.light .landing-card::before, html.light .profile-nav-card::before {
 }
 .notif-bell.hidden { display: none; }
 /* Jamais de cloche par-dessus la boutique. */
-body.shop-open .notif-bell,
-body.shop-open .notif-panel { display: none !important; }
+body.screen-shop-active .notif-bell,
+body.screen-shop-active .notif-panel { display: none !important; }
 .notif-bell.has-unread { animation: bellRing 1.4s ease-in-out infinite; }
 @keyframes bellRing { 0%,92%,100% { transform: rotate(0); } 94% { transform: rotate(12deg); } 96% { transform: rotate(-10deg); } 98% { transform: rotate(6deg); } }
 .notif-count {

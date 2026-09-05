@@ -2515,20 +2515,21 @@ function _scheduleNewsCollapse() {
   }, 5000);
 }
 
+// La boutique n'est plus un overlay : elle est ouverte quand son ecran est actif.
+function _isShopOpen() {
+  const el = document.getElementById('screen-shop');
+  return !!el && el.classList.contains('active');
+}
+let _wasShopScreen = false;
 function showScreen(name) {
   const wasRestoring = document.documentElement.classList.contains('restoring');
-  // Naviguer vers un ecran ferme la boutique si elle est ouverte (on ne reste
-  // jamais coince dans l'overlay boutique sans acces a la barre de nav).
-  const _shopOv = document.getElementById('overlay-shop');
-  if (_shopOv && !_shopOv.classList.contains('hidden')) { _shopOv.classList.add('hidden'); document.body.classList.remove('shop-open'); }
-  { const shopTab = document.getElementById('nav-tab-shop'); if (shopTab) { shopTab.classList.remove('active'); shopTab.setAttribute('aria-selected', 'false'); } }
   const el = document.getElementById('screen-' + name);
   // Marquer avant de retirer restoring : supprime l'animation quand JS active l'écran
   if (wasRestoring && el) el.setAttribute('data-restored', '');
   document.documentElement.classList.remove('restoring');
   document.documentElement.removeAttribute('data-restore');
   sessionStorage.setItem('libero_screen', name);
-  const TOP = { landing: 0, ideas: 1, read: 2, profile: 3 };
+  const TOP = { landing: 0, ideas: 1, read: 2, shop: 3, profile: 4 };
   // Capture l'onglet de premier niveau actuellement actif AVANT de le retirer,
   // pour connaitre la direction du glissement (robuste des le 1er clic).
   let prevTop = null;
@@ -2559,6 +2560,7 @@ function showScreen(name) {
   document.body.classList.toggle('screen-feed-active', name === 'feed');
   document.body.classList.toggle('screen-ideas-active', name === 'ideas');
   document.body.classList.toggle('screen-read-active', name === 'read');
+  document.body.classList.toggle('screen-shop-active', name === 'shop');
   document.body.classList.toggle('screen-profile-active', name === 'profile');
   document.body.classList.toggle('screen-locker-active', name === 'locker');
   document.body.classList.toggle('screen-history-active', name === 'history');
@@ -2568,7 +2570,7 @@ function showScreen(name) {
   // onglet actif synchronisé avec l'écran courant.
   const nav = document.getElementById('main-nav');
   if (nav) {
-    const onTopLevel = (name === 'landing' || name === 'ideas' || name === 'read' || name === 'profile');
+    const onTopLevel = (name === 'landing' || name === 'ideas' || name === 'read' || name === 'shop' || name === 'profile');
     nav.classList.toggle('hidden', !onTopLevel);
     // La cloche de notifications n'apparait que sur les ecrans de 1er niveau.
     const _bell = document.getElementById('notif-bell');
@@ -2581,10 +2583,12 @@ function showScreen(name) {
     const homeTab = document.getElementById('nav-tab-home');
     const feedTab = document.getElementById('nav-tab-ideas');
     const readTab = document.getElementById('nav-tab-read');
+    const shopTab = document.getElementById('nav-tab-shop');
     const profTab = document.getElementById('nav-tab-profile');
     if (homeTab) { homeTab.classList.toggle('active', name === 'landing'); homeTab.setAttribute('aria-selected', String(name === 'landing')); }
     if (feedTab) { feedTab.classList.toggle('active', name === 'ideas');   feedTab.setAttribute('aria-selected', String(name === 'ideas')); }
     if (readTab) { readTab.classList.toggle('active', name === 'read');    readTab.setAttribute('aria-selected', String(name === 'read')); }
+    if (shopTab) { shopTab.classList.toggle('active', name === 'shop');    shopTab.setAttribute('aria-selected', String(name === 'shop')); }
     if (profTab) { profTab.classList.toggle('active', name === 'profile'); profTab.setAttribute('aria-selected', String(name === 'profile')); }
   }
   if (window._profileHub) {
@@ -2601,6 +2605,9 @@ function showScreen(name) {
   if (window._ideasBoard && name === 'ideas') window._ideasBoard.load();
   if (window._wordle && name === 'wordle') window._wordle.enter();
   if (window._readFeed && name === 'read') window._readFeed.load();
+  if (name === 'shop') { if (typeof enterShop === 'function') enterShop(); }
+  else if (_wasShopScreen && typeof _resetShopPanels === 'function') _resetShopPanels();
+  _wasShopScreen = (name === 'shop');
 
   const nc = document.getElementById('news-card');
   if (nc) nc.style.display = name === 'landing' ? '' : 'none';
@@ -5252,7 +5259,7 @@ socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq,
     if (newSoundPack   !== undefined) equippedSoundPack   = newSoundPack;
     if (newEmotes !== undefined) equippedEmotes = newEmotes || [];
     _renderEmoteBar();
-    if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+    if (_isShopOpen()) _renderShopItems();
   }
   if (newRefundCards !== undefined) { refundCards = newRefundCards; }
   if (newRefillAt    !== undefined) { refundCardsNextRefill = newRefillAt; }
@@ -5297,7 +5304,7 @@ socket.on('buy-cosmetic-result', ({ ok, cosmeticId, error } = {}) => {
     window._sound?.play("coin");
     _showShopFeedback(t().shopCosmeticBought, '#22c55e');
     if (cosmeticId?.startsWith('emote-')) _renderEmoteBar();
-    if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+    if (_isShopOpen()) _renderShopItems();
     // Achat depuis le rayon Emotes du profil (casier) : rafraîchir la vue.
     if (window._profileHub && document.body.classList.contains('screen-locker-active')) window._profileHub.renderLocker();
   } else {
@@ -5330,7 +5337,7 @@ socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippe
     if (newVictoryBan  !== undefined) equippedVictoryBan  = newVictoryBan;
     if (newSoundPack   !== undefined) equippedSoundPack   = newSoundPack;
     if (newEmotes !== undefined) { equippedEmotes = newEmotes || []; _renderEmoteBar(); }
-    if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+    if (_isShopOpen()) _renderShopItems();
   }
   // Rafraîchit le casier tout de suite : permet de rééquiper juste après avoir
   // déséquipé, sans avoir à recharger la page.
@@ -5345,7 +5352,7 @@ socket.on('refund-cosmetic-result', ({ ok, refundCards: newCards, delta, error }
     _shopDetailItem = null;
     const panel = $('shop-detail-panel');
     if (panel) panel.classList.add('hidden');
-    if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+    if (_isShopOpen()) _renderShopItems();
     _updateSettingsPanel();
   } else {
     const msg = error === 'no_cards'  ? t().shopRefundNoCards
@@ -5357,7 +5364,7 @@ socket.on('refund-cosmetic-result', ({ ok, refundCards: newCards, delta, error }
 
 socket.on('shop-rotation', data => {
   shopRotation = data;
-  if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+  if (_isShopOpen()) _renderShopItems();
   _startShopCountdown(data.resetAt);
 });
 
@@ -5585,7 +5592,11 @@ function _playLibsSound() {
 }
 
 // ── Libs : boutique ───────────────────────────────────────────────────────────
-function openShop() {
+// La boutique est un ecran de premier niveau : y aller, c'est naviguer. Le
+// remplissage se fait dans enterShop(), appele par showScreen.
+function openShop() { showScreen('shop'); }
+
+function enterShop() {
   const d = t();
   const title = $('shop-modal-title');
   if (title) title.textContent = d.shopTitle;
@@ -5602,9 +5613,6 @@ function openShop() {
   _renderShopItems();
   _loadLibsPacks();
   socket.emit('get-libs', { playerId: getPlayerId() });
-  $('overlay-shop').classList.remove('hidden');
-  document.body.classList.add('shop-open'); // la barre de nav reste visible pendant la boutique
-  _setShopNavActive(true); // le bleu de l'onglet se pose sur Boutique
 }
 
 // Marque (ou non) l'onglet Boutique comme actif ; quand actif, deselectionne les autres.
@@ -6350,7 +6358,7 @@ function _renderShopItems() {
       clearTimeout(_focusDebounceTimer);
       _focusDebounceTimer = setTimeout(() => {
         _pendingShopFocus = null;
-        if ($('overlay-shop').classList.contains('hidden')) return;
+        if (!_isShopOpen()) return;
         const finalTile = container.querySelector(`.shop-tile[data-id="${capturedId}"]`);
         if (!finalTile) return;
         finalTile.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -6380,7 +6388,7 @@ function _renderShopItems() {
       clearTimeout(_focusDebounceTimer);
       _focusDebounceTimer = setTimeout(() => {
         _pendingShopFocusIds = null;
-        if ($('overlay-shop').classList.contains('hidden')) return;
+        if (!_isShopOpen()) return;
         const finalTiles = capturedIds
           .map(id => container.querySelector(`.shop-tile[data-id="${id}"]`))
           .filter(Boolean);
@@ -6864,9 +6872,9 @@ document.addEventListener('click', e => {
 }, true);
 
 $('libs-counter').addEventListener('click', openShop);
-$('btn-shop-close').addEventListener('click', () => {
-  $('overlay-shop').classList.add('hidden');
-  document.body.classList.remove('shop-open');
+// Quitter la boutique remet ses panneaux a zero (il n'y a plus de croix de
+// fermeture : on en sort par la barre de navigation).
+function _resetShopPanels() {
   sessionStorage.removeItem('shopState');
   const dp = $('shop-detail-panel');
   if (dp) dp.classList.add('hidden');
@@ -6881,13 +6889,9 @@ $('btn-shop-close').addEventListener('click', () => {
   _pendingShopFocusIds = null;
   clearTimeout(_focusDebounceTimer);
   _focusDebounceTimer  = null;
-  // Retire le bleu de l'onglet Boutique et le redonne a l'ecran de fond courant.
-  _setShopNavActive(false);
-  const _cur = (() => { try { return sessionStorage.getItem('libero_screen'); } catch { return null; } })();
-  const _map = { landing: 'nav-tab-home', ideas: 'nav-tab-ideas', read: 'nav-tab-read', profile: 'nav-tab-profile' };
-  const _tabId = _map[_cur];
-  if (_tabId) { const el = document.getElementById(_tabId); if (el) { el.classList.add('active'); el.setAttribute('aria-selected', 'true'); } }
-});
+  // La barre de navigation est desormais geree par showScreen, comme pour les
+  // autres ecrans de premier niveau.
+}
 
 // Affichage initial du compteur
 (function() {
@@ -10370,13 +10374,9 @@ socket.on('book-readers-update', ({ bookId, count } = {}) => {
   if (bookId != null && typeof count === 'number') ReadFeed.setReaders(bookId, count);
 });
 
-// La boutique est un overlay : quand elle est ouverte, cliquer un onglet doit
-// toujours la fermer et afficher l'ecran, meme si c'est l'ecran de fond courant
-// (sinon le garde-fou « meme ecran » bloque et la boutique reste coincee).
-function _shopIsOpen() {
-  const ov = document.getElementById('overlay-shop');
-  return !!ov && !ov.classList.contains('hidden');
-}
+// La boutique etant devenue un ecran, un clic d'onglet est une navigation
+// ordinaire : on ne refait rien si on y est deja.
+const _shopIsOpen = () => false;
 document.getElementById('nav-tab-home')?.addEventListener('click', () => {
   if (!_shopIsOpen() && sessionStorage.getItem('libero_screen') === 'landing') return;
   showScreen('landing');
@@ -10390,7 +10390,7 @@ document.getElementById('nav-tab-read')?.addEventListener('click', () => {
   showScreen('read');
 });
 // La boutique est un overlay (pas un ecran de nav) : l'onglet l'ouvre directement.
-document.getElementById('nav-tab-shop')?.addEventListener('click', () => { if (typeof openShop === 'function') openShop(); });
+document.getElementById('nav-tab-shop')?.addEventListener('click', () => showScreen('shop'));
 document.getElementById('nav-tab-profile')?.addEventListener('click', () => {
   if (!_shopIsOpen() && sessionStorage.getItem('libero_screen') === 'profile') return;
   showScreen('profile');
@@ -10914,12 +10914,12 @@ if (equippedBackground) BGManager.start(equippedBackground);
 // Reopen shop after accidental page refresh · y compris le panneau Recharger
 // ou le formulaire d'un pack précis (avec la saisie déjà en cours), exactement
 // comme le joueur l'avait laissé.
-if (sessionStorage.getItem('shopState')) {
-  // Capturé AVANT openShop() : openShop() réécrit shopState en ne gardant que
-  // { open, scrollTop }, donc view/pack/form doivent être lus maintenant.
+if (sessionStorage.getItem('libero_screen') === 'shop' && sessionStorage.getItem('shopState')) {
+  // L'ecran lui-meme est restaure par showScreen ; il ne reste qu'a rouvrir le
+  // panneau interne (Recharger, ou le formulaire d'un pack precis avec sa saisie).
+  // Lu maintenant : enterShop() reecrit shopState en ne gardant que { open, scrollTop }.
   const _savedShopPanel = (() => { try { return JSON.parse(sessionStorage.getItem('shopState')); } catch { return null; } })();
   setTimeout(() => {
-    openShop();
     if (_savedShopPanel?.view === 'topup') {
       _openLibsTopupPanel();
     } else if (_savedShopPanel?.view === 'buy' && _savedShopPanel.pack) {
@@ -11884,7 +11884,7 @@ try {
       else if (!vis) shown.delete(el);
     };
     const obs = new MutationObserver(ms => { for (const m of ms) if (m.attributeName === 'class') check(m.target); });
-    document.querySelectorAll('.overlay, #overlay-shop').forEach(el => {
+    document.querySelectorAll('.overlay').forEach(el => {
       if (!el.classList.contains('hidden')) shown.add(el);
       obs.observe(el, { attributes: true, attributeFilter: ['class'] });
     });
@@ -12615,7 +12615,7 @@ socket.on('gift-cosmetic-result', ({ ok, code, error, toFriend } = {}) => {
       // Lien ou code : ouvre la modal, en mettant en avant la méthode choisie.
       window._openGiftModal?.(code, window._giftDeliverVia);
     }
-    if (!$('overlay-shop').classList.contains('hidden')) _renderShopItems();
+    if (_isShopOpen()) _renderShopItems();
   } else {
     const msg = error === 'insufficient' ? t().shopInsufficient
               : error === 'anonymous'    ? t().shopCosmeticAnon
@@ -12631,7 +12631,7 @@ socket.on('gift-cosmetic-result', ({ ok, code, error, toFriend } = {}) => {
 });
 
 socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, error } = {}) => {
-  const shopOpen = !$('overlay-shop').classList.contains('hidden');
+  const shopOpen = _isShopOpen();
   if (ok) {
     (Array.isArray(granted) && granted.length ? granted : (cosmeticId ? [cosmeticId] : []))
       .forEach(id => { if (!ownedCosmetics.includes(id)) ownedCosmetics.push(id); });
@@ -12891,7 +12891,7 @@ socket.on('claim-challenge-result', ({ ok, reward, allDoneBonus } = {}) => {
   // Catalogue boutique pilote par l'admin (articles forces + comptes a rebours).
   socket.on('shop-overrides', ({ overrides } = {}) => {
     window._shopOverrides = overrides || {};
-    if (!document.getElementById('overlay-shop')?.classList.contains('hidden')) _renderShopItems();
+    if (_isShopOpen()) _renderShopItems();
     // Rayon Emotes du profil : refléter les retraits/comptes à rebours de l'admin.
     if (window._profileHub && document.body.classList.contains('screen-locker-active')) window._profileHub.renderLocker();
   });
