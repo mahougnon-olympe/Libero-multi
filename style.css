@@ -4674,3 +4674,43 @@ html.light .honor-reward-title { color: #b45309; }
 .level-tier-1 .level-sub { color: #fff; }
 .level-tier-1 .level-sub { opacity: .82; }
 .level-tier-1 .level-bar { background: rgba(255,255,255,.25); }
+
+/* ── Etapes numerotees : donnent un ordre de lecture aux ecrans de reglage
+      (jeux classiques, quiz), ou tout etait empile a poids egal. Le numero est
+      un compteur CSS, donc rien a maintenir dans le HTML ni dans les traductions. */
+#screen-home, #screen-trivia-home { counter-reset: etape; }
+.step-label,
+#screen-trivia-home .trivia-theme-label {
+  display: flex; align-items: center; gap: 9px;
+  width: 100%; max-width: 380px; margin: 0;
+  font-family: var(--font-display);
+  font-size: .74rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted);
+}
+.step-label::before,
+#screen-trivia-home .trivia-theme-label::before {
+  counter-increment: etape;
+  content: counter(etape);
+  flex-shrink: 0;
+  width: 20px; height: 20px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(99,102,241,.18); border: 1px solid var(--border);
+  color: var(--accent);
+  font-size: .68rem; letter-spacing: 0;
+}
+/* Dans la carte de reglages, l'etape ouvre le bloc : un filet la separe. */
+.card > .step-label { padding-bottom: 10px; border-bottom: 1px solid var(--hairline); }
+/* Le libelle du nombre de questions porte deja une valeur : pas de puce en double. */
+#screen-trivia-home .trivia-nb-row .trivia-theme-label { text-transform: none; letter-spacing: 0; font-size: .82rem; }
+
+/* Le champ de code est en grandes capitales espacees pour la saisie, mais ce
+   traitement s'appliquait aussi a son texte d'invite : « Code a 4 lettres »
+   debordait du champ et se lisait « CODE A 4 LETTRE ». L'invite reprend une
+   taille de texte normale ; la valeur saisie garde son traitement. */
+#input-code::placeholder, #input-trivia-code::placeholder {
+  font-size: .95rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--muted);
+}

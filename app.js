@@ -802,6 +802,7 @@ const DICT = {
     bookChapterLocked:'🔒 Ce chapitre est verrouillé.',
     classicTitle:'Jeux Classiques', classicDesc:'Puissance 4 · Morpion · Échecs · Dames',
     landingTagClassic:"En tête d'affiche", landingTagTrivia:'Le plus joué',
+    stepPickGame:'Choisis ton jeu', stepLaunch:'Lance la partie',
     profileSecPlay:'Jouer et gagner', profileSecCollection:'Ma collection',
     profileSecActivity:'Mon activité', profileSecAccount:'Mon compte',
     landingChipDuel:'Duel en ligne', landingChipBot:'Contre le bot',
@@ -1534,6 +1535,7 @@ const DICT = {
     bookChapterLocked:'🔒 This chapter is locked.',
     classicTitle:'Classic Games', classicDesc:'Connect 4 · Tic Tac Toe · Chess · Draughts',
     landingTagClassic:'Top billing', landingTagTrivia:'Most played',
+    stepPickGame:'Pick your game', stepLaunch:'Start the game',
     profileSecPlay:'Play and earn', profileSecCollection:'My collection',
     profileSecActivity:'My activity', profileSecAccount:'My account',
     landingChipDuel:'Online duel', landingChipBot:'Versus the bot',
@@ -2282,6 +2284,8 @@ function applyLang() {
 
   // Home classic
   const hs = $('home-subtitle');   if (hs) hs.textContent = d.homeSubtitle;
+  const spg = $('step-pick-game'); if (spg) spg.textContent = d.stepPickGame;
+  const spl = $('step-launch');    if (spl) spl.textContent = d.stepLaunch;
   const gnc = $('gn-connect4');    if (gnc) gnc.textContent = d.games.connect4;
   const gntt = $('gn-tictactoe'); if (gntt) gntt.textContent = d.games.tictactoe;
   const gnch = $('gn-chess');     if (gnch) gnch.textContent = d.games.chess;
