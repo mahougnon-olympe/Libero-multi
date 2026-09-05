@@ -529,7 +529,7 @@ function safePlayerId(id) {
 // quelle que soit la page).
 function sanitizeName(name, fallback = '') {
   const cleaned = String(name == null ? '' : name)
-    .replace(/[<>&"'` -]/g, '')
+    .replace(/[<>&"'`\x00-\x1f\x7f]/g, '')
     .trim()
     .slice(0, 20)
     .trim();
