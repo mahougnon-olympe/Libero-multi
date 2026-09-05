@@ -7160,6 +7160,8 @@ const cursorSnake = (() => {
   let _hidden     = false;
   let _gameActive = false; // true quand le serpent "joue" dans le Snake Challenge
   let _eventBonus = Math.min(8, Math.floor(parseInt(localStorage.getItem('libero_snake_event_hs') || '0', 10) / 2));
+  let _raf = null;
+  function wake() { if (_raf === null && segs.length) _raf = requestAnimationFrame(tick); }
 
   function hueFor(rank) {
     return rank === 1 ? 48 : rank === 2 ? 205 : rank === 3 ? 22 : 140;
@@ -7194,39 +7196,61 @@ const cursorSnake = (() => {
         shadow = i === 0 ? `0 0 8px 3px hsl(${h},80%,65%)` : '';
         radius = '50%';
       }
+      // left/top restent a 0 : la position est portee par le transform (voir paint),
+      // ce qui garde chaque segment sur sa propre couche de composition.
       el.style.cssText =
-        `position:fixed;border-radius:${radius};pointer-events:none;user-select:none;` +
-        `z-index:${999 - i};transform:translate(-50%,-50%);` +
+        `position:fixed;left:0;top:0;border-radius:${radius};pointer-events:none;user-select:none;` +
+        `z-index:${999 - i};will-change:transform;` +
         `width:${sz.toFixed(1)}px;height:${sz.toFixed(1)}px;` +
         `background:${bg};` +
         `opacity:${(1 - p * 0.82).toFixed(2)};` +
         (shadow ? `box-shadow:${shadow};` : '');
       document.body.appendChild(el);
-      segs.push({ el, x: mx, y: my });
+      const seg = { el, x: mx, y: my };
+      paint(seg);
+      segs.push(seg);
     }
+    wake();
   }
 
-  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; wake(); }, { passive: true });
   document.addEventListener('touchmove', e => {
-    const t = e.touches[0]; mx = t.clientX; my = t.clientY;
+    const t = e.touches[0]; mx = t.clientX; my = t.clientY; wake();
   }, { passive: true });
 
-  (function tick() {
-    if (segs.length) {
-      const _tx = _overrideMx !== null ? _overrideMx : mx;
-      const _ty = _overrideMy !== null ? _overrideMy : my;
-      segs[0].x += (_tx - segs[0].x) * _flySpeed;
-      segs[0].y += (_ty - segs[0].y) * _flySpeed;
-      for (let i = 1; i < segs.length; i++) {
-        const pr = segs[i - 1], cu = segs[i];
-        const dx = pr.x - cu.x, dy = pr.y - cu.y;
-        const d  = Math.hypot(dx, dy);
-        if (d > GAP) { const r = (d - GAP) / d * 0.5; cu.x += dx * r; cu.y += dy * r; }
+  // Ecrire left/top animait le layout de la page a chaque frame : sur les ecrans
+  // qui portent un backdrop-filter (toutes les .overlay, la boutique, le chat)
+  // le navigateur recalculait le flou plein ecran 60 fois par seconde, d'ou les
+  // saccades. Le transform reste sur le compositeur : plus de layout, plus de flou
+  // recalcule, le serpent glisse partout de la meme facon.
+  function paint(s) {
+    s.el.style.transform = `translate3d(${s.x.toFixed(1)}px, ${s.y.toFixed(1)}px, 0) translate(-50%, -50%)`;
+  }
+
+  function tick() {
+    _raf = null;
+    if (!segs.length) return;
+    const _tx = _overrideMx !== null ? _overrideMx : mx;
+    const _ty = _overrideMy !== null ? _overrideMy : my;
+    const hdx = (_tx - segs[0].x) * _flySpeed, hdy = (_ty - segs[0].y) * _flySpeed;
+    segs[0].x += hdx;
+    segs[0].y += hdy;
+    let moved = Math.abs(hdx) + Math.abs(hdy);
+    for (let i = 1; i < segs.length; i++) {
+      const pr = segs[i - 1], cu = segs[i];
+      const dx = pr.x - cu.x, dy = pr.y - cu.y;
+      const d  = Math.hypot(dx, dy);
+      if (d > GAP) {
+        const r = (d - GAP) / d * 0.5;
+        cu.x += dx * r; cu.y += dy * r;
+        moved += Math.abs(dx * r) + Math.abs(dy * r);
       }
-      segs.forEach(s => { s.el.style.left = `${s.x}px`; s.el.style.top = `${s.y}px`; });
     }
-    requestAnimationFrame(tick);
-  })();
+    for (let i = 0; i < segs.length; i++) paint(segs[i]);
+    // Au repos on rend la main : plus aucune frame consommee tant que le
+    // pointeur ne bouge pas (rien ne tourne en fond pendant une partie).
+    if (moved > 0.08) _raf = requestAnimationFrame(tick);
+  }
 
   build(Math.min(MAX, Math.max(MIN, MIN + _eventBonus)), curHue);
 
@@ -7265,6 +7289,7 @@ const cursorSnake = (() => {
     flyTo(x, y, cb) {
       _overrideMx = x; _overrideMy = y;
       _flySpeed   = 0.28;
+      wake();
       let tries = 0;
       const check = setInterval(() => {
         tries++;
@@ -8611,17 +8636,37 @@ function _currentEmojiSet() {
 }
 
 // Joue la pluie (au chargement de l'accueil, et via « Tester » dans le menu).
+let _emojiRainWrap = null, _emojiRainTimer = null;
 window._playEmojiRain = function (emojisOverride) {
+  // Chaque emoji porte deux animations CSS et une couche de composition : a 100
+  // gouttes cela saturait le thread principal pendant 8,5 s, sur TOUS les ecrans
+  // (le serpent et les transitions saccadaient le temps de la pluie). On adapte
+  // donc la densite a l'ecran et a la machine, et on n'en joue jamais deux a la fois.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
   let EMOJIS = _currentEmojiSet();
   if (typeof emojisOverride === 'string' && emojisOverride.trim()) {
     const m = emojisOverride.match(/\p{Extended_Pictographic}️?/gu);
     if (m && m.length) EMOJIS = m;
   }
-  const wrap = document.createElement('div');
-  wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9998;';
-  document.body.appendChild(wrap);
 
-  for (let i = 0; i < 100; i++) {
+  // Une pluie deja en cours est remplacee, jamais empilee.
+  clearTimeout(_emojiRainTimer);
+  if (_emojiRainWrap) _emojiRainWrap.remove();
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9998;contain:strict;';
+  document.body.appendChild(wrap);
+  _emojiRainWrap = wrap;
+
+  // Densite proportionnelle a la surface visible (un telephone recoit environ 30
+  // gouttes la ou un grand ecran en recoit 100), divisee par deux sur les
+  // appareils modestes.
+  const area  = Math.max(1, window.innerWidth * window.innerHeight);
+  const weak  = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
+  const COUNT = Math.max(18, Math.min(100, Math.round(area / 12000) >> (weak ? 1 : 0)));
+
+  for (let i = 0; i < COUNT; i++) {
     const size     = (0.9 + Math.random() * 0.8).toFixed(2);
     const left     = (Math.random() * 97).toFixed(1);
     const fallDur  = (2.8 + Math.random() * 3).toFixed(2);
@@ -8645,7 +8690,10 @@ window._playEmojiRain = function (emojisOverride) {
     wrap.appendChild(outer);
   }
 
-  setTimeout(() => wrap.remove(), 8500);
+  _emojiRainTimer = setTimeout(() => {
+    wrap.remove();
+    if (_emojiRainWrap === wrap) _emojiRainWrap = null;
+  }, 8500);
 };
 
 // Au chargement : uniquement sur l'accueil.
