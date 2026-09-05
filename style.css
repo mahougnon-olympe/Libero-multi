@@ -4569,3 +4569,73 @@ body.screen-shop-active .notif-panel { display: none !important; }
 .pw-toggle.on { color: var(--accent); opacity: 1; }
 .pw-toggle:active { transform: translateY(-50%) scale(.9); }
 .account-confirm.hidden { display: none !important; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CHARTE DU SITE (direction « Nuit de fete »)
+   Le site avait accumule neuf valeurs de rayon et une trentaine de regles de
+   titres posees au cas par cas : d'un ecran a l'autre rien n'etait franchement
+   different, mais rien n'etait tout a fait pareil. Ce bloc, place en fin de
+   feuille pour gagner a specificite egale, donne au site une echelle unique
+   dont tous les ecrans heritent. Il ne touche ni les positions ni les tailles :
+   uniquement la typographie, les rayons, les surfaces et les accents.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Echelle de rayons : quatre marches au lieu de neuf valeurs libres. */
+  --r-sm:   10px;
+  --r-md:   14px;
+  --r-lg:   20px;
+  --r-pill: 999px;
+}
+
+/* ── 1. Typographie : les titres et les chiffres portent la police d'affichage,
+      le texte courant reste en Karla. ───────────────────────────────────── */
+h1, h2, h3,
+.btn, .nav-tab, .btn-back, .btn-primary,
+.lb-title, .lb-header, .chat-title, .game-header-center,
+.idea-title, .locker-detail-title, .locker-item-name,
+.book-reader-title, .feed-overlay-title, .challenge-name,
+.help-modal-title, .comment-modal-title, .chatbot-header-txt,
+.shop-fn-title, .shop-fn-detail-name, .shop-tile-name,
+.profile-pseudo, .streak-main, .level-main, .honor-reward-title,
+.dailygift-itemname, .friend-name, .lb-name, .game-btn-name {
+  font-family: var(--font-display);
+  letter-spacing: -.01em;
+}
+/* Les valeurs chiffrees (soldes, prix, scores, rangs) gagnent a etre tabulaires. */
+.shop-tile-price, .shop-fn-balance-amount, .lb-score, .lb-pts,
+.level-badge, .profile-balance-row, .streak-sub, .history-row {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 2. Rayons : une seule echelle sur toutes les familles de surfaces. ──── */
+.landing-card, .profile-nav-card, .global-lb-card, .idea-card,
+.shop-tile, .read-card, .challenge-row, .history-row, .friend-row,
+.streak-banner, .level-banner, .onboard-quest, .profile-balance-row,
+.profile-badges-wrap, .announcement-box, .honor-reward-box {
+  border-radius: var(--r-md);
+}
+.landing-card--hero, .help-modal, .comment-modal, .community-modal,
+.giftrecv-modal, .recovery-modal, .chatbot-panel, .help-panel {
+  border-radius: var(--r-lg);
+}
+.btn, .btn-primary, .btn-back { border-radius: var(--r-sm); }
+.nav-tab, .landing-chip, .shop-fn-topup-btn { border-radius: var(--r-pill); }
+
+/* ── 3. Surfaces : meme matiere partout (fond, filet, elevation). ────────── */
+.landing-card, .profile-nav-card, .global-lb-card, .idea-card,
+.read-card, .streak-banner, .level-banner, .onboard-quest,
+.profile-badges-wrap, .announcement-box {
+  border: 1px solid var(--border);
+  box-shadow: var(--elev-1);
+}
+.help-modal, .comment-modal, .community-modal, .giftrecv-modal,
+.recovery-modal, .chatbot-panel {
+  box-shadow: var(--elev-3);
+}
+
+/* ── 4. Accents : l'or marque la valeur et la hierarchie (Libs, rang 1,
+      recompenses), l'indigo reste la couleur de l'action. ───────────────── */
+.shop-tile-price, .shop-fn-balance-amount, .lb-rank-1, .honor-reward-title {
+  color: var(--gold);
+}
