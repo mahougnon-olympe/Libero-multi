@@ -4714,3 +4714,28 @@ html.light .honor-reward-title { color: #b45309; }
   text-transform: none;
   color: var(--muted);
 }
+
+/* ── Fenetres : cout du flou ────────────────────────────────────────────────
+   Les overlays sont floutees en plein ecran. Ce flou se recalcule a chaque
+   frame et se paie sur le GPU : sur les telephones d'entree de gamme, qui sont
+   la majorite du public du site, il suffit a faire ramer toute la fenetre.
+   Sur ces appareils (html.perf-low, pose par app.js) on le remplace par un fond
+   plus opaque : l'ecran reste lisible et le cout tombe a zero. */
+html.perf-low .overlay,
+html.perf-low .settings-panel,
+html.perf-low .chatbot-panel,
+html.perf-low .help-panel,
+html.perf-low .main-nav,
+html.perf-low body.has-bg .chat,
+html.perf-low body.has-bg .leaderboard-panel {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html.perf-low .overlay { background: rgba(6,6,16,.93); }
+html.perf-low .main-nav { background: var(--card); }
+
+/* Meme raison sous « animations reduites » : l'utilisateur a demande de la
+   sobriete, le flou anime n'a pas lieu d'etre. */
+@media (prefers-reduced-motion: reduce) {
+  .overlay { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(6,6,16,.93); }
+}

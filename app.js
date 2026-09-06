@@ -7198,7 +7198,7 @@ const cursorSnake = (() => {
   let _hidden     = false;
   let _gameActive = false; // true quand le serpent "joue" dans le Snake Challenge
   let _eventBonus = Math.min(8, Math.floor(parseInt(localStorage.getItem('libero_snake_event_hs') || '0', 10) / 2));
-  let _raf = null;
+  let _raf = null, _hideTimer = null;
   function wake() { if (_raf === null && segs.length) _raf = requestAnimationFrame(tick); }
 
   function hueFor(rank) {
@@ -7342,7 +7342,28 @@ const cursorSnake = (() => {
     },
     hide() {
       _hidden = true;
+      // Le fondu, puis retrait reel : laisser les segments a opacity 0 les
+      // gardait composites, et la boucle continuait de les repositionner a
+      // chaque frame par-dessus le flou des overlays.
       segs.forEach(s => { s.el.style.transition = 'opacity .3s'; s.el.style.opacity = '0'; });
+      clearTimeout(_hideTimer);
+      _hideTimer = setTimeout(() => { segs.forEach(s => s.el.remove()); segs = []; }, 320);
+    },
+    // Suspend le serpent tant qu'une fenetre est ouverte, sans toucher a l'etat
+    // du Snake Challenge : au-dessus d'une surface floutee, il est la seule
+    // chose qui bouge en permanence, et il forcait un re-flou plein ecran a
+    // chaque frame.
+    setOverlayPause(on) {
+      if (_gameActive) return;   // le serpent joue au Snake Challenge : on n'y touche pas
+      if (on) {
+        if (!segs.length) return;
+        clearTimeout(_hideTimer);
+        segs.forEach(s => s.el.remove());
+        segs = [];
+      } else {
+        if (_hidden || _gameActive || !enabled || segs.length) return;
+        build(Math.min(MAX, Math.max(MIN, pendingLen + _eventBonus)), hueFor(pendingRank));
+      }
     },
     show() {
       _hidden = false;
@@ -11892,6 +11913,42 @@ try {
       if (!el.classList.contains('hidden')) shown.add(el);
       obs.observe(el, { attributes: true, attributeFilter: ['class'] });
     });
+  } catch {}
+})();
+
+// ── Appareils modestes : on renonce au flou ──────────────────────────────────
+// Un backdrop-filter plein ecran se recalcule a chaque frame et se paie sur le
+// GPU, pas sur le processeur : invisible dans les mesures habituelles, tres
+// sensible sur les telephones d'entree de gamme, qui sont la majorite du public.
+// On y remplace le flou par un fond plus opaque, visuellement tres proche.
+(function () {
+  try {
+    const coeurs = navigator.hardwareConcurrency || 8;
+    const memoire = navigator.deviceMemory || 8;
+    if (coeurs <= 4 || memoire <= 4) document.documentElement.classList.add('perf-low');
+  } catch {}
+})();
+
+// ── Fenetres ouvertes : on suspend le serpent ────────────────────────────────
+// Les overlays portent un backdrop-filter plein ecran. Tant qu'un element bouge
+// au-dessus d'une surface floutee, le navigateur refait le flou de tout l'ecran
+// a chaque frame : sur un telephone modeste, c'est ce qui faisait ramer les
+// fenetres. Le serpent est la seule chose qui bouge en permanence, et il n'a
+// aucune utilite par-dessus une fenetre : on le retire le temps de l'ouverture.
+(function () {
+  try {
+    const anyOpen = () => !!document.querySelector('.overlay:not(.hidden)');
+    let last = null;
+    const sync = () => {
+      const open = anyOpen();
+      if (open === last) return;
+      last = open;
+      if (typeof cursorSnake !== 'undefined' && cursorSnake.setOverlayPause) cursorSnake.setOverlayPause(open);
+      document.body.classList.toggle('overlay-open', open);
+    };
+    const obs = new MutationObserver(sync);
+    document.querySelectorAll('.overlay').forEach(el => obs.observe(el, { attributes: true, attributeFilter: ['class'] }));
+    sync();
   } catch {}
 })();
 
