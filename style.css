@@ -4777,6 +4777,15 @@ html.perf-low .main-nav { background: var(--card); }
 /* Les cosmetiques de pseudo sont poses sur un span interieur : il ne doit pas
    heriter du blanc de .pid-name, sinon la couleur achetee ne se voit pas. */
 .pid-name .pid-name-txt { color: inherit; }
+/* Ces couleurs ont ete dessinees pour le fond sombre des classements. Sur une
+   carte de palier doree ou orangee, un pseudo or ou arc-en-ciel se confond avec
+   le fond : une ombre portee le detache sans toucher a la couleur achetee.
+   drop-shadow et non text-shadow, pour suivre les pseudos en degrade, qui sont
+   peints en background-clip et dont le texte lui-meme est transparent. */
+.profile-id .pid-name-txt { filter: drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+/* Meme raison pour les etiquettes de titre, dorees elles aussi. */
+.profile-id .player-title-tag,
+.profile-id .player-honor-tag { background: rgba(0,0,0,.32); }
 
 /* Le degrade de texte de l'ancien titre centre n'a plus lieu d'etre : le pseudo
    porte desormais la couleur que le joueur a equipee, ou du blanc par defaut. */

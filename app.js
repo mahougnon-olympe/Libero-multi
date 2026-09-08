@@ -5268,10 +5268,6 @@ socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq,
     if (newTitle       !== undefined) equippedTitle       = newTitle;
     if (newCursorSnake !== undefined) { equippedCursorSnake = newCursorSnake; cursorSnake.refreshSkin(); }
     if (newAvatar      !== undefined) equippedAvatar      = newAvatar;
-    // Avatar, couleur, police, effet et titre s'affichent tous sur la carte
-    // d'identite du profil : on la redessine des qu'un cosmetique change, sans
-    // conditionner l'appel a l'un d'eux en particulier.
-    window._renderProfilePseudo?.();
     if (newP4Token     !== undefined) equippedP4Token     = newP4Token;
     if (newTtt         !== undefined) equippedTtt         = newTtt;
     if (newChess       !== undefined) { equippedChess = newChess; _applyChessTheme(newChess); }
@@ -5287,6 +5283,12 @@ socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq,
   if (newRefundCards !== undefined) { refundCards = newRefundCards; }
   if (newRefillAt    !== undefined) { refundCardsNextRefill = newRefillAt; }
   if (newHonorTitle  !== undefined) honorTitle = newHonorTitle;
+  // Carte d'identite du profil : avatar, couleur, police, effet et titres y
+  // figurent tous. Le rendu doit venir APRES honorTitle, sinon le titre gagne au
+  // tournoi n'est pas encore connu et n'apparait pas a cote du pseudo. Il est
+  // aussi hors du bloc des cosmetiques, pour qu'un libs-update partiel (sans
+  // ownedCosmetics) rafraichisse quand meme la carte.
+  window._renderProfilePseudo?.();
   if (newHonorModal) _showHonorModal(newHonorModal);
   if (window._profileHub && document.body.classList.contains('screen-locker-active')) window._profileHub.renderLocker();
   _updateSettingsPanel();
@@ -11568,7 +11570,8 @@ window._renderLevel = function () {
   window.paintUiIcons?.(badge);
   if (main) main.textContent = t().levelMain(lv);
   if (sub)  sub.textContent  = t().levelSub(xp, next);
-  if (fill) fill.style.width = `${Math.min(100, Math.round(((xp - cur) / (next - cur)) * 100))}%`;
+  // Borne basse : un couple niveau/XP incoherent donnerait une largeur negative.
+  if (fill) fill.style.width = `${Math.max(0, Math.min(100, Math.round(((xp - cur) / (next - cur)) * 100)))}%`;
   // Palette de la bande selon le palier de niveau (de plus en plus prestigieuse).
   const banner = document.getElementById('level-banner');
   if (banner) {
