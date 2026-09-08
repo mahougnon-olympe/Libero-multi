@@ -2743,8 +2743,21 @@ socket.on('pseudo-check-result', ({ taken }) => {
 window._renderProfilePseudo = function () {
   const el = document.getElementById('profile-pseudo');
   if (!el) return;
-  const n = (localStorage.getItem('playerName') || '').trim();
-  el.textContent = (n && n !== 'Anonyme') ? n : t().profilePseudoFallback;
+  const raw  = (localStorage.getItem('playerName') || '').trim();
+  const nom  = (raw && raw !== 'Anonyme') ? raw : t().profilePseudoFallback;
+  // Le pseudo affiche ses propres cosmetiques, comme dans les classements : ce que
+  // le joueur a achete se voit desormais sur son profil, pas seulement chez les autres.
+  const cls = ['pid-name-txt', _cosmeticClass(equippedCosmetic), _fontClass(equippedFont),
+               _nameEffectClass(equippedNameEffect)].filter(Boolean).join(' ');
+  el.innerHTML = `<span class="${cls}">${_escHtml(nom)}</span>` + _titleHtml(equippedTitle, honorTitle);
+
+  // Avatar equipe, ou initiale du pseudo a defaut.
+  const av = document.getElementById('profile-avatar');
+  if (av) {
+    const ic = AVATAR_ICONS[equippedAvatar];
+    av.textContent = ic || nom.charAt(0).toUpperCase();
+    av.classList.toggle('initial', !ic);
+  }
 };
 function triggerRename(name) {
   clearTimeout(_renameTimer);
@@ -2873,6 +2886,8 @@ $('btn-share').addEventListener('click', () => shareRoomLink(currentRoomCode, $(
 const AVATAR_ICONS = {
   'avatar-gamepad':'🎮','avatar-crown':'👑','avatar-lightning':'⚡','avatar-skull':'💀',
   'avatar-rocket':'🚀','avatar-robot':'🤖','avatar-cat':'🐱',
+  // Les cinq derniers manquaient : un joueur qui les equipait n'avait aucune icone.
+  'avatar-ball':'⚽','avatar-lion':'🦁','avatar-ghost':'👻','avatar-unicorn':'🦄','avatar-dragon':'🐉',
 };
 
 function setPlayerBadges(gameType, yourPlayer) {
@@ -5253,6 +5268,10 @@ socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq,
     if (newTitle       !== undefined) equippedTitle       = newTitle;
     if (newCursorSnake !== undefined) { equippedCursorSnake = newCursorSnake; cursorSnake.refreshSkin(); }
     if (newAvatar      !== undefined) equippedAvatar      = newAvatar;
+    // Avatar, couleur, police, effet et titre s'affichent tous sur la carte
+    // d'identite du profil : on la redessine des qu'un cosmetique change, sans
+    // conditionner l'appel a l'un d'eux en particulier.
+    window._renderProfilePseudo?.();
     if (newP4Token     !== undefined) equippedP4Token     = newP4Token;
     if (newTtt         !== undefined) equippedTtt         = newTtt;
     if (newChess       !== undefined) { equippedChess = newChess; _applyChessTheme(newChess); }
@@ -5332,6 +5351,10 @@ socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippe
     if (newTitle       !== undefined) equippedTitle       = newTitle;
     if (newCursorSnake !== undefined) { equippedCursorSnake = newCursorSnake; cursorSnake.refreshSkin(); }
     if (newAvatar      !== undefined) equippedAvatar      = newAvatar;
+    // Avatar, couleur, police, effet et titre s'affichent tous sur la carte
+    // d'identite du profil : on la redessine des qu'un cosmetique change, sans
+    // conditionner l'appel a l'un d'eux en particulier.
+    window._renderProfilePseudo?.();
     if (newP4Token     !== undefined) equippedP4Token     = newP4Token;
     if (newTtt         !== undefined) equippedTtt         = newTtt;
     if (newChess       !== undefined) { equippedChess = newChess; _applyChessTheme(newChess); }
@@ -11550,7 +11573,7 @@ window._renderLevel = function () {
   const banner = document.getElementById('level-banner');
   if (banner) {
     const tier = lv >= 50 ? 5 : lv >= 30 ? 4 : lv >= 15 ? 3 : lv >= 5 ? 2 : 1;
-    banner.className = 'level-banner level-tier-' + tier;
+    banner.className = 'level-banner profile-id level-tier-' + tier;
   }
 };
 socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {

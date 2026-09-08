@@ -4739,3 +4739,45 @@ html.perf-low .main-nav { background: var(--card); }
 @media (prefers-reduced-motion: reduce) {
   .overlay { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(6,6,16,.93); }
 }
+
+/* ── Carte d'identite du profil ─────────────────────────────────────────────
+   Le pseudo, l'avatar, le niveau et la progression tenaient dans trois blocs
+   separes : un titre centre, puis une bande de serie, puis une bande de niveau.
+   Ils forment desormais une seule carte, dont le fond est le degrade de palier
+   (pose par _renderLevel), si bien que monter de niveau se voit sur toute la
+   carte et plus sur une bandelette. */
+.profile-id { align-items: center; gap: 13px; padding: 14px; }
+.pid-avatar {
+  width: 52px; height: 52px; flex-shrink: 0; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; line-height: 1;
+  background: rgba(255,255,255,.13);
+  border: 1px solid rgba(255,255,255,.22);
+}
+/* Sans avatar equipe, l'initiale du pseudo tient la place. */
+.pid-avatar.initial {
+  font-family: var(--font-display);
+  font-size: 21px; font-weight: 700; color: #fff;
+}
+.pid-main { flex: 1; min-width: 0; }
+.pid-name {
+  margin: 0 0 5px; font-size: 1.18rem; font-weight: 800; letter-spacing: -.02em;
+  font-family: var(--font-display); color: #fff;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  line-height: 1.2; word-break: break-word;
+}
+.pid-lvl-row { display: flex; align-items: baseline; gap: 8px; }
+.profile-id .level-badge { font-size: .92rem; }
+/* Le badge porte deja l'etoile et le numero : « Niveau 12 » juste a cote faisait
+   doublon. L'element reste dans le DOM, _renderLevel continue de le remplir. */
+.profile-id .level-main  { display: none; }
+.profile-id .level-bar   { margin: 5px 0 3px; }
+.profile-id .level-sub   { font-variant-numeric: tabular-nums; }
+.profile-id .vip-badge   { align-self: flex-start; }
+/* Les cosmetiques de pseudo sont poses sur un span interieur : il ne doit pas
+   heriter du blanc de .pid-name, sinon la couleur achetee ne se voit pas. */
+.pid-name .pid-name-txt { color: inherit; }
+
+/* Le degrade de texte de l'ancien titre centre n'a plus lieu d'etre : le pseudo
+   porte desormais la couleur que le joueur a equipee, ou du blanc par defaut. */
+html.light .pid-avatar { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.34); }

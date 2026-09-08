@@ -994,9 +994,24 @@
   <!-- ── Écran Profil ── -->
   <div id="screen-profile" class="screen">
     <div class="profile-screen-inner">
-      <h2 id="profile-pseudo" class="profile-pseudo">Joueur</h2>
-      <p id="profile-modal-title" class="profile-screen-sub">Mon profil</p>
       <div class="profile-body">
+        <!-- Carte d'identite : avatar, pseudo (avec ses cosmetiques), niveau et
+             progression dans un seul bloc. Le fond suit le palier de niveau, pose
+             par _renderLevel, qui doit donc conserver la classe profile-id. -->
+        <div id="level-banner" class="level-banner profile-id">
+          <span class="pid-avatar" id="profile-avatar"></span>
+          <div class="pid-main">
+            <p id="profile-pseudo" class="pid-name">Joueur</p>
+            <div class="pid-lvl-row">
+              <span class="level-badge" id="level-badge"><span class="level-badge-ic" data-ic="star">⭐</span> 1</span>
+              <p id="level-main" class="level-main"></p>
+            </div>
+            <div class="level-bar"><div id="level-bar-fill" class="level-bar-fill"></div></div>
+            <p id="level-sub" class="level-sub"></p>
+          </div>
+          <span id="vip-badge" class="vip-badge hidden"><span class="vip-badge-ic" data-ic="crown">👑</span> VIP</span>
+        </div>
+
         <!-- Série de connexion -->
         <div id="streak-banner" class="streak-banner">
           <span class="streak-flame">🔥</span>
@@ -1004,17 +1019,6 @@
             <p id="streak-main" class="streak-main"> · </p>
             <p id="streak-sub" class="streak-sub"></p>
           </div>
-        </div>
-
-        <!-- Niveau et XP -->
-        <div id="level-banner" class="level-banner">
-          <span class="level-badge" id="level-badge"><span class="level-badge-ic" data-ic="star">⭐</span> 1</span>
-          <div class="level-texts">
-            <p id="level-main" class="level-main"></p>
-            <div class="level-bar"><div id="level-bar-fill" class="level-bar-fill"></div></div>
-            <p id="level-sub" class="level-sub"></p>
-          </div>
-          <span id="vip-badge" class="vip-badge hidden"><span class="vip-badge-ic" data-ic="crown">👑</span> VIP</span>
         </div>
 
         <!-- Onboarding gamifie : 3 mini-etapes recompensees (masque une fois fini) -->
