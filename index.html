@@ -17,16 +17,90 @@
   <meta property="og:image:height" content="512" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:image" content="https://libero-multi.vercel.app/assets/og-image.png" />
+  <!-- Pose avant toute ressource externe : sans ces quelques lignes, l'ecran reste
+       noir tant que style.css n'est pas arrive (mesure a 9,2 s sur reseau lent),
+       car le navigateur ne connait aucune couleur de fond et n'a rien a peindre. -->
+  <style>
+    html, body { margin: 0; background: #0a0c18; }
+    #boot {
+      /* Dimensions prises sur le viewport, et non « inset: 0 » : tant que
+         style.css n'est pas applique, la page nue est plus large que l'ecran et
+         « inset » s'etirait sur cette zone, ce qui decentrait le logo. */
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh;
+      z-index: 10000;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+      background: radial-gradient(ellipse 80% 60% at 50% 38%, #1a1b3d 0%, #0a0c18 70%);
+      font-family: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+      transition: opacity .42s ease, transform .42s ease;
+    }
+    #boot.boot-out { opacity: 0; transform: scale(1.04); pointer-events: none; }
+    .boot-mark {
+      width: 74px; height: 74px; border-radius: 22px;
+      background: linear-gradient(135deg, #7c5cff, #22d3ee);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 34px rgba(124,92,255,.45);
+      animation: bootPulse 1.7s ease-in-out infinite;
+    }
+    .boot-mark span {
+      width: 0; height: 0; margin-left: 6px;
+      border-left: 21px solid #0a0c18;
+      border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+    }
+    .boot-name { margin: 0; font-size: 1.12rem; font-weight: 700; letter-spacing: .02em; color: #e2e8f0; }
+    .boot-bar { width: 132px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.12); overflow: hidden; }
+    .boot-bar i { display: block; width: 40%; height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, #6366f1, #22d3ee); animation: bootSlide 1.25s ease-in-out infinite; }
+    @keyframes bootPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+    @keyframes bootSlide { 0% { transform: translateX(-110%); } 100% { transform: translateX(260%); } }
+    @media (prefers-reduced-motion: reduce) {
+      .boot-mark, .boot-bar i { animation: none; }
+      .boot-bar i { width: 100%; }
+      #boot { transition: opacity .2s ease; }
+    }
+  </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- Typographie de l'interface (Space Grotesk pour les titres, Karla pour le
        texte) : chargee avant les polices cosmetiques, qui restent des articles. -->
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Karla:wght@400;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@700&family=Chakra+Petch:wght@700&family=Audiowide&family=Exo+2:wght@700&family=Bungee&family=Black+Ops+One&family=Russo+One&family=Press+Start+2P&family=VT323&family=Share+Tech+Mono&family=Major+Mono+Display&family=Cinzel:wght@700&family=Tektur:wght@700&family=Pacifico&family=Lobster&family=Fredoka:wght@700&family=Monoton&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
+  <link media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Karla:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Polices cosmetiques : chargees sans bloquer le rendu (media=print puis all).
+       Elles n'habillent que des pseudos achetes, l'interface n'en depend pas. -->
+  <link media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@700&family=Chakra+Petch:wght@700&family=Audiowide&family=Exo+2:wght@700&family=Bungee&family=Black+Ops+One&family=Russo+One&family=Press+Start+2P&family=VT323&family=Share+Tech+Mono&family=Major+Mono+Display&family=Cinzel:wght@700&family=Tektur:wght@700&family=Pacifico&family=Lobster&family=Fredoka:wght@700&family=Monoton&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" media="print"
+        onload="this.media='all'; if (window.__cssPret) window.__cssPret();" />
+  <noscript><link rel="stylesheet" href="style.css" /></noscript>
   <script>(function(){var s=sessionStorage.getItem('libero_screen');if(s&&s!=='landing'){document.documentElement.classList.add('restoring');document.documentElement.setAttribute('data-restore',s);}})();</script>
 </head>
 <body>
+<div id="boot" aria-hidden="true">
+  <div class="boot-mark"><span></span></div>
+  <p class="boot-name">Libero's Multi</p>
+  <div class="boot-bar"><i></i></div>
+</div>
+<script>
+  // Retire l'ecran de demarrage quand la page est prete. Plancher de 400 ms pour
+  // eviter un clignotement quand tout vient du cache, plafond de 8 s pour ne
+  // jamais rester bloque si une ressource ne repond pas.
+  (function () {
+    var b = document.getElementById('boot');
+    if (!b) return;
+    var t0 = Date.now(), parti = false;
+    function partir() {
+      if (parti) return;
+      parti = true;
+      setTimeout(function () {
+        b.classList.add('boot-out');
+        setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 460);
+      }, Math.max(0, 400 - (Date.now() - t0)));
+    }
+    // Declencheur principal : la feuille de style est appliquee, le site est
+    // presentable. « load » sert de second filet, et le plafond evite de rester
+    // bloque si une ressource ne repond jamais.
+    window.__cssPret = partir;
+    window.addEventListener('load', partir);
+    setTimeout(partir, 15000);
+  })();
+</script>
 <div id="bg-layer" aria-hidden="true"></div>
 <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
