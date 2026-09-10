@@ -144,13 +144,33 @@
     .chip.eq { border-color:var(--board); }
     .pd-line { font-size:.83rem; padding:5px 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; gap:10px; }
     .pd-line:last-child { border-bottom:none; }
+
+/* Icones 3D des titres (module icons3d.js, meme moteur que le site). */
+h1, h2, h3.pd-h3, summary { display: flex; align-items: center; gap: 9px; }
+.adm-ic { flex: none; width: 26px; height: 26px; display: inline-flex;
+  align-items: center; justify-content: center; font-size: 1.05rem; }
+h1 .adm-ic { width: 32px; height: 32px; }
+.adm-ic.sm { width: 17px; height: 17px; font-size: .85rem; }
+button { display: inline-flex; align-items: center; gap: 6px; }
+.ic3d { position: relative; display: block; flex: none;
+  transform: rotateX(var(--ic-tilt,15deg)) rotateZ(var(--ic-turn,-13deg));
+  transform-style: preserve-3d; }
+.ic3d svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.ic3d-depth { color: var(--ic-dark, #334155); }
+.ic3d-face { color: var(--ic-lite, currentColor); filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+.ic3d-face path, .ic3d-face circle, .ic3d-face rect, .ic3d-face line,
+.ic3d-face polyline, .ic3d-face polygon, .ic3d-face ellipse { stroke: url(#ic3d-lux); }
+@media (prefers-reduced-motion: reduce) {
+  .ic3d { transform: none; } .ic3d-depth { display: none; }
+}
 </style>
+  <script type="module" src="icons3d.js"></script>
 </head>
 <body>
   <div class="wrap">
     <!-- Connexion -->
     <div id="login" class="card">
-      <h1>📊 Tableau de bord</h1>
+      <h1><span class="adm-ic" data-ic="chart">📊</span> Tableau de bord</h1>
       <p class="sub">Libero's Multi · accès privé</p>
       <div class="field">
         <input id="key" type="password" placeholder="Clé admin" autocomplete="off" />
@@ -163,7 +183,7 @@
     <div id="dash" class="hidden">
       <div class="topbar">
         <div>
-          <h1>📊 Tableau de bord</h1>
+          <h1><span class="adm-ic" data-ic="chart">📊</span> Tableau de bord</h1>
           <p class="sub" style="margin:0;">Libero's Multi · mise à jour en temps réel</p>
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
@@ -173,7 +193,7 @@
       </div>
 
       <details id="admin-guide" class="admin-guide">
-        <summary>❓ Guide du tableau de bord (clique pour ouvrir/fermer)</summary>
+        <summary><span class="adm-ic" data-ic="help">❓</span> Guide du tableau de bord (clique pour ouvrir/fermer)</summary>
         <div class="admin-guide-body">
           <p>Bienvenue dans ton espace admin. Voici à quoi sert chaque zone, de haut en bas :</p>
           <ul>
@@ -201,21 +221,21 @@
       <div class="kpis" id="kpis"></div>
 
       <section>
-        <h2>📊 Cette semaine vs la précédente</h2>
+        <h2><span class="adm-ic" data-ic="chart">📊</span> Cette semaine vs la précédente</h2>
         <p class="sub" style="margin-top:-4px;">Évolution sur 7 jours glissants (visites et parties) par rapport aux 7 jours d'avant.</p>
         <div class="kpis" id="periods"></div>
       </section>
 
       <section>
-        <h2>🫙 Entonnoir d'acquisition</h2>
+        <h2><span class="adm-ic" data-ic="jar">🫙</span> Entonnoir d'acquisition</h2>
         <p class="sub" style="margin-top:-4px;">Où en sont les joueurs, étape par étape : chaque appareil connu compte pour un visiteur. « Revenu » = a tenu une série de 2 jours et plus (proxy d'un retour un autre jour). Les pourcentages sont calculés par rapport à l'étape précédente.</p>
         <div id="funnel"></div>
       </section>
 
       <section>
-        <h2>📈 30 derniers jours
-          <button id="btn-export-players" class="ghost small" style="margin-left:auto">⬇ Joueurs CSV</button>
-          <button id="btn-export-purchases" class="ghost small">⬇ Achats CSV</button>
+        <h2><span class="adm-ic" data-ic="trend">📈</span> 30 derniers jours
+          <button id="btn-export-players" class="ghost small" style="margin-left:auto"><span class="adm-ic sm" data-ic="down">⬇</span> Joueurs CSV</button>
+          <button id="btn-export-purchases" class="ghost small"><span class="adm-ic sm" data-ic="down">⬇</span> Achats CSV</button>
         </h2>
         <p class="sub" style="margin-top:-4px;">Évolution des visites et des parties. Les deux boutons exportent la liste des joueurs et des achats au format CSV (Excel).</p>
         <div class="charts">
@@ -225,7 +245,7 @@
       </section>
 
       <section>
-        <h2>📣 Annonces (bandeau News du site)</h2>
+        <h2><span class="adm-ic" data-ic="megaphone">📣</span> Annonces (bandeau News du site)</h2>
         <p class="sub" style="margin-top:-4px;">Publie une annonce visible par tous dans la carte News, en direct. L'anglais est optionnel (le français est affiché à défaut).</p>
         <div class="field"><input id="ann-fr" placeholder="Texte de l'annonce (français)" maxlength="300" /></div>
         <div class="field"><input id="ann-en" placeholder="English text (optionnel)" maxlength="300" />
@@ -234,7 +254,7 @@
       </section>
 
       <section>
-        <h2>🔔 Notification push <span id="push-pill" class="pill"></span></h2>
+        <h2><span class="adm-ic" data-ic="bell">🔔</span> Notification push <span id="push-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Envoie une notification à tous les joueurs abonnés (même site fermé). Nécessite les clés VAPID sur Render.</p>
         <div class="field"><input id="push-title" placeholder="Titre (ex : 🏆 Tournoi ce samedi !)" maxlength="80" /></div>
         <div class="field"><input id="push-body" placeholder="Texte de la notification" maxlength="200" />
@@ -261,7 +281,7 @@
       </section>
 
       <section>
-        <h2>🛠️ Mode maintenance</h2>
+        <h2><span class="adm-ic" data-ic="tools">🛠️</span> Mode maintenance</h2>
         <p class="sub" style="margin-top:-4px;">Affiche un bandeau d'avertissement en haut du site (non bloquant). Utile pendant une mise à jour.</p>
         <div class="field">
           <input id="maint-msg" placeholder="Message (ex : Retour à 18h)" maxlength="300" style="flex:1" />
@@ -272,7 +292,7 @@
       </section>
 
       <section>
-        <h2>🔑 Réinitialiser un mot de passe <span id="acct-pill" class="pill"></span></h2>
+        <h2><span class="adm-ic" data-ic="key">🔑</span> Réinitialiser un mot de passe <span id="acct-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">SAV : un joueur a oublié son mot de passe. Les comptes n'ont pas d'e-mail, donc tu poses toi-même un mot de passe provisoire ; le joueur se reconnecte avec, puis le change dans Mon compte -> Mot de passe. La progression n'est jamais touchée.</p>
         <div class="field">
           <input id="acct-reset-pseudo" placeholder="Pseudo exact du compte" maxlength="20" style="flex:1" />
@@ -284,7 +304,7 @@
       </section>
 
       <section>
-        <h2>🚫 Mots interdits <span id="banned-pill" class="pill"></span></h2>
+        <h2><span class="adm-ic" data-ic="ban">🚫</span> Mots interdits <span id="banned-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Auto-modération : tout pseudo, commentaire, suggestion ou commentaire vidéo contenant un de ces mots est refusé automatiquement.</p>
         <div class="field">
           <input id="banned-input" placeholder="Ajouter un mot" maxlength="40" style="flex:1" />
@@ -294,19 +314,19 @@
       </section>
 
       <section>
-        <h2>📖 Prix des livres</h2>
+        <h2><span class="adm-ic" data-ic="book">📖</span> Prix des livres</h2>
         <p class="sub" style="margin-top:-4px;">Change le prix en Libs d'un pack de chapitres. Laisse vide et valide pour revenir au prix de base.</p>
         <div id="book-prices"></div>
       </section>
 
       <section>
-        <h2>💾 Sauvegarde</h2>
+        <h2><span class="adm-ic" data-ic="disk">💾</span> Sauvegarde</h2>
         <p class="sub" style="margin-top:-4px;">Télécharge un instantané JSON des données clés (soldes, classements, annonces, suggestions, config).</p>
         <button id="btn-backup" class="green">Télécharger la sauvegarde</button>
       </section>
 
       <section>
-        <h2>⚡ Offre flash</h2>
+        <h2><span class="adm-ic" data-ic="zap">⚡</span> Offre flash</h2>
         <p class="sub" style="margin-top:-4px;">Met un cosmétique en promo pour quelques heures : bannière dans la boutique + notification push automatique.</p>
         <div class="field">
           <input id="flash-cosm" placeholder="Id du cosmétique (ex : bg-galaxie)" maxlength="40" style="max-width:220px" />
@@ -319,7 +339,7 @@
       </section>
 
       <section>
-        <h2>🔄 Rotation automatique de la boutique <span id="rot-pill" class="pill"></span></h2>
+        <h2><span class="adm-ic" data-ic="refresh">🔄</span> Rotation automatique de la boutique <span id="rot-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Une fois lancée, elle tourne toute seule : chaque jour un nouvel arrivage est publié et un lot d'anciens objets est annoncé « part dans 1 jour », puis « dans 1 heure », puis retiré, avec une notification à chaque étape. Le plan des 14 jours est défini dans le code (voir PLAN-ROTATION-BOUTIQUE.md). Les arrivages dont le cosmétique n'existe pas encore en code sont ignorés (tu les codes au fur et à mesure).</p>
         <div class="field">
           <label style="font-size:.85rem">Intervalle (heures, défaut 24) <input id="rot-step" type="number" min="1" max="720" value="24" style="max-width:90px" /></label>
@@ -332,7 +352,7 @@
       </section>
 
       <section>
-        <h2>🎯 Défis personnalisés</h2>
+        <h2><span class="adm-ic" data-ic="target">🎯</span> Défis personnalisés</h2>
         <p class="sub" style="margin-top:-4px;">Crée tes propres défis, quotidiens (réclamables chaque jour) ou permanents (compteur à vie, réclamé une fois). Ils apparaissent immédiatement chez tous les joueurs.</p>
         <div class="field">
           <select id="chal-kind"><option value="daily">Quotidien</option><option value="permanent">Permanent</option></select>
@@ -349,7 +369,7 @@
       </section>
 
       <section>
-        <h2>🎬 Vidéos <span id="vid-pending-pill" class="pill warn hidden"></span></h2>
+        <h2><span class="adm-ic" data-ic="video">🎬</span> Vidéos <span id="vid-pending-pill" class="pill warn hidden"></span></h2>
         <p class="sub" style="margin-top:-4px;">Le feed façon TikTok de l'onglet Vidéos. Ajoute un lien direct de vidéo (mp4) ; tu peux activer/masquer, réordonner (▲▼), supprimer, et approuver les vidéos proposées par les joueurs (en attente, en tête).</p>
         <div class="field">
           <input id="vid-url" placeholder="Lien de la vidéo (https://…mp4)" style="min-width:220px" />
@@ -364,51 +384,51 @@
       </section>
 
       <section>
-        <h2>💡 Idées &amp; suggestions <span id="sugg-pill" class="pill"></span></h2>
+        <h2><span class="adm-ic" data-ic="bulb">💡</span> Idées &amp; suggestions <span id="sugg-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Les propositions postées par les joueurs dans l'onglet Idées, triées par score (votes pour moins votes contre). Change leur statut (Prévue / Faite / Refusée), épingle-les en tête, ou supprime.</p>
         <div id="sugg-list"></div>
       </section>
 
       <section>
-        <h2>🛍️ Catalogue boutique <span id="cosm-pill" class="pill"></span></h2>
+        <h2><span class="adm-ic" data-ic="shop">🛍️</span> Catalogue boutique <span id="cosm-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Tous les cosmétiques du site. Mets un article en boutique (avec un compte à rebours optionnel, affiché sur l'article) ou retire-le. « Défaut » = comportement normal de sa catégorie.</p>
         <div class="field"><input id="cosm-search" placeholder="Filtrer (id ou type)…" /></div>
         <div id="cosm-list" style="max-height:420px;overflow-y:auto"></div>
       </section>
 
       <section id="inactive-section" class="hidden">
-        <h2>😴 Joueurs qui décrochent <span id="inactive-pill" class="pill warn"></span></h2>
+        <h2><span class="adm-ic" data-ic="sleep">😴</span> Joueurs qui décrochent <span id="inactive-pill" class="pill warn"></span></h2>
         <p class="sub" style="margin-top:-4px;">Joueurs nommés sans activité depuis 7 jours ou plus. Clique pour ouvrir la fiche et envoyer un cadeau de retour.</p>
         <div id="inactive-list"></div>
       </section>
 
       <section id="fraud-section" class="hidden">
-        <h2>🚨 Alertes fraude <span id="fraud-pill" class="pill warn"></span></h2>
+        <h2><span class="adm-ic" data-ic="siren">🚨</span> Alertes fraude <span id="fraud-pill" class="pill warn"></span></h2>
         <p class="sub" style="margin-top:-4px;">Apparaît quand 4 comptes tout neufs ou plus sont créés depuis la même connexion (IP) en 24h : signe possible de triche (multi-comptes).</p>
         <div id="fraud-list"></div>
       </section>
 
       <section>
-        <h2>📋 Journal d'audit</h2>
+        <h2><span class="adm-ic" data-ic="list">📋</span> Journal d'audit</h2>
         <p class="sub" style="margin-top:-4px;">Toutes tes actions admin (cadeaux, restitutions, annonces, push, offres flash), les plus récentes d'abord.</p>
         <div id="audit-list"></div>
       </section>
 
       <section>
-        <h2>💬 Commentaires <span id="cmt-pending-pill" class="pill warn hidden"></span></h2>
+        <h2><span class="adm-ic" data-ic="chat">💬</span> Commentaires <span id="cmt-pending-pill" class="pill warn hidden"></span></h2>
         <p class="sub" style="margin-top:-4px;">Valide un commentaire pour qu'il apparaisse sur le site. Supprime ceux qui contiennent des mots déplacés.</p>
         <div id="comments"></div>
       </section>
 
       <section>
-        <h2>🗑️ Comptes réinitialisés <span id="resets-pill" class="pill warn hidden"></span>
+        <h2><span class="adm-ic" data-ic="trash">🗑️</span> Comptes réinitialisés <span id="resets-pill" class="pill warn hidden"></span>
           <button id="btn-resets-clear" class="ghost small hidden" style="margin-left:auto">Vider le cache</button></h2>
         <p class="sub" style="margin-top:-4px;">Quand un joueur réinitialise son compte, sa progression est archivée ici. Tu peux la restituer (sur son ancien identifiant ou sur son nouveau compte) ou vider le cache.</p>
         <div id="resets"></div>
       </section>
 
       <section>
-        <h2>👥 Joueurs <span id="players-pill" class="pill"></span></h2>
+        <h2><span class="adm-ic" data-ic="users">👥</span> Joueurs <span id="players-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Clique sur un pseudo pour voir toutes ses infos. Recherche par pseudo et trie la liste.</p>
         <div class="field" style="align-items:center">
           <input id="players-search" placeholder="Rechercher un pseudo…" style="flex:1;min-width:160px" />
@@ -421,7 +441,7 @@
       </section>
 
       <section>
-        <h2>💳 Achats en argent réel <span id="purchases-pill" class="pill"></span></h2>
+        <h2><span class="adm-ic" data-ic="card">💳</span> Achats en argent réel <span id="purchases-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Les recharges de Libs payées via FedaPay : qui a acheté, quel pack, et si le paiement est allé au bout.</p>
         <div class="tbl-wrap">
           <table>
@@ -432,19 +452,19 @@
       </section>
 
       <section>
-        <h2>🤖 Questions posées à l'assistant <span id="bot-pill" class="pill"></span> <span id="bot-flagged-pill" class="pill hidden" style="background:rgba(251,191,36,.15);color:var(--amber)"></span></h2>
+        <h2><span class="adm-ic" data-ic="robot">🤖</span> Questions posées à l'assistant <span id="bot-pill" class="pill"></span> <span id="bot-flagged-pill" class="pill hidden" style="background:rgba(251,191,36,.15);color:var(--amber)"></span></h2>
         <p class="sub" style="margin-top:-4px;">Ce que les joueurs tapent au chatbot d'aide. Clique le drapeau 🚩 pour marquer une question à laquelle il a mal répondu : elle remonte en tête pour que tu penses à enrichir l'aide. Ça n'a aucun effet visible côté joueur.</p>
         <div id="botlogs"></div>
       </section>
 
       <section>
-        <h2>🐛 Signalements de bugs <span id="bug-pill" class="pill"></span> <span id="bug-open-pill" class="pill hidden" style="background:rgba(248,113,113,.15);color:#f87171"></span></h2>
+        <h2><span class="adm-ic" data-ic="bug">🐛</span> Signalements de bugs <span id="bug-pill" class="pill"></span> <span id="bug-open-pill" class="pill hidden" style="background:rgba(248,113,113,.15);color:#f87171"></span></h2>
         <p class="sub" style="margin-top:-4px;">Ce que les joueurs signalent via la carte « Signaler un bug » du profil. Marque « Traité » ce qui est corrigé (il descend en bas), ou supprime. La référence joueur est anonyme (hash).</p>
         <div id="bugreports"></div>
       </section>
 
       <section>
-        <h2>⚠️ Erreurs serveur récentes <span id="err-pill" class="pill"></span>
+        <h2><span class="adm-ic" data-ic="warn">⚠️</span> Erreurs serveur récentes <span id="err-pill" class="pill"></span>
           <button id="btn-err-clear" class="red" style="float:right;font-size:.8rem">Vider</button></h2>
         <p class="sub" style="margin-top:-4px;">Les erreurs non gérées du backend (routes, exceptions, promesses rejetées) remontent ici : tu es au courant avant les joueurs. Aucune dépendance externe. Vide la liste une fois les soucis traités.</p>
         <div id="servererrors"></div>
@@ -693,7 +713,7 @@
       $('ann-list').innerHTML = list.length ? list.map(function (a) {
         return '<div class="ann-row"><span class="txt">📣 ' + esc(a.text) + (a.textEn ? ' <span class="muted">/ ' + esc(a.textEn) + '</span>' : '') + '</span>'
           + '<span class="cmt-date">' + esc(new Date(a.at).toLocaleString('fr-FR')) + '</span>'
-          + '<button class="small" data-annedit="' + esc(a.id) + '">✏️ Modifier</button>'
+          + '<button class="small" data-annedit="' + esc(a.id) + '"><span class="adm-ic sm" data-ic="edit">✏️</span> Modifier</button>'
           + '<button class="red small" data-anndel="' + esc(a.id) + '">Retirer</button></div>';
       }).join('') : '<p class="empty">Aucune annonce publiée.</p>';
     }
@@ -800,7 +820,7 @@
           + '<div class="t" style="margin-top:4px">' + meta.join(' · ') + (b.ua ? '<br><span style="opacity:.6">' + esc(b.ua) + '</span>' : '') + '</div>'
           + '</div>'
           + '<button type="button" class="bug-resolve" data-id="' + esc(b.id || '') + '" data-on="' + (b.resolved ? '1' : '0') + '" title="Marquer traité / non traité" style="background:none;border:none;cursor:pointer;font-size:1.1rem">' + (b.resolved ? '✅' : '⬜') + '</button>'
-          + '<button type="button" class="bug-del" data-id="' + esc(b.id || '') + '" title="Supprimer" style="background:none;border:none;cursor:pointer;font-size:1.1rem">🗑️</button>'
+          + '<button type="button" class="bug-del" data-id="' + esc(b.id || '') + '" title="Supprimer" style="background:none;border:none;cursor:pointer;font-size:1.1rem"><span class="adm-ic sm" data-ic="trash">🗑️</span></button>'
           + '</div>';
       }).join('');
     }
@@ -867,7 +887,7 @@
         var when = new Date(t.fireAt).toLocaleString('fr-FR');
         var what = t.kind === 'announce' ? ('📣 ' + esc((t.text||'').slice(0,60))) : ('🔔 ' + esc((t.title||t.body||'').slice(0,60)) + ' [' + (t.segment||'all') + ']');
         return '<div class="bot-q' + (t.done ? '' : ' flagged') + '"><span>' + what + ' <span class="t">' + esc(when) + (t.done ? ' · envoyé' : '') + '</span></span>'
-          + '<button type="button" class="sched-del" data-id="' + esc(t.id) + '" style="background:none;border:none;cursor:pointer">🗑️</button></div>';
+          + '<button type="button" class="sched-del" data-id="' + esc(t.id) + '" style="background:none;border:none;cursor:pointer"><span class="adm-ic sm" data-ic="trash">🗑️</span></button></div>';
       }).join('');
     }
 
@@ -876,7 +896,7 @@
       var bp = $('banned-pill'); if (bp) bp.textContent = list.length;
       $('banned-list').innerHTML = list.length ? list.map(function (w) {
         return '<span class="chip" style="display:inline-flex;gap:6px;align-items:center;margin:3px">' + esc(w)
-          + '<button type="button" class="banned-del" data-w="' + esc(w) + '" style="background:none;border:none;color:#f87171;cursor:pointer">✕</button></span>';
+          + '<button type="button" class="banned-del" data-w="' + esc(w) + '" style="background:none;border:none;color:#f87171;cursor:pointer"><span class="adm-ic sm" data-ic="close">✕</span></button></span>';
       }).join('') : '<p class="empty">Aucun mot interdit.</p>';
     }
 
@@ -934,7 +954,7 @@
       $('inactive-list').innerHTML = list.map(function (p) {
         return '<div class="ann-row" style="cursor:pointer" data-openref="' + esc(p.ref) + '">😴 <strong>' + esc(p.name) + '</strong>'
           + '<span class="cmt-date">absent depuis ' + p.days + ' j · ⚡ ' + p.balance + '</span>'
-          + '<button class="small">🎁 Ouvrir la fiche</button></div>';
+          + '<button class="small"><span class="adm-ic sm" data-ic="gift">🎁</span> Ouvrir la fiche</button></div>';
       }).join('');
     }
     document.addEventListener('click', function (e) {
@@ -1004,7 +1024,7 @@
         }
         actions += '<button class="red small" data-viddel="' + esc(v.id) + '">Suppr.</button>';
         var cmts = (v.comments && v.comments.length) ? '<div class="vid-cmts">' + v.comments.map(function (c) {
-          return '<div class="vid-cmt"><b>' + esc(c.name || 'Anonyme') + '</b> ' + esc(c.text) + ' <button class="red small" data-vidcmt="' + esc(v.id) + '|' + esc(c.id) + '">✕</button></div>';
+          return '<div class="vid-cmt"><b>' + esc(c.name || 'Anonyme') + '</b> ' + esc(c.text) + ' <button class="red small" data-vidcmt="' + esc(v.id) + '|' + esc(c.id) + '"><span class="adm-ic sm" data-ic="close">✕</span></button></div>';
         }).join('') + '</div>' : '';
         return '<div class="ann-row" style="flex-wrap:wrap">'
           + '<span class="txt" style="flex:1 1 220px">' + tag + ' <b>' + esc(v.titre || '(sans titre)') + '</b>'
@@ -1483,13 +1503,13 @@
         return '<div class="pd-line"><span>' + (GAME_ICON[h.game] || '🎮') + ' ' + esc(h.game) + ' · ' + esc(detail) + '</span><span class="muted">' + esc(h.at ? ago(h.at) : '') + '</span></div>';
       }).join('') : '<p class="muted">Aucune activité enregistrée.</p>';
 
-      html += '<h3 class="pd-h3">🎁 Faire un cadeau</h3>'
+      html += '<h3 class="pd-h3"><span class="adm-ic" data-ic="gift">🎁</span> Faire un cadeau</h3>'
         + '<div class="field"><input id="gift-libs-amount" type="number" min="0" max="10000" placeholder="Libs à offrir (ex. 200)" />'
         + '<input id="gift-cosmetic-id" placeholder="Id cosmétique (optionnel, ex. bg-galaxie)" />'
         + '<button id="btn-admin-gift" class="green" data-ref="' + esc(CURRENT_REF) + '">Envoyer</button></div>'
         + '<p id="gift-feedback" class="muted" style="font-size:.78rem;"></p>';
 
-      html += '<h3 class="pd-h3">🔔 Alertes admin</h3>'
+      html += '<h3 class="pd-h3"><span class="adm-ic" data-ic="bell">🔔</span> Alertes admin</h3>'
         + '<p class="muted" style="font-size:.78rem;margin-top:-4px">Ce compte reçoit-il les notifications d\'alerte (achats, fraude, erreurs) ? Le joueur doit avoir activé les notifications push.</p>'
         + '<button id="btn-alert-on" class="green" data-ref="' + esc(CURRENT_REF) + '">Activer les alertes</button> '
         + '<button id="btn-alert-off" class="red" data-ref="' + esc(CURRENT_REF) + '">Désactiver</button>'

@@ -198,7 +198,7 @@
 
   <!-- ── Écran 1 : Accueil Classique ── -->
   <div id="screen-home" class="screen">
-    <button class="btn-back" id="btn-back-classic">← Retour</button>
+    <button class="btn-back" id="btn-back-classic"><span class="ui-ic" data-ic="back">←</span> Retour</button>
     <div class="logo">
       <h1 id="home-classic-title">Jeux Multijoueur</h1>
       <p id="home-subtitle" class="subtitle">2 joueurs • Temps réel</p>
@@ -256,7 +256,7 @@
         </div>
       </div>
       <button id="btn-create" class="btn btn-primary">Créer une partie multijoueur</button>
-      <button id="btn-challenge-friend" class="btn btn-secondary">⚔️ Défier un ami</button>
+      <button id="btn-challenge-friend" class="btn btn-secondary"><span class="ui-ic" data-ic="swords">⚔️</span> Défier un ami</button>
       <div class="divider"><span id="divider-join-text">ou rejoindre</span></div>
       <div class="join-group">
         <input
@@ -295,7 +295,7 @@
       <div id="room-code" class="code-display"></div>
       <div class="share-row">
         <button id="btn-copy" class="btn btn-secondary">Copier le code</button>
-        <button id="btn-share" class="btn btn-secondary">🔗 Partager le lien</button>
+        <button id="btn-share" class="btn btn-secondary"><span class="ui-ic" data-ic="share">🔗</span> Partager le lien</button>
       </div>
       <p id="waiting-hint" class="hint">La partie démarre automatiquement dès que ton adversaire rejoint.</p>
       <button id="btn-cancel-wait" class="btn btn-secondary">Annuler</button>
@@ -312,7 +312,7 @@
       </div>
       <div class="game-header-center">
         <div id="turn-indicator" class="turn-text"></div>
-        <button id="btn-quit" class="btn-quit" title="Quitter la partie">🚪 Quitter</button>
+        <button id="btn-quit" class="btn-quit" title="Quitter la partie"><span class="ui-ic" data-ic="quit">🚪</span> Quitter</button>
       </div>
       <div class="player-badge" id="badge-y">
         <span id="label-y"></span>
@@ -380,9 +380,9 @@
 
   <!-- ── Écran 4 : Culture Générale (accueil) ── -->
   <div id="screen-trivia-home" class="screen">
-    <button class="btn-back" id="btn-back-trivia-home">← Retour</button>
+    <button class="btn-back" id="btn-back-trivia-home"><span class="ui-ic" data-ic="back">←</span> Retour</button>
     <div class="logo">
-      <h1 id="trivia-home-title">🧠 Culture Générale</h1>
+      <h1 id="trivia-home-title"><span class="ui-ic ttl" data-ic="pulse">🧠</span> Culture Générale</h1>
       <p id="trivia-home-subtitle" class="subtitle">Choisis un ou plusieurs thèmes et joue !</p>
     </div>
     <div class="card">
@@ -406,7 +406,7 @@
       <div class="trivia-action-row">
         <button id="btn-solo-trivia" class="btn btn-primary">▶ Solo</button>
         <button id="btn-create-trivia" class="btn btn-secondary">+ Créer un salon</button>
-        <button id="btn-challenge-friend-quiz" class="btn btn-secondary">⚔️ Défier un ami</button>
+        <button id="btn-challenge-friend-quiz" class="btn btn-secondary"><span class="ui-ic" data-ic="swords">⚔️</span> Défier un ami</button>
       </div>
       <div class="join-group">
         <input id="input-trivia-code" type="text" placeholder="Code à 4 lettres"
@@ -431,7 +431,7 @@
       <div id="trivia-room-code" class="code-display"></div>
       <div class="share-row">
         <button id="btn-trivia-copy" class="btn btn-secondary">Copier le code</button>
-        <button id="btn-trivia-share" class="btn btn-secondary">🔗 Partager le lien</button>
+        <button id="btn-trivia-share" class="btn btn-secondary"><span class="ui-ic" data-ic="share">🔗</span> Partager le lien</button>
       </div>
       <div id="trivia-wait-players" class="trivia-wait-players"></div>
       <button id="btn-start-trivia" class="btn btn-primary hidden">▶ Démarrer la partie</button>
@@ -444,7 +444,7 @@
   <div id="screen-trivia-game" class="screen game-screen">
     <div class="tg-wrap">
       <div class="tg-header">
-        <button id="btn-quit-trivia" class="btn-quit">🚪 Quitter</button>
+        <button id="btn-quit-trivia" class="btn-quit"><span class="ui-ic" data-ic="quit">🚪</span> Quitter</button>
         <button id="btn-trivia-pause" class="snake-pause-btn hidden" title="Pause">⏸</button>
       <button id="btn-boost-hint" class="boost-hint-btn hidden" title="Indice : éliminer une mauvaise réponse">💡</button>
         <span id="tg-q-num" class="tg-q-num"></span>
@@ -466,17 +466,17 @@
       <div class="snake-pause-overlay hidden" id="trivia-pause-overlay">
         <p class="snake-over-text" id="trivia-pause-text">⏸ Pause</p>
         <button id="btn-trivia-resume" class="btn btn-primary">▶ Reprendre</button>
-        <button id="btn-trivia-pause-back" class="btn btn-secondary">← Retour au Quiz</button>
-        <button id="btn-trivia-pause-home" class="btn btn-secondary">🏠 Quitter</button>
+        <button id="btn-trivia-pause-back" class="btn btn-secondary"><span class="ui-ic" data-ic="back">←</span> Retour au Quiz</button>
+        <button id="btn-trivia-pause-home" class="btn btn-secondary"><span class="ui-ic" data-ic="home">🏠</span> Quitter</button>
       </div>
     </div>
   </div>
 
   <!-- ── Écran Évents ── -->
   <div id="screen-events" class="screen">
-    <button class="btn-back" id="btn-back-events">← Retour</button>
+    <button class="btn-back" id="btn-back-events"><span class="ui-ic" data-ic="back">←</span> Retour</button>
     <div class="logo">
-      <h1 id="events-screen-title">🎉 Évents</h1>
+      <h1 id="events-screen-title"><span class="ui-ic ttl" data-ic="calendar">🎉</span> Évents</h1>
       <p class="subtitle" id="events-screen-sub">Week-end spécial</p>
     </div>
     <div class="event-intro" id="event-intro">
@@ -529,8 +529,8 @@
         <div class="snake-pause-overlay hidden" id="snake-pause-overlay">
           <p class="snake-over-text" id="snake-pause-text">⏸ Pause</p>
           <button id="btn-snake-resume" class="btn btn-primary">▶ Reprendre</button>
-          <button id="btn-snake-pause-quit-events" class="btn btn-secondary">← Retour</button>
-          <button id="btn-snake-pause-quit-home" class="btn btn-secondary">🏠 Quitter</button>
+          <button id="btn-snake-pause-quit-events" class="btn btn-secondary"><span class="ui-ic" data-ic="back">←</span> Retour</button>
+          <button id="btn-snake-pause-quit-home" class="btn btn-secondary"><span class="ui-ic" data-ic="home">🏠</span> Quitter</button>
         </div>
       </div>
       <p class="snake-hint" id="snake-hint-text">↑ ↓ ← → ou glisser sur mobile</p>
@@ -547,9 +547,9 @@
 
   <!-- ── Écran Libero Run ── -->
   <div id="screen-luffy" class="screen">
-    <button class="btn-back" id="btn-back-luffy">← Retour</button>
+    <button class="btn-back" id="btn-back-luffy"><span class="ui-ic" data-ic="back">←</span> Retour</button>
     <div class="logo">
-      <h1 id="luffy-screen-title">🏃 Libero Run</h1>
+      <h1 id="luffy-screen-title"><span class="ui-ic ttl" data-ic="run">🏃</span> Libero Run</h1>
       <p class="subtitle" id="luffy-screen-sub">Pour la communauté</p>
     </div>
     <div class="event-intro" id="luffy-intro">
@@ -558,7 +558,7 @@
       <p id="luffy-challenge-desc">Aide Libero à courir le plus loin possible ! Saute par-dessus les obstacles au sol, accroupis-toi sous ceux qui volent.</p>
       <div class="event-hs-display" id="luffy-hs-display"></div>
       <button id="btn-luffy-play" class="btn btn-primary">Jouer</button>
-      <button id="btn-luffy-suggest" class="luffy-suggest-link">💬 Proposer un jeu pour cette section</button>
+      <button id="btn-luffy-suggest" class="luffy-suggest-link"><span class="ui-ic" data-ic="chat">💬</span> Proposer un jeu pour cette section</button>
     </div>
     <!-- Formulaire pseudo (obligatoire avant de jouer) -->
     <div class="snake-name-form hidden" id="luffy-name-form">
@@ -603,8 +603,8 @@
         <div class="snake-pause-overlay hidden" id="luffy-pause-overlay">
           <p class="snake-over-text" id="luffy-pause-text">⏸ Pause</p>
           <button id="btn-luffy-resume" class="btn btn-primary">▶ Reprendre</button>
-          <button id="btn-luffy-pause-quit-luffy" class="btn btn-secondary">← Retour</button>
-          <button id="btn-luffy-pause-quit-home" class="btn btn-secondary">🏠 Quitter</button>
+          <button id="btn-luffy-pause-quit-luffy" class="btn btn-secondary"><span class="ui-ic" data-ic="back">←</span> Retour</button>
+          <button id="btn-luffy-pause-quit-home" class="btn btn-secondary"><span class="ui-ic" data-ic="home">🏠</span> Quitter</button>
         </div>
       </div>
       <p class="snake-hint" id="luffy-hint-text">↑ / Espace pour sauter · ↓ pour t'accroupir</p>
@@ -620,7 +620,7 @@
     <div id="feed-container" class="feed-container">
       <p id="feed-status" class="feed-status">Chargement des vidéos…</p>
     </div>
-    <button id="feed-submit-fab" class="feed-submit-fab" title="Proposer une vidéo" aria-label="Proposer une vidéo">🎬<span>+</span></button>
+    <button id="feed-submit-fab" class="feed-submit-fab" title="Proposer une vidéo" aria-label="Proposer une vidéo"><span class="ui-ic" data-ic="clap">🎬</span><span>+</span></button>
   </div>
 
   <!-- Commentaires d'une vidéo (feuille du bas) -->
@@ -628,7 +628,7 @@
     <div class="recovery-modal videocomments-modal">
       <div class="profile-modal-header">
         <h2 class="profile-modal-title"><span id="videocomments-title">Commentaires</span> · <span id="videocomments-count">0</span></h2>
-        <button id="videocomments-close" class="help-close-btn">✕</button>
+        <button id="videocomments-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div id="videocomments-list" class="videocomments-list"></div>
       <div class="videocomments-form">
@@ -643,7 +643,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="videosubmit-title" class="profile-modal-title">Proposer une vidéo</h2>
-        <button id="videosubmit-close" class="help-close-btn">✕</button>
+        <button id="videosubmit-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <p id="videosubmit-intro" class="recovery-label">Colle le lien direct d'une vidéo (mp4). Elle sera vérifiée par l'admin avant d'apparaître dans le feed.</p>
@@ -664,11 +664,11 @@
         <p id="ideas-sub" class="ideas-sub">Propose une amélioration du site et vote pour celles des autres.</p>
         <div class="ideas-toolbar">
           <div class="ideas-sort">
-            <button id="ideas-sort-top" class="ideas-sort-btn active" data-sort="top">🔥 Top</button>
+            <button id="ideas-sort-top" class="ideas-sort-btn active" data-sort="top"><span class="ui-ic" data-ic="flame">🔥</span> Top</button>
             <button id="ideas-sort-new" class="ideas-sort-btn" data-sort="new">🆕 Récentes</button>
-            <button id="ideas-filter-mine" class="ideas-sort-btn" data-filter="mine">👤 Les miennes</button>
+            <button id="ideas-filter-mine" class="ideas-sort-btn" data-filter="mine"><span class="ui-ic" data-ic="user">👤</span> Les miennes</button>
           </div>
-          <button id="ideas-new-btn" class="btn btn-primary ideas-new-btn">💡 Proposer</button>
+          <button id="ideas-new-btn" class="btn btn-primary ideas-new-btn"><span class="ui-ic" data-ic="bulb">💡</span> Proposer</button>
         </div>
         <input id="ideas-search" class="ideas-search" type="search" maxlength="60" placeholder="Rechercher une idée…" autocomplete="off" />
       </div>
@@ -681,7 +681,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="ideanew-title" class="profile-modal-title">Proposer une idée</h2>
-        <button id="ideanew-close" class="help-close-btn">✕</button>
+        <button id="ideanew-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <p id="ideanew-intro" class="recovery-label">Décris une fonctionnalité ou une amélioration que tu aimerais voir sur le site.</p>
@@ -713,7 +713,7 @@
     <!-- Visionneuse de chapitre (livre exclusif) -->
     <div id="book-reader" class="book-reader">
       <div class="book-reader-bar">
-        <button id="book-reader-close" class="book-reader-close">✕</button>
+        <button id="book-reader-close" class="book-reader-close"><span class="ui-ic" data-ic="close">✕</span></button>
         <p id="book-reader-title" class="book-reader-title"></p>
       </div>
       <div id="book-reader-content" class="book-reader-content"></div>
@@ -731,7 +731,7 @@
     <div id="news-announcements"></div>
     <!-- Tournoi du samedi (statut en direct dans les News) -->
     <div class="tournament-card news-tournament" id="tournament-card">
-      <h2 id="tournament-title">🏆 Tournoi du samedi</h2>
+      <h2 id="tournament-title"><span class="ui-ic ttl" data-ic="trophy">🏆</span> Tournoi du samedi</h2>
       <p id="tournament-desc" class="tournament-desc">Chaque samedi : victoires classiques +10 pts, bonnes réponses de quiz +2 pts, ⚡ mangés au Snake +1 pt. Le meilleur gagne 2000 ⚡ et le titre « Champion de la semaine » !</p>
       <p id="tournament-status" class="tournament-status"></p>
       <div id="tournament-top" class="tournament-top"></div>
@@ -752,14 +752,14 @@
         <span id="chatbot-title" class="chatbot-title">🤖 Assistant Libero</span>
         <span id="chatbot-subtitle" class="chatbot-subtitle">Pose ta question sur le site</span>
       </div>
-      <button id="chatbot-reset" class="chatbot-reset" title="Effacer la conversation">🗑</button>
-      <button id="chatbot-close" class="chatbot-close" aria-label="Fermer">✕</button>
+      <button id="chatbot-reset" class="chatbot-reset" title="Effacer la conversation"><span class="ui-ic" data-ic="trash">🗑</span></button>
+      <button id="chatbot-close" class="chatbot-close" aria-label="Fermer"><span class="ui-ic" data-ic="close">✕</span></button>
     </div>
     <div id="chatbot-log" class="chatbot-log"></div>
     <div id="chatbot-chips" class="chatbot-chips"></div>
     <form id="chatbot-form" class="chatbot-form" autocomplete="off">
       <input id="chatbot-input" class="chatbot-input" type="text" autocomplete="off" placeholder="Écris ta question…" />
-      <button type="submit" id="chatbot-send" class="chatbot-send" aria-label="Envoyer">➤</button>
+      <button type="submit" id="chatbot-send" class="chatbot-send" aria-label="Envoyer"><span class="ui-ic" data-ic="send">➤</span></button>
     </form>
   </div>
   <!-- ── Boutons cachés (pilotés par le panneau Paramètres) ── -->
@@ -856,7 +856,7 @@
     <div class="community-modal">
       <div class="comment-modal-header">
         <h2 class="comment-modal-title" id="community-modal-title">? Pour la communauté</h2>
-        <button id="btn-community-close" class="help-close-btn">✕</button>
+        <button id="btn-community-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="community-modal-body">
         <p class="community-modal-intro" id="community-intro">Cette section est réservée à un <strong>jeu choisi par vous</strong>, les joueurs de Libero.</p>
@@ -904,7 +904,7 @@
   <!-- ── Modal : Vote Snake Challenge ── -->
   <div id="overlay-snake-vote" class="overlay hidden">
     <div class="snake-vote-modal">
-      <button id="btn-snake-vote-close" class="snake-vote-close">✕</button>
+      <button id="btn-snake-vote-close" class="snake-vote-close"><span class="ui-ic" data-ic="close">✕</span></button>
       <div class="snake-vote-icon">🐍</div>
       <h2 id="snake-vote-title" class="snake-vote-title">Snake Challenge</h2>
       <p id="snake-vote-subtitle" class="snake-vote-subtitle">Veux-tu voir le Snake Challenge revenir ?</p>
@@ -987,7 +987,7 @@
     <div class="comment-modal">
       <div class="comment-modal-header">
         <h2 class="comment-modal-title" id="comment-modal-title">💬 Laisser un commentaire</h2>
-        <button id="btn-comment-close" class="help-close-btn">✕</button>
+        <button id="btn-comment-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <p class="comment-modal-sub" id="comment-modal-sub">Partage ton avis, une idée ou un bug, le créateur le recevra par mail.</p>
       <form id="comment-form" class="comment-form" autocomplete="off">
@@ -1033,7 +1033,7 @@
 
       <div class="help-modal-header">
         <h2 id="help-modal-title" class="help-modal-title">Aide</h2>
-        <button id="btn-help-close" class="help-close-btn">✕</button>
+        <button id="btn-help-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
 
       <div class="help-tabs-bar">
@@ -1174,7 +1174,25 @@
           <span class="pnc-arrow">›</span>
         </button>
         </details>
-        <details class="profile-section" id="sec-account" data-sec="account">
+        <details class="profile-section" id="sec-help" data-sec="help" open>
+          <summary class="profile-sec-head"><span id="sec-help-label">Aide et avis</span><span class="pst-chevron" aria-hidden="true"></span></summary>
+          <button type="button" class="profile-nav-card" id="go-help">
+          <span class="pnc-icon" data-ic="help">❓</span>
+          <span class="pnc-text"><span id="help-card-title">Aide</span><small id="help-card-sub">Comment jouer, les Libs, la boutique</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
+          <button type="button" class="profile-nav-card" id="go-chatbot">
+          <span class="pnc-icon" data-ic="robot">🤖</span>
+          <span class="pnc-text"><span id="chatbot-card-title">Assistant Libero</span><small id="chatbot-card-sub">Pose ta question, il répond tout de suite</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
+          <button type="button" class="profile-nav-card" id="go-comment">
+          <span class="pnc-icon" data-ic="message">✉️</span>
+          <span class="pnc-text"><span id="comment-card-title">Donner mon avis</span><small id="comment-card-sub">Une idée, une remarque ? Écris-nous</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
+        </details>
+        <details class="profile-section" id="sec-account" data-sec="account" open>
           <summary class="profile-sec-head"><span id="sec-account-label">Mon compte</span><span class="pst-chevron" aria-hidden="true"></span></summary>
           <button type="button" class="profile-nav-card" id="go-account">
           <span class="pnc-icon" data-ic="key">🔑</span>
@@ -1238,7 +1256,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="recovery-title" class="profile-modal-title">🔐 Sauvegarder ma progression</h2>
-        <button id="btn-recovery-close" class="help-close-btn">✕</button>
+        <button id="btn-recovery-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <p id="recovery-intro" class="recovery-intro">Ce code est la clé de ton compte. Note-le et garde-le en lieu sûr : si tu changes ou perds ton appareil, il te permet de récupérer toute ta progression.</p>
@@ -1264,7 +1282,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="referral-title" class="profile-modal-title">🤝 Invite un ami</h2>
-        <button id="btn-referral-close" class="help-close-btn">✕</button>
+        <button id="btn-referral-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <p id="referral-intro" class="recovery-intro">Envoie ton lien d'invitation : quand ton ami jouera sa première partie, vous recevrez chacun 100 ⚡ !</p>
@@ -1284,7 +1302,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="bug-title" class="profile-modal-title">🐛 Signaler un bug</h2>
-        <button id="btn-bug-close" class="help-close-btn">✕</button>
+        <button id="btn-bug-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <p id="bug-intro" class="recovery-intro">Décris le problème que tu as rencontré (ce que tu faisais, ce qui s'est passé). Plus c'est précis, plus vite on le corrige.</p>
@@ -1303,7 +1321,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="wheel-title" class="profile-modal-title">🎡 Roue de la fortune</h2>
-        <button id="btn-wheel-close" class="help-close-btn">✕</button>
+        <button id="btn-wheel-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body wheel-body">
         <p id="wheel-intro" class="recovery-intro">Un tour gratuit par jour. Tente ta chance !</p>
@@ -1322,7 +1340,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="friends-title" class="profile-modal-title">👥 Mes amis</h2>
-        <button id="btn-friends-close" class="help-close-btn">✕</button>
+        <button id="btn-friends-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <p id="friends-intro" class="recovery-intro">Ajoute un ami avec son code d'invitation (dans « Inviter un ami » de son profil), vois s'il est en ligne et défie-le en un clic.</p>
@@ -1363,7 +1381,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="friendpick-title" class="profile-modal-title">⚔️ Qui veux-tu défier ?</h2>
-        <button id="btn-friendpick-close" class="help-close-btn">✕</button>
+        <button id="btn-friendpick-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <div id="friendpick-list" class="friends-list"></div>
@@ -1376,7 +1394,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="friendgift-title" class="profile-modal-title">🎁 Offrir des Libs</h2>
-        <button id="btn-friendgift-close" class="help-close-btn">✕</button>
+        <button id="btn-friendgift-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <p id="friendgift-libs-label" class="recovery-label">Montant en Libs</p>
@@ -1400,7 +1418,7 @@
     <div class="recovery-modal playercard-modal">
       <div class="profile-modal-header">
         <h2 id="playercard-name" class="profile-modal-title"></h2>
-        <button id="btn-playercard-close" class="help-close-btn">✕</button>
+        <button id="btn-playercard-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <p id="playercard-level" class="playercard-level"></p>
@@ -1416,7 +1434,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="iq-title" class="profile-modal-title">🧠 Test de QI</h2>
-        <button id="btn-iq-close" class="help-close-btn">✕</button>
+        <button id="btn-iq-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <div id="iq-intro-view">
@@ -1442,7 +1460,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="vip-title" class="profile-modal-title">👑 Pass VIP</h2>
-        <button id="btn-vip-close" class="help-close-btn">✕</button>
+        <button id="btn-vip-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <p id="vip-intro" class="recovery-intro"></p>
@@ -1475,7 +1493,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="emojirain-title" class="profile-modal-title">🌈 Pluie d'émojis</h2>
-        <button id="btn-emojirain-close" class="help-close-btn">✕</button>
+        <button id="btn-emojirain-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <p id="emojirain-intro" class="recovery-intro">La pluie d'émojis s'affiche à ton arrivée sur le site. Choisis son thème, ou compose ta propre pluie !</p>
@@ -1498,7 +1516,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="reset-title" class="profile-modal-title">🗑️ Réinitialiser le compte</h2>
-        <button id="btn-reset-close" class="help-close-btn">✕</button>
+        <button id="btn-reset-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <p id="reset-intro" class="recovery-intro">Réinitialiser supprime définitivement toute ta progression (Libs, cosmétiques, série, historique) et tu disparais de tous les classements. Le site redémarre ensuite comme à ta toute première visite.</p>
@@ -1523,7 +1541,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="gift-title" class="profile-modal-title">🎁 Cadeau prêt !</h2>
-        <button id="btn-gift-close" class="help-close-btn">✕</button>
+        <button id="btn-gift-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <p id="gift-intro" class="recovery-intro">Envoie le lien cadeau à la personne de ton choix : en l'ouvrant, elle reçoit le cadeau automatiquement. Si elle ne peut pas ouvrir le lien, elle peut aussi entrer le code dans la boutique (section « Recevoir un cadeau »).</p>
@@ -1548,7 +1566,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="giftchoice-title" class="profile-modal-title">🎁 Offrir</h2>
-        <button id="btn-giftchoice-close" class="help-close-btn">✕</button>
+        <button id="btn-giftchoice-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <p id="giftchoice-intro" class="recovery-intro"></p>
@@ -1620,7 +1638,7 @@
     <div class="recovery-modal">
       <div class="profile-modal-header">
         <h2 id="account-title" class="profile-modal-title">🔑 Mon compte</h2>
-        <button id="btn-account-close" class="help-close-btn">✕</button>
+        <button id="btn-account-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <div class="account-tabs">
@@ -1652,5 +1670,8 @@
   <script src="config.js"></script>
   <script src="wordle-words.js"></script>
   <script src="app.js"></script>
+  <!-- Icones en relief : vrai paquet lucide-react en module ES, charge apres
+       le reste. Si le CDN ne repond pas, le jeu a trait de UI_ICONS reste. -->
+  <script type="module" src="icons3d.js"></script>
 </body>
 </html>

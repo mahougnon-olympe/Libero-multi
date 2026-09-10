@@ -4790,3 +4790,69 @@ html.perf-low .main-nav { background: var(--card); }
 /* Le degrade de texte de l'ancien titre centre n'a plus lieu d'etre : le pseudo
    porte desormais la couleur que le joueur a equipee, ou du blanc par defaut. */
 html.light .pid-avatar { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.34); }
+
+/* ══ Icones 3D (lucide-react) ══════════════════════════════════════════════
+   Le module icons3d.js repeint chaque [data-ic] : des copies sombres
+   decalees donnent l'epaisseur, la face du dessus recoit un degre de
+   lumiere (le <linearGradient id="ic3d-lux"> pose dans le document) et une
+   ombre portee. Tant que le module n'a pas repondu, le jeu a trait de
+   UI_ICONS reste affiche : aucun trou dans l'interface.
+   ══════════════════════════════════════════════════════════════════════════ */
+.ic3d {
+  position: relative;
+  display: block;
+  flex: none;
+  transform: rotateX(var(--ic-tilt, 15deg)) rotateZ(var(--ic-turn, -13deg));
+  transform-style: preserve-3d;
+}
+.ic3d svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.ic3d-depth { color: var(--ic-dark, #334155); }
+.ic3d-face  { color: var(--ic-lite, currentColor); filter: drop-shadow(0 3px 4px rgba(0,0,0,.55)); }
+.ic3d-face path, .ic3d-face circle, .ic3d-face rect, .ic3d-face line,
+.ic3d-face polyline, .ic3d-face polygon, .ic3d-face ellipse { stroke: url(#ic3d-lux); }
+
+/* Le logement doit se comporter en boite pour que la mesure soit juste. */
+[data-ic].has-ic3d { display: inline-flex; align-items: center; justify-content: center; }
+
+/* En mode clair, l'ombre portee noire est trop dure et les teintes claires
+   du degre se perdent sur fond blanc : on assombrit la face. */
+html.light .ic3d-face { filter: drop-shadow(0 2px 3px rgba(15,23,42,.3)); }
+html.light .ic3d-face path, html.light .ic3d-face circle, html.light .ic3d-face rect,
+html.light .ic3d-face line, html.light .ic3d-face polyline,
+html.light .ic3d-face polygon, html.light .ic3d-face ellipse { stroke: var(--ic-dark, #334155); }
+/* L'epaisseur est une OMBRE : sur fond sombre elle est sombre, sur fond clair
+   elle doit etre claire. Sinon la face sombre et les couches sombres se
+   confondent et l'icone devient un pate. */
+html.light .ic3d-depth { color: var(--ic-lite, #cbd5e1); opacity: .55 !important; }
+
+/* Appareils modestes et mouvement reduit : on garde la couleur, on retire
+   le volume (les copies empilees sont autant de couches de composition). */
+html.perf-low .ic3d, html.perf-low .ic3d * { transform: none !important; }
+html.perf-low .ic3d-depth { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .ic3d { transform: none; }
+  .ic3d-depth { display: none; }
+}
+
+/* Logements d'icone du chrome (retour, fermeture, partage, titres d'ecran).
+   L'emoji d'origine reste dedans : il s'affiche tant que icons3d.js n'a pas
+   repondu, et pour toujours si le CDN est injoignable. */
+.ui-ic {
+  flex: none;
+  width: 20px; height: 20px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1rem; line-height: 1;
+  vertical-align: -.2em;
+}
+.ui-ic.ttl { width: 30px; height: 30px; font-size: 1.4rem; }
+.btn-back .ui-ic, .help-close-btn .ui-ic, .chatbot-close .ui-ic,
+.book-reader-close .ui-ic { width: 18px; height: 18px; }
+/* Les boutons qui portent une icone et un libelle les alignent proprement. */
+.btn .ui-ic, .btn-quit .ui-ic, .ideas-sort-btn .ui-ic { margin-right: 6px; }
+h1 .ui-ic, h2 .ui-ic { margin-right: 8px; }

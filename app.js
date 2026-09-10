@@ -805,6 +805,10 @@ const DICT = {
     stepPickGame:'Choisis ton jeu', stepLaunch:'Lance la partie',
     profileSecPlay:'Jouer et gagner', profileSecCollection:'Ma collection',
     profileSecActivity:'Mon activité', profileSecAccount:'Mon compte',
+    profileSecHelp:'Aide et avis',
+    helpCardTitle:'Aide', helpCardSub:'Comment jouer, les Libs, la boutique',
+    chatbotCardTitle:'Assistant Libero', chatbotCardSub:'Pose ta question, il répond tout de suite',
+    commentCardTitle:'Donner mon avis', commentCardSub:"Une idée, une remarque ? Écris-nous",
     landingChipDuel:'Duel en ligne', landingChipBot:'Contre le bot',
     landingChipThemes:'30 thèmes', landingChipSpeed:'Bonus de vitesse',
     triviaTitle:'Culture Générale', triviaDesc:'Quiz par thèmes · Solo & Multi',
@@ -897,7 +901,7 @@ const DICT = {
       greeting:"Salut ! Je suis l'assistant de Libero's Multi. Pose-moi une question sur le site (Libs, boutique, livres, jeux, défis…) ou choisis un sujet ci-dessous.",
       thanks:'Avec plaisir ! Autre chose ?',
       answerIntro:"Voici ce que j'ai trouvé :",
-      fallback:"Je n'ai pas de réponse précise à ça. Reformule ta question, ouvre l'aide complète avec le bouton ❓ en bas à droite, ou écris au créateur via le bouton ✉️ en bas à gauche.",
+      fallback:"Je n'ai pas de réponse précise à ça. Reformule ta question, ouvre l'aide complète avec la carte <strong>Aide</strong> du Profil, ou écris au créateur via la carte <strong>Donner mon avis</strong> (Profil, section Aide et avis).",
       suggestions:[
         { q:'Comment gagner des Libs ?' },
         { q:'Comment acheter des Libs ?' },
@@ -1136,7 +1140,7 @@ const DICT = {
     triviaResumeBtn:'▶ Reprendre', triviaBackToQuiz:'← Retour au Quiz', triviaQuitHome:'🏠 Quitter',
     communityTitle:'? Pour la communauté',
     communityIntro:'Cette section est réservée à un <strong>jeu choisi par vous</strong>, les joueurs de Libero.',
-    communityStep1:'Propose le jeu que tu voudrais voir sur le site en laissant un commentaire via le bouton <strong>✉️</strong> en bas à gauche.',
+    communityStep1:'Propose le jeu que tu voudrais voir sur le site en laissant un commentaire : onglet <strong>Profil</strong>, section <strong>Aide et avis</strong>, carte <strong>Donner mon avis</strong>.',
     communityStep2:'Les suggestions les plus mentionnées seront sélectionnées et soumises au vote de la communauté.',
     communityStep3:'Le jeu le plus voté sera développé et ajouté sur Libero. <strong>Ton avis compte vraiment.</strong>',
     communityCta:'Tu as une idée ? Fais-le savoir !',
@@ -1189,10 +1193,10 @@ const DICT = {
         { icon:'📰', title:'News', desc:"La carte News est repliée dans le <strong>coin en haut à gauche</strong>. <strong>Clique dessus</strong> pour l'ouvrir : elle affiche les dernières <strong>annonces</strong> (nouveaux livres, nouveautés du site) et les <strong>commentaires</strong> des joueurs. Reclique pour la refermer." },
         { icon:'⚙️', title:'Paramètres', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>⚙️ Réglages</strong> regroupe tous les réglages : <strong>Langue</strong>, <strong>Thème</strong>, <strong>Serpent</strong>, <strong>Sons</strong> (effets sonores + volume), <strong>Musique</strong> (fond musical + volume) et <strong>Cartes de remboursement</strong>. Tout est mémorisé entre les sessions." },
         { icon:'🔊', title:'Sons & Musique', desc:"<strong>Sons</strong> : des effets sonores accompagnent chaque action (poser une pièce, victoire, quiz, chat, boutique, Snake…). Active/désactive-les via <strong>⚙️ → Sons</strong> et règle le volume.<br><strong>Musique</strong> : une musique ambiante joue en fond. Active/désactive-la via <strong>⚙️ → Musique</strong> avec son propre curseur de volume. Les deux se gèrent indépendamment." },
-        { icon:'🐍', title:'Serpent', desc:"Un petit serpent suit ton curseur. Il <strong>grandit et change de couleur</strong> selon ton score global 🌍 : or (1er), bleu (2e), bronze (3e). Joue et grimpe dans le classement pour l'allonger ! Active ou désactive-le via le bouton <strong>⚙️</strong> en haut à droite → <strong>Serpent</strong>." },
-        { icon:'☀️', title:'Thème jour / nuit', desc:"Le bouton <strong>⚙️</strong> en <em>haut à droite</em> → <strong>Thème</strong> bascule entre le thème clair et sombre. Le site s'adapte aussi automatiquement selon l'heure (clair de 7h à 20h, sombre la nuit). Ton choix manuel est mémorisé entre les sessions." },
+        { icon:'🐍', title:'Serpent', desc:"Un petit serpent suit ton curseur. Il <strong>grandit et change de couleur</strong> selon ton score global 🌍 : or (1er), bleu (2e), bronze (3e). Joue et grimpe dans le classement pour l'allonger ! Active ou désactive-le dans l'onglet <strong>Profil</strong> → carte <strong>Réglages</strong> → <strong>Serpent</strong>." },
+        { icon:'☀️', title:'Thème jour / nuit', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Réglages</strong> → <strong>Thème</strong> bascule entre le thème clair et sombre. Le site s'adapte aussi automatiquement selon l'heure (clair de 7h à 20h, sombre la nuit). Ton choix manuel est mémorisé entre les sessions." },
         { icon:'🚪', title:'Bouton Quitter', desc:"Pendant une partie, le bouton <em>🚪 Quitter</em> en haut au centre te ramène au menu principal. Si une partie est en cours, tu es averti que tu abandonneras avant de confirmer." },
-        { icon:'✉️', title:'Laisser un commentaire', desc:"Clique sur le bouton <strong>✉️</strong> en bas à gauche pour envoyer un message au créateur : avis, idée, bug… Aucune connexion requise. Tu peux laisser un pseudo ou rester anonyme." },
+        { icon:'✉️', title:'Laisser un commentaire', desc:"Dans l'onglet <strong>Profil</strong>, section <strong>Aide et avis</strong>, la carte <strong>Donner mon avis</strong> envoie un message au créateur : avis, idée, bug… Aucune connexion requise. Tu peux laisser un pseudo ou rester anonyme." },
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
         { icon:'💳', titleKey:'helpLibsBuyTitle', descKey:'helpLibsBuyDesc' },
         { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
@@ -1273,7 +1277,7 @@ const DICT = {
       quiz_themes:'🧠 <strong>Quiz Culture Générale</strong> : sélectionne un ou plusieurs thèmes (Histoire, Cinéma, Sciences…), puis joue en <strong>Solo</strong> ou crée un <strong>salon multijoueur</strong> à partager avec tes amis.',
       quiz_lb:'🏆 Le <strong>classement Quiz</strong> est séparé du classement Classique. Les points sont attribués selon ta vitesse de réponse et le nombre de bonnes réponses. <strong>Réponse éclair</strong> (dans les premières secondes) = <strong>point doublé ⚡</strong>.',
       read_catalogue:'📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Les <strong>romans exclusifs</strong> se lisent directement ici : <strong>⭐ L\'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, puis 1000 ⚡ et 2000 ⚡), <strong>Life of Georgia</strong> (2000 ⚡ le livre entier) et <strong>Life of Georgia · Tome 2</strong>, offert à ceux qui possèdent le Tome 1.',
-      profile_hub:'🎯 Ton <strong>Profil</strong> regroupe ton <strong>niveau</strong> ⭐ (chaque partie donne de l\'XP, chaque niveau des ⚡), ta <strong>série de connexion</strong> 🔥, tes <strong>défis du jour</strong>, ton <strong>casier</strong>, ton <strong>historique</strong>, tes <strong>amis</strong> 👥 (demandes d\'amis, cadeaux de Libs, défis depuis les zones de jeu), la <strong>roue de la fortune</strong> 🎡 (1 tour gratuit par jour), le <strong>test de QI</strong> 🧠 (après 10 quiz), le <strong>Pass VIP</strong> 👑 (+20% de Libs), la carte <strong>Inviter un ami</strong> 🤝 (+100 ⚡ chacun), tes <strong>émotes</strong> 😎, la <strong>pluie d\'émojis</strong> 🌈, les <strong>Réglages</strong> ⚙️ (avec les 🔔 notifications), ton <strong>compte</strong> 🔑 (pour ne jamais perdre ta progression), ton <strong>code de récupération</strong> 🔐 et la <strong>réinitialisation</strong> du compte.',
+      profile_hub:'🎯 Ton <strong>Profil</strong> regroupe ton <strong>niveau</strong> ⭐ (chaque partie donne de l\'XP, chaque niveau des ⚡), ta <strong>série de connexion</strong> 🔥, tes <strong>défis du jour</strong>, ton <strong>casier</strong>, ton <strong>historique</strong>, tes <strong>amis</strong> 👥 (demandes d\'amis, cadeaux de Libs, défis depuis les zones de jeu), la <strong>roue de la fortune</strong> 🎡 (1 tour gratuit par jour), le <strong>test de QI</strong> 🧠 (après 10 quiz), le <strong>Pass VIP</strong> 👑 (+20% de Libs), la carte <strong>Inviter un ami</strong> 🤝 (+100 ⚡ chacun), tes <strong>émotes</strong> 😎, la <strong>pluie d\'émojis</strong> 🌈, les <strong>Réglages</strong> ⚙️ (avec les 🔔 notifications), ton <strong>compte</strong> 🔑 (pour ne jamais perdre ta progression), ton <strong>code de récupération</strong> 🔐, la <strong>réinitialisation</strong> du compte, et la section <strong>Aide et avis</strong> (l\'<strong>aide</strong> complète, l\'<strong>assistant</strong> 🤖 et la carte <strong>Donner mon avis</strong> ✉️ pour écrire au créateur).',
       ideas_board:'💡 La section <strong>Idées</strong> : propose une amélioration du site et vote pour (▲) ou contre (▼) celles des autres joueurs. Les meilleures idées remontent en haut.',
     },
   },
@@ -1538,6 +1542,10 @@ const DICT = {
     stepPickGame:'Pick your game', stepLaunch:'Start the game',
     profileSecPlay:'Play and earn', profileSecCollection:'My collection',
     profileSecActivity:'My activity', profileSecAccount:'My account',
+    profileSecHelp:'Help and feedback',
+    helpCardTitle:'Help', helpCardSub:'How to play, Libs, the shop',
+    chatbotCardTitle:'Libero assistant', chatbotCardSub:'Ask your question, it answers right away',
+    commentCardTitle:'Send feedback', commentCardSub:'An idea, a remark? Write to us',
     landingChipDuel:'Online duel', landingChipBot:'Versus the bot',
     landingChipThemes:'30 themes', landingChipSpeed:'Speed bonus',
     triviaTitle:'General Knowledge', triviaDesc:'Themed quizzes · Solo & Multi',
@@ -1630,7 +1638,7 @@ const DICT = {
       greeting:"Hi! I'm the Libero's Multi assistant. Ask me anything about the site (Libs, shop, books, games, challenges…) or pick a topic below.",
       thanks:'You are welcome! Anything else?',
       answerIntro:'Here is what I found:',
-      fallback:"I don't have a precise answer for that. Try rephrasing, open the full help with the ❓ button (bottom right), or message the creator via the ✉️ button in the bottom left.",
+      fallback:"I don't have a precise answer for that. Try rephrasing, open the full help with the <strong>Help</strong> card in your Profile, or message the creator with the <strong>Send feedback</strong> card (Profile, Help and feedback section).",
       suggestions:[
         { q:'How do I earn Libs?' },
         { q:'How do I buy Libs?' },
@@ -1869,7 +1877,7 @@ const DICT = {
     triviaResumeBtn:'▶ Resume', triviaBackToQuiz:'← Back to Quiz', triviaQuitHome:'🏠 Quit',
     communityTitle:'? Community',
     communityIntro:'This section is dedicated to a <strong>game chosen by you</strong>, the Libero players.',
-    communityStep1:'Suggest the game you would like to see on the site by leaving a comment via the <strong>✉️</strong> button in the bottom left.',
+    communityStep1:'Suggest the game you would like to see on the site by leaving a comment: <strong>Profile</strong> tab, <strong>Help and feedback</strong> section, <strong>Send feedback</strong> card.',
     communityStep2:'The most mentioned suggestions will be selected and submitted to a community vote.',
     communityStep3:'The most voted game will be developed and added to Libero. <strong>Your opinion truly matters.</strong>',
     communityCta:'Have an idea? Let us know!',
@@ -1922,10 +1930,10 @@ const DICT = {
         { icon:'📰', title:'News', desc:"The News card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the latest <strong>announcements</strong> (new books, site updates) and player <strong>comments</strong>. Click again to close it." },
         { icon:'⚙️', title:'Settings', desc:"In the <strong>Profile</strong> tab, the <strong>⚙️ Settings</strong> card groups all settings: <strong>Language</strong>, <strong>Theme</strong>, <strong>Snake</strong>, <strong>Sound</strong> (SFX + volume), <strong>Music</strong> (background music + volume) and <strong>Refund cards</strong>. Everything is saved between sessions." },
         { icon:'🔊', title:'Sound & Music', desc:"<strong>Sound</strong>: sound effects play on every action (placing a piece, win, quiz, chat, shop, Snake…). Toggle via <strong>⚙️ → Sound</strong> and adjust the volume.<br><strong>Music</strong>: ambient background music plays while you browse. Toggle via <strong>⚙️ → Music</strong> with its own volume slider. Both are controlled independently." },
-        { icon:'🐍', title:'Snake', desc:"A little snake follows your cursor. It <strong>grows and changes colour</strong> based on your global score 🌍: gold (1st), blue (2nd), bronze (3rd). Play and climb the leaderboard to make it longer! Enable or disable it via the <strong>⚙️</strong> button (top right) → <strong>Snake</strong>." },
-        { icon:'☀️', title:'Day / night theme', desc:"The <strong>⚙️</strong> button in the <em>top right</em> → <strong>Theme</strong> toggles between light and dark theme. The site also adapts automatically based on the time (light 7am–8pm, dark at night). Your manual choice is remembered between sessions." },
+        { icon:'🐍', title:'Snake', desc:"A little snake follows your cursor. It <strong>grows and changes colour</strong> based on your global score 🌍: gold (1st), blue (2nd), bronze (3rd). Play and climb the leaderboard to make it longer! Enable or disable it in the <strong>Profile</strong> tab → <strong>Settings</strong> card → <strong>Snake</strong>." },
+        { icon:'☀️', title:'Day / night theme', desc:"In the <strong>Profile</strong> tab, the <strong>Settings</strong> card → <strong>Theme</strong> toggles between light and dark theme. The site also adapts automatically based on the time (light 7am–8pm, dark at night). Your manual choice is remembered between sessions." },
         { icon:'🚪', title:'Quit button', desc:"During a game, the <em>🚪 Quit</em> button in the top centre takes you back to the main menu. If a game is in progress, you are warned that you will forfeit before confirming." },
-        { icon:'✉️', title:'Leave a comment', desc:"Click the <strong>✉️</strong> button in the bottom left to send a message to the creator: feedback, idea, bug… No account required. You can leave a username or stay anonymous." },
+        { icon:'✉️', title:'Leave a comment', desc:"In the <strong>Profile</strong> tab, <strong>Help and feedback</strong> section, the <strong>Send feedback</strong> card sends a message to the creator: feedback, idea, bug… No account required. You can leave a username or stay anonymous." },
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
         { icon:'💳', titleKey:'helpLibsBuyTitle', descKey:'helpLibsBuyDesc' },
         { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
@@ -2006,7 +2014,7 @@ const DICT = {
       quiz_themes:'🧠 <strong>General Knowledge Quiz</strong>: select one or more themes (History, Movies, Science…), then play <strong>Solo</strong> or create a <strong>multiplayer room</strong> to share with your friends.',
       quiz_lb:'🏆 The <strong>Quiz leaderboard</strong> is separate from the Classic leaderboard. Points are awarded based on your response speed and number of correct answers. A <strong>lightning answer</strong> (within the first seconds) = <strong>double points ⚡</strong>.',
       read_catalogue:'📚 Welcome to the <strong>Reading</strong> section! Search a book by title or author, filter by category, and click a cover to open its sheet. The <strong>exclusive novels</strong> can be read right here: <strong>⭐ L\'Affaire endormie · Tome 1</strong> (chapter 1 free, then 1000 ⚡ and 2000 ⚡), <strong>Life of Georgia</strong> (2000 ⚡ for the whole book) and <strong>Life of Georgia · Volume 2</strong>, free for owners of Volume 1.',
-      profile_hub:'🎯 Your <strong>Profile</strong> gathers your <strong>level</strong> ⭐ (every game gives XP, every level gives ⚡), your <strong>login streak</strong> 🔥, your <strong>daily challenges</strong>, your <strong>locker</strong>, your game <strong>history</strong>, your <strong>friends</strong> 👥 (friend requests, Libs gifts, challenges from the game areas), the <strong>wheel of fortune</strong> 🎡 (1 free spin a day), the <strong>IQ test</strong> 🧠 (after 10 quizzes), the <strong>VIP Pass</strong> 👑 (+20% Libs), the <strong>Invite a friend</strong> card 🤝 (+100 ⚡ each), your <strong>emotes</strong> 😎, the <strong>emoji rain</strong> 🌈, the <strong>Settings</strong> ⚙️ (with 🔔 notifications), your <strong>account</strong> 🔑 (so you never lose your progress), your <strong>recovery code</strong> 🔐 and the account <strong>reset</strong>.',
+      profile_hub:'🎯 Your <strong>Profile</strong> gathers your <strong>level</strong> ⭐ (every game gives XP, every level gives ⚡), your <strong>login streak</strong> 🔥, your <strong>daily challenges</strong>, your <strong>locker</strong>, your game <strong>history</strong>, your <strong>friends</strong> 👥 (friend requests, Libs gifts, challenges from the game areas), the <strong>wheel of fortune</strong> 🎡 (1 free spin a day), the <strong>IQ test</strong> 🧠 (after 10 quizzes), the <strong>VIP Pass</strong> 👑 (+20% Libs), the <strong>Invite a friend</strong> card 🤝 (+100 ⚡ each), your <strong>emotes</strong> 😎, the <strong>emoji rain</strong> 🌈, the <strong>Settings</strong> ⚙️ (with 🔔 notifications), your <strong>account</strong> 🔑 (so you never lose your progress), your <strong>recovery code</strong> 🔐, the account <strong>reset</strong>, and the <strong>Help and feedback</strong> section (the full <strong>help</strong>, the <strong>assistant</strong> 🤖 and the <strong>Send feedback</strong> ✉️ card to write to the creator).',
       ideas_board:'💡 The <strong>Ideas</strong> section: suggest a site improvement and vote up (▲) or down (▼) on other players\' ideas. The best ideas rise to the top.',
     },
   },
@@ -2247,6 +2255,9 @@ function applyLang() {
   if (window._notify?.retexte) window._notify.retexte();
   if (window._renderBadges && window._myBadges) window._renderBadges('profile-badges', window._myBadges, window._myHonorTitle);
   setTxt('bug-card-title', d.bugCardTitle); setTxt('bug-card-sub', d.bugCardSub); setTxt('bug-title', d.bugTitle);
+  setTxt('help-card-title', d.helpCardTitle);       setTxt('help-card-sub', d.helpCardSub);
+  setTxt('chatbot-card-title', d.chatbotCardTitle); setTxt('chatbot-card-sub', d.chatbotCardSub);
+  setTxt('comment-card-title', d.commentCardTitle); setTxt('comment-card-sub', d.commentCardSub);
   setTxt('bug-intro', d.bugIntro); setTxt('bug-text-label', d.bugTextLabel); setTxt('bug-contact-label', d.bugContactLabel);
   setTxt('btn-bug-send', d.bugSend); setPh('bug-text', d.bugTextPh); setPh('bug-contact', d.bugContactPh);
   if (window._wordle) window._wordle.retexte();
@@ -4597,6 +4608,10 @@ $('btn-help').addEventListener('click', () => {
 document.getElementById('btn-help-game').addEventListener('click', () => {
   $('overlay-help').classList.remove('hidden');
 });
+// Carte Aide du hub Profil : les boutons flottants sont masques sur cet ecran.
+(() => { const b = $('go-help'); if (b) b.addEventListener('click', () => {
+  $('overlay-help').classList.remove('hidden');
+}); })();
 $('btn-help-close').addEventListener('click', () => {
   $('overlay-help').classList.add('hidden');
 });
@@ -4816,6 +4831,9 @@ $('overlay-help').addEventListener('click', e => {
   window._chatbot = { retexte };
 
   fab.addEventListener('click', toggle);
+  // Carte Assistant du hub Profil (le bouton flottant est masque sur cet ecran).
+  const cardBot = $('go-chatbot');
+  if (cardBot) cardBot.addEventListener('click', openPanel);
   $('chatbot-close').addEventListener('click', closePanel);
   $('chatbot-reset').addEventListener('click', () => {
     try { localStorage.removeItem(LS_LOG); } catch(e){}
@@ -8869,6 +8887,12 @@ window._playEmojiRain = function (emojisOverride) {
     openModal();
   });
 
+  // Carte « Donner mon avis » du hub Profil. Le bouton flottant .btn-comment-float
+  // a disparu du HTML : c'etait le seul acces en dehors de la modale Communaute.
+  const cardCom = $('go-comment');
+  if (cardCom) cardCom.addEventListener('click', openModal);
+  window._openCommentBox = openModal;
+
   pseudo.addEventListener('input', e => {
     const v = e.target.value;
     localStorage.setItem('playerName', v.trim());
@@ -11316,7 +11340,8 @@ const ProfileSections = (() => {
   function retexte() {
     const d = t();
     const L = { play: d.profileSecPlay, collection: d.profileSecCollection,
-                activity: d.profileSecActivity, account: d.profileSecAccount };
+                activity: d.profileSecActivity, account: d.profileSecAccount,
+                help: d.profileSecHelp };
     secs().forEach(sec => {
       const el = document.getElementById(sec.id + '-label');
       if (el && L[sec.dataset.sec]) el.textContent = L[sec.dataset.sec];
