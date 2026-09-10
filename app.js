@@ -717,6 +717,8 @@ const DICT = {
     vipDone:'👑 Te voilà VIP pour 30 jours ! Profite de tes +20%.',
     vipInsufficient:price=>`Il te faut ${price} ⚡ pour devenir VIP. Passe par la boutique pour recharger !`,
     vipMax:'Tu as déjà le maximum de VIP en réserve (3 mois). Reviens plus tard !',
+    vipReserve:(pass, jours) => `👑 ${pass} pass en réserve · ${jours} jour${jours > 1 ? 's' : ''} restant${jours > 1 ? 's' : ''}`,
+    vipReserveNone:'Aucun pass en réserve',
     joinName:{
       title:"🎮 On t'attend !",
       intro:"Un ami t'a invité à une partie. Choisis d'abord ton pseudo pour le rejoindre.",
@@ -1454,6 +1456,8 @@ const DICT = {
     vipDone:'👑 You are now VIP for 30 days! Enjoy your +20%.',
     vipInsufficient:price=>`You need ${price} ⚡ to become VIP. Top up in the shop!`,
     vipMax:'You already have the maximum VIP stored (3 months). Come back later!',
+    vipReserve:(pass, days) => `👑 ${pass} pass${pass > 1 ? 'es' : ''} stored · ${days} day${days > 1 ? 's' : ''} left`,
+    vipReserveNone:'No pass stored',
     joinName:{
       title:'🎮 They are waiting for you!',
       intro:'A friend invited you to a game. Pick your nickname first to join them.',
@@ -2188,6 +2192,7 @@ function applyLang() {
   const qshb = $('btn-iq-share');      if (qshb) qshb.textContent = d.iqShareBtn;
   const vct = $('vip-card-title');     if (vct) vct.textContent = d.vipCardTitle;
   const vcs = $('vip-card-sub');       if (vcs) vcs.textContent = d.vipCardSub;
+  window._renderVip?.();  // repose la reserve de pass par-dessus le libelle par defaut
   const vtt = $('vip-title');          if (vtt) vtt.textContent = d.vipTitle;
   const cfb = $('btn-challenge-friend');      if (cfb) cfb.textContent = d.challengeFriendBtn;
   const cfq = $('btn-challenge-friend-quiz'); if (cfq) cfq.textContent = d.challengeFriendBtn;
@@ -6193,18 +6198,18 @@ function _renderShopItems() {
 
   container.innerHTML = `
     <nav class="shop-fn-nav" id="shop-fn-nav">
-      <button class="shop-fn-nav-btn active" data-section="featured"><span class="shop-nav-icon">⭐</span><span class="shop-nav-label"> ${nav.featured}</span></button>
-      <button class="shop-fn-nav-btn" data-section="daily"><span class="shop-nav-icon">📅</span><span class="shop-nav-label"> ${nav.daily}</span></button>
-      <button class="shop-fn-nav-btn" data-section="bundles"><span class="shop-nav-icon">🎁</span><span class="shop-nav-label"> ${nav.bundles}</span></button>
-      <button class="shop-fn-nav-btn" data-section="boosts"><span class="shop-nav-icon">💡</span><span class="shop-nav-label"> ${nav.boosts}</span></button>
-      <button class="shop-fn-nav-btn" data-section="colors"><span class="shop-nav-icon">🎨</span><span class="shop-nav-label"> ${nav.colors}</span></button>
-      <button class="shop-fn-nav-btn" data-section="fonts"><span class="shop-nav-icon">✍️</span><span class="shop-nav-label"> ${nav.fonts}</span></button>
-      <button class="shop-fn-nav-btn" data-section="nameeffects"><span class="shop-nav-icon">✨</span><span class="shop-nav-label"> ${nav.nameeffects}</span></button>
-      <button class="shop-fn-nav-btn" data-section="titles"><span class="shop-nav-icon">🏷️</span><span class="shop-nav-label"> ${nav.titles}</span></button>
-      <button class="shop-fn-nav-btn" data-section="bgs"><span class="shop-nav-icon">🖼️</span><span class="shop-nav-label"> ${nav.bgs}</span></button>
-      <button class="shop-fn-nav-btn" data-section="cursorsnakes"><span class="shop-nav-icon">🖱️</span><span class="shop-nav-label"> ${nav.cursorsnakes}</span></button>
-      <button class="shop-fn-nav-btn" data-section="snakeskins"><span class="shop-nav-icon">🐍</span><span class="shop-nav-label"> ${nav.snakeskins}</span></button>
-      <button class="shop-fn-nav-btn" data-section="codes"><span class="shop-nav-icon">🎟️</span><span class="shop-nav-label"> ${nav.codes}</span></button>
+      <button class="shop-fn-nav-btn active" data-section="featured"><span class="shop-nav-icon" data-ic="star">⭐</span><span class="shop-nav-label"> ${nav.featured}</span></button>
+      <button class="shop-fn-nav-btn" data-section="daily"><span class="shop-nav-icon" data-ic="cal">📅</span><span class="shop-nav-label"> ${nav.daily}</span></button>
+      <button class="shop-fn-nav-btn" data-section="bundles"><span class="shop-nav-icon" data-ic="gift">🎁</span><span class="shop-nav-label"> ${nav.bundles}</span></button>
+      <button class="shop-fn-nav-btn" data-section="boosts"><span class="shop-nav-icon" data-ic="bulb">💡</span><span class="shop-nav-label"> ${nav.boosts}</span></button>
+      <button class="shop-fn-nav-btn" data-section="colors"><span class="shop-nav-icon" data-ic="palette">🎨</span><span class="shop-nav-label"> ${nav.colors}</span></button>
+      <button class="shop-fn-nav-btn" data-section="fonts"><span class="shop-nav-icon" data-ic="pen">✍️</span><span class="shop-nav-label"> ${nav.fonts}</span></button>
+      <button class="shop-fn-nav-btn" data-section="nameeffects"><span class="shop-nav-icon" data-ic="sparkle">✨</span><span class="shop-nav-label"> ${nav.nameeffects}</span></button>
+      <button class="shop-fn-nav-btn" data-section="titles"><span class="shop-nav-icon" data-ic="tag">🏷️</span><span class="shop-nav-label"> ${nav.titles}</span></button>
+      <button class="shop-fn-nav-btn" data-section="bgs"><span class="shop-nav-icon" data-ic="image">🖼️</span><span class="shop-nav-label"> ${nav.bgs}</span></button>
+      <button class="shop-fn-nav-btn" data-section="cursorsnakes"><span class="shop-nav-icon" data-ic="mouse">🖱️</span><span class="shop-nav-label"> ${nav.cursorsnakes}</span></button>
+      <button class="shop-fn-nav-btn" data-section="snakeskins"><span class="shop-nav-icon" data-ic="worm">🐍</span><span class="shop-nav-label"> ${nav.snakeskins}</span></button>
+      <button class="shop-fn-nav-btn" data-section="codes"><span class="shop-nav-icon" data-ic="ticket">🎟️</span><span class="shop-nav-label"> ${nav.codes}</span></button>
     </nav>
     <div class="shop-fn-content">
 
@@ -9734,15 +9739,15 @@ const IdeasBoard = (() => {
     g.innerHTML = list.map(s => `
       <div class="idea-card${s.pinned ? ' idea-pinned' : ''}" data-id="${esc(s.id)}">
         <div class="idea-votes">
-          <button class="idea-vote up${s.myVote === 1 ? ' on' : ''}" data-dir="1" aria-label="Pour">▲</button>
+          <button class="idea-vote up${s.myVote === 1 ? ' on' : ''}" data-dir="1" aria-label="Pour"><span class="ui-ic" data-ic="up">▲</span></button>
           <span class="idea-score">${s.score > 0 ? '+' : ''}${fmt(s.score)}</span>
-          <button class="idea-vote down${s.myVote === -1 ? ' on' : ''}" data-dir="-1" aria-label="Contre">▼</button>
+          <button class="idea-vote down${s.myVote === -1 ? ' on' : ''}" data-dir="-1" aria-label="Contre"><span class="ui-ic" data-ic="down2">▼</span></button>
         </div>
         <div class="idea-body">
           <p class="idea-title">${esc(s.title)} ${statusBadge(s.status)}</p>
           ${s.description ? `<p class="idea-desc">${esc(s.description)}</p>` : ''}
           <p class="idea-meta">${esc(t().ideaByAuthor(s.authorName))}${s.mine ? ` · <button class="idea-del" data-id="${esc(s.id)}">${esc(t().ideaDelete)}</button>` : ''}</p>
-          ${s.reply ? `<p class="idea-reply">💬 <b>${esc(t().ideaReplyLabel)}</b> ${esc(s.reply)}</p>` : ''}
+          ${s.reply ? `<p class="idea-reply"><span class="ui-ic" data-ic="chat">💬</span> <b>${esc(t().ideaReplyLabel)}</b> ${esc(s.reply)}</p>` : ''}
         </div>
       </div>`).join('');
   }
@@ -12440,11 +12445,41 @@ socket.on('iq-progress', ({ done, unlocked } = {}) => {
 
 // ── Pass VIP ──────────────────────────────────────────────────────────────────
 const VIP_PRICE = 2000;
+// Le VIP est une DUREE, pas un stock d'objets : « combien de pass j'ai » se
+// lit donc dans le temps restant, decoupe en tranches de 30 jours (la duree
+// d'un pass). Le serveur plafonne la reserve a 3 mois, soit 3 pass.
+const VIP_DURATION_MS = 30 * 24 * 3600 * 1000;
+function _vipReserve() {
+  const reste = (window._myVipUntil || 0) - Date.now();
+  if (reste <= 0) return { actif: false, pass: 0, jours: 0 };
+  return { actif: true, pass: Math.ceil(reste / VIP_DURATION_MS),
+           jours: Math.ceil(reste / 86400000) };
+}
+window._vipReserve = _vipReserve;
+
 window._renderVip = function () {
-  const active = (window._myVipUntil || 0) > Date.now();
-  document.getElementById('vip-badge')?.classList.toggle('hidden', !active);
+  const d = t();
+  const { actif, pass, jours } = _vipReserve();
+  document.getElementById('vip-badge')?.classList.toggle('hidden', !actif);
+
+  // Le badge du profil porte le nombre de pass des qu'il y en a plus d'un.
+  const badgeTxt = document.getElementById('vip-badge-count');
+  if (badgeTxt) {
+    badgeTxt.textContent = pass > 1 ? String(pass) : '';
+    badgeTxt.classList.toggle('hidden', pass <= 1);
+  }
+
+  // La carte du hub Profil : visible sans avoir a ouvrir la fenetre.
+  const sub = document.getElementById('vip-card-sub');
+  if (sub) sub.textContent = actif ? d.vipReserve(pass, jours) : d.vipCardSub;
+
   const status = document.getElementById('vip-status');
-  if (status) status.textContent = active ? t().vipActive(new Date(window._myVipUntil).toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-GB')) : '';
+  if (status) {
+    status.textContent = actif
+      ? d.vipActive(new Date(window._myVipUntil).toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-GB'))
+        + ' · ' + d.vipReserve(pass, jours)
+      : '';
+  }
 };
 (function initVip() {
   const overlay = document.getElementById('overlay-vip');

@@ -4856,3 +4856,57 @@ html.perf-low .ic3d-depth { display: none; }
 /* Les boutons qui portent une icone et un libelle les alignent proprement. */
 .btn .ui-ic, .btn-quit .ui-ic, .ideas-sort-btn .ui-ic { margin-right: 6px; }
 h1 .ui-ic, h2 .ui-ic { margin-right: 8px; }
+
+
+/* ══ Polices de pseudo : la charte les ecrasait ═════════════════════════════
+   Le bloc de charte, en fin de fichier, impose `font-family: var(--font-display)`
+   a `.lb-name`, `.profile-pseudo`, `.friend-name`, `.locker-item-name` et
+   `.shop-tile-name`. A specificite egale (une classe contre une classe), c'est
+   lui qui gagnait puisqu'il vient apres : plus AUCUNE police achetee ne
+   s'affichait, ni dans les classements, ni sur le profil, ni dans le casier,
+   ni dans les apercus de la boutique.
+   On redeclare donc les 18 polices avec la classe doublee (specificite 0,2,0).
+   Toute nouvelle police cosmetique doit etre ajoutee ICI aussi.
+   ══════════════════════════════════════════════════════════════════════════ */
+.font-orbitron.font-orbitron { font-family: 'Orbitron', sans-serif; }
+.font-rajdhani.font-rajdhani { font-family: 'Rajdhani', sans-serif; }
+.font-chakra.font-chakra { font-family: 'Chakra Petch', sans-serif; }
+.font-audiowide.font-audiowide { font-family: 'Audiowide', sans-serif; }
+.font-exo2.font-exo2 { font-family: 'Exo 2', sans-serif; }
+.font-bungee.font-bungee { font-family: 'Bungee', sans-serif; }
+.font-blackops.font-blackops { font-family: 'Black Ops One', sans-serif; }
+.font-russo.font-russo { font-family: 'Russo One', sans-serif; }
+.font-pressstart.font-pressstart { font-family: 'Press Start 2P', monospace; font-size: .65em; }
+.font-vt323.font-vt323 { font-family: 'VT323', monospace; font-size: 1.3em; }
+.font-sharetech.font-sharetech { font-family: 'Share Tech Mono', monospace; }
+.font-majormono.font-majormono { font-family: 'Major Mono Display', monospace; }
+.font-cinzel.font-cinzel { font-family: 'Cinzel', serif; }
+.font-tektur.font-tektur { font-family: 'Tektur', sans-serif; }
+.font-pacifico.font-pacifico { font-family: 'Pacifico', cursive; }
+.font-lobster.font-lobster { font-family: 'Lobster', cursive; }
+.font-fredoka.font-fredoka { font-family: 'Fredoka', sans-serif; }
+.font-monoton.font-monoton { font-family: 'Monoton', sans-serif; }
+
+/* Logements d'icone des onglets de boutique et des votes d'idees : ces
+   elements sont fabriques en JS, l'observateur d'icons3d.js les repeint. */
+.shop-nav-icon { width: 20px; height: 20px; display: inline-flex;
+  align-items: center; justify-content: center; font-size: 1rem; }
+.idea-vote .ui-ic { width: 16px; height: 16px; margin: 0; }
+.news-handle .ui-ic, .news-title .ui-ic { width: 18px; height: 18px; }
+.streak-flame .ui-ic { width: 22px; height: 22px; }
+.read-search .ui-ic { width: 17px; height: 17px; }
+
+/* Pastille du nombre de pass VIP en reserve, dans le badge de la carte
+   d'identite. Elle n'apparait qu'a partir de deux pass (a un seul, le badge
+   « VIP » dit deja tout). */
+.vip-badge-count {
+  margin-left: 5px;
+  padding: 1px 6px;
+  border-radius: var(--r-pill, 999px);
+  background: rgba(0, 0, 0, .38);
+  font-family: var(--font-display);
+  font-size: .74em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+html.light .vip-badge-count { background: rgba(15, 23, 42, .22); }
