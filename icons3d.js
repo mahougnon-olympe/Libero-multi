@@ -59,8 +59,11 @@ const MAP = {
 };
 
 /* Reglages du relief. */
-const TILT = 15;   // inclinaison avant/arriere, en degres
-const TURN = -13;  // rotation dans le plan, en degres
+// Les icones restent DROITES : l'inclinaison isometrique de la premiere
+// version penchait tout et se voyait d'autant plus a cote d'un texte aligne.
+// Le relief vient uniquement de l'epaisseur decalee et du degre de lumiere.
+const TILT = 0;    // inclinaison avant/arriere, en degres
+const TURN = 0;    // rotation dans le plan, en degres
 const SW   = 2;    // epaisseur du trait
 
 /* L'epaisseur du volume suit la taille : a 22px dans la barre de nav, six

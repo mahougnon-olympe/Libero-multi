@@ -11316,7 +11316,11 @@ window._profileHub = ProfileHub;
 // Regle du site : toute UI a etat doit survivre a un rafraichissement. On retient
 // donc quelles sections du profil sont ouvertes, et on les rouvre a l'identique.
 const ProfileSections = (() => {
-  const KEY = 'libero_profile_sections';
+  // v2 : l'etat sauvegarde ecrase l'attribut `open` du HTML. Les joueurs qui
+  // avaient replie « Mon compte » avant l'ajout de la carte Reglages ne la
+  // voyaient donc jamais apparaitre. Changer la cle repart de l'etat du HTML
+  // une fois, puis la memorisation reprend normalement.
+  const KEY = 'libero_profile_sections_v2';
   const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch { return {}; } };
   const secs = () => document.querySelectorAll('#screen-profile .profile-section');
 
