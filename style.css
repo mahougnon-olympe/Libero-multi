@@ -4889,8 +4889,8 @@ h1 .ui-ic, h2 .ui-ic { margin-right: 8px; }
 
 /* Logements d'icone des onglets de boutique et des votes d'idees : ces
    elements sont fabriques en JS, l'observateur d'icons3d.js les repeint. */
-.shop-nav-icon { width: 20px; height: 20px; display: inline-flex;
-  align-items: center; justify-content: center; font-size: 1rem; }
+.shop-nav-icon { width: 20px; height: 20px; flex: none; display: inline-flex;
+  align-items: center; justify-content: center; font-size: 1rem; margin-right: 9px; }
 .idea-vote .ui-ic { width: 16px; height: 16px; margin: 0; }
 .news-handle .ui-ic, .news-title .ui-ic { width: 18px; height: 18px; }
 .streak-flame .ui-ic { width: 22px; height: 22px; }
@@ -4910,3 +4910,7 @@ h1 .ui-ic, h2 .ui-ic { margin-right: 8px; }
   line-height: 1.4;
 }
 html.light .vip-badge-count { background: rgba(15, 23, 42, .22); }
+
+/* Barre de boutique en mode icones seules : l'espace du libelle disparait,
+   l'icone se recentre. */
+@media (max-width: 580px) { .shop-nav-icon { margin-right: 0; } }

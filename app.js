@@ -1061,8 +1061,8 @@ const DICT = {
     boostHintBtn:'💡 Indice',
     helpLibsTitle:'Libs (monnaie)',
     helpLibsDesc:'Les Libs ⚡ sont une monnaie virtuelle. Les joueurs classés <strong>top 3 du classement Global</strong> en gagnent automatiquement toutes les 5 heures (1er : +10 ⚡, 2e : +5 ⚡, 3e : +3 ⚡). Si tu ne joues pas pendant 48 h, ton solde diminue de 10 ⚡ par jour supplémentaire. Clique sur le compteur ⚡ en haut à droite pour ouvrir la boutique. Les joueurs anonymes ne perçoivent pas de Libs.',
-    helpLibsBuyTitle:'💳 Recharger avec de l\'argent réel',
-    helpLibsBuyDesc:'Dans la boutique, l\'onglet <strong>💳 Recharger</strong> permet d\'acheter des packs de Libs avec de l\'argent réel (mobile money / carte, paiement sécurisé via FedaPay). Après le paiement, tu es redirigé vers le site : tes Libs sont crédités dès que le paiement est confirmé par nos serveurs (généralement quelques secondes). Un email valide est requis pour la confirmation de commande.',
+    helpLibsBuyTitle:'💳 Recharger avec de l\'argent réel (indisponible)',
+    helpLibsBuyDesc:'La recharge de Libs avec de l\'argent réel est <strong>temporairement indisponible</strong> : nous la retravaillons. En attendant, tu gagnes des Libs en jouant : parties, quiz, défis, roue de la fortune et tournoi du samedi.',
     helpBoostTitle:'Boost Indice (quiz)',
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     eventsTitle:'Évents', eventsDesc:'Ven-Dim · Snake Challenge',
@@ -1800,8 +1800,8 @@ const DICT = {
     boostHintBtn:'💡 Hint',
     helpLibsTitle:'Libs (currency)',
     helpLibsDesc:'Libs ⚡ are a virtual currency. Players ranked <strong>top 3 in the Global leaderboard</strong> automatically earn some every 5 hours (1st: +10 ⚡, 2nd: +5 ⚡, 3rd: +3 ⚡). If you don\'t play for 48 h, your balance drops by 10 ⚡ per additional day of inactivity. Click the ⚡ counter in the top-right corner to open the shop. Anonymous players do not receive Libs.',
-    helpLibsBuyTitle:'💳 Top up with real money',
-    helpLibsBuyDesc:'In the shop, the <strong>💳 Top up</strong> tab lets you buy Libs packs with real money (mobile money / card, secure checkout via FedaPay). After paying, you\'re redirected back to the site: your Libs are credited as soon as the payment is confirmed by our servers (usually within seconds). A valid email is required for order confirmation.',
+    helpLibsBuyTitle:'💳 Top up with real money (unavailable)',
+    helpLibsBuyDesc:'Topping up Libs with real money is <strong>temporarily unavailable</strong>: we are reworking it. Meanwhile, you earn Libs by playing: games, quizzes, challenges, the wheel of fortune and the Saturday tournament.',
     helpBoostTitle:'Quiz Hint Boost',
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     eventsTitle:'Events', eventsDesc:'Fri-Sun · Snake Challenge',
@@ -5729,7 +5729,17 @@ function _renderLibsTopupPanel() {
   });
 }
 
+// Recharge en argent reel : desactivee par defaut, activee par le serveur
+// (/api/status -> libsTopup). Le bouton est cache dans le HTML : si le fetch
+// echoue, il reste cache.
+window._libsTopupOn = false;
+function _applyTopupFlag(on) {
+  window._libsTopupOn = !!on;
+  $('btn-libs-topup')?.classList.toggle('hidden', !on);
+  if (!on) $('libs-topup-panel')?.classList.add('hidden');
+}
 function _openLibsTopupPanel() {
+  if (!window._libsTopupOn) return;
   _loadLibsPacks();
   _renderLibsTopupPanel();
   $('libs-topup-panel').classList.remove('hidden');
@@ -6079,9 +6089,10 @@ function _renderShopItems() {
   window._allShopItemsById = allItemsById;
   if (window._renderFlashBanner) window._renderFlashBanner();
 
-  // Seules ces familles restent en vente (le reste des cosmétiques est retiré
-  // de la boutique mais conservé dans le casier des joueurs qui les possèdent).
-  const KEPT_SHOP_TYPES = new Set(['color', 'font', 'nameeffect', 'title', 'background', 'boost', 'cursorsnake', 'snakeskin']);
+  // Familles en vente. Les emotes n'y sont JAMAIS : elles ont leur propre rayon
+  // dans la carte Emotes du profil.
+  const KEPT_SHOP_TYPES = new Set(['color', 'font', 'nameeffect', 'title', 'background', 'boost', 'cursorsnake', 'snakeskin',
+    'bubble', 'avatar', 'p4token', 'ttt', 'chess', 'clickfx', 'emojipack', 'victoryban', 'soundpack']);
   const rotDaily = shopRotation?.daily || [];
   const _pickKept = ids => ids.map(id => allItemsById[id]).filter(it => it && KEPT_SHOP_TYPES.has(it.type));
   // « À la une » : on garde les vedettes du serveur (uniquement des familles
@@ -6101,7 +6112,8 @@ function _renderShopItems() {
   const _ov = window._shopOverrides || {};
   const _ovState = it => { const o = _ov[it.id]; if (!o) return null; return o.inShop && (!o.until || o.until > Date.now()); };
   const _applyOv = arr => { for (let i = arr.length - 1; i >= 0; i--) { if (_ovState(arr[i]) === false) arr.splice(i, 1); } };
-  [featuredItems, dailyItems, colorItems, fontItems, bgItems, nameEffectItems, titleItems, cursorSnakeItems, snakeSkinItems].forEach(_applyOv);
+  [featuredItems, dailyItems, colorItems, fontItems, bgItems, nameEffectItems, titleItems, cursorSnakeItems, snakeSkinItems,
+    bubbleItems, avatarItems, p4TokenItems, tttItems, chessItems, clickFxItems, emojiPackItems, victoryBanItems, soundPackItems].forEach(_applyOv);
   Object.keys(_ov).forEach(oid => {
     const it = allItemsById[oid];
     // Les emotes ne remontent JAMAIS dans la boutique d'objets (rayon dedie dans le profil).
@@ -6209,6 +6221,15 @@ function _renderShopItems() {
       <button class="shop-fn-nav-btn" data-section="bgs"><span class="shop-nav-icon" data-ic="image">🖼️</span><span class="shop-nav-label"> ${nav.bgs}</span></button>
       <button class="shop-fn-nav-btn" data-section="cursorsnakes"><span class="shop-nav-icon" data-ic="mouse">🖱️</span><span class="shop-nav-label"> ${nav.cursorsnakes}</span></button>
       <button class="shop-fn-nav-btn" data-section="snakeskins"><span class="shop-nav-icon" data-ic="worm">🐍</span><span class="shop-nav-label"> ${nav.snakeskins}</span></button>
+      <button class="shop-fn-nav-btn" data-section="bubbles"><span class="shop-nav-icon" data-ic="bubble">💬</span><span class="shop-nav-label"> ${nav.bubbles}</span></button>
+      <button class="shop-fn-nav-btn" data-section="avatars"><span class="shop-nav-icon" data-ic="avatar">🎭</span><span class="shop-nav-label"> ${nav.avatars}</span></button>
+      <button class="shop-fn-nav-btn" data-section="p4tokens"><span class="shop-nav-icon" data-ic="token">🔴</span><span class="shop-nav-label"> ${nav.p4tokens}</span></button>
+      <button class="shop-fn-nav-btn" data-section="ttt"><span class="shop-nav-icon" data-ic="hash">✖️</span><span class="shop-nav-label"> ${nav.ttt}</span></button>
+      <button class="shop-fn-nav-btn" data-section="chess"><span class="shop-nav-icon" data-ic="castle">♟️</span><span class="shop-nav-label"> ${nav.chess}</span></button>
+      <button class="shop-fn-nav-btn" data-section="clickfx"><span class="shop-nav-icon" data-ic="click">✨</span><span class="shop-nav-label"> ${nav.clickfx}</span></button>
+      <button class="shop-fn-nav-btn" data-section="emojipacks"><span class="shop-nav-icon" data-ic="smile">😀</span><span class="shop-nav-label"> ${nav.emojipacks}</span></button>
+      <button class="shop-fn-nav-btn" data-section="victorybans"><span class="shop-nav-icon" data-ic="flag">🏆</span><span class="shop-nav-label"> ${nav.victorybans}</span></button>
+      <button class="shop-fn-nav-btn" data-section="soundpacks"><span class="shop-nav-icon" data-ic="music">🎵</span><span class="shop-nav-label"> ${nav.soundpacks}</span></button>
       <button class="shop-fn-nav-btn" data-section="codes"><span class="shop-nav-icon" data-ic="ticket">🎟️</span><span class="shop-nav-label"> ${nav.codes}</span></button>
     </nav>
     <div class="shop-fn-content">
@@ -6299,6 +6320,60 @@ function _renderShopItems() {
       <h3 class="shop-fn-section-title">${d.shopSnakeSkinsTitle}</h3>
       <p class="shop-fn-section-desc">${d.shopSectionDescs.snakeskins}</p>
       <div class="shop-fn-grid">${snakeSkinItems.map(it => tileHtml(it)).join('')}</div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-bubbles" data-section-id="bubbles">
+      <h3 class="shop-fn-section-title">${d.shopBubbleTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.bubbles}</p>
+      <div class="shop-fn-grid">${bubbleItems.map(it => tileHtml(it)).join('')}</div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-avatars" data-section-id="avatars">
+      <h3 class="shop-fn-section-title">${d.shopAvatarsTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.avatars}</p>
+      <div class="shop-fn-grid">${avatarItems.map(it => tileHtml(it)).join('')}</div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-p4tokens" data-section-id="p4tokens">
+      <h3 class="shop-fn-section-title">${d.shopP4TokensTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.p4tokens}</p>
+      <div class="shop-fn-grid">${p4TokenItems.map(it => tileHtml(it)).join('')}</div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-ttt" data-section-id="ttt">
+      <h3 class="shop-fn-section-title">${d.shopTttTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.ttt}</p>
+      <div class="shop-fn-grid">${tttItems.map(it => tileHtml(it)).join('')}</div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-chess" data-section-id="chess">
+      <h3 class="shop-fn-section-title">${d.shopChessTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.chess}</p>
+      <div class="shop-fn-grid">${chessItems.map(it => tileHtml(it)).join('')}</div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-clickfx" data-section-id="clickfx">
+      <h3 class="shop-fn-section-title">${d.shopClickFxTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.clickfx}</p>
+      <div class="shop-fn-grid">${clickFxItems.map(it => tileHtml(it)).join('')}</div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-emojipacks" data-section-id="emojipacks">
+      <h3 class="shop-fn-section-title">${d.shopEmojiPacksTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.emojipacks}</p>
+      <div class="shop-fn-grid">${emojiPackItems.map(it => tileHtml(it)).join('')}</div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-victorybans" data-section-id="victorybans">
+      <h3 class="shop-fn-section-title">${d.shopVictoryBansTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.victorybans}</p>
+      <div class="shop-fn-grid">${victoryBanItems.map(it => tileHtml(it)).join('')}</div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-soundpacks" data-section-id="soundpacks">
+      <h3 class="shop-fn-section-title">${d.shopSoundPacksTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.soundpacks}</p>
+      <div class="shop-fn-grid">${soundPackItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-codes" data-section-id="codes">
@@ -6834,6 +6909,7 @@ function _settingsOutsideClick(e) {
 // Banniere de maintenance : recuperee au chargement (et rafraichie toutes les 2 min).
 function _checkMaintenance() {
   fetch(`${window.BACKEND_URL}/api/status`).then(r => r.json()).then(s => {
+    _applyTopupFlag(!!(s && s.libsTopup));
     const el = document.getElementById('maintenance-banner');
     if (!el) return;
     if (s && s.maintenance) {

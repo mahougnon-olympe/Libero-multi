@@ -328,7 +328,7 @@ let db          = null;
 async function connectDB() {
   const uri = process.env.MONGODB_URI;
   if (!uri) {
-    console.warn('⚠️  MONGODB_URI non définie — scores non persistants entre les redémarrages.');
+    console.warn('⚠️  MONGODB_URI non définie - scores non persistants entre les redémarrages.');
     return;
   }
   try {
@@ -337,7 +337,7 @@ async function connectDB() {
     db = mongoClient.db('libero');
     console.log('✅ MongoDB connecté.');
   } catch (e) {
-    console.error('❌ Connexion MongoDB échouée — scores non persistants :', e.message);
+    console.error('❌ Connexion MongoDB échouée - scores non persistants :', e.message);
     db = null;
   }
 }
@@ -525,7 +525,7 @@ function safePlayerId(id) {
 
 // Assainit un pseudo AVANT stockage : retire les caractères HTML/contrôle pour
 // qu'aucun nom ne puisse injecter de code dans un classement, un salon ou le chat
-// (défense côté serveur, au point d'entrée unique — les rendus restent sûrs
+// (défense côté serveur, au point d'entrée unique - les rendus restent sûrs
 // quelle que soit la page).
 function sanitizeName(name, fallback = '') {
   const cleaned = String(name == null ? '' : name)
@@ -721,14 +721,14 @@ async function fetchFedapayTransaction(transactionId) {
   return data['v1/transaction'] || data.transaction || data;
 }
 
-// Crédit atomique — SEUL point de garde contre le double crédit.
+// Crédit atomique - SEUL point de garde contre le double crédit.
 // Les appelants (verify + relance périodique) vérifient déjà `credited` avant
 // leur propre appel réseau (await), mais deux vérifications concurrentes du
 // même panier peuvent toutes deux passer ce premier test avant que l'une des
 // deux ne crédite. Comme cette fonction ne contient aucun `await`, elle
 // s'exécute sans céder la main : re-vérifier `credited` ici, en tout premier,
-// ferme cette fenêtre de course — la seconde exécution s'arrête net.
-// Source de vérité unique — jamais déclenché par le simple retour du navigateur.
+// ferme cette fenêtre de course - la seconde exécution s'arrête net.
+// Source de vérité unique - jamais déclenché par le simple retour du navigateur.
 function creditLibsPurchase(purchase) {
   if (purchase.credited) return false;
   const entry = getLibsEntry(purchase.playerId);
@@ -1126,7 +1126,8 @@ function dbSaveFlashOffer() {
 // Par defaut, seules certaines familles sont en vente (meme liste que le
 // client). L'admin peut forcer un article dedans ou dehors, avec un compte a
 // rebours optionnel de disparition. Persiste dans server_config 'shop_overrides'.
-const DEFAULT_SHOP_TYPES = new Set(['color', 'font', 'nameeffect', 'title', 'background', 'cursorsnake', 'snakeskin']);
+const DEFAULT_SHOP_TYPES = new Set(['color', 'font', 'nameeffect', 'title', 'background', 'cursorsnake', 'snakeskin',
+  'bubble', 'avatar', 'p4token', 'ttt', 'chess', 'clickfx', 'emojipack', 'victoryban', 'soundpack']);
 const shopOverrides = new Map(); // cosmeticId -> { inShop, until }
 function pruneShopOverrides() {
   let changed = false;
@@ -4699,6 +4700,11 @@ app.post('/api/comment', (req, res) => {
 });
 
 // ── Achat de Libs avec de l'argent réel (FedaPay) ───────────────────────────
+// INTERRUPTEUR : la recharge en argent réel est DESACTIVEE par defaut (chantier
+// de refonte). Pour la rouvrir, poser LIBS_TOPUP_ENABLED=true dans l'env Render.
+// Seule la CREATION de transactions est coupee : /api/libs/verify et le webhook
+// restent actifs, pour qu'un joueur qui a deja paye soit toujours credite.
+const LIBS_TOPUP_ENABLED = process.env.LIBS_TOPUP_ENABLED === 'true';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Public : liste des packs. Tous les packs sont disponibles dès que la clé
@@ -4708,12 +4714,14 @@ app.get('/api/libs/packs', (_req, res) => {
   const configured = !!process.env.FEDAPAY_SECRET_KEY;
   res.json(Object.entries(LIBS_PACKS).map(([id, p]) => ({
     id, libs: p.libs, bonus: p.bonus || 0, priceFCFA: p.priceFCFA,
-    featured: !!p.featured, available: configured,
+    featured: !!p.featured, available: configured && LIBS_TOPUP_ENABLED,
   })));
 });
 
 // Initie un achat : crée une transaction FedaPay et renvoie l'URL de paiement.
 app.post('/api/libs/checkout', async (req, res) => {
+  // Coupe-circuit : aucune transaction FedaPay n'est creee tant que la recharge est desactivee.
+  if (!LIBS_TOPUP_ENABLED) return res.status(503).json({ error: 'topup_disabled' });
   const { playerId, packId, email, firstName, lastName, phone } = req.body || {};
   const id = safePlayerId(playerId);
   if (!id) return res.status(400).json({ error: 'invalid_player' });
@@ -4766,7 +4774,7 @@ app.post('/api/libs/checkout', async (req, res) => {
 
 // Vérifie une transaction auprès de FedaPay et crédite si (et seulement si) le
 // paiement est confirmé côté serveur. Le retour du navigateur ne prouve rien
-// à lui seul — c'est cette route (ou le webhook) qui décide, jamais le client.
+// à lui seul - c'est cette route (ou le webhook) qui décide, jamais le client.
 app.post('/api/libs/verify', async (req, res) => {
   const { playerId, cartId } = req.body || {};
   const id = safePlayerId(playerId);
@@ -4863,7 +4871,7 @@ function isAdmin(req) {
   const fails = (adminAttempts.get(ip) || []).filter(ts => now - ts < 15 * 60_000);
   if (fails.length >= 10) { adminAttempts.set(ip, fails); return false; } // 10 échecs / 15 min
   // La clé peut venir d'un en-tête (recommandé, non journalisé) ou du query
-  // string (compat. historique — apparaît dans les logs, à éviter).
+  // string (compat. historique - apparaît dans les logs, à éviter).
   const provided = req.headers['x-admin-key'] || req.query.key || '';
   const given    = Buffer.from(String(provided));
   const expected = Buffer.from(adminKey);
@@ -5059,7 +5067,8 @@ app.get('/api/push-key', (req, res) => {
 
 // Statut public : sert la banniere de maintenance cote site.
 app.get('/api/status', (req, res) => {
-  res.json({ maintenance: !!maintenance.on, message: maintenance.message || '', messageEn: maintenance.messageEn || '' });
+  res.json({ maintenance: !!maintenance.on, message: maintenance.message || '', messageEn: maintenance.messageEn || '',
+    libsTopup: LIBS_TOPUP_ENABLED });
 });
 
 // Admin : notification push manuelle a tous les abonnes.
@@ -5405,7 +5414,7 @@ function _adminDeleteComment(req, res) {
 app.delete('/admin/comment/:id', _adminDeleteComment);
 app.delete('/admin/comment',     _adminDeleteComment);
 
-// Consultation des achats de Libs (audit) — jamais purgée par /admin/reset.
+// Consultation des achats de Libs (audit) - jamais purgée par /admin/reset.
 app.get('/admin/libs-purchases', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   res.json([...libsPurchases.values()].sort((a, b) => b.createdAt - a.createdAt));
@@ -5925,7 +5934,7 @@ app.get('/api/book/:bookId', (req, res) => {
   res.json(bookFiche(book, entry));
 });
 
-// Couverture du livre (image publique — c'est la vitrine, pas le contenu payant).
+// Couverture du livre (image publique - c'est la vitrine, pas le contenu payant).
 app.get('/api/book/:bookId/couverture', (req, res) => {
   const book = LIBERO_BOOKS[req.params.bookId];
   if (!book) return res.status(404).json({ error: 'Livre introuvable.' });
@@ -5933,7 +5942,7 @@ app.get('/api/book/:bookId/couverture', (req, res) => {
   res.sendFile(file, { maxAge: '1d' }, err => { if (err && !res.headersSent) res.status(404).json({ error: 'Couverture introuvable.' }); });
 });
 
-// Contenu d'un chapitre — contrôle d'accès côté serveur.
+// Contenu d'un chapitre - contrôle d'accès côté serveur.
 app.get('/api/book/:bookId/chapitre/:num', (req, res) => {
   const book = LIBERO_BOOKS[req.params.bookId];
   if (!book) return res.status(404).json({ error: 'Livre introuvable.' });
@@ -5983,7 +5992,7 @@ app.post('/admin/feed-book', (req, res) => {
   };
   feedBooks.push(book);
   dbInsertFeedBook(book);
-  console.log(`[📚] Livre ajouté : ${book.titre}${book.auteur ? ' — ' + book.auteur : ''}`);
+  console.log(`[📚] Livre ajouté : ${book.titre}${book.auteur ? ' - ' + book.auteur : ''}`);
   res.json({ ok: true, book: { id: book._id, titre: book.titre, auteur: book.auteur, categorie: book.categorie, couverture: book.couverture, url: book.url, description: book.description, ordre: book.ordre } });
 });
 
