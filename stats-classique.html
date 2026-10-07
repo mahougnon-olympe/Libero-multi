@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Tableau de bord · Libero's Multi</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Karla:wght@400;600;700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap">
   <style>
     :root {
       --bg:#0a0c18; --card:#131727; --card2:#1c2040; --board:#6366f1;
@@ -166,214 +163,6 @@ button { display: inline-flex; align-items: center; gap: 6px; }
 @media (prefers-reduced-motion: reduce) {
   .ic3d { transform: none; } .ic3d-depth { display: none; }
 }
-
-/* =====================================================================
-   COQUE DU TABLEAU DE BORD : le Plateau (accueil) et les pages Gazette.
-   Tout le balisage et toute la logique des sections existantes sont
-   conserves ; ce bloc ne fait que les habiller et les ranger.
-   ===================================================================== */
-:root {
-  --bg:#0d1124; --card:#151a33; --card2:#1d2342; --board:#efe6d2;
-  --text:#efe6d2; --muted:#a79f8a; --accent:#e9b949; --border:rgba(239,230,210,.16);
-  --green:#7fd49a; --red:#ff6a4a; --amber:#e9b949;
-  --cream:#efe6d2; --paper:#11152a; --gold:#e9b949; --rule:rgba(239,230,210,.2); --verm:#ff5a36;
-  --c-red:#ff5a5f; --c-green:#2fd07f; --c-yellow:#ffc83d; --c-blue:#4c8dff;
-  --f-serif:'Fraunces',Georgia,serif; --f-mono:'IBM Plex Mono',ui-monospace,monospace;
-  --f-sans:'Space Grotesk','Karla',system-ui,sans-serif;
-}
-body {
-  font-family:'Karla',system-ui,sans-serif; background:var(--bg);
-  background-image:radial-gradient(circle at 50% -10%,#1b2350 0,transparent 55%),radial-gradient(#ffffff0b 1px,transparent 1.3px);
-  background-size:auto,26px 26px; background-attachment:fixed; padding:16px clamp(12px,3vw,34px) 70px;
-}
-.wrap { max-width:1200px; }
-h1 { font-family:var(--f-serif); }
-:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
-
-/* ---- boutons, champs : sobres, façon imprimerie ---- */
-button {
-  font-family:var(--f-mono); font-size:.66rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
-  border-radius:3px; background:var(--cream); color:#11152a; padding:8px 13px;
-}
-button:hover { filter:brightness(1.08); }
-button.ghost { background:transparent; color:var(--text); border:1px solid var(--cream); }
-button.green { background:var(--gold); color:#11152a; }
-button.red { background:var(--verm); color:#fff; }
-button.small { padding:5px 9px; font-size:.6rem; }
-button:disabled { opacity:.45; cursor:default; }
-input, select, textarea {
-  background:#0b0f21; color:var(--text); border:1px solid var(--border); border-radius:3px;
-  font-family:'Karla',sans-serif; font-size:.92rem; padding:10px 12px; min-width:0;
-}
-select { flex:0 1 auto; }
-input:focus, select:focus { border-color:var(--gold); }
-.field { flex-wrap:wrap; }
-.pill { font-family:var(--f-mono); font-size:.64rem; letter-spacing:.06em; border-radius:2px; text-transform:none; background:#ffffff12; }
-.pill.warn { background:rgba(255,90,54,.18); color:#ff8a6a; }
-a { color:var(--gold); }
-
-/* ---- connexion ---- */
-#login .card, #login.card { background:var(--card); border-radius:6px; border:1px solid var(--border); }
-#login h1 { font-weight:800; }
-
-/* ---- bandeau de titre ---- */
-.mast { border-bottom:4px double var(--rule); margin-bottom:6px; }
-.mast-top { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center;
-  font:500 .64rem var(--f-mono); letter-spacing:.14em; text-transform:uppercase; color:var(--muted);
-  padding-bottom:8px; border-bottom:1px solid var(--rule); }
-.mast-top .live { display:flex; align-items:center; gap:8px; }
-.mast-top .live .dot { width:8px; height:8px; }
-.mast-row { display:flex; align-items:flex-end; justify-content:space-between; gap:14px 24px; flex-wrap:wrap; padding:12px 0 0; }
-.mast-title { font:900 clamp(1.9rem,5.2vw,3.2rem)/1 var(--f-serif); font-variation-settings:'SOFT' 70,'WONK' 1,'opsz' 144;
-  letter-spacing:-.025em; padding-bottom:10px; display:block; }
-.mast-title i { font-weight:300; color:var(--gold); }
-.mast-nav { display:flex; gap:clamp(6px,2vw,26px); }
-.mast-nav a { font:600 .72rem var(--f-sans); letter-spacing:.16em; text-transform:uppercase; color:var(--muted);
-  text-decoration:none; padding:12px 3px 11px; border-bottom:3px solid transparent; margin-bottom:-1px; cursor:pointer; }
-.mast-nav a:hover { color:var(--text); }
-.mast-nav a.on { color:var(--text); border-color:var(--verm); }
-
-/* =====================================================================
-   LE PLATEAU
-   ===================================================================== */
-#view-board { padding-top:22px; }
-.lede { display:flex; align-items:flex-end; justify-content:space-between; gap:12px 28px; flex-wrap:wrap; margin-bottom:20px; }
-.lede h2 { font:800 clamp(1.6rem,3.6vw,2.6rem)/1.05 var(--f-serif); letter-spacing:-.02em; margin:0; display:block;
-  font-variation-settings:'SOFT' 40,'opsz' 144; max-width:720px; }
-.lede h2 em { font-style:italic; font-weight:400; color:var(--gold); }
-.lede p { font:italic 400 1rem/1.4 var(--f-serif); color:#cfc6af; margin-top:6px; max-width:620px; }
-.status { display:flex; align-items:center; gap:9px; font:500 .74rem var(--f-mono); color:var(--muted); background:#ffffff0c;
-  border:1px solid #ffffff1c; padding:8px 14px; border-radius:99px; white-space:nowrap; }
-.status i { width:9px; height:9px; border-radius:50%; background:var(--c-green); box-shadow:0 0 0 4px #2fd07f33; }
-.status.bad i { background:var(--verm); box-shadow:0 0 0 4px #ff5a3633; }
-
-.pl-board { display:grid; grid-template-columns:2fr 1fr 2fr; gap:12px; font-family:var(--f-sans); }
-.pl-base, .pl-arm { --c:var(--c-red); }
-[data-z=red] { --c:var(--c-red); } [data-z=green] { --c:var(--c-green); }
-[data-z=yellow] { --c:var(--c-yellow); } [data-z=blue] { --c:var(--c-blue); }
-.pl-base { border-radius:28px; padding:18px; border:2px solid var(--c); position:relative; overflow:hidden;
-  background:linear-gradient(155deg,color-mix(in oklab,var(--c) 30%,#0b0f24),color-mix(in oklab,var(--c) 9%,#0b0f24)); }
-.pl-base::before { content:''; position:absolute; right:-46px; top:-46px; width:150px; height:150px; border-radius:50%;
-  border:20px solid color-mix(in oklab,var(--c) 28%,transparent); pointer-events:none; }
-.pl-base h3 { font:700 .7rem var(--f-mono); letter-spacing:.2em; text-transform:uppercase; color:var(--c); }
-.pl-big { font:700 clamp(2.4rem,5.4vw,4rem)/1 var(--f-sans); letter-spacing:-.04em; margin:6px 0 0; font-variant-numeric:tabular-nums; }
-.pl-big small { font-size:.88rem; font-weight:500; letter-spacing:0; color:var(--muted); margin-left:8px; }
-.pl-base p { font-size:.8rem; color:#b7c0dc; margin-top:3px; min-height:1.2em; }
-.pl-plate { margin-top:14px; background:#070a18d9; border-radius:18px; padding:12px; display:flex; flex-wrap:wrap; gap:7px;
-  min-height:70px; align-content:flex-start; border:1px solid #ffffff14; }
-.pl-plate .none { font:500 .72rem var(--f-mono); color:var(--muted); align-self:center; padding:6px; }
-.pl-pawn { width:30px; height:38px; position:relative; display:grid; place-items:end center; cursor:help; }
-.pl-pawn::before { content:''; position:absolute; top:0; left:50%; width:15px; height:15px; margin-left:-7.5px; border-radius:50%;
-  background:radial-gradient(circle at 35% 30%,#fff9,transparent 45%),var(--c); }
-.pl-pawn::after { content:''; position:absolute; top:12px; left:50%; width:26px; height:25px; margin-left:-13px;
-  border-radius:50% 50% 8px 8px/70% 70% 8px 8px;
-  background:linear-gradient(90deg,color-mix(in oklab,var(--c) 70%,#000),var(--c) 45%,color-mix(in oklab,var(--c) 70%,#000)); }
-.pl-pawn span { position:relative; z-index:2; font:700 .6rem var(--f-mono); color:#0a0d1c; padding-bottom:5px; }
-.pl-pawn.dim { opacity:.4; }
-.pl-pawn.live { animation:plbob 3.4s ease-in-out infinite; animation-delay:var(--d,0s); }
-@keyframes plbob { 50% { transform:translateY(-4px); } }
-.pl-arm { border-radius:22px; padding:12px; border:1.5px dashed color-mix(in oklab,var(--c) 55%,transparent);
-  background:color-mix(in oklab,var(--c) 9%,transparent); display:grid; gap:8px; align-content:start; }
-.pl-arm.v { grid-template-columns:1fr; } .pl-arm.h { grid-template-columns:1fr 1fr; }
-.pl-lab { grid-column:1/-1; font:600 .6rem var(--f-mono); letter-spacing:.18em; text-transform:uppercase; color:var(--c);
-  display:flex; align-items:center; gap:7px; }
-.pl-lab::after { content:''; flex:1; height:1px; background:color-mix(in oklab,var(--c) 45%,transparent); }
-.pl-tile { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:11px 13px; border-radius:14px; text-align:left;
-  background:#0d1230; border:1px solid color-mix(in oklab,var(--c) 45%,#1c2350); position:relative; color:var(--text);
-  font-family:var(--f-sans); letter-spacing:0; text-transform:none; transition:transform .18s,box-shadow .18s,border-color .18s; min-width:0; }
-.pl-tile:hover { transform:translateY(-3px); border-color:var(--c); box-shadow:0 8px 22px -8px var(--c); filter:none; }
-.pl-tile b { font:600 .88rem var(--f-sans); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.pl-tile em { font:500 .72rem var(--f-mono); font-style:normal; color:var(--muted); white-space:nowrap; }
-.pl-bd { flex:none; min-width:24px; height:24px; border-radius:99px; background:var(--c); color:#0a0d1c; display:grid; place-items:center;
-  font:700 .76rem var(--f-mono); padding:0 6px; position:relative; }
-.pl-bd::after { content:''; position:absolute; inset:-4px; border-radius:99px; border:2px solid var(--c); animation:plring 1.8s infinite; }
-@keyframes plring { 0% { opacity:.9; transform:scale(.85); } 100% { opacity:0; transform:scale(1.5); } }
-.pl-tile.target { border-color:#fff; box-shadow:0 0 0 3px #fff,0 0 34px 6px var(--c); transform:scale(1.04); z-index:5; }
-[data-pos=tl] { grid-area:1/1; } [data-pos=t] { grid-area:1/2; } [data-pos=tr] { grid-area:1/3; }
-[data-pos=l] { grid-area:2/1; } .pl-center { grid-area:2/2; } [data-pos=r] { grid-area:2/3; }
-[data-pos=bl] { grid-area:3/1; } [data-pos=b] { grid-area:3/2; } [data-pos=br] { grid-area:3/3; }
-.pl-center { aspect-ratio:1; position:relative; border-radius:22px; overflow:hidden; align-self:center; min-width:0; box-shadow:0 0 0 2px #ffffff22; }
-.pl-center i { position:absolute; inset:0; }
-.pl-center .t-t { background:var(--c-red); clip-path:polygon(0 0,100% 0,50% 50%); }
-.pl-center .t-r { background:var(--c-green); clip-path:polygon(100% 0,100% 100%,50% 50%); }
-.pl-center .t-b { background:var(--c-yellow); clip-path:polygon(0 100%,100% 100%,50% 50%); }
-.pl-center .t-l { background:var(--c-blue); clip-path:polygon(0 0,0 100%,50% 50%); }
-.pl-dieBtn { position:absolute; inset:22%; border-radius:50%; background:#090c1b; display:grid; place-items:center; border:3px solid #fff;
-  transition:transform .2s; z-index:3; padding:0; }
-.pl-dieBtn:hover { transform:scale(1.07); filter:none; }
-.pl-die { width:46%; aspect-ratio:1; background:#fff; border-radius:18%; display:grid; grid-template:repeat(3,1fr)/repeat(3,1fr);
-  padding:11%; gap:2px; box-shadow:inset 0 -3px 0 #0003; }
-.pl-die i { position:static; border-radius:50%; background:transparent; }
-.pl-die i.p { background:#0a0d1c; }
-.pl-dieBtn.roll .pl-die { animation:plroll .8s cubic-bezier(.3,1.4,.5,1); }
-@keyframes plroll { 0% { transform:rotate(0) scale(.8); } 60% { transform:rotate(540deg) scale(1.2); } 100% { transform:rotate(720deg) scale(1); } }
-.pl-hint { text-align:center; font:500 .72rem var(--f-mono); letter-spacing:.06em; color:var(--muted); margin-top:16px; min-height:1.4em; }
-.pl-hint b { color:#fff; }
-@media (max-width:860px) {
-  .pl-board { display:flex; flex-direction:column; }
-  .pl-center { order:-1; width:min(250px,70%); align-self:center; }
-  [data-pos=tl] { order:1; } [data-pos=t] { order:2; } [data-pos=tr] { order:3; } [data-pos=r] { order:4; }
-  [data-pos=br] { order:5; } [data-pos=b] { order:6; } [data-pos=bl] { order:7; } [data-pos=l] { order:8; }
-  .pl-arm.v, .pl-arm.h { grid-template-columns:1fr 1fr; }
-}
-@media (max-width:480px) { .pl-arm.v, .pl-arm.h { grid-template-columns:1fr; } }
-
-/* =====================================================================
-   LES PAGES (format Gazette)
-   ===================================================================== */
-#view-pages { padding-top:20px; --dc:var(--cream); }
-#view-pages[data-dom=red] { --dc:var(--c-red); } #view-pages[data-dom=green] { --dc:var(--c-green); }
-#view-pages[data-dom=yellow] { --dc:var(--c-yellow); } #view-pages[data-dom=blue] { --dc:var(--c-blue); }
-.pg-bar { display:flex; align-items:center; gap:10px 16px; flex-wrap:wrap; margin-bottom:22px; padding-bottom:14px; border-bottom:1px solid var(--rule); }
-.pg-back { background:transparent; color:var(--text); border:1px solid var(--cream); }
-.pg-kicker { font:700 .66rem var(--f-mono); letter-spacing:.2em; text-transform:uppercase; color:var(--dc); }
-.pg-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-left:auto; }
-.pg-tabs button { background:transparent; color:var(--muted); border:1px solid var(--border); position:relative; }
-.pg-tabs button:hover { color:var(--text); border-color:var(--dc); filter:none; }
-.pg-tabs button.on { background:var(--dc); color:#0a0d1c; border-color:var(--dc); }
-.pg-tabs .n { margin-left:6px; background:var(--verm); color:#fff; border-radius:99px; padding:0 6px; font-size:.58rem; }
-@media (max-width:760px) { .pg-tabs { margin-left:0; width:100%; } }
-
-#pg-body [data-sec] { display:none; margin-bottom:30px; }
-#pg-body [data-sec].on { display:block; }
-#pg-body h2 { font:800 clamp(1.7rem,4vw,2.6rem)/1.05 var(--f-serif); letter-spacing:-.02em; font-variation-settings:'SOFT' 40,'opsz' 144;
-  padding-bottom:10px; margin-bottom:12px; border-bottom:2px solid var(--dc); flex-wrap:wrap; }
-#pg-body .sub { font:italic 400 1rem/1.5 var(--f-serif); color:#cfc6af; margin:6px 0 16px !important; max-width:820px; }
-#pg-body .sub a { font-style:normal; }
-#inactive-list:empty::before { content:'Personne ne décroche : tous les joueurs nommés ont joué cette semaine.'; font:italic 1rem var(--f-serif); color:var(--muted); display:block; padding:10px 0; }
-#fraud-list:empty::before { content:'Aucune alerte : rien de suspect sur les dernières 24 heures.'; font:italic 1rem var(--f-serif); color:var(--muted); display:block; padding:10px 0; }
-#pg-body .pill { font-size:.64rem; }
-
-/* contenus existants, en papier journal */
-#pg-body .kpis { gap:0; border-block:2px solid var(--cream); margin-bottom:6px; }
-#pg-body .kpi { background:transparent; border:0; border-right:1px solid var(--rule); border-radius:0; padding:18px 10px 14px; }
-#pg-body .kpi:last-child { border-right:0; }
-#pg-body .kpi .num { font:800 clamp(1.6rem,3.4vw,2.4rem)/1 var(--f-serif); color:var(--text); font-variation-settings:'opsz' 144; letter-spacing:-.02em; }
-#pg-body .kpi.live-kpi .num { color:var(--green); }
-#pg-body .kpi .lbl { font:500 .6rem var(--f-mono); letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-top:7px; }
-.cmt, .ann-row, .bot-q, .fraud-row, .chart-card, .player-chip, .kpi { border-radius:4px; }
-.cmt, .ann-row, .bot-q { background:#ffffff07; }
-.chart .bar { background:var(--cream); border-radius:1px 1px 0 0; opacity:.8; }
-.tbl-wrap { border-radius:4px; }
-th { font-family:var(--f-mono); letter-spacing:.12em; }
-.player-chip { background:#ffffff07; }
-.player-chip:hover { border-color:var(--gold); background:rgba(233,185,73,.1); }
-tr.clickable:hover td { background:rgba(233,185,73,.1); }
-.modal-box { border-radius:6px; }
-.modal-head h2 { font-family:var(--f-serif); font-weight:800; }
-.pd-stat .num { font-family:var(--f-serif); }
-.pd-h3 { font-family:var(--f-mono); }
-.admin-guide-body { font-size:.92rem; line-height:1.55; max-width:860px; }
-.admin-guide-body li { margin-bottom:9px; }
-.tag.ok { background:rgba(127,212,154,.16); } .tag.wait { background:rgba(233,185,73,.16); }
-@media (prefers-reduced-motion:reduce) { *, *::before, *::after { animation:none !important; transition:none !important; } }
-
-/* tableaux et listes larges : defilent dans leur cadre au lieu d'elargir la page (telephone) */
-#rot-plan, #cosm-list, #book-prices { overflow-x:auto; max-width:100%; }
-#rot-plan table td, #rot-plan table th { white-space:normal; word-break:break-word; padding:6px 8px; }
-#pg-body input[type=text], #pg-body input:not([type]), #pg-body input[type=password] { max-width:100%; }
-@media (max-width:560px) { #pg-body .field > input, #pg-body .field > select { flex:1 1 100% !important; max-width:100% !important; } }
-
 </style>
   <script type="module" src="icons3d.js"></script>
 </head>
@@ -392,46 +181,58 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
 
     <!-- Dashboard -->
     <div id="dash" class="hidden">
-      <header class="mast">
-        <div class="mast-top">
-          <span id="mast-date"></span>
+      <div class="topbar">
+        <div>
+          <h1><span class="adm-ic" data-ic="chart">📊</span> Tableau de bord</h1>
+          <p class="sub" style="margin:0;">Libero's Multi · mise à jour en temps réel</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
           <span class="live"><span class="dot"></span><span id="live-txt">en direct</span></span>
           <button id="btn-logout" class="ghost small">Déconnexion</button>
         </div>
-        <div class="mast-row">
-          <span class="mast-title">Libero's <i>Multi</i></span>
-          <nav class="mast-nav" aria-label="Navigation du tableau de bord">
-            <a data-go="" href="#/">Plateau</a><a data-go="une" href="#/une">À la une</a><a data-go="guide" href="#/guide">Guide</a>
-          </nav>
-        </div>
-      </header>
-
-      <div id="view-board">
-        <div class="lede">
-          <div><h2 id="lede-h"></h2><p id="lede-p"></p></div>
-          <div class="status" id="pl-status"><i></i><span id="pl-status-t">chargement</span></div>
-        </div>
-        <div class="pl-board" id="pl-board"></div>
-        <p class="pl-hint" id="pl-hint">Clique une case pour l'ouvrir, ou <b>lance le dé</b> : il te désigne la prochaine chose à traiter.</p>
       </div>
 
-      <div id="view-pages" class="hidden">
-        <div class="pg-bar" id="pg-bar"></div>
-        <div id="pg-body">
-<section data-sec="kpis"><h2><span class="adm-ic" data-ic="chart">📊</span> Les chiffres clés</h2>
-<p class="sub" style="margin-top:-4px;">Un coup d'œil sur la santé du site, en direct.</p>
-<div class="kpis" id="kpis"></div></section>
-<section data-sec="periods">
+      <details id="admin-guide" class="admin-guide">
+        <summary><span class="adm-ic" data-ic="help">❓</span> Guide du tableau de bord (clique pour ouvrir/fermer)</summary>
+        <div class="admin-guide-body">
+          <p>Bienvenue dans ton espace admin. Voici à quoi sert chaque zone, de haut en bas :</p>
+          <ul>
+            <li><strong>Chiffres clés (en haut)</strong> : visites, joueurs nommés, parties Snake et Libero Run, achats en argent réel, abonnés aux notifications. Un coup d'œil rapide sur la santé du site.</li>
+            <li><strong>📈 30 derniers jours</strong> : deux graphiques (visites/jour et parties/jour) + les boutons d'export CSV (liste des joueurs et des achats, ouvrables dans Excel).</li>
+            <li><strong>📣 Annonces</strong> : publie un message qui apparaît en direct dans la carte News du site (français + anglais optionnel). Tu peux modifier ou retirer une annonce existante.</li>
+            <li><strong>🔔 Notification push</strong> : envoie une notification à tous les joueurs abonnés, même site fermé (nécessite les clés VAPID sur Render).</li>
+            <li><strong>⚡ Offre flash</strong> : met un cosmétique en promo quelques heures (bannière + notification automatique).</li>
+            <li><strong>🎯 Défis personnalisés</strong> : crée tes propres défis (quotidiens ou permanents) qui apparaissent chez tous les joueurs.</li>
+            <li><strong>🛍️ Catalogue boutique</strong> : liste de tous les cosmétiques. Mets-les en boutique ou retire-les, avec un compte à rebours optionnel. Les émotes sont gérées ici aussi (elles s'affichent dans la carte Émotes du profil, pas dans la boutique d'objets).</li>
+            <li><strong>🎬 Vidéos</strong> : le feed façon TikTok de l'onglet Vidéos. Colle un lien direct de vidéo (mp4) pour l'ajouter. Tu peux l'afficher/masquer, la réordonner (▲▼), la supprimer, voir ses compteurs (likes, vues, commentaires, partages) et supprimer un commentaire. Les vidéos proposées par les joueurs arrivent « en attente » (pastille orange, en tête) : clique <em>Approuver</em> pour les publier.</li>
+            <li><strong>💡 Idées &amp; suggestions</strong> : les propositions d'amélioration postées par les joueurs (onglet Idées), triées par score de votes. Change le statut (Prévue / Faite / Refusée), épingle une idée en tête, ou supprime.</li>
+            <li><strong>😴 Joueurs qui décrochent</strong> : joueurs sans activité depuis 7 jours et plus. Clique pour ouvrir leur fiche et leur offrir un cadeau de retour.</li>
+            <li><strong>🚨 Alertes fraude</strong> : signalées quand plusieurs comptes tout neufs naissent de la même connexion (IP) en 24h.</li>
+            <li><strong>📋 Journal d'audit</strong> : l'historique de TOUTES tes actions admin (cadeaux, restitutions, annonces, push, offres flash), pour ne jamais te demander « est-ce que j'ai déjà fait ça ? ».</li>
+            <li><strong>💬 Commentaires</strong> : les nouveaux commentaires attendent ta validation avant d'apparaître sur le site. Valide ou supprime.</li>
+            <li><strong>🗑️ Comptes réinitialisés</strong> : progression archivée quand un joueur réinitialise. Tu peux la restituer.</li>
+            <li><strong>👥 Joueurs</strong> : la liste de tous les joueurs. Clique un pseudo pour voir sa fiche complète (stats, cosmétiques, historique) et lui offrir des Libs ou un cosmétique.</li>
+            <li><strong>💳 Achats en argent réel</strong> : les recharges FedaPay (qui, quel pack, statut).</li>
+            <li><strong>🤖 Questions à l'assistant</strong> : ce que les joueurs demandent au chatbot. Clique le drapeau 🚩 pour marquer une question mal comprise à améliorer ; les questions flaguées remontent en tête.</li>
+          </ul>
+        </div>
+      </details>
+
+      <div class="kpis" id="kpis"></div>
+
+      <section>
         <h2><span class="adm-ic" data-ic="chart">📊</span> Cette semaine vs la précédente</h2>
         <p class="sub" style="margin-top:-4px;">Évolution sur 7 jours glissants (visites et parties) par rapport aux 7 jours d'avant.</p>
         <div class="kpis" id="periods"></div>
       </section>
-<section data-sec="funnel">
+
+      <section>
         <h2><span class="adm-ic" data-ic="jar">🫙</span> Entonnoir d'acquisition</h2>
         <p class="sub" style="margin-top:-4px;">Où en sont les joueurs, étape par étape : chaque appareil connu compte pour un visiteur. « Revenu » = a tenu une série de 2 jours et plus (proxy d'un retour un autre jour). Les pourcentages sont calculés par rapport à l'étape précédente.</p>
         <div id="funnel"></div>
       </section>
-<section data-sec="trend">
+
+      <section>
         <h2><span class="adm-ic" data-ic="trend">📈</span> 30 derniers jours
           <button id="btn-export-players" class="ghost small" style="margin-left:auto"><span class="adm-ic sm" data-ic="down">⬇</span> Joueurs CSV</button>
           <button id="btn-export-purchases" class="ghost small"><span class="adm-ic sm" data-ic="down">⬇</span> Achats CSV</button>
@@ -442,7 +243,8 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
           <div class="chart-card"><p class="chart-title">Parties / jour</p><div id="chart-games" class="chart"></div></div>
         </div>
       </section>
-<section data-sec="ann">
+
+      <section>
         <h2><span class="adm-ic" data-ic="megaphone">📣</span> Annonces (bandeau News du site)</h2>
         <p class="sub" style="margin-top:-4px;">Publie une annonce visible par tous dans la carte News, en direct. L'anglais est optionnel (le français est affiché à défaut).</p>
         <div class="field"><input id="ann-fr" placeholder="Texte de l'annonce (français)" maxlength="300" /></div>
@@ -450,7 +252,8 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
           <button id="btn-ann-send" class="green">Publier</button></div>
         <div id="ann-list"></div>
       </section>
-<section data-sec="push">
+
+      <section>
         <h2><span class="adm-ic" data-ic="bell">🔔</span> Notification push <span id="push-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Envoie une notification à tous les joueurs abonnés (même site fermé). Nécessite les clés VAPID sur Render.</p>
         <div class="field"><input id="push-title" placeholder="Titre (ex : 🏆 Tournoi ce samedi !)" maxlength="80" /></div>
@@ -476,7 +279,8 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
         <p class="sub" style="margin-top:-2px">Programme l'envoi ci-dessus (annonce si le titre est vide, sinon push) à la date choisie.</p>
         <div id="scheduled-list"></div>
       </section>
-<section data-sec="maint">
+
+      <section>
         <h2><span class="adm-ic" data-ic="tools">🛠️</span> Mode maintenance</h2>
         <p class="sub" style="margin-top:-4px;">Affiche un bandeau d'avertissement en haut du site (non bloquant). Utile pendant une mise à jour.</p>
         <div class="field">
@@ -486,7 +290,8 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
         </div>
         <p id="maint-status" class="sub"></p>
       </section>
-<section data-sec="acct">
+
+      <section>
         <h2><span class="adm-ic" data-ic="key">🔑</span> Réinitialiser un mot de passe <span id="acct-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">SAV : un joueur a oublié son mot de passe. Les comptes n'ont pas d'e-mail, donc tu poses toi-même un mot de passe provisoire ; le joueur se reconnecte avec, puis le change dans Mon compte -> Mot de passe. La progression n'est jamais touchée.</p>
         <div class="field">
@@ -497,7 +302,8 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
         <p id="acct-reset-status" class="sub"></p>
         <div id="acct-list" style="margin-top:8px;"></div>
       </section>
-<section data-sec="banned">
+
+      <section>
         <h2><span class="adm-ic" data-ic="ban">🚫</span> Mots interdits <span id="banned-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Auto-modération : tout pseudo, commentaire, suggestion ou commentaire vidéo contenant un de ces mots est refusé automatiquement.</p>
         <div class="field">
@@ -506,17 +312,20 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
         </div>
         <div id="banned-list"></div>
       </section>
-<section data-sec="books">
+
+      <section>
         <h2><span class="adm-ic" data-ic="book">📖</span> Prix des livres</h2>
         <p class="sub" style="margin-top:-4px;">Change le prix en Libs d'un pack de chapitres. Laisse vide et valide pour revenir au prix de base.</p>
         <div id="book-prices"></div>
       </section>
-<section data-sec="backup">
+
+      <section>
         <h2><span class="adm-ic" data-ic="disk">💾</span> Sauvegarde</h2>
         <p class="sub" style="margin-top:-4px;">Télécharge un instantané JSON des données clés (soldes, classements, annonces, suggestions, config).</p>
         <button id="btn-backup" class="green">Télécharger la sauvegarde</button>
       </section>
-<section data-sec="flash">
+
+      <section>
         <h2><span class="adm-ic" data-ic="zap">⚡</span> Offre flash</h2>
         <p class="sub" style="margin-top:-4px;">Met un cosmétique en promo pour quelques heures : bannière dans la boutique + notification push automatique.</p>
         <div class="field">
@@ -528,7 +337,8 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
         </div>
         <p id="flash-status" class="sub"></p>
       </section>
-<section data-sec="rotation">
+
+      <section>
         <h2><span class="adm-ic" data-ic="refresh">🔄</span> Rotation automatique de la boutique <span id="rot-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Une fois lancée, elle tourne toute seule : chaque jour un nouvel arrivage est publié et un lot d'anciens objets est annoncé « part dans 1 jour », puis « dans 1 heure », puis retiré, avec une notification à chaque étape. Le plan des 14 jours est défini dans le code (voir PLAN-ROTATION-BOUTIQUE.md). Les arrivages dont le cosmétique n'existe pas encore en code sont ignorés (tu les codes au fur et à mesure).</p>
         <div class="field">
@@ -540,7 +350,8 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
         <p id="rot-status" class="sub"></p>
         <div id="rot-plan" style="margin-top:6px;"></div>
       </section>
-<section data-sec="chal">
+
+      <section>
         <h2><span class="adm-ic" data-ic="target">🎯</span> Défis personnalisés</h2>
         <p class="sub" style="margin-top:-4px;">Crée tes propres défis, quotidiens (réclamables chaque jour) ou permanents (compteur à vie, réclamé une fois). Ils apparaissent immédiatement chez tous les joueurs.</p>
         <div class="field">
@@ -556,7 +367,8 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
         </div>
         <div id="chal-list"></div>
       </section>
-<section data-sec="videos">
+
+      <section>
         <h2><span class="adm-ic" data-ic="video">🎬</span> Vidéos <span id="vid-pending-pill" class="pill warn hidden"></span></h2>
         <p class="sub" style="margin-top:-4px;">Le feed façon TikTok de l'onglet Vidéos. Ajoute un lien direct de vidéo (mp4) ; tu peux activer/masquer, réordonner (▲▼), supprimer, et approuver les vidéos proposées par les joueurs (en attente, en tête).</p>
         <div class="field">
@@ -570,44 +382,52 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
         </div>
         <div id="vid-list"></div>
       </section>
-<section data-sec="sugg">
+
+      <section>
         <h2><span class="adm-ic" data-ic="bulb">💡</span> Idées &amp; suggestions <span id="sugg-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Les propositions postées par les joueurs dans l'onglet Idées, triées par score (votes pour moins votes contre). Change leur statut (Prévue / Faite / Refusée), épingle-les en tête, ou supprime.</p>
         <div id="sugg-list"></div>
       </section>
-<section data-sec="catalog">
+
+      <section>
         <h2><span class="adm-ic" data-ic="shop">🛍️</span> Catalogue boutique <span id="cosm-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Tous les cosmétiques du site. Mets un article en boutique (avec un compte à rebours optionnel, affiché sur l'article) ou retire-le. « Défaut » = comportement normal de sa catégorie.</p>
         <div class="field"><input id="cosm-search" placeholder="Filtrer (id ou type)…" /></div>
         <div id="cosm-list" style="max-height:420px;overflow-y:auto"></div>
       </section>
-<section data-sec="inactive" id="inactive-section" class="hidden">
+
+      <section id="inactive-section" class="hidden">
         <h2><span class="adm-ic" data-ic="sleep">😴</span> Joueurs qui décrochent <span id="inactive-pill" class="pill warn"></span></h2>
         <p class="sub" style="margin-top:-4px;">Joueurs nommés sans activité depuis 7 jours ou plus. Clique pour ouvrir la fiche et envoyer un cadeau de retour.</p>
         <div id="inactive-list"></div>
       </section>
-<section data-sec="fraud" id="fraud-section" class="hidden">
+
+      <section id="fraud-section" class="hidden">
         <h2><span class="adm-ic" data-ic="siren">🚨</span> Alertes fraude <span id="fraud-pill" class="pill warn"></span></h2>
         <p class="sub" style="margin-top:-4px;">Apparaît quand 4 comptes tout neufs ou plus sont créés depuis la même connexion (IP) en 24h : signe possible de triche (multi-comptes).</p>
         <div id="fraud-list"></div>
       </section>
-<section data-sec="audit">
+
+      <section>
         <h2><span class="adm-ic" data-ic="list">📋</span> Journal d'audit</h2>
         <p class="sub" style="margin-top:-4px;">Toutes tes actions admin (cadeaux, restitutions, annonces, push, offres flash), les plus récentes d'abord.</p>
         <div id="audit-list"></div>
       </section>
-<section data-sec="comments">
+
+      <section>
         <h2><span class="adm-ic" data-ic="chat">💬</span> Commentaires <span id="cmt-pending-pill" class="pill warn hidden"></span></h2>
         <p class="sub" style="margin-top:-4px;">Valide un commentaire pour qu'il apparaisse sur le site. Supprime ceux qui contiennent des mots déplacés.</p>
         <div id="comments"></div>
       </section>
-<section data-sec="resets">
+
+      <section>
         <h2><span class="adm-ic" data-ic="trash">🗑️</span> Comptes réinitialisés <span id="resets-pill" class="pill warn hidden"></span>
           <button id="btn-resets-clear" class="ghost small hidden" style="margin-left:auto">Vider le cache</button></h2>
         <p class="sub" style="margin-top:-4px;">Quand un joueur réinitialise son compte, sa progression est archivée ici. Tu peux la restituer (sur son ancien identifiant ou sur son nouveau compte) ou vider le cache.</p>
         <div id="resets"></div>
       </section>
-<section data-sec="players">
+
+      <section>
         <h2><span class="adm-ic" data-ic="users">👥</span> Joueurs <span id="players-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Clique sur un pseudo pour voir toutes ses infos. Recherche par pseudo et trie la liste.</p>
         <div class="field" style="align-items:center">
@@ -619,7 +439,8 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
         </div>
         <div id="players-list" class="players-list"></div>
       </section>
-<section data-sec="purchases">
+
+      <section>
         <h2><span class="adm-ic" data-ic="card">💳</span> Achats en argent réel <span id="purchases-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Les recharges de Libs payées via FedaPay : qui a acheté, quel pack, et si le paiement est allé au bout.</p>
         <div class="tbl-wrap">
@@ -629,51 +450,27 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
           </table>
         </div>
       </section>
-<section data-sec="botlogs">
+
+      <section>
         <h2><span class="adm-ic" data-ic="robot">🤖</span> Questions posées à l'assistant <span id="bot-pill" class="pill"></span> <span id="bot-flagged-pill" class="pill hidden" style="background:rgba(251,191,36,.15);color:var(--amber)"></span></h2>
         <p class="sub" style="margin-top:-4px;">Ce que les joueurs tapent au chatbot d'aide. Clique le drapeau 🚩 pour marquer une question à laquelle il a mal répondu : elle remonte en tête pour que tu penses à enrichir l'aide. Ça n'a aucun effet visible côté joueur.</p>
         <div id="botlogs"></div>
       </section>
-<section data-sec="bugs">
+
+      <section>
         <h2><span class="adm-ic" data-ic="bug">🐛</span> Signalements de bugs <span id="bug-pill" class="pill"></span> <span id="bug-open-pill" class="pill hidden" style="background:rgba(248,113,113,.15);color:#f87171"></span></h2>
         <p class="sub" style="margin-top:-4px;">Ce que les joueurs signalent via la carte « Signaler un bug » du profil. Marque « Traité » ce qui est corrigé (il descend en bas), ou supprime. La référence joueur est anonyme (hash).</p>
         <div id="bugreports"></div>
       </section>
-<section data-sec="errors">
+
+      <section>
         <h2><span class="adm-ic" data-ic="warn">⚠️</span> Erreurs serveur récentes <span id="err-pill" class="pill"></span>
           <button id="btn-err-clear" class="red" style="float:right;font-size:.8rem">Vider</button></h2>
         <p class="sub" style="margin-top:-4px;">Les erreurs non gérées du backend (routes, exceptions, promesses rejetées) remontent ici : tu es au courant avant les joueurs. Aucune dépendance externe. Vide la liste une fois les soucis traités.</p>
         <div id="servererrors"></div>
       </section>
-<section data-sec="guide"><h2><span class="adm-ic" data-ic="help">❓</span> Guide du tableau de bord</h2>
-<div class="admin-guide-body">
-          <p>Bienvenue dans ton espace admin. L'accueil est un <strong>plateau</strong> : chaque coin est un domaine (Joueurs, Communauté, Boutique, Système) avec son chiffre clé et de petits pions, et chaque case ouvre une page. Une <strong>pastille pulsante</strong> signale ce qui attend ton action. Le <strong>dé</strong> au centre te désigne la prochaine chose à traiter. L'adresse change avec la page : F5 te ramène exactement au même endroit. Voici à quoi sert chaque zone :</p>
-          <ul>
-            <li><strong>À la une (menu du haut)</strong> : visites, joueurs nommés, parties Snake et Libero Run, achats en argent réel, abonnés aux notifications. Un coup d'œil rapide sur la santé du site.</li>
-            <li><strong>📈 30 derniers jours</strong> : deux graphiques (visites/jour et parties/jour) + les boutons d'export CSV (liste des joueurs et des achats, ouvrables dans Excel).</li>
-            <li><strong>📣 Annonces</strong> : publie un message qui apparaît en direct dans la carte News du site (français + anglais optionnel). Tu peux modifier ou retirer une annonce existante.</li>
-            <li><strong>🔔 Notification push</strong> : envoie une notification à tous les joueurs abonnés, même site fermé (nécessite les clés VAPID sur Render).</li>
-            <li><strong>⚡ Offre flash</strong> : met un cosmétique en promo quelques heures (bannière + notification automatique).</li>
-            <li><strong>🎯 Défis personnalisés</strong> : crée tes propres défis (quotidiens ou permanents) qui apparaissent chez tous les joueurs.</li>
-            <li><strong>🛍️ Catalogue boutique</strong> : liste de tous les cosmétiques. Mets-les en boutique ou retire-les, avec un compte à rebours optionnel. Les émotes sont gérées ici aussi (elles s'affichent dans la carte Émotes du profil, pas dans la boutique d'objets).</li>
-            <li><strong>🎬 Vidéos</strong> : le feed façon TikTok de l'onglet Vidéos. Colle un lien direct de vidéo (mp4) pour l'ajouter. Tu peux l'afficher/masquer, la réordonner (▲▼), la supprimer, voir ses compteurs (likes, vues, commentaires, partages) et supprimer un commentaire. Les vidéos proposées par les joueurs arrivent « en attente » (pastille orange, en tête) : clique <em>Approuver</em> pour les publier.</li>
-            <li><strong>💡 Idées &amp; suggestions</strong> : les propositions d'amélioration postées par les joueurs (onglet Idées), triées par score de votes. Change le statut (Prévue / Faite / Refusée), épingle une idée en tête, ou supprime.</li>
-            <li><strong>😴 Joueurs qui décrochent</strong> : joueurs sans activité depuis 7 jours et plus. Clique pour ouvrir leur fiche et leur offrir un cadeau de retour.</li>
-            <li><strong>🚨 Alertes fraude</strong> : signalées quand plusieurs comptes tout neufs naissent de la même connexion (IP) en 24h.</li>
-            <li><strong>📋 Journal d'audit</strong> : l'historique de TOUTES tes actions admin (cadeaux, restitutions, annonces, push, offres flash), pour ne jamais te demander « est-ce que j'ai déjà fait ça ? ».</li>
-            <li><strong>💬 Commentaires</strong> : les nouveaux commentaires attendent ta validation avant d'apparaître sur le site. Valide ou supprime.</li>
-            <li><strong>🗑️ Comptes réinitialisés</strong> : progression archivée quand un joueur réinitialise. Tu peux la restituer.</li>
-            <li><strong>👥 Joueurs</strong> : la liste de tous les joueurs. Clique un pseudo pour voir sa fiche complète (stats, cosmétiques, historique) et lui offrir des Libs ou un cosmétique.</li>
-            <li><strong>💳 Achats en argent réel</strong> : les recharges FedaPay (qui, quel pack, statut).</li>
-            <li><strong>🤖 Questions à l'assistant</strong> : ce que les joueurs demandent au chatbot. Clique le drapeau 🚩 pour marquer une question mal comprise à améliorer ; les questions flaguées remontent en tête.</li>
-          </ul>
-        </div>
-      
-</section>
-        </div>
-      </div>
 
-      <p class="sub" style="margin-top:30px"><a href="index.html">← Retour au site</a> · <a href="stats-classique.html">Ancien tableau de bord</a></p>
+      <p class="sub"><a href="index.html">← Retour au site</a></p>
     </div>
 
     <!-- Modale détail joueur -->
@@ -1277,13 +1074,11 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
     });
 
     // ── Idées & suggestions ──
-    var SUGG_CACHE = [];
     var SUGG_STATUS = { open:'Ouverte', planned:'📌 Prévue', done:'✅ Faite', rejected:'✖ Refusée' };
     async function loadSuggestions() {
       try {
         var d = await (await api('/admin/suggestions')).json();
         var arr = Array.isArray(d) ? d : [];
-        SUGG_CACHE = arr;
         $('sugg-pill').textContent = arr.length;
         if (!arr.length) { $('sugg-list').innerHTML = '<p class="empty">Aucune suggestion.</p>'; return; }
         $('sugg-list').innerHTML = arr.map(function (s) {
@@ -1767,265 +1562,6 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
       var saved = localStorage.getItem('libero_admin_key');
       if (saved) attempt(saved);
     })();
-  </script>
-  <script>
-/* =====================================================================
-   COQUE : plateau + pages. S'accroche au script existant sans le modifier :
-   il enveloppe render() et les chargeurs, et lit les memes donnees.
-   ===================================================================== */
-(function () {
-  'use strict';
-  var $ = function (id) { return document.getElementById(id); };
-  var LAST = null;
-
-  /* ---------- carte du site : chaque page = une section existante ---------- */
-  var PAGES = {
-    une:      { t: 'À la une',            secs: ['kpis', 'periods', 'funnel', 'trend'] },
-    guide:    { t: 'Guide',               secs: ['guide'] },
-    players:  { t: 'Joueurs',             z: 'red',    secs: ['players'] },
-    inactive: { t: 'Décrocheurs',         z: 'red',    secs: ['inactive'] },
-    fraud:    { t: 'Alertes fraude',      z: 'red',    secs: ['fraud'] },
-    resets:   { t: 'Réinitialisés',       z: 'red',    secs: ['resets'] },
-    acct:     { t: 'Mots de passe',       z: 'red',    secs: ['acct'] },
-    comments: { t: 'Commentaires',        z: 'green',  secs: ['comments'] },
-    sugg:     { t: 'Idées',               z: 'green',  secs: ['sugg'] },
-    ann:      { t: 'Annonces',            z: 'green',  secs: ['ann'] },
-    push:     { t: 'Notifications push',  z: 'green',  secs: ['push'] },
-    videos:   { t: 'Vidéos',              z: 'green',  secs: ['videos'] },
-    chal:     { t: 'Défis',               z: 'green',  secs: ['chal'] },
-    botlogs:  { t: 'Assistant',           z: 'green',  secs: ['botlogs'] },
-    bugs:     { t: 'Bugs signalés',       z: 'green',  secs: ['bugs'] },
-    catalog:  { t: 'Catalogue',           z: 'yellow', secs: ['catalog'] },
-    rotation: { t: 'Rotation',            z: 'yellow', secs: ['rotation'] },
-    flash:    { t: 'Offre flash',         z: 'yellow', secs: ['flash'] },
-    books:    { t: 'Prix des livres',     z: 'yellow', secs: ['books'] },
-    purchases:{ t: 'Achats',              z: 'yellow', secs: ['purchases'] },
-    maint:    { t: 'Maintenance',         z: 'blue',   secs: ['maint'] },
-    banned:   { t: 'Mots interdits',      z: 'blue',   secs: ['banned'] },
-    backup:   { t: 'Sauvegarde',          z: 'blue',   secs: ['backup'] },
-    audit:    { t: 'Journal',             z: 'blue',   secs: ['audit'] },
-    errors:   { t: 'Erreurs serveur',     z: 'blue',   secs: ['errors'] }
-  };
-  var ZONES = [
-    { z: 'red',    pos: 'tl', arm: 't', name: 'Joueurs',    tiles: ['players', 'inactive', 'fraud', 'resets', 'acct'] },
-    { z: 'green',  pos: 'tr', arm: 'r', name: 'Communauté', tiles: ['comments', 'sugg', 'ann', 'push', 'videos', 'chal', 'botlogs', 'bugs'] },
-    { z: 'yellow', pos: 'br', arm: 'b', name: 'Boutique',   tiles: ['catalog', 'rotation', 'flash', 'books', 'purchases'] },
-    { z: 'blue',   pos: 'bl', arm: 'l', name: 'Système',    tiles: ['maint', 'banned', 'backup', 'audit', 'errors'] }
-  ];
-  var ZNAME = {}; ZONES.forEach(function (z) { ZNAME[z.z] = z.name; });
-
-  /* ---------- chiffres : ce qui attend (pastille) et ce qui s'affiche (texte) ---------- */
-  function g(name, fallback) { try { return typeof window[name] !== 'undefined' ? window[name] : fallback; } catch (e) { return fallback; } }
-  function metrics(d) {
-    d = d || {};
-    var t = d.totals || {};
-    var comments = d.comments || [];
-    var sugg = g('SUGG_CACHE', []), vids = g('VID_CACHE', []), cosm = g('COSM_CACHE', []);
-    var pendC = comments.filter(function (c) { return !c.approved; }).length;
-    var fresh = (d.resets || []).filter(function (r) { return !r.restoredAt; }).length;
-    var bugsOpen = (d.bugReports || []).filter(function (b) { return !b.resolved; }).length;
-    var suggOpen = sugg.filter(function (s) { return (s.status || 'open') === 'open' && !s.reply; }).length;
-    var vidPend = vids.filter(function (v) { return v.pending; }).length;
-    var flagged = (d.botLogs || []).filter(function (b) { return b.flagged; }).length;
-    var chalN = $('chal-list') ? $('chal-list').querySelectorAll('[data-chaldel]').length : 0;
-    var rot = $('rot-pill') ? $('rot-pill').textContent : '';
-    var acct = $('acct-pill') ? $('acct-pill').textContent.replace(/ compte.*/, '') : '';
-    var maintOn = !!(d.maintenance && d.maintenance.on);
-    var shopIn = cosm.filter(function (c) { return c.effective; }).length;
-    return {
-      players:  { em: fmt(t.players) },
-      inactive: { em: String((d.inactive7 || []).length) },
-      fraud:    { bd: (d.fraudAlerts || []).length },
-      resets:   { bd: fresh, em: String((d.resets || []).length) },
-      acct:     { em: acct },
-      comments: { bd: pendC, em: String(comments.length) },
-      sugg:     { bd: suggOpen, em: String(sugg.length) },
-      ann:      { em: String((d.announcements || []).length) },
-      push:     { em: fmt(d.pushSubscribers) + ' abo.' },
-      videos:   { bd: vidPend, em: String(vids.length) },
-      chal:     { em: String(chalN) },
-      botlogs:  { em: flagged ? flagged + ' drapeau(x)' : String((d.botLogs || []).length) },
-      bugs:     { bd: bugsOpen, em: String((d.bugReports || []).length) },
-      catalog:  { em: cosm.length ? shopIn + '/' + cosm.length : '' },
-      rotation: { em: rot === 'EN COURS' ? 'en cours' : (rot ? 'arrêtée' : '') },
-      flash:    { em: d.flashOffer ? '-' + d.flashOffer.discount + ' %' : 'aucune' },
-      books:    { em: '' },
-      purchases:{ em: String((d.purchases || []).length) },
-      maint:    { bd: maintOn ? 'ON' : 0, em: 'inactive' },
-      banned:   { em: String((d.bannedWords || []).length) },
-      backup:   { em: '' },
-      audit:    { em: String((d.audit || []).length) },
-      errors:   { bd: (d.serverErrors || []).length },
-      _pend: { comments: pendC, bugs: bugsOpen, sugg: suggOpen, videos: vidPend }
-    };
-  }
-  function todoCount(m) {
-    var n = 0;
-    Object.keys(m).forEach(function (k) { if (k.charAt(0) !== '_' && m[k] && m[k].bd) n += (typeof m[k].bd === 'number' ? m[k].bd : 1); });
-    return n;
-  }
-
-  /* ---------- le plateau ---------- */
-  var PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
-  function dieFace(n) { var e = $('pl-dieF'); if (!e) return; e.innerHTML = Array.from({ length: 9 }, function (_, i) { return '<i' + (PIPS[n].indexOf(i) >= 0 ? ' class="p"' : '') + '></i>'; }).join(''); }
-
-  function buildBoard() {
-    var h = '';
-    ZONES.forEach(function (z) {
-      h += '<section class="pl-base" data-z="' + z.z + '" data-pos="' + z.pos + '"><h3>' + z.name + '</h3>'
-        + '<div class="pl-big" id="pl-big-' + z.z + '">0</div><p id="pl-sub-' + z.z + '"></p><div class="pl-plate" id="pl-plate-' + z.z + '"></div></section>';
-      var horiz = z.arm === 'l' || z.arm === 'r';
-      h += '<div class="pl-arm ' + (horiz ? 'h' : 'v') + '" data-z="' + z.z + '" data-pos="' + z.arm + '"><div class="pl-lab">' + z.name + '</div>'
-        + z.tiles.map(function (k) {
-          return '<button type="button" class="pl-tile" data-go="' + k + '"><b>' + PAGES[k].t + '</b><span class="pl-v" data-k="' + k + '"></span></button>';
-        }).join('') + '</div>';
-    });
-    h += '<div class="pl-center"><i class="t-t"></i><i class="t-r"></i><i class="t-b"></i><i class="t-l"></i>'
-      + '<button type="button" class="pl-dieBtn" id="pl-die" aria-label="Lancer le dé : il désigne la prochaine chose à traiter"><div class="pl-die" id="pl-dieF"></div></button></div>';
-    $('pl-board').innerHTML = h;
-    dieFace(5);
-  }
-
-  function setHtml(el, html) { if (el && el._h !== html) { el._h = html; el.innerHTML = html; } }
-  function pawn(l, title, cls, i) {
-    return '<div class="pl-pawn ' + (cls || '') + '" style="--d:' + ((i || 0) * 0.27).toFixed(2) + 's" title="' + esc(title) + '"><span>' + esc(l) + '</span></div>';
-  }
-  function plate(html, empty) { return html || '<span class="none">' + empty + '</span>'; }
-
-  function updateBoard() {
-    if (!LAST || !$('pl-board').firstChild) return;
-    var d = LAST, m = metrics(d), t = d.totals || {}, now = Date.now();
-
-    // pastilles et valeurs des cases
-    document.querySelectorAll('.pl-v').forEach(function (el) {
-      var x = m[el.dataset.k] || {};
-      setHtml(el, x.bd ? '<span class="pl-bd">' + x.bd + '</span>' : '<em>' + esc(x.em || '') + '</em>');
-    });
-    // rien de cette valeur n'est une pastille quand elle vaut zero : on n'affiche alors que le texte neutre
-    document.querySelectorAll('.pl-v').forEach(function (el) { if (el.querySelector('em') && !el.querySelector('em').textContent) el.innerHTML = ''; });
-
-    // JOUEURS : les plus recemment actifs en pions (vifs si vus il y a moins de 10 min)
-    var pl = (d.players || []).slice().sort(function (a, b) { return (b.lastActive || 0) - (a.lastActive || 0); }).slice(0, 12);
-    setHtml($('pl-big-red'), fmt(d.online) + '<small>en ligne</small>');
-    setHtml($('pl-sub-red'), esc(fmt(t.players) + ' joueurs · ' + fmt(d.today) + " visiteurs aujourd'hui"));
-    setHtml($('pl-plate-red'), plate(pl.map(function (p, i) {
-      var live = now - (p.lastActive || 0) < 600000;
-      return pawn((p.name || '?').charAt(0).toUpperCase(), (p.name || 'Anonyme') + ' · ' + (ago(p.lastActive) || 'jamais'), live ? 'live' : 'dim', i);
-    }).join(''), 'Aucun joueur nommé pour le moment.'));
-
-    // COMMUNAUTE : un pion par chose qui attend
-    var P = m._pend, total = P.comments + P.bugs + P.sugg + P.videos, pw = [];
-    function rep(n, l, label) { for (var i = 0; i < n && pw.length < 16; i++) pw.push(pawn(l, label, '', pw.length)); }
-    rep(P.comments, 'C', 'Commentaire à valider'); rep(P.sugg, 'I', 'Idée sans réponse'); rep(P.bugs, 'B', 'Bug non traité'); rep(P.videos, 'V', 'Vidéo en attente');
-    setHtml($('pl-big-green'), fmt(total) + '<small>à traiter</small>');
-    setHtml($('pl-sub-green'), esc(P.comments + ' commentaire(s) · ' + P.sugg + ' idée(s) · ' + P.bugs + ' bug(s) · ' + P.videos + ' vidéo(s)'));
-    setHtml($('pl-plate-green'), plate(pw.join(''), 'Rien n\'attend. Bravo.'));
-
-    // BOUTIQUE : les derniers achats
-    var pu = (d.purchases || []).slice(0, 8);
-    setHtml($('pl-big-yellow'), fmt(t.libsSold) + '<small>Libs vendus</small>');
-    setHtml($('pl-sub-yellow'), esc(fmt(t.purchasesCount) + ' achat(s) réel(s) · ' + (d.flashOffer ? 'offre flash -' + d.flashOffer.discount + ' %' : 'pas d\'offre flash')));
-    setHtml($('pl-plate-yellow'), plate(pu.map(function (p, i) {
-      return pawn('F', (p.name || '?') + ' · ' + fmt(p.libsAmount) + ' Libs · ' + p.status, p.status === 'completed' ? '' : 'dim', i);
-    }).join(''), 'Aucun achat.'));
-
-    // SYSTEME : voyants
-    var errs = (d.serverErrors || []).length, mo = !!(d.maintenance && d.maintenance.on);
-    setHtml($('pl-big-blue'), fmt(errs) + '<small>erreur(s)</small>');
-    setHtml($('pl-sub-blue'), esc((mo ? 'maintenance ACTIVE' : 'site ouvert') + ' · ' + fmt(d.pushSubscribers) + ' abonné(s) push'));
-    setHtml($('pl-plate-blue'), [pawn('✓', 'API joignable', '', 0), pawn(mo ? '!' : '✓', mo ? 'Maintenance active' : 'Pas de maintenance', '', 1),
-      pawn((d.pushSubscribers || 0) ? '✓' : '·', fmt(d.pushSubscribers) + ' abonné(s) push', '', 2), pawn(errs ? '!' : '✓', errs ? errs + ' erreur(s) serveur' : 'Aucune erreur', '', 3)].join(''));
-
-    // titre du jour + etat
-    var p = d.periods || {}, pct = p.visitsPct || 0, todo = todoCount(m);
-    setHtml($('lede-h'), 'Une semaine ' + (pct > 0 ? 'en hausse' : pct < 0 ? 'en baisse' : 'stable') + ' : <em>' + fmt(p.visitsThis || 0) + ' visites</em>'
-      + (pct ? ', ' + (pct > 0 ? '+' : '') + pct + '&nbsp;%' : ''));
-    setHtml($('lede-p'), esc(fmt(d.online) + ' joueur(s) en ligne · ' + fmt(p.gamesThis || 0) + ' parties sur 7 jours · ' + (todo ? todo + ' chose(s) à traiter' : 'rien à traiter')));
-    var st = $('pl-status'); st.className = 'status' + (errs ? ' bad' : '');
-    setHtml($('pl-status-t'), errs ? esc('Attention : ' + errs + ' erreur(s) serveur') : esc('Tout roule' + (todo ? ' · ' + todo + ' à traiter' : '')));
-
-    // onglets de la page ouverte : leurs pastilles suivent
-    if (currentKey()) renderBar(currentKey(), m);
-  }
-
-  /* ---------- le de ---------- */
-  function roll() {
-    var btn = $('pl-die'); btn.classList.remove('roll'); void btn.offsetWidth; btn.classList.add('roll');
-    var k = 0, iv = setInterval(function () { dieFace(1 + Math.random() * 6 | 0); if (++k > 9) clearInterval(iv); }, 80);
-    document.querySelectorAll('.pl-tile.target').forEach(function (x) { x.classList.remove('target'); });
-    setTimeout(function () {
-      var m = metrics(LAST), urgent = Object.keys(PAGES).filter(function (kk) { return m[kk] && m[kk].bd; });
-      if (!urgent.length) { $('pl-hint').innerHTML = 'Le dé n\'a rien à te montrer : <b>tout roule</b>.'; dieFace(6); return; }
-      var key = urgent[Math.random() * urgent.length | 0];
-      dieFace(Math.min(6, parseInt(m[key].bd, 10) || 6));
-      var tile = document.querySelector('.pl-tile[data-go="' + key + '"]');
-      if (tile) { tile.classList.add('target'); tile.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
-      $('pl-hint').innerHTML = 'Le dé désigne : <b>' + PAGES[key].t + '</b>';
-      setTimeout(function () { go(key); }, 1100);
-    }, 900);
-  }
-
-  /* ---------- navigation par adresse : F5 ramene a la meme page ---------- */
-  function currentKey() { var h = (location.hash || '').replace(/^#\/?/, ''); return PAGES[h] ? h : ''; }
-  function go(k) {
-    var target = k ? '#/' + k : '#/';
-    if (location.hash === target || (!k && !location.hash)) route(); else location.hash = target;
-  }
-  function setNav(k) {
-    document.querySelectorAll('.mast-nav a').forEach(function (a) { a.classList.toggle('on', a.dataset.go === k); });
-  }
-  function renderBar(k, m) {
-    m = m || metrics(LAST);
-    var P = PAGES[k], z = P.z, tabs = '';
-    if (z) {
-      tabs = Object.keys(PAGES).filter(function (kk) { return PAGES[kk].z === z; }).map(function (kk) {
-        var bd = m[kk] && m[kk].bd;
-        return '<button type="button" data-go="' + kk + '" class="' + (kk === k ? 'on' : '') + '">' + PAGES[kk].t + (bd ? '<span class="n">' + bd + '</span>' : '') + '</button>';
-      }).join('');
-    }
-    setHtml($('pg-bar'), '<button type="button" class="pg-back" data-go="">← Plateau</button><span class="pg-kicker">' + (z ? ZNAME[z] : P.t) + '</span><div class="pg-tabs">' + tabs + '</div>');
-  }
-  function showBoard() {
-    $('view-pages').classList.add('hidden'); $('view-board').classList.remove('hidden'); setNav('');
-    document.title = "Tableau de bord · Libero's Multi"; updateBoard();
-  }
-  function showPage(k) {
-    var P = PAGES[k];
-    $('view-board').classList.add('hidden'); $('view-pages').classList.remove('hidden');
-    $('view-pages').dataset.dom = P.z || '';
-    document.querySelectorAll('#pg-body [data-sec]').forEach(function (s) { s.classList.toggle('on', P.secs.indexOf(s.dataset.sec) >= 0); });
-    renderBar(k); setNav(P.z ? '' : k);
-    document.title = P.t + " · Libero's Multi";
-    window.scrollTo(0, 0);
-  }
-  function route() {
-    if (!$('dash') || $('dash').classList.contains('hidden')) return;
-    var k = currentKey();
-    if (k) showPage(k); else showBoard();
-  }
-
-  /* ---------- branchement sur le script existant ---------- */
-  function wrap(name, after) {
-    var f = window[name]; if (typeof f !== 'function') return;
-    window[name] = function () { var r = f.apply(this, arguments); if (after) after(r, arguments); return r; };
-  }
-  wrap('render', function (r, args) { LAST = args[0]; updateBoard(); });
-  wrap('showDash', route);
-  ['loadSuggestions', 'loadVideos', 'loadCosmetics', 'loadChallenges', 'loadRotation', 'loadAccounts'].forEach(function (n) {
-    wrap(n, function (r) { Promise.resolve(r).then(updateBoard); });
-  });
-
-  buildBoard();
-  var dt = $('mast-date');
-  if (dt) dt.textContent = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  document.addEventListener('click', function (e) {
-    var a = e.target.closest('[data-go]'); if (a && !a.disabled) { e.preventDefault(); go(a.dataset.go); }
-  });
-  $('pl-die').addEventListener('click', function () { if (LAST) roll(); });
-  window.addEventListener('hashchange', route);
-  window.__plateau = { go: go, metrics: function () { return metrics(LAST); } };
-})();
-
   </script>
 </body>
 </html>

@@ -151,7 +151,12 @@ function Icone({ nom, taille }) {
 /* La taille reelle du logement, pour ne pas deborder d'une barre de nav. */
 function tailleDe(el) {
   const r = el.getBoundingClientRect();
-  const t = Math.round(Math.max(r.width, r.height));
+  let t = Math.round(Math.max(r.width, r.height));
+  if (t >= 14 && t <= 96) return t;
+  /* Un logement masque (display:none, page pas encore ouverte) mesure 0 px.
+     Sa taille declaree en CSS reste lisible : on la prefere a une estimation. */
+  const cs = getComputedStyle(el);
+  t = Math.round(Math.max(parseFloat(cs.width) || 0, parseFloat(cs.height) || 0));
   if (t >= 14 && t <= 96) return t;
   const fs = parseFloat(getComputedStyle(el).fontSize) || 20;
   return Math.max(16, Math.min(72, Math.round(fs * 1.25)));
