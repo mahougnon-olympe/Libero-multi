@@ -844,12 +844,20 @@ const DICT = {
     promoTitle:'Promouvoir le pion',
     games:{ connect4:'Puissance 4', tictactoe:'Tic Tac Toe', chess:'Échecs', checkers:'Dames', ludo:'Ludo' },
     ludoRoll:'🎲 Lancer le dé', ludoDice:d=>`🎲 Dé : ${d}`, ludoNoMove:'Aucun coup possible, le tour passe.',
+    ludoLobbyTitle:'Salon Ludo', ludoLobbyHint:'Dès 2 joueurs, le créateur peut lancer la partie. 4 joueurs maximum.',
+    ludoStartBtn:'Lancer la partie', ludoWaitHost:'En attente du lancement par le créateur…', ludoNeedTwo:'Il faut au moins 2 joueurs pour lancer.',
+    ludoYou:'toi', ludoHost:'créateur', ludoAway:'déconnecté', ludoFree:'place libre', ludoClosed:'Le créateur a fermé le salon.',
+    ludoSeatTaken:'Cette partie a été ouverte sur un autre onglet ou appareil.', ludoOut:'a quitté',
+    ludoTurnOf:n=>`Tour de ${n}`, ludoWinnerIs:n=>`🏆 ${n} remporte la partie !`,
+    ludoSeatBack:n=>`${n} est de retour`, ludoSeatAway:n=>`${n} se reconnecte…`, ludoForfeit:n=>`${n} a quitté la partie`,
+    ludoYourRoll:'À toi : lance ton dé', ludoYourMove:'Choisis un pion à avancer', ludoWaitFor:n=>`${n} joue…`,
+    ludoDieOf:n=>`Dé de ${n}`, moveLost:'Connexion perdue avec la partie, reconnexion…', ludoLeftBefore:'Tu as quitté le salon.',
     playerNames:{
       connect4:{ R:'Rouge', Y:'Jaune' },
       tictactoe:{ R:'Croix', Y:'Rond' },
       chess:{ R:'Blancs', Y:'Noirs' },
       checkers:{ R:'Rouge', Y:'Jaune' },
-      ludo:{ R:'Rouge', Y:'Jaune' },
+      ludo:{ R:'Rouge', G:'Vert', Y:'Jaune', B:'Bleu' },
     },
     errNoGame:'Choisis d\'abord un jeu.',
     restartRequestedPrompt:'Ton adversaire veut rejouer.',
@@ -1177,12 +1185,12 @@ const DICT = {
         { icon:'🎡', title:'Roue de la fortune', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Roue de la fortune</strong> t'offre <strong>un tour gratuit par jour</strong> : de <strong>5 à 250 ⚡</strong> à gagner à chaque tour. Il faut un pseudo pour jouer. Reviens chaque jour pour ton tour gratuit !" },
         { icon:'👥', title:'Mes amis', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Mes amis</strong> : envoie une <strong>demande d'ami</strong> avec le <strong>code ami</strong> de l'autre (le même code que dans « Inviter un ami »), ou en cliquant un <strong>pseudo dans les classements</strong>. L'autre <strong>accepte ou refuse</strong> (les <strong>demandes en attente</strong> s'affichent dans la fenêtre Mes amis) ; une fois amis, vous êtes chacun dans la liste de l'autre. <strong>Retirer un ami</strong> ne le retire que de <strong>ta</strong> liste. Tu vois qui est <strong>en ligne</strong> (point vert), tu peux lui <strong>offrir des Libs ou un Pass VIP</strong> 🎁 (avec une confirmation avant l'envoi), et le <strong>défier</strong> depuis les zones <strong>Jeux classiques</strong> et <strong>Quiz</strong> (bouton ⚔️ Défier un ami : tu choisis le jeu, les thèmes et la mise). Bonus : parrain et filleul deviennent amis automatiquement. Jusqu'à 30 amis." },
         { icon:'👑', title:'Pass VIP', desc:"Dans ton <strong>Profil</strong>, la carte <strong>Pass VIP</strong> : pour <strong>2000 ⚡</strong>, deviens VIP pendant <strong>30 jours</strong>. Avantages : badge <strong>👑 VIP</strong> sur ton profil et <strong>+20% de Libs</strong> sur tes gains (série de connexion, défis, roue de la fortune, tournoi du samedi). Rachète pour prolonger (maximum <strong>3 mois</strong> de VIP en réserve). Tu peux aussi <strong>offrir un Pass VIP à un ami</strong> depuis la fenêtre 🎁 de ta liste d'amis." },
-        { icon:'🎲', title:'Ludo', desc:"Le <strong>Ludo</strong> classique en 1 contre 1 : 4 pions chacun, lance le <strong>dé</strong>, il faut un <strong>6</strong> pour sortir un pion. Atterrir sur un pion adverse le <strong>capture</strong> (retour à la base), sauf sur les cases <strong>étoilées ★</strong>. Un 6 ou une capture fait <strong>rejouer</strong>. Fais faire le tour complet à tes 4 pions et remonte la colonne d'arrivée pour gagner. Jouable contre un ami (avec <strong>mise</strong> possible) ou contre le bot." },
+        { icon:'🎲', title:'Ludo', desc:"Le <strong>Ludo</strong> classique, de <strong>2 à 4 joueurs</strong> : 4 pions chacun, lance le <strong>dé</strong>, il faut un <strong>6</strong> pour sortir un pion. Atterrir sur un pion adverse (de n'importe quelle couleur) le <strong>capture</strong> (retour à la base), sauf sur les cases <strong>étoilées ★</strong>. Un 6 ou une capture fait <strong>rejouer</strong>. Fais faire le tour complet à tes 4 pions et remonte la colonne d'arrivée pour gagner. <strong>Chaque joueur a son propre dé</strong>, de la couleur de son camp, qui garde son dernier lancer : tu vois d'un coup d'œil qui a lancé quoi. Les tours suivent le plateau : rouge, vert, jaune, bleu. Pour jouer à plusieurs, <strong>crée un salon</strong> et partage le code ou le lien : les joueurs s'installent (4 maximum) et <strong>le créateur lance la partie dès que vous êtes deux</strong>. Si quelqu'un quitte en cours de route, ses pions disparaissent et les autres continuent. Une <strong>mise</strong> est possible (le vainqueur ramasse tout le pot). Tu peux aussi jouer seul contre le bot." },
         { icon:'🌱', title:'Quiz révisions', desc:"Trois thèmes de quiz <strong>spécial école</strong> sont disponibles : <strong>🌱 SVT</strong>, <strong>🇬🇧 Anglais</strong> et <strong>🇧🇯 Bénin</strong> (histoire et géographie du pays). Révise en t'amusant, seul ou en salon avec ta classe ! Trois niveaux de difficulté comme pour les autres thèmes." },
         { icon:'📱', title:"Installer l'appli et notifications", desc:"Le site s'<strong>installe comme une appli</strong> : dans ton navigateur, menu → <strong>« Ajouter à l'écran d'accueil »</strong> (ou « Installer l'application »). Tu peux aussi activer les <strong>🔔 notifications</strong> dans <strong>Profil → Réglages → Notifications</strong> pour être prévenu des tournois, annonces et offres flash, même quand le site est fermé." },
         { icon:'⚡', title:'Offres flash', desc:"De temps en temps, un cosmétique passe en <strong>OFFRE FLASH</strong> : une bannière dorée apparaît en haut de la <strong>boutique</strong> avec une réduction (jusqu'à -90%) et un compte à rebours. Quand c'est fini, c'est fini : garde l'œil ouvert (et active les notifications pour ne rien rater) !" },
         { icon:'📚', title:'Lecture', desc:"L'onglet <strong>Lecture</strong> ouvre un catalogue de livres : recherche par titre ou auteur, filtres par catégorie, et fiche détaillée au clic. Tu y trouveras les <strong>romans exclusifs</strong> lisibles directement sur le site (en français ou en anglais selon la langue choisie) : <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, 1000 ⚡ pour les chapitres 2-5, 2000 ⚡ pour les 6-10), <strong>Life of Georgia</strong> (livre entier pour 2000 ⚡) et sa suite <strong>Life of Georgia · Tome 2</strong>, <strong>offerte</strong> à tous ceux qui ont débloqué le Tome 1." },
-        { icon:'🎮', title:'Créer une partie classique', desc:"Choisis d'abord un jeu parmi <strong>Puissance 4</strong>, <strong>Morpion</strong>, <strong>Échecs</strong>, <strong>Dames</strong> ou <strong>Ludo</strong> (aucun n'est présélectionné), entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire, ou le <strong>lien</strong>. Tu peux annuler l'attente si personne ne rejoint. Tu peux aussi jouer <strong>Solo contre le bot</strong> (Facile, Moyen ou Difficile)." },
+        { icon:'🎮', title:'Créer une partie classique', desc:"Choisis d'abord un jeu parmi <strong>Puissance 4</strong>, <strong>Morpion</strong>, <strong>Échecs</strong>, <strong>Dames</strong> ou <strong>Ludo</strong> (aucun n'est présélectionné), entre ton pseudo (optionnel) puis clique <em>Créer une partie</em>. Partage le code à 4 lettres à ton adversaire, ou le <strong>lien</strong>. Tu peux annuler l'attente si personne ne rejoint, et si ta connexion saute un instant (ou si tu changes d'appli pour envoyer le code), ta partie t'attend : tu retrouves ton salon. Au <strong>Ludo</strong>, tu crées un <strong>salon de 2 à 4 joueurs</strong> et tu lances la partie quand tu veux. Tu peux aussi jouer <strong>Solo contre le bot</strong> (Facile, Moyen ou Difficile)." },
         { icon:'⛂', title:'Dames', desc:"Le jeu de <strong>Dames</strong> (draughts 8x8, 12 pions chacun). Les pions avancent en diagonale d'une case vers l'avant. <strong>La prise est obligatoire</strong> : si tu peux sauter par-dessus un pion adverse (case libre derrière), tu dois le faire, et tu enchaînes les prises multiples avec la même pièce. Un pion qui atteint la dernière rangée devient une <strong>dame ♛</strong> qui se déplace et prend dans les deux sens. Tu gagnes quand l'adversaire n'a plus de pièces ou ne peut plus jouer. En fin de partie, <em>Rejouer</em> propose une revanche que l'adversaire accepte ou refuse." },
         { icon:'🤖', title:'Mode Solo (vs Bot)', desc:"Joue seul contre un robot. <em>Facile</em> : le bot joue au hasard. <em>Moyen</em> : le bot bloque et attaque. <em>Difficile</em> : le bot joue de manière optimale. Les parties <strong>Moyen et Difficile</strong> comptent dans le classement classique." },
         { icon:'🔗', title:'Rejoindre', desc:"Entre le code à 4 lettres reçu et clique <em>Rejoindre</em>. La partie démarre automatiquement dès que les deux joueurs sont connectés." },
@@ -1271,7 +1279,7 @@ const DICT = {
       landing_libs:'⚡ <strong>Libs</strong> : la monnaie virtuelle du site. Tous les joueurs classés en reçoivent toutes les 5h (1er : +10 ⚡, 2e : +5 ⚡, 3e : +3 ⚡, du 4e au 10e : +2 ⚡, ensuite +1 ⚡). Tu en gagnes aussi avec les <strong>défis du jour</strong> et ta <strong>série de connexion</strong>. Ton solde s\'affiche dans ton <strong>Profil</strong> ; dépense tes Libs dans la <strong>Boutique</strong> (onglet en bas) : cosmétiques, boosts quiz, livres exclusifs !',
       events_snake:'🏆 Le samedi, le <strong>Tournoi</strong> se joue automatiquement (suivi en direct dans la carte <strong>News</strong> : top 10, 2000 ⚡ et le titre « Champion de la semaine » pour le meilleur).<br>🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les <strong>⚡ Libs</strong> pour grandir : chaque ⚡ mangé est ajouté à ton solde (score 10 = 10 Libs gagnés). Les bords sont traversables, tu ressors de l\'autre côté ! Ton meilleur score <strong>persiste</strong> entre les sessions.',
       luffy_runner:'🏃 <strong>Libero Run</strong> : aide Libero à courir le plus loin possible ! Saute (↑ / Espace) par-dessus les obstacles au sol, accroupis-toi (↓) sous les obstacles volants. Attrape l\'⭐ étoile pour être invincible quelques secondes. Ton meilleur score alimente un classement dédié.',
-      home_games:'🎮 Choisis ton jeu en haut : <strong>Puissance 4</strong>, <strong>Morpion</strong>, <strong>Échecs</strong>, <strong>Dames</strong> ou <strong>Ludo</strong> 🎲 (aucun n\'est présélectionné). Le classement est partagé entre les cinq jeux.',
+      home_games:'🎮 Choisis ton jeu en haut : <strong>Puissance 4</strong>, <strong>Morpion</strong>, <strong>Échecs</strong>, <strong>Dames</strong> ou <strong>Ludo</strong> 🎲 (aucun n\'est présélectionné ; le Ludo se joue <strong>jusqu\'à 4</strong> dans un salon, avec un dé par joueur). Le classement est partagé entre les cinq jeux.',
       home_bot:'🤖 <strong>Mode Solo</strong> : joue contre le bot à 3 niveaux de difficulté : Facile, Moyen ou Difficile. Tes victoires et défaites sont comptées dans le classement !',
       home_multi:'👥 <strong>Mode Multijoueur</strong> : entre ton pseudo (optionnel), puis clique sur <em>Créer une partie</em> pour générer un code, ou entre le code d\'un ami pour le rejoindre. En fin de partie, <em>Rejouer</em> propose une revanche que l\'autre joueur accepte ou refuse.',
       home_lb:'🏆 <strong>Classement</strong> : victoires, défaites et nuls s\'enregistrent automatiquement après chaque partie (bot Moyen / Difficile ou multijoueur).',
@@ -1583,12 +1591,20 @@ const DICT = {
     promoTitle:'Promote pawn',
     games:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', checkers:'Checkers', ludo:'Ludo' },
     ludoRoll:'🎲 Roll the dice', ludoDice:d=>`🎲 Dice: ${d}`, ludoNoMove:'No possible move, turn passes.',
+    ludoLobbyTitle:'Ludo lobby', ludoLobbyHint:'From 2 players on, the host can start the game. 4 players maximum.',
+    ludoStartBtn:'Start the game', ludoWaitHost:'Waiting for the host to start…', ludoNeedTwo:'You need at least 2 players to start.',
+    ludoYou:'you', ludoHost:'host', ludoAway:'disconnected', ludoFree:'free seat', ludoClosed:'The host closed the lobby.',
+    ludoSeatTaken:'This game was opened in another tab or device.', ludoOut:'left',
+    ludoTurnOf:n=>`${n}'s turn`, ludoWinnerIs:n=>`🏆 ${n} wins the game!`,
+    ludoSeatBack:n=>`${n} is back`, ludoSeatAway:n=>`${n} is reconnecting…`, ludoForfeit:n=>`${n} left the game`,
+    ludoYourRoll:'Your turn: roll your die', ludoYourMove:'Pick a pawn to move', ludoWaitFor:n=>`${n} is playing…`,
+    ludoDieOf:n=>`${n}'s die`, moveLost:'Lost connection to the game, reconnecting…', ludoLeftBefore:'You left the lobby.',
     playerNames:{
       connect4:{ R:'Red', Y:'Yellow' },
       tictactoe:{ R:'Cross', Y:'Circle' },
       chess:{ R:'White', Y:'Black' },
       checkers:{ R:'Red', Y:'Yellow' },
-      ludo:{ R:'Red', Y:'Yellow' },
+      ludo:{ R:'Red', G:'Green', Y:'Yellow', B:'Blue' },
     },
     errNoGame:'Choose a game first.',
     restartRequestedPrompt:'Your opponent wants a rematch.',
@@ -1916,12 +1932,12 @@ const DICT = {
         { icon:'🎡', title:'Wheel of fortune', desc:"In your <strong>Profile</strong>, the <strong>Wheel of fortune</strong> card gives you <strong>one free spin a day</strong>: win <strong>5 to 250 ⚡</strong> every spin. A nickname is required. Come back every day for your free spin!" },
         { icon:'👥', title:'My friends', desc:"In your <strong>Profile</strong>, the <strong>My friends</strong> card: send a <strong>friend request</strong> with the other player's <strong>friend code</strong> (the same code as in \"Invite a friend\"), or by clicking a <strong>name in the leaderboards</strong>. They <strong>accept or decline</strong> (pending <strong>requests</strong> show in the My friends window); once friends, you are in each other's list. <strong>Removing a friend</strong> only removes them from <strong>your</strong> list. See who is <strong>online</strong> (green dot), <strong>gift them Libs</strong> 🎁 (10 to 500 ⚡, max 500 gifted per day) and <strong>challenge them</strong> from the <strong>Classic Games</strong> and <strong>Quiz</strong> areas (⚔️ Challenge a friend button: you pick the game, themes and stake). Bonus: sponsor and referred player become friends automatically. Up to 30 friends." },
         { icon:'👑', title:'VIP Pass', desc:"In your <strong>Profile</strong>, the <strong>VIP Pass</strong> card: for <strong>2000 ⚡</strong>, become VIP for <strong>30 days</strong>. Perks: a <strong>👑 VIP</strong> badge on your profile and <strong>+20% Libs</strong> on your earnings (login streak, challenges, wheel of fortune, Saturday tournament). Buy again to extend (maximum <strong>3 months</strong> of VIP stored). You can also <strong>gift a VIP Pass to a friend</strong> from the 🎁 window in your friends list." },
-        { icon:'🎲', title:'Ludo', desc:"Classic <strong>Ludo</strong> in 1 vs 1: 4 pawns each, roll the <strong>dice</strong>, you need a <strong>6</strong> to leave the base. Landing on an opponent's pawn <strong>captures</strong> it (back to base), except on <strong>starred ★</strong> squares. A 6 or a capture lets you <strong>play again</strong>. Take all 4 pawns around the board and up the home column to win. Play against a friend (with an optional <strong>stake</strong>) or against the bot." },
+        { icon:'🎲', title:'Ludo', desc:"Classic <strong>Ludo</strong> for <strong>2 to 4 players</strong>: 4 pawns each, roll the <strong>dice</strong>, you need a <strong>6</strong> to leave the base. Landing on an opponent's pawn (any colour) <strong>captures</strong> it (back to base), except on <strong>starred ★</strong> squares. A 6 or a capture lets you <strong>play again</strong>. Take all 4 pawns around the board and up the home column to win. <strong>Every player has their own die</strong>, in their colour, that keeps their last roll: you can see at a glance who rolled what. Turns follow the board: red, green, yellow, blue. To play with several people, <strong>create a lobby</strong> and share the code or the link: players take a seat (4 max) and <strong>the host starts the game as soon as there are two of you</strong>. If someone leaves mid-game, their pawns disappear and the others carry on. An optional <strong>stake</strong> is possible (the winner takes the whole pot). You can also play alone against the bot." },
         { icon:'🌱', title:'Revision quizzes', desc:"Three <strong>school-focused</strong> quiz themes are available: <strong>🌱 Biology</strong>, <strong>🇬🇧 English</strong> and <strong>🇧🇯 Benin</strong> (the country's history and geography). Revise while having fun, solo or in a room with your class! Three difficulty levels like the other themes." },
         { icon:'📱', title:'Install the app and notifications', desc:"The site <strong>installs like an app</strong>: in your browser, menu → <strong>\"Add to Home screen\"</strong> (or \"Install app\"). You can also enable <strong>🔔 notifications</strong> in <strong>Profile → Settings → Notifications</strong> to be alerted about tournaments, news and flash offers, even when the site is closed." },
         { icon:'⚡', title:'Flash offers', desc:"From time to time, a cosmetic goes on <strong>FLASH OFFER</strong>: a golden banner appears at the top of the <strong>shop</strong> with a discount (up to -90%) and a countdown. When it is over, it is over: keep an eye out (and enable notifications so you never miss one)!" },
         { icon:'📚', title:'Reading', desc:"The <strong>Reading</strong> tab opens a book catalogue: search by title or author, filter by category, and click a book for its detail sheet. You'll find the <strong>exclusive novels</strong> readable right on the site (in French or English, following the site language): <strong>⭐ L'Affaire endormie · Tome 1</strong> (chapter 1 free, 1000 ⚡ for chapters 2-5, 2000 ⚡ for 6-10), <strong>Life of Georgia</strong> (whole book for 2000 ⚡) and its sequel <strong>Life of Georgia · Volume 2</strong>, <strong>free</strong> for everyone who unlocked Volume 1." },
-        { icon:'🎮', title:'Create a classic game', desc:"First choose a game among <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong>, <strong>Chess</strong>, <strong>Checkers</strong> or <strong>Ludo</strong> (none is pre-selected), enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent, or the <strong>link</strong>. You can cancel while waiting if nobody joins. You can also play <strong>Solo vs the bot</strong> (Easy, Medium or Hard)." },
+        { icon:'🎮', title:'Create a classic game', desc:"First choose a game among <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong>, <strong>Chess</strong>, <strong>Checkers</strong> or <strong>Ludo</strong> (none is pre-selected), enter your username (optional) then click <em>Create a game</em>. Share the 4-letter code with your opponent, or the <strong>link</strong>. You can cancel while waiting if nobody joins, and if your connection drops for a moment (or you switch apps to send the code), your game waits for you: you get your lobby back. In <strong>Ludo</strong>, you create a <strong>lobby for 2 to 4 players</strong> and start the game whenever you like. You can also play <strong>Solo vs the bot</strong> (Easy, Medium or Hard)." },
         { icon:'⛂', title:'Checkers', desc:"The game of <strong>Checkers</strong> (draughts 8x8, 12 pieces each). Men move diagonally one square forward. <strong>Capturing is mandatory</strong>: if you can jump over an opponent piece (empty square behind), you must, and you chain multiple captures with the same piece. A man reaching the last row becomes a <strong>king ♛</strong> that moves and captures both ways. You win when the opponent has no pieces left or cannot move. At the end, <em>Rematch</em> asks the opponent to accept or decline." },
         { icon:'🤖', title:'Solo mode (vs Bot)', desc:"Play alone against a robot. <em>Easy</em>: plays randomly. <em>Medium</em>: blocks and attacks. <em>Hard</em>: plays optimally. <strong>Medium and Hard</strong> games count in the classic leaderboard." },
         { icon:'🔗', title:'Join', desc:"Enter the 4-letter code you received and click <em>Join</em>. The game starts automatically as soon as both players are connected." },
@@ -2010,7 +2026,7 @@ const DICT = {
       landing_libs:'⚡ <strong>Libs</strong>: the site\'s virtual currency. Every ranked player receives some every 5 hours (1st: +10 ⚡, 2nd: +5 ⚡, 3rd: +3 ⚡, 4th to 10th: +2 ⚡, then +1 ⚡). You also earn them through the <strong>daily challenges</strong> and your <strong>login streak</strong>. Your balance shows in your <strong>Profile</strong>; spend your Libs in the <strong>Shop</strong> (bottom tab): cosmetics, quiz boosts, exclusive books!',
       events_snake:'🏆 On Saturdays the <strong>Tournament</strong> runs automatically (followed live in the <strong>News</strong> card: top 10, 2000 ⚡ and the "Weekly Champion" title for the best).<br>🐍 This weekend\'s event: <strong>Snake Challenge</strong>! Click <em>Play</em>, your snake enters the arena. Eat the <strong>⚡ Libs</strong> to grow: every ⚡ eaten is added to your balance (score 10 = 10 Libs earned). Walls wrap around · you reappear on the other side! Your best score <strong>persists</strong> between sessions.',
       luffy_runner:'🏃 <strong>Libero Run</strong>: help Libero run as far as possible! Jump (↑ / Space) over ground obstacles, duck (↓) under flying ones. Grab the ⭐ star to become invincible for a few seconds. Your best score feeds a dedicated leaderboard.',
-      home_games:'🎮 Choose your game at the top: <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong>, <strong>Chess</strong>, <strong>Checkers</strong> or <strong>Ludo</strong> 🎲 (none is pre-selected). The leaderboard is shared across all five games.',
+      home_games:'🎮 Choose your game at the top: <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong>, <strong>Chess</strong>, <strong>Checkers</strong> or <strong>Ludo</strong> 🎲 (none is pre-selected; Ludo plays up to <strong>4</strong> in a lobby, with one die per player). The leaderboard is shared across all five games.',
       home_bot:'🤖 <strong>Solo mode</strong>: play against the bot at 3 difficulty levels: Easy, Medium or Hard. Your wins and losses count in the leaderboard!',
       home_multi:'👥 <strong>Multiplayer mode</strong>: enter your username (optional), then click <em>Create a game</em> to generate a code, or enter a friend\'s code to join them. At the end of a game, <em>Rematch</em> offers a rematch the other player accepts or declines.',
       home_lb:'🏆 <strong>Leaderboard</strong>: wins, losses and draws are recorded automatically after each game (Medium/Hard bot or multiplayer).',
@@ -2331,6 +2347,8 @@ function applyLang() {
   const wt = $('waiting-title');  if (wt) wt.textContent = d.waitingFor;
   const ws = $('waiting-share');  if (ws) ws.textContent = d.shareCode;
   const wh = $('waiting-hint');   if (wh) wh.textContent = d.waitingHint;
+  if (currentGame === 'ludo' && ludoLobby && !$('screen-waiting').classList.contains('hidden')) renderLudoLobby();
+  if (currentGame === 'ludo' && ludoState && document.getElementById('ludo-seats')) updateLudo(ludoState);
 
   // Game screen
   const brs = $('btn-restart');   if (brs) brs.textContent = d.btnRestart;
@@ -2922,6 +2940,8 @@ function updateTurnUI(currentPlayer, gameType) {
   currentTurnPlayer = currentPlayer;
   const isMyTurn = currentPlayer === myPlayer;
   $('turn-indicator').textContent = isMyTurn ? t().myTurn : (isBotGame ? t().botThinking : t().oppTurn);
+  // Ludo a plusieurs : on dit DE QUI c'est le tour, pas seulement « l'adversaire ».
+  if (gameType === 'ludo' && !isMyTurn && !isBotGame && ludoSeatCount() > 2) $('turn-indicator').textContent = t().ludoTurnOf(ludoNameOf(currentPlayer));
   $('badge-r').classList.toggle('active', currentPlayer === 'R');
   $('badge-y').classList.toggle('active', currentPlayer === 'Y');
 
@@ -2942,6 +2962,7 @@ function goToHome() {
   currentRoomCode = null;
   currentGame = null;
   currentTurnPlayer = null;
+  ludoSeatInfo = null; ludoSeatAway = {}; ludoLobby = null;
   selectedSquare = null;
   availableMoves = [];
   currentFen = null;
@@ -3008,6 +3029,8 @@ function showGameOver(status, winner) {
 
   if (status === 'won') {
     $('status-text').textContent = isWinner ? t().youWon : t().youLost;
+    // Ludo a plusieurs : on nomme le vainqueur, « perdu » ne dit pas qui a gagne.
+    if (currentGame === 'ludo' && !isBotGame && ludoSeatCount() > 2 && winner) $('status-text').textContent = t().ludoWinnerIs(ludoNameOf(winner));
     if (isWinner) {
       celebrate(); // joue le son 'success' (fichier)
       if (equippedVictoryBan) gs.classList.add(equippedVictoryBan);
@@ -3497,7 +3520,7 @@ function onCheckersClick(i) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// LUDO (1 contre 1 : rouge en bas a gauche, jaune en haut a droite)
+// LUDO (2 a 4 joueurs : rouge en bas a gauche, vert en haut a gauche, jaune en haut a droite, bleu en bas a droite)
 // ══════════════════════════════════════════════════════════════════════════════
 // Piste absolue de 52 cases : memes conventions que le serveur (R entre en 0,
 // Y en 26, cases etoilees sans capture). Coordonnees (ligne, colonne) sur 15x15.
@@ -3519,24 +3542,49 @@ const LUDO_TRACK = (() => {
   return t;
 })();
 const LUDO_SAFE = new Set([0, 8, 13, 21, 26, 34, 39, 47]);
-const LUDO_START = { R: 0, Y: 26 };
-// Colonnes d'arrivee (rel 52-56) : R monte la colonne 7, Y la descend.
+const LUDO_START = { R: 0, G: 13, Y: 26, B: 39 };
+// Colonnes d'arrivee (rel 52-56) : R monte, Y descend, G va vers la droite, B vers la gauche.
 const LUDO_HOME = {
   R: [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7]],
+  G: [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5]],
   Y: [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7]],
+  B: [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9]],
 };
-// Emplacements des 4 pions en base.
+// Emplacements des 4 pions en base (centres dans leur zone 5x5).
 const LUDO_BASE = {
-  R: [[10, 1], [10, 3], [12, 1], [12, 3]],
+  R: [[11, 2], [11, 4], [13, 2], [13, 4]],
+  G: [[2, 2], [2, 4], [4, 2], [4, 4]],
   Y: [[2, 11], [2, 13], [4, 11], [4, 13]],
+  B: [[11, 11], [11, 13], [13, 11], [13, 13]],
 };
+const LUDO_ZONE = { R: [10, 1], G: [1, 1], Y: [1, 10], B: [10, 10] };
+const LUDO_ALL = ['R', 'G', 'Y', 'B'];
+const LUDO_PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
 let ludoState = null;
+let ludoSeatInfo = null;      // [{role, name, connected}] : noms des joueurs du salon
+let ludoSeatAway = {};        // role -> true quand un joueur se reconnecte
+let ludoPrevRollNo = 0;
 
+function ludoSeatRoles() {
+  // Toujours dans l'ordre du plateau (R, G, Y, B) : c'est aussi l'ordre des tours,
+  // donc les dés se lisent de gauche a droite dans l'ordre ou l'on joue.
+  const roles = (ludoSeatInfo && ludoSeatInfo.length) ? ludoSeatInfo.map(x => x.role)
+    : (ludoState && ludoState.order ? ludoState.order.slice() : ['R', 'Y']);
+  return LUDO_ALL.filter(r => roles.includes(r));
+}
+function ludoSeatCount() { return ludoSeatRoles().length; }
+function ludoNameOf(role) {
+  const si = ludoSeatInfo && ludoSeatInfo.find(x => x.role === role);
+  if (si && si.name) return si.name;
+  if (isBotGame && role === 'Y') return '🤖 Robot';
+  if (role === myPlayer) return getPlayerName() || t().ludoYou;
+  return t().playerNames.ludo[role] || role;
+}
 function ludoAbs(player, rel) {
   return (rel >= 0 && rel < 52) ? (LUDO_START[player] + rel) % 52 : null;
 }
 function ludoPlayable(state, player) {
-  if (!state.dice) return [];
+  if (!state.dice || !state.pawns[player]) return [];
   const out = [];
   state.pawns[player].forEach((pos, i) => {
     if (pos === 57) return;
@@ -3551,50 +3599,76 @@ function ludoCellCoord(player, pos, pawnIdx) {
   if (pos >= 52) return LUDO_HOME[player][pos - 52];
   return LUDO_TRACK[ludoAbs(player, pos)];
 }
+// Un de a pions : chaque joueur a SON de, qui garde SON dernier lancer.
+function ludoDieFace(n) {
+  if (!n) return '<span class="ludo-die-empty">?</span>';
+  return Array.from({ length: 9 }, (_, i) => `<i${LUDO_PIPS[n].includes(i) ? ' class="p"' : ''}></i>`).join('');
+}
+function ludoRollNow() {
+  if (!gameActive || !ludoState || ludoState.currentPlayer !== myPlayer || ludoState.dice) return;
+  SFX.placePiece();
+  socket.emit('make-move', { roll: true });
+}
 
 function buildLudo(container, state) {
+  ludoState = state;
+  ludoPrevRollNo = state.rollNo || 0;
+  const roles = ludoSeatRoles();
   const wrap = document.createElement('div');
   wrap.className = 'ludo-wrap';
+
+  // Les dés : un par joueur, avec son nom, de la couleur de son camp.
+  const tray = document.createElement('div');
+  tray.id = 'ludo-seats';
+  tray.className = 'ludo-seats';
+  tray.style.setProperty('--n', roles.length);
+  roles.forEach(r => {
+    const seat = document.createElement('div');
+    seat.className = `ludo-seat s-${r.toLowerCase()}`;
+    seat.dataset.role = r;
+    seat.innerHTML = `<span class="ludo-sname"></span><button type="button" class="ludo-sdie" aria-label=""><span class="ludo-dieface"></span></button><span class="ludo-sstate"></span>`;
+    tray.appendChild(seat);
+  });
+  wrap.appendChild(tray);
+
   const boardEl = document.createElement('div');
   boardEl.id = 'ludo-board';
   boardEl.className = 'ludo-board';
-  // Zones de base et centre
-  const zones = [
-    { cls: 'ludo-basezone ludo-r', r: 10, c: 1, rs: 5, cs: 5 },
-    { cls: 'ludo-basezone ludo-y', r: 1, c: 10, rs: 5, cs: 5 },
-    { cls: 'ludo-center', r: 7, c: 7, rs: 3, cs: 3 },
-  ];
-  zones.forEach(z => {
+  // Zones de base (les couleurs libres restent affichees, estompees) et centre
+  LUDO_ALL.forEach(r => {
+    const [zr, zc] = LUDO_ZONE[r];
     const el = document.createElement('div');
-    el.className = z.cls;
-    el.style.gridArea = `${z.r} / ${z.c} / span ${z.rs} / span ${z.cs}`;
-    if (z.cls === 'ludo-center') { el.id = 'ludo-center'; el.textContent = '🏁'; }
+    el.className = `ludo-basezone ludo-${r.toLowerCase()}${roles.includes(r) ? '' : ' ludo-empty'}`;
+    el.style.gridArea = `${zr} / ${zc} / span 5 / span 5`;
     boardEl.appendChild(el);
   });
+  const center = document.createElement('div');
+  center.className = 'ludo-center'; center.id = 'ludo-center'; center.textContent = '🏁';
+  center.style.gridArea = '7 / 7 / span 3 / span 3';
+  boardEl.appendChild(center);
   // Piste
   LUDO_TRACK.forEach(([r, c], abs) => {
     const cell = document.createElement('div');
     cell.className = 'ludo-cell';
     if (LUDO_SAFE.has(abs)) cell.classList.add('safe');
-    if (abs === LUDO_START.R) cell.classList.add('start-r');
-    if (abs === LUDO_START.Y) cell.classList.add('start-y');
+    LUDO_ALL.forEach(pl => { if (abs === LUDO_START[pl]) cell.classList.add(`start-${pl.toLowerCase()}`); });
     cell.dataset.abs = abs;
     cell.style.gridArea = `${r + 1} / ${c + 1}`;
     if (LUDO_SAFE.has(abs)) cell.textContent = '★';
     boardEl.appendChild(cell);
   });
   // Colonnes d'arrivee
-  for (const pl of ['R', 'Y']) {
+  LUDO_ALL.forEach(pl => {
     LUDO_HOME[pl].forEach(([r, c], i) => {
       const cell = document.createElement('div');
-      cell.className = `ludo-cell home ${pl === 'R' ? 'home-r' : 'home-y'}`;
+      cell.className = `ludo-cell home home-${pl.toLowerCase()}`;
       cell.dataset.home = `${pl}${i}`;
       cell.style.gridArea = `${r + 1} / ${c + 1}`;
       boardEl.appendChild(cell);
     });
-  }
+  });
   // Emplacements de base
-  for (const pl of ['R', 'Y']) {
+  LUDO_ALL.forEach(pl => {
     LUDO_BASE[pl].forEach(([r, c], i) => {
       const slot = document.createElement('div');
       slot.className = 'ludo-baseslot';
@@ -3602,42 +3676,43 @@ function buildLudo(container, state) {
       slot.style.gridArea = `${r + 1} / ${c + 1}`;
       boardEl.appendChild(slot);
     });
-  }
+  });
   // Couche des pions (au-dessus des cases)
   const pawnLayer = document.createElement('div');
   pawnLayer.id = 'ludo-pawns';
   pawnLayer.className = 'ludo-pawns';
   boardEl.appendChild(pawnLayer);
   wrap.appendChild(boardEl);
-  // Barre de de
+
+  // Barre d'action : mon bouton, et une phrase qui dit quoi faire
   const bar = document.createElement('div');
   bar.className = 'ludo-bar';
-  bar.innerHTML = `<button id="ludo-roll" class="btn btn-primary">${t().ludoRoll}</button><span id="ludo-dice" class="ludo-dice"></span>`;
+  bar.innerHTML = `<button id="ludo-roll" class="btn btn-primary">${t().ludoRoll}</button><span id="ludo-msg" class="ludo-msg"></span>`;
   wrap.appendChild(bar);
   container.appendChild(wrap);
-  document.getElementById('ludo-roll').addEventListener('click', () => {
-    if (!gameActive || !ludoState || ludoState.currentPlayer !== myPlayer || ludoState.dice) return;
-    SFX.placePiece();
-    socket.emit('make-move', { roll: true });
-  });
+  document.getElementById('ludo-roll').addEventListener('click', ludoRollNow);
+  tray.addEventListener('click', e => { if (e.target.closest('.ludo-seat.s-' + String(myPlayer).toLowerCase() + ' .ludo-sdie')) ludoRollNow(); });
+  document.getElementById('screen-game').classList.toggle('ludo-multi', roles.length > 2);
   updateLudo(state);
 }
 
-const LUDO_DICE_FACES = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 function updateLudo(state) {
+  const prevRollNo = ludoPrevRollNo;
   ludoState = state;
   const layer = document.getElementById('ludo-pawns');
   if (!layer) return;
   layer.innerHTML = '';
+  const order = state.order || ['R', 'Y'];
   // Note : updateLudo est appele AVANT updateTurnUI sur game-update, donc on
   // lit le tour dans l'etat (currentTurnPlayer serait en retard d'un coup).
   const myTurn = state.currentPlayer === myPlayer;
   const playable = (myTurn && state.dice) ? ludoPlayable(state, myPlayer) : [];
-  for (const pl of ['R', 'Y']) {
+  for (const pl of order) {
+    if (!state.pawns[pl]) continue;
     state.pawns[pl].forEach((pos, i) => {
       const [r, c] = ludoCellCoord(pl, pos, i);
       const pawn = document.createElement('button');
-      pawn.className = `ludo-pawn ${pl === 'R' ? 'p-r' : 'p-y'}`;
+      pawn.className = `ludo-pawn p-${pl.toLowerCase()}`;
       if (pl === myPlayer && playable.includes(i)) pawn.classList.add('can-play');
       if (state.lastMove && state.lastMove.player === pl && state.lastMove.pawn === i) pawn.classList.add('just-moved');
       pawn.style.setProperty('--lr', r);
@@ -3649,14 +3724,38 @@ function updateLudo(state) {
       layer.appendChild(pawn);
     });
   }
+  // Les dés : un par joueur, avec le DERNIER lancer de chacun
+  document.querySelectorAll('#ludo-seats .ludo-seat').forEach(seat => {
+    const role = seat.dataset.role;
+    const out = !order.includes(role);
+    seat.classList.toggle('turn', !out && state.currentPlayer === role && !state.winner);
+    seat.classList.toggle('out', out);
+    seat.classList.toggle('mine', role === myPlayer);
+    seat.classList.toggle('away', !!ludoSeatAway[role]);
+    seat.querySelector('.ludo-sname').textContent = ludoNameOf(role) + (role === myPlayer && ludoSeatCount() > 1 && !isBotGame ? ` (${t().ludoYou})` : '');
+    const die = seat.querySelector('.ludo-sdie');
+    die.setAttribute('aria-label', t().ludoDieOf(ludoNameOf(role)));
+    die.classList.toggle('can-roll', role === myPlayer && myTurn && !state.dice);
+    seat.querySelector('.ludo-dieface').innerHTML = ludoDieFace(out ? 0 : (state.lastRolls || {})[role] || (role === state.lastRoller ? state.lastDice : 0));
+    seat.querySelector('.ludo-sstate').textContent = out ? t().ludoOut : (ludoSeatAway[role] ? '⏳' : '');
+    // Animation du dé de CELUI QUI VIENT DE LANCER (et de personne d'autre)
+    if ((state.rollNo || 0) > prevRollNo && state.lastRoller === role) {
+      die.classList.remove('rolling'); void die.offsetWidth; die.classList.add('rolling');
+      setTimeout(() => die.classList.remove('rolling'), 700);
+    }
+  });
+  ludoPrevRollNo = state.rollNo || 0;
   const rollBtn = document.getElementById('ludo-roll');
-  const diceEl  = document.getElementById('ludo-dice');
   if (rollBtn) {
     rollBtn.textContent = t().ludoRoll;
-    rollBtn.disabled = !(myTurn && !state.dice);
+    rollBtn.disabled = !(myTurn && !state.dice && gameActive);
     rollBtn.classList.toggle('pulse', myTurn && !state.dice);
   }
-  if (diceEl) diceEl.textContent = state.lastDice ? `${LUDO_DICE_FACES[state.lastDice]} ${state.lastDice}` : '';
+  const msg = document.getElementById('ludo-msg');
+  if (msg) {
+    msg.textContent = state.winner ? '' : (myTurn ? (state.dice ? t().ludoYourMove : t().ludoYourRoll) : t().ludoWaitFor(ludoNameOf(state.currentPlayer)));
+    msg.classList.toggle('mine', myTurn && !state.winner);
+  }
 }
 
 function onLudoPawnClick(i) {
@@ -3718,6 +3817,8 @@ $('btn-restart-refuse').addEventListener('click', () => {
   $('btn-restart').disabled = false;
   $('btn-menu').classList.remove('hidden');
 });
+// Salon Ludo : le createur lance la partie des 2 joueurs presents.
+$('btn-ludo-start').addEventListener('click', () => { socket.emit('start-ludo'); });
 // Annuler une partie multi en attente : on prévient le serveur et on rentre.
 $('btn-cancel-wait').addEventListener('click', () => {
   socket.emit('cancel-room');
@@ -4690,6 +4791,7 @@ $('overlay-help').addEventListener('click', e => {
     roue:['roue','fortune'], fortune:['roue','fortune'], wheel:['roue','fortune'], spin:['roue','fortune'], tourner:['roue'],
     vip:['vip','pass'], pass:['vip','pass'],
     ludo:['ludo','pion'], pion:['ludo','dames'], pions:['ludo','dames'], dice:['ludo'],
+    salon:['ludo','creer'], lobby:['ludo','creer'], plusieurs:['ludo'], multijoueur:['ludo'], multiplayer:['ludo'], quatre:['ludo'], four:['ludo'], de:['ludo'], des:['ludo'], couleur:['ludo'], color:['ludo'], colour:['ludo'], lancer:['ludo'], roll:['ludo'], abandon:['ludo','reconnexion'], quitter:['ludo','reconnexion'],
     svt:['revisions','quiz'], revision:['revisions','quiz'], revisions:['revisions','quiz'], reviser:['revisions','quiz'], ecole:['revisions','quiz'], school:['revisions','quiz'], benin:['revisions','quiz'], biologie:['revisions','quiz'], biology:['revisions','quiz'],
     notification:['notifications','installer'], notifications:['notifications','installer'], notif:['notifications'], notifs:['notifications'], push:['notifications'], installer:['installer','appli','notifications'], install:['installer','appli'], appli:['installer','appli'], application:['installer','appli'], app:['installer','appli'],
     flash:['flash','offres','boutique'], offre:['flash','offres','boutique'], offres:['flash','offres','boutique'], promo:['flash','offres','boutique'], promotion:['flash','offres'], reduction:['flash','offres'], discount:['flash','offres'],
@@ -5031,7 +5133,7 @@ socket.on('connect', () => {
   if (saved) {
     try {
       const { roomCode, player } = JSON.parse(saved);
-      socket.emit('reconnect-room', { code: roomCode, player });
+      socket.emit('reconnect-room', { code: roomCode, player, playerId: getPlayerId() });
     } catch { clearSession(); }
   }
 
@@ -5095,12 +5197,79 @@ document.querySelectorAll('.stake-btn').forEach(btn => {
   });
 });
 
-socket.on('room-created', ({ code, gameType, stake }) => {
+// Ecran d'attente : salon Ludo (sieges, bouton Lancer) ou attente d'un adversaire.
+let ludoLobby = null;
+function showWaiting({ code, gameType, stake, role }) {
   currentRoomCode = code;
   currentGame     = gameType;
+  if (role) myPlayer = role;
+  // Une coupure pendant l'attente (changer d'appli pour envoyer le code) ne perd plus le salon.
+  if (role) saveSession(code, role);
   $('room-code').textContent     = code;
   $('waiting-game-name').textContent = t().games[gameType] + (stake ? ` · 💰 ${stake} ⚡` : '');
+  const isLudo = gameType === 'ludo';
+  $('waiting-seats').classList.toggle('hidden', !isLudo);
+  $('btn-ludo-start').classList.toggle('hidden', !isLudo);
+  if (!isLudo) {
+    $('waiting-title').textContent = t().waitingFor;
+    $('waiting-hint').textContent  = t().waitingHint;
+  }
   showScreen('waiting');
+}
+function renderLudoLobby(lb) {
+  if (lb) ludoLobby = lb;
+  if (!ludoLobby || currentGame !== 'ludo') return;
+  const d = t(), seats = ludoLobby.seats || [];
+  const iAmHost = ludoLobby.host === myPlayer;
+  $('waiting-title').textContent = d.ludoLobbyTitle;
+  $('waiting-hint').textContent  = d.ludoLobbyHint;
+  const slots = seats.map(sx => `<li class="lb-seat s-${sx.role.toLowerCase()}${sx.connected ? '' : ' away'}">`
+    + `<span class="lb-dot"></span><b>${_escHtml(sx.name || '?')}</b>`
+    + `<em>${[sx.role === myPlayer ? d.ludoYou : '', sx.host ? d.ludoHost : '', sx.connected ? '' : d.ludoAway].filter(Boolean).join(' · ')}</em></li>`);
+  for (let i = seats.length; i < 4; i++) slots.push(`<li class="lb-seat free"><span class="lb-dot"></span><b>${d.ludoFree}</b></li>`);
+  $('waiting-seats').innerHTML = slots.join('');
+  const btn = $('btn-ludo-start');
+  const here = seats.filter(x => x.connected).length;
+  btn.classList.toggle('hidden', !iAmHost);
+  btn.textContent = d.ludoStartBtn + ` (${here}/4)`;
+  btn.disabled = here < 2;
+  if (!iAmHost) $('waiting-hint').textContent = d.ludoWaitHost;
+}
+socket.on('room-created', ({ code, gameType, stake }) => {
+  showWaiting({ code, gameType, stake, role: 'R' });
+});
+socket.on('ludo-joined', ({ code, gameType, stake, yourPlayer }) => {
+  showWaiting({ code, gameType, stake, role: yourPlayer });
+  renderLudoLobby();
+});
+socket.on('ludo-lobby', (lb) => { renderLudoLobby(lb); });
+socket.on('ludo-closed', () => {
+  clearSession(); currentRoomCode = null; ludoLobby = null;
+  showCursorSnakeToast(t().ludoClosed);
+  showScreen('home');
+});
+// Un joueur du salon / de la partie se deconnecte, revient ou abandonne.
+socket.on('ludo-seat', ({ role, event }) => {
+  if (role === myPlayer) return;
+  const name = ludoNameOf(role);
+  if (event === 'reconnecting') { ludoSeatAway[role] = true; showCursorSnakeToast(t().ludoSeatAway(name)); }
+  else if (event === 'back')    { delete ludoSeatAway[role]; showCursorSnakeToast(t().ludoSeatBack(name)); }
+  else if (event === 'forfeit') { delete ludoSeatAway[role]; showCursorSnakeToast(t().ludoForfeit(name)); }
+  if (currentGame === 'ludo' && ludoState) updateLudo(ludoState);
+});
+// Ma place a ete reprise par une autre connexion de MOI (autre onglet, autre appareil).
+socket.on('seat-taken', () => {
+  clearSession(); gameActive = false;
+  showCursorSnakeToast(t().ludoSeatTaken);
+  showScreen('landing');
+});
+// Le serveur n'a plus ma salle (redemarrage, delai depasse) : on tente de me reconnecter, sinon on rentre.
+socket.on('move-rejected', ({ reason } = {}) => {
+  const saved = sessionStorage.getItem('p4session');
+  if (reason === 'no_room' && saved) {
+    try { const { roomCode, player } = JSON.parse(saved); showCursorSnakeToast(t().moveLost); socket.emit('reconnect-room', { code: roomCode, player, playerId: getPlayerId() }); return; } catch {}
+  }
+  clearSession(); gameActive = false; showScreen('landing');
 });
 
 // Résultats de mise : pot au vainqueur, remboursement, mise annulée.
@@ -5116,10 +5285,11 @@ socket.on('stake-result', ({ outcome, winnerRole, pot } = {}) => {
   }
 });
 
-socket.on('game-start', ({ gameType, state, yourPlayer, vsBot, botDifficulty, code, stake }) => {
+socket.on('game-start', ({ gameType, state, yourPlayer, vsBot, botDifficulty, code, stake, pot, seats }) => {
   isBotGame = !!vsBot;
   if (code) currentRoomCode = code; // couvre la jointure inter-sections / par lien
-  if (stake > 0) setTimeout(() => showCursorSnakeToast(t().stakeStart(stake, stake * 2)), 600);
+  if (gameType === 'ludo') { ludoSeatInfo = seats || null; ludoSeatAway = {}; }
+  if (stake > 0) setTimeout(() => showCursorSnakeToast(t().stakeStart(stake, pot || stake * 2)), 600);
   saveSession(currentRoomCode, yourPlayer);
   applyGameState({ gameType, state, yourPlayer, status: 'playing', winner: null });
   $('chat').classList.toggle('hidden', isBotGame);
@@ -5130,11 +5300,19 @@ socket.on('game-start', ({ gameType, state, yourPlayer, vsBot, botDifficulty, co
   showScreen('game');
 });
 
-socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, roomCode, vsBot, botDifficulty }) => {
+socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, roomCode, vsBot, botDifficulty, stake, seats, host }) => {
   currentRoomCode = roomCode;
   isBotGame = !!vsBot;
   saveSession(roomCode, yourPlayer);
   hideOverlay();
+  // Coupure pendant l'attente : on retrouve son salon, pas un plateau vide.
+  if (status === 'waiting') {
+    myPlayer = yourPlayer;
+    showWaiting({ code: roomCode, gameType, stake, role: yourPlayer });
+    if (gameType === 'ludo' && seats) renderLudoLobby({ code: roomCode, stake, host, seats });
+    return;
+  }
+  if (gameType === 'ludo') { ludoSeatInfo = seats || ludoSeatInfo; ludoSeatAway = {}; }
   applyGameState({ gameType, state, yourPlayer, status, winner });
   $('chat').classList.toggle('hidden', isBotGame);
   if (isBotGame) {
@@ -5146,8 +5324,11 @@ socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, r
 
 socket.on('reconnect-failed', () => { clearSession(); showScreen('landing'); });
 
-socket.on('game-update', ({ gameType, state, status, winner }) => {
+socket.on('game-update', ({ gameType, state, status, winner, resync }) => {
   if (gameType === 'chess') lastMove = null; // sera mis à jour via onChessClick
+  // Un etat recu prouve que la partie est vivante : si on avait coupe le jeu
+  // (« adversaire se reconnecte ») sans recevoir le « il est revenu », on le reprend.
+  if (status === 'playing' && currentGame === gameType && !gameActive) { gameActive = true; hideOverlay(); }
   updateGameBoard(gameType, state);
 
   if (status === 'playing') {
@@ -5546,6 +5727,7 @@ socket.on('boost-hint-result', ({ eliminateChoice } = {}) => {
 });
 
 socket.on('error', ({ message, stake } = {}) => {
+  if (message === 'ludo_need_two')           { showCursorSnakeToast(t().ludoNeedTwo); return; }
   if (message === 'stake_insufficient')      { showError(t().stakeInsufficient); return; }
   if (message === 'stake_insufficient_join') { showError(t().stakeInsufficientJoin(stake || 0)); return; }
   showError(message);
@@ -9177,7 +9359,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'home_games',
       screen: 'home',
-      text: '🎮 Choisis ton jeu en haut : <strong>Puissance 4</strong>, <strong>Morpion</strong>, <strong>Échecs</strong>, <strong>Dames</strong> ou <strong>Ludo</strong> 🎲 (aucun n\'est présélectionné). Le classement est partagé entre les cinq jeux.',
+      text: '🎮 Choisis ton jeu en haut : <strong>Puissance 4</strong>, <strong>Morpion</strong>, <strong>Échecs</strong>, <strong>Dames</strong> ou <strong>Ludo</strong> 🎲 (aucun n\'est présélectionné ; le Ludo se joue <strong>jusqu\'à 4</strong> dans un salon, avec un dé par joueur). Le classement est partagé entre les cinq jeux.',
       target: '.game-selector',
     },
     {

@@ -4082,18 +4082,27 @@ html.light .level-bar { background: rgba(0,0,0,.12); }
 html.light .ludo-cell { background: #fff; border: 1px solid #e2e8f0; }
 .ludo-cell.safe    { background: #e2e8f0; }
 .ludo-cell.start-r { background: #fecaca; }
+.ludo-cell.start-g { background: #bbf7d0; }
 .ludo-cell.start-y { background: #fef08a; }
+.ludo-cell.start-b { background: #bfdbfe; }
 .ludo-cell.home-r  { background: #f87171; }
+.ludo-cell.home-g  { background: #4ade80; }
 .ludo-cell.home-y  { background: #facc15; }
+.ludo-cell.home-b  { background: #60a5fa; }
 .ludo-basezone { border-radius: 10px; opacity: .9; }
 .ludo-basezone.ludo-r { background: linear-gradient(135deg,#dc2626,#991b1b); }
+.ludo-basezone.ludo-g { background: linear-gradient(135deg,#16a34a,#166534); }
 .ludo-basezone.ludo-y { background: linear-gradient(135deg,#eab308,#a16207); }
+.ludo-basezone.ludo-b { background: linear-gradient(135deg,#2563eb,#1e3a8a); }
+/* Un camp sans joueur reste visible mais s'efface : on voit tout de suite qui joue. */
+.ludo-basezone.ludo-empty { opacity: .22; filter: grayscale(.7); }
 .ludo-baseslot {
   background: rgba(255,255,255,.85); border-radius: 50%;
   margin: 12%; z-index: 1;
 }
 .ludo-center {
-  background: linear-gradient(135deg,#6366f1,#a855f7);
+  /* haut = jaune, droite = bleu, bas = rouge, gauche = vert : chacun face a sa colonne d'arrivee */
+  background: conic-gradient(from -45deg, #eab308 0 90deg, #2563eb 90deg 180deg, #dc2626 180deg 270deg, #16a34a 270deg 360deg);
   border-radius: 8px; display: flex; align-items: center; justify-content: center;
   font-size: 1.4rem; z-index: 0;
 }
@@ -4111,6 +4120,8 @@ html.light .ludo-cell { background: #fff; border: 1px solid #e2e8f0; }
 }
 .ludo-pawn.p-r { background: radial-gradient(circle at 35% 30%, #fca5a5, #dc2626 70%); }
 .ludo-pawn.p-y { background: radial-gradient(circle at 35% 30%, #fde68a, #eab308 70%); }
+.ludo-pawn.p-g { background: radial-gradient(circle at 35% 30%, #86efac, #16a34a 70%); }
+.ludo-pawn.p-b { background: radial-gradient(circle at 35% 30%, #93c5fd, #2563eb 70%); }
 .ludo-pawn.can-play {
   cursor: pointer;
   box-shadow: 0 0 0 3px rgba(255,255,255,.8), 0 0 14px rgba(99,102,241,.9);
@@ -4119,8 +4130,61 @@ html.light .ludo-cell { background: #fff; border: 1px solid #e2e8f0; }
 }
 .ludo-pawn.just-moved { z-index: 4; }
 @keyframes ludoPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
-.ludo-bar { display: flex; align-items: center; gap: 12px; }
-.ludo-dice { font-size: 1.5rem; font-weight: 900; min-width: 60px; }
+.ludo-bar { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; min-height: 44px; }
+.ludo-msg { font-size: .9rem; color: var(--muted); font-weight: 600; }
+.ludo-msg.mine { color: var(--gold, #fcd34d); }
+
+/* ── Ludo : un de par joueur ──
+   Chaque joueur a son propre de, de la couleur de son camp, qui GARDE son dernier
+   lancer : on voit d'un coup d'oeil qui a lance quoi. Seul le de de celui qui
+   joue est anime et mis en avant. */
+.ludo-seats { display: grid; grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr)); gap: 8px; width: min(96vw, 440px); margin: 0 auto; }
+.ludo-seat {
+  --sc: #94a3b8;
+  min-width: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 8px 6px 7px; border-radius: 14px;
+  background: rgba(255,255,255,.05); border: 2px solid transparent;
+  position: relative; transition: border-color .2s, background .2s, opacity .2s, transform .2s;
+}
+.ludo-seat.s-r { --sc: #ef4444; } .ludo-seat.s-g { --sc: #22c55e; }
+.ludo-seat.s-y { --sc: #eab308; } .ludo-seat.s-b { --sc: #3b82f6; }
+.ludo-seat::before { content: ''; position: absolute; top: 0; left: 14%; right: 14%; height: 4px; border-radius: 0 0 4px 4px; background: var(--sc); }
+.ludo-seat.turn { border-color: var(--sc); background: color-mix(in oklab, var(--sc) 16%, transparent); transform: translateY(-2px);
+  box-shadow: 0 6px 20px -8px var(--sc); }
+.ludo-seat.out { opacity: .35; filter: grayscale(1); }
+.ludo-seat.away { opacity: .6; }
+.ludo-sname { font-size: .74rem; font-weight: 800; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 3px; }
+.ludo-sstate { font-size: .66rem; color: var(--muted); min-height: 1em; }
+.ludo-sdie {
+  width: clamp(38px, 11.5vw, 50px); height: clamp(38px, 11.5vw, 50px); padding: 0; border-radius: 12px; cursor: default;
+  background: #fff; border: 3px solid var(--sc); box-shadow: inset 0 -3px 0 rgba(0,0,0,.14), 0 2px 6px rgba(0,0,0,.3);
+  display: grid; place-items: center; color: #0f172a;
+}
+.ludo-dieface { width: 100%; height: 100%; padding: 7px; display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); gap: 1px; }
+.ludo-dieface i { border-radius: 50%; background: transparent; display: block; }
+.ludo-dieface i.p { background: #0f172a; }
+.ludo-die-empty { grid-area: 2 / 2; font-weight: 900; color: #cbd5e1; font-size: 1.1rem; }
+.ludo-sdie.can-roll { cursor: pointer; animation: ludoPulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #fff, 0 0 16px var(--sc); }
+.ludo-sdie.rolling { animation: ludoDieRoll .65s cubic-bezier(.3,1.4,.5,1); }
+@keyframes ludoDieRoll { 0% { transform: rotate(0) scale(.7); } 55% { transform: rotate(420deg) scale(1.22); } 100% { transform: rotate(720deg) scale(1); } }
+/* Ludo a plusieurs : les deux pastilles « Rouge / Jaune » de l'en-tete n'ont plus de sens. */
+.game-screen.ludo-multi .player-badge { display: none; }
+
+/* ── Salon Ludo (ecran d'attente) ── */
+.waiting-seats { list-style: none; padding: 0; margin: 12px auto 4px; width: min(100%, 360px); display: flex; flex-direction: column; gap: 7px; }
+.lb-seat { --sc: #94a3b8; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px;
+  background: rgba(255,255,255,.06); border: 1px solid var(--border); text-align: left; }
+.lb-seat.s-r { --sc: #ef4444; } .lb-seat.s-g { --sc: #22c55e; } .lb-seat.s-y { --sc: #eab308; } .lb-seat.s-b { --sc: #3b82f6; }
+.lb-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--sc); flex: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--sc) 30%, transparent); }
+.lb-seat b { flex: 1; font-size: .92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-seat em { font-style: normal; font-size: .7rem; color: var(--muted); white-space: nowrap; }
+.lb-seat.away { opacity: .55; }
+.lb-seat.free { border-style: dashed; background: transparent; }
+.lb-seat.free .lb-dot { background: transparent; box-shadow: none; border: 2px dashed #64748b; }
+.lb-seat.free b { color: var(--muted); font-weight: 600; }
+#btn-ludo-start { margin: 8px auto 4px; min-width: 220px; }
+#btn-ludo-start:disabled { opacity: .5; }
 #ludo-roll.pulse { animation: ludoPulse 1.2s ease-in-out infinite; }
 #ludo-roll:disabled { opacity: .45; }
 

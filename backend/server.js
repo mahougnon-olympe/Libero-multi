@@ -2012,6 +2012,7 @@ function distributeLibs() {
 
 const CODE_CHARS   = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const RECONNECT_MS        = 30_000;
+const WAITING_GRACE_MS    = 5 * 60_000; // salon d'attente : le createur peut quitter l'onglet pour partager le code
 const TRIVIA_RECONNECT_MS = 20_000;
 const VALID_GAMES  = new Set(['connect4', 'tictactoe', 'chess', 'checkers', 'ludo']);
 
@@ -2493,6 +2494,14 @@ io.on('connection', (socket) => {
       reconnectTimers: { R: null, Y: null },
     });
 
+    // Ludo entre joueurs : un SALON de 2 a 4 sieges, lance par le createur.
+    if (gameType === 'ludo' && !vsBot) {
+      const lr = rooms.get(code);
+      lr.seats = ['R']; lr.host = 'R';
+      delete lr.players.Y; delete lr.playerNames.Y; delete lr.playerIds.Y;
+      lr.reconnectTimers = { R: null };
+    }
+
     roomCode = code;
     myPlayer = 'R';
     socket.join(code);
@@ -2501,14 +2510,93 @@ io.on('connection', (socket) => {
       socket.emit('game-start', { gameType, state: createInitialState(gameType), yourPlayer: 'R', vsBot: true, botDifficulty: diff, code });
     } else {
       socket.emit('room-created', { code, gameType, stake: duelStake });
+      if (gameType === 'ludo') emitLudoLobby(rooms.get(code));
     }
   });
 
+  // ── Ludo : salon de 2 a 4 joueurs ─────────────────────────────────────────
+  // Les couleurs sont attribuees dans l'ordre R, Y, G, B : a deux on joue donc
+  // rouge contre jaune (coins opposes), comme avant. Les tours suivent l'ordre
+  // du plateau (R, G, Y, B), gere par le moteur.
+  const LUDO_SEAT_ORDER = ['R', 'Y', 'G', 'B'];
+  const isLudoLobby = room => !!room && room.gameType === 'ludo' && !room.vsBot && Array.isArray(room.seats);
+  // Les roles occupes d'une salle (les 2 camps pour les autres jeux).
+  const roomRoles = room => isLudoLobby(room) ? room.seats.slice() : ['R', 'Y'].filter(r => room.players[r]);
+  const seatList = room => room.seats.map(r => ({
+    role: r, name: room.playerNames[r], connected: !!room.players[r], host: r === room.host,
+  }));
+  function emitLudoLobby(room) {
+    if (!isLudoLobby(room)) return;
+    io.to(room.code).emit('ludo-lobby', { code: room.code, stake: room.stake || 0, host: room.host, max: 4,
+      status: room.status, seats: seatList(room) });
+  }
+  // Un siege quitte le salon d'attente (ou la partie terminee) : on libere sa place.
+  function removeLudoSeat(room, role) {
+    // Parti en pleine partie : on garde sa trace pour le classement (defaite).
+    if (room.status === 'playing') (room.left = room.left || []).push({ role, id: room.playerIds[role], name: room.playerNames[role] });
+    if (room.reconnectTimers && room.reconnectTimers[role]) { clearTimeout(room.reconnectTimers[role]); room.reconnectTimers[role] = null; }
+    const sid = room.players[role];
+    const sock = sid && sid !== 'bot' ? io.sockets.sockets.get(sid) : null;
+    if (sock) sock.leave(room.code);
+    delete room.players[role]; delete room.playerNames[role]; delete room.playerIds[role];
+    room.seats = room.seats.filter(r => r !== role);
+    room.restartVotes.clear();
+    if (!room.seats.length) { rooms.delete(room.code); return; }
+    if (room.host === role) room.host = room.seats.find(r => room.players[r]) || room.seats[0];
+    emitLudoLobby(room);
+  }
+  // Fin de partie du Ludo a plusieurs : classements, historique, defis. (bumpDaily est fait par l'appelant)
+  function _finishLudoLobby(room, status, winner) {
+    _settleStake(room, status, winner);
+    // Les joueurs encore assis ET ceux qui ont quitte en cours de partie.
+    const players = roomRoles(room).map(r => ({ role: r, id: room.playerIds?.[r], name: room.playerNames[r] })).concat(room.left || []);
+    room.left = [];
+    players.forEach(pl => {
+      const pid = pl.id, nm = pl.name;
+      if (status === 'won') {
+        const res = pl.role === winner ? 'win' : 'loss';
+        updateLeaderboard(pid || nm, nm, res);
+        pushHistory(pid, { game: 'ludo', result: res });
+      }
+      updateLastActive(pid, nm);
+    });
+    if (status === 'won') {
+      bumpChallenge(room.playerIds?.[winner], 'gamesWon');
+      bumpChallenge(room.playerIds?.[winner], 'ludoWins');
+    }
+    io.emit('leaderboard-update', getLeaderboardData());
+    io.emit('global-leaderboard-update', getGlobalLeaderboardData());
+  }
+  // Un joueur abandonne (il quitte ou ne revient pas) : ses pions quittent le
+  // plateau et les autres continuent ; s'il n'en reste qu'un, il gagne.
+  function ludoForfeitSeat(room, role) {
+    if (!isLudoLobby(room) || room.status !== 'playing' || !room.state.order.includes(role)) return;
+    const r = ludo.forfeit(room.state, role);
+    room.state = r.state; room.status = r.status; room.winner = r.winner;
+    io.to(room.code).emit('game-update', { gameType: 'ludo', state: room.state, status: r.status, winner: r.winner });
+    io.to(room.code).emit('ludo-seat', { role, event: 'forfeit' });
+    if (r.status !== 'playing') { bumpDaily('games'); _finishLudoLobby(room, r.status, r.winner); }
+  }
+  function startLudoGame(room) {
+    room.state = ludo.createState(room.seats);
+    room.status = 'playing'; room.winner = null; room.restartVotes.clear(); room.left = [];
+    for (const p of room.seats) {
+      if (!room.players[p]) continue;
+      io.to(room.players[p]).emit('game-start', {
+        gameType: 'ludo', state: room.state, yourPlayer: p, code: room.code,
+        stake: room.stake || 0, pot: (room.stake || 0) * room.seats.length, seats: seatList(room),
+      });
+    }
+  }
+
   // ── Mises de duel : encaissement au depart, reglement a la fin ────────────
+  // Generalise : 2 joueurs (jeux classiques) ou 2 a 4 (Ludo). Le pot est le
+  // total des mises ; les roles qui ont paye sont memorises pour les rembourser.
   function _collectStake(room) {
     if (!room.stake || room.potPaid) return true;
-    const ids = [room.playerIds?.R, room.playerIds?.Y].map(safePlayerId);
-    if (!ids[0] || !ids[1]) return false;
+    const roles = roomRoles(room);
+    const ids = roles.map(r => safePlayerId(room.playerIds?.[r]));
+    if (roles.length < 2 || ids.some(id => !id)) return false;
     const entries = ids.map(getLibsEntry);
     if (entries.some(e => !e || e.balance < room.stake)) return false;
     entries.forEach((e, i) => {
@@ -2518,14 +2606,20 @@ io.on('connection', (socket) => {
       _emitToPlayer(ids[i], 'libs-update', { balance: e.balance, delta: -room.stake, nextAt: nextDistributionAt });
     });
     room.potPaid = true;
+    room.paidRoles = roles;
+    // Les identifiants sont figes ici : un joueur qui quitte efface son siege
+    // (playerIds), mais sa mise doit rester remboursable ou ramassable.
+    room.paidIds = {}; roles.forEach((r, i) => { room.paidIds[r] = ids[i]; });
     return true;
   }
   function _settleStake(room, outcome, winnerRole) {
     if (!room.stake || !room.potPaid) return;
     room.potPaid = false;
-    const pot = room.stake * 2;
+    const paid = room.paidRoles || ['R', 'Y'];
+    const paidId = r => safePlayerId(room.paidIds?.[r] || room.playerIds?.[r]);
+    const pot = room.stake * paid.length;
     if (outcome === 'won') {
-      const pid = safePlayerId(room.playerIds?.[winnerRole]);
+      const pid = paidId(winnerRole);
       if (pid) {
         const e = getLibsEntry(pid);
         e.balance = Math.min(MAX_BALANCE, e.balance + pot);
@@ -2535,8 +2629,8 @@ io.on('connection', (socket) => {
       }
       io.to(room.code).emit('stake-result', { outcome: 'won', winnerRole, pot });
     } else { // nul ou partie annulee : chacun recupere sa mise
-      for (const role of ['R', 'Y']) {
-        const pid = safePlayerId(room.playerIds?.[role]);
+      for (const role of paid) {
+        const pid = paidId(role);
         if (!pid) continue;
         const e = getLibsEntry(pid);
         e.balance = Math.min(MAX_BALANCE, e.balance + room.stake);
@@ -2550,11 +2644,44 @@ io.on('connection', (socket) => {
 
   // ── Tentatives de jointure (renvoient true si le code correspond à ce
   //    type de salle, qu'elle ait été rejointe ou pleine/déjà lancée). ──────
+  function joinLudoLobby(room, key, name, playerId) {
+    if (room.status !== 'waiting') { socket.emit('error', { message: 'La partie a déjà commencé.' }); return true; }
+    const pid = safePlayerId(playerId);
+    // Meme joueur qui rouvre le lien : il reprend son siege au lieu d'en prendre un second.
+    const mine = pid && room.seats.find(r => safePlayerId(room.playerIds[r]) === pid);
+    let role = mine;
+    if (!role) {
+      if (room.seats.length >= 4) { socket.emit('error', { message: 'Le salon est complet (4 joueurs max).' }); return true; }
+      if (room.stake > 0) {
+        const je = pid ? getLibsEntry(pid) : null;
+        if (!je || !je.name || je.name === 'Anonyme' || je.balance < room.stake) {
+          socket.emit('error', { message: 'stake_insufficient_join', stake: room.stake });
+          return true;
+        }
+      }
+      role = LUDO_SEAT_ORDER.find(r => !room.seats.includes(r));
+      room.seats.push(role);
+      room.playerNames[role] = sanitizeName(name, 'Anonyme');
+      room.playerIds[role]   = pid || room.playerNames[role];
+      room.reconnectTimers[role] = null;
+    } else if (room.reconnectTimers[role]) { clearTimeout(room.reconnectTimers[role]); room.reconnectTimers[role] = null; }
+    room.players[role] = socket.id;
+    roomCode = key; myPlayer = role;
+    socket.join(key);
+    socket.emit('ludo-joined', { code: key, gameType: 'ludo', stake: room.stake || 0, yourPlayer: role });
+    emitLudoLobby(room);
+    return true;
+  }
+
   function tryJoinClassic(code, name, playerId) {
     const key  = (code || '').toUpperCase().trim();
     const room = rooms.get(key);
     if (!room) return false;
+    if (isLudoLobby(room)) return joinLudoLobby(room, key, name, playerId);
     if (room.players.Y) { socket.emit('error', { message: 'Cette room est déjà pleine.' }); return true; }
+    // Le createur a perdu sa connexion un instant (salon d'attente conserve) :
+    // on ne lance pas une partie dans le vide.
+    if (!room.players.R) { socket.emit('error', { message: 'Le créateur est momentanément déconnecté, réessaie dans un instant.' }); return true; }
 
     const playerName = sanitizeName(name, 'Anonyme');
     // Duel avec mise : le joignant doit etre nomme et avoir le solde.
@@ -2623,16 +2750,32 @@ io.on('connection', (socket) => {
     socket.emit('join-code-failed', { message: 'Partie introuvable. Vérifie le lien ou le code.' });
   });
 
-  // ── Reconnexion après reload ────────────────────────────────────────────
-  socket.on('reconnect-room', ({ code, player }) => {
+  // ── Reconnexion après reload / coupure réseau ───────────────────────────
+  // Le client envoie son playerId : c'est ce qui prouve qu'il est bien le
+  // propriétaire du siège. Sans cela, une coupure courte (changement
+  // d'appli, 4G qui bascule) était refusée tant que l'ancienne connexion
+  // paraissait vivante côté serveur, et le joueur était éjecté de sa partie.
+  socket.on('reconnect-room', ({ code, player, playerId } = {}) => {
     const key  = (code || '').toUpperCase().trim();
     const room = rooms.get(key);
 
-    if (!room || (player !== 'R' && player !== 'Y')) { socket.emit('reconnect-failed'); return; }
+    if (!room || !['R', 'G', 'Y', 'B'].includes(player) || !(player in room.players)
+        || (isLudoLobby(room) && !room.seats.includes(player))) { socket.emit('reconnect-failed'); return; }
+
+    const claim  = safePlayerId(playerId);
+    const seatId = safePlayerId(room.playerIds?.[player]);
+    const sameOwner = !!claim && !!seatId && claim === seatId;
+    if (claim && seatId && claim !== seatId) { socket.emit('reconnect-failed'); return; }
 
     const storedId     = room.players[player];
-    const storedSocket = storedId ? io.sockets.sockets.get(storedId) : null;
-    if (storedSocket?.connected) { socket.emit('reconnect-failed'); return; }
+    const storedSocket = storedId && storedId !== 'bot' ? io.sockets.sockets.get(storedId) : null;
+    if (storedSocket?.connected && storedId !== socket.id) {
+      if (!sameOwner) { socket.emit('reconnect-failed'); return; }
+      // Même joueur, ancienne connexion encore vivante côté serveur : on la remplace.
+      room.players[player] = socket.id; // d'abord, pour que sa déconnexion ne déclenche rien
+      storedSocket.emit('seat-taken');
+      storedSocket.disconnect(true);
+    }
 
     if (room.reconnectTimers[player]) {
       clearTimeout(room.reconnectTimers[player]);
@@ -2653,21 +2796,49 @@ io.on('connection', (socket) => {
       roomCode:     room.code,
       vsBot:        room.vsBot || false,
       botDifficulty: room.botDifficulty || null,
+      stake:        room.stake || 0,
+      seats:        isLudoLobby(room) ? seatList(room) : undefined,
+      host:         isLudoLobby(room) ? room.host : undefined,
     });
 
     if (room.vsBot && room.status === 'playing' && room.state.currentPlayer === 'Y') {
       scheduleBotMove(roomCode);
     }
 
-    const other = player === 'R' ? 'Y' : 'R';
-    if (room.players[other] && room.players[other] !== 'bot') io.to(room.players[other]).emit('opponent-reconnected');
+    if (isLudoLobby(room)) {
+      io.to(key).emit('ludo-seat', { role: player, event: 'back' });
+      emitLudoLobby(room);
+    } else {
+      const other = player === 'R' ? 'Y' : 'R';
+      if (room.players[other] && room.players[other] !== 'bot') io.to(room.players[other]).emit('opponent-reconnected');
+    }
+  });
+
+  // ── Ludo : le createur lance la partie (des 2 joueurs dans le salon) ──────
+  socket.on('start-ludo', () => {
+    const room = rooms.get(roomCode);
+    if (!isLudoLobby(room) || room.status !== 'waiting' || room.host !== myPlayer) return;
+    // On ne lance qu'avec les joueurs presents ; un siege absent est libere.
+    room.seats.filter(r => !room.players[r]).forEach(r => removeLudoSeat(room, r));
+    if (room.seats.length < 2) { socket.emit('error', { message: 'ludo_need_two' }); emitLudoLobby(room); return; }
+    if (room.stake > 0 && !_collectStake(room)) {
+      room.stake = 0;
+      io.to(room.code).emit('stake-result', { outcome: 'cancelled' });
+    }
+    startLudoGame(room);
   });
 
   // ── Jouer un coup ───────────────────────────────────────────────────────
   socket.on('make-move', (move) => {
     const room = rooms.get(roomCode);
-    if (!room || room.status !== 'playing') return;
-    if (room.state.currentPlayer !== myPlayer) return;
+    // Avant : un coup refuse disparaissait sans un mot, et le joueur restait
+    // bloque devant un plateau qui n'etait plus le bon. Maintenant on lui renvoie
+    // l'etat reel (ou on lui dit que sa salle n'existe plus).
+    if (!room) { socket.emit('move-rejected', { reason: 'no_room' }); return; }
+    if (room.status !== 'playing' || room.state.currentPlayer !== myPlayer) {
+      socket.emit('game-update', { gameType: room.gameType, state: room.state, status: room.status, winner: room.winner, resync: true });
+      return;
+    }
 
     let newState, status, winner;
 
@@ -2736,7 +2907,9 @@ io.on('connection', (socket) => {
 
     if (status !== 'playing') {
       bumpDaily('games');
-      if (!room.vsBot) {
+      if (isLudoLobby(room)) {
+        _finishLudoLobby(room, status, winner);
+      } else if (!room.vsBot) {
         _settleStake(room, status, winner);
         if (status === 'won') {
           const loserRole = winner === 'R' ? 'Y' : 'R';
@@ -2804,6 +2977,21 @@ io.on('connection', (socket) => {
     const room = rooms.get(roomCode);
     if (!room || (room.status !== 'won' && room.status !== 'draw')) return;
 
+    if (isLudoLobby(room)) {
+      // Revanche a plusieurs : tous les joueurs encore connectes doivent accepter.
+      room.restartVotes.add(myPlayer);
+      const here = room.seats.filter(r => room.players[r]);
+      if (here.length >= 2 && here.every(r => room.restartVotes.has(r))) {
+        room.seats.filter(r => !room.players[r]).forEach(r => removeLudoSeat(room, r));
+        if (room.stake > 0 && !_collectStake(room)) { room.stake = 0; io.to(room.code).emit('stake-result', { outcome: 'cancelled' }); }
+        startLudoGame(room);
+      } else {
+        socket.to(roomCode).emit('restart-requested');
+        socket.emit('restart-vote-sent');
+      }
+      return;
+    }
+
     if (room.vsBot) {
       room.state  = createInitialState(room.gameType);
       room.status = 'playing';
@@ -2850,6 +3038,15 @@ io.on('connection', (socket) => {
   // ── Annuler une partie en attente (le créateur ne reste pas coincé) ───────
   socket.on('cancel-room', () => {
     const room = rooms.get(roomCode);
+    if (isLudoLobby(room) && room.status === 'waiting') {
+      if (room.host === myPlayer) { // le createur ferme le salon pour tout le monde
+        io.to(room.code).emit('ludo-closed');
+        room.seats.slice().forEach(r => { const sk = room.players[r] && io.sockets.sockets.get(room.players[r]); if (sk) sk.leave(room.code); });
+        rooms.delete(room.code);
+      } else removeLudoSeat(room, myPlayer);
+      roomCode = null; myPlayer = null;
+      return;
+    }
     if (room && room.status === 'waiting') rooms.delete(roomCode);
     roomCode = null;
     myPlayer = null;
@@ -2985,6 +3182,14 @@ io.on('connection', (socket) => {
     const room = rooms.get(roomCode);
     if (!room) return;
     if (room.players[myPlayer] !== socket.id) return;
+
+    if (isLudoLobby(room)) {
+      const role = myPlayer;
+      if (room.status === 'playing') ludoForfeitSeat(room, role);
+      removeLudoSeat(room, role);
+      roomCode = null; myPlayer = null;
+      return;
+    }
 
     if (room.reconnectTimers[myPlayer]) {
       clearTimeout(room.reconnectTimers[myPlayer]);
@@ -3207,7 +3412,7 @@ io.on('connection', (socket) => {
   // ── Chat ─────────────────────────────────────────────────────────────────
   socket.on('send-message', ({ text }) => {
     const room = rooms.get(roomCode);
-    if (!room || !room.players.Y) return;
+    if (!room || roomRoles(room).filter(r => room.players[r]).length < 2) return;
     const clean = String(text || '').trim().slice(0, 200);
     if (!clean) return;
     const pid = socketPlayerIds.get(socket.id);
@@ -3217,7 +3422,7 @@ io.on('connection', (socket) => {
 
   socket.on('send-emote', ({ emoteId } = {}) => {
     const room = rooms.get(roomCode);
-    if (!room || !room.players.Y) return;
+    if (!room || roomRoles(room).filter(r => room.players[r]).length < 2) return;
     const pid = socketPlayerIds.get(socket.id);
     const entry = pid ? libs.get(pid) : null;
     const VALID_EMOTES = COSMETICS.filter(c => c.type === 'emote').map(c => c.id);
@@ -4013,8 +4218,25 @@ io.on('connection', (socket) => {
       const room = rooms.get(roomCode);
       if (room && room.players[myPlayer] === socket.id) {
         room.players[myPlayer] = null;
-        if (room.status === 'waiting') {
-          rooms.delete(roomCode);
+        const role = myPlayer, code = roomCode;
+        if (isLudoLobby(room)) {
+          // Le siege est garde le temps de la grace ; passe ce delai le joueur
+          // est retire (salon) ou abandonne (partie) sans bloquer les autres.
+          io.to(code).emit('ludo-seat', { role, event: 'reconnecting' });
+          emitLudoLobby(room);
+          room.reconnectTimers[role] = setTimeout(() => {
+            if (room.players[role] !== null || !rooms.has(code)) return;
+            const anyoneLeft = room.seats.some(r => r !== role && room.players[r]);
+            if (!anyoneLeft) { _settleStake(room, 'cancel'); rooms.delete(code); return; }
+            if (room.status === 'playing') ludoForfeitSeat(room, role);
+            removeLudoSeat(room, role);
+          }, room.status === 'waiting' ? WAITING_GRACE_MS : RECONNECT_MS);
+        } else if (room.status === 'waiting') {
+          // Salon d'attente : on le garde le temps que le createur revienne
+          // (il quitte souvent l'onglet pour envoyer le code par WhatsApp).
+          room.reconnectTimers[role] = setTimeout(() => {
+            if (room.players[role] === null) rooms.delete(code);
+          }, WAITING_GRACE_MS);
         } else {
           const other = myPlayer === 'R' ? 'Y' : 'R';
           if (room.players[other]) io.to(room.players[other]).emit('opponent-reconnecting');
