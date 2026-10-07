@@ -168,7 +168,7 @@ export function peindre3d(root = document) {
   if (!pret) return;
   root.querySelectorAll('[data-ic]').forEach(el => {
     const nom = el.getAttribute('data-ic');
-    if (!MAP[nom]) return;                       // inconnu : on garde le trait
+    if (!MAP[nom]) { el.classList.add('ic3d-skip'); return; }   // inconnu : on garde le trait
     if (racines.get(el) === nom) return;          // deja peint avec la meme icone
     const taille = tailleDe(el);
     el.textContent = '';
@@ -185,7 +185,7 @@ export function peindre3d(root = document) {
    processeur pris au moment ou le joueur attend de retrouver son jeu. Les icones
    a trait (UI_ICONS) restent affichees entre-temps. */
 function quandCalme(fn) {
-  const go = () => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 4000 }) : setTimeout(fn, 1200));
+  const go = () => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 700 }) : setTimeout(fn, 1200));
   const attendre = () => {
     if (document.documentElement.classList.contains('boot-hold') && !attendre.fini) { setTimeout(attendre, 300); return; }
     go();
@@ -217,5 +217,6 @@ quandCalme(() => charger().then(() => {
 
   document.dispatchEvent(new CustomEvent('ic3d-pret'));
 }).catch(err => {
+  document.documentElement.classList.remove('ic3d-wait');
   console.warn('[icones 3D] indisponibles, le jeu a trait est conserve :', err && err.message);
 }));

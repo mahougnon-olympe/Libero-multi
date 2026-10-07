@@ -3366,8 +3366,14 @@ function updateChess(fen, isCheck, currentPlayer) {
     sq.innerHTML = '';
     if (piece) {
       const sp = document.createElement('span');
-      sp.className = piece === piece.toUpperCase() ? 'cp-w' : 'cp-b';
-      sp.textContent = CHESS_UNICODE[piece];
+      const white = piece === piece.toUpperCase();
+      sp.className = (white ? 'cp-w' : 'cp-b') + ' cp-img';
+      // Pieces dessinees (jeu Celtic, Maurizio Monge, licence MIT) ; le glyphe texte reste en repli.
+      const im = document.createElement('img');
+      im.src = `assets/pieces/celtic/${white ? 'w' : 'b'}${piece.toUpperCase()}.svg`;
+      im.alt = CHESS_UNICODE[piece]; im.draggable = false;
+      im.onerror = () => { sp.classList.remove('cp-img'); sp.textContent = CHESS_UNICODE[piece]; };
+      sp.appendChild(im);
       sq.appendChild(sp);
     }
 
@@ -3477,7 +3483,13 @@ function updateCheckers(state) {
       const red  = (p === 'r' || p === 'R');
       const king = (p === 'R' || p === 'Y');
       piece.className = `ck-piece ${red ? 'ck-red' : 'ck-yellow'}${king ? ' ck-king' : ''}`;
-      if (king) piece.textContent = '♛';
+      // Pions dessines (Wikimedia Commons, domaine public) : rouge et jaune, pile de deux pour la dame.
+      const im = document.createElement('img');
+      im.src = `assets/pieces/dames/Draughts_${king ? 'k' : 'm'}${red ? 'd' : 'y'}t45.svg`;
+      im.alt = ''; im.draggable = false;
+      im.onerror = () => { piece.classList.remove('ck-img'); if (king) piece.textContent = '♛'; };
+      piece.classList.add('ck-img');
+      piece.appendChild(im);
       sq.appendChild(piece);
     }
     if (state.lastMove && (i === state.lastMove.from || i === state.lastMove.to)) sq.classList.add('last-move');
@@ -3783,7 +3795,7 @@ function showPromoModal(player) {
     const btn = document.createElement('button');
     btn.className = 'promo-btn';
     const cls = player === 'R' ? 'cp-w' : 'cp-b';
-    btn.innerHTML = `<span class="${cls}">${icon}</span><span>${label}</span>`;
+    btn.innerHTML = `<span class="${cls}"><img src="assets/pieces/celtic/${player === 'R' ? 'w' : 'b'}${piece.toUpperCase()}.svg" alt="${icon}" style="width:46px;height:46px;display:block" onerror="this.replaceWith(document.createTextNode(this.alt))"></span><span>${label}</span>`;
     btn.addEventListener('click', () => {
       $('overlay-promotion').classList.add('hidden');
       if (pendingPromoMove) {

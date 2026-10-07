@@ -79,6 +79,7 @@
   <script>(function(){var s=sessionStorage.getItem('libero_screen');if(s&&s!=='landing'){document.documentElement.classList.add('restoring');document.documentElement.setAttribute('data-restore',s);}
     // Une partie multijoueur (ou un quiz en salon) est en cours : le serveur doit repondre avant qu'il y ait quoi que ce soit a afficher.
     // On garde donc l'ecran de demarrage, avec un message, plutot que de montrer un plateau vide qui ressemble a un bug.
+    try{document.documentElement.classList.add('ic3d-wait');setTimeout(function(){document.documentElement.classList.remove('ic3d-wait');},7000);}catch(e){}
     try{var h=!!sessionStorage.getItem('p4session');var q=sessionStorage.getItem('triviaSession');if(q&&!JSON.parse(q).isSolo)h=true;if(h)document.documentElement.classList.add('boot-hold');}catch(e){}})();</script>
 </head>
 <body>
