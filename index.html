@@ -20,6 +20,8 @@
   <!-- Pose avant toute ressource externe : sans ces quelques lignes, l'ecran reste
        noir tant que style.css n'est pas arrive (mesure a 9,2 s sur reseau lent),
        car le navigateur ne connait aucune couleur de fond et n'a rien a peindre. -->
+  <!-- Le serveur de jeu : on ouvre la connexion (DNS + TLS) pendant que la page charge. -->
+  <link rel="preconnect" href="https://libero-multi.onrender.com" crossorigin />
   <style>
     html, body { margin: 0; background: #0a0c18; }
     #boot {
@@ -47,6 +49,11 @@
       border-top: 13px solid transparent; border-bottom: 13px solid transparent;
     }
     .boot-name { margin: 0; font-size: 1.12rem; font-weight: 700; letter-spacing: .02em; color: #e2e8f0; }
+    /* Retour dans une partie : on dit ce qui se passe au lieu d'afficher un plateau vide. */
+    .boot-sub { margin: -6px 0 0; min-height: 1.3em; font-size: .88rem; color: #94a3b8; text-align: center; padding: 0 24px; max-width: 320px; }
+    .boot-btn { display: none; margin-top: 4px; padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,.25);
+      background: transparent; color: #e2e8f0; font: 600 .86rem 'Space Grotesk', system-ui, sans-serif; cursor: pointer; }
+    html.boot-lent .boot-btn { display: inline-block; }
     .boot-bar { width: 132px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.12); overflow: hidden; }
     .boot-bar i { display: block; width: 40%; height: 100%; border-radius: 2px;
       background: linear-gradient(90deg, #6366f1, #22d3ee); animation: bootSlide 1.25s ease-in-out infinite; }
@@ -69,13 +76,18 @@
   <link rel="stylesheet" href="style.css" media="print"
         onload="this.media='all'; if (window.__cssPret) window.__cssPret();" />
   <noscript><link rel="stylesheet" href="style.css" /></noscript>
-  <script>(function(){var s=sessionStorage.getItem('libero_screen');if(s&&s!=='landing'){document.documentElement.classList.add('restoring');document.documentElement.setAttribute('data-restore',s);}})();</script>
+  <script>(function(){var s=sessionStorage.getItem('libero_screen');if(s&&s!=='landing'){document.documentElement.classList.add('restoring');document.documentElement.setAttribute('data-restore',s);}
+    // Une partie multijoueur (ou un quiz en salon) est en cours : le serveur doit repondre avant qu'il y ait quoi que ce soit a afficher.
+    // On garde donc l'ecran de demarrage, avec un message, plutot que de montrer un plateau vide qui ressemble a un bug.
+    try{var h=!!sessionStorage.getItem('p4session');var q=sessionStorage.getItem('triviaSession');if(q&&!JSON.parse(q).isSolo)h=true;if(h)document.documentElement.classList.add('boot-hold');}catch(e){}})();</script>
 </head>
 <body>
 <div id="boot" aria-hidden="true">
   <div class="boot-mark"><span></span></div>
   <p class="boot-name">Libero's Multi</p>
   <div class="boot-bar"><i></i></div>
+  <p class="boot-sub" id="boot-sub" role="status"></p>
+  <button type="button" class="boot-btn" id="boot-btn">Revenir à l'accueil</button>
 </div>
 <script>
   // Retire l'ecran de demarrage quand la page est prete. Plancher de 400 ms pour
@@ -84,14 +96,29 @@
   (function () {
     var b = document.getElementById('boot');
     if (!b) return;
-    var t0 = Date.now(), parti = false;
-    function partir() {
+    var t0 = Date.now(), parti = false, pret = false;
+    var root = document.documentElement, sub = document.getElementById('boot-sub');
+    var hold = root.classList.contains('boot-hold');
+    function quitter() {
       if (parti) return;
       parti = true;
       setTimeout(function () {
         b.classList.add('boot-out');
         setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 460);
       }, Math.max(0, 400 - (Date.now() - t0)));
+    }
+    function partir() { pret = true; if (!hold) quitter(); }
+    // Appelee par app.js des que le serveur a repondu pour la partie reprise (ou a dit qu'elle n'existe plus).
+    window.__relacherBoot = function () { hold = false; root.classList.remove('boot-hold', 'boot-lent'); if (pret) quitter(); };
+    if (hold && sub) {
+      sub.textContent = 'Retour dans ta partie…';
+      setTimeout(function () { if (hold && sub) sub.textContent = 'Le serveur met un peu de temps à répondre, ta partie est conservée…'; }, 6000);
+      setTimeout(function () { if (hold && sub) { sub.textContent = 'La connexion est lente. Tu peux attendre ou revenir à l\'accueil.'; root.classList.add('boot-lent'); } }, 20000);
+      var bt = document.getElementById('boot-btn');
+      if (bt) bt.addEventListener('click', function () {
+        try { sessionStorage.removeItem('p4session'); sessionStorage.removeItem('triviaSession'); sessionStorage.setItem('libero_screen', 'landing'); } catch (e) {}
+        location.reload();
+      });
     }
     // Declencheur principal : la feuille de style est appliquee, le site est
     // presentable. « load » sert de second filet, et le plafond evite de rester
@@ -1668,7 +1695,7 @@
     </div>
   </div>
 
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="vendor/socket.io.min.js"></script>
   <script src="config.js"></script>
   <script src="wordle-words.js"></script>
   <script src="app.js"></script>

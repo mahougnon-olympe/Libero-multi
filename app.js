@@ -851,7 +851,7 @@ const DICT = {
     ludoTurnOf:n=>`Tour de ${n}`, ludoWinnerIs:n=>`🏆 ${n} remporte la partie !`,
     ludoSeatBack:n=>`${n} est de retour`, ludoSeatAway:n=>`${n} se reconnecte…`, ludoForfeit:n=>`${n} a quitté la partie`,
     ludoYourRoll:'À toi : lance ton dé', ludoYourMove:'Choisis un pion à avancer', ludoWaitFor:n=>`${n} joue…`,
-    ludoDieOf:n=>`Dé de ${n}`, moveLost:'Connexion perdue avec la partie, reconnexion…', ludoLeftBefore:'Tu as quitté le salon.',
+    ludoDieOf:n=>`Dé de ${n}`, moveLost:'Connexion perdue avec la partie, reconnexion…', ludoLeftBefore:'Tu as quitté le salon.', gameGone:'Ta partie n\'est plus disponible : elle a été fermée, ou le serveur a redémarré.',
     playerNames:{
       connect4:{ R:'Rouge', Y:'Jaune' },
       tictactoe:{ R:'Croix', Y:'Rond' },
@@ -1598,7 +1598,7 @@ const DICT = {
     ludoTurnOf:n=>`${n}'s turn`, ludoWinnerIs:n=>`🏆 ${n} wins the game!`,
     ludoSeatBack:n=>`${n} is back`, ludoSeatAway:n=>`${n} is reconnecting…`, ludoForfeit:n=>`${n} left the game`,
     ludoYourRoll:'Your turn: roll your die', ludoYourMove:'Pick a pawn to move', ludoWaitFor:n=>`${n} is playing…`,
-    ludoDieOf:n=>`${n}'s die`, moveLost:'Lost connection to the game, reconnecting…', ludoLeftBefore:'You left the lobby.',
+    ludoDieOf:n=>`${n}'s die`, moveLost:'Lost connection to the game, reconnecting…', ludoLeftBefore:'You left the lobby.', gameGone:'Your game is no longer available: it was closed, or the server restarted.',
     playerNames:{
       connect4:{ R:'Red', Y:'Yellow' },
       tictactoe:{ R:'Cross', Y:'Circle' },
@@ -5085,8 +5085,52 @@ socket.on('trivia-leaderboard-update', (data) => { _triviaLbData = data || []; r
 socket.on('trivia-error', ({ message }) => { showTriviaError(message); buildTriviaThemes(); showScreen('trivia-home'); });
 
 // ── Reconnexion automatique après reload + chargement du classement ───────────
+// Quiz solo : tout est dans la session du navigateur, aucun serveur n'est necessaire.
+// Avant, la reprise attendait la connexion au serveur (donc un serveur lent = un quiz qui ne revenait pas).
+function restoreSoloTrivia() {
+  let data = null;
+  try { data = JSON.parse(sessionStorage.getItem('triviaSession') || 'null'); } catch { clearTriviaSession(); return; }
+  if (!data || !data.isSolo) return;
+  if (!(Array.isArray(data.questions) && data.questions.length)) { clearTriviaSession(); return; }
+  triviaQuestions  = data.questions;
+  triviaCurrentQ   = data.currentQ ?? 0;
+  triviaScore      = data.score ?? 0;
+  triviaIsSolo     = true;
+  triviaRoomCode   = null;
+  triviaPaused     = false;
+  if (data.difficulty) selectedTriviaDifficulty = data.difficulty;
+  $('tg-theme-label').textContent = '';
+  $('tg-scores').innerHTML = '';
+  $('tg-finished').classList.add('hidden');
+  $('btn-trivia-pause').classList.remove('hidden');
+  $('btn-trivia-pause').textContent = '⏸';
+  $('trivia-pause-overlay').classList.add('hidden');
+  showScreen('trivia-game');
+  soloNextQuestion();
+}
+let _soloRestored = false;
+
 socket.on('connect', () => {
   triviaMySocketId = socket.id;
+  // 1) Reprendre la partie en cours EN PREMIER : c'est ce que le joueur attend devant l'ecran de demarrage.
+  const _p4 = sessionStorage.getItem('p4session');
+  let _hold = false;
+  if (_p4) {
+    try {
+      const { roomCode, player } = JSON.parse(_p4);
+      socket.emit('reconnect-room', { code: roomCode, player, playerId: getPlayerId() });
+      _hold = true;
+    } catch { clearSession(); }
+  }
+  try {
+    const _tv = JSON.parse(sessionStorage.getItem('triviaSession') || 'null');
+    if (_tv && !_tv.isSolo && _tv.code && _tv.mySocketId) {
+      socket.emit('reconnect-trivia-room', { code: _tv.code, mySocketId: _tv.mySocketId });
+      _hold = true;
+    } else if (_tv && !_tv.isSolo) clearTriviaSession();
+  } catch { clearTriviaSession(); }
+  // Rien a attendre du serveur : on libere l'ecran de demarrage.
+  if (!_hold && window.__relacherBoot) window.__relacherBoot();
   pingVisit();
   socket.emit('get-leaderboard');
   socket.emit('get-trivia-leaderboard');
@@ -5128,42 +5172,6 @@ socket.on('connect', () => {
     else if (_scr === 'history') window._profileHub.enterHistory();
   }
 
-  // Jeu classique
-  const saved = sessionStorage.getItem('p4session');
-  if (saved) {
-    try {
-      const { roomCode, player } = JSON.parse(saved);
-      socket.emit('reconnect-room', { code: roomCode, player, playerId: getPlayerId() });
-    } catch { clearSession(); }
-  }
-
-  // Trivia solo ou multi
-  const savedTrivia = sessionStorage.getItem('triviaSession');
-  if (!savedTrivia) return;
-  try {
-    const data = JSON.parse(savedTrivia);
-    if (data.isSolo && Array.isArray(data.questions) && data.questions.length) {
-      triviaQuestions  = data.questions;
-      triviaCurrentQ   = data.currentQ ?? 0;
-      triviaScore      = data.score ?? 0;
-      triviaIsSolo     = true;
-      triviaRoomCode   = null;
-      triviaPaused     = false;
-      if (data.difficulty) selectedTriviaDifficulty = data.difficulty;
-      $('tg-theme-label').textContent = '';
-      $('tg-scores').innerHTML = '';
-      $('tg-finished').classList.add('hidden');
-      $('btn-trivia-pause').classList.remove('hidden');
-      $('btn-trivia-pause').textContent = '⏸';
-      $('trivia-pause-overlay').classList.add('hidden');
-      showScreen('trivia-game');
-      soloNextQuestion();
-    } else if (!data.isSolo && data.code && data.mySocketId) {
-      socket.emit('reconnect-trivia-room', { code: data.code, mySocketId: data.mySocketId });
-    } else {
-      clearTriviaSession();
-    }
-  } catch { clearTriviaSession(); }
 });
 
 socket.on('trivia-reconnect-success', ({ code, status, scores, question, hostId }) => {
@@ -5176,6 +5184,7 @@ socket.on('trivia-reconnect-success', ({ code, status, scores, question, hostId 
   $('btn-trivia-pause').classList.add('hidden');
   $('trivia-pause-overlay').classList.add('hidden');
   showScreen('trivia-game');
+  if (window.__relacherBoot) window.__relacherBoot();
   if (status === 'question' && question) {
     showTriviaQuestion(question);
   } else {
@@ -5185,7 +5194,7 @@ socket.on('trivia-reconnect-success', ({ code, status, scores, question, hostId 
   }
 });
 
-socket.on('trivia-reconnect-failed', () => { clearTriviaSession(); showScreen('landing'); });
+socket.on('trivia-reconnect-failed', () => { clearTriviaSession(); showScreen('landing'); if (window.__relacherBoot) window.__relacherBoot(); showCursorSnakeToast(t().gameGone); });
 
 // Sélecteur de mise (duel) : montants fixes, « Sans » par défaut.
 window._selectedStake = 0;
@@ -5310,10 +5319,12 @@ socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, r
     myPlayer = yourPlayer;
     showWaiting({ code: roomCode, gameType, stake, role: yourPlayer });
     if (gameType === 'ludo' && seats) renderLudoLobby({ code: roomCode, stake, host, seats });
+    if (window.__relacherBoot) window.__relacherBoot();
     return;
   }
   if (gameType === 'ludo') { ludoSeatInfo = seats || ludoSeatInfo; ludoSeatAway = {}; }
   applyGameState({ gameType, state, yourPlayer, status, winner });
+  if (window.__relacherBoot) window.__relacherBoot();
   $('chat').classList.toggle('hidden', isBotGame);
   if (isBotGame) {
     const diffLabel = t().diffLabels[botDifficulty] || '';
@@ -5322,7 +5333,7 @@ socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, r
   showScreen('game');
 });
 
-socket.on('reconnect-failed', () => { clearSession(); showScreen('landing'); });
+socket.on('reconnect-failed', () => { clearSession(); showScreen('landing'); if (window.__relacherBoot) window.__relacherBoot(); showCursorSnakeToast(t().gameGone); });
 
 socket.on('game-update', ({ gameType, state, status, winner, resync }) => {
   if (gameType === 'chess') lastMove = null; // sera mis à jour via onChessClick
@@ -13318,3 +13329,6 @@ socket.on('claim-challenge-result', ({ ok, reward, allDoneBonus } = {}) => {
     window._notify?.add({ type: 'shop', icon, text });
   });
 })();
+
+// Reprise du quiz solo au chargement, sans attendre le serveur.
+try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }

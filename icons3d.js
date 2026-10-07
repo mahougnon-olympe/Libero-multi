@@ -179,7 +179,21 @@ export function peindre3d(root = document) {
   });
 }
 
-charger().then(() => {
+/* On ne charge React et lucide (plusieurs centaines de Ko depuis un CDN, puis des
+   centaines d'icones a dessiner) qu'une fois la page installee ET la partie en
+   cours reprise : sur un telephone modeste, c'etait de la bande passante et du
+   processeur pris au moment ou le joueur attend de retrouver son jeu. Les icones
+   a trait (UI_ICONS) restent affichees entre-temps. */
+function quandCalme(fn) {
+  const go = () => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 4000 }) : setTimeout(fn, 1200));
+  const attendre = () => {
+    if (document.documentElement.classList.contains('boot-hold') && !attendre.fini) { setTimeout(attendre, 300); return; }
+    go();
+  };
+  setTimeout(() => { attendre.fini = true; }, 25000); // jamais bloque indefiniment
+  if (document.readyState === 'complete') attendre(); else window.addEventListener('load', attendre, { once: true });
+}
+quandCalme(() => charger().then(() => {
   peindre3d();
   window._peindre3d = peindre3d;
   /* app.js repeint des icones a chaque rendu dynamique (casier, boutique,
@@ -204,4 +218,4 @@ charger().then(() => {
   document.dispatchEvent(new CustomEvent('ic3d-pret'));
 }).catch(err => {
   console.warn('[icones 3D] indisponibles, le jeu a trait est conserve :', err && err.message);
-});
+}));
