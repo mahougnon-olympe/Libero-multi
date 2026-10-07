@@ -6381,11 +6381,15 @@ function _renderShopItems() {
                    || bundle.items.find(id => allItemsById[id]?.type === 'bubble')
                    || bundle.items[0];
     const previewItem = allItemsById[previewId];
-    let previewHtml = '';
-    if (previewItem?.type === 'background')
+    // Collage des articles du pack (jusqu'a 4, le fond d'abord) avec leurs apercus reels.
+    const _bTypeOrder = { background: 0, bubble: 1 };
+    const _bItems = bundle.items.map(i => allItemsById[i]).filter(it => it && it.type !== 'boost')
+      .sort((a, b) => (_bTypeOrder[a.type] ?? 9) - (_bTypeOrder[b.type] ?? 9)).slice(0, 4);
+    let previewHtml = _bItems.length
+      ? `<div class="bundle-prev n${_bItems.length}">${_bItems.map(it => `<div class="bundle-prev-cell">${_cosmeticPreviewHtml(it.type, it.id, it.name || d.shopCosmeticNames?.[it.id] || '')}</div>`).join('')}</div>`
+      : '';
+    if (!previewHtml && previewItem?.type === 'background')
       previewHtml = `<div class="shop-bg-preview ${previewId}"></div>`;
-    else if (previewItem?.type === 'bubble')
-      previewHtml = `<div class="shop-bubble-preview ${previewId}" style="font-size:.9rem;padding:6px 12px">Salut ! 👋</div>`;
     return `<div class="shop-tile shop-tile-large rarity-${rarity}"
       data-id="${bundle.id}" data-type="bundle">
       <div class="shop-tile-img">${previewHtml}</div>
