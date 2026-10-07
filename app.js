@@ -3220,6 +3220,9 @@ function _getTttSymbols() {
 
 function updateTTT(board, winLine) {
   const sym = _getTttSymbols();
+  // La grille porte la classe du pack equipe (ex. ttt-skin-ttt-neon) : certains packs changent le style, pas seulement les symboles.
+  const _tb = document.querySelector('.ttt-board');
+  if (_tb) { _tb.className = _tb.className.replace(/\bttt-skin-\S+/g, '').trim(); if (equippedTtt) _tb.classList.add('ttt-skin-' + equippedTtt); }
   document.querySelectorAll('.ttt-cell').forEach((cell, i) => {
     cell.classList.remove('ttt-r', 'ttt-y', 'played', 'win-cell');
     const val = board[i];
@@ -6348,6 +6351,7 @@ function _renderShopItems() {
     else if (type === 'victoryban') previewHtml = `<div class="shop-emoji-preview">🏆</div>`;
     else if (type === 'soundpack')  previewHtml = `<div class="shop-emoji-preview">🎵</div>`;
     else if (type === 'emote')      previewHtml = `<div class="shop-emoji-preview">${_EM[id]||'😊'}</div>`;
+    previewHtml = _realPrev(type, id, previewHtml);
     const badgeHtml = honorary
       ? `<div class="shop-tile-badge shop-tile-badge-honorary">${d.shopHonoraryBadge || '🏆'}</div>`
       : `<div class="shop-tile-badge rarity-${rarity}">${rarityLabel[rarity]}</div>`;
@@ -6891,6 +6895,7 @@ function _openShopDetail(item) {
     const emoji = _ITEM_EMOJI[id] || _DETAIL_EMOJI[type] || '✨';
     previewHtml = `<div class="shop-emoji-preview large">${emoji}</div>`;
   }
+  previewHtml = _realPrev(type, id, previewHtml);
 
   const owned      = honorary ? (honorTitle === id) : ownedCosmetics.includes(id);
   const isEquipped = !honorary && [equippedCosmetic, equippedFont, equippedBubble, equippedBackground,
@@ -7246,7 +7251,32 @@ const _LOCKER_EMOJI = {
   emojipack:{'emojipack-animals':'🐾','emojipack-hearts':'💜','emojipack-party':'🎉','emojipack-gaming':'🎮','emojipack-cosmos':'🌌'},
   emote:{'emote-hello':'👋','emote-gg':'👍','emote-sad':'😢','emote-wellplayed':'🤝','emote-laugh':'😂','emote-think':'🤔','emote-cool':'🆒','emote-clap':'👏','emote-fire':'🔥','emote-heart':'❤️','emote-cry':'😭','emote-angry':'😤','emote-shock':'🤯','emote-easy':'😎','emote-eyes':'👀','emote-skull':'💀','emote-party':'🥳','emote-rocket':'🚀','emote-omg':'😱','emote-crown':'👑','emote-goat':'🐐','emote-salute':'🫡','emote-sleep':'😴','emote-target':'🎯','emote-clown':'🤡'},
 };
-function _cosmeticPreviewHtml(type, id, itemName) {
+// Apercus reels (captures du vrai rendu, assets/preview/<id>.webp, generes par scripts/gen-previews.js).
+// Chaque article garde son ancien rendu en repli : si le fichier manque, rien ne casse.
+const REAL_PREVIEW_TYPES = new Set(['background','cursorsnake','snakeskin','p4token','ttt','chess','clickfx','victoryban']);
+// Forme d'onde de chaque pack sonore (celle que le synthe joue vraiment, voir wt()/fs()) : on la dessine.
+const _WAVE_PATHS = {
+  square:   'M2 30 V10 H22 V30 H42 V10 H62 V30 H82 V10 H102 V30 H118',
+  sawtooth: 'M2 30 L22 8 V30 L42 8 V30 L62 8 V30 L82 8 V30 L102 8 V30 L118 8',
+  triangle: 'M2 30 L22 8 L42 30 L62 8 L82 30 L102 8 L118 24',
+  sine:     'M2 19 C12 -2 32 -2 42 19 S72 40 82 19 S112 -2 118 14',
+};
+const _SOUND_WAVE = { 'soundpack-retro':'square', 'soundpack-8bit':'square', 'soundpack-cyber':'sawtooth', 'soundpack-crystal':'triangle', 'soundpack-epic':'sine' };
+const _SOUND_HUE = { 'soundpack-retro':'#f59e0b', 'soundpack-8bit':'#84cc16', 'soundpack-cyber':'#22d3ee', 'soundpack-crystal':'#a5b4fc', 'soundpack-epic':'#f472b6' };
+function _realPrev(type, id, fallbackHtml) {
+  if (type === 'emojipack' && typeof EMOJI_PACK_SETS !== 'undefined' && EMOJI_PACK_SETS[id]) {
+    return `<div class="pack-prev">${EMOJI_PACK_SETS[id].slice(0, 8).map(e => `<span>${e}</span>`).join('')}</div>`;
+  }
+  if (type === 'soundpack' && _SOUND_WAVE[id]) {
+    const c = _SOUND_HUE[id];
+    return `<div class="wave-prev"><svg viewBox="0 0 120 38" preserveAspectRatio="none" aria-hidden="true"><path d="${_WAVE_PATHS[_SOUND_WAVE[id]]}" fill="none" stroke="${c}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg></div>`;
+  }
+  if (!REAL_PREVIEW_TYPES.has(type) || !id) return fallbackHtml;
+  return `<span class="real-prev real-prev-${type}"><img src="assets/preview/${id}.webp" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('is-missing')"><span class="real-prev-fb">${fallbackHtml}</span></span>`;
+}
+
+function _cosmeticPreviewHtml(type, id, itemName) { return _realPrev(type, id, _cosmeticPreviewHtmlBase(type, id, itemName)); }
+function _cosmeticPreviewHtmlBase(type, id, itemName) {
   const nm = _escHtml(localStorage.getItem('playerName') || 'Aa');
   switch (type) {
     case 'background':  return `<div class="shop-bg-preview ${id}"></div>`;

@@ -4978,3 +4978,45 @@ html.light .vip-badge-count { background: rgba(15, 23, 42, .22); }
 /* Barre de boutique en mode icones seules : l'espace du libelle disparait,
    l'icone se recentre. */
 @media (max-width: 580px) { .shop-nav-icon { margin-right: 0; } }
+
+/* ══ Identifiants du serveur et du CSS qui ne se correspondaient pas ══════════
+   Le serveur vend `p4token-lavalice` et `chess-frost`, le CSS definissait
+   `p4token-lavaice` et `chess-theme-frosty` : ces deux articles, achetes avec de
+   vrais Libs, restaient donc sans aucun effet. On accepte les deux ecritures
+   (les joueurs qui les possedent deja ont l'identifiant du serveur). ══════════ */
+.p4skin-p4token-lavalice .c4-cell.red    { background:radial-gradient(circle,#ff6600,#cc2200) !important; box-shadow:0 0 8px 3px #ff4400; }
+.p4skin-p4token-lavalice .c4-cell.yellow { background:radial-gradient(circle,#aaddff,#0088cc) !important; box-shadow:0 0 8px 3px #00aaff; }
+#chess-board.chess-theme-frost .chess-sq.light { background: rgba(200,230,255,.25); backdrop-filter:blur(2px); }
+#chess-board.chess-theme-frost .chess-sq.dark  { background: rgba(100,160,220,.22); backdrop-filter:blur(2px); }
+
+/* « X & O Neon » : son jeu de symboles etait identique au defaut (✕ ○) et aucun
+   style n'existait, donc l'article ne changeait rien. Il habille maintenant la grille
+   et les symboles d'un neon cyan (joueur 1) et magenta (joueur 2). */
+.ttt-skin-ttt-neon .ttt-cell { border-color: rgba(34,234,255,.4); box-shadow: inset 0 0 10px rgba(34,234,255,.14); }
+.ttt-skin-ttt-neon .ttt-cell.ttt-r { color:#22eaff; text-shadow:0 0 6px #22eaff, 0 0 16px #00bfff; }
+.ttt-skin-ttt-neon .ttt-cell.ttt-y { color:#ff4df0; text-shadow:0 0 6px #ff4df0, 0 0 16px #d100c4; }
+.ttt-skin-ttt-neon .ttt-cell.win-cell { background: rgba(34,234,255,.14); }
+
+/* ══ Apercus reels de la boutique (captures du vrai rendu) ══════════════════ */
+.real-prev { position:relative; display:block; width:100%; height:82px; overflow:hidden; border-radius:var(--r-sm,10px); background:#0b0e1c; }
+.real-prev > img { display:block; width:100%; height:100%; object-fit:cover; user-select:none; -webkit-user-drag:none; }
+.real-prev-fb { display:none; position:absolute; inset:0; align-items:center; justify-content:center; background:inherit; }
+.real-prev.is-missing > img { display:none; }
+.real-prev.is-missing > .real-prev-fb { display:flex; }
+.real-prev-background > img { object-fit:cover; }
+.real-prev-p4token > img, .real-prev-ttt > img, .real-prev-chess > img { object-fit:contain; }
+.real-prev-clickfx > img, .real-prev-cursorsnake > img, .real-prev-snakeskin > img, .real-prev-victoryban > img { object-fit:contain; }
+.shop-tile-large .real-prev-background { height:172px; }
+.shop-fn-detail-preview .real-prev { width:100%; max-width:600px; height:200px; margin:0 auto; border-radius:12px; }
+.locker-item-preview .real-prev { height:100%; border-radius:8px; }
+.dailygift-preview .real-prev { width:160px; height:100px; margin:0 auto; }
+@media (max-width:600px) { .shop-tile-large .real-prev-background { height:120px; } .shop-fn-detail-preview .real-prev { height:150px; } }
+.pack-prev { display:grid; grid-template-columns:repeat(4,1fr); gap:2px 4px; align-content:center; justify-items:center; width:100%; height:82px; font-size:1.25rem; line-height:1.3; }
+.shop-fn-detail-preview .pack-prev { height:140px; max-width:360px; margin:0 auto; font-size:2.1rem; }
+.locker-item-preview .pack-prev { height:100%; font-size:.7rem; gap:0; }
+.wave-prev { display:flex; align-items:center; justify-content:center; width:100%; height:82px; padding:0 10px; border-radius:var(--r-sm,10px); background:linear-gradient(180deg,#0e1226,#151a33); }
+.wave-prev svg { width:100%; height:46px; filter:drop-shadow(0 0 5px currentColor); }
+.shop-fn-detail-preview .wave-prev { height:120px; max-width:360px; margin:0 auto; }
+.shop-fn-detail-preview .wave-prev svg { height:70px; }
+.locker-item-preview .wave-prev { height:100%; padding:0 3px; }
+.locker-item-preview .wave-prev svg { height:60%; }
