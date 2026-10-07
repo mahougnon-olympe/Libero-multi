@@ -51,6 +51,8 @@ async function ouvrir(browser, w, h) {
       // Les fonds animes ont besoin de quelques secondes pour montrer leurs motifs (etoiles, pluie, vagues...).
       await sleep(/etoile|galaxie|pluie|tempete|particules|vagues|aurores|nebuleuse|matrice|orage|hologramme|circuit|synthwave/.test(id) ? 3200 : 1200);
       await p.screenshot({ path: path.join(RAW, id + '.png') });
+      // 14 images espacees de 140 ms : pack-previews.py n'anime que les fonds qui bougent vraiment.
+      for (let k = 0; k < 14; k++) { await p.screenshot({ path: path.join(RAW, id + '_' + String(k).padStart(2, '0') + '.png') }); await sleep(140); }
       console.log('fond', id);
     }
     await p.close();

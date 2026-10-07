@@ -16,11 +16,26 @@ def save_anim(frames, dst, ms, crop=None, maxw=300):
         out.append(im)
     out[0].save(dst, 'WEBP', save_all=True, append_images=out[1:], duration=ms, loop=0, quality=76, method=6)
 n = 0
-for f in sorted(glob.glob(RAW + '/bg-*.png')):
-    i = os.path.basename(f)[:-4]; im = Image.open(f).convert('RGB'); im = im.resize((400, 250), Image.LANCZOS)
+def bright(im):
     lum = ImageStat.Stat(im.convert('L')).mean[0]
-    if lum < 60: im = ImageEnhance.Brightness(im).enhance(min(2.4, 60 / max(lum, 8)))   # fonds tres sombres : on voit enfin le motif
-    im.save(f'{ROOT}/{i}.webp', 'WEBP', quality=82, method=6); n += 1
+    return ImageEnhance.Brightness(im).enhance(min(2.4, 60 / max(lum, 8))) if lum < 60 else im   # fonds tres sombres : on voit enfin le motif
+for f in sorted(glob.glob(RAW + '/bg-*.png')):
+    if re.search(r'_\d\d\.png$', f): continue
+    i = os.path.basename(f)[:-4]
+    fr = sorted(glob.glob(f'{RAW}/{i}_[0-9][0-9].png'))
+    ims = [bright(Image.open(x).convert('RGB').resize((400, 250), Image.LANCZOS)) for x in (fr or [f])]
+    # Anime seulement si les images different vraiment (ecart moyen de luminance entre 2 images).
+    moves = False
+    if len(ims) > 1:
+        g = [im.convert('L').resize((80, 50)) for im in ims]
+        moves = max(ImageStat.Stat(Image.blend(g[0], x, 1).convert('L')).mean[0] * 0 + sum(abs(a - b) for a, b in zip(g[0].getdata(), x.getdata())) / 4000 for x in g[1:]) > 0.2
+    if moves:
+        small = [im.resize((320, 200), Image.LANCZOS) for im in ims]
+        small[0].save(f'{ROOT}/{i}.webp', 'WEBP', save_all=True, append_images=small[1:], duration=140, loop=0, quality=70, method=6)
+        print('anime', i)
+    else:
+        ims[0].save(f'{ROOT}/{i}.webp', 'WEBP', quality=82, method=6)
+    n += 1
 for pat in ('p4token-*', 'ttt-*', 'chess-*'):
     for f in sorted(glob.glob(f'{RAW}/{pat}.png')):
         save_static(f, f'{ROOT}/{os.path.basename(f)[:-4]}.webp', (260, 260)); n += 1
@@ -33,7 +48,7 @@ for f in sorted(glob.glob(RAW + '/snakeskin-*_00.png')):
 groups = {}
 for f in glob.glob(RAW + '/*_[0-9][0-9].png'):
     m = re.match(r'(.+)_(\d\d)\.png$', os.path.basename(f))
-    if m and not m.group(1).startswith('snakeskin'): groups.setdefault(m.group(1), []).append(f)
+    if m and not m.group(1).startswith(('snakeskin', 'bg-')): groups.setdefault(m.group(1), []).append(f)
 for i, fr in sorted(groups.items()):
     fr.sort()
     if i.startswith('clickfx'): save_anim(fr[:11], f'{ROOT}/{i}.webp', 70, crop=(60, 40, 240, 200), maxw=240)
