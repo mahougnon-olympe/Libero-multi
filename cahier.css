@@ -1209,3 +1209,31 @@ html[lang="en"] .bul-id .level-badge::before { content: "Level "; }
   background: none; border: none; color: var(--accent); font-family: var(--font-hand); font-weight: 700; font-size: 1.15rem;
   text-decoration: underline; text-underline-offset: 3px;
 }
+
+/* ══ Quiz : une illustration dessinee par theme ═════════════════════════════ */
+:root:root #trivia-themes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (min-width: 700px) { :root:root #trivia-themes { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+:root:root .theme-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px 7px;
+  background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md); box-shadow: 0 2px 0 var(--hard);
+}
+.theme-art-wrap { display: block; line-height: 0; color: var(--text); }
+.theme-art { width: 60px; height: 47px; }
+.theme-art .f { fill: var(--card2); }
+.theme-art .k { fill: currentColor; }
+.theme-art .r { stroke: var(--margin); }
+.theme-art circle.r, .theme-art path.r[d*="z"] { fill: var(--margin); stroke: var(--margin); }
+.theme-art .y { fill: #e0a800; stroke: currentColor; }
+.theme-art .g { fill: #2f8a55; stroke: currentColor; }
+.theme-art .t { opacity: .35; stroke-width: 1.2; }
+html:not(.light) .theme-art .f { fill: rgba(238,241,234,.08); }
+.theme-name { font-family: var(--font-body); font-weight: 700; font-size: .74rem; color: var(--text); }
+:root:root .theme-btn:hover { background: var(--card2); }
+:root:root .theme-btn.active { border: 2px solid var(--accent); background: var(--card); box-shadow: 0 3px 0 var(--hard); }
+:root:root .theme-btn.active .theme-name { background: linear-gradient(transparent 55%, var(--mark) 55%); }
+:root:root .theme-btn.active .theme-art .f { fill: var(--mark); }
+/* Classement de l'accueil deplie : il defile dans la carte, ta ligne reste epinglee en bas */
+.glb-scroll { max-height: min(46vh, 360px); overflow-y: auto; overscroll-behavior: contain; position: relative; scrollbar-width: thin; }
+:root:root .glb-pin { position: sticky; bottom: 0; background: var(--card); box-shadow: 0 -2px 0 var(--hard); }
+.glb-gap { text-align: center; font-family: var(--font-hand); font-size: 1.3rem; line-height: .8; color: var(--muted); }
+:root:root .glb-scroll .lb-me::after { inset: 2px 3px; }
