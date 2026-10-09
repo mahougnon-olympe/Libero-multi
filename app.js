@@ -588,6 +588,7 @@ const DICT = {
     lockerTitle:'🎒 Mon casier',
     lockerEmpty:"Tu n'as encore rien acheté dans la boutique. Passe faire un tour !",
     lockerEquipped:'équipé',
+    postitsTitle:'À faire aujourd\'hui',
     profileSecBadges:'Mes hauts faits', pupNoteColl:n => `${n} objet${n > 1 ? 's' : ''}`, pupNoteBadges:n => n ? `${n} haut${n > 1 ? 's' : ''} fait${n > 1 ? 's' : ''}` : 'à gagner',
     pupNotes:{ play:'roue, VIP, QI, amis', activity:'historique et amis', help:'Libé répond', account:'compte et réglages' },
     luBonPoint:'BON POINT', luImage:'Image d\'honneur', luFelicitations:'FÉLICITATIONS DU CONSEIL', luNewLevel:'Nouveau niveau atteint !',
@@ -1359,6 +1360,7 @@ const DICT = {
     lockerTitle:'🎒 My locker',
     lockerEmpty:"You haven't bought anything in the shop yet. Go take a look!",
     lockerEquipped:'equipped',
+    postitsTitle:'To do today',
     profileSecBadges:'My achievements', pupNoteColl:n => `${n} item${n > 1 ? 's' : ''}`, pupNoteBadges:n => n ? `${n} achievement${n > 1 ? 's' : ''}` : 'to earn',
     pupNotes:{ play:'wheel, VIP, IQ, friends', activity:'history and friends', help:'Libé answers', account:'account and settings' },
     luBonPoint:'GOOD MARK', luImage:'Merit card', luFelicitations:'HONOURS FROM THE BOARD', luNewLevel:'New level reached!',
@@ -11793,11 +11795,42 @@ const ProfileHub = (() => {
     }).join('');
   }
 
+  // Defis du jour : des post-it scotches sur le bord du pupitre. Fini = il
+  // fretille ; « Reclamer » l'arrache et il s'envole. Deja reclame = petit papier tamponne.
+  const _chName = (d, ch) => d.challengesNames[ch.id] || ((currentLang === 'en' && ch.labelEn) ? ch.labelEn : ch.label) || ch.id;
+  function _postitsHtml(d, items) {
+    const COL = ['#fff27a', '#ffd0d8', '#bfe3ff', '#c9efc9', '#e5d7ff'], ROT = [-3, 2, -1.5, 2.5, -2];
+    return `<div class="postits-edge"><span class="postits-title">${_escHtml(d.postitsTitle)}</span><div class="postits">${items.map((ch, i) => {
+      const name = _chName(d, ch), cls = ch.claimed ? ' claimed' : ch.done ? ' ready' : '';
+      return `<div class="postit${cls}" style="--pc:${COL[i % COL.length]};--r:${ROT[i % ROT.length]}deg">
+        <b>${_escHtml(name)}</b>
+        <div class="pi-pr">${Math.min(ch.progress, ch.goal)}<small> / ${ch.goal}</small></div>
+        ${ch.claimed ? `<span class="pi-stamp">${_escHtml(d.challengeClaimed)}</span>`
+          : ch.done ? `<button class="challenge-claim-btn pi-claim" data-cid="${_escHtml(ch.id)}">${_escHtml(d.challengeClaim)}</button>` : ''}
+        <span class="pi-rw">${_escHtml(d.challengeReward(ch.reward))}</span></div>`;
+    }).join('')}</div></div>`;
+  }
+  // Defis permanents : un carnet de route, chaque defi en 4 etapes jusqu'a la recompense.
+  function _roadbookHtml(d, items) {
+    return `<div class="roadbook">${items.map(ch => {
+      const name = _chName(d, ch);
+      const steps = [0.25, 0.5, 0.75, 1].map((f, k) => {
+        const v = Math.round(ch.goal * f), ok = ch.progress >= v;
+        return `${k ? '<span class="rb-link"></span>' : ''}<span class="rb-st${ok ? ' ok' : ''}"><i>${k + 1}</i>${v}${k === 3 ? `<em>${_escHtml(d.challengeReward(ch.reward))}</em>` : ''}</span>`;
+      }).join('');
+      const act = ch.claimed ? `<span class="pi-stamp">${_escHtml(d.challengeClaimed)}</span>`
+        : ch.done ? `<button class="challenge-claim-btn pi-claim" data-cid="${_escHtml(ch.id)}">${_escHtml(d.challengeClaim)} ${_escHtml(d.challengeReward(ch.reward))}</button>` : '';
+      return `<div class="rb-row"><div class="rb-hd"><b>${_escHtml(name)}</b><span>${Math.min(ch.progress, ch.goal)}/${ch.goal}</span>${act}</div><div class="rb-steps">${steps}</div></div>`;
+    }).join('')}</div>`;
+  }
+
   function _wireClaims(root) {
     root.querySelectorAll('.challenge-claim-btn').forEach(b => {
       b.addEventListener('click', () => {
         b.disabled = true;
-        socket.emit('claim-challenge', { playerId: getPlayerId(), challengeId: b.dataset.cid });
+        const pi = b.closest('.postit');
+        if (pi) { pi.classList.add('peel'); setTimeout(() => socket.emit('claim-challenge', { playerId: getPlayerId(), challengeId: b.dataset.cid }), 550); }
+        else socket.emit('claim-challenge', { playerId: getPlayerId(), challengeId: b.dataset.cid });
       });
     });
   }
@@ -11812,12 +11845,12 @@ const ProfileHub = (() => {
       if (permList) permList.innerHTML = '';
       return;
     }
-    list.innerHTML = challenges.length ? _challengeRowsHtml(d, challenges) : '';
+    list.innerHTML = challenges.length ? _postitsHtml(d, challenges) : '';
     _wireClaims(list);
     window._bulChallenges = { done: challenges.filter(c => c.claimed || c.done).length, total: challenges.length };
     window._renderBulletin?.();
     if (permList) {
-      permList.innerHTML = permanent.length ? _challengeRowsHtml(d, permanent) : '';
+      permList.innerHTML = permanent.length ? _roadbookHtml(d, permanent) : '';
       _wireClaims(permList);
     }
   }
