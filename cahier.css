@@ -1601,3 +1601,14 @@ html:not(.light) .nameeffect-glace { color: #8fb0ff; -webkit-text-fill-color: #8
 /* Bouton de l'assistant : Libe centre */
 :root:root .btn-chatbot-float { display: grid; place-items: center; }
 .btn-chatbot-float .libe-slot { width: 44px; height: 44px; display: block; }
+/* Correctif : ces effets ne touchent plus a la position du pseudo (les apercus de la boutique le centrent eux-memes) */
+@keyframes neMarkBg { 0% { background-size: 0% .5em; } 45%, 70% { background-size: 100% .5em; } 100% { background-size: 0% .5em; } }
+:root:root .nameeffect-pulse { position: static; background-image: linear-gradient(var(--mark), var(--mark)); background-repeat: no-repeat; background-position: left 88%; background-size: 0% .5em; animation: neMarkBg 2.6s ease-in-out infinite; }
+:root:root .nameeffect-pulse::after { content: none; }
+@keyframes neEraseMask { 0%, 15% { -webkit-mask-position: 100% 0; mask-position: 100% 0; } 50% { -webkit-mask-position: 50% 0; mask-position: 50% 0; } 85%, 100% { -webkit-mask-position: 0% 0; mask-position: 0% 0; } }
+:root:root .nameeffect-glitch { position: static; overflow: visible; display: inline; -webkit-mask: linear-gradient(90deg, #000 30%, rgba(0,0,0,.08) 45%, rgba(0,0,0,.08) 55%, #000 70%) 100% 0 / 300% 100%; mask: linear-gradient(90deg, #000 30%, rgba(0,0,0,.08) 45%, rgba(0,0,0,.08) 55%, #000 70%) 100% 0 / 300% 100%; animation: neEraseMask 3.2s ease-in-out infinite; }
+:root:root .nameeffect-glitch::after { content: none; }
+:root:root .nameeffect-sparks { position: static; padding-right: 0; }
+:root:root .nameeffect-sparks::after { position: static; display: inline-block; vertical-align: super; margin-left: .1em; width: .5em; height: .5em; }
+:root:root .nameeffect-flammes { position: static; }
+:root:root .nameeffect-flammes::after { position: static; display: inline-block; vertical-align: -.25em; margin-left: .08em; }

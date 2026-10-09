@@ -6633,7 +6633,7 @@ function _renderShopItems() {
     else if (type === 'bubble')    previewHtml = `<div class="shop-bubble-preview ${id}">Salut !</div>`;
     else if (type === 'font')      previewHtml = `<span class="shop-fn-font-preview ${_cosmeticClass(equippedCosmetic)} ${id}">${playerPreview}</span>`;
     else if (type === 'color')     previewHtml = `<span class="shop-cosmetic-preview name-${id} ${_fontClass(equippedFont)}">${playerPreview}</span>`;
-    else if (type === 'nameeffect') previewHtml = `<span class="shop-nameeffect-preview ${id}">${playerPreview}</span>`;
+    else if (type === 'nameeffect') previewHtml = `<span class="shop-nameeffect-preview"><span class="${id}">${playerPreview}</span></span>`;
     else if (type === 'title' && honorary) previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="player-honor-tag">${name || ''}</span></span>`;
     else if (type === 'title')      previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="shop-title-tag">${name || ''}</span></span>`;
     else if (type === 'cursorsnake') previewHtml = `<div class="shop-emoji-preview">🐍</div>`;
@@ -7178,7 +7178,7 @@ function _openShopDetail(item) {
   } else if (type === 'color') {
     previewHtml = `<span class="shop-cosmetic-preview name-${id} ${_fontClass(equippedFont)}">${playerPreview}</span>`;
   } else if (type === 'nameeffect') {
-    previewHtml = `<span class="shop-nameeffect-preview ${id}">${playerPreview}</span>`;
+    previewHtml = `<span class="shop-nameeffect-preview"><span class="${id}">${playerPreview}</span></span>`;
   } else if (type === 'title' && honorary) {
     previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="player-honor-tag">${name || ''}</span></span>`;
   } else if (type === 'title') {
@@ -7627,7 +7627,7 @@ function _cosmeticPreviewHtmlBase(type, id, itemName) {
     case 'bubble':      return `<div class="shop-bubble-preview ${id}">Salut !</div>`;
     case 'font':        return `<span class="shop-fn-font-preview ${_cosmeticClass(equippedCosmetic)} ${id}">${nm}</span>`;
     case 'color':       return `<span class="shop-cosmetic-preview name-${id} ${_fontClass(equippedFont)}">${nm}</span>`;
-    case 'nameeffect':  return `<span class="shop-nameeffect-preview ${id}">${nm}</span>`;
+    case 'nameeffect':  return `<span class="shop-nameeffect-preview"><span class="${id}">${nm}</span></span>`;
     case 'title':       return `<span class="shop-title-tag">${_escHtml(itemName || '')}</span>`;
     case 'cursorsnake': return `<div class="shop-emoji-preview">🐍</div>`;
     case 'snakeskin':   return `<div class="shop-emoji-preview">${({'snakeskin-gems':'💎','snakeskin-cyber':'⬡','snakeskin-lava':'🔥','snakeskin-galaxy':'⭐','snakeskin-rainbow':'🌈','snakeskin-8bit':'👾','snakeskin-gold':'🪙'})[id] || '🐍'}</div>`;
