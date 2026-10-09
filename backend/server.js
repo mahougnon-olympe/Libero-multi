@@ -478,6 +478,12 @@ async function loadData() {
   db.collection('accounts').find().toArray()
     .then(docs => docs.forEach(d => accounts.set(d._id, { pseudo: d.pseudo, salt: d.salt, hash: d.hash, playerId: d.playerId, createdAt: d.createdAt })))
     .catch(() => {});
+  db.collection('portrait_templates').find().toArray()
+    .then(docs => docs.forEach(d => portraitTemplates.set(d._id, {
+      id: d._id, authorId: d.authorId, authorName: d.authorName || '', name: d.name || '', price: d.price || 60,
+      tag: d.tag || 'style', portrait: cleanPortrait(d.portrait), status: d.status || 'pending', sold: d.sold || 0, at: d.at || Date.now(),
+    })))
+    .catch(() => {});
   db.collection('suggestions').find().toArray()
     .then(docs => docs.forEach(d => suggestions.push({
       _id: d._id, title: d.title || '', description: d.description || '',
@@ -603,6 +609,16 @@ function dbUpdateFeedVideo(id, fields) {
   db.collection('feed_videos')
     .updateOne({ _id: id }, { $set: fields })
     .catch(e => console.error('Erreur mise a jour vidéo feed:', e));
+}
+
+function dbSaveTemplate(tp) {
+  if (!db) return;
+  const { id, ...rest } = tp;
+  db.collection('portrait_templates').updateOne({ _id: id }, { $set: rest }, { upsert: true }).catch(e => console.error('Erreur modele portrait:', e));
+}
+function dbDeleteTemplate(id) {
+  if (!db) return;
+  db.collection('portrait_templates').deleteOne({ _id: id }).catch(() => {});
 }
 
 function dbInsertSuggestion(s) {
@@ -1812,6 +1828,21 @@ const PORTRAIT_SPEC = {
 const PORTRAIT_PRICE = 40;
 for (const [k, sp] of Object.entries(PORTRAIT_SPEC)) for (const i of (sp.lock || [])) COSMETICS.push({ id: `pt-${k}-${i}`, type: 'portrait', price: PORTRAIT_PRICE });
 // Les anciens avatars (retires de la boutique) donnent des elements du portrait.
+// Atelier : un joueur publie son portrait comme modele, l'admin valide, les autres
+// l'achetent. Le createur touche 70 % du prix (le reste disparait : frein a l'inflation).
+const portraitTemplates = new Map(); // id -> { id, authorId, authorName, name, price, tag, portrait, status, sold, at }
+const TEMPLATE_PRICES = [30, 60, 100, 150];
+const TEMPLATE_TAGS = ['sport', 'school', 'party', 'style', 'funny'];
+const TEMPLATE_SHARE = 0.7, TEMPLATE_MIN_LEVEL = 5, TEMPLATE_MAX_PER_AUTHOR = 3;
+function templatePublic(tp, viewerId) {
+  return { id: tp.id, name: tp.name, authorName: tp.authorName, price: tp.price, tag: tp.tag, portrait: tp.portrait,
+    status: tp.status, sold: tp.sold, at: tp.at, mine: !!viewerId && tp.authorId === viewerId };
+}
+function templatesFor(viewerId) {
+  return [...portraitTemplates.values()]
+    .filter(tp => tp.status === 'live' || (viewerId && tp.authorId === viewerId && tp.status !== 'refused'))
+    .map(tp => templatePublic(tp, viewerId));
+}
 const AVATAR_TO_PORTRAIT = ['pt-acc-9', 'pt-bg-8', 'pt-bg-9', 'pt-bg-10'];
 function cleanPortrait(p) {
   if (!p || typeof p !== 'object') return null;
@@ -4107,6 +4138,64 @@ io.on('connection', (socket) => {
     completeOnboardStep(id, entry, 'perso');
   });
 
+  socket.on('get-portrait-templates', ({ playerId } = {}) => {
+    socket.emit('portrait-templates', templatesFor(safePlayerId(playerId)));
+  });
+  socket.on('publish-portrait-template', ({ playerId, name, price, tag } = {}) => {
+    if (!allowAction('publish', 3, 60_000)) { socket.emit('publish-template-result', { ok: false, error: 'rate' }); return; }
+    const id = safePlayerId(playerId);
+    if (!id) { socket.emit('publish-template-result', { ok: false, error: 'invalid' }); return; }
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') { socket.emit('publish-template-result', { ok: false, error: 'anonymous' }); return; }
+    if (levelFromXp(entry.xp || 0) < TEMPLATE_MIN_LEVEL) { socket.emit('publish-template-result', { ok: false, error: 'level' }); return; }
+    if (!entry.portrait) { socket.emit('publish-template-result', { ok: false, error: 'no_portrait' }); return; }
+    const nm = sanitizeText(String(name || ''), 24).trim();
+    if (nm.length < 2 || containsBanned(nm)) { socket.emit('publish-template-result', { ok: false, error: 'name' }); return; }
+    const pr = TEMPLATE_PRICES.includes(+price) ? +price : 60;
+    const tg = TEMPLATE_TAGS.includes(tag) ? tag : 'style';
+    const mine = [...portraitTemplates.values()].filter(tp => tp.authorId === id && tp.status !== 'refused');
+    if (mine.length >= TEMPLATE_MAX_PER_AUTHOR) { socket.emit('publish-template-result', { ok: false, error: 'max' }); return; }
+    const tp = { id: 'tpl-' + crypto.randomBytes(5).toString('hex'), authorId: id, authorName: entry.name, name: nm, price: pr, tag: tg,
+      portrait: { ...entry.portrait }, status: 'pending', sold: 0, at: Date.now() };
+    portraitTemplates.set(tp.id, tp);
+    dbSaveTemplate(tp);
+    adminAlert('Nouveau modèle de portrait', `${entry.name} : « ${nm} » (${pr} Libs) attend ta validation.`);
+    socket.emit('publish-template-result', { ok: true, template: templatePublic(tp, id) });
+    socket.emit('portrait-templates', templatesFor(id));
+  });
+  socket.on('delete-portrait-template', ({ playerId, id: tid } = {}) => {
+    const id = safePlayerId(playerId);
+    const tp = portraitTemplates.get(tid);
+    if (!id || !tp || tp.authorId !== id) return;
+    portraitTemplates.delete(tid); dbDeleteTemplate(tid);
+    socket.emit('portrait-templates', templatesFor(id));
+  });
+  socket.on('buy-portrait-template', ({ playerId, id: tid } = {}) => {
+    if (!allowAction('buy')) { socket.emit('buy-template-result', { ok: false, error: 'rate' }); return; }
+    const id = safePlayerId(playerId);
+    const tp = portraitTemplates.get(tid);
+    if (!id || !tp || tp.status !== 'live') { socket.emit('buy-template-result', { ok: false, error: 'invalid' }); return; }
+    if (tp.authorId === id) { socket.emit('buy-template-result', { ok: false, error: 'own' }); return; }
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') { socket.emit('buy-template-result', { ok: false, error: 'anonymous' }); return; }
+    if (entry.balance < tp.price) { socket.emit('buy-template-result', { ok: false, error: 'insufficient' }); return; }
+    entry.balance -= tp.price;
+    portraitLockedIds(tp.portrait).forEach(c => { if (!entry.ownedCosmetics.includes(c)) entry.ownedCosmetics.push(c); });
+    entry.portrait = { ...tp.portrait };
+    libs.set(id, entry); dbUpsertLibs(id, entry);
+    tp.sold = (tp.sold || 0) + 1; dbSaveTemplate(tp);
+    const author = libs.get(tp.authorId);
+    if (author) {
+      const gain = Math.floor(tp.price * TEMPLATE_SHARE);
+      author.balance += gain; libs.set(tp.authorId, author); dbUpsertLibs(tp.authorId, author);
+      _emitToPlayer(tp.authorId, 'libs-update', { balance: author.balance, delta: gain });
+      _emitToPlayer(tp.authorId, 'template-sold', { name: tp.name, buyer: entry.name, gain });
+    }
+    socket.emit('libs-update', { balance: entry.balance, ownedCosmetics: entry.ownedCosmetics, portrait: entry.portrait });
+    socket.emit('buy-template-result', { ok: true, id: tid });
+    socket.emit('portrait-templates', templatesFor(id));
+  });
+
   // Achat d'un pack de chapitres du livre exclusif (même modèle que buy-cosmetic).
   socket.on('buy-book-pack', ({ playerId, bookId, packId } = {}) => {
     if (!allowAction('buy')) { socket.emit('buy-book-pack-result', { ok: false, error: 'rate' }); return; }
@@ -6016,6 +6105,31 @@ app.get('/admin/suggestions', (req, res) => {
 });
 
 // Admin : change le statut / epingle une suggestion.
+app.get('/admin/portrait-templates', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  res.json([...portraitTemplates.values()].sort((a, b) => (a.status === 'pending' ? -1 : 0) - (b.status === 'pending' ? -1 : 0) || b.at - a.at)
+    .map(tp => ({ ...templatePublic(tp, null), authorRef: _playerRef(tp.authorId) })));
+});
+app.patch('/admin/portrait-template/:id', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const tp = portraitTemplates.get(req.params.id);
+  if (!tp) return res.status(404).json({ error: 'Introuvable.' });
+  const st = (req.body || {}).status;
+  if (!['live', 'refused', 'pending'].includes(st)) return res.status(400).json({ error: 'Statut invalide.' });
+  tp.status = st; dbSaveTemplate(tp);
+  adminAudit('template-' + st, { id: tp.id, name: tp.name, author: tp.authorName });
+  _emitToPlayer(tp.authorId, 'template-status', { name: tp.name, status: st });
+  res.json({ ok: true });
+});
+app.delete('/admin/portrait-template/:id', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const tp = portraitTemplates.get(req.params.id);
+  if (!tp) return res.status(404).json({ error: 'Introuvable.' });
+  portraitTemplates.delete(tp.id); dbDeleteTemplate(tp.id);
+  adminAudit('template-delete', { id: tp.id, name: tp.name });
+  res.json({ ok: true });
+});
+
 app.patch('/admin/suggestion/:id', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   const s = _findSuggestion(req.params.id);

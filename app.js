@@ -954,6 +954,14 @@ const DICT = {
     shopFontCategories:{ futuriste:'Futuriste', impact:'Impact', hacker:'Hacker', retro:'Rétro', fun:'Fun', elegant:'Élégant', free:'Gratuit' },
     shopFontGetFree:'Obtenir',
     shopBubbleTitle:'💬 Bulles de chat',
+    tplTitle:'Portraits de la classe', tplDesc:'Des portraits composés par les joueurs. « Essayer » le pose sur ton portrait sans rien acheter ; l\'auteur touche 70 % du prix.',
+    tplNav:'Portraits', tplSortTop:'Les plus achetés', tplSortNew:'Nouveautés', tplSortMine:'Mes modèles', tplBy:'par', tplSales:n => `${n} vente${n > 1 ? 's' : ''}`,
+    tplTry:'Essayer', tplBuy:'Acheter', tplRemove:'Retirer', tplPending:'En attente de validation', tplEmpty:'Aucun modèle pour l\'instant. Publie le tien depuis Profil, Mon portrait.',
+    tplTags:{sport:'Sport', school:'École', party:'Fête', style:'Style', funny:'Drôle'}, tplBought:'Portrait acheté, il est sur ton profil !',
+    tplPublish:'Publier comme modèle', tplPubName:'Nom du modèle', tplPubPrice:'Prix', tplPubTag:'Rayon', tplPubSend:'Envoyer à la validation',
+    tplPubOk:'Envoyé ! L\'admin doit valider ton modèle avant qu\'il soit en vente.', tplPubRules:'Il faut le niveau 5. 3 modèles maximum. Tu touches 70 % de chaque vente.',
+    tplErr:{level:'Il faut le niveau 5 pour publier.', max:'Tu as déjà 3 modèles.', name:'Choisis un autre nom.', anonymous:'Choisis d\'abord un pseudo.', no_portrait:'Enregistre d\'abord ton portrait.', insufficient:'Pas assez de Libs.', own:'C\'est ton modèle !', rate:'Doucement, réessaie dans un instant.', invalid:'Ce modèle n\'est plus disponible.'},
+    tplSold:(n, b, g) => `${b} a acheté ton modèle « ${n} » : +${g} Libs`, tplLive:n => `Ton modèle « ${n} » est en vente !`, tplRefused:n => `Ton modèle « ${n} » a été refusé.`,
     shopBubbleNames:{ 'bubble-ardoise':'Ardoise', 'bubble-ocean':'Océan', 'bubble-menthe':'Menthe', 'bubble-corail':'Corail', 'bubble-ambre':'Ambre', 'bubble-lavande':'Lavande', 'bubble-rubis':'Rubis', 'bubble-emeraude':'Émeraude', 'bubble-indigo':'Indigo', 'bubble-magenta':'Magenta néon', 'bubble-cyan':'Cyan néon', 'bubble-crepuscule':'Crépuscule', 'bubble-aurore':'Aurore', 'bubble-sunset':'Coucher de soleil', 'bubble-tropical':'Tropical', 'bubble-arcade':'Néon arcade', 'bubble-galaxie':'Galaxie', 'bubble-verre':'Verre néon', 'bubble-or':'Or liquide', 'bubble-holographique':'Holographique', 'bubble-cameleon':'Caméléon' },
     shopBgTitle:'🖼 Fonds d\'écran',
     shopBgNames:{'bg-nuit':'Nuit Calme','bg-ardoise':'Ardoise Profonde','bg-brume':'Brume Violette','bg-aurore-deg':'Dégradé Aurore','bg-crepuscule':'Crépuscule Néon','bg-cyber':'Grille Cyber','bg-circuit':'Circuit','bg-hexagones':'Hexagones','bg-etoile':'Ciel Étoilé','bg-particules':'Particules Flottantes','bg-pluie':'Pluie Néon','bg-vagues':'Vagues Lumineuses','bg-synthwave':'Synthwave','bg-nebuleuse':'Nébuleuse','bg-aurores':'Aurores Mouvantes','bg-galaxie':'Galaxie Vivante','bg-tempete':'Tempête Néon','bg-hologramme':'Hologramme','bg-wax':'Motifs Pagne','bg-marche-nuit':'Marché de Nuit','bg-terrain':'Terrain de Foot','bg-matrice':'Matrice Verte','bg-harmattan':'Néons Harmattan','bg-orage':'Ciel d\'Orage','bg-lagune':'Coucher sur la Lagune'},
@@ -1710,6 +1718,14 @@ const DICT = {
     shopFontCategories:{ futuriste:'Futuristic', impact:'Impact', hacker:'Hacker', retro:'Retro', fun:'Fun', elegant:'Elegant', free:'Free' },
     shopFontGetFree:'Get',
     shopBubbleTitle:'💬 Chat bubbles',
+    tplTitle:'Class portraits', tplDesc:'Portraits made by players. "Try" puts it on your portrait without buying; the author earns 70% of the price.',
+    tplNav:'Portraits', tplSortTop:'Best sellers', tplSortNew:'New', tplSortMine:'My templates', tplBy:'by', tplSales:n => `${n} sale${n > 1 ? 's' : ''}`,
+    tplTry:'Try', tplBuy:'Buy', tplRemove:'Remove', tplPending:'Awaiting approval', tplEmpty:'No template yet. Publish yours from Profile, My portrait.',
+    tplTags:{sport:'Sport', school:'School', party:'Party', style:'Style', funny:'Funny'}, tplBought:'Portrait bought, it is on your profile!',
+    tplPublish:'Publish as a template', tplPubName:'Template name', tplPubPrice:'Price', tplPubTag:'Shelf', tplPubSend:'Send for approval',
+    tplPubOk:'Sent! The admin must approve your template before it goes on sale.', tplPubRules:'Level 5 required. 3 templates max. You earn 70% of each sale.',
+    tplErr:{level:'You need level 5 to publish.', max:'You already have 3 templates.', name:'Pick another name.', anonymous:'Pick a username first.', no_portrait:'Save your portrait first.', insufficient:'Not enough Libs.', own:'That is your template!', rate:'Slow down, try again in a moment.', invalid:'This template is no longer available.'},
+    tplSold:(n, b, g) => `${b} bought your template "${n}": +${g} Libs`, tplLive:n => `Your template "${n}" is on sale!`, tplRefused:n => `Your template "${n}" was refused.`,
     shopBubbleNames:{ 'bubble-ardoise':'Slate', 'bubble-ocean':'Ocean', 'bubble-menthe':'Mint', 'bubble-corail':'Coral', 'bubble-ambre':'Amber', 'bubble-lavande':'Lavender', 'bubble-rubis':'Ruby', 'bubble-emeraude':'Emerald', 'bubble-indigo':'Indigo', 'bubble-magenta':'Neon magenta', 'bubble-cyan':'Neon cyan', 'bubble-crepuscule':'Dusk', 'bubble-aurore':'Aurora', 'bubble-sunset':'Sunset', 'bubble-tropical':'Tropical', 'bubble-arcade':'Arcade neon', 'bubble-galaxie':'Galaxy', 'bubble-verre':'Neon glass', 'bubble-or':'Liquid gold', 'bubble-holographique':'Holographic', 'bubble-cameleon':'Chameleon' },
     shopBgTitle:'🖼 Wallpapers',
     shopBgNames:{'bg-nuit':'Calm Night','bg-ardoise':'Deep Slate','bg-brume':'Violet Mist','bg-aurore-deg':'Aurora Gradient','bg-crepuscule':'Neon Dusk','bg-cyber':'Cyber Grid','bg-circuit':'Circuit','bg-hexagones':'Hexagons','bg-etoile':'Starry Sky','bg-particules':'Floating Particles','bg-pluie':'Neon Rain','bg-vagues':'Light Waves','bg-synthwave':'Synthwave','bg-nebuleuse':'Nebula','bg-aurores':'Moving Auroras','bg-galaxie':'Living Galaxy','bg-tempete':'Neon Storm','bg-hologramme':'Hologram','bg-wax':'Wax Patterns','bg-marche-nuit':'Night Market','bg-terrain':'Football Pitch','bg-matrice':'Green Matrix','bg-harmattan':'Harmattan Neon','bg-orage':'Thunder Sky','bg-lagune':'Lagoon Sunset'},
@@ -5988,6 +6004,7 @@ function _playLibsSound() {
 function openShop() { showScreen('shop'); }
 
 function enterShop() {
+  try { socket.emit('get-portrait-templates', { playerId: getPlayerId() }); } catch {}
   const d = t();
   const title = $('shop-modal-title');
   if (title) title.textContent = d.shopTitle;
@@ -6565,6 +6582,7 @@ function _renderShopItems() {
       <button class="shop-fn-nav-btn" data-section="bgs"><span class="shop-nav-icon" data-ic="image">🖼️</span><span class="shop-nav-label"> ${nav.bgs}</span></button>
       <button class="shop-fn-nav-btn" data-section="cursorsnakes"><span class="shop-nav-icon" data-ic="mouse">🖱️</span><span class="shop-nav-label"> ${nav.cursorsnakes}</span></button>
       <button class="shop-fn-nav-btn" data-section="snakeskins"><span class="shop-nav-icon" data-ic="worm">🐍</span><span class="shop-nav-label"> ${nav.snakeskins}</span></button>
+      <button class="shop-fn-nav-btn" data-section="portraits"><span class="shop-nav-icon" data-ic="avatar">P</span><span class="shop-nav-label"> ${d.tplNav}</span></button>
       <button class="shop-fn-nav-btn" data-section="bubbles"><span class="shop-nav-icon" data-ic="bubble">💬</span><span class="shop-nav-label"> ${nav.bubbles}</span></button>
       <button class="shop-fn-nav-btn" data-section="p4tokens"><span class="shop-nav-icon" data-ic="token">🔴</span><span class="shop-nav-label"> ${nav.p4tokens}</span></button>
       <button class="shop-fn-nav-btn" data-section="ttt"><span class="shop-nav-icon" data-ic="hash">✖️</span><span class="shop-nav-label"> ${nav.ttt}</span></button>
@@ -6663,6 +6681,13 @@ function _renderShopItems() {
       <h3 class="shop-fn-section-title">${d.shopSnakeSkinsTitle}</h3>
       <p class="shop-fn-section-desc">${d.shopSectionDescs.snakeskins}</p>
       <div class="shop-fn-grid">${snakeSkinItems.map(it => tileHtml(it)).join('')}</div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-portraits" data-section-id="portraits">
+      <h3 class="shop-fn-section-title">${d.tplTitle}</h3>
+      <p class="shop-fn-section-desc">${d.tplDesc}</p>
+      <div class="tpl-sort" id="tpl-sort"></div>
+      <div class="tpl-grid" id="tpl-grid"></div>
     </section>
 
     <section class="shop-fn-section" id="shop-sec-bubbles" data-section-id="bubbles">
@@ -6800,6 +6825,7 @@ function _renderShopItems() {
   });
   // Restaure l'onglet actif après un re-rendu (achat, équipement, etc.).
   _showShopSection(_shopActiveSection);
+  window._paintTemplates?.();
 
   if (shopRotation) _startShopCountdown(shopRotation.resetAt);
   if (_shopDetailItem) _openShopDetail(_shopDetailItem);
@@ -13647,12 +13673,16 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     paint();
   }
   function close() { ov.classList.add('hidden'); buying = null; save(); }
-  window._openPortraitEditor = () => { draft = P.normalize(myPortrait || P.DEF); open(); };
+  window._openPortraitEditor = (tryP) => { draft = P.normalize(tryP || myPortrait || P.DEF); open(); };
   window._portraitRetexte = () => {
     const d = t();
     const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
     set('portrait-card-title', d.portraitCardTitle); set('portrait-card-sub', d.portraitCardSub);
     set('portrait-title', d.portraitTitle); set('pe-random', d.peRandom); set('pe-reset', d.peReset);
+    set('pe-pub-toggle', d.tplPublish); set('pe-pub-name-l', d.tplPubName); set('pe-pub-price-l', d.tplPubPrice);
+    set('pe-pub-tag-l', d.tplPubTag); set('pe-pub-send', d.tplPubSend); set('pe-pub-rules', d.tplPubRules);
+    const tg = document.getElementById('pe-pub-tag');
+    if (tg) { const v = tg.value; tg.innerHTML = Object.entries(d.tplTags).map(([k, l]) => `<option value="${k}">${l}</option>`).join(''); if (v) tg.value = v; }
     if (!ov.classList.contains('hidden')) paint();
   };
   document.getElementById('btn-portrait-close')?.addEventListener('click', close);
@@ -13691,10 +13721,73 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     if (ok) { myPortrait = portrait; window._renderProfilePseudo?.(); msg(t().peSaved, true); paint(); setTimeout(() => { if (!buying) close(); }, 700); }
     else msg(t().peErr);
   });
+  // Publier son portrait enregistre comme modele (atelier)
+  document.getElementById('pe-pub-toggle')?.addEventListener('click', () => document.getElementById('pe-pub').classList.toggle('hidden'));
+  document.getElementById('pe-pub-send')?.addEventListener('click', () => {
+    socket.emit('publish-portrait-template', { playerId: getPlayerId(), name: document.getElementById('pe-pub-name').value,
+      price: +document.getElementById('pe-pub-price').value, tag: document.getElementById('pe-pub-tag').value });
+  });
+  socket.on('publish-template-result', ({ ok, error } = {}) => {
+    const el = document.getElementById('pe-pub-msg'); if (!el) return;
+    el.textContent = ok ? t().tplPubOk : ((t().tplErr || {})[error] || t().peErr);
+    el.classList.toggle('ok', !!ok);
+  });
   // Restauration apres F5
   try {
     const st = JSON.parse(sessionStorage.getItem(KEY) || 'null');
     if (st && st.open) { draft = P.normalize(st.draft); tab = st.tab || 'face'; open(); }
   } catch {}
   window._portraitRetexte();
+})();
+
+// ── Atelier : modeles de portrait (rayon boutique + publication) ──────────────
+(function initPortraitTemplates() {
+  const P = window.LiberoPortrait;
+  if (!P) return;
+  let list = [], sort = 'top';
+  try { sort = sessionStorage.getItem('libero_tpl_sort') || 'top'; } catch {}
+  function card(tp) {
+    const d = t(), pend = tp.status === 'pending';
+    return `<div class="tpl${pend ? ' pending' : ''}" data-tpl="${tp.id}">
+      <div class="tp">${_ptSvg(tp.portrait)}</div>${pend ? `<span class="tpl-wait">${d.tplPending}</span>` : ''}
+      <div class="ti"><div class="tn">${_escHtml(tp.name)}</div>
+        <div class="ta">${d.tplBy} <u class="lb-row-clickable" data-pname="${_escHtml(tp.authorName)}">${_escHtml(tp.authorName)}</u></div>
+        <div class="tm"><span>${d.tplSales(tp.sold || 0)}<br>${(d.tplTags || {})[tp.tag] || tp.tag}</span><span class="pr">${tp.price} Libs</span></div>
+        <div class="tb"><button type="button" data-act="try">${d.tplTry}</button>${tp.mine
+          ? `<button type="button" class="alt" data-act="del">${d.tplRemove}</button>`
+          : `<button type="button" class="buy" data-act="buy">${d.tplBuy}</button>`}</div></div></div>`;
+  }
+  window._paintTemplates = function () {
+    const g = document.getElementById('tpl-grid'), so = document.getElementById('tpl-sort');
+    if (!g) return;
+    const d = t();
+    so.innerHTML = [['top', d.tplSortTop], ['new', d.tplSortNew], ['mine', d.tplSortMine]]
+      .map(([k, l]) => `<button type="button" data-sort="${k}" aria-pressed="${k === sort}">${l}</button>`).join('');
+    let arr = list.slice();
+    if (sort === 'mine') arr = arr.filter(x => x.mine);
+    else arr = arr.filter(x => x.status === 'live' || x.mine);
+    arr.sort(sort === 'top' ? (a, b) => (b.sold || 0) - (a.sold || 0) : (a, b) => b.at - a.at);
+    g.innerHTML = arr.length ? arr.map(card).join('') : `<p class="tpl-empty">${d.tplEmpty}</p>`;
+  };
+  socket.on('portrait-templates', arr => { list = Array.isArray(arr) ? arr : []; window._paintTemplates(); });
+  document.addEventListener('click', e => {
+    const au = e.target.closest('#tpl-grid [data-pname]');
+    if (au) { window._openPlayerCard?.(au.dataset.pname); return; }
+    const sb = e.target.closest('#tpl-sort [data-sort]');
+    if (sb) { sort = sb.dataset.sort; try { sessionStorage.setItem('libero_tpl_sort', sort); } catch {} window._paintTemplates(); return; }
+    const b = e.target.closest('#tpl-grid [data-act]'); if (!b) return;
+    const tp = list.find(x => x.id === b.closest('[data-tpl]').dataset.tpl); if (!tp) return;
+    if (b.dataset.act === 'try') window._openPortraitEditor?.(tp.portrait);
+    else if (b.dataset.act === 'buy') { b.disabled = true; socket.emit('buy-portrait-template', { playerId: getPlayerId(), id: tp.id }); }
+    else if (b.dataset.act === 'del') socket.emit('delete-portrait-template', { playerId: getPlayerId(), id: tp.id });
+  });
+  const toast = (m) => { try { showCursorSnakeToast(m); } catch {} };
+  socket.on('buy-template-result', ({ ok, error } = {}) => {
+    if (ok) toast(t().tplBought); else { toast((t().tplErr || {})[error] || t().peErr); window._paintTemplates(); }
+  });
+  socket.on('template-sold', ({ name, buyer, gain } = {}) => { const m = t().tplSold(name, buyer, gain); toast(m); window._notify?.add?.({ type: 'gift', text: m }); });
+  socket.on('template-status', ({ name, status } = {}) => {
+    const m = status === 'live' ? t().tplLive(name) : status === 'refused' ? t().tplRefused(name) : '';
+    if (m) { toast(m); window._notify?.add?.({ type: 'info', text: m }); }
+  });
 })();

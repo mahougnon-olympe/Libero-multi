@@ -1370,6 +1370,15 @@
         <div class="pe-left">
           <div class="pe-photo" id="pe-photo"><div class="pe-frame" id="pe-preview"></div><div class="pe-name" id="pe-name"></div></div>
           <div class="pe-act"><button type="button" class="btn btn-secondary" id="pe-random">Au hasard</button><button type="button" class="btn btn-secondary" id="pe-reset">Recommencer</button></div>
+          <button type="button" class="btn btn-secondary pe-pub-toggle" id="pe-pub-toggle">Publier comme modèle</button>
+          <div class="pe-pub hidden" id="pe-pub">
+            <label><span id="pe-pub-name-l">Nom du modèle</span><input id="pe-pub-name" maxlength="24" /></label>
+            <label><span id="pe-pub-price-l">Prix</span><select id="pe-pub-price"><option>30</option><option selected>60</option><option>100</option><option>150</option></select></label>
+            <label><span id="pe-pub-tag-l">Rayon</span><select id="pe-pub-tag"></select></label>
+            <p class="pe-pub-rules" id="pe-pub-rules"></p>
+            <button type="button" class="btn btn-primary" id="pe-pub-send">Envoyer à la validation</button>
+            <p class="pe-msg" id="pe-pub-msg"></p>
+          </div>
         </div>
         <div class="pe-right">
           <div class="pe-tabs" id="pe-tabs" role="tablist"></div>

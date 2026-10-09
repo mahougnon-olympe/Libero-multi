@@ -1325,3 +1325,28 @@ html:not(.light) .theme-art .f { fill: rgba(238,241,234,.08); }
 .pe-foot .btn { width: auto; }
 .pe-msg { margin: 0; font-family: var(--font-hand); font-weight: 700; font-size: 1.15rem; color: var(--muted); flex: 1; min-width: 180px; }
 .pe-msg.ok { color: var(--accent); }
+/* Atelier : publication dans l'editeur et rayon « Portraits de la classe » */
+.pe-pub-toggle { width: 100%; }
+.pe-pub { display: grid; gap: 7px; padding: 10px; border: 1.5px dashed var(--line); border-radius: 6px; }
+.pe-pub.hidden { display: none; }
+.pe-pub label { display: grid; gap: 2px; font: 700 .72rem var(--font-body); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.pe-pub input, .pe-pub select { font: 600 .92rem var(--font-body); text-transform: none; letter-spacing: 0; padding: 6px 8px; border: 1.5px solid var(--line); border-radius: 6px; background: var(--card); color: var(--text); }
+.pe-pub-rules { margin: 0; font-size: .78rem; color: var(--muted); }
+.tpl-sort { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 10px; }
+.tpl-sort button { font: 700 .8rem var(--font-body); padding: 5px 10px; border-radius: 6px; border: 1.5px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; }
+.tpl-sort button[aria-pressed="true"] { background: linear-gradient(transparent 55%, var(--mark) 55%), var(--card); border-color: var(--accent); }
+.tpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.tpl-empty { grid-column: 1 / -1; font-family: var(--font-hand); font-size: 1.2rem; color: var(--muted); }
+.tpl { position: relative; background: var(--card); border: 1.5px solid var(--line); border-radius: 8px; box-shadow: 0 2px 0 var(--hard); overflow: hidden; }
+.tpl .tp { aspect-ratio: 1; border-bottom: 1.5px dashed var(--border); background: #fff; }
+.tpl .ti { padding: 7px 9px 9px; }
+.tpl .tn { font: 400 .92rem var(--font-display); line-height: 1.15; }
+.tpl .ta { font: 700 1.05rem var(--font-hand); color: var(--muted); }
+.tpl .ta u { color: var(--accent); text-decoration-style: wavy; cursor: pointer; }
+.tpl .tm { display: flex; justify-content: space-between; gap: 4px; align-items: center; font-size: .76rem; color: var(--muted); margin: 2px 0 6px; }
+.tpl .pr { font: 700 1.2rem var(--font-hand); color: var(--margin); white-space: nowrap; }
+.tpl .tb { display: flex; gap: 5px; }
+.tpl .tb button { flex: 1; font: 700 .76rem var(--font-body); padding: 6px 4px; border-radius: 5px; border: 1.5px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; }
+.tpl .tb button.buy { background: var(--accent); color: var(--card); }
+.tpl.pending .tp { opacity: .55; }
+.tpl-wait { position: absolute; top: 32%; left: 50%; transform: translate(-50%, -50%) rotate(-12deg); font: 400 .62rem var(--font-display); color: var(--accent); border: 2.5px solid var(--accent); border-radius: 6px; padding: 3px 7px; background: var(--card); white-space: nowrap; }
