@@ -545,7 +545,7 @@ const TRIVIA_API_CAT_MAP = {
 
 const DICT = {
   fr: {
-    siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisissez votre catégorie',
+    siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisis ta partie, ou ouvre un livre.', landingTitle:'Aujourd\'hui, on <mark>joue</mark>.',
     navHome:'Accueil', navFeed:'Vidéos', navIdeas:'Idées', navShop:'Boutique', profileBalanceLabel:'Solde',
     accountTitle:'🔑 Mon compte', accountTabCreate:'Créer', accountTabLogin:'Se connecter',
     accountCreateIntro:'Crée un compte pour ne jamais perdre ta progression et te reconnecter sur un autre appareil.',
@@ -1292,7 +1292,7 @@ const DICT = {
     },
   },
   en: {
-    siteTitle:'Multiplayer Games', siteSubtitle:'Choose your category',
+    siteTitle:'Multiplayer Games', siteSubtitle:'Pick a game, or open a book.', landingTitle:'Today, we <mark>play</mark>.',
     navHome:'Home', navFeed:'Videos', navIdeas:'Ideas', navShop:'Shop', profileBalanceLabel:'Balance',
     accountTitle:'🔑 My account', accountTabCreate:'Create', accountTabLogin:'Log in',
     accountCreateIntro:'Create an account so you never lose your progress and can log back in on another device.',
@@ -2300,6 +2300,10 @@ function applyLang() {
 
   // Landing
   const ls = $('landing-subtitle'); if (ls) ls.textContent = d.siteSubtitle;
+  // Accueil « cahier » : la date du jour ecrite en haut de la page, et le titre surligne.
+  const lt = $('landing-title'); if (lt && d.landingTitle) lt.innerHTML = d.landingTitle;
+  const ldt = $('landing-date');
+  if (ldt) { try { ldt.textContent = new Date().toLocaleDateString(currentLang === 'en' ? 'en-GB' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); } catch (_) {} }
   const glbt = $('global-lb-title'); if (glbt) glbt.textContent = d.globalLbTitle;
   const bc = $('btn-go-classic');
   if (bc) { bc.querySelector('h2').textContent = d.classicTitle; bc.querySelector('p').textContent = d.classicDesc; }

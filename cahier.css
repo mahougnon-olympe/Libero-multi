@@ -270,3 +270,145 @@ input:not([type]), textarea, select {
 @media (prefers-reduced-motion: reduce) {
   .btn-primary:hover, .btn-primary:active { transform: none; }
 }
+
+
+/* ══ Icones : un trait d'encre ou de craie, de la couleur du texte ══════════
+   Le relief (copies decalees, degre de lumiere, ombre) n'a pas sa place sur du
+   papier ou une ardoise : on garde le dessin lucide, en trait simple. */
+.ic3d { transform: none; }
+.ic3d-depth { display: none; }
+.ic3d-face { color: currentColor; filter: none; }
+.ic3d-face path, .ic3d-face circle, .ic3d-face rect, .ic3d-face line,
+.ic3d-face polyline, .ic3d-face polygon, .ic3d-face ellipse { stroke: currentColor !important; }
+html.light .ic3d-face { filter: none; }
+
+/* ══ Sequence 2 : ACCUEIL ════════════════════════════════════════════════════
+   Une page de cahier datee du jour : un titre surligne, deux « lecons » (les
+   jeux et le quiz), trois cases pour le reste, le tableau d'honneur.
+   Telephone : une colonne. Tablette : les deux lecons cote a cote.
+   Ordinateur : la page a gauche, le tableau d'honneur a droite. */
+#screen-landing {
+  background: none;
+  justify-content: flex-start;
+  padding-top: 64px;
+  gap: 14px;
+}
+#screen-landing .logo-full { display: none; }
+.landing-head { width: 100%; max-width: 480px; text-align: left; display: grid; gap: 2px; }
+.landing-date {
+  font-family: var(--font-hand); font-weight: 700; font-size: 1.25rem;
+  color: var(--accent); text-transform: none; margin: 0;
+}
+.landing-date::first-letter { text-transform: uppercase; }
+.landing-title {
+  font-size: clamp(1.7rem, 7vw, 2.4rem); line-height: 1.05; margin: 0;
+  text-wrap: balance;
+}
+#landing-subtitle { margin: 4px 0 0; font-size: .92rem; color: var(--muted); text-align: left; }
+
+.landing-card,
+.landing-card--hero, .landing-card--hero-alt,
+.landing-card--tile, .landing-card--tile-event {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--elev-2);
+  color: var(--text);
+}
+.landing-card:hover {
+  border-color: var(--line);
+  box-shadow: 0 5px 0 var(--hard);
+  transform: translateY(-2px);
+}
+.landing-card:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--hard); }
+.landing-card--hero::after, .landing-card--hero-alt::after { display: none; }
+.landing-card h2, .landing-card--hero h2, .landing-card--tile h2 { color: var(--text); }
+.landing-card--hero h2 { font-size: 1.45rem; }
+.landing-card--hero p, .landing-card--hero-alt p, .landing-card p { color: var(--muted); }
+.landing-icon, .landing-card--tile-event .landing-icon svg { color: var(--accent); }
+/* « En tete d'affiche », « Le plus joue » : une annotation du prof, a l'encre rouge */
+.landing-eyebrow {
+  font-family: var(--font-hand); font-weight: 700; font-size: 1.15rem;
+  letter-spacing: 0; text-transform: none; color: var(--margin);
+}
+.landing-chip {
+  height: 26px; padding: 0 9px; border-radius: var(--r-sm);
+  background: transparent; border: 1.5px solid var(--border);
+  color: var(--text); font-size: .72rem; font-weight: 700;
+}
+.landing-card--tile { min-height: 100px; }
+.landing-card--tile-event .event-card-countdown { color: var(--margin); }
+.landing-card--community:hover { box-shadow: 0 5px 0 var(--hard); }
+
+/* Le tableau d'honneur (classement global) : des lignes de cahier */
+.global-lb-card {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--elev-2);
+  padding: 12px 16px 8px;
+}
+.global-lb-header { font-family: var(--font-display); }
+.global-lb-header > span:first-child { display: none; }
+.global-lb-row { border-bottom: 1px solid var(--border); padding: 6px 0; }
+.global-lb-score { color: var(--accent); }
+.lb-rank, .global-lb-row .lb-rank { font-family: var(--font-hand); font-size: 1.15rem; color: var(--muted); }
+.lb-rank.gold, .lb-rank.silver, .lb-rank.bronze { font-size: 1.3rem; }
+.lb-rank.gold { color: var(--accent); }
+.lb-rank.silver { color: var(--text); }
+.lb-rank.bronze { color: var(--margin); }
+.lb-row-clickable:hover { background: var(--card2); }
+.landing-footer a { color: var(--muted); }
+
+/* L'onglet News, colle sur le bord gauche comme un intercalaire */
+.news-card {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-left: none;
+  box-shadow: var(--elev-2);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+}
+.news-handle { background: var(--card2); border-radius: 0 var(--r-md) var(--r-md) 0; color: var(--accent); }
+.news-title { color: var(--margin); font-family: var(--font-hand); font-size: 1.1rem; text-transform: none; letter-spacing: 0; }
+
+@media (max-width: 600px) {
+  #screen-landing { padding: 60px 14px 110px; gap: 12px; }
+}
+@media (min-width: 700px) {
+  .landing-head, .landing-grid, #screen-landing .global-lb-card { max-width: 720px; }
+  .landing-grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .landing-tiles { grid-column: 1 / -1; }
+  .landing-card--hero { min-height: 190px; }
+}
+@media (min-width: 1024px) {
+  #screen-landing {
+    display: none;
+  }
+  #screen-landing.active {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(280px, 1fr);
+    grid-template-areas: "head head" "grid lb" "foot foot";
+    align-items: start; align-content: start; justify-content: center;
+    column-gap: 28px; row-gap: 18px;
+    max-width: 1180px; margin: 0 auto; padding-top: 48px;
+  }
+  .landing-head { grid-area: head; max-width: none; }
+  .landing-grid { grid-area: grid; max-width: none; }
+  #screen-landing .global-lb-card { grid-area: lb; max-width: none; margin-top: 0; }
+  .landing-footer { grid-area: foot; }
+  .landing-title { font-size: 2.8rem; }
+}
+
+/* Les regles « html.light .x » de l'ancien design sont plus specifiques : :root:root passe devant. */
+:root:root .landing-card--hero, :root:root .landing-card--hero-alt,
+:root:root .landing-card--tile { background: var(--card); border-color: var(--line); }
+:root:root .landing-card--hero p, :root:root .landing-card--hero-alt p { color: var(--muted); }
+:root:root .landing-card--hero h2, :root:root .landing-card--tile h2 { color: var(--text); }
+:root:root .landing-eyebrow { color: var(--margin); }
+:root:root .landing-chip { background: transparent; color: var(--text); }
+@media (min-width: 700px) and (max-width: 1023px) {
+  #screen-landing .global-lb-card { margin-top: 0; }
+}
+@media (min-width: 1024px) {
+  body.nav-bottom-visible .news-card { left: 96px; }
+}
