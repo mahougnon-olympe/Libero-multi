@@ -902,3 +902,63 @@ html:not(.light) .event-badge { color: #8fe0a8; }
 @media (min-width: 700px) and (max-width: 1023px) {
   :root:root .tg-wrap, :root:root .tg-header { max-width: 620px; }
 }
+
+/* ══ Sequence 7 : FENETRES, PANNEAUX, BOUTONS FLOTTANTS, AIDE, DIDACTICIEL ════ */
+/* Boutons flottants (aide, assistant), cloche : des pastilles a l'encre, sans halo */
+:root:root .btn-help-float, :root:root .btn-chatbot-float {
+  background: var(--card); color: var(--accent); border: 1.5px solid var(--line);
+  box-shadow: 0 2px 0 var(--hard); font-family: var(--font-display);
+}
+:root:root .btn-help-float:hover, :root:root .btn-chatbot-float:hover { background: var(--card2); box-shadow: 0 3px 0 var(--hard); }
+:root:root .notif-bell { background: var(--card); color: var(--text); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--hard); }
+
+/* Panneaux : reglages, assistant, notifications */
+:root:root .settings-panel, :root:root .chatbot-panel, :root:root .notif-panel {
+  background: var(--card); color: var(--text); border: 1.5px solid var(--line); border-radius: var(--r-md);
+  box-shadow: var(--elev-3); -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+:root:root .chatbot-header { background: var(--card2); color: var(--text); border-bottom: 1.5px solid var(--line); }
+:root:root .sp-toggle {
+  background: transparent; color: var(--text); border: 1.5px solid var(--line); border-radius: var(--r-sm);
+  font-family: var(--font-body);
+}
+:root:root .sp-toggle:hover { background: var(--card2); border-color: var(--line); }
+:root:root .sp-toggle.sp-off { background: transparent; color: var(--muted); border-color: var(--border); border-style: dashed; }
+:root:root .sp-toggle.sp-ingame { background: transparent; color: #2f8a55; border-color: #2f8a55; }
+
+/* Toasts : un petit mot ecrit a la main */
+:root:root .cursor-snake-toast, :root:root .libs-pill {
+  background: var(--card); color: var(--text); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--hard);
+  border-radius: var(--r-sm);
+}
+
+/* Didacticiel : une bulle de prof */
+:root:root .tuto-bubble {
+  background: var(--card); color: var(--text); border: 1.5px solid var(--line); border-radius: var(--r-md);
+  box-shadow: var(--elev-3);
+}
+.tuto-bubble strong { background: linear-gradient(transparent 58%, var(--mark) 58%); }
+
+/* Fenetres (modales) : en-tetes et titres */
+:root:root .profile-modal-title, :root:root .help-modal-title, :root:root .comment-modal-title {
+  font-family: var(--font-display); font-weight: 400; color: var(--text);
+}
+:root:root .help-tab { border-radius: var(--r-sm); }
+:root:root .help-tab.active { background: var(--board); color: #fff; }
+:root:root .help-close-btn, :root:root .profile-modal-close, :root:root .chatbot-close {
+  background: transparent; border: 1.5px solid var(--border); color: var(--text); border-radius: var(--r-sm);
+}
+.announcement-icon [data-ic], .honor-reward-icon [data-ic], .dailygift-emoji [data-ic] { width: 52px; height: 52px; display: inline-flex; color: var(--accent); }
+.vote-btn-emoji [data-ic] { width: 28px; height: 28px; display: inline-flex; }
+.snake-pause-btn [data-ic], .luffy-ctrl-btn [data-ic] { width: 22px; height: 22px; display: inline-flex; }
+:root:root .snake-pause-btn, :root:root .dpad-btn {
+  background: var(--card); color: var(--text); border: 1.5px solid var(--line); border-radius: var(--r-sm); box-shadow: 0 2px 0 var(--hard);
+}
+:root:root .maintenance-banner { background: var(--card); color: var(--margin); border-bottom: 1.5px solid var(--margin); box-shadow: none; }
+/* Aide : seul le titre de la fiche passe a la ligne ; les mots en gras du texte restent dans la phrase */
+:root:root .help-item p strong { display: inline; font-size: inherit; margin: 0; color: var(--text); background: linear-gradient(transparent 60%, var(--mark) 60%); }
+.help-icon:empty { display: none; }
+.help-item { border-bottom: 1px dashed var(--border); padding-bottom: 10px; }
+.help-item > div > strong { font-family: var(--font-display); font-weight: 400; }
+/* Le panneau News ne passe jamais devant une fenetre ouverte */
+body.overlay-open .news-card { display: none; }

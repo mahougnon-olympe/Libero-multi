@@ -247,7 +247,7 @@
 
     <div class="global-lb-card" id="global-lb-card">
       <div class="global-lb-header">
-        <span>🌍</span>
+        <span></span>
         <span class="lb-title" id="global-lb-title">Classement Global</span>
       </div>
       <div id="global-lb-list" class="global-lb-list">
@@ -339,7 +339,7 @@
     </div>
     <div class="lb-card">
       <div class="lb-header">
-        <span>🏆</span>
+        <span></span>
         <span id="lb-title-classic" class="lb-title">Classement</span>
       </div>
       <div id="leaderboard-list" class="lb-list">
@@ -464,7 +464,7 @@
         <button class="diff-btn" data-diff="hard">Difficile</button>
         <button class="diff-btn" data-diff="extreme">Extrême</button>
       </div>
-      <p id="trivia-diff-hint" class="trivia-diff-hint">🎲 Mixte : questions de tous les niveaux mélangées.</p>
+      <p id="trivia-diff-hint" class="trivia-diff-hint">Mixte : questions de tous les niveaux mélangées.</p>
       <div class="trivia-nb-row">
         <p class="trivia-theme-label"><span id="trivia-nb-label">Nombre de questions</span> : <strong id="trivia-nb-val">10</strong></p>
         <input type="range" id="input-trivia-nb" min="10" max="40" step="5" value="10" class="trivia-nb-slider" />
@@ -482,7 +482,7 @@
       <p id="trivia-error-msg" class="error-msg hidden"></p>
     </div>
     <div class="lb-card">
-      <div class="lb-header"><span>🏆</span><span id="lb-title-trivia" class="lb-title">Classement Quiz</span></div>
+      <div class="lb-header"><span></span><span id="lb-title-trivia" class="lb-title">Classement Quiz</span></div>
       <div id="trivia-lb-list" class="lb-list"><p class="lb-empty">Aucune partie jouée pour l'instant.</p></div>
     </div>
   </div>
@@ -511,8 +511,8 @@
     <div class="tg-wrap">
       <div class="tg-header">
         <button id="btn-quit-trivia" class="btn-quit"><span class="ui-ic" data-ic="quit">🚪</span> Quitter</button>
-        <button id="btn-trivia-pause" class="snake-pause-btn hidden" title="Pause">⏸</button>
-      <button id="btn-boost-hint" class="boost-hint-btn hidden" title="Indice : éliminer une mauvaise réponse">💡</button>
+        <button id="btn-trivia-pause" class="snake-pause-btn hidden" title="Pause"><span data-ic="pause"></span></button>
+      <button id="btn-boost-hint" class="boost-hint-btn hidden" title="Indice : éliminer une mauvaise réponse"></button>
         <span id="tg-q-num" class="tg-q-num"></span>
         <span id="tg-theme-label" class="tg-theme-lbl"></span>
         <div id="tg-timer" class="tg-timer">30</div>
@@ -522,7 +522,7 @@
         <p id="tg-question" class="tg-question"></p>
       </div>
       <div id="tg-choices" class="tg-choices"></div>
-      <button id="tg-skip" class="btn btn-secondary tg-skip hidden">⏭ Passer</button>
+      <button id="tg-skip" class="btn btn-secondary tg-skip hidden"><span data-ic="skip"></span> Passer</button>
       <div id="tg-reveal" class="tg-reveal hidden"></div>
       <div id="tg-finished" class="tg-finished hidden">
         <h2 id="tg-finished-title" class="tg-finished-title">Résultats finaux</h2>
@@ -530,7 +530,7 @@
         <button id="btn-leave-trivia-game" class="btn btn-primary">Retour au menu</button>
       </div>
       <div class="snake-pause-overlay hidden" id="trivia-pause-overlay">
-        <p class="snake-over-text" id="trivia-pause-text">⏸ Pause</p>
+        <p class="snake-over-text" id="trivia-pause-text">Pause</p>
         <button id="btn-trivia-resume" class="btn btn-primary">▶ Reprendre</button>
         <button id="btn-trivia-pause-back" class="btn btn-secondary"><span class="ui-ic" data-ic="back">←</span> Retour au Quiz</button>
         <button id="btn-trivia-pause-home" class="btn btn-secondary"><span class="ui-ic" data-ic="home">🏠</span> Quitter</button>
@@ -569,7 +569,7 @@
 
     <div class="snake-lb-card" id="snake-lb-card">
       <div class="snake-lb-header">
-        <span>🏆</span>
+        <span></span>
         <span id="snake-lb-title-span">Classement Snake</span>
       </div>
       <div id="snake-lb-list" class="snake-lb-list">
@@ -580,20 +580,20 @@
     <div class="snake-game-wrap hidden" id="snake-game-wrap">
       <div class="snake-hud">
         <span><span id="snake-score-text">Score&nbsp;: </span><strong id="snake-score-val">0</strong></span>
-        <button id="btn-snake-pause" class="snake-pause-btn" title="Pause">⏸</button>
+        <button id="btn-snake-pause" class="snake-pause-btn" title="Pause"><span data-ic="pause"></span></button>
         <span><span id="snake-best-text">Meilleur&nbsp;: </span><strong id="snake-hs-val">0</strong></span>
       </div>
       <div class="snake-canvas-wrap">
         <canvas id="snake-canvas" width="300" height="300"></canvas>
         <div class="snake-over-overlay hidden" id="snake-over-overlay">
           <p class="snake-over-text" id="snake-game-over-text">Game Over</p>
-          <p class="snake-new-hs hidden" id="snake-new-hs">🏆 Nouveau record !</p>
+          <p class="snake-new-hs hidden" id="snake-new-hs">Nouveau record !</p>
           <p id="snake-over-score"></p>
           <button id="btn-snake-restart" class="btn btn-primary">Rejouer</button>
           <button id="btn-snake-quit" class="btn btn-secondary">Quitter</button>
         </div>
         <div class="snake-pause-overlay hidden" id="snake-pause-overlay">
-          <p class="snake-over-text" id="snake-pause-text">⏸ Pause</p>
+          <p class="snake-over-text" id="snake-pause-text">Pause</p>
           <button id="btn-snake-resume" class="btn btn-primary">▶ Reprendre</button>
           <button id="btn-snake-pause-quit-events" class="btn btn-secondary"><span class="ui-ic" data-ic="back">←</span> Retour</button>
           <button id="btn-snake-pause-quit-home" class="btn btn-secondary"><span class="ui-ic" data-ic="home">🏠</span> Quitter</button>
@@ -619,7 +619,7 @@
       <p class="subtitle" id="luffy-screen-sub">Pour la communauté</p>
     </div>
     <div class="event-intro" id="luffy-intro">
-      <div class="event-badge">🏃</div>
+      <div class="event-badge"><span data-ic="run"></span></div>
       <h2 id="luffy-challenge-title">Libero Run</h2>
       <p id="luffy-challenge-desc">Aide Libero à courir le plus loin possible ! Saute par-dessus les obstacles au sol, accroupis-toi sous ceux qui volent.</p>
       <div class="event-hs-display" id="luffy-hs-display"></div>
@@ -629,7 +629,7 @@
     <!-- Formulaire pseudo (obligatoire avant de jouer) -->
     <div class="snake-name-form hidden" id="luffy-name-form">
       <div class="snake-name-card">
-        <p class="snake-name-title" id="luffy-name-title-el">🏃 Ton pseudo</p>
+        <p class="snake-name-title" id="luffy-name-title-el">Ton pseudo</p>
         <p class="snake-name-sub" id="luffy-name-sub-el">Choisis un pseudo pour figurer dans le classement.</p>
         <input type="text" id="luffy-pseudo-input" class="snake-pseudo-input" placeholder="Ton pseudo" maxlength="20" autocomplete="off">
         <p class="snake-name-error hidden" id="luffy-name-error">Entre un pseudo pour continuer.</p>
@@ -643,7 +643,7 @@
 
     <div class="snake-lb-card" id="luffy-lb-card">
       <div class="snake-lb-header">
-        <span>🏆</span>
+        <span></span>
         <span id="luffy-lb-title-span">Classement Libero Run</span>
       </div>
       <div id="luffy-lb-list" class="snake-lb-list">
@@ -654,20 +654,20 @@
     <div class="snake-game-wrap hidden" id="luffy-game-wrap">
       <div class="snake-hud" id="luffy-hud">
         <span><span id="luffy-score-text">Score&nbsp;: </span><strong id="luffy-score-val">0</strong></span>
-        <button id="btn-luffy-pause" class="snake-pause-btn" title="Pause">⏸</button>
+        <button id="btn-luffy-pause" class="snake-pause-btn" title="Pause"><span data-ic="pause"></span></button>
         <span><span id="luffy-best-text">Meilleur&nbsp;: </span><strong id="luffy-hs-val">0</strong></span>
       </div>
       <div class="snake-canvas-wrap">
         <canvas id="luffy-canvas" width="600" height="220"></canvas>
         <div class="snake-over-overlay hidden" id="luffy-over-overlay">
           <p class="snake-over-text" id="luffy-game-over-text">Game Over</p>
-          <p class="snake-new-hs hidden" id="luffy-new-hs">🏆 Nouveau record !</p>
+          <p class="snake-new-hs hidden" id="luffy-new-hs">Nouveau record !</p>
           <p id="luffy-over-score"></p>
           <button id="btn-luffy-restart" class="btn btn-primary">Rejouer</button>
           <button id="btn-luffy-quit" class="btn btn-secondary">Quitter</button>
         </div>
         <div class="snake-pause-overlay hidden" id="luffy-pause-overlay">
-          <p class="snake-over-text" id="luffy-pause-text">⏸ Pause</p>
+          <p class="snake-over-text" id="luffy-pause-text">Pause</p>
           <button id="btn-luffy-resume" class="btn btn-primary">▶ Reprendre</button>
           <button id="btn-luffy-pause-quit-luffy" class="btn btn-secondary"><span class="ui-ic" data-ic="back">←</span> Retour</button>
           <button id="btn-luffy-pause-quit-home" class="btn btn-secondary"><span class="ui-ic" data-ic="home">🏠</span> Quitter</button>
@@ -675,8 +675,8 @@
       </div>
       <p class="snake-hint" id="luffy-hint-text">↑ / Espace pour sauter · ↓ pour t'accroupir</p>
       <div class="luffy-controls" id="luffy-controls">
-        <button class="dpad-btn luffy-ctrl-btn" id="luffy-btn-jump">⬆️</button>
-        <button class="dpad-btn luffy-ctrl-btn" id="luffy-btn-duck">⬇️</button>
+        <button class="dpad-btn luffy-ctrl-btn" id="luffy-btn-jump" aria-label="Sauter"><span data-ic="up"></span></button>
+        <button class="dpad-btn luffy-ctrl-btn" id="luffy-btn-duck" aria-label="Se baisser"><span data-ic="down2"></span></button>
       </div>
     </div>
   </div>
@@ -731,7 +731,7 @@
         <div class="ideas-toolbar">
           <div class="ideas-sort">
             <button id="ideas-sort-top" class="ideas-sort-btn active" data-sort="top"><span class="ui-ic" data-ic="flame">🔥</span> Top</button>
-            <button id="ideas-sort-new" class="ideas-sort-btn" data-sort="new">🆕 Récentes</button>
+            <button id="ideas-sort-new" class="ideas-sort-btn" data-sort="new">Récentes</button>
             <button id="ideas-filter-mine" class="ideas-sort-btn" data-filter="mine"><span class="ui-ic" data-ic="user">👤</span> Les miennes</button>
           </div>
           <button id="ideas-new-btn" class="btn btn-primary ideas-new-btn"><span class="ui-ic" data-ic="bulb">💡</span> Proposer</button>
@@ -798,7 +798,7 @@
     <!-- Tournoi du samedi (statut en direct dans les News) -->
     <div class="tournament-card news-tournament" id="tournament-card">
       <h2 id="tournament-title"><span class="ui-ic ttl" data-ic="trophy">🏆</span> Tournoi du samedi</h2>
-      <p id="tournament-desc" class="tournament-desc">Chaque samedi : victoires classiques +10 pts, bonnes réponses de quiz +2 pts, ⚡ mangés au Snake +1 pt. Le meilleur gagne 2000 ⚡ et le titre « Champion de la semaine » !</p>
+      <p id="tournament-desc" class="tournament-desc">Chaque samedi : victoires classiques +10 pts, bonnes réponses de quiz +2 pts, mangés au Snake +1 pt. Le meilleur gagne 2000 et le titre « Champion de la semaine » !</p>
       <p id="tournament-status" class="tournament-status"></p>
       <div id="tournament-top" class="tournament-top"></div>
       <p id="tournament-champion" class="tournament-champion"></p>
@@ -829,9 +829,9 @@
     </form>
   </div>
   <!-- ── Boutons cachés (pilotés par le panneau Paramètres) ── -->
-  <button id="btn-lang" class="btn-hidden" aria-hidden="true">🇬🇧 EN</button>
-  <button id="btn-snake-toggle" class="btn-hidden" aria-hidden="true">🐍</button>
-  <button id="btn-theme-toggle" class="btn-hidden" aria-hidden="true">☀️</button>
+  <button id="btn-lang" class="btn-hidden" aria-hidden="true">EN</button>
+  <button id="btn-snake-toggle" class="btn-hidden" aria-hidden="true"></button>
+  <button id="btn-theme-toggle" class="btn-hidden" aria-hidden="true"></button>
 
   <!-- ── Écran Le Mot (façon Wordle) : mot mystère du jour ── -->
   <div id="screen-wordle" class="screen screen-wordle">
@@ -852,17 +852,17 @@
   </div>
 
   <!-- ── Bouton Paramètres ── -->
-  <button id="btn-settings" class="btn-settings-float" title="Paramètres">⚙️</button>
+  <button id="btn-settings" class="btn-settings-float" title="Paramètres"></button>
 
   <!-- ── Panneau Paramètres ── -->
   <div id="settings-panel" class="settings-panel hidden">
     <div class="sp-row">
       <span class="sp-label" data-sp-label="settingsLang">Langue</span>
-      <button id="sp-lang-btn" class="sp-toggle">🇬🇧 EN</button>
+      <button id="sp-lang-btn" class="sp-toggle">EN</button>
     </div>
     <div class="sp-row">
       <span class="sp-label" data-sp-label="settingsTheme">Thème</span>
-      <button id="sp-theme-btn" class="sp-toggle">☀️</button>
+      <button id="sp-theme-btn" class="sp-toggle"></button>
     </div>
     <div class="sp-row">
       <span class="sp-label" data-sp-label="settingsSnake">Serpent</span>
@@ -886,7 +886,7 @@
     </div>
     <div class="sp-row">
       <span class="sp-label" data-sp-label="settingsPush">Notifications</span>
-      <button id="sp-push-btn" class="sp-toggle">🔔</button>
+      <button id="sp-push-btn" class="sp-toggle"></button>
     </div>
     <div class="sp-divider"></div>
     <div class="sp-row sp-row-refund">
@@ -894,7 +894,7 @@
     </div>
     <p id="sp-refund-info" class="sp-refund-info">2/2 cartes disponibles</p>
     <div class="sp-divider"></div>
-    <a href="legal.html" class="sp-legal-link" id="sp-legal-link" data-sp-label="legalLinkSettings">📄 Mentions légales · CGV · Confidentialité</a>
+    <a href="legal.html" class="sp-legal-link" id="sp-legal-link" data-sp-label="legalLinkSettings">Mentions légales · CGV · Confidentialité</a>
   </div>
 
   <!-- ── Compteur Libs (permanent, haut droite) ── -->
@@ -929,7 +929,7 @@
         <div class="community-steps">
           <div class="community-step">
             <span class="community-step-num">1</span>
-            <p id="community-step-1">Propose le jeu que tu voudrais voir sur le site en laissant un commentaire via le bouton <strong>✉️</strong> en bas à gauche.</p>
+            <p id="community-step-1">Propose le jeu que tu voudrais voir sur le site en laissant un commentaire via le bouton <strong></strong> en bas à gauche.</p>
           </div>
           <div class="community-step">
             <span class="community-step-num">2</span>
@@ -941,7 +941,7 @@
           </div>
         </div>
         <p class="community-modal-cta" id="community-cta">Tu as une idée ? Fais-le savoir !</p>
-        <button id="btn-community-open-comment" class="btn btn-primary">✉️ Laisser une suggestion</button>
+        <button id="btn-community-open-comment" class="btn btn-primary">Laisser une suggestion</button>
       </div>
     </div>
   </div>
@@ -949,7 +949,7 @@
   <!-- ── Modal : Annonce serveur ── -->
   <div id="overlay-announcement" class="overlay hidden announcement-overlay">
     <div class="overlay-box announcement-box">
-      <div class="announcement-icon">💌</div>
+      <div class="announcement-icon"><span data-ic="mail"></span></div>
       <p id="announcement-msg" class="announcement-msg"></p>
       <button id="btn-announcement-ok" class="btn btn-primary">OK</button>
     </div>
@@ -958,7 +958,7 @@
   <!-- ── Modal : Titre honorifique ── -->
   <div id="overlay-honor-reward" class="overlay hidden">
     <div class="overlay-box honor-reward-box">
-      <div class="honor-reward-icon">🏆</div>
+      <div class="honor-reward-icon"><span data-ic="trophy"></span></div>
       <h2 id="honor-reward-title" class="honor-reward-title"></h2>
       <p id="honor-reward-msg" class="honor-reward-msg"></p>
       <button id="btn-honor-reward-accept" class="btn btn-primary">Accepter</button>
@@ -977,11 +977,11 @@
 
       <div class="snake-vote-btns" id="snake-vote-btns">
         <button id="btn-vote-yes" class="snake-vote-btn snake-vote-yes">
-          <span class="vote-btn-emoji">✅</span>
+          <span class="vote-btn-emoji"><span data-ic="check"></span></span>
           <span id="vote-yes-label">Oui, ramène-le !</span>
         </button>
         <button id="btn-vote-no" class="snake-vote-btn snake-vote-no">
-          <span class="vote-btn-emoji">❌</span>
+          <span class="vote-btn-emoji"><span data-ic="x"></span></span>
           <span id="vote-no-label">Non, pas maintenant</span>
         </button>
       </div>
@@ -1009,7 +1009,7 @@
         <div class="shop-fn-header-right">
           <div class="shop-fn-balance">
             <span id="shop-balance-label" class="shop-fn-balance-label">Ton solde</span>
-            <span id="shop-balance-display" class="shop-fn-balance-amount">⚡ 0 Libs</span>
+            <span id="shop-balance-display" class="shop-fn-balance-amount">0 Libs</span>
             <button id="btn-libs-topup" class="shop-fn-topup-btn hidden"><span class="ui-ic" data-ic="card">💳</span> Recharger</button>
           </div>
         </div>
@@ -1074,7 +1074,7 @@
         ></textarea>
         <div class="comment-form-footer">
           <span id="comment-chars" class="comment-chars">0 / 1000</span>
-          <button type="submit" id="btn-comment-send" class="btn btn-primary">Envoyer ✉️</button>
+          <button type="submit" id="btn-comment-send" class="btn btn-primary">Envoyer </button>
         </div>
         <p id="comment-feedback" class="comment-feedback hidden"></p>
       </form>
@@ -1088,7 +1088,7 @@
       <p id="tuto-text" class="tuto-text"></p>
       <div class="tuto-actions">
         <button id="tuto-skip" class="tuto-skip">Passer le guide</button>
-        <button id="tuto-ok"   class="tuto-ok">J'ai compris ✓</button>
+        <button id="tuto-ok"   class="tuto-ok">J'ai compris </button>
       </div>
     </div>
   </div>
@@ -1165,9 +1165,9 @@
         <div id="onboard-quest" class="onboard-quest hidden">
           <p class="onboard-quest-title"><span class="oqt-ic" data-ic="rocket">🚀</span> <span id="onboard-quest-title">Premiers pas (gagne des Libs !)</span></p>
           <div class="onboard-steps">
-            <div class="onboard-step" data-step="play"><span class="ob-check" data-ic="circle">⬜</span><span class="ob-tx" id="ob-play">Joue ta première partie <b>+50 ⚡</b></span></div>
-            <div class="onboard-step" data-step="win"><span class="ob-check" data-ic="circle">⬜</span><span class="ob-tx" id="ob-win">Remporte une partie <b>+100 ⚡</b></span></div>
-            <div class="onboard-step" data-step="perso"><span class="ob-check" data-ic="circle">⬜</span><span class="ob-tx" id="ob-perso">Personnalise-toi (équipe un cosmétique) <b>+50 ⚡</b></span></div>
+            <div class="onboard-step" data-step="play"><span class="ob-check" data-ic="circle">⬜</span><span class="ob-tx" id="ob-play">Joue ta première partie <b>+50 </b></span></div>
+            <div class="onboard-step" data-step="win"><span class="ob-check" data-ic="circle">⬜</span><span class="ob-tx" id="ob-win">Remporte une partie <b>+100 </b></span></div>
+            <div class="onboard-step" data-step="perso"><span class="ob-check" data-ic="circle">⬜</span><span class="ob-tx" id="ob-perso">Personnalise-toi (équipe un cosmétique) <b>+50 </b></span></div>
           </div>
         </div>
 
@@ -1190,7 +1190,7 @@
           <summary class="profile-sec-head"><span id="sec-play-label">Jouer et gagner</span><span class="pst-chevron" aria-hidden="true"></span></summary>
           <button type="button" class="profile-nav-card" id="go-wheel">
           <span class="pnc-icon" data-ic="wheel">🎡</span>
-          <span class="pnc-text"><span id="wheel-card-title">Roue de la fortune</span><small id="wheel-card-sub">1 tour gratuit par jour, jusqu'à 250 ⚡</small></span>
+          <span class="pnc-text"><span id="wheel-card-title">Roue de la fortune</span><small id="wheel-card-sub">1 tour gratuit par jour, jusqu'à 250 </small></span>
           <span class="pnc-arrow">›</span>
         </button>
           <button type="button" class="profile-nav-card" id="go-vip">
@@ -1205,7 +1205,7 @@
         </button>
           <button type="button" class="profile-nav-card" id="go-referral">
           <span class="pnc-icon" data-ic="userplus">🤝</span>
-          <span class="pnc-text"><span id="referral-card-title">Inviter un ami</span><small id="referral-card-sub">+100 ⚡ pour toi et pour lui</small></span>
+          <span class="pnc-text"><span id="referral-card-title">Inviter un ami</span><small id="referral-card-sub">+100 pour toi et pour lui</small></span>
           <span class="pnc-arrow">›</span>
         </button>
         </details>
@@ -1288,12 +1288,12 @@
         </details>
 
         <!-- Défis quotidiens -->
-        <h3 id="challenges-title" class="profile-section-title">🎯 Défis du jour</h3>
+        <h3 id="challenges-title" class="profile-section-title">Défis du jour</h3>
         <div id="challenges-list" class="challenges-list"></div>
 
         <!-- Défis permanents (progression à vie, grosses récompenses) -->
-        <h3 id="perm-title" class="profile-section-title">🏔️ Défis permanents</h3>
-        <p id="perm-sub" class="perm-sub">Des exploits de longue haleine : la progression ne se remet jamais à zéro. Récompenses énormes, jusqu'à 5000 ⚡ !</p>
+        <h3 id="perm-title" class="profile-section-title">Défis permanents</h3>
+        <p id="perm-sub" class="perm-sub">Des exploits de longue haleine : la progression ne se remet jamais à zéro. Récompenses énormes, jusqu'à 5000 !</p>
         <div id="perm-list" class="challenges-list"></div>
       </div>
     </div>
@@ -1303,7 +1303,7 @@
   <div id="screen-locker" class="screen">
     <div class="subpage-inner">
       <button class="btn-back" id="btn-back-locker">← Retour</button>
-      <h2 class="profile-screen-title" id="locker-page-title">🎒 Mon casier</h2>
+      <h2 class="profile-screen-title" id="locker-page-title">Mon casier</h2>
       <div id="locker-list" class="locker-list"></div>
     </div>
   </div>
@@ -1312,7 +1312,7 @@
   <div id="screen-history" class="screen">
     <div class="subpage-inner">
       <button class="btn-back" id="btn-back-history">← Retour</button>
-      <h2 class="profile-screen-title" id="history-page-title">🕑 Mes dernières parties</h2>
+      <h2 class="profile-screen-title" id="history-page-title">Mes dernières parties</h2>
       <div id="history-list" class="history-list"></div>
     </div>
   </div>
@@ -1321,7 +1321,7 @@
   <div id="overlay-recovery" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
-        <h2 id="recovery-title" class="profile-modal-title">🔐 Sauvegarder ma progression</h2>
+        <h2 id="recovery-title" class="profile-modal-title">Sauvegarder ma progression</h2>
         <button id="btn-recovery-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
@@ -1347,11 +1347,11 @@
   <div id="overlay-referral" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
-        <h2 id="referral-title" class="profile-modal-title">🤝 Invite un ami</h2>
+        <h2 id="referral-title" class="profile-modal-title">Invite un ami</h2>
         <button id="btn-referral-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
-        <p id="referral-intro" class="recovery-intro">Envoie ton lien d'invitation : quand ton ami jouera sa première partie, vous recevrez chacun 100 ⚡ !</p>
+        <p id="referral-intro" class="recovery-intro">Envoie ton lien d'invitation : quand ton ami jouera sa première partie, vous recevrez chacun 100 !</p>
         <label id="referral-link-label" class="recovery-label">Ton lien d'invitation</label>
         <div class="recovery-code-row">
           <input id="referral-link" class="recovery-input" type="text" readonly />
@@ -1367,7 +1367,7 @@
   <div id="overlay-bug" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
-        <h2 id="bug-title" class="profile-modal-title">🐛 Signaler un bug</h2>
+        <h2 id="bug-title" class="profile-modal-title">Signaler un bug</h2>
         <button id="btn-bug-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
@@ -1386,7 +1386,7 @@
   <div id="overlay-wheel" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
-        <h2 id="wheel-title" class="profile-modal-title">🎡 Roue de la fortune</h2>
+        <h2 id="wheel-title" class="profile-modal-title">Roue de la fortune</h2>
         <button id="btn-wheel-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body wheel-body">
@@ -1395,7 +1395,7 @@
           <div class="wheel-pointer">▼</div>
           <div id="wheel-disc" class="wheel-disc"></div>
         </div>
-        <button id="btn-wheel-spin" class="btn btn-primary recovery-reset-btn">🎡 Tourner la roue</button>
+        <button id="btn-wheel-spin" class="btn btn-primary recovery-reset-btn">Tourner la roue</button>
         <p id="wheel-status" class="recovery-warn"></p>
       </div>
     </div>
@@ -1405,7 +1405,7 @@
   <div id="overlay-friends" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
-        <h2 id="friends-title" class="profile-modal-title">👥 Mes amis</h2>
+        <h2 id="friends-title" class="profile-modal-title">Mes amis</h2>
         <button id="btn-friends-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
@@ -1423,7 +1423,7 @@
   <!-- ── Modal : cadeau reçu (bouton OK obligatoire) ── -->
   <div id="overlay-giftrecv" class="overlay hidden">
     <div class="recovery-modal giftrecv-modal">
-      <h2 id="giftrecv-title" class="profile-modal-title">🎁 Tu as reçu un cadeau !</h2>
+      <h2 id="giftrecv-title" class="profile-modal-title">Tu as reçu un cadeau !</h2>
       <p id="giftrecv-msg" class="recovery-intro"></p>
       <button id="btn-giftrecv-ok" class="btn btn-primary recovery-reset-btn">OK</button>
     </div>
@@ -1432,8 +1432,8 @@
   <!-- ── Modal : Cadeau du jour (theme ete) ── -->
   <div id="overlay-dailygift" class="overlay hidden">
     <div class="recovery-modal giftrecv-modal">
-      <div id="dailygift-emoji" class="dailygift-emoji">☀️</div>
-      <h2 id="dailygift-title" class="profile-modal-title">☀️ Cadeau du jour</h2>
+      <div id="dailygift-emoji" class="dailygift-emoji"></div>
+      <h2 id="dailygift-title" class="profile-modal-title">Cadeau du jour</h2>
       <div id="dailygift-preview" class="dailygift-preview hidden"></div>
       <p id="dailygift-itemname" class="dailygift-itemname hidden"></p>
       <p id="dailygift-msg" class="recovery-intro"></p>
@@ -1446,7 +1446,7 @@
   <div id="overlay-friendpick" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
-        <h2 id="friendpick-title" class="profile-modal-title">⚔️ Qui veux-tu défier ?</h2>
+        <h2 id="friendpick-title" class="profile-modal-title">Qui veux-tu défier ?</h2>
         <button id="btn-friendpick-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
@@ -1459,20 +1459,20 @@
   <div id="overlay-friendgift" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
-        <h2 id="friendgift-title" class="profile-modal-title">🎁 Offrir des Libs</h2>
+        <h2 id="friendgift-title" class="profile-modal-title">Offrir des Libs</h2>
         <button id="btn-friendgift-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <p id="friendgift-libs-label" class="recovery-label">Montant en Libs</p>
         <div class="stake-btns" id="friendgift-amounts">
-          <button class="stake-btn" data-amt="25">25 ⚡</button>
-          <button class="stake-btn" data-amt="50">50 ⚡</button>
-          <button class="stake-btn" data-amt="100">100 ⚡</button>
-          <button class="stake-btn" data-amt="250">250 ⚡</button>
-          <button class="stake-btn" data-amt="500">500 ⚡</button>
+          <button class="stake-btn" data-amt="25">25 Libs</button>
+          <button class="stake-btn" data-amt="50">50 Libs</button>
+          <button class="stake-btn" data-amt="100">100 Libs</button>
+          <button class="stake-btn" data-amt="250">250 Libs</button>
+          <button class="stake-btn" data-amt="500">500 Libs</button>
         </div>
         <p id="friendgift-vip-label" class="recovery-label">Ou offre-lui un Pass VIP</p>
-        <button class="stake-btn friendgift-vip-btn" id="friendgift-vip">👑 Pass VIP (30 j)</button>
+        <button class="stake-btn friendgift-vip-btn" id="friendgift-vip">Pass VIP (30 j)</button>
         <button id="btn-friendgift-confirm" class="btn btn-primary recovery-reset-btn hidden"></button>
         <p id="friendgift-status" class="recovery-warn"></p>
       </div>
@@ -1499,13 +1499,13 @@
   <div id="overlay-iq" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
-        <h2 id="iq-title" class="profile-modal-title">🧠 Test de QI</h2>
+        <h2 id="iq-title" class="profile-modal-title">Test de QI</h2>
         <button id="btn-iq-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <div id="iq-intro-view">
           <p id="iq-intro" class="recovery-intro"></p>
-          <button id="btn-iq-start" class="btn btn-primary recovery-reset-btn">🧠 Commencer le test</button>
+          <button id="btn-iq-start" class="btn btn-primary recovery-reset-btn">Commencer le test</button>
         </div>
         <div id="iq-test-view" class="hidden">
           <div class="iq-head"><span id="iq-progress"></span><span id="iq-timer" class="iq-timer"></span></div>
@@ -1515,7 +1515,7 @@
         <div id="iq-result-view" class="hidden">
           <p id="iq-result-value" class="iq-result-value"></p>
           <p id="iq-result-note" class="recovery-warn"></p>
-          <button id="btn-iq-share" class="btn btn-primary recovery-reset-btn">📣 Partager</button>
+          <button id="btn-iq-share" class="btn btn-primary recovery-reset-btn">Partager</button>
         </div>
       </div>
     </div>
@@ -1525,7 +1525,7 @@
   <div id="overlay-vip" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
-        <h2 id="vip-title" class="profile-modal-title">👑 Pass VIP</h2>
+        <h2 id="vip-title" class="profile-modal-title">Pass VIP</h2>
         <button id="btn-vip-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
@@ -1541,7 +1541,7 @@
   <div id="overlay-joinname" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
-        <h2 id="joinname-title" class="profile-modal-title">🎮 On t'attend !</h2>
+        <h2 id="joinname-title" class="profile-modal-title">On t'attend !</h2>
       </div>
       <div class="recovery-body">
         <p id="joinname-intro" class="recovery-intro">Un ami t'a invité à une partie. Choisis d'abord ton pseudo pour le rejoindre.</p>
@@ -1581,7 +1581,7 @@
   <div id="overlay-reset" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
-        <h2 id="reset-title" class="profile-modal-title">🗑️ Réinitialiser le compte</h2>
+        <h2 id="reset-title" class="profile-modal-title">Réinitialiser le compte</h2>
         <button id="btn-reset-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
@@ -1606,7 +1606,7 @@
   <div id="overlay-gift" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
-        <h2 id="gift-title" class="profile-modal-title">🎁 Cadeau prêt !</h2>
+        <h2 id="gift-title" class="profile-modal-title">Cadeau prêt !</h2>
         <button id="btn-gift-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
@@ -1631,16 +1631,16 @@
   <div id="overlay-giftchoice" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
-        <h2 id="giftchoice-title" class="profile-modal-title">🎁 Offrir</h2>
+        <h2 id="giftchoice-title" class="profile-modal-title">Offrir</h2>
         <button id="btn-giftchoice-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">
         <p id="giftchoice-intro" class="recovery-intro"></p>
         <!-- Vue 1 : choix de la méthode -->
         <div id="giftchoice-methods">
-          <button class="btn btn-primary recovery-reset-btn giftchoice-method" data-method="friend">👥 Envoyer à un ami</button>
-          <button class="btn btn-secondary recovery-reset-btn giftchoice-method" data-method="link">🔗 Partager un lien</button>
-          <button class="btn btn-secondary recovery-reset-btn giftchoice-method" data-method="code">🔢 Obtenir un code</button>
+          <button class="btn btn-primary recovery-reset-btn giftchoice-method" data-method="friend">Envoyer à un ami</button>
+          <button class="btn btn-secondary recovery-reset-btn giftchoice-method" data-method="link">Partager un lien</button>
+          <button class="btn btn-secondary recovery-reset-btn giftchoice-method" data-method="code">Obtenir un code</button>
         </div>
         <!-- Vue 2 : liste d'amis (méthode "ami") -->
         <div id="giftchoice-friends" class="hidden">
@@ -1672,13 +1672,13 @@
   <div id="overlay-onboard" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
-        <h2 id="onboard-title" class="profile-modal-title">👋 Bienvenue !</h2>
+        <h2 id="onboard-title" class="profile-modal-title">Bienvenue !</h2>
       </div>
       <div class="recovery-body">
         <label id="onboard-theme-label" class="recovery-label">Choisis ton thème</label>
         <div class="onboard-theme-row">
-          <button type="button" id="onboard-theme-day" class="btn btn-secondary onboard-theme-btn">☀️ Jour</button>
-          <button type="button" id="onboard-theme-night" class="btn btn-secondary onboard-theme-btn">🌙 Nuit</button>
+          <button type="button" id="onboard-theme-day" class="btn btn-secondary onboard-theme-btn">Jour</button>
+          <button type="button" id="onboard-theme-night" class="btn btn-secondary onboard-theme-btn">Nuit</button>
         </div>
         <hr class="recovery-sep" />
         <label id="onboard-pseudo-label" class="recovery-label">Choisis ton pseudo</label>
@@ -1703,7 +1703,7 @@
   <div id="overlay-account" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
-        <h2 id="account-title" class="profile-modal-title">🔑 Mon compte</h2>
+        <h2 id="account-title" class="profile-modal-title">Mon compte</h2>
         <button id="btn-account-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
       <div class="recovery-body">

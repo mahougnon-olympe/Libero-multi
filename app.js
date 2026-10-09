@@ -7109,12 +7109,12 @@ function _updateSettingsPanel() {
   const fr = currentLang === 'fr';
 
   const langBtn = document.getElementById('sp-lang-btn');
-  if (langBtn) langBtn.textContent = fr ? '🇫🇷 FR ⇄' : '🇬🇧 EN ⇄';
+  if (langBtn) langBtn.textContent = fr ? 'FR ⇄' : 'EN ⇄';
 
   const themeBtn = document.getElementById('sp-theme-btn');
   if (themeBtn) {
     const isLight = document.documentElement.classList.contains('light');
-    themeBtn.textContent = isLight ? (fr ? '☀️ Jour ⇄' : '☀️ Day ⇄') : (fr ? '🌙 Nuit ⇄' : '🌙 Night ⇄');
+    themeBtn.textContent = isLight ? (fr ? 'Jour ⇄' : 'Day ⇄') : (fr ? 'Nuit ⇄' : 'Night ⇄');
   }
 
   const snakeBtn = document.getElementById('sp-snake-btn');
@@ -9179,6 +9179,7 @@ window._playEmojiRain = function (emojisOverride) {
 
   const wrap = document.createElement('div');
   wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9998;contain:strict;';
+  wrap.className = 'emoji-ok';
   document.body.appendChild(wrap);
   _emojiRainWrap = wrap;
 
@@ -12357,7 +12358,7 @@ socket.on('daily-gift', g => {
     if (lockEl) { lockEl.textContent = d.dailyGiftInLocker; lockEl.classList.remove('hidden'); }
   }
   else if (g.type === 'emojirain') { emoji = (g.emojis || '🎉').slice(0, 2); msg = d.dailyGiftRain; }
-  if (emojiEl) emojiEl.textContent = emoji;
+  if (emojiEl) emojiEl.innerHTML = `<span data-ic="${g.type === 'libs' ? 'zap' : 'gift'}"></span>`;
   msgEl.textContent = msg;
   overlay.classList.remove('hidden');
   window._sound?.play('success');
@@ -13479,3 +13480,38 @@ socket.on('claim-challenge-result', ({ ok, reward, allDoneBonus } = {}) => {
 
 // Reprise du quiz solo au chargement, sans attendre le serveur.
 try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
+
+// ── Filet de securite « aucun emoji dans l'interface » ─────────────────────
+// Tout texte ajoute a la page (reglages, notifications, toasts, aide...) perd
+// ses emojis, sauf le contenu qui EST fait d'emojis : emotes, packs et pluie
+// d'emojis, messages du chat, symboles de morpion achetes, saisies du joueur.
+(function () {
+  const OK = '.emoji-ok, [data-ic], input, textarea, .chat-msgs, #chat-messages, .msg-bubble, .chat-msg, '
+    + '[class*="emote"], .pack-prev, .shop-emoji-preview, .ttt-cell, .wordle-board, .tg-burst, '
+    + '#emojirain-overlay-preview, .emojirain-preset, .locker-item-preview, .dailygift-preview, '
+    + '.snake-food, canvas, script, style';
+  const RE = /(?![©®™])\p{Extended_Pictographic}|\p{Regional_Indicator}|[\u{FE0F}\u{200D}\u{20E3}]/u;
+  function nettoie(n) {
+    if (!n.nodeValue || !RE.test(n.nodeValue)) return;
+    const el = n.parentElement;
+    if (!el || el.closest(OK)) return;
+    const v = _sansEmoji(n.nodeValue);
+    if (v !== n.nodeValue) n.nodeValue = v;
+  }
+  function parcours(root) {
+    if (root.nodeType === 3) { nettoie(root); return; }
+    if (root.nodeType !== 1 || root.closest?.(OK)) return;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let n; while ((n = w.nextNode())) nettoie(n);
+  }
+  function go() {
+    parcours(document.body);
+    new MutationObserver(muts => {
+      for (const m of muts) {
+        if (m.type === 'characterData') nettoie(m.target);
+        else m.addedNodes.forEach(parcours);
+      }
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+  if (document.body) go(); else document.addEventListener('DOMContentLoaded', go);
+})();

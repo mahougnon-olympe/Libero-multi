@@ -53,7 +53,7 @@ const MAP = {
   up:['ChevronUp','#c7d2fe','#3730a3'],        down2:['ChevronDown','#c7d2fe','#3730a3'],
   share:['Share2','#a5f3fc','#0e7490'],        quit:['LogOut','#fecaca','#b91c1c'],
   send:['SendHorizontal','#c7d2fe','#3730a3'], trophy:['Trophy','#fde68a','#a16207'],
-  run:['Footprints','#bbf7d0','#15803d'],      flame:['Flame','#fed7aa','#c2410c'],
+  run:['Footprints','#bbf7d0','#15803d'], pause:['Pause','#c7d2fe','#3730a3'], skip:['SkipForward','#c7d2fe','#3730a3'], mail:['Mail','#fbcfe8','#9d174d'], x:['X','#fecaca','#b91c1c'],      flame:['Flame','#fed7aa','#c2410c'],
   user:['User','#cbd5e1','#334155'],           sun:['Sun','#fde68a','#b45309'],
   swords:['Swords','#fecaca','#b91c1c'],       clap:['Clapperboard','#e9d5ff','#7e22ce'],
   /* ── Idees, News, Lecture, Boutique ── */
