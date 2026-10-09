@@ -2757,7 +2757,8 @@ function showScreen(name) {
 })();
 
 // ── Trivia : constantes ───────────────────────────────────────────────────────
-const TRIVIA_COLORS = ['#2563eb','#dc2626','#16a34a','#9333ea','#ea580c','#0891b2'];
+// Couleurs des joueurs du quiz : la palette du site (encre, rouge, vert, or, violet, sarcelle), en aplats.
+const TRIVIA_COLORS = ['#3d64b8','#d23a4f','#2f8a55','#b8860b','#7a4fb0','#2a8a8a'];
 
 // ── Trivia : état ─────────────────────────────────────────────────────────────
 let selectedTriviaCategories = [];
@@ -4609,7 +4610,8 @@ function showTriviaFinished(scores) {
   $('btn-boost-hint')?.classList.add('hidden'); // plus d'indice utilisable une fois le quiz fini
   $('tg-choices').innerHTML = '';
   $('tg-reveal').classList.add('hidden');
-  const medals = ['🥇','🥈','🥉'];
+  // Rangs ecrits a la main au lieu des medailles emoji.
+  const medals = ['<span class="rank-hand r1">1<sup>er</sup></span>', '<span class="rank-hand r2">2<sup>e</sup></span>', '<span class="rank-hand r3">3<sup>e</sup></span>'];
   const myIdx = triviaIsSolo ? 0 : scores.findIndex(s => s.socketId === triviaMySocketId);
   let html = '';
   if (!triviaIsSolo && scores.length >= 2) {
@@ -4619,7 +4621,7 @@ function showTriviaFinished(scores) {
       const s = scores[i];
       const col = TRIVIA_COLORS[s.colorIndex] || '#64748b';
       return `<div class="tg-podium-col tg-podium-p${i + 1}${i === myIdx ? ' me' : ''}">
-        ${i === 0 ? '<span class="tg-podium-crown">👑</span>' : ''}
+        ${i === 0 ? '<span class="tg-podium-crown"><span data-ic="crown"></span></span>' : ''}
         <span class="tg-podium-medal">${medals[i]}</span>
         <span class="tg-podium-name">${_escHtml(s.name)}</span>
         <span class="tg-podium-pts">${s.score} pts</span>
@@ -13237,7 +13239,8 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
   if (!welcome || !onboard || !typeText) { finish(); return; }
 
   const d = t().onboarding;
-  const ICONS = ['🎮', '♟️', '⛂', '⭕', '⚡'];
+  // Icones dessinees (memes traits que le site) au lieu d'emojis.
+  const ICONS = ['grid', 'castle', 'token', 'hash', 'zap'];
 
   function showOnboard() { welcome.classList.add('hidden'); obHint.textContent = ''; obHint.classList.remove('recovery-err'); onboard.classList.remove('hidden'); _syncThemeBtns(); }
 
@@ -13296,7 +13299,7 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
   (function step() {
     if (i <= msg.length) { typeText.textContent = msg.slice(0, i); i++; setTimeout(step, 55); }
     else {
-      iconsEl.innerHTML = ICONS.map((ic, k) => `<span class="welcome-icon" style="animation-delay:${k * 140}ms">${ic}</span>`).join('');
+      iconsEl.innerHTML = ICONS.map((ic, k) => `<span class="welcome-icon" style="animation-delay:${k * 140}ms"><span data-ic="${ic}"></span></span>`).join('');
       startBtn.textContent = d.start;
       startBtn.classList.remove('hidden');
     }
