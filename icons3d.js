@@ -60,7 +60,7 @@ const MAP = {
   search:['Search','#cbd5e1','#334155'],       news:['Newspaper','#c7d2fe','#3730a3'],
   palette:['Palette','#fbcfe8','#9d174d'],     pen:['PenLine','#bae6fd','#1d4ed8'],
   image:['Image','#a5f3fc','#0e7490'],         mouse:['MousePointer2','#c7d2fe','#3730a3'],
-  worm:['Worm','#bbf7d0','#15803d'],           ticket:['Ticket','#fde68a','#a16207'],
+  worm:['Worm','#bbf7d0','#15803d'], alert:['TriangleAlert','#fecaca','#b91c1c'], film:['Film','#c7d2fe','#3730a3'],           ticket:['Ticket','#fde68a','#a16207'],
   tag:['Tag','#ddd6fe','#5b21b6'],             cal:['CalendarDays','#bae6fd','#1d4ed8'],
   /* ── Familles de la boutique remises en vente ── */
   bubble:['MessageCircle','#bae6fd','#1d4ed8'], avatar:['CircleUser','#fbcfe8','#9d174d'],

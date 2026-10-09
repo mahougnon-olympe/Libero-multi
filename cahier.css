@@ -816,3 +816,89 @@ html:not(.light) .challenge-bar span { background: var(--yellow); }
   #screen-locker .locker-cats, #screen-locker > * { max-width: 900px; }
 }
 @media (min-width: 601px) { :root:root #screen-profile { padding-top: 32px; } }
+
+/* ══ Sequence 6 : QUIZ, LECTURE, IDEES, LE MOT, EVENTS, HISTORIQUE ═══════════ */
+/* Titres d'ecran : de l'encre ou de la craie, plus de degrade */
+:root:root .read-h1, :root:root .ideas-h1, :root:root .wordle-h1 {
+  background: none; -webkit-text-fill-color: currentColor; color: var(--text);
+  font-family: var(--font-display); font-weight: 400; letter-spacing: 0;
+}
+:root:root .read-wrap { padding-top: 32px; }
+.status-ic { display: inline-flex; width: 44px; height: 44px; color: var(--accent); }
+.feed-status-icon { line-height: 0; }
+
+/* Quiz : themes et difficulte en boutons de fiche, l'actif est surligne */
+:root:root .theme-btn, :root:root .diff-btn {
+  background: transparent; color: var(--text); border: 1.5px solid var(--line); border-radius: var(--r-sm);
+  box-shadow: none; font-family: var(--font-body); font-weight: 700;
+}
+:root:root .theme-btn:hover, :root:root .diff-btn:hover { background: var(--card2); color: var(--text); border-color: var(--line); }
+:root:root .theme-btn.active, :root:root .diff-btn.active, :root:root .diff-btn[data-diff].active {
+  border: 2px solid var(--accent); color: var(--text); box-shadow: none;
+  background: linear-gradient(transparent 55%, var(--mark) 55%);
+}
+/* La difficulte se lit au trait : 1 a 4 traits, rouge pour l'extreme */
+.diff-btn[data-diff]:not([data-diff=""])::after {
+  content: ""; display: block; height: 3px; margin: 4px auto 0; border-radius: 2px; background: currentColor; opacity: .55;
+}
+.diff-btn[data-diff="easy"]::after    { width: 8px; }
+.diff-btn[data-diff="medium"]::after  { width: 16px; }
+.diff-btn[data-diff="hard"]::after    { width: 24px; }
+.diff-btn[data-diff="extreme"]::after { width: 32px; background: var(--margin); opacity: 1; }
+:root:root .trivia-nb-slider { background: var(--card2); accent-color: var(--accent); border: 1px solid var(--border); }
+
+/* Lecture : des couvertures posees sur la page */
+:root:root .read-cats { background: none; }
+:root:root .read-cat {
+  background: transparent; color: var(--text); border: 1.5px solid var(--line); border-radius: var(--r-sm); box-shadow: none;
+}
+:root:root .read-cat.active { background: var(--board); color: #fff; border-color: var(--board); box-shadow: none; }
+:root:root .read-search { background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-sm); }
+:root:root .read-card { background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md); box-shadow: var(--elev-2); }
+
+/* Idees : des fiches avec vote */
+:root:root .idea-card { background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md); box-shadow: var(--elev-1); }
+:root:root .idea-pinned { border-color: var(--margin); box-shadow: inset 4px 0 0 var(--margin), var(--elev-1); }
+:root:root .idea-vote { background: transparent; border: 1.5px solid var(--border); border-radius: var(--r-sm); color: var(--muted); }
+:root:root .idea-vote.up.on   { background: var(--card2); color: #2f8a55; border-color: #2f8a55; }
+:root:root .idea-vote.down.on { background: var(--card2); color: var(--margin); border-color: var(--margin); }
+.idea-score { font-family: var(--font-display); font-weight: 400; }
+
+/* Le Mot : des cases de grille et un clavier de papier */
+:root:root .wordle-cell { border: 1.5px solid var(--line); border-radius: 4px; background: var(--card); font-family: var(--font-display); font-weight: 400; }
+:root:root .wordle-cell.wordle-correct { background: #2f8a55; border-color: #2f8a55; color: #fff; }
+:root:root .wordle-cell.wordle-present { background: #e0a800; border-color: #e0a800; color: #1d1600; }
+:root:root .wordle-cell.wordle-absent  { background: var(--card2); border-color: var(--border); color: var(--muted); }
+:root:root .wordle-key { background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-sm); box-shadow: 0 2px 0 var(--hard); }
+:root:root .wordle-key.wordle-correct { background: #2f8a55; color: #fff; border-color: #2f8a55; }
+:root:root .wordle-key.wordle-present { background: #e0a800; color: #1d1600; border-color: #e0a800; }
+:root:root .wordle-key.wordle-absent  { background: var(--card2); color: var(--muted); border-color: var(--border); box-shadow: none; }
+:root:root .wordle-hint-btn { background: var(--card); border: 1.5px solid var(--line); color: var(--text); }
+
+/* Events */
+.event-badge { color: #2f8a55; line-height: 0; }
+.event-badge [data-ic] { width: 56px; height: 56px; display: inline-flex; }
+html:not(.light) .event-badge { color: #8fe0a8; }
+.snake-vote-icon [data-ic] { width: 40px; height: 40px; display: inline-flex; }
+
+/* Quiz en partie : la question sur une fiche, les reponses en cases */
+:root:root .tg-question-box { background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md); box-shadow: var(--elev-2); font-family: var(--font-display); font-weight: 400; }
+:root:root .tg-choice { background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md); box-shadow: 0 2px 0 var(--hard); color: var(--text); }
+:root:root .tg-choice:hover { background: var(--card2); }
+:root:root .tg-choice-letter { background: transparent; border: 1.5px solid var(--line); color: var(--text); font-family: var(--font-hand); font-size: 1.05rem; }
+:root:root .tg-choice.correct { border-color: #2f8a55; background: var(--card); box-shadow: inset 0 0 0 2px #2f8a55; }
+:root:root .tg-choice.correct .tg-choice-letter { background: #2f8a55; color: #fff; border-color: #2f8a55; }
+:root:root .tg-choice.wrong { border-color: var(--margin); background: var(--card); box-shadow: inset 0 0 0 2px var(--margin); }
+:root:root .tg-choice.wrong .tg-choice-letter { background: var(--margin); color: #fff; border-color: var(--margin); }
+:root:root .tg-timer { background: var(--card); color: var(--text); border: 2px solid var(--line); box-shadow: none; font-family: var(--font-display); }
+:root:root .tg-timer.warning { background: var(--margin); color: #fff; border-color: var(--margin); box-shadow: none; }
+:root:root .tg-podium-block { background: var(--card); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--hard); color: var(--text); }
+:root:root .tg-podium-p1 .tg-podium-block { background: var(--mark); color: #1d1600; box-shadow: 0 3px 0 var(--hard); }
+@media (min-width: 1024px) {
+  :root:root .tg-wrap, :root:root .tg-header { max-width: 760px; }
+  :root:root .tg-question-box { font-size: 1.35rem; padding: 24px; }
+  :root:root .tg-choice { font-size: 1.05rem; padding: 16px; }
+}
+@media (min-width: 700px) and (max-width: 1023px) {
+  :root:root .tg-wrap, :root:root .tg-header { max-width: 620px; }
+}

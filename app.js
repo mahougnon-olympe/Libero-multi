@@ -2067,6 +2067,10 @@ window._sansEmoji = _sansEmoji;
 
 function t() { return DICT[currentLang]; }
 
+// Icones d'etat (chargement, vide, erreur) : un dessin au trait au lieu d'un emoji.
+const _IC_EMOJI = { '💡':'bulb', '⏳':'clock', '🚧':'tools', '📚':'book', '🔍':'search', '⚠️':'alert', '🎬':'film' };
+function _icPourEmoji(e) { const n = _IC_EMOJI[e] || 'bulb'; return `<span data-ic="${n}" class="status-ic"></span>`; }
+
 // Message du jour de l'accueil : il change chaque jour (jamais deux jours de suite le
 // meme) et chaque joueur a son propre decalage dans la liste, donc deux joueurs voient
 // en general deux phrases differentes le meme jour. {n} = le pseudo, s'il y en a un.
@@ -2414,8 +2418,7 @@ function applyLang() {
   const tdl  = $('trivia-diff-label');    if (tdl)  tdl.textContent  = d.triviaDiffLabel;
   document.querySelectorAll('.diff-btn').forEach(b => {
     if (!b.dataset.diff) { b.textContent = d.diffMixed; return; }
-    const icons = { easy:'😊', medium:'🎯', hard:'💀', extreme:'🔥' };
-    b.textContent = `${icons[b.dataset.diff]} ${d.diffLabels[b.dataset.diff]}`;
+    b.textContent = d.diffLabels[b.dataset.diff];
   });
   const tdh = $('trivia-diff-hint'); if (tdh) tdh.textContent = (selectedTriviaDifficulty == null) ? d.diffChoose : (d.diffHints[selectedTriviaDifficulty] || d.diffHints['']);
   const tnbl = $('trivia-nb-label');      if (tnbl) tnbl.textContent = d.triviaNbLabel;
@@ -9774,7 +9777,7 @@ const VideoFeed = (() => {
     const lines = String(msg).split('\n').map(l => `<span>${l}</span>`).join('');
     container.innerHTML =
       `<div class="feed-status">
-         <span class="feed-status-icon">${icon}</span>
+         <span class="feed-status-icon">${_icPourEmoji(icon)}</span>
          <p class="feed-status-text">${lines}</p>
          <button id="feed-submit-empty" class="btn btn-primary feed-submit-empty">${t().feedSubmitBtn}</button>
        </div>`;
@@ -10111,7 +10114,7 @@ const IdeasBoard = (() => {
   function setStatus(msg, icon = '💡') {
     const g = listEl(); if (!g) return;
     const lines = String(msg).split('\n').map(l => `<span>${esc(l)}</span>`).join('');
-    g.innerHTML = `<div class="ideas-status"><span class="feed-status-icon">${icon}</span><p class="feed-status-text">${lines}</p></div>`;
+    g.innerHTML = `<div class="ideas-status"><span class="feed-status-icon">${_icPourEmoji(icon)}</span><p class="feed-status-text">${lines}</p></div>`;
   }
 
   async function load(force = false) {
