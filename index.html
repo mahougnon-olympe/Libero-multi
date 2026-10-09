@@ -811,11 +811,11 @@
   <button id="btn-help" class="btn-help-float" title="Aide">?</button>
 
   <!-- ── Assistant / Chatbot d'aide (flottant, 100% local, aucune API) ── -->
-  <button id="btn-chatbot" class="btn-chatbot-float" title="Assistant Libero" aria-label="Assistant Libero"><span data-ic="robot">🤖</span></button>
+  <button id="btn-chatbot" class="btn-chatbot-float" title="Assistant Libero" aria-label="Assistant Libero"><span class="libe-slot"></span><span class="libe-hint" id="libe-hint">Besoin d'aide ?</span></button>
   <div id="chatbot-panel" class="chatbot-panel hidden" role="dialog" aria-label="Assistant Libero">
     <div class="chatbot-header">
       <div class="chatbot-header-txt">
-        <span id="chatbot-title" class="chatbot-title"><span class="ui-ic" data-ic="robot">🤖</span> Assistant Libero</span>
+        <span class="libe-slot libe-head"></span><span id="chatbot-title" class="chatbot-title">Assistant Libero</span>
         <span id="chatbot-subtitle" class="chatbot-subtitle">Pose ta question sur le site</span>
       </div>
       <button id="chatbot-reset" class="chatbot-reset" title="Effacer la conversation"><span class="ui-ic" data-ic="trash">🗑</span></button>

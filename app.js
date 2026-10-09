@@ -588,6 +588,7 @@ const DICT = {
     lockerTitle:'🎒 Mon casier',
     lockerEmpty:"Tu n'as encore rien acheté dans la boutique. Passe faire un tour !",
     lockerEquipped:'équipé',
+    chatbotWriting:'Libé écrit…', chatbotNeedHelp:'Besoin d\'aide ?',
     vbWord:'VICTOIRE', vbVictory:'Victoire', vbBravo:'BRAVO !', vbExcellent:'Excellent travail !', vbSub:n => `${n} gagne la partie`,
     portraitCardTitle:'Mon portrait', portraitCardSub:'Dessine ta photo de profil', portraitTitle:'Mon portrait',
     peHint:'Crée ton portrait', peRandom:'Au hasard', peReset:'Recommencer', peSave:'Enregistrer', peSaved:'Portrait enregistré !',
@@ -1353,6 +1354,7 @@ const DICT = {
     lockerTitle:'🎒 My locker',
     lockerEmpty:"You haven't bought anything in the shop yet. Go take a look!",
     lockerEquipped:'equipped',
+    chatbotWriting:'Libé is writing…', chatbotNeedHelp:'Need help?',
     vbWord:'VICTORY', vbVictory:'Victory', vbBravo:'BRAVO!', vbExcellent:'Excellent work!', vbSub:n => `${n} wins the game`,
     portraitCardTitle:'My portrait', portraitCardSub:'Draw your profile picture', portraitTitle:'My portrait',
     peHint:'Draw your portrait', peRandom:'Random', peReset:'Start over', peSave:'Save', peSaved:'Portrait saved!',
@@ -4029,6 +4031,10 @@ $('btn-cancel-wait').addEventListener('click', () => {
   showScreen('home');
 });
 
+// Libe, le crayon : logo et personnage de l'assistant (valide sur la maquette).
+const LIBE_SVG = '<svg class="libe" viewBox="0 0 120 120" aria-hidden="true"><g class="libe-wig"><path d="M44 30h32v62H44z" fill="#ffd54a" stroke="#22252b" stroke-width="3.5"/><path d="M54 30v62M66 30v62" stroke="#c9961e" stroke-width="2"/><rect x="44" y="20" width="32" height="10" fill="#b9bec6" stroke="#22252b" stroke-width="3"/><path d="M44 20v-6q0-6 16-6t16 6v6z" fill="#f29bb0" stroke="#22252b" stroke-width="3"/><path d="M44 92l16 22 16-22z" fill="#f2d2a6" stroke="#22252b" stroke-width="3" stroke-linejoin="round"/><path d="M56 108l4 6 4-6z" fill="#22252b"/><g class="libe-eyes"><circle cx="53" cy="52" r="3.5" fill="#22252b"/><circle cx="67" cy="52" r="3.5" fill="#22252b"/></g><path d="M52 62q8 8 16 0" fill="none" stroke="#22252b" stroke-width="3" stroke-linecap="round"/><circle cx="48" cy="60" r="3" fill="#ff8e8e" opacity=".7"/><circle cx="72" cy="60" r="3" fill="#ff8e8e" opacity=".7"/></g><path class="libe-idea" d="M86 34l8-6M90 44l10-2M84 24l4-8" stroke="#e2485d" stroke-width="3" stroke-linecap="round"/></svg>';
+const LIBE_PENCIL = '<svg class="libe-scrib" viewBox="0 0 30 30" aria-hidden="true"><path d="M4 26l3-9L20 4l6 6L13 23z" fill="#ffd54a" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M4 26l3-9 6 6z" fill="#f2d2a6" stroke="currentColor" stroke-width="2"/></svg>';
+
 // ── Chat ──────────────────────────────────────────────────────────────────────
 $('btn-clear-chat').addEventListener('click', () => { $('chat-messages').innerHTML = ''; });
 
@@ -5004,6 +5010,13 @@ $('overlay-help').addEventListener('click', e => {
   const fab     = $('btn-chatbot');
   const logEl  = $('chatbot-log');
   const chipsEl = $('chatbot-chips');
+  document.querySelectorAll('.libe-slot').forEach(el => { el.innerHTML = LIBE_SVG; });
+  // « Besoin d'aide ? » de temps en temps, jamais plus d'une fois par visite d'ecran.
+  (() => {
+    const h = document.getElementById('libe-hint'); if (!h) return;
+    h.textContent = t().chatbotNeedHelp;
+    setTimeout(() => { if (document.getElementById('chatbot-panel')?.classList.contains('hidden')) { h.classList.add('show'); setTimeout(() => h.classList.remove('show'), 4200); } }, 20000);
+  })();
   const form   = $('chatbot-form');
   const input  = $('chatbot-input');
   if (!panel || !fab || !logEl || !chipsEl || !form || !input) return;
@@ -5144,7 +5157,12 @@ $('overlay-help').addEventListener('click', e => {
     if (!clean) return;
     pushLog('user', esc(clean));
     logBotQuestion(clean);
-    setTimeout(() => answer(clean), 140);
+    // Libe « ecrit » : un crayon griffonne le temps de chercher.
+    const ty = document.createElement('div');
+    ty.className = 'chatbot-typing';
+    ty.innerHTML = `${LIBE_PENCIL}<span>${esc(t().chatbotWriting)}</span>`;
+    logEl.appendChild(ty); logEl.scrollTop = logEl.scrollHeight;
+    setTimeout(() => { ty.remove(); answer(clean); }, 850);
   }
 
   // Journalise la question côté serveur (anonyme) pour le tableau de bord admin.
