@@ -8605,23 +8605,27 @@ function showCursorSnakeToast(msg) {
   }
 
   // w/h calculés à partir du ratio naturel de chaque sprite pour éviter toute déformation.
+  // Obstacles redessines : la trousse et le cahier (encre sur le cahier, craie sur l'ardoise).
+  // Les tailles (hitbox) ne changent pas.
+  const _rDark = () => !document.documentElement.classList.contains('light');
+  const _rInk = () => _rDark() ? '#eef1ea' : '#22252b';
+  const _rBox = (c, x, y, w, h, fill) => { c.fillStyle = fill; c.strokeStyle = _rInk(); c.lineWidth = 2; c.beginPath(); c.roundRect(x, y, w, h, 3); c.fill(); c.stroke(); };
   const GROUND_OBS = [
-    { id: 'tonneau',     w: 25, h: 30, draw: (c, x, y, w, h) => drawSprite(c, SPR.tonneau, x, y, w, h, false) },
-    { id: 'baril',       w: 25, h: 30, draw: (c, x, y, w, h) => drawSprite(c, SPR.tonneau, x, y, w, h, false, 'hue-rotate(160deg) brightness(.7)') },
-    { id: 'canon',       w: 63, h: 30, draw: (c, x, y, w, h) => drawSprite(c, SPR.canon, x, y, w, h, true) },
-    { id: 'rocher',      w: 36, h: 28, draw: (c, x, y, w, h) => drawSprite(c, SPR.rocher, x, y, w, h, false) },
-    { id: 'recif',       w: 35, h: 28, draw: (c, x, y, w, h) => drawSprite(c, SPR.recif, x, y, w, h, false) },
-    { id: 'crabe',       w: 32, h: 20, draw: (c, x, y, w, h) => drawSprite(c, SPR.crabe, x, y, w, h, false) },
-    { id: 'meduse',      w: 32, h: 24, draw: (c, x, y, w, h) => drawSprite(c, SPR.meduse, x, y, w, h, false) },
-    { id: 'dendenmushi', w: 23, h: 20, draw: (c, x, y, w, h) => drawSprite(c, SPR.dendenmushi, x, y, w, h, false) },
+    { id: 'tonneau', w: 25, h: 30, draw: (c, x, y, w, h) => { _rBox(c, x, y + 8, w, h - 8, '#ffb7c5'); c.fillStyle = '#3d64b8'; c.fillRect(x + 1, y + 16, w - 2, 5); } },
+    { id: 'baril', w: 25, h: 30, draw: (c, x, y, w, h) => { _rBox(c, x, y + 4, w, h - 4, '#bfe3ff'); c.strokeStyle = _rInk(); c.beginPath(); c.arc(x + w / 2, y + 17, 5, 0, 7); c.stroke(); } },
+    { id: 'canon', w: 63, h: 30, draw: (c, x, y, w, h) => { _rBox(c, x, y + 16, w, 14, '#ffe169'); c.strokeStyle = _rInk(); c.lineWidth = 1.4; for (let k = 4; k < w; k += 6) { c.beginPath(); c.moveTo(x + k, y + 16); c.lineTo(x + k, y + (k % 12 === 4 ? 24 : 21)); c.stroke(); } } },
+    { id: 'rocher', w: 36, h: 28, draw: (c, x, y, w, h) => { _rBox(c, x, y + 14, w, 14, '#d23a4f'); _rBox(c, x + 3, y + 4, w - 8, 10, '#2f8a55'); } },
+    { id: 'recif', w: 35, h: 28, draw: (c, x, y, w, h) => { _rBox(c, x, y + 18, w, 10, '#173a8a'); _rBox(c, x + 2, y + 9, w - 5, 9, '#e0a800'); _rBox(c, x + 5, y, w - 9, 9, '#d23a4f'); } },
+    { id: 'crabe', w: 32, h: 20, draw: (c, x, y, w, h) => { c.strokeStyle = _rInk(); c.lineWidth = 2.4; c.beginPath(); c.moveTo(x + 4, y + h); c.lineTo(x + 4, y + 4); c.quadraticCurveTo(x + 4, y, x + 9, y); c.lineTo(x + w - 5, y); c.quadraticCurveTo(x + w, y, x + w, y + 5); c.lineTo(x + w, y + h - 4); c.quadraticCurveTo(x + w, y + h, x + w - 5, y + h); c.lineTo(x + 12, y + h); c.lineTo(x + 12, y + 6); c.lineTo(x + w - 8, y + 6); c.lineTo(x + w - 8, y + h - 5); c.stroke(); } },
+    { id: 'meduse', w: 32, h: 24, draw: (c, x, y, w, h) => { c.fillStyle = _rDark() ? '#8fb0ff' : '#173a8a'; c.beginPath(); c.ellipse(x + w / 2, y + h * .62, w * .48, h * .38, 0, 0, 7); c.fill(); c.beginPath(); c.arc(x + w * .9, y + 4, 2.6, 0, 7); c.arc(x + w * .15, y + 6, 2, 0, 7); c.fill(); } },
+    { id: 'dendenmushi', w: 23, h: 20, draw: (c, x, y, w, h) => { c.fillStyle = '#d23a4f'; c.strokeStyle = _rInk(); c.lineWidth = 2; c.beginPath(); c.ellipse(x + w / 2, y + 6, w / 2, 6, 0, 0, 7); c.fill(); c.stroke(); c.beginPath(); c.moveTo(x + w / 2, y + 12); c.lineTo(x + w / 2, y + h); c.stroke(); } },
   ];
   const FLY_OBS = [
-    { id: 'mouette',      w: 34, h: 16, draw: (c, x, y, w, h) => drawSprite(c, SPR.mouette, x, y, w, h, true) },
-    { id: 'oiseau',       w: 26, h: 20, draw: (c, x, y, w, h) => drawSprite(c, SPR.oiseau, x, y, w, h, true) },
-    { id: 'boulet',       w: 22, h: 21, draw: (c, x, y, w, h) => drawSprite(c, SPR.boulet, x, y, w, h, false) },
+    { id: 'mouette', w: 34, h: 16, draw: (c, x, y, w, h) => { c.fillStyle = _rDark() ? '#2e3d37' : '#fff'; c.strokeStyle = _rInk(); c.lineWidth = 2; c.beginPath(); c.moveTo(x + w, y + h * .5); c.lineTo(x, y); c.lineTo(x + w * .35, y + h * .5); c.lineTo(x, y + h); c.closePath(); c.fill(); c.stroke(); c.beginPath(); c.moveTo(x + w * .35, y + h * .5); c.lineTo(x + w, y + h * .5); c.stroke(); } },
+    { id: 'oiseau', w: 26, h: 20, draw: (c, x, y, w, h) => { c.fillStyle = _rDark() ? '#3a4a44' : '#f3f6fc'; c.strokeStyle = _rInk(); c.lineWidth = 1.8; c.beginPath(); c.arc(x + w / 2, y + h / 2, h / 2, 0, 7); c.fill(); c.stroke(); c.beginPath(); c.moveTo(x + 6, y + 6); c.lineTo(x + 14, y + 11); c.lineTo(x + 9, y + 15); c.moveTo(x + 15, y + 4); c.lineTo(x + 19, y + 12); c.stroke(); } },
+    { id: 'boulet', w: 22, h: 21, draw: (c, x, y, w, h) => { c.fillStyle = _rDark() ? '#eef1ea' : '#111318'; c.beginPath(); c.arc(x + w / 2, y + h / 2, w * .42, 0, 7); c.fill(); for (let k = 0; k < 5; k++) { const a = k * 1.26; c.beginPath(); c.arc(x + w / 2 + Math.cos(a) * w * .55, y + h / 2 + Math.sin(a) * w * .55, 2, 0, 7); c.fill(); } } },
   ];
-  // Bonus d'invincibilité : une étoile brillante dessinée au canvas (pas de
-  // sprite), bien plus visible que l'ancien tonneau, avec halo pulsé et rayons.
+
   function drawStarShape(c, cx, cy, r) {
     c.beginPath();
     for (let i = 0; i < 10; i++) {
@@ -8639,7 +8643,7 @@ function showCursorSnakeToast(msg) {
     // Rayons tournants derrière l'étoile
     c.translate(cx, cy);
     c.rotate(now / 900);
-    c.strokeStyle = 'rgba(255,225,90,.55)';
+    c.strokeStyle = _rDark() ? 'rgba(255,225,105,.7)' : 'rgba(23,58,138,.55)';
     c.lineWidth = 2;
     for (let i = 0; i < 4; i++) {
       c.rotate(Math.PI / 4);
@@ -8648,14 +8652,9 @@ function showCursorSnakeToast(msg) {
     c.restore();
     // Étoile dorée avec halo lumineux
     c.save();
-    c.shadowColor = '#ffe14d';
-    c.shadowBlur = 16 * pulse;
     drawStarShape(c, cx, cy, (w / 2) * pulse);
-    const g = c.createRadialGradient(cx, cy - 3, 1, cx, cy, w / 2);
-    g.addColorStop(0, '#fffbe0'); g.addColorStop(0.55, '#ffd93b'); g.addColorStop(1, '#f5a623');
-    c.fillStyle = g;
-    c.fill();
-    c.strokeStyle = '#b8860b'; c.lineWidth = 1; c.stroke();
+    c.fillStyle = '#ffe169'; c.fill();
+    c.strokeStyle = _rInk(); c.lineWidth = 2; c.lineJoin = 'round'; c.stroke();
     c.restore();
   } };
   const ALL_DEFS = {};
@@ -8877,109 +8876,35 @@ function showCursorSnakeToast(msg) {
     c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke();
   }
 
+  // Libero, griffonne au stylo (maquette validee) : tete ronde, casquette rouge,
+  // corps en baton. Meme boite de collision qu'avant (luffyBox).
   function drawLuffy(c, now) {
-    const lb = luffyBox();
-    const cx = lb.x + lb.w / 2;
+    const lb = luffyBox(), cx = lb.x + lb.w / 2, ink = _rInk();
     c.save();
-    c.lineJoin = 'round';
-    if (now < invincibleUntil) { // aura dorée pendant l'invincibilité
-      c.globalAlpha = 0.6 + 0.4 * Math.sin(now / 60);
-      c.shadowColor = '#ffd23f';
-      c.shadowBlur = 14;
+    if (now < invincibleUntil) c.globalAlpha = 0.55 + 0.45 * Math.abs(Math.sin(now / 90));
+    c.strokeStyle = ink; c.lineCap = 'round'; c.lineJoin = 'round'; c.lineWidth = 3;
+    const ph = jumping ? 0.5 : Math.sin(distance / 13);
+    if (ducking) {
+      const y = lb.bottom, hx = cx + 14, hy = lb.top + 10, r = 8;
+      c.beginPath(); c.moveTo(cx - 12, y - 10); c.lineTo(hx - r, hy + 2); c.stroke();
+      c.beginPath(); c.moveTo(cx - 12, y - 10); c.lineTo(cx - 20 + ph * 6, y); c.moveTo(cx - 12, y - 10); c.lineTo(cx - 2 - ph * 6, y); c.stroke();
+      c.beginPath(); c.moveTo(cx, y - 14); c.lineTo(cx + 10, y - 6); c.stroke();
+      _rHead(c, hx, hy, r, ink);
+    } else {
+      const H = lb.bottom - lb.top, r = H * .15, hx = cx + 2, hy = lb.top + r + 1, sh = lb.top + H * .34, hip = lb.top + H * .64, f = lb.bottom;
+      _rHead(c, hx, hy, r, ink);
+      c.beginPath(); c.moveTo(cx, hy + r); c.lineTo(cx, hip); c.stroke();
+      c.beginPath(); c.moveTo(cx, sh); c.lineTo(cx + 11 * ph, sh + 13); c.moveTo(cx, sh); c.lineTo(cx - 11 * ph, sh + 13); c.stroke();
+      if (jumping) { c.beginPath(); c.moveTo(cx, hip); c.lineTo(cx + 10, f - 10); c.lineTo(cx + 4, f - 2); c.moveTo(cx, hip); c.lineTo(cx - 9, f - 6); c.stroke(); }
+      else { c.beginPath(); c.moveTo(cx, hip); c.lineTo(cx + 12 * ph, f); c.moveTo(cx, hip); c.lineTo(cx - 12 * ph, f); c.stroke(); }
     }
-    if (ducking) drawHeroDuck(c, cx, lb, now);
-    else drawHeroStand(c, cx, lb, now);
     c.restore();
   }
-
-  // Écharpe dorée qui flotte derrière le héros (donne le sens de la course).
-  function _scarf(c, ax, ay, now, len) {
-    const flap = Math.sin(now / 90) * 4;
-    c.fillStyle = HERO.scarf;
-    c.beginPath();
-    c.moveTo(ax, ay);
-    c.quadraticCurveTo(ax - len * 0.6, ay - 3 + flap, ax - len, ay + 6 - flap);
-    c.quadraticCurveTo(ax - len * 0.6, ay + 8, ax, ay + 7);
-    c.closePath(); c.fill();
-  }
-
-  function drawHeroStand(c, cx, lb, now) {
-    const footY = lb.bottom;
-    const H     = lb.bottom - lb.top;      // 62 debout
-    const hipY  = lb.top + H * 0.60;
-    const shY   = lb.top + H * 0.32;       // épaules
-    const headR = H * 0.15;
-    const headX = cx + 2, headY = lb.top + headR + 1;
-    const phase = distance / 13;
-    const sw    = jumping ? 0.5 : Math.sin(phase);
-
-    _scarf(c, cx - 5, shY + 2, now, 26);
-
-    // Jambes (l'arrière plus sombre), repliées au saut, alternées à la course.
-    if (jumping) {
-      _limb(c, cx, hipY, cx - 7, footY - 8, 7, HERO.cloakLo);
-      _limb(c, cx, hipY, cx + 9, footY - 12, 7, HERO.boots);
-    } else {
-      _limb(c, cx, hipY, cx + sw * 12,  footY, 7, HERO.cloakLo);
-      _limb(c, cx, hipY, cx - sw * 12,  footY, 7, HERO.boots);
-    }
-
-    // Tronc (tunique violette)
-    c.fillStyle = HERO.cloak;
-    c.beginPath();
-    c.moveTo(cx - 9, shY);
-    c.lineTo(cx + 9, shY);
-    c.lineTo(cx + 7, hipY + 2);
-    c.lineTo(cx - 7, hipY + 2);
-    c.closePath(); c.fill();
-
-    // Petit emblème étoile doré sur la poitrine (clin d'œil au bonus étoile)
-    c.fillStyle = HERO.scarf;
-    c.beginPath(); c.arc(cx, shY + (hipY - shY) * 0.45, 2.4, 0, Math.PI * 2); c.fill();
-
-    // Bras avant qui balance (opposé aux jambes)
-    const aSw = jumping ? -0.9 : Math.sin(phase + Math.PI);
-    _limb(c, cx + 3, shY + 3, cx + 3 + aSw * 10, shY + 15, 5, HERO.cloak);
-
-    // Tête
-    c.fillStyle = HERO.skin;
-    c.beginPath(); c.arc(headX, headY, headR, 0, Math.PI * 2); c.fill();
-    // Capuche / cheveux violets balayés en arrière
-    c.fillStyle = HERO.cloak;
-    c.beginPath();
-    c.arc(headX, headY, headR, Math.PI * 0.85, Math.PI * 2.15);
-    c.lineTo(headX - headR - 4, headY - 3);
-    c.closePath(); c.fill();
-    // Bandeau doré
-    _limb(c, headX - headR, headY - 1, headX + headR, headY - 2, 2.4, HERO.scarf);
-    // Œil
-    c.fillStyle = HERO.eye;
-    c.beginPath(); c.arc(headX + headR * 0.55, headY + 1, 1.5, 0, Math.PI * 2); c.fill();
-  }
-
-  function drawHeroDuck(c, cx, lb, now) {
-    const H     = lb.bottom - lb.top;      // 32 accroupi
-    const footY = lb.bottom;
-    const bodyY = lb.top + H * 0.45;
-    const phase = distance / 13;
-    const sw    = Math.sin(phase) * 8;
-
-    _scarf(c, cx - 12, bodyY - 2, now, 22);
-    // Jambes repliées sous le corps (glissade)
-    _limb(c, cx, bodyY + 5, cx - 12 + sw, footY, 7, HERO.cloakLo);
-    _limb(c, cx, bodyY + 5, cx + 12 - sw, footY, 7, HERO.boots);
-    // Corps ramassé
-    c.fillStyle = HERO.cloak;
-    c.beginPath(); c.ellipse(cx, bodyY + 2, 16, 9, 0, 0, Math.PI * 2); c.fill();
-    // Tête projetée vers l'avant (sens de la course)
-    const headX = cx + 15, headR = H * 0.28;
-    c.fillStyle = HERO.skin;
-    c.beginPath(); c.arc(headX, bodyY, headR, 0, Math.PI * 2); c.fill();
-    c.fillStyle = HERO.cloak; // capuche
-    c.beginPath(); c.arc(headX, bodyY, headR, Math.PI * 1.1, Math.PI * 2.2); c.closePath(); c.fill();
-    _limb(c, headX - headR, bodyY - 1, headX + headR, bodyY - 1, 2.2, HERO.scarf);
-    c.fillStyle = HERO.eye;
-    c.beginPath(); c.arc(headX + headR * 0.5, bodyY + 1, 1.4, 0, Math.PI * 2); c.fill();
+  function _rHead(c, x, y, r, ink) {
+    c.fillStyle = _rDark() ? '#26332e' : '#fff';
+    c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); c.stroke();
+    c.fillStyle = '#e2485d'; c.beginPath(); c.moveTo(x - r, y - r * .2); c.quadraticCurveTo(x, y - r * 1.6, x + r, y - r * .2); c.lineTo(x + r * 1.7, y - r * .1); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle = ink; c.beginPath(); c.arc(x + r * .4, y + r * .15, 1.8, 0, 7); c.fill();
   }
 
   function draw(now) {
@@ -8989,14 +8914,18 @@ function showCursorSnakeToast(msg) {
 
     const theme = currentTheme();
 
-    const sky = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
-    sky.addColorStop(0, theme.skyTop); sky.addColorStop(1, theme.skyBot);
-    ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, REF_W, GROUND_Y);
-
-    drawAmbience(ctx, theme, now);
-    drawSprite(ctx, SPR.dirigeable, airshipX, airshipY, 70, 65, true); // décor de fond
-    drawGround(ctx, theme);
+    // Page de cahier (ou ardoise) qui defile : lignes, marge rouge, griffonnages au loin.
+    const dark = _rDark(), ink = _rInk();
+    ctx.fillStyle = dark ? '#1f2a26' : '#fdfdf9'; ctx.fillRect(0, 0, REF_W, REF_H);
+    if (!dark) { ctx.strokeStyle = 'rgba(80,130,205,.35)'; ctx.lineWidth = 1; for (let y = GROUND_Y % 20; y < REF_H; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(REF_W, y); ctx.stroke(); } }
+    else { ctx.fillStyle = 'rgba(238,241,234,.06)'; for (let k = 0; k < 6; k++) { const x = ((k * 173 - distance * .3) % REF_W + REF_W) % REF_W; ctx.fillRect(x, 30 + (k * 17) % 60, 80, 3); } }
+    const mx = ((60 - distance) % (REF_W * 1.4) + REF_W * 1.4) % (REF_W * 1.4);
+    ctx.strokeStyle = dark ? 'rgba(255,142,142,.5)' : 'rgba(226,72,93,.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(mx, 0); ctx.lineTo(mx, REF_H); ctx.stroke();
+    ctx.strokeStyle = dark ? 'rgba(238,241,234,.22)' : 'rgba(34,37,43,.2)'; ctx.lineWidth = 1.6;
+    for (let k = 0; k < 4; k++) { const x = ((k * 240 - distance * .25) % 960 + 960) % 960 - 120; ctx.beginPath(); ctx.moveTo(x, GROUND_Y - 40); ctx.quadraticCurveTo(x + 30, GROUND_Y - 95, x + 60, GROUND_Y - 40); ctx.moveTo(x + 30, GROUND_Y - 40); ctx.lineTo(x + 30, GROUND_Y); ctx.stroke(); }
+    ctx.strokeStyle = ink; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.moveTo(0, GROUND_Y);
+    for (let x = 0; x <= REF_W; x += 12) ctx.lineTo(x, GROUND_Y + Math.sin((x + distance) * .05) * 1.2);
+    ctx.stroke();
     drawLuffy(ctx, now);
 
     obstacles.forEach(o => {
@@ -9010,7 +8939,6 @@ function showCursorSnakeToast(msg) {
       }
     });
 
-    applyThemeOverlay(ctx, theme);
 
     if (now < invincibleUntil) {
       // Compte à rebours d'invincibilité : secondes restantes + barre qui se
@@ -9021,10 +8949,10 @@ function showCursorSnakeToast(msg) {
       const blink   = leftMs < 1500 && Math.floor(now / 150) % 2 === 0;
       ctx.save();
       ctx.globalAlpha = blink ? 0.35 : 1;
-      ctx.font = 'bold 14px sans-serif';
+      ctx.font = '700 18px Caveat, cursive';
       ctx.textAlign = 'center';
-      ctx.fillStyle = '#ffd23f';
-      ctx.fillText(`⭐ INVINCIBLE · ${leftSec}s`, REF_W / 2, 18);
+      ctx.fillStyle = _rDark() ? '#ffe169' : '#e2485d';
+      ctx.fillText(`Invincible · ${leftSec} s`, REF_W / 2, 18);
       const barW = 110, barH = 5, bx = REF_W / 2 - barW / 2, by = 24;
       ctx.fillStyle = 'rgba(0,0,0,.35)';
       ctx.fillRect(bx, by, barW, barH);
