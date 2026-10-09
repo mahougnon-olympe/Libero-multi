@@ -412,3 +412,195 @@ html.light .ic3d-face { filter: none; }
 @media (min-width: 1024px) {
   body.nav-bottom-visible .news-card { left: 96px; }
 }
+
+/* ══ Sequence 3a : CHOIX DU JEU et reglages de partie (jeux classiques et quiz) ══
+   Une fiche d'exercice : « 1) Choisis ton jeu », « 2) Lance la partie ». */
+:root:root .step-label,
+:root:root #screen-trivia-home .trivia-theme-label {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: .82rem; letter-spacing: .02em; text-transform: none; color: var(--text);
+}
+:root:root .step-label::before,
+:root:root #screen-trivia-home .trivia-theme-label::before {
+  content: counter(etape) ")";
+  width: auto; height: auto; border: none; border-radius: 0; background: none;
+  font-family: var(--font-hand); font-weight: 700; font-size: 1.45rem; line-height: 1;
+  color: var(--margin);
+}
+:root:root .card > .step-label { border-bottom: 1.5px dashed var(--border); }
+
+:root:root .game-btn {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md);
+  box-shadow: var(--elev-1); color: var(--text); padding: 12px 4px 10px; gap: 6px;
+}
+:root:root .game-btn:hover { background: var(--card2); }
+:root:root .game-btn.active {
+  border: 2px solid var(--accent); background: var(--card); box-shadow: 0 3px 0 var(--hard);
+}
+.game-btn-icon { line-height: 0; color: var(--text); }
+.game-btn-icon svg { width: 30px; height: 30px; }
+.game-btn.active .game-btn-icon { color: var(--accent); }
+:root:root .game-btn-name { color: var(--muted); font-family: var(--font-body); font-weight: 700; }
+:root:root .game-btn.active .game-btn-name {
+  color: var(--text);
+  background: linear-gradient(transparent 55%, var(--mark) 55%);
+}
+
+/* Difficulte du robot, mise : des boutons de fiche, l'actif est entoure */
+:root:root .bot-btn, :root:root .stake-btn {
+  background: transparent; color: var(--text);
+  border: 1.5px solid var(--line); border-radius: var(--r-sm);
+  box-shadow: none; font-family: var(--font-body); font-weight: 700;
+}
+:root:root .bot-btn:hover, :root:root .stake-btn:hover { background: var(--card2); box-shadow: none; }
+/* La difficulte se lit au trait : un trait pour facile, deux pour moyen, trois pour difficile */
+.bot-btn[data-diff]::after {
+  content: ""; display: block; height: 3px; margin: 5px auto 0; border-radius: 2px;
+  background: currentColor; opacity: .55;
+}
+.bot-btn[data-diff="easy"]::after   { width: 10px; }
+.bot-btn[data-diff="medium"]::after { width: 22px; }
+.bot-btn[data-diff="hard"]::after   { width: 34px; background: var(--margin); opacity: 1; }
+:root:root .stake-btn.active {
+  border: 2px solid var(--accent); color: var(--text); box-shadow: none;
+  background: linear-gradient(transparent 55%, var(--mark) 55%);
+}
+.bot-label, .stake-label { color: var(--muted); font-weight: 700; }
+
+/* Champs : pseudo et code a 4 lettres */
+:root:root #input-name, :root:root #input-trivia-name,
+:root:root #input-code, :root:root #input-trivia-code {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-sm);
+  color: var(--text); box-shadow: none;
+}
+:root:root #input-code, :root:root #input-trivia-code { font-family: var(--font-display); color: var(--accent); }
+:root:root #input-name:focus, :root:root #input-trivia-name:focus,
+:root:root #input-code:focus, :root:root #input-trivia-code:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 3px var(--mark);
+}
+:root:root .divider::before, :root:root .divider::after {
+  height: 0; background: none; border-top: 1.5px dashed var(--border);
+}
+.divider { font-family: var(--font-hand); font-weight: 700; font-size: 1.1rem; }
+
+/* Retour : un lien a l'encre */
+:root:root .btn-back { color: var(--accent); font-family: var(--font-body); font-weight: 700; }
+
+/* Classements des ecrans de jeu */
+:root:root .lb-card {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md); box-shadow: var(--elev-2);
+}
+.lb-header > span:first-child:not(.lb-title) { display: none; }
+:root:root .lb-row { border-bottom: 1px solid var(--border); }
+.error-msg { color: var(--margin); font-weight: 700; }
+
+/* Ordinateur : la fiche a gauche, le classement a droite */
+@media (min-width: 1024px) {
+  #screen-home.active, #screen-trivia-home.active {
+    display: grid; grid-template-columns: minmax(0, 560px) minmax(280px, 380px);
+    column-gap: 32px; row-gap: 16px; justify-content: center; align-content: start; align-items: start;
+    padding-top: 40px;
+  }
+  #screen-home > *, #screen-trivia-home > * { grid-column: 1; max-width: none; width: 100%; }
+  #screen-home > .btn-back, #screen-trivia-home > .btn-back,
+  #screen-home > .logo, #screen-trivia-home > .logo { grid-column: 1 / -1; }
+  #screen-home > .logo, #screen-trivia-home > .logo { text-align: left; }
+  #screen-home > .lb-card, #screen-trivia-home > .lb-card { grid-column: 2; grid-row: 3 / span 4; }
+  #screen-home .game-selector { max-width: none; }
+}
+@media (min-width: 700px) and (max-width: 1023px) {
+  #screen-home .game-selector, #screen-home > .step-label, #screen-home .card, #screen-home .lb-card { max-width: 560px; }
+}
+@media (min-width: 1024px) { #screen-home > .btn-back, #screen-trivia-home > .btn-back { justify-self: start; } }
+
+/* ══ Sequence 3b : PLATEAUX DE JEU ═════════════════════════════════════════
+   Les plateaux sont dessines comme sur une feuille ou une ardoise : un trait net,
+   pas de halo. Les cosmetiques (jetons, symboles, echiquiers) gardent la main :
+   leurs regles sont en !important et passent devant ce qui suit. */
+/* Joueurs : etiquette du nom, l'actif est entoure et surligne */
+:root:root .player-badge {
+  font-family: var(--font-body); font-weight: 700; color: var(--muted);
+  border: 1.5px solid transparent; border-radius: var(--r-sm); box-shadow: none; background: none;
+}
+:root:root .player-badge.active {
+  color: var(--text); background: var(--card); border-color: var(--line); box-shadow: 0 2px 0 var(--hard);
+}
+.pdot { display: inline-block; width: 13px; height: 13px; border-radius: 50%; border: 1.5px solid var(--line); }
+.pdot-r { background: var(--margin); }
+.pdot-y { background: var(--yellow); }
+.turn-text { font-family: var(--font-hand); font-weight: 700; font-size: 1.15rem; color: var(--text); }
+:root:root .btn-quit {
+  border-radius: var(--r-sm); border: 1.5px solid var(--margin); background: transparent; color: var(--margin);
+  font-weight: 700;
+}
+:root:root .btn-quit:hover { background: var(--card2); }
+
+/* Puissance 4 : une grille tracee, des jetons pleins */
+:root:root .c4-board {
+  background: var(--card); border: 2px solid var(--line); border-radius: var(--r-md);
+  box-shadow: var(--elev-3);
+}
+:root:root .c4-cell { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ink-soft); }
+:root:root .c4-cell.red    { background: var(--margin); box-shadow: inset 0 0 0 2px rgba(0,0,0,.25); }
+:root:root .c4-cell.yellow { background: var(--yellow); box-shadow: inset 0 0 0 2px rgba(0,0,0,.2); }
+:root:root .c4-cell.win    { box-shadow: 0 0 0 3px var(--accent); }
+:root:root .col-btn { color: var(--accent); }
+:root:root .col-btn:hover { background: var(--card2); }
+:root:root .col-btn:disabled { color: var(--border); }
+
+/* Morpion : le # trace a la main, sans cadre exterieur */
+:root:root .ttt-board { background: transparent; box-shadow: none; border-radius: 0; overflow: visible; }
+:root:root .ttt-cell { background: transparent; border: 0 solid var(--ink); border-radius: 0; color: var(--text); }
+.ttt-board .ttt-cell:nth-child(-n+6) { border-bottom-width: 3px; }
+.ttt-board .ttt-cell:not(:nth-child(3n)) { border-right-width: 3px; }
+:root:root .ttt-cell:hover:not(.played) { background: var(--card2); }
+:root:root .ttt-cell.ttt-r { color: var(--margin); }
+:root:root .ttt-cell.ttt-y { color: var(--accent); }
+
+/* Echecs et dames : le bois reste (c'est l'objet), cadre net */
+:root:root .chess-board, :root:root .ck-board { box-shadow: var(--elev-3); }
+.chess-coord { color: var(--muted); font-family: var(--font-hand); font-size: .9rem; }
+
+/* Ludo : le plateau sur la feuille, trait d'encre, couleurs franches sans degrade */
+:root:root .ludo-board {
+  background: var(--line); border: 2px solid var(--line); box-shadow: var(--elev-3); border-radius: var(--r-md);
+}
+:root:root .ludo-cell { background: var(--card); border: none; border-radius: 2px; color: var(--muted); }
+:root:root .ludo-cell.safe { background: var(--card2); }
+.ludo-basezone.ludo-r { background: #d23a4f; }
+.ludo-basezone.ludo-g { background: #2f8a55; }
+.ludo-basezone.ludo-y { background: #e0a800; }
+.ludo-basezone.ludo-b { background: #2f5fb8; }
+.ludo-basezone { border-radius: 6px; opacity: 1; }
+:root:root .ludo-baseslot { background: var(--card); box-shadow: inset 0 0 0 1.5px rgba(0,0,0,.25); }
+.ludo-center { font-size: 0; border-radius: 4px; }
+:root:root .ludo-seat { background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md); box-shadow: var(--elev-1); }
+.ludo-msg { font-family: var(--font-hand); font-weight: 700; font-size: 1.2rem; color: var(--text); }
+
+/* Salle d'attente : le code ecrit en grand */
+:root:root .code-display {
+  font-family: var(--font-display); color: var(--accent);
+  background: var(--card); border: 2px dashed var(--line); border-radius: var(--r-md);
+}
+
+/* Fin de partie et chat : des feuilles comme le reste */
+:root:root .game-status, :root:root .chat {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md); box-shadow: var(--elev-2);
+}
+.status-text { font-family: var(--font-display); font-weight: 400; }
+:root:root .chat-title { font-family: var(--font-hand); font-size: 1.1rem; text-transform: none; letter-spacing: 0; color: var(--text); }
+
+/* Ordinateur et tablette : des plateaux plus grands */
+@media (min-width: 700px) {
+  :root { --cell: 60px; --chess-cell: 62px; --ttt-cell: 130px; }
+  .game-header { max-width: 560px; }
+  :root:root .ludo-board { width: min(70vh, 560px); }
+}
+@media (min-width: 1024px) {
+  :root { --cell: min(9vh, 72px); --chess-cell: min(9vh, 72px); --ttt-cell: min(20vh, 160px); }
+}
+@media (min-width: 700px) { .ck-board { --ck-cell: 60px; } }
+@media (min-width: 1024px) {
+  .ck-board { --ck-cell: min(9vh, 72px); }
+  :root:root .ludo-board { width: min(60vh, 540px); }
+}

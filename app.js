@@ -2040,6 +2040,31 @@ const DICT = {
   },
 };
 
+// Design « Cahier et ardoise » : aucun emoji dans l'interface. On les retire UNE fois,
+// ici, de tous les libelles (y compris ceux produits par des fonctions). Le symbole
+// des Libs apres un nombre devient le mot « Libs » (« 25 ⚡ » -> « 25 Libs »).
+// Ne touche PAS au contenu fait d'emojis par nature : emotes, packs et pluie
+// d'emojis, messages des joueurs (ils ne sont pas dans DICT).
+const _EMOJI_RE = /(?![©®™])\p{Extended_Pictographic}|\p{Regional_Indicator}|\p{Emoji_Modifier}|[\u{FE0F}\u{200D}\u{20E3}]/gu;
+function _sansEmoji(str) {
+  if (typeof str !== 'string' || !str) return str;
+  const out = str.replace(/(\d)\s*⚡️?/gu, '$1 Libs').replace(_EMOJI_RE, '');
+  if (out === str) return str;
+  // On ne nettoie les espaces que la ou un emoji a ete retire (le HTML reste intact).
+  return out.replace(/^[ \t]+/, '').replace(/ {2,}/g, ' ').replace(/\( +/g, '(').replace(/> +/g, '>').trimEnd() || out;
+}
+(function _nettoyerDict(o, seen) {
+  if (!o || typeof o !== 'object' || seen.has(o)) return;
+  seen.add(o);
+  for (const k of Object.keys(o)) {
+    const v = o[k];
+    if (typeof v === 'string') o[k] = _sansEmoji(v);
+    else if (typeof v === 'function') o[k] = function () { const r = v.apply(this, arguments); return typeof r === 'string' ? _sansEmoji(r) : r; };
+    else if (v && typeof v === 'object') _nettoyerDict(v, seen);
+  }
+})(DICT, new Set());
+window._sansEmoji = _sansEmoji;
+
 function t() { return DICT[currentLang]; }
 
 function renderHelp() {
@@ -2727,11 +2752,12 @@ let triviaMySocketId       = null;
 
 // ── Données par type de jeu ──────────────────────────────────────────────────
 const PLAYER_ICONS = {
-  connect4:  { R: '🔴', Y: '🟡' },
+  // Jetons dessines en CSS (.pdot) pour les jeux a pions de couleur : aucun emoji.
+  connect4:  { R: 'dot', Y: 'dot' },
   tictactoe: { R: '✕',  Y: '○' },
   chess:     { R: '♔',  Y: '♚' },
-  checkers:  { R: '🔴', Y: '🟡' },
-  ludo:      { R: '🔴', Y: '🟡' },
+  checkers:  { R: 'dot', Y: 'dot' },
+  ludo:      { R: 'dot', Y: 'dot' },
 };
 
 // ── Landing ───────────────────────────────────────────────────────────────────
@@ -2932,8 +2958,14 @@ function setPlayerBadges(gameType, yourPlayer) {
   const icons = PLAYER_ICONS[gameType];
   const names = t().playerNames[gameType];
   const myIcon = (equippedAvatar && AVATAR_ICONS[equippedAvatar]) || null;
-  $('badge-r-icon').textContent = (yourPlayer === 'R' && myIcon) ? myIcon : icons.R;
-  $('badge-y-icon').textContent = (yourPlayer === 'Y' && myIcon) ? myIcon : icons.Y;
+  for (const r of ['R', 'Y']) {
+    const el = $('badge-' + r.toLowerCase() + '-icon');
+    const ic = (yourPlayer === r && myIcon) ? myIcon : icons[r];
+    el.classList.toggle('pdot', ic === 'dot');
+    el.classList.toggle('pdot-r', ic === 'dot' && r === 'R');
+    el.classList.toggle('pdot-y', ic === 'dot' && r === 'Y');
+    el.textContent = ic === 'dot' ? '' : ic;
+  }
   $('label-r').textContent = names.R;
   $('label-y').textContent = names.Y;
   $('badge-r').classList.toggle('you', yourPlayer === 'R');
@@ -3595,7 +3627,7 @@ function ludoSeatCount() { return ludoSeatRoles().length; }
 function ludoNameOf(role) {
   const si = ludoSeatInfo && ludoSeatInfo.find(x => x.role === role);
   if (si && si.name) return si.name;
-  if (isBotGame && role === 'Y') return '🤖 Robot';
+  if (isBotGame && role === 'Y') return 'Robot';
   if (role === myPlayer) return getPlayerName() || t().ludoYou;
   return t().playerNames.ludo[role] || role;
 }
@@ -5323,7 +5355,7 @@ socket.on('game-start', ({ gameType, state, yourPlayer, vsBot, botDifficulty, co
   $('chat').classList.toggle('hidden', isBotGame);
   if (isBotGame) {
     const diffLabel = t().diffLabels[botDifficulty] || '';
-    $('label-y').textContent = diffLabel ? `🤖 Robot (${diffLabel})` : '🤖 Robot';
+    $('label-y').textContent = diffLabel ? `Robot (${diffLabel})` : 'Robot';
   }
   showScreen('game');
 });
@@ -5347,7 +5379,7 @@ socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, r
   $('chat').classList.toggle('hidden', isBotGame);
   if (isBotGame) {
     const diffLabel = t().diffLabels[botDifficulty] || '';
-    $('label-y').textContent = diffLabel ? `🤖 Robot (${diffLabel})` : '🤖 Robot';
+    $('label-y').textContent = diffLabel ? `Robot (${diffLabel})` : 'Robot';
   }
   showScreen('game');
 });
