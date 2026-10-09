@@ -545,7 +545,7 @@ const TRIVIA_API_CAT_MAP = {
 
 const DICT = {
   fr: {
-    siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisis ta partie, ou ouvre un livre.', landingTitle:'Aujourd\'hui, on <mark>joue</mark>.',
+    siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisis ta partie, ou ouvre un livre.', landingTitle:'Aujourd\'hui, on <mark>joue</mark>.', landingDaily:["Aujourd'hui, on <mark>joue</mark>, {n}.", "Nouvelle page, {n}. On la <mark>remplit</mark> ?", "Le tableau est propre. À toi d'écrire la <mark>victoire</mark>.", "Interro surprise ? Non, juste un <mark>quiz</mark>, {n}.", "Pas de devoirs ici, que des <mark>parties</mark>.", "Ta série t'attend, {n}. <mark>Garde-la</mark> au chaud.", "Une partie de dames avant le <mark>dîner</mark> ?", "Le robot se dit <mark>imbattable</mark>. Vérifie.", "Aujourd'hui, la <mark>chance</mark> est de ton côté, {n}.", "Un mot mystère t'attend : <mark>cinq</mark> lettres, six essais.", "Ouvre un <mark>livre</mark>, ou ouvre le jeu.", "Bon retour, {n}. Le classement a <mark>bougé</mark>.", "Échec et mat, c'est pour <mark>quand</mark> ?", "Quatre jetons alignés, c'est tout ce qu'il <mark>faut</mark>.", "Révise en jouant : SVT, Anglais et <mark>Bénin</mark> au quiz.", "Le Ludo se joue à <mark>quatre</mark>. Appelle tes amis.", "Même les champions ont <mark>commencé</mark> par une défaite.", "{n}, la roue de la fortune <mark>tourne</mark> une fois par jour.", "Un petit duel pour se <mark>réveiller</mark> ?", "Ce soir, on vise le <mark>podium</mark>.", "Le samedi, c'est <mark>tournoi</mark>. Prépare-toi, {n}.", "Ici, les erreurs ne comptent <mark>pas</mark>. Rejoue.", "Au quiz, une bonne réponse rapide vaut <mark>double</mark>.", "Le morpion, c'est simple. Gagner, <mark>moins</mark>.", "Prends ton temps, {n}. Le plateau ne <mark>bouge</mark> pas.", "Une idée pour le site ? Écris-la dans <mark>Idées</mark>.", "Aujourd'hui, tu bats ton <mark>record</mark>.", "Ton adversaire révise. Et <mark>toi</mark> ?", "Le dé est <mark>lancé</mark>, {n}.", "Cahier ouvert, crayon prêt : <mark>à toi</mark>."],
     navHome:'Accueil', navFeed:'Vidéos', navIdeas:'Idées', navShop:'Boutique', profileBalanceLabel:'Solde',
     accountTitle:'🔑 Mon compte', accountTabCreate:'Créer', accountTabLogin:'Se connecter',
     accountCreateIntro:'Crée un compte pour ne jamais perdre ta progression et te reconnecter sur un autre appareil.',
@@ -1292,7 +1292,7 @@ const DICT = {
     },
   },
   en: {
-    siteTitle:'Multiplayer Games', siteSubtitle:'Pick a game, or open a book.', landingTitle:'Today, we <mark>play</mark>.',
+    siteTitle:'Multiplayer Games', siteSubtitle:'Pick a game, or open a book.', landingTitle:'Today, we <mark>play</mark>.', landingDaily:["Today, we <mark>play</mark>, {n}.", "New page, {n}. Shall we <mark>fill</mark> it?", "The board is clean. Go write the <mark>win</mark>.", "Pop quiz? No, just a <mark>quiz</mark>, {n}.", "No homework here, only <mark>games</mark>.", "Your streak is waiting, {n}. <mark>Keep</mark> it warm.", "A game of draughts before <mark>dinner</mark>?", "The bot claims it is <mark>unbeatable</mark>. Check.", "Luck is on your <mark>side</mark> today, {n}.", "A mystery word awaits: <mark>five</mark> letters, six tries.", "Open a <mark>book</mark>, or open a game.", "Welcome back, {n}. The leaderboard has <mark>moved</mark>.", "Checkmate, but <mark>when</mark>?", "Four tokens in a row is all it <mark>takes</mark>.", "Revise while playing: Biology, English and <mark>Benin</mark> in the quiz.", "Ludo is played by <mark>four</mark>. Call your friends.", "Even champions <mark>started</mark> with a loss.", "{n}, the wheel of fortune <mark>spins</mark> once a day.", "A quick duel to <mark>wake up</mark>?", "Tonight, we aim for the <mark>podium</mark>.", "Saturday means <mark>tournament</mark>. Get ready, {n}.", "Mistakes do not count <mark>here</mark>. Play again.", "In the quiz, a fast right answer counts <mark>double</mark>.", "Tic-tac-toe is simple. Winning, <mark>less</mark> so.", "Take your time, {n}. The board is not <mark>going</mark> anywhere.", "An idea for the site? Write it in <mark>Ideas</mark>.", "Today, you beat your <mark>record</mark>.", "Your opponent is revising. What about <mark>you</mark>?", "The die is <mark>cast</mark>, {n}.", "Notebook open, pencil ready: <mark>your move</mark>."],
     navHome:'Home', navFeed:'Videos', navIdeas:'Ideas', navShop:'Shop', profileBalanceLabel:'Balance',
     accountTitle:'🔑 My account', accountTabCreate:'Create', accountTabLogin:'Log in',
     accountCreateIntro:'Create an account so you never lose your progress and can log back in on another device.',
@@ -2067,6 +2067,24 @@ window._sansEmoji = _sansEmoji;
 
 function t() { return DICT[currentLang]; }
 
+// Message du jour de l'accueil : il change chaque jour (jamais deux jours de suite le
+// meme) et chaque joueur a son propre decalage dans la liste, donc deux joueurs voient
+// en general deux phrases differentes le meme jour. {n} = le pseudo, s'il y en a un.
+function _messageDuJour(d) {
+  const liste = (d && d.landingDaily) || [];
+  if (!liste.length) return (d && d.landingTitle) || '';
+  let pid = ''; try { pid = localStorage.getItem('libero_player_id') || ''; } catch (_) {}
+  let h = 7; for (let i = 0; i < pid.length; i++) h = (h * 31 + pid.charCodeAt(i)) >>> 0;
+  const now = new Date();
+  const jour = Math.floor((now.getTime() - now.getTimezoneOffset() * 60000) / 86400000);
+  const msg = liste[(h + jour) % liste.length];
+  let nom = ''; try { nom = (localStorage.getItem('playerName') || '').trim(); } catch (_) {}
+  nom = nom.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  if (nom) return msg.replace('{n}', nom);
+  // Sans pseudo : on retire « , {n} » / « {n}, » proprement.
+  return msg.replace(/,\s*\{n\}/, '').replace(/\{n\},\s*/, '').replace(/\s*\{n\}/, '').replace(/^\s*(\p{Ll})/u, (m, c) => c.toUpperCase());
+}
+
 function renderHelp() {
   const d = t();
   const tabs = { general:'help-tab-general', quiz:'help-tab-quiz', connect4:'help-tab-connect4', ttt:'help-tab-ttt', chess:'help-tab-chess' };
@@ -2326,7 +2344,7 @@ function applyLang() {
   // Landing
   const ls = $('landing-subtitle'); if (ls) ls.textContent = d.siteSubtitle;
   // Accueil « cahier » : la date du jour ecrite en haut de la page, et le titre surligne.
-  const lt = $('landing-title'); if (lt && d.landingTitle) lt.innerHTML = d.landingTitle;
+  const lt = $('landing-title'); if (lt) lt.innerHTML = _messageDuJour(d);
   const ldt = $('landing-date');
   if (ldt) { try { ldt.textContent = new Date().toLocaleDateString(currentLang === 'en' ? 'en-GB' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); } catch (_) {} }
   const glbt = $('global-lb-title'); if (glbt) glbt.textContent = d.globalLbTitle;
@@ -7165,6 +7183,7 @@ function _checkMaintenance() {
   fetch(`${window.BACKEND_URL}/api/status`, k ? { headers: { 'X-Admin-Key': k } } : undefined).then(r => r.json()).then(s => {
     _applyTopupFlag(!!(s && s.libsTopup));
     _applyMaintenanceWall(s);
+    if (window.__relacherMaint) window.__relacherMaint();
     const el = document.getElementById('maintenance-banner');
     if (!el) return;
     if (s && s.block && !s.owner) { el.classList.add('hidden'); return; }
@@ -7175,12 +7194,14 @@ function _checkMaintenance() {
         : (msg || (currentLang === 'en' ? 'Maintenance in progress, some features may be unavailable.' : 'Maintenance en cours, certaines fonctions peuvent être indisponibles.'));
       el.classList.remove('hidden');
     } else { el.classList.add('hidden'); }
-  }).catch(() => {});
+  }).catch(() => { if (window.__relacherMaint) window.__relacherMaint(); });
 }
 
 // Mur de maintenance : le site entier est ferme aux joueurs (le proprietaire passe).
 function _applyMaintenanceWall(s) {
   const on = !!(s && s.block && !s.owner);
+  // Memorise l'etat : au prochain chargement, le site reste cache des le premier pixel.
+  try { if (on) localStorage.setItem('libero_site_closed', '1'); else localStorage.removeItem('libero_site_closed'); } catch (_) {}
   let wall = document.getElementById('maintenance-wall');
   document.documentElement.classList.toggle('site-closed', on);
   if (!on) { if (wall) wall.remove(); return; }
