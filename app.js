@@ -108,6 +108,7 @@ let equippedNameEffect   = null;
 let equippedTitle        = null;
 let equippedCursorSnake  = null;
 let equippedAvatar       = null;
+let myPortrait           = null; // portrait dessine (window.LiberoPortrait), null = pas encore compose
 let equippedP4Token      = null;
 let equippedTtt          = null;
 let equippedChess        = null;
@@ -587,6 +588,11 @@ const DICT = {
     lockerTitle:'🎒 Mon casier',
     lockerEmpty:"Tu n'as encore rien acheté dans la boutique. Passe faire un tour !",
     lockerEquipped:'équipé',
+    portraitCardTitle:'Mon portrait', portraitCardSub:'Dessine ta photo de profil', portraitTitle:'Mon portrait',
+    peRandom:'Au hasard', peReset:'Recommencer', peSave:'Enregistrer', peSaved:'Portrait enregistré !',
+    peBuySave:(n, p) => `Débloquer ${n} élément${n > 1 ? 's' : ''} (${p} Libs) et enregistrer`,
+    peLockedHint:'Les éléments marqués d\'un prix sont à débloquer (40 Libs chacun).', peNeedName:'Choisis d\'abord un pseudo.',
+    peNoMoney:'Pas assez de Libs pour ces éléments.', peErr:'Impossible d\'enregistrer, réessaie.',
     lockerEquip:'Équiper', lockerUnequip:'Déséquiper',
     lockerCats:{ colors:'Couleurs de pseudo', nameeffects:'Effets de pseudo', titles:'Titres', bgs:"Fonds d'écran", bubbles:'Bulles de chat', fonts:'Polices', cursorsnakes:'Curseur', snakeskins:'Skins Snake', avatars:'Avatars', p4tokens:'Jetons Puissance 4', ttt:'Symboles Morpion', chess:"Thèmes d'échiquier", clickfx:'Particules de clic', emojipacks:"Packs d'émojis", victorybans:'Bannières de victoire', soundpacks:'Packs de sons', emotes:'Emotes', honorary:'Titre honorifique' },
     lockerCardSub:'Tes cosmétiques et leurs aperçus',
@@ -1338,6 +1344,11 @@ const DICT = {
     lockerTitle:'🎒 My locker',
     lockerEmpty:"You haven't bought anything in the shop yet. Go take a look!",
     lockerEquipped:'equipped',
+    portraitCardTitle:'My portrait', portraitCardSub:'Draw your profile picture', portraitTitle:'My portrait',
+    peRandom:'Random', peReset:'Start over', peSave:'Save', peSaved:'Portrait saved!',
+    peBuySave:(n, p) => `Unlock ${n} item${n > 1 ? 's' : ''} (${p} Libs) and save`,
+    peLockedHint:'Items with a price must be unlocked (40 Libs each).', peNeedName:'Pick a username first.',
+    peNoMoney:'Not enough Libs for these items.', peErr:'Could not save, try again.',
     lockerEquip:'Equip', lockerUnequip:'Unequip',
     lockerCats:{ colors:'Name colors', nameeffects:'Name effects', titles:'Titles', bgs:'Backgrounds', bubbles:'Chat bubbles', fonts:'Fonts', cursorsnakes:'Cursor', snakeskins:'Snake skins', avatars:'Avatars', p4tokens:'Connect 4 tokens', ttt:'Tic-Tac-Toe symbols', chess:'Chessboard themes', clickfx:'Click particles', emojipacks:'Emoji packs', victorybans:'Victory banners', soundpacks:'Sound packs', emotes:'Emotes', honorary:'Honorary title' },
     lockerCardSub:'Your cosmetics and their previews',
@@ -2263,6 +2274,7 @@ function applyLang() {
   const qshb = $('btn-iq-share');      if (qshb) qshb.textContent = d.iqShareBtn;
   const vct = $('vip-card-title');     if (vct) vct.textContent = d.vipCardTitle;
   const vcs = $('vip-card-sub');       if (vcs) vcs.textContent = d.vipCardSub;
+  window._portraitRetexte?.();
   window._renderVip?.();  // repose la reserve de pass par-dessus le libelle par defaut
   const vtt = $('vip-title');          if (vtt) vtt.textContent = d.vipTitle;
   const cfb = $('btn-challenge-friend');      if (cfb) cfb.textContent = d.challengeFriendBtn;
@@ -2848,9 +2860,10 @@ window._renderProfilePseudo = function () {
   // Avatar equipe, ou initiale du pseudo a defaut.
   const av = document.getElementById('profile-avatar');
   if (av) {
-    const ic = _avatarSvg(equippedAvatar);
+    const ic = myPortrait ? _ptSvg(myPortrait) : _avatarSvg(equippedAvatar);
     if (ic) av.innerHTML = ic; else av.textContent = nom.charAt(0).toUpperCase();
     av.classList.toggle('initial', !ic);
+    av.classList.toggle('has-portrait', !!myPortrait);
   }
 };
 function triggerRename(name) {
@@ -2990,18 +3003,31 @@ function _avatarSvg(id) {
   const p = AVATAR_SVG[id];
   return p ? `<svg class="av-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>` : '';
 }
+// Portrait dessine : rendu SVG partage (portrait.js). Le cache evite de redessiner
+// cent fois la meme tete dans un classement.
+const _ptCache = new Map();
+function _ptSvg(p) {
+  if (!p || !window.LiberoPortrait) return '';
+  const k = JSON.stringify(p);
+  if (!_ptCache.has(k)) { if (_ptCache.size > 300) _ptCache.clear(); _ptCache.set(k, window.LiberoPortrait.svg(p)); }
+  return _ptCache.get(k);
+}
+function _lbPt(p) { return p ? `<span class="lb-pt" aria-hidden="true">${_ptSvg(p)}</span>` : ''; }
+try { myPortrait = JSON.parse(localStorage.getItem('libero_portrait') || 'null'); } catch { myPortrait = null; }
+
 function setPlayerBadges(gameType, yourPlayer) {
   const icons = PLAYER_ICONS[gameType];
   const names = t().playerNames[gameType];
   const myIcon = (equippedAvatar && AVATAR_ICONS[equippedAvatar]) || null;
   for (const r of ['R', 'Y']) {
     const el = $('badge-' + r.toLowerCase() + '-icon');
-    const mine = yourPlayer === r && equippedAvatar && AVATAR_SVG[equippedAvatar];
+    const mine = yourPlayer === r && (myPortrait || (equippedAvatar && AVATAR_SVG[equippedAvatar]));
     const ic = mine ? null : icons[r];
     el.classList.toggle('pdot', ic === 'dot');
     el.classList.toggle('pdot-r', ic === 'dot' && r === 'R');
     el.classList.toggle('pdot-y', ic === 'dot' && r === 'Y');
-    if (mine) el.innerHTML = _avatarSvg(equippedAvatar); else el.textContent = ic === 'dot' ? '' : ic;
+    el.classList.toggle('has-portrait', !!(mine && myPortrait));
+    if (mine) el.innerHTML = myPortrait ? _ptSvg(myPortrait) : _avatarSvg(equippedAvatar); else el.textContent = ic === 'dot' ? '' : ic;
   }
   $('label-r').textContent = names.R;
   $('label-y').textContent = names.Y;
@@ -4075,7 +4101,7 @@ function _paintGlobalLb() {
   const row = (entry, i, extra = '') => `
     <div class="global-lb-row lb-row-clickable${_lbMe(entry.name)}${i === 0 ? ' lb-top1' : ''}${extra}" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${classes[i] || ''}">${_lbRank(i)}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${_lbPt(entry.portrait)}${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <span class="global-lb-score">${entry.globalScore} ${t().globalLbPts}</span>
     </div>`;
   let html;
@@ -4112,7 +4138,7 @@ function renderLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row lb-row-clickable${_lbMe(entry.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${classes[i] || ''}">${_lbRank(i)}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${_lbPt(entry.portrait)}${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <div class="lb-stats">
         <span class="lb-w">${entry.wins}${t().lbW}</span>
         <span class="lb-l">${entry.losses}${t().lbL}</span>
@@ -4139,7 +4165,7 @@ function renderSnakeLeaderboard(data) {
   el.innerHTML = data.map((e, i) => `
     <div class="lb-row lb-row-clickable${_lbMe(e.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(e.name)}" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
       <span class="lb-rank">${_lbRank(i)}</span>
-      <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
+      <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${_lbPt(e.portrait)}${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
       <span class="lb-score-snake">${e.hs} <i class="bolt" aria-label="Libs"></i></span>
     </div>
   `).join('');
@@ -4162,7 +4188,7 @@ function renderLuffyLeaderboard(data) {
   el.innerHTML = data.map((e, i) => `
     <div class="lb-row lb-row-clickable${_lbMe(e.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(e.name)}" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
       <span class="lb-rank">${_lbRank(i)}</span>
-      <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
+      <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${_lbPt(e.portrait)}${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
       <span class="lb-score-snake">${e.hs} pts</span>
     </div>
   `).join('');
@@ -4791,7 +4817,7 @@ function renderTriviaLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row lb-row-clickable${_lbMe(entry.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${_lbRank(i)}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
+      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${_lbPt(entry.portrait)}${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <div class="lb-stats">
         <span class="lb-w">${entry.points} ${t().triviaLbPts}</span>
         <span class="lb-d">${entry.games} ${t().triviaLbGames}</span>
@@ -5560,7 +5586,8 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount } = {}) => {
+socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount, portrait: newPortrait } = {}) => {
+  if (newPortrait !== undefined) { myPortrait = newPortrait; try { localStorage.setItem('libero_portrait', JSON.stringify(newPortrait)); } catch {} window._renderProfilePseudo?.(); }
   if (newBadges !== undefined) { window._myBadges = newBadges; window._renderBadges?.('profile-badges', newBadges, newHonorTitle); }
   if (newOnboard !== undefined) { window._myOnboard = newOnboard; window._renderOnboard?.(); }
   if (newHasAccount !== undefined) { window._hasAccount = newHasAccount; if (newHasAccount) { try { localStorage.setItem('libero_has_account', '1'); } catch {} } window._refreshAccountTabs?.(); }
@@ -11742,6 +11769,7 @@ const ProfileHub = (() => {
 
   // Cartes du profil qui mènent à leur page dédiée + modal de récupération.
   document.getElementById('go-locker')?.addEventListener('click', () => showScreen('locker'));
+  document.getElementById('go-portrait')?.addEventListener('click', () => window._openPortraitEditor?.());
   document.getElementById('go-emotes')?.addEventListener('click', () => { _lockerPendingCat = 'emote'; showScreen('locker'); });
   document.getElementById('go-history')?.addEventListener('click', () => showScreen('history'));
   document.getElementById('btn-back-locker')?.addEventListener('click', () => showScreen('profile'));
@@ -12757,6 +12785,7 @@ try {
     document.getElementById('playercard-level').textContent = '…';
     document.getElementById('playercard-status').textContent = '';
     const bg = document.getElementById('playercard-badges'); if (bg) bg.innerHTML = '';
+    const pcp = document.getElementById('playercard-portrait'); if (pcp) { pcp.innerHTML = ''; pcp.classList.add('hidden'); }
     document.getElementById('btn-playercard-add').classList.add('hidden');
     overlay.classList.remove('hidden');
     socket.emit('get-player-card', { playerId: getPlayerId(), name });
@@ -12772,6 +12801,8 @@ try {
     const btn = document.getElementById('btn-playercard-add');
     if (c.notFound) { lvl.textContent = ''; st.textContent = d.friendsErrNotFound; return; }
     lvl.textContent = d.playerCardLevel(c.level || 1) + (c.vip ? ' · ' + d.playerCardVip : '');
+    const pcp = document.getElementById('playercard-portrait');
+    if (pcp && c.portrait) { pcp.innerHTML = _ptSvg(c.portrait); pcp.classList.remove('hidden'); }
     window._renderBadges('playercard-badges', c.badges, c.honorTitle);
     st.textContent = (c.online ? d.playerCardOnline : d.playerCardOffline)
       + (c.isMe ? ' · ' + d.playerCardYou : c.isFriend ? ' · ' + d.playerCardFriends : c.requested ? ' · ' + d.playerCardRequested : '');
@@ -13574,4 +13605,96 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     }).observe(document.body, { childList: true, subtree: true, characterData: true });
   }
   if (document.body) go(); else document.addEventListener('DOMContentLoaded', go);
+})();
+
+// ── Editeur du portrait dessine (photo de profil) ─────────────────────────────
+// Onglets Visage / Cheveux / Tenue / Decor, apercu en direct, elements payants
+// (40 Libs) achetes en une fois au moment d'enregistrer. Le brouillon et l'onglet
+// survivent a un F5 (sessionStorage), comme la fenetre ouverte elle-meme.
+(function initPortraitEditor() {
+  const P = window.LiberoPortrait;
+  const ov = document.getElementById('overlay-portrait');
+  if (!P || !ov) return;
+  const KEY = 'libero_portrait_editor';
+  let draft = null, tab = 'face', buying = null;
+  const lang = () => (currentLang === 'en' ? 1 : 0);
+  const owned = id => (ownedCosmetics || []).includes(id);
+  const save = () => { try { sessionStorage.setItem(KEY, JSON.stringify({ open: !ov.classList.contains('hidden'), draft, tab })); } catch {} };
+  const msg = (txt, ok) => { const m = document.getElementById('pe-msg'); m.textContent = txt || ''; m.classList.toggle('ok', !!ok); };
+  function missing() { return P.lockedIds(draft).filter(id => !owned(id)); }
+  function paint() {
+    const d = t(), L = lang();
+    document.getElementById('pe-preview').innerHTML = P.svg(draft);
+    document.getElementById('pe-photo').className = 'pe-photo pe-fr' + draft.frame;
+    document.getElementById('pe-name').textContent = (localStorage.getItem('playerName') || '').trim() || d.profilePseudoFallback;
+    document.getElementById('pe-tabs').innerHTML = P.GROUPS.map(([g, n]) => `<button type="button" role="tab" aria-selected="${g === tab}" data-g="${g}">${n[L]}</button>`).join('');
+    document.getElementById('pe-opts').innerHTML = P.OPTS.filter(o => o.g === tab).map(o => `<div class="pe-opt"><h3>${o.t[L]}</h3><div class="pe-chips">${
+      (o.sw || o.v).map((x, i) => {
+        const id = 'pt-' + o.k + '-' + i, lk = (o.lock || []).includes(i) && !owned(id);
+        const on = draft[o.k] === i;
+        if (o.sw) return `<button type="button" class="pe-sw${lk ? ' lk' : ''}${o.pat && o.pat[i] ? ' pat-' + o.pat[i] : ''}" style="background-color:${x}" title="${o.names ? o.names[i][L] : ''}" aria-label="${o.names ? o.names[i][L] : o.t[L] + ' ' + (i + 1)}" aria-pressed="${on}" data-k="${o.k}" data-i="${i}"></button>`;
+        return `<button type="button" class="${lk ? 'lk' : ''}" aria-pressed="${on}" data-k="${o.k}" data-i="${i}">${x[L]}${lk ? ` <em>${P.PT_PRICE} Libs</em>` : ''}</button>`;
+      }).join('')}</div></div>`).join('');
+    const miss = missing();
+    document.getElementById('pe-save').textContent = miss.length ? d.peBuySave(miss.length, miss.length * P.PT_PRICE) : d.peSave;
+    if (!document.getElementById('pe-msg').classList.contains('ok')) msg(miss.length ? d.peLockedHint : '');
+    save();
+  }
+  function open() {
+    draft = P.normalize(draft || myPortrait || P.DEF);
+    ov.classList.remove('hidden');
+    msg('');
+    paint();
+  }
+  function close() { ov.classList.add('hidden'); buying = null; save(); }
+  window._openPortraitEditor = () => { draft = P.normalize(myPortrait || P.DEF); open(); };
+  window._portraitRetexte = () => {
+    const d = t();
+    const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    set('portrait-card-title', d.portraitCardTitle); set('portrait-card-sub', d.portraitCardSub);
+    set('portrait-title', d.portraitTitle); set('pe-random', d.peRandom); set('pe-reset', d.peReset);
+    if (!ov.classList.contains('hidden')) paint();
+  };
+  document.getElementById('btn-portrait-close')?.addEventListener('click', close);
+  ov.addEventListener('click', e => { if (e.target === ov) close(); });
+  document.getElementById('profile-avatar')?.addEventListener('click', () => window._openPortraitEditor());
+  document.getElementById('pe-tabs').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (!b) return; tab = b.dataset.g; paint(); });
+  document.getElementById('pe-opts').addEventListener('click', e => {
+    const b = e.target.closest('[data-k]'); if (!b) return;
+    draft[b.dataset.k] = +b.dataset.i; msg(''); paint();
+  });
+  document.getElementById('pe-random').addEventListener('click', () => {
+    for (const o of P.OPTS) draft[o.k] = Math.floor(Math.random() * (o.v || o.sw).length);
+    msg(''); paint();
+  });
+  document.getElementById('pe-reset').addEventListener('click', () => { draft = P.normalize(myPortrait || P.DEF); msg(''); paint(); });
+  // Enregistrer : achete d'abord les elements manquants, un par un, puis pose le portrait.
+  function next() {
+    if (!buying) return;
+    if (!buying.length) { buying = null; socket.emit('set-portrait', { playerId: getPlayerId(), portrait: draft }); return; }
+    socket.emit('buy-cosmetic', { playerId: getPlayerId(), cosmeticId: buying[0] });
+  }
+  document.getElementById('pe-save').addEventListener('click', () => {
+    const d = t(), miss = missing();
+    const nm = (localStorage.getItem('playerName') || '').trim();
+    if (miss.length && (!nm || nm === 'Anonyme')) { msg(d.peNeedName); return; }
+    if (miss.length && (typeof libsBalance === 'number') && libsBalance < miss.length * P.PT_PRICE) { msg(d.peNoMoney); return; }
+    buying = miss.slice();
+    next();
+  });
+  socket.on('buy-cosmetic-result', ({ ok, cosmeticId, error } = {}) => {
+    if (!buying || buying[0] !== cosmeticId) return;
+    if (!ok && error !== 'already_owned') { buying = null; msg(error === 'insufficient' ? t().peNoMoney : t().peErr); return; }
+    buying.shift(); next();
+  });
+  socket.on('set-portrait-result', ({ ok, portrait } = {}) => {
+    if (ok) { myPortrait = portrait; window._renderProfilePseudo?.(); msg(t().peSaved, true); paint(); setTimeout(() => { if (!buying) close(); }, 700); }
+    else msg(t().peErr);
+  });
+  // Restauration apres F5
+  try {
+    const st = JSON.parse(sessionStorage.getItem(KEY) || 'null');
+    if (st && st.open) { draft = P.normalize(st.draft); tab = st.tab || 'face'; open(); }
+  } catch {}
+  window._portraitRetexte();
 })();

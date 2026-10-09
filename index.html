@@ -1228,6 +1228,11 @@
         </details>
         <details class="profile-section" id="sec-collection" data-sec="collection" open>
           <summary class="profile-sec-head"><span id="sec-collection-label">Ma collection</span><span class="pst-chevron" aria-hidden="true"></span></summary>
+          <button type="button" class="profile-nav-card" id="go-portrait">
+          <span class="pnc-icon" data-ic="avatar">P</span>
+          <span class="pnc-text"><span id="portrait-card-title">Mon portrait</span><small id="portrait-card-sub">Dessine ta photo de profil</small></span>
+          <span class="pnc-arrow">›</span>
+        </button>
           <button type="button" class="profile-nav-card" id="go-locker">
           <span class="pnc-icon" data-ic="archive">🎒</span>
           <span class="pnc-text"><span id="locker-title">Mon casier</span><small id="locker-card-sub">Tes cosmétiques et leurs aperçus</small></span>
@@ -1355,6 +1360,26 @@
   </div>
 
   <!-- ── Modal : parrainage (lien d'invitation) ── -->
+  <div id="overlay-portrait" class="overlay hidden">
+    <div class="recovery-modal portrait-modal">
+      <div class="profile-modal-header">
+        <h2 id="portrait-title" class="profile-modal-title">Mon portrait</h2>
+        <button id="btn-portrait-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
+      </div>
+      <div class="pe-body">
+        <div class="pe-left">
+          <div class="pe-photo" id="pe-photo"><div class="pe-frame" id="pe-preview"></div><div class="pe-name" id="pe-name"></div></div>
+          <div class="pe-act"><button type="button" class="btn btn-secondary" id="pe-random">Au hasard</button><button type="button" class="btn btn-secondary" id="pe-reset">Recommencer</button></div>
+        </div>
+        <div class="pe-right">
+          <div class="pe-tabs" id="pe-tabs" role="tablist"></div>
+          <div class="pe-opts" id="pe-opts"></div>
+        </div>
+      </div>
+      <div class="pe-foot"><p class="pe-msg" id="pe-msg"></p><button type="button" class="btn btn-primary" id="pe-save">Enregistrer</button></div>
+    </div>
+  </div>
+
   <div id="overlay-referral" class="overlay hidden">
     <div class="recovery-modal">
       <div class="profile-modal-header">
@@ -1494,6 +1519,7 @@
   <div id="overlay-playercard" class="overlay hidden">
     <div class="recovery-modal playercard-modal">
       <div class="profile-modal-header">
+        <span class="pc-portrait hidden" id="playercard-portrait"></span>
         <h2 id="playercard-name" class="profile-modal-title"></h2>
         <button id="btn-playercard-close" class="help-close-btn"><span class="ui-ic" data-ic="close">✕</span></button>
       </div>
@@ -1746,6 +1772,7 @@
   <script src="vendor/socket.io.min.js"></script>
   <script src="config.js"></script>
   <script src="wordle-words.js"></script>
+  <script src="portrait.js"></script>
   <script src="app.js"></script>
   <!-- Icones en relief : vrai paquet lucide-react en module ES, charge apres
        le reste. Si le CDN ne repond pas, le jeu a trait de UI_ICONS reste. -->
