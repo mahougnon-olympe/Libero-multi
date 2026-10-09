@@ -588,6 +588,7 @@ const DICT = {
     lockerTitle:'🎒 Mon casier',
     lockerEmpty:"Tu n'as encore rien acheté dans la boutique. Passe faire un tour !",
     lockerEquipped:'équipé',
+    vbWord:'VICTOIRE', vbVictory:'Victoire', vbBravo:'BRAVO !', vbExcellent:'Excellent travail !', vbSub:n => `${n} gagne la partie`,
     portraitCardTitle:'Mon portrait', portraitCardSub:'Dessine ta photo de profil', portraitTitle:'Mon portrait',
     peRandom:'Au hasard', peReset:'Recommencer', peSave:'Enregistrer', peSaved:'Portrait enregistré !',
     peBuySave:(n, p) => `Débloquer ${n} élément${n > 1 ? 's' : ''} (${p} Libs) et enregistrer`,
@@ -962,11 +963,11 @@ const DICT = {
     tplPubOk:'Envoyé ! L\'admin doit valider ton modèle avant qu\'il soit en vente.', tplPubRules:'Il faut le niveau 5. 3 modèles maximum. Tu touches 70 % de chaque vente.',
     tplErr:{level:'Il faut le niveau 5 pour publier.', max:'Tu as déjà 3 modèles.', name:'Choisis un autre nom.', anonymous:'Choisis d\'abord un pseudo.', no_portrait:'Enregistre d\'abord ton portrait.', insufficient:'Pas assez de Libs.', own:'C\'est ton modèle !', rate:'Doucement, réessaie dans un instant.', invalid:'Ce modèle n\'est plus disponible.'},
     tplSold:(n, b, g) => `${b} a acheté ton modèle « ${n} » : +${g} Libs`, tplLive:n => `Ton modèle « ${n} » est en vente !`, tplRefused:n => `Ton modèle « ${n} » a été refusé.`,
-    shopBubbleNames:{ 'bubble-ardoise':'Ardoise', 'bubble-ocean':'Océan', 'bubble-menthe':'Menthe', 'bubble-corail':'Corail', 'bubble-ambre':'Ambre', 'bubble-lavande':'Lavande', 'bubble-rubis':'Rubis', 'bubble-emeraude':'Émeraude', 'bubble-indigo':'Indigo', 'bubble-magenta':'Magenta néon', 'bubble-cyan':'Cyan néon', 'bubble-crepuscule':'Crépuscule', 'bubble-aurore':'Aurore', 'bubble-sunset':'Coucher de soleil', 'bubble-tropical':'Tropical', 'bubble-arcade':'Néon arcade', 'bubble-galaxie':'Galaxie', 'bubble-verre':'Verre néon', 'bubble-or':'Or liquide', 'bubble-holographique':'Holographique', 'bubble-cameleon':'Caméléon' },
+    shopBubbleNames:{ 'bubble-ardoise':'Ardoise', 'bubble-ocean':'Océan', 'bubble-menthe':'Menthe', 'bubble-corail':'Corail', 'bubble-ambre':'Ambre', 'bubble-lavande':'Lavande', 'bubble-rubis':'Rubis', 'bubble-emeraude':'Émeraude', 'bubble-indigo':'Indigo', 'bubble-magenta':'Papier buvard', 'bubble-cyan':'Papier millimétré', 'bubble-crepuscule':'Crépuscule', 'bubble-aurore':'Aurore', 'bubble-sunset':'Coucher de soleil', 'bubble-tropical':'Tropical', 'bubble-arcade':'Papier kraft', 'bubble-galaxie':'Galaxie', 'bubble-verre':'Papier calque', 'bubble-or':'Or liquide', 'bubble-holographique':'Encre violette', 'bubble-cameleon':'Carte à jouer' },
     shopBgTitle:'🖼 Fonds d\'écran',
-    shopBgNames:{'bg-nuit':'Nuit Calme','bg-ardoise':'Ardoise Profonde','bg-brume':'Brume Violette','bg-aurore-deg':'Dégradé Aurore','bg-crepuscule':'Crépuscule Néon','bg-cyber':'Grille Cyber','bg-circuit':'Circuit','bg-hexagones':'Hexagones','bg-etoile':'Ciel Étoilé','bg-particules':'Particules Flottantes','bg-pluie':'Pluie Néon','bg-vagues':'Vagues Lumineuses','bg-synthwave':'Synthwave','bg-nebuleuse':'Nébuleuse','bg-aurores':'Aurores Mouvantes','bg-galaxie':'Galaxie Vivante','bg-tempete':'Tempête Néon','bg-hologramme':'Hologramme','bg-wax':'Motifs Pagne','bg-marche-nuit':'Marché de Nuit','bg-terrain':'Terrain de Foot','bg-matrice':'Matrice Verte','bg-harmattan':'Néons Harmattan','bg-orage':'Ciel d\'Orage','bg-lagune':'Coucher sur la Lagune'},
+    shopBgNames:{'bg-nuit':'Nuit Calme','bg-ardoise':'Ardoise Profonde','bg-brume':'Brume Violette','bg-aurore-deg':'Dégradé Aurore','bg-crepuscule':'Crépuscule au pastel','bg-cyber':'Papier millimétré','bg-circuit':'Plan de circuit au crayon','bg-hexagones':'Hexagones','bg-etoile':'Ciel Étoilé','bg-particules':'Particules Flottantes','bg-pluie':'Pluie à l\'encre','bg-vagues':'Vagues Lumineuses','bg-synthwave':'Coucher de soleil aux craies grasses','bg-nebuleuse':'Nébuleuse','bg-aurores':'Aurores Mouvantes','bg-galaxie':'Galaxie Vivante','bg-tempete':'Orage au fusain','bg-hologramme':'Papier calque','bg-wax':'Motifs Pagne','bg-marche-nuit':'Marché de Nuit','bg-terrain':'Terrain de Foot','bg-matrice':'Carnet de code','bg-harmattan':'Harmattan à l\'aquarelle','bg-orage':'Ciel d\'Orage','bg-lagune':'Coucher sur la Lagune'},
     shopNameEffectsTitle:'✨ Effets de pseudo',
-    shopNameEffectNames:{'nameeffect-blink':'Clignotement Néon','nameeffect-pulse':'Lueur Pulsée','nameeffect-gradient':'Dégradé Défilant','nameeffect-sparks':'Étincelles','nameeffect-glitch':'Glitch','nameeffect-rainbow':'Vague Arc-en-ciel','nameeffect-flammes':'Flammes','nameeffect-glace':'Givre','nameeffect-or':'Or Royal'},
+    shopNameEffectNames:{'nameeffect-blink':'Craie qui scintille','nameeffect-pulse':'Coup de surligneur','nameeffect-gradient':'Dégradé Défilant','nameeffect-sparks':'Étincelles','nameeffect-glitch':'Coup de gomme','nameeffect-rainbow':'Vague Arc-en-ciel','nameeffect-flammes':'Flammes','nameeffect-glace':'Givre','nameeffect-or':'Or Royal'},
     shopTitlesTitle:'🏷️ Titres',
     shopTitleNames:{'title-tactician':'Tacticien','title-strategist':'Le Stratège','title-quizmaster':'Quiz Master','title-snakeking':'Roi du Snake','title-unbeaten':'Invaincu','title-champion':'Champion','title-legend':'Légende Vivante','title-sage':'Le Sage','title-wordking':'Roi du Mot','title-unstoppable':'L\'Increvable','title-generous':'Le Généreux','title-brain':'Cerveau','title-globetrotter':'Vagabond'},
     honorTitleNames:{'honor-rank1-global':'N°1 Global','honor-weekly-champ':'Champion de la semaine','honor-creator':'Créateur'},
@@ -979,21 +980,21 @@ const DICT = {
     shopCursorSnakesTitle:'🖱️ Skins de curseur',
     shopSnakeSkinsTitle:'🐍 Skins Snake (Évents)',
     shopSnakeSkinNames:{'snakeskin-gems':'Serpent de Gemmes','snakeskin-cyber':'Serpent Cyber','snakeskin-lava':'Serpent de Lave','snakeskin-galaxy':'Serpent Galaxie','snakeskin-rainbow':'Serpent Arc-en-ciel','snakeskin-8bit':'Serpent 8-bit','snakeskin-gold':'Serpent Doré'},
-    shopCursorSnakeNames:{'cursorsnake-pixel':'Serpent Pixel','cursorsnake-neon':'Serpent Néon','cursorsnake-comet':'Comète','cursorsnake-electric':'Anguille Électrique','cursorsnake-stars':'Traînée Étoilée','cursorsnake-fire':'Dragon de Feu'},
+    shopCursorSnakeNames:{'cursorsnake-pixel':'Pointillés au crayon','cursorsnake-neon':'Trait de feutre','cursorsnake-comet':'Poussière de craie','cursorsnake-electric':'Gribouillis','cursorsnake-stars':'Étoiles à la craie','cursorsnake-fire':'Encre de Chine'},
     shopAvatarsTitle:'🎭 Avatars',
     shopAvatarNames:{'avatar-gamepad':'Manette','avatar-cat':'Chat Pixel','avatar-lightning':'Éclair','avatar-rocket':'Fusée','avatar-robot':'Robot','avatar-skull':'Crâne','avatar-crown':'Couronne','avatar-ball':'Ballon de Foot','avatar-lion':'Lion','avatar-ghost':'Fantôme','avatar-unicorn':'Licorne','avatar-dragon':'Dragon'},
     shopP4TokensTitle:'🔴 Jetons Puissance 4',
-    shopP4TokenNames:{'p4token-goldsilver':'Or & Argent','p4token-neon':'Jetons Néon','p4token-lavalice':'Lave & Glace','p4token-galaxy':'Galaxie'},
+    shopP4TokenNames:{'p4token-goldsilver':'Pièces de monnaie','p4token-neon':'Craies de couleur','p4token-lavalice':'Capsules de bouteille','p4token-galaxy':'Billes en verre'},
     shopTttTitle:'✖️ Symboles Morpion',
-    shopTttNames:{'ttt-neon':'X & O Néon','ttt-sunmoon':'Soleil / Lune','ttt-heartstar':'Cœur / Étoile','ttt-catdog':'Chat / Chien','ttt-skulllightning':'Crâne / Éclair'},
+    shopTttNames:{'ttt-neon':'Feutres de couleur','ttt-sunmoon':'Soleil et lune au pastel','ttt-heartstar':'Cœur et étoile au stylo bille','ttt-catdog':'Chat et chien au crayon','ttt-skulllightning':'Crâne et éclair au feutre noir'},
     shopChessTitle:'♟️ Thèmes d\'échiquier',
-    shopChessNames:{'chess-cyber':'Cyber Grid','chess-frost':'Verre Givré','chess-neon':'Échiquier Néon','chess-marble':'Marbre Royal'},
+    shopChessNames:{'chess-cyber':'Papier quadrillé','chess-frost':'Bois clair d\'iroko','chess-neon':'Ardoise à la craie','chess-marble':'Damier en carton pliant'},
     shopClickFxTitle:'💥 Particules de clic',
-    shopClickFxNames:{'clickfx-bubbles':'Bulles','clickfx-confetti':'Confettis','clickfx-neon':'Étincelles Néon','clickfx-stars':'Étoiles Filantes','clickfx-firework':'Feu d\'Artifice'},
+    shopClickFxNames:{'clickfx-bubbles':'Bulles au crayon','clickfx-confetti':'Confettis de papier','clickfx-neon':'Coups de surligneur','clickfx-stars':'Étoiles à la craie','clickfx-firework':'Feu d\'artifice aux crayons'},
     shopEmojiPacksTitle:'🌈 Packs d\'émojis',
-    shopEmojiPackNames:{'emojipack-animals':'Pack Animaux 🐾','emojipack-hearts':'Pack Cœurs 💜','emojipack-party':'Pack Fête 🎉','emojipack-gaming':'Pack Gaming 🎮','emojipack-cosmos':'Pack Cosmos 🌌'},
+    shopEmojiPackNames:{'emojipack-animals':'Carnet Animaux','emojipack-hearts':'Carnet Cœurs','emojipack-party':'Carnet Fête','emojipack-gaming':'Carnet Jeux','emojipack-cosmos':'Carnet Cosmos'},
     shopVictoryBansTitle:'🏆 Bannières de victoire',
-    shopVictoryBanNames:{'victoryban-neon':'Triomphe Néon','victoryban-confetti':'Explosion de Confettis','victoryban-flames':'Flammes de Champion','victoryban-lightning':'Éclair de Gloire','victoryban-crown':'Couronnement'},
+    shopVictoryBanNames:{'victoryban-neon':'Tampon « Bravo ! »','victoryban-confetti':'Guirlande de fanions','victoryban-flames':'20/20 au stylo rouge','victoryban-lightning':'Médaille d\'or','victoryban-crown':'Couronne de laurier dorée'},
     shopSoundPacksTitle:'🔊 Packs de sons',
     shopSoundPackNames:{'soundpack-8bit':'8-bit','soundpack-retro':'Rétro Arcade','soundpack-crystal':'Cristal','soundpack-cyber':'Cyber','soundpack-epic':'Épique'},
     shopEmotesTitle:'😎 Emotes',
@@ -1352,6 +1353,7 @@ const DICT = {
     lockerTitle:'🎒 My locker',
     lockerEmpty:"You haven't bought anything in the shop yet. Go take a look!",
     lockerEquipped:'equipped',
+    vbWord:'VICTORY', vbVictory:'Victory', vbBravo:'BRAVO!', vbExcellent:'Excellent work!', vbSub:n => `${n} wins the game`,
     portraitCardTitle:'My portrait', portraitCardSub:'Draw your profile picture', portraitTitle:'My portrait',
     peRandom:'Random', peReset:'Start over', peSave:'Save', peSaved:'Portrait saved!',
     peBuySave:(n, p) => `Unlock ${n} item${n > 1 ? 's' : ''} (${p} Libs) and save`,
@@ -1726,11 +1728,11 @@ const DICT = {
     tplPubOk:'Sent! The admin must approve your template before it goes on sale.', tplPubRules:'Level 5 required. 3 templates max. You earn 70% of each sale.',
     tplErr:{level:'You need level 5 to publish.', max:'You already have 3 templates.', name:'Pick another name.', anonymous:'Pick a username first.', no_portrait:'Save your portrait first.', insufficient:'Not enough Libs.', own:'That is your template!', rate:'Slow down, try again in a moment.', invalid:'This template is no longer available.'},
     tplSold:(n, b, g) => `${b} bought your template "${n}": +${g} Libs`, tplLive:n => `Your template "${n}" is on sale!`, tplRefused:n => `Your template "${n}" was refused.`,
-    shopBubbleNames:{ 'bubble-ardoise':'Slate', 'bubble-ocean':'Ocean', 'bubble-menthe':'Mint', 'bubble-corail':'Coral', 'bubble-ambre':'Amber', 'bubble-lavande':'Lavender', 'bubble-rubis':'Ruby', 'bubble-emeraude':'Emerald', 'bubble-indigo':'Indigo', 'bubble-magenta':'Neon magenta', 'bubble-cyan':'Neon cyan', 'bubble-crepuscule':'Dusk', 'bubble-aurore':'Aurora', 'bubble-sunset':'Sunset', 'bubble-tropical':'Tropical', 'bubble-arcade':'Arcade neon', 'bubble-galaxie':'Galaxy', 'bubble-verre':'Neon glass', 'bubble-or':'Liquid gold', 'bubble-holographique':'Holographic', 'bubble-cameleon':'Chameleon' },
+    shopBubbleNames:{ 'bubble-ardoise':'Slate', 'bubble-ocean':'Ocean', 'bubble-menthe':'Mint', 'bubble-corail':'Coral', 'bubble-ambre':'Amber', 'bubble-lavande':'Lavender', 'bubble-rubis':'Ruby', 'bubble-emeraude':'Emerald', 'bubble-indigo':'Indigo', 'bubble-magenta':'Blotting paper', 'bubble-cyan':'Graph paper', 'bubble-crepuscule':'Dusk', 'bubble-aurore':'Aurora', 'bubble-sunset':'Sunset', 'bubble-tropical':'Tropical', 'bubble-arcade':'Kraft paper', 'bubble-galaxie':'Galaxy', 'bubble-verre':'Tracing paper', 'bubble-or':'Liquid gold', 'bubble-holographique':'Violet ink', 'bubble-cameleon':'Playing card' },
     shopBgTitle:'🖼 Wallpapers',
-    shopBgNames:{'bg-nuit':'Calm Night','bg-ardoise':'Deep Slate','bg-brume':'Violet Mist','bg-aurore-deg':'Aurora Gradient','bg-crepuscule':'Neon Dusk','bg-cyber':'Cyber Grid','bg-circuit':'Circuit','bg-hexagones':'Hexagons','bg-etoile':'Starry Sky','bg-particules':'Floating Particles','bg-pluie':'Neon Rain','bg-vagues':'Light Waves','bg-synthwave':'Synthwave','bg-nebuleuse':'Nebula','bg-aurores':'Moving Auroras','bg-galaxie':'Living Galaxy','bg-tempete':'Neon Storm','bg-hologramme':'Hologram','bg-wax':'Wax Patterns','bg-marche-nuit':'Night Market','bg-terrain':'Football Pitch','bg-matrice':'Green Matrix','bg-harmattan':'Harmattan Neon','bg-orage':'Thunder Sky','bg-lagune':'Lagoon Sunset'},
+    shopBgNames:{'bg-nuit':'Calm Night','bg-ardoise':'Deep Slate','bg-brume':'Violet Mist','bg-aurore-deg':'Aurora Gradient','bg-crepuscule':'Pastel dusk','bg-cyber':'Graph paper','bg-circuit':'Pencil circuit plan','bg-hexagones':'Hexagons','bg-etoile':'Starry Sky','bg-particules':'Floating Particles','bg-pluie':'Ink rain','bg-vagues':'Light Waves','bg-synthwave':'Oil pastel sunset','bg-nebuleuse':'Nebula','bg-aurores':'Moving Auroras','bg-galaxie':'Living Galaxy','bg-tempete':'Charcoal storm','bg-hologramme':'Tracing paper','bg-wax':'Wax Patterns','bg-marche-nuit':'Night Market','bg-terrain':'Football Pitch','bg-matrice':'Code notebook','bg-harmattan':'Watercolour harmattan','bg-orage':'Thunder Sky','bg-lagune':'Lagoon Sunset'},
     shopNameEffectsTitle:'✨ Name Effects',
-    shopNameEffectNames:{'nameeffect-blink':'Neon Blink','nameeffect-pulse':'Pulsing Glow','nameeffect-gradient':'Scrolling Gradient','nameeffect-sparks':'Sparks','nameeffect-glitch':'Glitch','nameeffect-rainbow':'Rainbow Wave','nameeffect-flammes':'Flames','nameeffect-glace':'Frost','nameeffect-or':'Royal Gold'},
+    shopNameEffectNames:{'nameeffect-blink':'Twinkling chalk','nameeffect-pulse':'Highlighter stroke','nameeffect-gradient':'Scrolling Gradient','nameeffect-sparks':'Sparks','nameeffect-glitch':'Eraser swipe','nameeffect-rainbow':'Rainbow Wave','nameeffect-flammes':'Flames','nameeffect-glace':'Frost','nameeffect-or':'Royal Gold'},
     shopTitlesTitle:'🏷️ Titles',
     shopTitleNames:{'title-tactician':'Tactician','title-strategist':'The Strategist','title-quizmaster':'Quiz Master','title-snakeking':'Snake King','title-unbeaten':'Undefeated','title-champion':'Champion','title-legend':'Living Legend','title-sage':'The Wise','title-wordking':'Word King','title-unstoppable':'Unstoppable','title-generous':'The Generous','title-brain':'Big Brain','title-globetrotter':'Globetrotter'},
     honorTitleNames:{'honor-rank1-global':'#1 Global','honor-creator':'Creator'},
@@ -1743,21 +1745,21 @@ const DICT = {
     shopCursorSnakesTitle:'🖱️ Cursor Skins',
     shopSnakeSkinsTitle:'🐍 Snake skins (Events)',
     shopSnakeSkinNames:{'snakeskin-gems':'Gem Snake','snakeskin-cyber':'Cyber Snake','snakeskin-lava':'Lava Snake','snakeskin-galaxy':'Galaxy Snake','snakeskin-rainbow':'Rainbow Snake','snakeskin-8bit':'8-bit Snake','snakeskin-gold':'Golden Snake'},
-    shopCursorSnakeNames:{'cursorsnake-pixel':'Pixel Snake','cursorsnake-neon':'Neon Snake','cursorsnake-comet':'Comet','cursorsnake-electric':'Electric Eel','cursorsnake-stars':'Starry Trail','cursorsnake-fire':'Fire Dragon'},
+    shopCursorSnakeNames:{'cursorsnake-pixel':'Pencil dots','cursorsnake-neon':'Felt pen line','cursorsnake-comet':'Chalk dust','cursorsnake-electric':'Scribble','cursorsnake-stars':'Chalk stars','cursorsnake-fire':'Indian ink'},
     shopAvatarsTitle:'🎭 Avatars',
     shopAvatarNames:{'avatar-gamepad':'Gamepad','avatar-cat':'Pixel Cat','avatar-lightning':'Lightning','avatar-rocket':'Rocket','avatar-robot':'Robot','avatar-skull':'Skull','avatar-crown':'Crown','avatar-ball':'Football','avatar-lion':'Lion','avatar-ghost':'Ghost','avatar-unicorn':'Unicorn','avatar-dragon':'Dragon'},
     shopP4TokensTitle:'🔴 Connect 4 Tokens',
-    shopP4TokenNames:{'p4token-goldsilver':'Gold & Silver','p4token-neon':'Neon Tokens','p4token-lavalice':'Lava & Ice','p4token-galaxy':'Galaxy'},
+    shopP4TokenNames:{'p4token-goldsilver':'Coins','p4token-neon':'Coloured chalks','p4token-lavalice':'Bottle caps','p4token-galaxy':'Glass marbles'},
     shopTttTitle:'✖️ Tic-Tac-Toe Symbols',
-    shopTttNames:{'ttt-neon':'X & O Neon','ttt-sunmoon':'Sun / Moon','ttt-heartstar':'Heart / Star','ttt-catdog':'Cat / Dog','ttt-skulllightning':'Skull / Lightning'},
+    shopTttNames:{'ttt-neon':'Felt pens','ttt-sunmoon':'Pastel sun and moon','ttt-heartstar':'Ballpoint heart and star','ttt-catdog':'Pencil cat and dog','ttt-skulllightning':'Black marker skull and bolt'},
     shopChessTitle:'♟️ Chess Themes',
-    shopChessNames:{'chess-cyber':'Cyber Grid','chess-frost':'Frosted Glass','chess-neon':'Neon Board','chess-marble':'Royal Marble'},
+    shopChessNames:{'chess-cyber':'Squared paper','chess-frost':'Light iroko wood','chess-neon':'Chalk slate','chess-marble':'Folding cardboard board'},
     shopClickFxTitle:'💥 Click Particles',
-    shopClickFxNames:{'clickfx-bubbles':'Bubbles','clickfx-confetti':'Confetti','clickfx-neon':'Neon Sparks','clickfx-stars':'Shooting Stars','clickfx-firework':'Firework'},
+    shopClickFxNames:{'clickfx-bubbles':'Pencil bubbles','clickfx-confetti':'Paper confetti','clickfx-neon':'Highlighter strokes','clickfx-stars':'Chalk stars','clickfx-firework':'Coloured pencil fireworks'},
     shopEmojiPacksTitle:'🌈 Emoji Packs',
-    shopEmojiPackNames:{'emojipack-animals':'Animal Pack 🐾','emojipack-hearts':'Hearts Pack 💜','emojipack-party':'Party Pack 🎉','emojipack-gaming':'Gaming Pack 🎮','emojipack-cosmos':'Cosmos Pack 🌌'},
+    shopEmojiPackNames:{'emojipack-animals':'Animal notebook','emojipack-hearts':'Hearts notebook','emojipack-party':'Party notebook','emojipack-gaming':'Games notebook','emojipack-cosmos':'Cosmos notebook'},
     shopVictoryBansTitle:'🏆 Victory Banners',
-    shopVictoryBanNames:{'victoryban-neon':'Neon Triumph','victoryban-confetti':'Confetti Explosion','victoryban-flames':'Champion Flames','victoryban-lightning':'Lightning Glory','victoryban-crown':'Coronation'},
+    shopVictoryBanNames:{'victoryban-neon':'"Bravo!" stamp','victoryban-confetti':'Bunting','victoryban-flames':'20/20 in red pen','victoryban-lightning':'Gold medal','victoryban-crown':'Golden laurel wreath'},
     shopSoundPacksTitle:'🔊 Sound Packs',
     shopSoundPackNames:{'soundpack-8bit':'8-bit','soundpack-retro':'Retro Arcade','soundpack-crystal':'Crystal','soundpack-cyber':'Cyber','soundpack-epic':'Epic'},
     shopEmotesTitle:'😎 Emotes',
@@ -3105,7 +3107,7 @@ function celebrate(opts = {}) {
   const layer = document.createElement('div');
   layer.className = 'confetti-layer';
   document.body.appendChild(layer);
-  const colors = ['#6366f1', '#a855f7', '#22d3ee', '#fbbf24', '#f87171', '#34d399', '#f472b6'];
+  const colors = ['#fff27a', '#ffd0d8', '#c9a36f', '#bfe3ff', '#c9efc9', '#e2485d', '#173a8a']; // papiers decoupes
   const originX = opts.x != null ? opts.x : window.innerWidth / 2;
   const originY = opts.y != null ? opts.y : window.innerHeight * 0.22;
   let maxDur = 0;
@@ -3133,6 +3135,53 @@ function celebrate(opts = {}) {
 }
 window._celebrate = celebrate;
 
+
+// ── Bannieres de victoire redessinees (tampon, fanions, 20/20, medaille, laurier) ──
+// Posees dans #game-status quand le joueur gagne avec une banniere equipee.
+  function _vbFlags(sub){const L=(t().vbWord).split(''),cols=['#d23a4f','#e0a800','#3d64b8','#2f8a55'];
+    return `<div style="display:grid;gap:4px;justify-items:center;width:100%"><div class="vb-flags"><svg viewBox="0 0 460 110"><g class="vb-flagsway"><path d="M6 14Q230 54 454 14" fill="none" stroke="var(--ink)" stroke-width="2"/>${L.map((c,i)=>{const x=34+i*56,y=14+40*(1-Math.pow((x-230)/224,2))*0.5;return `<g class="vb-flag" style="animation-delay:${.1+i*.09}s"><path d="M${x-22} ${y}h44l-22 50z" fill="${cols[i%4]}" stroke="var(--ink)" stroke-width="2"/><path d="M${x-22} ${y}h44" stroke="rgba(255,255,255,.4)" stroke-width="3"/><text x="${x}" y="${y+27}" text-anchor="middle" fill="#fff" stroke="var(--ink)" stroke-width=".8">${c}</text></g>`}).join('')}</g></svg></div><div class="vb-sub">${sub}</div></div>`;}  function _vbNote(sub){return `<div class="vb-note" style="display:grid;place-items:center"><svg viewBox="0 0 320 170"><g fill="none" stroke="var(--margin)" stroke-linecap="round" stroke-linejoin="round">
+    <path class="vb-draw" style="--l:120;--w:.2s;--d:.35s" stroke-width="7" d="M70 62q14-22 30-4 4 12-28 48h34"/>
+    <path class="vb-draw" style="--l:130;--w:.5s;--d:.35s" stroke-width="7" d="M150 46q-26 10-20 40t26 4q8-30-6-44"/>
+    <path class="vb-draw" style="--l:60;--w:.8s;--d:.2s" stroke-width="6" d="M182 108l20-66"/>
+    <path class="vb-draw" style="--l:120;--w:.95s;--d:.35s" stroke-width="7" d="M216 62q14-22 30-4 4 12-28 48h34"/>
+    <path class="vb-draw" style="--l:130;--w:1.25s;--d:.35s" stroke-width="7" d="M296 46q-26 10-20 40t26 4q8-30-6-44"/>
+    <path class="vb-draw" style="--l:820;--w:1.6s;--d:.7s" stroke-width="3.4" d="M40 80C40 30 120 18 180 20s128 18 126 62-80 64-150 60S38 126 44 76"/>
+  </g><text class="vb-fill" style="--w:2.2s" x="160" y="168" text-anchor="middle" font-family="Caveat" font-weight="700" font-size="30" fill="var(--margin)">${t().vbExcellent}</text></svg></div>`;}  function _vbLaurel(sub){let leaves='';let k=0;for(const sd of [-1,1])for(let i=0;i<10;i++){const a=(100+i*14)*Math.PI/180,rr=96+(i%2?8:-8),x=150+sd*-Math.cos(a)*rr*-1,y=104+Math.sin(a)*rr;const X=sd<0?150+Math.cos(a)*rr:150-Math.cos(a)*rr;const rot=sd<0?(100+i*14):(80-i*14);leaves+=`<g transform="rotate(${rot+90} ${X} ${y})"><ellipse class="vb-leaf" style="animation-delay:${.15+i*.09}s" cx="${X}" cy="${y}" rx="15" ry="6" fill="url(#lg)" stroke="#5a3d05" stroke-width="1.5"/></g>`;}
+    const stem=a=>`<path d="M150 200${[0,1,2,3,4,5,6,7,8,9].map(i=>{const t=(100+i*14)*Math.PI/180;return ' L'+(150+a*Math.cos(t)*96).toFixed(1)+' '+(104+Math.sin(t)*96).toFixed(1)}).join('')}" fill="none" stroke="#8a6410" stroke-width="3"/>`;
+    return `<div class="vb-laurel"><svg viewBox="0 -10 300 240"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2b0"/><stop offset=".45" stop-color="#e3b23c"/><stop offset="1" stop-color="#8a6410"/></linearGradient><linearGradient id="lt" x1="0" x2="1"><stop offset="0" stop-color="#e3b23c"/><stop offset=".5" stop-color="#fff6c8"><animate attributeName="offset" values="-.2;1.2" dur="2.6s" repeatCount="indefinite"/></stop><stop offset="1" stop-color="#b8860b"/></linearGradient></defs>${stem(1)}${stem(-1)}${leaves}
+      <path d="M150 200l-16 18M150 200l16 18" stroke="#d23a4f" stroke-width="7" stroke-linecap="round"/><circle cx="150" cy="200" r="6" fill="#d23a4f" stroke="var(--ink)" stroke-width="1.6"/>
+      <text x="150" y="116" text-anchor="middle" font-family="Archivo Black" font-size="32" fill="url(#lt)" stroke="var(--ink)" stroke-width="1.2">${t().vbVictory}</text></svg><div class="vb-sub">${sub}</div></div>`;}
+  function _vbStamp(sub){ return `<div class="vb-shake" style="display:grid;gap:14px;place-items:center"><div class="vb-press"><div class="vb-stamp">${t().vbBravo}</div><svg class="vb-tool" viewBox="0 0 220 230" aria-hidden="true"><defs><linearGradient id="wd" x1="0" x2="1"><stop offset="0" stop-color="#7a4a22"/><stop offset=".45" stop-color="#c58a4f"/><stop offset="1" stop-color="#6b3f1d"/></linearGradient><linearGradient id="wb" x1="0" x2="1"><stop offset="0" stop-color="#8a5a2b"/><stop offset=".5" stop-color="#d9a066"/><stop offset="1" stop-color="#7a4a22"/></linearGradient></defs><ellipse cx="110" cy="34" rx="34" ry="26" fill="url(#wd)" stroke="var(--ink)" stroke-width="3"/><path d="M96 56h28l6 74H90z" fill="url(#wd)" stroke="var(--ink)" stroke-width="3"/><rect x="18" y="128" width="184" height="54" rx="6" fill="url(#wb)" stroke="var(--ink)" stroke-width="3"/><path d="M24 136h172" stroke="rgba(255,255,255,.35)" stroke-width="3"/><rect x="22" y="182" width="176" height="18" rx="3" fill="var(--violet)" stroke="var(--ink)" stroke-width="3"/></svg><span class="vb-shadow"></span></div><div class="vb-sub">${sub}</div></div>`; }
+  function _vbMedal(sub){ return `<div class="vb-medal"><svg class="medal" viewBox="0 0 200 240" role="img" aria-label="Médaille 1">
+<defs>
+<linearGradient id="mgr1" x1="0" x2="1"><stop offset="0" stop-color="#d23a4f"/><stop offset=".5" stop-color="#d23a4f" stop-opacity=".82"/><stop offset="1" stop-color="#d23a4f"/></linearGradient>
+<linearGradient id="mgr2" x1="0" x2="1"><stop offset="0" stop-color="#173a8a"/><stop offset=".5" stop-color="#173a8a" stop-opacity=".82"/><stop offset="1" stop-color="#173a8a"/></linearGradient>
+<radialGradient id="mgg" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff6c8"/><stop offset=".45" stop-color="#f2c94c"/><stop offset=".85" stop-color="#c8961e"/><stop offset="1" stop-color="#7a5508"/></radialGradient>
+<linearGradient id="mge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a5508"/><stop offset=".5" stop-color="#fff6c8"/><stop offset="1" stop-color="#7a5508"/></linearGradient>
+<clipPath id="mgk"><circle cx="100" cy="168" r="48"/></clipPath>
+</defs>
+<path d="M62 0h34l18 112h-34z" fill="url(#mgr1)" stroke="var(--ink)" stroke-width="2.5"/>
+<path d="M104 0h34l-18 112H86z" fill="url(#mgr2)" stroke="var(--ink)" stroke-width="2.5"/>
+<path d="M70 0l17 108M130 0l-17 108" stroke="rgba(255,255,255,.55)" stroke-width="3"/>
+<path d="M74 0l17 108M126 0l-17 108" stroke="rgba(0,0,0,.18)" stroke-width="2"/>
+<rect x="80" y="106" width="40" height="14" rx="3" fill="url(#mge)" stroke="var(--ink)" stroke-width="2.5"/>
+<g class="disc">
+<circle cx="100" cy="168" r="56" fill="url(#mge)" stroke="var(--ink)" stroke-width="2.8"/>
+<circle cx="100" cy="168" r="47" fill="url(#mgg)" stroke="#7a5508" stroke-width="2"/>
+<circle cx="100" cy="168" r="40" fill="none" stroke="#7a5508" stroke-width="1.2" stroke-dasharray="2 3" opacity=".8"/>
+<g fill="#c8961e" stroke="#7a5508" stroke-width="1"><path d="M70 186q-6-14 2-28 4 8-2 28z"/><path d="M68 170q-2-14 8-24 2 10-8 24z"/><path d="M74 196q-10-6-10-18 8 6 10 18z"/><path d="M130 186q6-14-2-28-4 8 2 28z"/><path d="M132 170q2-14-8-24-2 10 8 24z"/><path d="M126 196q10-6 10-18-8 6-10 18z"/></g>
+<text x="100" y="186" text-anchor="middle" font-family="Archivo Black" font-size="48" fill="#7a5508" opacity=".55" transform="translate(1.5 1.5)">1</text>
+<text x="100" y="186" text-anchor="middle" font-family="Archivo Black" font-size="48" fill="#f2c94c" stroke="#7a5508" stroke-width="1.4">1</text>
+<path d="M66 146a44 44 0 0 1 30-22" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" opacity=".6"/>
+<g clip-path="url(#mgk)"><rect class="shine" x="40" y="100" width="26" height="140" fill="#fff" opacity=".55"/></g>
+</g>
+<g class="spark" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" fill="none"><path d="M40 150l-14-6"/><path d="M42 182l-15 5"/><path d="M58 120l-8-11"/><path d="M160 150l14-6"/><path d="M158 182l15 5"/><path d="M142 120l8-11"/></g>
+</svg><div class="vict">${t().vbVictory}</div><div class="vb-sub">${sub}</div></div>`; }
+function _victoryBannerHtml(id, sub) {
+  const f = { 'victoryban-neon': _vbStamp, 'victoryban-confetti': _vbFlags, 'victoryban-flames': _vbNote, 'victoryban-lightning': _vbMedal, 'victoryban-crown': _vbLaurel }[id];
+  return f ? `<div class="vb-show">${f(sub)}</div>` : '';
+}
+
 function showGameOver(status, winner) {
   gameActive = false;
   if (currentGame === 'connect4') setArrowsEnabled(false);
@@ -3141,6 +3190,7 @@ function showGameOver(status, winner) {
   const isWinner = winner === myPlayer;
   const gs = $('game-status');
   gs.classList.remove(...VICTORY_BANNER_CLASSES);
+  gs.querySelector('.vb-show')?.remove();
 
   if (status === 'won') {
     $('status-text').textContent = isWinner ? t().youWon : t().youLost;
@@ -3148,7 +3198,11 @@ function showGameOver(status, winner) {
     if (currentGame === 'ludo' && !isBotGame && ludoSeatCount() > 2 && winner) $('status-text').textContent = t().ludoWinnerIs(ludoNameOf(winner));
     if (isWinner) {
       celebrate(); // joue le son 'success' (fichier)
-      if (equippedVictoryBan) gs.classList.add(equippedVictoryBan);
+      if (equippedVictoryBan) {
+        gs.classList.add(equippedVictoryBan);
+        const me = (localStorage.getItem('playerName') || '').trim() || t().profilePseudoFallback;
+        gs.insertAdjacentHTML('afterbegin', _victoryBannerHtml(equippedVictoryBan, t().vbSub(me)));
+      }
     } else SFX.lose();
   } else {
     $('status-text').textContent = t().gameDraw;
@@ -3322,15 +3376,30 @@ function buildTTT(container, board) {
   updateTTT(board, null);
 }
 
+// Symboles du morpion : dessins (pastel, stylo bille, crayon, feutre), plus d'emojis.
+const _TS = (body) => `<svg class="ttt-sym" viewBox="0 0 40 40" aria-hidden="true">${body}</svg>`;
+const TTT_DRAW = {
+  sun:   _TS('<circle cx="20" cy="20" r="8" fill="#ffd27a" stroke="#e8742c" stroke-width="2.6"/><path d="M20 4v6M20 30v6M4 20h6M30 20h6M9 9l4 4M27 27l4 4M31 9l-4 4M13 27l-4 4" stroke="#e8742c" stroke-width="2.6" stroke-linecap="round"/>'),
+  moon:  _TS('<path d="M24 6a14 14 0 1 0 10 22A11 11 0 1 1 24 6z" fill="#c9d6ff" stroke="#3d64b8" stroke-width="2.6" stroke-linejoin="round"/>'),
+  heart: _TS('<path d="M20 33 7 20a7 7 0 0 1 13-9 7 7 0 0 1 13 9z" fill="none" stroke="#d23a4f" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 31 9 20a6 6 0 0 1 11-7" fill="none" stroke="#d23a4f" stroke-width="1.2" opacity=".6"/>'),
+  star:  _TS('<path d="M20 5l4.4 9.2 10 1.2-7.4 6.9 2 9.9L20 27.3l-9 4.9 2-9.9-7.4-6.9 10-1.2z" fill="none" stroke="#173a8a" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 8l3.6 8" stroke="#173a8a" stroke-width="1.1" opacity=".6"/>'),
+  cat:   _TS('<path d="M9 31V15l4-7 4 5h6l4-5 4 7v16z" fill="none" stroke="#3b3f47" stroke-width="2.2" stroke-linejoin="round"/><path d="M15 21h1M24 21h1M18 26q2 2 4 0M11 28l-5 1M29 28l5 1" stroke="#3b3f47" stroke-width="2.2" stroke-linecap="round"/><path d="M12 30l4-4M16 30l4-4M24 30l4-4" stroke="#3b3f47" stroke-width=".8" opacity=".5"/>'),
+  dog:   _TS('<path d="M12 12q8-6 16 0v14q-8 7-16 0z" fill="none" stroke="#8a5634" stroke-width="2.2"/><path d="M12 12l-5 10 5 2M28 12l5 10-5 2" fill="none" stroke="#8a5634" stroke-width="2.2" stroke-linejoin="round"/><path d="M16 19h1M23 19h1" stroke="#3b3f47" stroke-width="2.4" stroke-linecap="round"/><ellipse cx="20" cy="25" rx="2.6" ry="2" fill="#3b3f47"/>'),
+  skull: _TS('<path d="M9 22q-1-15 11-15t11 15l-3 4v5H12v-5z" fill="none" stroke="#111" stroke-width="2.8" stroke-linejoin="round"/><circle cx="15.5" cy="20" r="3" fill="#111"/><circle cx="24.5" cy="20" r="3" fill="#111"/><path d="M17 31v-4M20 31v-4M23 31v-4" stroke="#111" stroke-width="2"/>'),
+  bolt:  _TS('<path d="M23 4 9 23h10l-3 13 15-20H21z" fill="#ffe169" stroke="#111" stroke-width="2.4" stroke-linejoin="round"/>'),
+  fx:    _TS('<path d="M9 9l22 22M31 9 9 31" stroke="#d23a4f" stroke-width="5" stroke-linecap="round"/>'),
+  fo:    _TS('<circle cx="20" cy="20" r="11" fill="none" stroke="#173a8a" stroke-width="5"/>'),
+};
 const TTT_SYMBOL_PACKS = {
-  'ttt-sunmoon':  ['☀️','🌙'], 'ttt-heartstar': ['❤️','⭐'],
-  'ttt-skulllightning': ['💀','⚡'], 'ttt-catdog': ['🐱','🐶'], 'ttt-neonxo': ['✕','○'],
+  'ttt-sunmoon': ['sun', 'moon'], 'ttt-heartstar': ['heart', 'star'],
+  'ttt-skulllightning': ['skull', 'bolt'], 'ttt-catdog': ['cat', 'dog'], 'ttt-neon': ['fx', 'fo'],
 };
 
 function _getTttSymbols() {
   const pack = equippedTtt && TTT_SYMBOL_PACKS[equippedTtt];
   if (!pack) return { R: '✕', Y: '○' };
-  return myPlayer === 'R' ? { R: pack[0], Y: pack[1] } : { R: pack[1], Y: pack[0] };
+  const a = TTT_DRAW[pack[0]], b = TTT_DRAW[pack[1]];
+  return myPlayer === 'R' ? { R: a, Y: b, html: true } : { R: b, Y: a, html: true };
 }
 
 function updateTTT(board, winLine) {
@@ -3341,8 +3410,8 @@ function updateTTT(board, winLine) {
   document.querySelectorAll('.ttt-cell').forEach((cell, i) => {
     cell.classList.remove('ttt-r', 'ttt-y', 'played', 'win-cell');
     const val = board[i];
-    if (val === 'R') { cell.textContent = sym.R; cell.classList.add('ttt-r', 'played'); }
-    else if (val === 'Y') { cell.textContent = sym.Y; cell.classList.add('ttt-y', 'played'); }
+    if (val === 'R') { if (sym.html) cell.innerHTML = sym.R; else cell.textContent = sym.R; cell.classList.add('ttt-r', 'played'); }
+    else if (val === 'Y') { if (sym.html) cell.innerHTML = sym.Y; else cell.textContent = sym.Y; cell.classList.add('ttt-y', 'played'); }
     else { cell.textContent = ''; }
     if (winLine?.includes(i)) cell.classList.add('win-cell');
   });
@@ -7598,85 +7667,72 @@ $('btn-boost-hint').addEventListener('click', () => {
 });
 
 // ── Particules ─────────────────────────────────────────────────────────────────
+// Particules de clic redessinees : crayon, papier, surligneur, craie. Encre sur le
+// cahier, craie sur l'ardoise ; plus aucun halo.
+const _fxInk = () => document.documentElement.classList.contains('light') ? '#3b3f47' : '#eef1ea';
+const _FX_STAR = '<svg viewBox="0 0 20 20" width="100%" height="100%"><path d="M10 1.5l2.4 5.2 5.6.6-4.2 3.8 1.2 5.6L10 13.9 5 16.7l1.2-5.6L2 7.3l5.6-.6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
 const CLICK_FX_CONFIGS = {
-  'clickfx-bubbles': {
-    count:14, shapes: () => {
-      const p = document.createElement('div');
-      const sz = 6 + Math.random() * 8;
-      const col = `hsl(${180+Math.random()*60|0},80%,${60+Math.random()*20|0}%)`;
-      p.style.cssText = `border-radius:50%;width:${sz}px;height:${sz}px;border:2px solid ${col};background:transparent;`;
-      return { el:p, dist:24+Math.random()*50, dur:500+Math.random()*400 };
-    },
-  },
-  'clickfx-confetti': {
-    count:20, shapes: () => {
-      const p = document.createElement('div');
-      const sz = 4+Math.random()*5; const h = 2+Math.random()*4;
-      const col = `hsl(${Math.random()*360|0},90%,60%)`;
-      p.style.cssText = `width:${sz}px;height:${h}px;background:${col};border-radius:1px;transform-origin:center;`;
-      return { el:p, dist:30+Math.random()*70, dur:400+Math.random()*500 };
-    },
-  },
-  'clickfx-neon': {
-    count:18, shapes: () => {
-      const p = document.createElement('div');
-      const sz = 2+Math.random()*4;
-      const col = ['#00ffff','#ff00ff','#ffff00','#00ff88'][Math.floor(Math.random()*4)];
-      p.style.cssText = `border-radius:50%;width:${sz}px;height:${sz}px;background:${col};box-shadow:0 0 6px 2px ${col};`;
-      return { el:p, dist:40+Math.random()*80, dur:350+Math.random()*350 };
-    },
-  },
-  'clickfx-stars': {
-    count:12, shapes: () => {
-      const p = document.createElement('span');
-      p.textContent = ['⭐','✨','🌟'][Math.floor(Math.random()*3)];
-      p.style.cssText = `font-size:${10+Math.random()*10}px;line-height:1;`;
-      return { el:p, dist:40+Math.random()*70, dur:500+Math.random()*400 };
-    },
-  },
-  'clickfx-firework': {
-    count:24, shapes: () => {
-      const p = document.createElement('div');
-      const sz = 3+Math.random()*4;
-      const col = `hsl(${Math.random()*360|0},100%,${55+Math.random()*20|0}%)`;
-      p.style.cssText = `border-radius:50%;width:${sz}px;height:${sz}px;background:${col};box-shadow:0 0 4px 1px ${col};`;
-      return { el:p, dist:50+Math.random()*100, dur:450+Math.random()*550 };
-    },
-  },
+  'clickfx-bubbles': { count: 8, pop: true, shapes: () => {
+    const p = document.createElement('div'), sz = 8 + Math.random() * 12, ink = _fxInk();
+    p.style.cssText = `border-radius:50%;width:${sz}px;height:${sz}px;border:1.6px solid ${ink};background:radial-gradient(circle at 32% 30%,${ink} 0 1.5px,transparent 2px);`;
+    return { el: p, dist: 26 + Math.random() * 40, dur: 700 + Math.random() * 400, up: 30 };
+  } },
+  'clickfx-confetti': { count: 18, shapes: () => {
+    const p = document.createElement('div'), w = 6 + Math.random() * 5, h = 4 + Math.random() * 3;
+    const col = ['#fff27a', '#ffd0d8', '#c9a36f', '#bfe3ff', '#c9efc9', '#ffffff'][Math.random() * 6 | 0];
+    p.style.cssText = `width:${w}px;height:${h}px;background:${col};border:1px solid rgba(34,37,43,.55);`;
+    return { el: p, dist: 34 + Math.random() * 60, dur: 700 + Math.random() * 500, spin: true, fall: 40 };
+  } },
+  'clickfx-neon': { count: 9, shapes: () => {
+    const p = document.createElement('div');
+    const col = ['rgba(255,236,80,.85)', 'rgba(255,142,192,.8)', 'rgba(150,240,150,.8)'][Math.random() * 3 | 0];
+    p.style.cssText = `width:${16 + Math.random() * 12}px;height:7px;background:${col};transform-origin:0 50%;`;
+    return { el: p, dist: 22 + Math.random() * 30, dur: 520 + Math.random() * 200, ray: true };
+  } },
+  'clickfx-stars': { count: 9, shapes: () => {
+    const p = document.createElement('div'), sz = 10 + Math.random() * 8;
+    p.style.cssText = `width:${sz}px;height:${sz}px;color:${document.documentElement.classList.contains('light') ? '#173a8a' : '#ffe169'};`;
+    p.innerHTML = _FX_STAR;
+    return { el: p, dist: 36 + Math.random() * 50, dur: 650 + Math.random() * 400, spin: true, fall: 30 };
+  } },
+  'clickfx-firework': { count: 20, shapes: () => {
+    const p = document.createElement('div');
+    const col = ['#d23a4f', '#173a8a', '#2f8a55', '#e0a800', '#7a4fc0'][Math.random() * 5 | 0];
+    p.style.cssText = `width:${10 + Math.random() * 8}px;height:2.6px;border-radius:2px;background:${col};transform-origin:0 50%;`;
+    return { el: p, dist: 50 + Math.random() * 70, dur: 600 + Math.random() * 400, ray: true, fall: 20 };
+  } },
 };
 
 function spawnParticles(x, y) {
-  const cfg = CLICK_FX_CONFIGS[equippedClickFx];
-  if (cfg) {
-    for (let i = 0; i < cfg.count; i++) {
-      const { el, dist, dur } = cfg.shapes();
-      el.style.cssText += `position:fixed;left:${x}px;top:${y}px;pointer-events:none;z-index:9999;`;
-      document.body.appendChild(el);
-      const angle = (i / cfg.count) * Math.PI * 2 + Math.random() * 0.5;
-      const tx = Math.cos(angle) * dist, ty = Math.sin(angle) * dist;
-      el.animate([
-        { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
-        { transform: `translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px)) scale(0)`, opacity: 0 },
-      ], { duration: dur, easing: 'cubic-bezier(0,.9,.57,1)', fill: 'forwards' }).onfinish = () => el.remove();
-    }
-    return;
+  const cfg = CLICK_FX_CONFIGS[equippedClickFx] || {
+    count: 12, shapes: () => {
+      const p = document.createElement('div'), sz = 2 + Math.random() * 3;
+      p.style.cssText = `width:${sz}px;height:${sz}px;border-radius:1px;background:${_fxInk()};`;
+      return { el: p, dist: 24 + Math.random() * 40, dur: 420 + Math.random() * 300 };
+    },
+  };
+  for (let i = 0; i < cfg.count; i++) {
+    const o = cfg.shapes(), el = o.el;
+    el.style.cssText += `position:fixed;left:${x}px;top:${y}px;pointer-events:none;z-index:9999;`;
+    document.body.appendChild(el);
+    const angle = (i / cfg.count) * Math.PI * 2 + Math.random() * 0.5;
+    const tx = Math.cos(angle) * o.dist, ty = Math.sin(angle) * o.dist - (o.up || 0);
+    const deg = angle * 180 / Math.PI, sp = o.spin ? (Math.random() * 540 - 270) : 0;
+    const frames = o.ray
+      ? [{ transform: `translate(0,-50%) rotate(${deg}deg) translateX(6px) scaleX(0)`, opacity: 1 },
+         { transform: `translate(0,-50%) rotate(${deg}deg) translateX(${o.dist * .5}px) scaleX(1)`, opacity: 1, offset: .45 },
+         { transform: `translate(0,${o.fall || 0}px) rotate(${deg}deg) translateX(${o.dist}px) scaleX(.2)`, opacity: 0 }]
+      : [{ transform: 'translate(-50%,-50%) rotate(0deg) scale(1)', opacity: 1 },
+         { transform: `translate(calc(-50% + ${tx * .8}px),calc(-50% + ${ty * .8}px)) rotate(${sp * .7}deg) scale(1)`, opacity: 1, offset: .6 },
+         { transform: `translate(calc(-50% + ${tx}px),calc(-50% + ${ty + (o.fall || 0)}px)) rotate(${sp}deg) scale(${o.fall ? .9 : .3})`, opacity: 0 }];
+    el.animate(frames, { duration: o.dur, easing: 'cubic-bezier(.1,.8,.4,1)', fill: 'forwards' }).onfinish = () => el.remove();
   }
-  const palette = ['#6366f1','#818cf8','#a5b4fc','#c7d2fe','#60a5fa','#e879f9','#38bdf8'];
-  const count = 16;
-  for (let i = 0; i < count; i++) {
-    const p = document.createElement('div');
-    const size = 3 + Math.random() * 5;
-    p.style.cssText = `position:fixed;left:${x}px;top:${y}px;width:${size}px;height:${size}px;border-radius:50%;background:${palette[i % palette.length]};pointer-events:none;z-index:9999;`;
-    document.body.appendChild(p);
-    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.4;
-    const dist  = 32 + Math.random() * 68;
-    const tx    = Math.cos(angle) * dist;
-    const ty    = Math.sin(angle) * dist;
-    p.animate([
-      { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
-      { transform: `translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px)) scale(0)`, opacity: 0 },
-    ], { duration: 420 + Math.random() * 360, easing: 'cubic-bezier(0,.9,.57,1)', fill: 'forwards' })
-    .onfinish = () => p.remove();
+  if (cfg.pop) {
+    const t = document.createElement('span');
+    t.textContent = 'pop !';
+    t.style.cssText = `position:fixed;left:${x}px;top:${y - 20}px;pointer-events:none;z-index:9999;font:700 20px var(--font-hand);color:var(--margin);transform:translate(-50%,-50%);`;
+    document.body.appendChild(t);
+    t.animate([{ opacity: 0, transform: 'translate(-50%,-30%)' }, { opacity: 1, transform: 'translate(-50%,-60%)', offset: .4 }, { opacity: 0, transform: 'translate(-50%,-110%)' }], { duration: 900, delay: 250, fill: 'both' }).onfinish = () => t.remove();
   }
 }
 
@@ -7708,6 +7764,7 @@ document.addEventListener('click', e => {
     if (changed && typeof equippedBackground !== 'undefined' && equippedBackground) {
       BGManager.start(equippedBackground);
     }
+    if (changed) { try { cursorSnake.refreshSkin(); } catch {} } // la craie devient encre et inversement
     lastLight = isLight;
   }
 
@@ -7756,13 +7813,17 @@ const cursorSnake = (() => {
   }
   curHue = hueFor(pendingRank);
 
+  // Curseurs redessines : craie, crayon, feutre, encre. Plus aucun halo. La couleur
+  // suit la matiere du site (encre sur le cahier, craie sur l'ardoise).
+  const _ard = () => !document.documentElement.classList.contains('light');
+  const _STAR = 'polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)';
   const CURSOR_SNAKE_SKINS = {
-    'cursorsnake-neon':     (p) => ({ bg:`hsl(180,100%,${(60-p*20).toFixed(0)}%)`,    shadow:'0 0 10px 4px #00ffff' }),
-    'cursorsnake-fire':     (p) => ({ bg:`hsl(${(30-p*20).toFixed(0)},100%,${(55-p*15).toFixed(0)}%)`, shadow:'0 0 10px 4px #ff4400' }),
-    'cursorsnake-comet':    (p) => ({ bg:`hsl(240,${(90-p*30).toFixed(0)}%,${(75-p*25).toFixed(0)}%)`, shadow: p===0?'0 0 12px 5px #8080ff':'' }),
-    'cursorsnake-electric': (p) => ({ bg:`hsl(${(60+p*60).toFixed(0)},100%,${(65-p*20).toFixed(0)}%)`, shadow:'0 0 8px 3px #ffff00' }),
-    'cursorsnake-stars':    (p) => ({ bg:`hsl(${(200+p*120).toFixed(0)},80%,${(80-p*30).toFixed(0)}%)`, shadow: p===0?'0 0 12px 5px #ffffffaa':'' }),
-    'cursorsnake-pixel':    (p) => ({ bg:`hsl(${(120+p*80).toFixed(0)},70%,${(50-p*15).toFixed(0)}%)`, shadow:'', radius:'2px' }),
+    'cursorsnake-neon':     (p) => ({ bg: _ard() ? '#8fb0ff' : '#173a8a' }),
+    'cursorsnake-fire':     (p) => ({ bg: _ard() ? '#eef1ea' : '#111318', scale: 1.35 }),
+    'cursorsnake-comet':    (p) => ({ bg: _ard() ? `rgba(238,241,234,${(.9 - p * .5).toFixed(2)})` : `rgba(90,95,105,${(.85 - p * .45).toFixed(2)})`, scale: 1 + p * .6 }),
+    'cursorsnake-electric': (p) => ({ bg: _ard() ? '#ff8e8e' : '#d23a4f', radius: '1px', scale: .55 }),
+    'cursorsnake-stars':    (p) => ({ bg: _ard() ? '#ffe169' : '#173a8a', clip: _STAR, scale: 1.5 }),
+    'cursorsnake-pixel':    (p) => ({ bg: _ard() ? '#eef1ea' : '#3b3f47', scale: .45 }),
   };
 
   function build(len, h) {
@@ -7775,21 +7836,21 @@ const cursorSnake = (() => {
       const p  = len > 1 ? i / (len - 1) : 0;
       const sz = HEAD_SZ - p * (HEAD_SZ - TAIL_SZ);
       const el = document.createElement('div');
-      let bg, shadow, radius;
+      let bg, shadow, radius, clip = '', scl = 1;
       if (skin) {
         const s = skin(p);
-        bg = s.bg; shadow = s.shadow || ''; radius = s.radius || '50%';
+        bg = s.bg; shadow = s.shadow || ''; radius = s.radius || '50%'; clip = s.clip || ''; scl = s.scale || 1;
       } else {
-        bg = `hsl(${h},${(80 - p * 20).toFixed(0)}%,${(58 - p * 22).toFixed(0)}%)`;
-        shadow = i === 0 ? `0 0 8px 3px hsl(${h},80%,65%)` : '';
-        radius = '50%';
+        // Par defaut : un trait de craie (ardoise) ou de crayon gris (cahier).
+        bg = _ard() ? '#eef1ea' : '#4a4f58';
+        shadow = ''; radius = '35%';
       }
       // left/top restent a 0 : la position est portee par le transform (voir paint),
       // ce qui garde chaque segment sur sa propre couche de composition.
       el.style.cssText =
         `position:fixed;left:0;top:0;border-radius:${radius};pointer-events:none;user-select:none;` +
         `z-index:${999 - i};will-change:transform;` +
-        `width:${sz.toFixed(1)}px;height:${sz.toFixed(1)}px;` +
+        `width:${(sz * scl).toFixed(1)}px;height:${(sz * scl).toFixed(1)}px;` + (clip ? `clip-path:${clip};` : '') +
         `background:${bg};` +
         `opacity:${(1 - p * 0.82).toFixed(2)};` +
         (shadow ? `box-shadow:${shadow};` : '');
