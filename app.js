@@ -545,7 +545,10 @@ const TRIVIA_API_CAT_MAP = {
 
 const DICT = {
   fr: {
-    siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisis ta partie, ou ouvre un livre.', landingTitle:'Aujourd\'hui, on <mark>joue</mark>.', landingDaily:["Aujourd'hui, on <mark>joue</mark>, {n}.", "Nouvelle page, {n}. On la <mark>remplit</mark> ?", "Le tableau est propre. À toi d'écrire la <mark>victoire</mark>.", "Interro surprise ? Non, juste un <mark>quiz</mark>, {n}.", "Pas de devoirs ici, que des <mark>parties</mark>.", "Ta série t'attend, {n}. <mark>Garde-la</mark> au chaud.", "Une partie de dames avant le <mark>dîner</mark> ?", "Le robot se dit <mark>imbattable</mark>. Vérifie.", "Aujourd'hui, la <mark>chance</mark> est de ton côté, {n}.", "Un mot mystère t'attend : <mark>cinq</mark> lettres, six essais.", "Ouvre un <mark>livre</mark>, ou ouvre le jeu.", "Bon retour, {n}. Le classement a <mark>bougé</mark>.", "Échec et mat, c'est pour <mark>quand</mark> ?", "Quatre jetons alignés, c'est tout ce qu'il <mark>faut</mark>.", "Révise en jouant : SVT, Anglais et <mark>Bénin</mark> au quiz.", "Le Ludo se joue à <mark>quatre</mark>. Appelle tes amis.", "Même les champions ont <mark>commencé</mark> par une défaite.", "{n}, la roue de la fortune <mark>tourne</mark> une fois par jour.", "Un petit duel pour se <mark>réveiller</mark> ?", "Ce soir, on vise le <mark>podium</mark>.", "Le samedi, c'est <mark>tournoi</mark>. Prépare-toi, {n}.", "Ici, les erreurs ne comptent <mark>pas</mark>. Rejoue.", "Au quiz, une bonne réponse rapide vaut <mark>double</mark>.", "Le morpion, c'est simple. Gagner, <mark>moins</mark>.", "Prends ton temps, {n}. Le plateau ne <mark>bouge</mark> pas.", "Une idée pour le site ? Écris-la dans <mark>Idées</mark>.", "Aujourd'hui, tu bats ton <mark>record</mark>.", "Ton adversaire révise. Et <mark>toi</mark> ?", "Le dé est <mark>lancé</mark>, {n}.", "Cahier ouvert, crayon prêt : <mark>à toi</mark>."],
+    siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisis ta partie, ou ouvre un livre.', bulTitle:'Bulletin', bulStreak:'Série en cours', bulBalance:'Solde', bulChallenges:'Défis du jour', bulDays:n => n + (n > 1 ? ' jours' : ' jour'),
+    bulAppreLabel:'Appréciation :',
+    bulAppre:{ anon:'Choisis un pseudo pour recevoir tes notes.', allDone:'Tous les défis du jour sont faits. Excellent travail !', streak:n => `Très assidu : ${n} jours de suite, continue comme ça.`, high:'Joueur confirmé, redoutable sur le plateau.', mid:'De bons progrès, encore un effort pour monter de niveau.', start:'Bon début. Reviens demain pour allonger ta série.' },
+    landingTitle:'Aujourd\'hui, on <mark>joue</mark>.', landingDaily:["Aujourd'hui, on <mark>joue</mark>, {n}.", "Nouvelle page, {n}. On la <mark>remplit</mark> ?", "Le tableau est propre. À toi d'écrire la <mark>victoire</mark>.", "Interro surprise ? Non, juste un <mark>quiz</mark>, {n}.", "Pas de devoirs ici, que des <mark>parties</mark>.", "Ta série t'attend, {n}. <mark>Garde-la</mark> au chaud.", "Une partie de dames avant le <mark>dîner</mark> ?", "Le robot se dit <mark>imbattable</mark>. Vérifie.", "Aujourd'hui, la <mark>chance</mark> est de ton côté, {n}.", "Un mot mystère t'attend : <mark>cinq</mark> lettres, six essais.", "Ouvre un <mark>livre</mark>, ou ouvre le jeu.", "Bon retour, {n}. Le classement a <mark>bougé</mark>.", "Échec et mat, c'est pour <mark>quand</mark> ?", "Quatre jetons alignés, c'est tout ce qu'il <mark>faut</mark>.", "Révise en jouant : SVT, Anglais et <mark>Bénin</mark> au quiz.", "Le Ludo se joue à <mark>quatre</mark>. Appelle tes amis.", "Même les champions ont <mark>commencé</mark> par une défaite.", "{n}, la roue de la fortune <mark>tourne</mark> une fois par jour.", "Un petit duel pour se <mark>réveiller</mark> ?", "Ce soir, on vise le <mark>podium</mark>.", "Le samedi, c'est <mark>tournoi</mark>. Prépare-toi, {n}.", "Ici, les erreurs ne comptent <mark>pas</mark>. Rejoue.", "Au quiz, une bonne réponse rapide vaut <mark>double</mark>.", "Le morpion, c'est simple. Gagner, <mark>moins</mark>.", "Prends ton temps, {n}. Le plateau ne <mark>bouge</mark> pas.", "Une idée pour le site ? Écris-la dans <mark>Idées</mark>.", "Aujourd'hui, tu bats ton <mark>record</mark>.", "Ton adversaire révise. Et <mark>toi</mark> ?", "Le dé est <mark>lancé</mark>, {n}.", "Cahier ouvert, crayon prêt : <mark>à toi</mark>."],
     navHome:'Accueil', navFeed:'Vidéos', navIdeas:'Idées', navShop:'Boutique', profileBalanceLabel:'Solde',
     accountTitle:'🔑 Mon compte', accountTabCreate:'Créer', accountTabLogin:'Se connecter',
     accountCreateIntro:'Crée un compte pour ne jamais perdre ta progression et te reconnecter sur un autre appareil.',
@@ -1293,7 +1296,10 @@ const DICT = {
     },
   },
   en: {
-    siteTitle:'Multiplayer Games', siteSubtitle:'Pick a game, or open a book.', landingTitle:'Today, we <mark>play</mark>.', landingDaily:["Today, we <mark>play</mark>, {n}.", "New page, {n}. Shall we <mark>fill</mark> it?", "The board is clean. Go write the <mark>win</mark>.", "Pop quiz? No, just a <mark>quiz</mark>, {n}.", "No homework here, only <mark>games</mark>.", "Your streak is waiting, {n}. <mark>Keep</mark> it warm.", "A game of draughts before <mark>dinner</mark>?", "The bot claims it is <mark>unbeatable</mark>. Check.", "Luck is on your <mark>side</mark> today, {n}.", "A mystery word awaits: <mark>five</mark> letters, six tries.", "Open a <mark>book</mark>, or open a game.", "Welcome back, {n}. The leaderboard has <mark>moved</mark>.", "Checkmate, but <mark>when</mark>?", "Four tokens in a row is all it <mark>takes</mark>.", "Revise while playing: Biology, English and <mark>Benin</mark> in the quiz.", "Ludo is played by <mark>four</mark>. Call your friends.", "Even champions <mark>started</mark> with a loss.", "{n}, the wheel of fortune <mark>spins</mark> once a day.", "A quick duel to <mark>wake up</mark>?", "Tonight, we aim for the <mark>podium</mark>.", "Saturday means <mark>tournament</mark>. Get ready, {n}.", "Mistakes do not count <mark>here</mark>. Play again.", "In the quiz, a fast right answer counts <mark>double</mark>.", "Tic-tac-toe is simple. Winning, <mark>less</mark> so.", "Take your time, {n}. The board is not <mark>going</mark> anywhere.", "An idea for the site? Write it in <mark>Ideas</mark>.", "Today, you beat your <mark>record</mark>.", "Your opponent is revising. What about <mark>you</mark>?", "The die is <mark>cast</mark>, {n}.", "Notebook open, pencil ready: <mark>your move</mark>."],
+    siteTitle:'Multiplayer Games', siteSubtitle:'Pick a game, or open a book.', bulTitle:'Report card', bulStreak:'Current streak', bulBalance:'Balance', bulChallenges:'Daily challenges', bulDays:n => n + (n > 1 ? ' days' : ' day'),
+    bulAppreLabel:'Teacher\'s comment:',
+    bulAppre:{ anon:'Pick a nickname to get your grades.', allDone:'All of today\'s challenges are done. Excellent work!', streak:n => `Very regular: ${n} days in a row, keep it up.`, high:'Seasoned player, formidable on the board.', mid:'Good progress, one more push to level up.', start:'Good start. Come back tomorrow to grow your streak.' },
+    landingTitle:'Today, we <mark>play</mark>.', landingDaily:["Today, we <mark>play</mark>, {n}.", "New page, {n}. Shall we <mark>fill</mark> it?", "The board is clean. Go write the <mark>win</mark>.", "Pop quiz? No, just a <mark>quiz</mark>, {n}.", "No homework here, only <mark>games</mark>.", "Your streak is waiting, {n}. <mark>Keep</mark> it warm.", "A game of draughts before <mark>dinner</mark>?", "The bot claims it is <mark>unbeatable</mark>. Check.", "Luck is on your <mark>side</mark> today, {n}.", "A mystery word awaits: <mark>five</mark> letters, six tries.", "Open a <mark>book</mark>, or open a game.", "Welcome back, {n}. The leaderboard has <mark>moved</mark>.", "Checkmate, but <mark>when</mark>?", "Four tokens in a row is all it <mark>takes</mark>.", "Revise while playing: Biology, English and <mark>Benin</mark> in the quiz.", "Ludo is played by <mark>four</mark>. Call your friends.", "Even champions <mark>started</mark> with a loss.", "{n}, the wheel of fortune <mark>spins</mark> once a day.", "A quick duel to <mark>wake up</mark>?", "Tonight, we aim for the <mark>podium</mark>.", "Saturday means <mark>tournament</mark>. Get ready, {n}.", "Mistakes do not count <mark>here</mark>. Play again.", "In the quiz, a fast right answer counts <mark>double</mark>.", "Tic-tac-toe is simple. Winning, <mark>less</mark> so.", "Take your time, {n}. The board is not <mark>going</mark> anywhere.", "An idea for the site? Write it in <mark>Ideas</mark>.", "Today, you beat your <mark>record</mark>.", "Your opponent is revising. What about <mark>you</mark>?", "The die is <mark>cast</mark>, {n}.", "Notebook open, pencil ready: <mark>your move</mark>."],
     navHome:'Home', navFeed:'Videos', navIdeas:'Ideas', navShop:'Shop', profileBalanceLabel:'Balance',
     accountTitle:'🔑 My account', accountTabCreate:'Create', accountTabLogin:'Log in',
     accountCreateIntro:'Create an account so you never lose your progress and can log back in on another device.',
@@ -5873,6 +5879,7 @@ function _refreshLibsUI(prev, next, delta) {
 
   const pbal = $('profile-balance');
   if (pbal) pbal.textContent = next; // ligne « Solde » du profil
+  window._bulBalance = next; window._renderBulletin?.();
   const balEl = $('libs-balance');
   if (!balEl) return;
   const diff = next - prev;
@@ -11473,6 +11480,8 @@ const ProfileHub = (() => {
     const main = document.getElementById('streak-main');
     const sub  = document.getElementById('streak-sub');
     if (!main) return;
+    window._bulStreak = (streak && streak.count) || 0;
+    window._renderBulletin?.();
     if (streak && streak.count > 0) {
       main.textContent = d.streakMain(streak.count);
       sub.textContent  = d.streakSub(streak.longest || streak.count, streak.bonus || 0);
@@ -11490,7 +11499,8 @@ const ProfileHub = (() => {
       if (ch.claimed)   btn = `<span class="challenge-claimed">${_escHtml(d.challengeClaimed)}</span>`;
       else if (ch.done) btn = `<button class="challenge-claim-btn" data-cid="${_escHtml(ch.id)}">${_escHtml(d.challengeClaim)} ${_escHtml(d.challengeReward(ch.reward))}</button>`;
       else              btn = `<span class="challenge-reward-tag">${_escHtml(d.challengeReward(ch.reward))}</span>`;
-      return `<div class="challenge-row${ch.claimed ? ' done' : ''}">
+      return `<div class="challenge-row${ch.claimed ? ' done' : ''}${ch.done ? ' ready' : ''}">
+        <span class="ch-box" aria-hidden="true">${(ch.claimed || ch.done) ? '✓' : ''}</span>
         <div class="challenge-info">
           <p class="challenge-name">${_escHtml(name)}</p>
           <div class="challenge-bar"><span style="width:${pct}%"></span></div>
@@ -11522,6 +11532,8 @@ const ProfileHub = (() => {
     }
     list.innerHTML = challenges.length ? _challengeRowsHtml(d, challenges) : '';
     _wireClaims(list);
+    window._bulChallenges = { done: challenges.filter(c => c.claimed || c.done).length, total: challenges.length };
+    window._renderBulletin?.();
     if (permList) {
       permList.innerHTML = permanent.length ? _challengeRowsHtml(d, permanent) : '';
       _wireClaims(permList);
@@ -12011,6 +12023,26 @@ socket.on('onboard-update', ({ steps, reward } = {}) => {
 });
 
 // Courbe identique au serveur : niveau lv atteint a 100 x (lv-1)^2 XP.
+// Bulletin de notes du profil : lignes de notes et appreciation, a partir des donnees deja connues.
+window._renderBulletin = function () {
+  const g = document.getElementById('bul-grades'), ap = document.getElementById('bul-appre');
+  if (!g || !ap) return;
+  const d = t();
+  const named = (localStorage.getItem('playerName') || '').trim() && localStorage.getItem('playerName') !== 'Anonyme';
+  const st = window._bulStreak || 0;
+  const ch = window._bulChallenges || { done: 0, total: 0 };
+  const lv = window._myLevel || 1;
+  const bal = window._bulBalance ?? (typeof libsBalance === 'number' ? libsBalance : 0);
+  const ttl = document.getElementById('bul-title');
+  if (ttl) ttl.textContent = d.bulTitle;
+  const row = (k, v) => `<div class="bul-row"><span>${_escHtml(k)}</span><span class="bul-note">${v}</span></div>`;
+  g.innerHTML = row(d.bulStreak, _escHtml(d.bulDays(st)))
+    + row(d.bulBalance, `${bal} <i class="bolt" aria-label="Libs"></i>`)
+    + (ch.total ? row(d.bulChallenges, `${ch.done}/${ch.total}`) : '');
+  const a = d.bulAppre;
+  const txt = !named ? a.anon : (ch.total && ch.done === ch.total) ? a.allDone : st >= 3 ? a.streak(st) : lv >= 10 ? a.high : lv >= 4 ? a.mid : a.start;
+  ap.innerHTML = `<span class="bul-appre-k">${_escHtml(d.bulAppreLabel)}</span> ${_escHtml(txt)}`;
+};
 window._renderLevel = function () {
   const lv = window._myLevel || 1;
   const xp = window._myXp || 0;
@@ -12033,6 +12065,7 @@ window._renderLevel = function () {
     const tier = lv >= 50 ? 5 : lv >= 30 ? 4 : lv >= 15 ? 3 : lv >= 5 ? 2 : 1;
     banner.className = 'level-banner profile-id level-tier-' + tier;
   }
+  window._renderBulletin?.();
 };
 socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
   window._myXp = xp; window._myLevel = level;

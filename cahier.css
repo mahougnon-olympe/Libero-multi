@@ -1045,3 +1045,119 @@ html.light .book-reader {
 :root:root .shop-flash { background: var(--card); color: var(--text); border: 1.5px solid var(--margin); border-radius: var(--r-md); box-shadow: 0 2px 0 var(--hard); }
 :root:root .shop-flash-tag { color: var(--margin); animation: none; font-family: var(--font-hand); font-size: 1.2rem; }
 :root:root .shop-flash-prices strong { color: var(--text); background: linear-gradient(transparent 55%, var(--mark) 55%); }
+
+/* ══ Profil = BULLETIN DE NOTES (comme la maquette) ══════════════════════════ */
+:root:root #level-banner.profile-id {
+  display: block; padding: 0; overflow: hidden; border-left-width: 1.5px;
+  background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-sm); box-shadow: var(--elev-2);
+}
+.bul-hd {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: var(--accent); color: var(--bg); padding: 7px 12px;
+  font-family: var(--font-display); font-size: .82rem; letter-spacing: .04em; text-transform: uppercase;
+}
+html.light .bul-hd { color: #fff; }
+/* Le palier de niveau : la couleur du bandeau d'en-tete */
+:root:root .level-tier-2 .bul-hd { background: #3d64b8; color: #fff; }
+:root:root .level-tier-3 .bul-hd { background: #2f8a55; color: #fff; }
+:root:root .level-tier-4 .bul-hd { background: var(--margin); color: #fff; }
+:root:root .level-tier-5 .bul-hd { background: #e0a800; color: #1d1600; }
+:root:root .bul-hd .vip-badge { background: transparent; color: inherit; border: 1.5px solid currentColor; font-size: .72rem; padding: 1px 7px; }
+.bul-id { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px; }
+:root:root .bul-id .pid-avatar { width: 58px; height: 58px; border-radius: 50%; background: var(--mark); color: #22252b; border: 2px solid var(--line); }
+html:not(.light) .bul-id .pid-avatar { background: rgba(255,225,105,.85); }
+.bul-id .pid-avatar .av-svg { color: #22252b; }
+.bul-id .pid-name { margin: 0; }
+:root:root .bul-id .level-badge { font-family: var(--font-display); font-size: 1.15rem; }
+:root:root .bul-id .level-badge::before { content: "Niveau "; font-family: var(--font-display); }
+html[lang="en"] .bul-id .level-badge::before { content: "Level "; }
+.bul-id .level-badge-ic { display: none; }
+:root:root .bul-id .level-sub { font-family: var(--font-hand); font-size: 1.15rem; color: var(--margin); opacity: 1; margin-top: 2px; }
+.bul-grades { border-top: 1.5px solid var(--line); }
+.bul-row { display: grid; grid-template-columns: minmax(0, 1fr) 96px; font-size: .86rem; border-bottom: 1px solid var(--border); }
+.bul-row span { padding: 7px 12px; }
+.bul-note {
+  border-left: 1px solid var(--border); text-align: center;
+  font-family: var(--font-hand); font-weight: 700; font-size: 1.25rem; line-height: 1.1; color: var(--margin);
+}
+.bul-appre { margin: 0; padding: 9px 12px 11px; font-family: var(--font-hand); font-weight: 700; font-size: 1.2rem; line-height: 1.2; color: var(--accent); }
+.bul-appre-k { font-family: var(--font-body); font-weight: 700; font-size: .78rem; color: var(--muted); display: block; margin-bottom: 2px; }
+/* La serie et le solde sont dans le bulletin : leurs anciens blocs disparaissent (gardes pour le code) */
+:root:root #streak-banner, :root:root #profile-balance-row { display: none; }
+
+/* Defis : une liste a cocher (case, intitule, recompense ecrite a la main) */
+:root:root .challenge-row { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; box-shadow: none; }
+.ch-box {
+  width: 20px; height: 20px; border: 1.8px solid var(--line); border-radius: 3px;
+  display: grid; place-items: center; font-family: var(--font-hand); font-weight: 700; font-size: 1.35rem; line-height: 1; color: var(--margin);
+}
+:root:root .challenge-row.done .challenge-name { text-decoration: line-through; text-decoration-color: var(--margin); opacity: .7; }
+:root:root .challenge-bar { height: 4px; border: none; }
+.challenge-count { font-family: var(--font-hand); font-size: 1rem; }
+:root:root .challenge-reward-tag, :root:root .challenge-claimed { font-family: var(--font-hand); font-weight: 700; font-size: 1.1rem; color: var(--accent); background: none; border: none; }
+:root:root .challenge-row.ready .challenge-claim-btn { box-shadow: 0 2px 0 rgba(0,0,0,.35); }
+/* Le pseudo du bulletin a l'encre (les couleurs achetees, posees sur .pid-name-txt, gardent la main) */
+:root:root .bul-id .pid-name { color: var(--text); font-family: var(--font-display); font-weight: 400; }
+:root:root .profile-id .pid-name-txt { filter: none; }
+/* Premiers pas : la meme liste a cocher que les defis */
+:root:root .onboard-step .ob-check { width: 18px; height: 18px; border: 1.8px solid var(--line); border-radius: 3px; color: transparent; display: inline-grid; place-items: center; flex: none; }
+:root:root .onboard-step .ob-check svg { display: none; }
+:root:root .onboard-step.done .ob-check::after { content: "✓"; color: var(--margin); font-family: var(--font-hand); font-weight: 700; font-size: 1.3rem; line-height: 1; }
+:root:root .onboard-step.done .ob-tx { text-decoration: line-through; text-decoration-color: var(--margin); opacity: .7; }
+:root:root .onboard-quest-title, :root:root .profile-badges-title, :root:root .profile-section-title {
+  font-family: var(--font-display); font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--text);
+}
+:root:root .profile-section-title { border-bottom: 1.5px solid var(--line); padding-bottom: 4px; }
+.perm-sub { font-family: var(--font-hand); font-size: 1.1rem; color: var(--muted); }
+/* Ordinateur : deux colonnes (bulletin, quete, hauts faits et defis a gauche ; sections a droite) */
+@media (min-width: 1024px) {
+  :root:root #screen-profile .profile-screen-inner { max-width: 1080px; }
+  :root:root #screen-profile .profile-body {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 28px; align-items: start;
+  }
+  #screen-profile .profile-col-right > details.profile-section:first-child { margin-top: 0; }
+}
+
+.profile-col { min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.profile-col-left > * { margin-bottom: 0; }
+
+/* ══ Fidelite a la maquette : defis, accueil, plateau, boutique ═════════════ */
+/* Defis : des lignes de liste, pas des cartes */
+:root:root .challenge-row {
+  background: transparent; border: none; border-bottom: 1.5px dashed var(--border); border-radius: 0;
+  padding: 8px 2px; box-shadow: none;
+}
+:root:root .challenge-row .challenge-name { font-family: var(--font-body); font-weight: 700; font-size: .9rem; margin-bottom: 4px; }
+
+/* Accueil : les puces deviennent une annotation au stylo rouge, en bas a droite de la carte */
+:root:root .landing-card--hero .landing-chips { display: block; margin-top: 6px; text-align: right; }
+:root:root .landing-card--hero .landing-chip {
+  display: inline; height: auto; padding: 0; border: none; background: none;
+  font-family: var(--font-hand); font-weight: 700; font-size: 1.2rem; color: var(--margin);
+}
+:root:root .landing-card--hero .landing-chip + .landing-chip::before { content: " · "; color: var(--margin); }
+:root:root .landing-card--hero .landing-eyebrow { font-size: 1.05rem; color: var(--muted); }
+
+/* Plateau : les noms ecrits a la craie ou a l'encre, celui qui joue souligne d'un trait ondule */
+:root:root .player-badge, :root:root .player-badge.active {
+  background: none; border: none; box-shadow: none; padding: 2px 4px;
+  font-family: var(--font-hand); font-weight: 700; font-size: 1.25rem; color: var(--muted);
+}
+:root:root .player-badge.active { color: var(--text); text-decoration: underline wavy var(--accent) 2px; text-underline-offset: 5px; }
+:root:root .player-badge.you::after { font-family: var(--font-hand); }
+.game-header-center .turn-text { font-size: 1.05rem; color: var(--muted); }
+/* Emotes en partie : des cases dessinees en pointilles */
+:root:root .emote-bar { background: transparent; border: none; box-shadow: none; }
+:root:root .emote-btn { background: transparent; border: 1.6px dashed var(--line); border-radius: var(--r-sm); box-shadow: none; }
+:root:root .emote-btn:hover { background: var(--card2); transform: none; }
+
+/* Boutique : prix ecrits a la main, tampon « Acquis » sur les articles possedes */
+:root:root .shop-tile-price, :root:root .shop-fn-detail-price {
+  font-family: var(--font-hand); font-weight: 700; font-size: 1.25rem; color: var(--accent);
+}
+:root:root .shop-tile-large .shop-tile-price { font-size: 1.45rem; }
+:root:root .shop-tile-owned {
+  top: 38%; right: 10%; transform: rotate(-12deg);
+  background: var(--card); color: var(--margin); border: 2.5px solid var(--margin); border-radius: 4px;
+  font-family: var(--font-display); font-size: .7rem; letter-spacing: .06em; padding: 2px 8px; opacity: .92;
+}
