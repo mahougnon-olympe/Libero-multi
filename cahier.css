@@ -1161,3 +1161,51 @@ html[lang="en"] .bul-id .level-badge::before { content: "Level "; }
   background: var(--card); color: var(--margin); border: 2.5px solid var(--margin); border-radius: 4px;
   font-family: var(--font-display); font-size: .7rem; letter-spacing: .06em; padding: 2px 8px; opacity: .92;
 }
+
+/* ══ CLASSEMENTS = TABLEAU D'HONNEUR ═════════════════════════════════════════
+   Comme le tableau d'honneur de l'ecole : un titre souligne de deux traits, les
+   rangs ecrits a la main (1er, 2e, 3e au stylo rouge), des lignes de cahier, le
+   premier surligne, et TA ligne entouree au stylo comme sur une copie. */
+:root:root .global-lb-card, :root:root .lb-card {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-sm); box-shadow: var(--elev-2);
+  padding: 12px 14px 10px;
+}
+:root:root .global-lb-header, :root:root .lb-header {
+  display: block; text-align: center; margin: 0 0 6px; padding-bottom: 8px;
+  border-bottom: 4px double var(--line);
+}
+:root:root .global-lb-header .lb-title, :root:root .lb-header .lb-title, :root:root .lb-header > span {
+  font-family: var(--font-display); font-weight: 400; font-size: 1.05rem; letter-spacing: .03em; text-transform: uppercase; color: var(--text);
+}
+.lb-header > span:empty, .global-lb-header > span:not(.lb-title) { display: none; }
+:root:root .global-lb-row, :root:root .lb-row {
+  position: relative; display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; align-items: center; gap: 8px;
+  padding: 7px 6px; border-bottom: 1px solid var(--border); border-radius: 0; font-size: .9rem;
+}
+:root:root .global-lb-row:last-of-type, :root:root .lb-row:last-child { border-bottom: none; }
+:root:root .lb-row-clickable:hover { background: var(--card2); }
+:root:root .lb-rank { text-align: left; }
+.rank-hand { font-family: var(--font-hand); font-weight: 700; font-size: 1.3rem; line-height: 1; color: var(--muted); }
+.rank-hand sup { font-size: .6em; margin-left: 1px; }
+.rank-hand.r1, .rank-hand.r2, .rank-hand.r3 { color: var(--margin); font-size: 1.5rem; }
+:root:root .lb-name { font-weight: 700; }
+/* Le premier : surligne au feutre */
+:root:root .lb-top1 { background: linear-gradient(90deg, var(--mark) 0, var(--mark) 60%, transparent 100%); }
+/* Ta ligne : entouree au stylo rouge (trait un peu irregulier, comme a la main) */
+:root:root .lb-me::after {
+  content: ""; position: absolute; inset: -2px -5px; pointer-events: none;
+  border: 2px solid var(--margin);
+  border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px;
+  transform: rotate(-.6deg);
+}
+/* Scores ecrits a la main */
+:root:root .global-lb-score, :root:root .lb-score-snake { font-family: var(--font-hand); font-weight: 700; font-size: 1.2rem; color: var(--accent); white-space: nowrap; }
+:root:root .lb-stats { display: flex; gap: 8px; font-family: var(--font-hand); font-weight: 700; font-size: 1.1rem; }
+:root:root .lb-w { color: #2f8a55; } html:not(.light) .lb-w { color: #8fe0a8; }
+:root:root .lb-l { color: var(--margin); }
+:root:root .lb-d { color: var(--muted); }
+:root:root .lb-empty { font-family: var(--font-hand); font-size: 1.15rem; color: var(--muted); }
+:root:root .lb-more-btn {
+  background: none; border: none; color: var(--accent); font-family: var(--font-hand); font-weight: 700; font-size: 1.15rem;
+  text-decoration: underline; text-underline-offset: 3px;
+}

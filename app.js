@@ -4036,6 +4036,18 @@ function clearChat() {
   $('chat-input').value = '';
 }
 
+// ── Classements « tableau d'honneur » ────────────────────────────────────────
+// Rang ecrit a la main (1er, 2e, 3e en rouge), et la ligne du joueur entouree au stylo.
+function _lbRank(i) {
+  const n = i + 1;
+  const sup = currentLang === 'en' ? (n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th') : (n === 1 ? 'er' : 'e');
+  return `<span class="rank-hand${n <= 3 ? ' r' + n : ''}">${n}<sup>${sup}</sup></span>`;
+}
+function _lbMe(name) {
+  const me = (localStorage.getItem('playerName') || '').trim();
+  return me && me !== 'Anonyme' && String(name || '').trim() === me ? ' lb-me' : '';
+}
+
 // ── Classement Global (landing) ───────────────────────────────────────────────
 let _glbExpanded = false;
 let _glbData     = [];
@@ -4058,8 +4070,8 @@ function _paintGlobalLb() {
   const classes = ['gold', 'silver', 'bronze'];
   const visible = _glbExpanded ? _glbData : _glbData.slice(0, 2);
   const rows = visible.map((entry, i) => `
-    <div class="global-lb-row lb-row-clickable" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
-      <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
+    <div class="global-lb-row lb-row-clickable${_lbMe(entry.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
+      <span class="lb-rank ${classes[i] || ''}">${_lbRank(i)}</span>
       <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <span class="global-lb-score">${entry.globalScore} ${t().globalLbPts}</span>
     </div>
@@ -4088,8 +4100,8 @@ function renderLeaderboard(data) {
   const medals = ['🥇', '🥈', '🥉'];
   const classes = ['gold', 'silver', 'bronze'];
   list.innerHTML = data.map((entry, i) => `
-    <div class="lb-row lb-row-clickable" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
-      <span class="lb-rank ${classes[i] || ''}">${medals[i] || i + 1}</span>
+    <div class="lb-row lb-row-clickable${_lbMe(entry.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
+      <span class="lb-rank ${classes[i] || ''}">${_lbRank(i)}</span>
       <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <div class="lb-stats">
         <span class="lb-w">${entry.wins}${t().lbW}</span>
@@ -4115,8 +4127,8 @@ function renderSnakeLeaderboard(data) {
   }
   const medals = ['🥇', '🥈', '🥉'];
   el.innerHTML = data.map((e, i) => `
-    <div class="lb-row lb-row-clickable" data-pname="${_escHtml(e.name)}" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
-      <span class="lb-rank">${medals[i] || i + 1}</span>
+    <div class="lb-row lb-row-clickable${_lbMe(e.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(e.name)}" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
+      <span class="lb-rank">${_lbRank(i)}</span>
       <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
       <span class="lb-score-snake">${e.hs} <i class="bolt" aria-label="Libs"></i></span>
     </div>
@@ -4138,10 +4150,10 @@ function renderLuffyLeaderboard(data) {
   }
   const medals = ['🥇', '🥈', '🥉'];
   el.innerHTML = data.map((e, i) => `
-    <div class="lb-row lb-row-clickable" data-pname="${_escHtml(e.name)}" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
-      <span class="lb-rank">${medals[i] || i + 1}</span>
+    <div class="lb-row lb-row-clickable${_lbMe(e.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(e.name)}" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
+      <span class="lb-rank">${_lbRank(i)}</span>
       <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
-      <span class="lb-score-snake">${e.hs} 🏃</span>
+      <span class="lb-score-snake">${e.hs} pts</span>
     </div>
   `).join('');
   el.querySelectorAll('.lb-row-clickable').forEach(row => {
@@ -4760,8 +4772,8 @@ function renderTriviaLeaderboard(data) {
   if (!data || data.length === 0) { list.innerHTML = `<p class="lb-empty">${t().triviaLbEmpty}</p>`; return; }
   const medals = ['🥇','🥈','🥉'];
   list.innerHTML = data.map((entry, i) => `
-    <div class="lb-row lb-row-clickable" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
-      <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${medals[i] || i+1}</span>
+    <div class="lb-row lb-row-clickable${_lbMe(entry.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
+      <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${_lbRank(i)}</span>
       <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
       <div class="lb-stats">
         <span class="lb-w">${entry.points} ${t().triviaLbPts}</span>
