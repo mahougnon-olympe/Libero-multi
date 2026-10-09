@@ -2836,8 +2836,8 @@ window._renderProfilePseudo = function () {
   // Avatar equipe, ou initiale du pseudo a defaut.
   const av = document.getElementById('profile-avatar');
   if (av) {
-    const ic = AVATAR_ICONS[equippedAvatar];
-    av.textContent = ic || nom.charAt(0).toUpperCase();
+    const ic = _avatarSvg(equippedAvatar);
+    if (ic) av.innerHTML = ic; else av.textContent = nom.charAt(0).toUpperCase();
     av.classList.toggle('initial', !ic);
   }
 };
@@ -2972,17 +2972,24 @@ const AVATAR_ICONS = {
   'avatar-ball':'⚽','avatar-lion':'🦁','avatar-ghost':'👻','avatar-unicorn':'🦄','avatar-dragon':'🐉',
 };
 
+// Avatars dessines au trait (plus aucun emoji) : meme style que les icones du site.
+const AVATAR_SVG = {"avatar-gamepad": "<path d=\"M6 11h4M8 9v4M15 12h.01M18 10h.01\"/><path d=\"M17.3 5H6.7a4 4 0 0 0-3.9 3.2L2 13.6A3 3 0 0 0 7.4 16l1-1.6h7.2l1 1.6a3 3 0 0 0 5.4-2.4l-.8-5.4A4 4 0 0 0 17.3 5z\"/>", "avatar-cat": "<path d=\"M12 5c.7 0 1.4.1 2 .3 1.8-2 5-2.8 6.4-2.3 1.4.6-.4 7-.4 7 .6 1.1 1 2.2 1 3.4C21 17.9 17 21 12 21s-9-3-9-7.6c0-1.2.5-2.4 1-3.4 0 0-1.9-6.4-.5-7 1.4-.6 4.7.2 6.5 2.2A9 9 0 0 1 12 5z\"/><path d=\"M8 14v.5M16 14v.5M11.3 16.3h1.5L12 17z\"/>", "avatar-lightning": "<path d=\"M13 2 3 14h9l-1 8 10-12h-9l1-8z\"/>", "avatar-rocket": "<path d=\"M4.5 16.5c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.7-.8.7-2.1-.1-2.9a2.2 2.2 0 0 0-2.9-.1z\"/><path d=\"m12 15-3-3a22 22 0 0 1 2-4A12.9 12.9 0 0 1 22 2c0 2.7-.8 7.5-6 11a22.4 22.4 0 0 1-4 2z\"/><path d=\"M9 12H4s.6-3 2-4c1.6-1.1 5 0 5 0M12 15v5s3-.6 4-2c1.1-1.6 0-5 0-5\"/>", "avatar-robot": "<rect x=\"4\" y=\"8\" width=\"16\" height=\"12\" rx=\"2\"/><path d=\"M12 8V4M9 4h6M2 14h2M20 14h2M9 13v2M15 13v2\"/>", "avatar-skull": "<path d=\"M9 12h.01M15 12h.01M8 20v2h8v-2\"/><path d=\"M16 20a2 2 0 0 0 1.6-3.3 8 8 0 1 0-11.2 0A2 2 0 0 0 8 20z\"/>", "avatar-crown": "<path d=\"M2 5l3 11h14l3-11-6 6-4-7-4 7-6-6zM5 20h14\"/>", "avatar-ball": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 7l4 3-1.5 4.5h-5L8 10zM12 2v5M16 10l5-1.5M14.5 14.5l3 4M9.5 14.5l-3 4M8 10 3 8.5\"/>", "avatar-lion": "<circle cx=\"12\" cy=\"12\" r=\"5\"/><path d=\"M12 2.5l1.6 2.3 2.7-.7.5 2.8 2.7.9-.9 2.6 1.9 2.1-2.2 1.7.6 2.8-2.8.4-1 2.6-2.5-1.3-2.5 1.3-1-2.6-2.8-.4.6-2.8-2.2-1.7 1.9-2.1-.9-2.6 2.7-.9.5-2.8 2.7.7z\"/><path d=\"M10 11h.01M14 11h.01M11 14h2l-1 1z\"/>", "avatar-ghost": "<path d=\"M9 10h.01M15 10h.01M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z\"/>", "avatar-unicorn": "<path d=\"M7 21v-4c0-2-2-3-2-6 0-3.5 3-6.5 7-6.5l3-2.5 1 3.2c2 1.2 3 3 3 5.3l2 2.5-2 1.5-2-1c-1 1-2.5 1.5-4 1.5V21\"/><path d=\"M15.5 4.5 19 1M12.5 9h.01\"/>", "avatar-dragon": "<path d=\"M3 20c4 0 6-2 7-5l2-6c1-3 4-5 8-5-1 2-1 4 0 6-2 0-3 1-4 3l-2 5c-1 2-3 3-5 3\"/><path d=\"M10 15l-4-1M12 9 8 7M18 7h.01\"/>"};
+function _avatarSvg(id) {
+  const p = AVATAR_SVG[id];
+  return p ? `<svg class="av-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>` : '';
+}
 function setPlayerBadges(gameType, yourPlayer) {
   const icons = PLAYER_ICONS[gameType];
   const names = t().playerNames[gameType];
   const myIcon = (equippedAvatar && AVATAR_ICONS[equippedAvatar]) || null;
   for (const r of ['R', 'Y']) {
     const el = $('badge-' + r.toLowerCase() + '-icon');
-    const ic = (yourPlayer === r && myIcon) ? myIcon : icons[r];
+    const mine = yourPlayer === r && equippedAvatar && AVATAR_SVG[equippedAvatar];
+    const ic = mine ? null : icons[r];
     el.classList.toggle('pdot', ic === 'dot');
     el.classList.toggle('pdot-r', ic === 'dot' && r === 'R');
     el.classList.toggle('pdot-y', ic === 'dot' && r === 'Y');
-    el.textContent = ic === 'dot' ? '' : ic;
+    if (mine) el.innerHTML = _avatarSvg(equippedAvatar); else el.textContent = ic === 'dot' ? '' : ic;
   }
   $('label-r').textContent = names.R;
   $('label-y').textContent = names.Y;
@@ -6408,7 +6415,7 @@ function _renderShopItems() {
     else if (type === 'title')      previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="shop-title-tag">${name || ''}</span></span>`;
     else if (type === 'cursorsnake') previewHtml = `<div class="shop-emoji-preview">🐍</div>`;
     else if (type === 'snakeskin')  previewHtml = `<div class="shop-emoji-preview">${({'snakeskin-gems':'💎','snakeskin-cyber':'⬡','snakeskin-lava':'🔥','snakeskin-galaxy':'⭐','snakeskin-rainbow':'🌈','snakeskin-8bit':'👾','snakeskin-gold':'🪙'})[id]||'🐍'}</div>`;
-    else if (type === 'avatar')     previewHtml = `<div class="shop-emoji-preview">${_AV[id]||'🎭'}</div>`;
+    else if (type === 'avatar')     previewHtml = `<div class="shop-emoji-preview av-prev">${_avatarSvg(id)}</div>`;
     else if (type === 'p4token')    previewHtml = `<div class="shop-emoji-preview">🔴🟡</div>`;
     else if (type === 'ttt')        previewHtml = `<div class="shop-emoji-preview">${_TTT_E[id]||'✖️⭕'}</div>`;
     else if (type === 'chess')      previewHtml = `<div class="shop-emoji-preview">♟️♜</div>`;
@@ -6963,7 +6970,7 @@ function _openShopDetail(item) {
       'emote-hello':'👋','emote-gg':'👍','emote-sad':'😢','emote-wellplayed':'🤝','emote-laugh':'😂','emote-think':'🤔','emote-cool':'🆒','emote-clap':'👏','emote-fire':'🔥','emote-heart':'❤️','emote-cry':'😭','emote-angry':'😤','emote-shock':'🤯','emote-easy':'😎','emote-eyes':'👀','emote-skull':'💀','emote-party':'🥳','emote-rocket':'🚀','emote-omg':'😱','emote-crown':'👑',
     };
     const emoji = _ITEM_EMOJI[id] || _DETAIL_EMOJI[type] || '✨';
-    previewHtml = `<div class="shop-emoji-preview large">${emoji}</div>`;
+    previewHtml = type === 'avatar' ? `<div class="shop-emoji-preview large av-prev">${_avatarSvg(id)}</div>` : `<div class="shop-emoji-preview large">${emoji}</div>`;
   }
   previewHtml = _realPrev(type, id, previewHtml);
 
@@ -7394,7 +7401,7 @@ function _cosmeticPreviewHtmlBase(type, id, itemName) {
     case 'title':       return `<span class="shop-title-tag">${_escHtml(itemName || '')}</span>`;
     case 'cursorsnake': return `<div class="shop-emoji-preview">🐍</div>`;
     case 'snakeskin':   return `<div class="shop-emoji-preview">${({'snakeskin-gems':'💎','snakeskin-cyber':'⬡','snakeskin-lava':'🔥','snakeskin-galaxy':'⭐','snakeskin-rainbow':'🌈','snakeskin-8bit':'👾','snakeskin-gold':'🪙'})[id] || '🐍'}</div>`;
-    case 'avatar':      return `<div class="shop-emoji-preview">${_LOCKER_EMOJI.avatar[id] || '🎭'}</div>`;
+    case 'avatar':      return `<div class="shop-emoji-preview av-prev">${_avatarSvg(id)}</div>`;
     case 'p4token':     return `<div class="shop-emoji-preview">🔴🟡</div>`;
     case 'ttt':         return `<div class="shop-emoji-preview">${_LOCKER_EMOJI.ttt[id] || '✖️⭕'}</div>`;
     case 'chess':       return `<div class="shop-emoji-preview">♟️♜</div>`;
@@ -11544,23 +11551,23 @@ const ProfileHub = (() => {
   // la boutique, pour qu'un joueur qui les a achetées avant les retrouve ici.
   function _lockerCategories(d) {
     return [
-      { type:'color',       icon:'🎨', label:d.lockerCats.colors,       names:d.shopCosmeticNames,    equipped:[equippedCosmetic] },
-      { type:'nameeffect',  icon:'✨', label:d.lockerCats.nameeffects,  names:d.shopNameEffectNames,  equipped:[equippedNameEffect] },
-      { type:'title',       icon:'🏷️', label:d.lockerCats.titles,       names:d.shopTitleNames,       equipped:[equippedTitle] },
-      { type:'background',  icon:'🖼️', label:d.lockerCats.bgs,          names:d.shopBgNames,          equipped:[equippedBackground] },
-      { type:'bubble',      icon:'💬', label:d.lockerCats.bubbles,      names:d.shopBubbleNames,      equipped:[equippedBubble] },
-      { type:'font',        icon:'✍️', label:d.lockerCats.fonts,        names:_FONT_DISPLAY_NAMES,    equipped:[equippedFont] },
-      { type:'cursorsnake', icon:'🖱️', label:d.lockerCats.cursorsnakes, names:d.shopCursorSnakeNames, equipped:[equippedCursorSnake] },
-      { type:'snakeskin',   icon:'🐍', label:d.lockerCats.snakeskins,   names:d.shopSnakeSkinNames,   equipped:[equippedSnakeSkin] },
-      { type:'avatar',      icon:'🎭', label:d.lockerCats.avatars,      names:d.shopAvatarNames,      equipped:[equippedAvatar] },
-      { type:'p4token',     icon:'🔴', label:d.lockerCats.p4tokens,     names:d.shopP4TokenNames,     equipped:[equippedP4Token] },
-      { type:'ttt',         icon:'✖️', label:d.lockerCats.ttt,          names:d.shopTttNames,         equipped:[equippedTtt] },
-      { type:'chess',       icon:'♟️', label:d.lockerCats.chess,        names:d.shopChessNames,       equipped:[equippedChess] },
-      { type:'clickfx',     icon:'💥', label:d.lockerCats.clickfx,      names:d.shopClickFxNames,     equipped:[equippedClickFx] },
-      { type:'emojipack',   icon:'🌈', label:d.lockerCats.emojipacks,   names:d.shopEmojiPackNames,   equipped:[equippedEmojiPack] },
-      { type:'victoryban',  icon:'🏆', label:d.lockerCats.victorybans,  names:d.shopVictoryBanNames,  equipped:[equippedVictoryBan] },
-      { type:'soundpack',   icon:'🔊', label:d.lockerCats.soundpacks,   names:d.shopSoundPackNames,   equipped:[equippedSoundPack] },
-      { type:'emote',       icon:'😎', label:d.lockerCats.emotes,       names:d.shopEmoteNames,       equipped:Array.isArray(equippedEmotes) ? equippedEmotes : [] },
+      { type:'color',       icon:'<span data-ic="palette"></span>', label:d.lockerCats.colors,       names:d.shopCosmeticNames,    equipped:[equippedCosmetic] },
+      { type:'nameeffect',  icon:'<span data-ic="sparkle"></span>', label:d.lockerCats.nameeffects,  names:d.shopNameEffectNames,  equipped:[equippedNameEffect] },
+      { type:'title',       icon:'<span data-ic="tag"></span>', label:d.lockerCats.titles,       names:d.shopTitleNames,       equipped:[equippedTitle] },
+      { type:'background',  icon:'<span data-ic="image"></span>', label:d.lockerCats.bgs,          names:d.shopBgNames,          equipped:[equippedBackground] },
+      { type:'bubble',      icon:'<span data-ic="bubble"></span>', label:d.lockerCats.bubbles,      names:d.shopBubbleNames,      equipped:[equippedBubble] },
+      { type:'font',        icon:'<span data-ic="pen"></span>', label:d.lockerCats.fonts,        names:_FONT_DISPLAY_NAMES,    equipped:[equippedFont] },
+      { type:'cursorsnake', icon:'<span data-ic="mouse"></span>', label:d.lockerCats.cursorsnakes, names:d.shopCursorSnakeNames, equipped:[equippedCursorSnake] },
+      { type:'snakeskin',   icon:'<span data-ic="worm"></span>', label:d.lockerCats.snakeskins,   names:d.shopSnakeSkinNames,   equipped:[equippedSnakeSkin] },
+      { type:'avatar',      icon:'<span data-ic="avatar"></span>', label:d.lockerCats.avatars,      names:d.shopAvatarNames,      equipped:[equippedAvatar] },
+      { type:'p4token',     icon:'<span data-ic="token"></span>', label:d.lockerCats.p4tokens,     names:d.shopP4TokenNames,     equipped:[equippedP4Token] },
+      { type:'ttt',         icon:'<span data-ic="hash"></span>', label:d.lockerCats.ttt,          names:d.shopTttNames,         equipped:[equippedTtt] },
+      { type:'chess',       icon:'<span data-ic="castle"></span>', label:d.lockerCats.chess,        names:d.shopChessNames,       equipped:[equippedChess] },
+      { type:'clickfx',     icon:'<span data-ic="click"></span>', label:d.lockerCats.clickfx,      names:d.shopClickFxNames,     equipped:[equippedClickFx] },
+      { type:'emojipack',   icon:'<span data-ic="smile"></span>', label:d.lockerCats.emojipacks,   names:d.shopEmojiPackNames,   equipped:[equippedEmojiPack] },
+      { type:'victoryban',  icon:'<span data-ic="flag"></span>', label:d.lockerCats.victorybans,  names:d.shopVictoryBanNames,  equipped:[equippedVictoryBan] },
+      { type:'soundpack',   icon:'<span data-ic="music"></span>', label:d.lockerCats.soundpacks,   names:d.shopSoundPackNames,   equipped:[equippedSoundPack] },
+      { type:'emote',       icon:'<span data-ic="smile"></span>', label:d.lockerCats.emotes,       names:d.shopEmoteNames,       equipped:Array.isArray(equippedEmotes) ? equippedEmotes : [] },
     ];
   }
 
@@ -11657,7 +11664,7 @@ const ProfileHub = (() => {
     if (honorTitle) {
       const hn = d.honorTitleNames?.[honorTitle] || honorTitle;
       html += `<div class="locker-cat-card locker-cat-card-static">
-        <span class="locker-cat-ic">🥇</span>
+        <span class="locker-cat-ic"><span data-ic="trophy"></span></span>
         <span class="locker-cat-label">${_escHtml(d.lockerCats.honorary)}</span>
         <span class="locker-honor-name">${_escHtml(hn)} <span class="locker-eq">${_escHtml(d.lockerEquipped)}</span></span>
       </div>`;

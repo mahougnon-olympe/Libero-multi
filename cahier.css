@@ -732,3 +732,87 @@ html.light :root .shop-fn-detail, html.light .shop-fn-detail {
   .shop-fn-featured { grid-template-columns: repeat(3, 1fr); }
   :root:root .shop-fn-nav { width: 180px; min-width: 180px; }
 }
+
+/* ══ Sequence 5 : PROFIL (la carte d'eleve) et CASIER ═══════════════════════
+   La carte d'identite est une carte d'eleve : une feuille, le pseudo, l'avatar
+   dessine. Le palier se lit a la couleur du trait de gauche et a l'etiquette du
+   badge : gris, encre, vert, rouge, or (plus de degrade anime). */
+:root:root .level-banner, :root:root .level-banner.profile-id,
+:root:root .level-tier-1, :root:root .level-tier-2, :root:root .level-tier-3,
+:root:root .level-tier-4, :root:root .level-tier-5 {
+  background: var(--card); color: var(--text); animation: none;
+  border: 1.5px solid var(--line); border-left-width: 7px; border-radius: var(--r-md);
+  box-shadow: var(--elev-2);
+}
+:root:root .level-tier-1 { border-left-color: #8c948f; }
+:root:root .level-tier-2 { border-left-color: #3d64b8; }
+:root:root .level-tier-3 { border-left-color: #2f8a55; }
+:root:root .level-tier-4 { border-left-color: var(--margin); }
+:root:root .level-tier-5 { border-left-color: #e0a800; }
+:root:root .level-banner .level-main, :root:root .level-banner .level-badge, :root:root .level-banner .level-sub { color: var(--text); }
+:root:root .level-banner .level-badge { font-family: var(--font-display); font-weight: 400; }
+:root:root .level-banner .level-bar { background: var(--card2); border: 1.5px solid var(--line); height: 10px; border-radius: 3px; }
+:root:root .level-banner .level-bar-fill { background: var(--accent); border-radius: 0; }
+html:not(.light) .level-banner .level-bar-fill { background: var(--yellow); }
+:root:root .pid-avatar {
+  background: var(--card2); border: 1.5px solid var(--line); color: var(--text);
+  font-family: var(--font-display); font-size: 1.5rem;
+}
+.pid-avatar .av-svg { width: 30px; height: 30px; }
+:root:root .profile-id .pid-name-txt { filter: none; }
+:root:root .vip-badge { color: var(--text); border: 1.5px solid #e0a800; text-shadow: none; border-radius: 4px; background: var(--card); }
+html:not(.light) .vip-badge { color: var(--accent); border-color: var(--accent); }
+
+/* Serie, quete de bienvenue, hauts faits, solde : des feuilles simples */
+:root:root .streak-banner, :root:root .onboard-quest, :root:root .profile-badges-wrap, :root:root .profile-balance-row {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md); box-shadow: var(--elev-1); color: var(--text);
+}
+.streak-flame { filter: none; color: var(--margin); }
+.streak-main { font-family: var(--font-display); font-weight: 400; }
+
+/* Sections repliables : un intertitre de cahier, souligne */
+:root:root .profile-sec-head {
+  font-family: var(--font-display); font-weight: 400; font-size: .95rem; letter-spacing: 0; text-transform: none;
+  color: var(--text); border-bottom: 1.5px solid var(--line); padding-bottom: 6px;
+}
+:root:root .profile-sec-head:hover { color: var(--accent); }
+
+/* Cartes du profil */
+:root:root .profile-nav-card {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md); box-shadow: var(--elev-1); color: var(--text);
+}
+:root:root .profile-nav-card:hover { background: var(--card2); box-shadow: 0 3px 0 var(--hard); }
+.pnc-icon { color: var(--accent); }
+.pnc-text > span { font-family: var(--font-body); }
+:root:root #go-vip { animation: none; }
+
+/* Defis : une liste a cocher */
+:root:root .challenge-row { background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md); }
+:root:root .challenge-row.done { border-color: #2f8a55; background: var(--card); }
+:root:root .challenge-bar { background: var(--card2); border: 1px solid var(--border); border-radius: 3px; }
+:root:root .challenge-bar span { background: var(--accent); border-radius: 0; }
+html:not(.light) .challenge-bar span { background: var(--yellow); }
+:root:root .challenge-claim-btn { background: var(--board); color: #fff; border-radius: var(--r-sm); box-shadow: 0 2px 0 rgba(0,0,0,.35); }
+
+/* Casier */
+:root:root .locker-cat-card {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md); box-shadow: var(--elev-1); color: var(--text);
+}
+:root:root .locker-cat-card:hover { background: var(--card2); border-color: var(--line); }
+.locker-cat-card .locker-cat-ic { color: var(--accent); width: 28px; height: 28px; display: inline-flex; }
+.locker-cat-card .locker-cat-ic [data-ic] { width: 26px; height: 26px; display: inline-flex; }
+:root:root .locker-item { background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md); }
+.av-prev { color: var(--text); }
+.av-prev .av-svg { width: 44px; height: 44px; }
+.shop-emoji-preview.large.av-prev .av-svg { width: 84px; height: 84px; }
+.player-icon .av-svg { width: 18px; height: 18px; vertical-align: -3px; }
+
+/* Ordinateur : le profil sur deux colonnes (carte et defis a gauche, sections a droite) */
+@media (min-width: 700px) {
+  :root:root #screen-profile .profile-screen-inner { max-width: 640px; width: 100%; }
+}
+@media (min-width: 1024px) {
+  :root:root #screen-profile .profile-screen-inner { max-width: 720px; }
+  #screen-locker .locker-cats, #screen-locker > * { max-width: 900px; }
+}
+@media (min-width: 601px) { :root:root #screen-profile { padding-top: 32px; } }
