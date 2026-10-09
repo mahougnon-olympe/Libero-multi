@@ -26,7 +26,7 @@
     // Theme avant le premier pixel (meme regle que app.js) : l'ecran de demarrage
     // est deja une ardoise ou une page de cahier, jamais un flash de la mauvaise couleur.
     (function(){try{var m=localStorage.getItem('themeMode'),h=new Date().getHours();
-      if(m==='light'||(m!=='dark'&&h>=7&&h<20))document.documentElement.classList.add('light');}catch(e){}})();
+      if(m!=='dark')document.documentElement.classList.add('light');}catch(e){}})();
   </script>
   <style>
     /* Ecran de demarrage « Cahier et ardoise » : aucune police ni image externe,

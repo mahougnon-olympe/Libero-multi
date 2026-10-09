@@ -8,7 +8,7 @@
   <script>
     // Meme theme que le site (ardoise la nuit, cahier le jour), avant le premier pixel.
     (function(){try{var m=localStorage.getItem('themeMode'),h=new Date().getHours();
-      if(m==='light'||(m!=='dark'&&h>=7&&h<20))document.documentElement.classList.add('light');}catch(e){}})();
+      if(m!=='dark')document.documentElement.classList.add('light');}catch(e){}})();
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
