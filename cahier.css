@@ -1466,3 +1466,12 @@ html:not(.light) { --violet: #c9a8ff; }
 .vb-leaf{opacity:0;transform-origin:center;transform-box:fill-box;animation:vbLeaf .3s ease-out both}
 @keyframes vbLeaf{0%{opacity:0;transform:scale(0)}100%{opacity:1;transform:scale(1)}}
 .vb-show .vict { font-size: 1.5rem; }
+/* Reactions dessinees et carnets de gribouillis */
+.emote-svg { width: 1.9em; height: 1.9em; display: inline-block; vertical-align: middle; }
+:root:root .emote-btn .emote-svg { width: 30px; height: 30px; }
+.msg-emote { display: inline-flex; align-items: center; gap: 6px; }
+.msg-emote .emote-svg { width: 34px; height: 34px; }
+.shop-emoji-preview .emote-svg { width: 52px; height: 52px; }
+.shop-emoji-preview.large .emote-svg { width: 84px; height: 84px; }
+.doodle-prev { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; color: var(--accent); }
+.doodle-prev span { width: 30px; height: 30px; display: block; }

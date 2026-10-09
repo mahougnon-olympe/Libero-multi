@@ -24,7 +24,7 @@ const BGS = ['bg-nuit','bg-ardoise','bg-brume','bg-crepuscule','bg-nebuleuse','b
   'bg-cyber','bg-circuit','bg-hexagones','bg-pluie','bg-tempete','bg-hologramme','bg-etoile','bg-galaxie','bg-orage','bg-synthwave',
   'bg-terrain','bg-matrice','bg-wax','bg-marche-nuit','bg-harmattan','bg-lagune'];
 
-async function ouvrir(browser, w, h, theme = 'dark') {
+async function ouvrir(browser, w, h, theme = 'light') {
   const p = await browser.newPage();
   await p.setViewport({ width: w, height: h, deviceScaleFactor: 1 });
   await p.goto(URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
@@ -62,7 +62,7 @@ async function ouvrir(browser, w, h, theme = 'dark') {
   }
 
   // ---- decor commun des scenes : tout est masque sauf la scene ----
-  const CSS_SCENE = 'body > *:not(#pv-stage):not([style*="will-change"]):not(script):not(style){display:none!important} html,body{background:#0e1226!important;overflow:hidden!important}';
+  const CSS_SCENE = 'body > *:not(#pv-stage):not([style*="will-change"]):not(script):not(style){display:none!important} html,body{background:#fdfdf9!important;overflow:hidden!important}';
   async function scene(p, bg) {
     await p.addStyleTag({ content: CSS_SCENE });
     await p.evaluate(b => {
@@ -77,7 +77,7 @@ async function ouvrir(browser, w, h, theme = 'dark') {
   // ---- Serpents de curseur : le vrai serpent qui suit une souris (animation) ----
   if (want('snake')) {
     const p = await ouvrir(browser, 420, 260);
-    await scene(p, '#0e1226');
+    await scene(p, '#fdfdf9');
     for (const id of ['cursorsnake-pixel','cursorsnake-neon','cursorsnake-comet','cursorsnake-electric','cursorsnake-stars','cursorsnake-fire']) {
       await p.evaluate(i => { equippedCursorSnake = i; cursorSnake.update(16, 1); cursorSnake.refreshSkin(); }, id);
       await p.mouse.move(40, 130); await sleep(300);
@@ -95,7 +95,7 @@ async function ouvrir(browser, w, h, theme = 'dark') {
   // ---- Skins de Snake : memes formules que le jeu, sur une grille de jeu ----
   if (want('skin')) {
     const p = await ouvrir(browser, 420, 280);
-    await scene(p, '#0e1226');
+    await scene(p, '#fdfdf9');
     const SK = {
       'snakeskin-rainbow': { bg:(t,q)=>`hsla(${(t*120+q*180)%360},90%,${60-q*20}%,${1-q*0.6})`, food:'💎', boardBg:'#0a0a20', glow:(t)=>`hsl(${t*120%360},80%,60%)` },
       'snakeskin-lava':    { bg:(_t,q)=>`hsla(${20-q*15},100%,${55-q*20}%,${1-q*0.55})`, food:'🔥', boardBg:'#1a0a00', glow:()=>'#ff4400' },
@@ -144,7 +144,7 @@ async function ouvrir(browser, w, h, theme = 'dark') {
   // ---- Jetons de Puissance 4 / symboles de Morpion / echiquiers : le VRAI plateau du jeu ----
   if (want('p4') || want('ttt') || want('chess')) {
     const p = await ouvrir(browser, 460, 520);
-    await scene(p, '#10152b');
+    await scene(p, '#fdfdf9');
     await p.evaluate(() => { const a = document.createElement('div'); a.id = 'pv-area'; a.style.cssText = 'display:flex;flex-direction:column;align-items:center;padding:14px'; document.getElementById('pv-stage').appendChild(a); });
     if (want('p4')) for (const id of ['p4token-goldsilver','p4token-neon','p4token-lavalice','p4token-galaxy']) {
       await p.evaluate(i => { equippedP4Token = i; const a = document.getElementById('pv-area'); a.innerHTML = '';
@@ -173,7 +173,7 @@ async function ouvrir(browser, w, h, theme = 'dark') {
   // ---- Effets de clic : le vrai code des particules, enregistre (animation) ----
   if (want('fx')) {
     const p = await ouvrir(browser, 300, 240);
-    await scene(p, '#0e1226');
+    await scene(p, '#fdfdf9');
     // Les particules s'ajoutent a <body>, que la scene masque : on les redirige vers la scene.
     await p.evaluate(() => { const st = document.getElementById('pv-stage'); document.body.appendChild = el => st.appendChild(el); });
     for (const id of ['clickfx-bubbles','clickfx-confetti','clickfx-neon','clickfx-stars','clickfx-firework']) {
@@ -182,7 +182,7 @@ async function ouvrir(browser, w, h, theme = 'dark') {
       // Les animations des particules sont figees puis rejouees image par image : la capture est plus lente que l'effet.
       await p.evaluate(() => { spawnParticles(150, 120); document.getAnimations().forEach(a => a.pause()); });
       for (let k = 0; k < 16; k++) {
-        await p.evaluate(ms => document.getAnimations().forEach(a => { a.currentTime = ms; }), 10 + k * 24);
+        await p.evaluate(ms => document.getAnimations().forEach(a => { a.currentTime = ms; }), 10 + k * 55);
         await clipShot(p, id + '_' + String(k).padStart(2, '0') + '.png', { x: 0, y: 0, width: 300, height: 240 });
       }
       await p.evaluate(() => document.getElementById('pv-stage').querySelectorAll('div').forEach(d => d.remove()));
@@ -193,21 +193,22 @@ async function ouvrir(browser, w, h, theme = 'dark') {
 
   // ---- Bannieres de victoire : le vrai style de la banniere de fin de partie ----
   if (want('ban')) {
-    const p = await ouvrir(browser, 460, 220);
-    await scene(p, '#0e1226');
+    const p = await ouvrir(browser, 460, 400);
+    await scene(p, '#fdfdf9');
     await p.evaluate(() => { const g = document.getElementById('game-status'); if (g) g.remove(); });
     for (const id of ['victoryban-neon','victoryban-confetti','victoryban-flames','victoryban-lightning','victoryban-crown']) {
       await p.evaluate(i => { const st = document.getElementById('pv-stage'); st.innerHTML = '';
         const g = document.createElement('div'); g.id = 'game-status'; g.className = 'game-status ' + i; g.style.maxWidth = '380px';
-        g.innerHTML = '<p id="status-text" class="status-text">Victoire !</p>'; st.appendChild(g); }, id);
+        g.innerHTML = _victoryBannerHtml(i, t().vbSub('Koffi')) + '<p id="status-text" class="status-text">Tu as gagné !</p>'; st.appendChild(g); }, id);
       await sleep(150);
       const el = await p.$('#game-status'); const box = await el.boundingBox();
-      const clip = { x: Math.max(0, box.x - 24), y: Math.max(0, box.y - 24), width: Math.min(460, box.width + 48), height: Math.min(220, box.height + 48) };
+      const clip = { x: Math.max(0, box.x - 24), y: Math.max(0, box.y - 24), width: Math.min(460, box.width + 48), height: Math.min(400, box.height + 48) };
       const N = 14;
       // On parcourt un cycle COMPLET de l'animation (de 0,6 s a 2 s selon la banniere), image par image.
       await p.evaluate(() => document.getAnimations().forEach(a => a.pause()));
       for (let k = 0; k < N; k++) {
-        await p.evaluate(f => document.getAnimations().forEach(a => { const d = a.effect.getTiming().duration; a.currentTime = f * d; }), id.includes('lightning') ? 0.89 + (k / N) * 0.09 : k / N);
+        // Les nouvelles bannieres jouent une fois (environ 2,6 s) : on parcourt ce temps-la.
+        await p.evaluate(ms => document.getAnimations().forEach(a => { a.currentTime = ms; }), 150 + k * 190);
         await clipShot(p, id + '_' + String(k).padStart(2, '0') + '.png', clip);
       }
       console.log('banniere', id);

@@ -4029,6 +4029,46 @@ $('btn-cancel-wait').addEventListener('click', () => {
 // ── Chat ──────────────────────────────────────────────────────────────────────
 $('btn-clear-chat').addEventListener('click', () => { $('chat-messages').innerHTML = ''; });
 
+// ── Reactions dessinees (les emotes, sans emojis) ────────────────────────────
+// Petits dessins a l'encre, 40x40, la meme encre sur le cahier et l'ardoise
+// (le visage est colorie, donc lisible sur les deux fonds).
+const _EK = '#22252b';
+const _EF = (inner, fill = '#ffe08a') => `<circle cx="20" cy="21" r="14" fill="${fill}" stroke="${_EK}" stroke-width="2.2"/>${inner}`;
+const _EYES = `<circle cx="15" cy="18" r="1.9" fill="${_EK}"/><circle cx="25" cy="18" r="1.9" fill="${_EK}"/>`;
+const _SMILE = `<path d="M14 25q6 6 12 0" fill="none" stroke="${_EK}" stroke-width="2.2" stroke-linecap="round"/>`;
+const _SHADES = `<path d="M10 16h20l-1 5q-4 2-7-1h-4q-3 3-7 1z" fill="${_EK}"/><path d="M12 17h4" stroke="#fff" stroke-width="1.2" opacity=".7"/>`;
+const EMOTE_SVG = {
+  'emote-hello': _EF(_EYES + _SMILE) + `<path d="M33 6l2 4M37 9l-3 3M30 4l1 4" stroke="#e2485d" stroke-width="2" stroke-linecap="round"/>`,
+  'emote-gg': `<path d="M8 19h6v16H8zM14 20l5-10q3-2 4 2l-1 6h8q3 0 3 3l-3 11q-1 3-4 3H14" fill="#ffe08a" stroke="${_EK}" stroke-width="2.2" stroke-linejoin="round"/>`,
+  'emote-sad': _EF(_EYES + `<path d="M14 28q6-5 12 0" fill="none" stroke="${_EK}" stroke-width="2.2" stroke-linecap="round"/><path d="M25 21q-2 4 0 5q2-1 0-5z" fill="#7fb2ff" stroke="${_EK}" stroke-width="1"/>`),
+  'emote-wellplayed': `<path d="M3 20l7-6 6 2 6-3 6 3 9 4-6 9-9 2-7-5-6 1z" fill="#ffe08a" stroke="${_EK}" stroke-width="2.1" stroke-linejoin="round"/><path d="M16 16l7 6M19 24l3 3M22 22l3 3" stroke="${_EK}" stroke-width="1.8" stroke-linecap="round"/>`,
+  'emote-laugh': _EF(`<path d="M12 18l3-2 3 2M22 18l3-2 3 2" fill="none" stroke="${_EK}" stroke-width="2" stroke-linecap="round"/><path d="M12 23h16q-2 9-8 9t-8-9z" fill="#fff" stroke="${_EK}" stroke-width="2"/><path d="M8 18q-3 3-1 6M32 18q3 3 1 6" stroke="#7fb2ff" stroke-width="2.2" fill="none" stroke-linecap="round"/>`),
+  'emote-think': _EF(`<path d="M12 14l5-1M23 15l5 1" stroke="${_EK}" stroke-width="2" stroke-linecap="round"/>` + _EYES + `<path d="M16 27h7" stroke="${_EK}" stroke-width="2.2" stroke-linecap="round"/>`) + `<path d="M24 33q-4 4 0 6h6" fill="#ffe08a" stroke="${_EK}" stroke-width="2"/>`,
+  'emote-cool': _EF(_SHADES + _SMILE),
+  'emote-clap': `<path d="M10 30l-2-14q0-3 3-3l3 9M14 22l1-14q1-3 4-1l1 13M20 20l3-10q3-2 4 1l-2 12q-2 9-9 10z" fill="#ffe08a" stroke="${_EK}" stroke-width="2" stroke-linejoin="round"/><path d="M30 6l-2 4M35 11l-4 2M34 18l-4 0" stroke="#e2485d" stroke-width="2" stroke-linecap="round"/>`,
+  'emote-fire': `<path d="M20 37c-8 0-12-6-10-13 1-4 4-6 4-11 4 2 6 6 6 9 2-2 2-6 1-9 6 3 11 9 10 15-1 6-5 9-11 9z" fill="#ffb347" stroke="${_EK}" stroke-width="2.2" stroke-linejoin="round"/><path d="M20 35c-3 0-5-2-4-6 1-2 3-3 3-5 3 2 5 4 4 7 0 2-1 4-3 4z" fill="#e2485d"/>`,
+  'emote-heart': `<path d="M20 35 6 21a8 8 0 0 1 14-10 8 8 0 0 1 14 10z" fill="#e2485d" stroke="${_EK}" stroke-width="2.2" stroke-linejoin="round"/><path d="M11 16q2-3 5-2" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8"/>`,
+  'emote-cry': _EF(`<path d="M12 18q3-2 6 0M22 18q3-2 6 0" fill="none" stroke="${_EK}" stroke-width="2" stroke-linecap="round"/><path d="M14 29q6-6 12 0" fill="none" stroke="${_EK}" stroke-width="2.2"/><path d="M14 20v14M26 20v14" stroke="#7fb2ff" stroke-width="3" stroke-linecap="round"/>`),
+  'emote-angry': _EF(`<path d="M11 14l6 3M29 14l-6 3" stroke="${_EK}" stroke-width="2.4" stroke-linecap="round"/>` + _EYES + `<path d="M14 28q6-4 12 0" fill="none" stroke="${_EK}" stroke-width="2.2"/>`, '#ff9c8a') + `<path d="M4 8q2 2 0 4M36 8q-2 2 0 4" stroke="${_EK}" stroke-width="1.8" fill="none"/>`,
+  'emote-shock': _EF(`<circle cx="15" cy="20" r="3" fill="#fff" stroke="${_EK}" stroke-width="1.6"/><circle cx="25" cy="20" r="3" fill="#fff" stroke="${_EK}" stroke-width="1.6"/><ellipse cx="20" cy="28" rx="3" ry="3.6" fill="${_EK}"/>`) + `<path d="M12 4l2 4M20 1v5M28 4l-2 4M6 9l4 2M34 9l-4 2" stroke="#e2485d" stroke-width="2" stroke-linecap="round"/>`,
+  'emote-easy': _EF(_SHADES + `<path d="M15 27q6 3 11-3" fill="none" stroke="${_EK}" stroke-width="2.2" stroke-linecap="round"/>`),
+  'emote-eyes': `<ellipse cx="12" cy="20" rx="8" ry="11" fill="#fff" stroke="${_EK}" stroke-width="2.2"/><ellipse cx="28" cy="20" rx="8" ry="11" fill="#fff" stroke="${_EK}" stroke-width="2.2"/><circle cx="15" cy="22" r="3.6" fill="${_EK}"/><circle cx="31" cy="22" r="3.6" fill="${_EK}"/>`,
+  'emote-skull': `<path d="M8 22q-1-16 12-16t12 16l-3 4v6H11v-6z" fill="#fff" stroke="${_EK}" stroke-width="2.2" stroke-linejoin="round"/><circle cx="15" cy="20" r="3.2" fill="${_EK}"/><circle cx="25" cy="20" r="3.2" fill="${_EK}"/><path d="M17 32v-4M20 32v-4M23 32v-4" stroke="${_EK}" stroke-width="1.8"/>`,
+  'emote-party': _EF(_EYES + `<path d="M14 25q6 6 12 0z" fill="#fff" stroke="${_EK}" stroke-width="2"/>`) + `<path d="M14 9l6-9 6 9z" fill="#7a4fc0" stroke="${_EK}" stroke-width="2" stroke-linejoin="round"/><circle cx="20" cy="1.5" r="1.8" fill="#ffe169"/><path d="M4 30l3-2M36 30l-3-2M5 22h3M35 22h-3" stroke="#2f8a55" stroke-width="2" stroke-linecap="round"/>`,
+  'emote-rocket': `<path d="M20 3q9 7 7 22l-7 4-7-4q-2-15 7-22z" fill="#fff" stroke="${_EK}" stroke-width="2.2" stroke-linejoin="round"/><circle cx="20" cy="14" r="3" fill="#7fb2ff" stroke="${_EK}" stroke-width="1.6"/><path d="M13 21l-5 7 6-1M27 21l5 7-6-1" fill="#e2485d" stroke="${_EK}" stroke-width="1.8" stroke-linejoin="round"/><path d="M17 31l3 7 3-7" fill="#ffb347" stroke="${_EK}" stroke-width="1.6"/>`,
+  'emote-omg': _EF(`<circle cx="15" cy="19" r="2.6" fill="#fff" stroke="${_EK}" stroke-width="1.6"/><circle cx="25" cy="19" r="2.6" fill="#fff" stroke="${_EK}" stroke-width="1.6"/><ellipse cx="20" cy="28" rx="2.6" ry="4" fill="${_EK}"/>`, '#bfe3ff') + `<path d="M5 22q-3 8 3 12M35 22q3 8-3 12" fill="#ffe08a" stroke="${_EK}" stroke-width="2"/>`,
+  'emote-crown': `<path d="M5 30l2-18 8 8 5-12 5 12 8-8 2 18z" fill="#ffd54a" stroke="${_EK}" stroke-width="2.2" stroke-linejoin="round"/><path d="M5 34h30" stroke="${_EK}" stroke-width="2.6" stroke-linecap="round"/><circle cx="20" cy="25" r="2" fill="#e2485d"/>`,
+  'emote-goat': `<path d="M12 10q-6-6-9 0 5-1 7 3M28 10q6-6 9 0-5-1-7 3" fill="none" stroke="${_EK}" stroke-width="2" stroke-linecap="round"/><path d="M11 12q9-5 18 0l-2 15q-7 6-14 0z" fill="#fff" stroke="${_EK}" stroke-width="2.2"/><circle cx="16" cy="18" r="1.8" fill="${_EK}"/><circle cx="24" cy="18" r="1.8" fill="${_EK}"/><path d="M17 33q3 6 6 0" fill="#fff" stroke="${_EK}" stroke-width="2"/>`,
+  'emote-salute': _EF(_EYES + _SMILE) + `<path d="M24 10l12-6 2 4-11 7z" fill="#ffe08a" stroke="${_EK}" stroke-width="2" stroke-linejoin="round"/>`,
+  'emote-sleep': _EF(`<path d="M12 19q3 2 6 0M22 19q3 2 6 0" fill="none" stroke="${_EK}" stroke-width="2" stroke-linecap="round"/><ellipse cx="20" cy="28" rx="2" ry="1.6" fill="${_EK}"/>`) + `<text x="27" y="10" font-family="Archivo Black,sans-serif" font-size="9" fill="#173a8a">z</text><text x="32" y="5" font-family="Archivo Black,sans-serif" font-size="6" fill="#173a8a">z</text>`,
+  'emote-target': `<circle cx="20" cy="20" r="15" fill="#fff" stroke="${_EK}" stroke-width="2.2"/><circle cx="20" cy="20" r="10" fill="#e2485d" stroke="${_EK}" stroke-width="2"/><circle cx="20" cy="20" r="5" fill="#fff" stroke="${_EK}" stroke-width="2"/><path d="M20 20l15-15M30 5h5v5" stroke="${_EK}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`,
+  'emote-clown': _EF(_EYES + `<path d="M12 25q8 9 16 0" fill="#e2485d" stroke="${_EK}" stroke-width="2"/><circle cx="20" cy="22" r="3.2" fill="#e2485d" stroke="${_EK}" stroke-width="1.6"/>`, '#fff') + `<circle cx="8" cy="10" r="5" fill="#7fb2ff" stroke="${_EK}" stroke-width="1.6"/><circle cx="32" cy="10" r="5" fill="#2f8a55" stroke="${_EK}" stroke-width="1.6"/>`,
+};
+function _emoteSvg(id) {
+  const b = EMOTE_SVG[id];
+  return b ? `<svg class="emote-svg" viewBox="0 0 40 40" aria-hidden="true">${b}</svg>` : '';
+}
+
 const EMOTE_DEFS = {
   'emote-hello':      { emoji:'👋', label:'Salut' },
   'emote-gg':         { emoji:'👍', label:'GG' },
@@ -4078,7 +4118,7 @@ function _renderEmoteBar() {
   bar.innerHTML = equippedBar.map(id => {
     const def = EMOTE_DEFS[id];
     if (!def) return '';
-    return `<button class="emote-btn" data-emote="${id}" title="${def.label}">${def.emoji}</button>`;
+    return `<button class="emote-btn" data-emote="${id}" title="${def.label}">${_emoteSvg(id) || def.emoji}</button>`;
   }).join('');
   bar.classList.remove('hidden');
   bar.querySelectorAll('.emote-btn').forEach(btn => {
@@ -4098,7 +4138,7 @@ socket.on('emote-received', ({ player, emoteId, timestamp }) => {
   msg.className = `msg ${mine ? 'msg-mine' : 'msg-theirs'}`;
   const bubble = document.createElement('div');
   bubble.className = 'msg-bubble msg-emote';
-  bubble.textContent = `${def.emoji} ${def.label}`;
+  bubble.innerHTML = `${_emoteSvg(emoteId)}<span>${_escHtml(def.label)}</span>`;
   const meta = document.createElement('span');
   meta.className = 'msg-meta';
   meta.textContent = time;
@@ -7129,7 +7169,7 @@ function _openShopDetail(item) {
       'emote-hello':'👋','emote-gg':'👍','emote-sad':'😢','emote-wellplayed':'🤝','emote-laugh':'😂','emote-think':'🤔','emote-cool':'🆒','emote-clap':'👏','emote-fire':'🔥','emote-heart':'❤️','emote-cry':'😭','emote-angry':'😤','emote-shock':'🤯','emote-easy':'😎','emote-eyes':'👀','emote-skull':'💀','emote-party':'🥳','emote-rocket':'🚀','emote-omg':'😱','emote-crown':'👑',
     };
     const emoji = _ITEM_EMOJI[id] || _DETAIL_EMOJI[type] || '✨';
-    previewHtml = type === 'avatar' ? `<div class="shop-emoji-preview large av-prev">${_avatarSvg(id)}</div>` : `<div class="shop-emoji-preview large">${emoji}</div>`;
+    previewHtml = type === 'avatar' ? `<div class="shop-emoji-preview large av-prev">${_avatarSvg(id)}</div>` : type === 'emote' ? `<div class="shop-emoji-preview large">${_emoteSvg(id)}</div>` : `<div class="shop-emoji-preview large">${emoji}</div>`;
   }
   previewHtml = _realPrev(type, id, previewHtml);
 
@@ -7536,6 +7576,7 @@ const _SOUND_WAVE = { 'soundpack-retro':'square', 'soundpack-8bit':'square', 'so
 const _SOUND_HUE = { 'soundpack-retro':'#f59e0b', 'soundpack-8bit':'#84cc16', 'soundpack-cyber':'#22d3ee', 'soundpack-crystal':'#a5b4fc', 'soundpack-epic':'#f472b6' };
 function _realPrev(type, id, fallbackHtml) {
   if (type === 'emojipack' && typeof EMOJI_PACK_SETS !== 'undefined' && EMOJI_PACK_SETS[id]) {
+    if (typeof DOODLE_SETS !== 'undefined' && DOODLE_SETS[id]) return `<div class="pack-prev doodle-prev">${DOODLE_SETS[id].map(d => `<span>${_doodleSvg(d)}</span>`).join('')}</div>`;
     return `<div class="pack-prev">${EMOJI_PACK_SETS[id].slice(0, 8).map(e => `<span>${e}</span>`).join('')}</div>`;
   }
   if (type === 'soundpack' && _SOUND_WAVE[id]) {
@@ -7568,7 +7609,7 @@ function _cosmeticPreviewHtmlBase(type, id, itemName) {
     case 'emojipack':   return `<div class="shop-emoji-preview">${_LOCKER_EMOJI.emojipack[id] || '🎉'}</div>`;
     case 'victoryban':  return `<div class="shop-emoji-preview">🏆</div>`;
     case 'soundpack':   return `<div class="shop-emoji-preview">🎵</div>`;
-    case 'emote':       return `<div class="shop-emoji-preview">${_LOCKER_EMOJI.emote[id] || '😊'}</div>`;
+    case 'emote':       return `<div class="shop-emoji-preview">${_emoteSvg(id) || _LOCKER_EMOJI.emote[id] || ''}</div>`;
     default: return '';
   }
 }
@@ -9277,6 +9318,49 @@ function showCursorSnakeToast(msg) {
 // ── Pluie d'émojis ────────────────────────────────────────────────────────────
 // Jeu d'émojis choisi par le joueur (Profil → Pluie d'émojis) : standard,
 // pack équipé, ou liste personnalisée tapée par le joueur (stockée en local).
+// Carnets de gribouillis : les packs d'emojis deviennent des petits dessins au
+// trait (6 par carnet). La pluie les utilise quand un carnet est equipe.
+const _DK = 'currentColor';
+const DOODLE_SETS = {
+  'emojipack-animals': [
+    '<path d="M8 30V15l4-7 4 5h8l4-5 4 7v15z"/><path d="M15 21h1M24 21h1M18 26q2 2 4 0"/>',
+    '<circle cx="20" cy="22" r="11"/><circle cx="11" cy="11" r="4"/><circle cx="29" cy="11" r="4"/><path d="M16 20h1M23 20h1M18 26q2 2 4 0"/>',
+    '<path d="M6 24q4-12 14-12t14 12q-4 8-14 8T6 24z"/><circle cx="14" cy="10" r="4"/><circle cx="26" cy="10" r="4"/><path d="M14 10h.5M26 10h.5"/>',
+    '<path d="M20 22q-12-14-14 0 2 10 14 4 12 6 14-4-2-14-14 0z"/><path d="M20 12v22"/>',
+    '<path d="M6 22q8-10 22-4l6-6v14l-6-4q-14 6-22 0z"/><path d="M12 20h.5"/>',
+    '<path d="M20 8l4 8 8 2-6 6 2 8-8-4-8 4 2-8-6-6 8-2z"/>' ],
+  'emojipack-hearts': [
+    '<path d="M20 33 7 20a7 7 0 0 1 13-9 7 7 0 0 1 13 9z"/>',
+    '<path d="M20 33 7 20a7 7 0 0 1 13-9 7 7 0 0 1 13 9z"/><path d="M6 6l28 28"/>',
+    '<path d="M14 26 6 18a4.5 4.5 0 0 1 8-6 4.5 4.5 0 0 1 8 6zM28 34l-6-6a3.5 3.5 0 0 1 6-4 3.5 3.5 0 0 1 6 4z"/>',
+    '<path d="M20 33 7 20a7 7 0 0 1 13-9 7 7 0 0 1 13 9z"/><path d="M20 11l-3 8 5 3-3 8"/>',
+    '<path d="M20 30 11 21a5 5 0 0 1 9-6 5 5 0 0 1 9 6z"/><path d="M5 10l3 2M35 10l-3 2M20 3v4"/>',
+    '<path d="M20 33 7 20a7 7 0 0 1 13-9 7 7 0 0 1 13 9z"/><path d="M14 18q2-3 5-2"/>' ],
+  'emojipack-party': [
+    '<path d="M8 34l8-24 16 16z"/><path d="M12 22l8 8M14 16l10 10"/>',
+    '<path d="M20 6q-8 0-8 10t8 12q8-2 8-12T20 6z"/><path d="M20 28q-2 4 0 8"/>',
+    '<rect x="8" y="16" width="24" height="18"/><path d="M8 22h24M20 16v18M20 16q-8-10-8-2 0 2 8 2 8 0 8-2 0-8-8 2"/>',
+    '<path d="M20 4v8M20 28v8M4 20h8M28 20h8M9 9l5 5M26 26l5 5M31 9l-5 5M14 26l-5 5"/>',
+    '<path d="M10 34V20h20v14zM8 20h24M14 20v-6M20 20v-8M26 20v-6"/><path d="M14 11v1M20 9v1M26 11v1"/>',
+    '<path d="M6 30q14-26 28 0"/><path d="M10 26l-2 6M20 14v6M30 26l2 6"/>' ],
+  'emojipack-gaming': [
+    '<path d="M10 14h20a6 6 0 0 1 6 6l-2 8a4 4 0 0 1-7 1l-2-3H15l-2 3a4 4 0 0 1-7-1l-2-8a6 6 0 0 1 6-6z"/><path d="M12 20v4M10 22h4M27 21h.5M30 23h.5"/>',
+    '<rect x="8" y="8" width="24" height="24" rx="4"/><path d="M14 14h.5M26 14h.5M20 20h.5M14 26h.5M26 26h.5"/>',
+    '<path d="M12 6h16v8q0 8-8 10-8-2-8-10zM20 24v6M14 34h12M12 10H7q0 6 6 7M28 10h5q0 6-6 7"/>',
+    '<circle cx="20" cy="20" r="13"/><circle cx="20" cy="20" r="8"/><circle cx="20" cy="20" r="3"/>',
+    '<path d="M10 30 30 10M24 8l8 8M8 24l8 8M12 26l-4 4"/>',
+    '<path d="M8 12h10v6a3 3 0 1 1 0 4v6H8zM18 12h10v6a3 3 0 1 0 0 4v6"/>' ],
+  'emojipack-cosmos': [
+    '<circle cx="20" cy="20" r="9"/><path d="M4 26q16-14 32-12"/>',
+    '<path d="M24 6a14 14 0 1 0 10 22A11 11 0 1 1 24 6z"/>',
+    '<path d="M20 4q8 6 6 20l-6 4-6-4q-2-14 6-20z"/><path d="M14 22l-5 6 5-1M26 22l5 6-5-1M17 30l3 6 3-6"/>',
+    '<path d="M20 6l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/>',
+    '<path d="M8 20q12-6 24 0q-12 6-24 0z"/><path d="M14 18q6-8 12 0"/>',
+    '<circle cx="12" cy="28" r="5"/><path d="M15 25 34 6M17 28l14-14M12 23l14-14"/>' ],
+};
+function _doodleSvg(path, color) {
+  return `<svg viewBox="0 0 40 40" width="100%" height="100%" fill="none" stroke="${color || _DK}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+}
 const EMOJI_PACK_SETS = {
   'emojipack-animals': ['🐶','🐱','🐻','🦊','🐼','🐨','🐯','🦁','🐮','🐸','🐧','🦋','🦄','🐙','🦀'],
   'emojipack-hearts':  ['💜','💙','💚','💛','🧡','❤️','🩷','🤍','🩵','💗','💖','💝','💘','💞','💓'],
@@ -9315,6 +9399,10 @@ window._playEmojiRain = function (emojisOverride) {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   let EMOJIS = _currentEmojiSet();
+  // Un carnet de gribouillis equipe : les gouttes sont des dessins (sauf pluie perso ou forcee).
+  const _pk = localStorage.getItem('libero_equipped_emojipack') || '';
+  const DOODLES = (!emojisOverride && (localStorage.getItem('libero_emojirain_mode') || '') !== 'custom') ? DOODLE_SETS[_pk] : null;
+  const _dcol = ['#d23a4f', '#173a8a', '#2f8a55', '#e0a800', '#7a4fc0'];
   if (typeof emojisOverride === 'string' && emojisOverride.trim()) {
     const m = emojisOverride.match(/\p{Extended_Pictographic}️?/gu);
     if (m && m.length) EMOJIS = m;
@@ -9352,9 +9440,10 @@ window._playEmojiRain = function (emojisOverride) {
 
     // Inner : chute verticale + opacité
     const inner = document.createElement('span');
-    inner.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+    if (DOODLES) inner.innerHTML = _doodleSvg(DOODLES[Math.floor(Math.random() * DOODLES.length)], _dcol[i % _dcol.length]);
+    else inner.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
     inner.style.cssText =
-      `display:inline-block;font-size:${size}rem;line-height:1;will-change:transform;` +
+      `display:inline-block;font-size:${size}rem;line-height:1;will-change:transform;` + (DOODLES ? `width:${(size * 1.8).toFixed(2)}rem;height:${(size * 1.8).toFixed(2)}rem;` : '') +
       `animation:emoji-fall ${fallDur}s ${delay}s linear forwards;`;
 
     outer.appendChild(inner);
@@ -11757,7 +11846,7 @@ const ProfileHub = (() => {
         btn = `<button class="locker-eq-btn" data-equip="${_escHtml(id)}" data-type="emote" data-on="0" ${full ? 'disabled' : ''}>${_escHtml(d.lockerEquip)}</button>`;
       }
       return `<div class="locker-item${eq ? ' equipped' : ''}${isOwned ? '' : ' locker-emote-locked'}">
-        <div class="locker-item-preview"><div class="shop-emoji-preview">${def.emoji || '😊'}</div></div>
+        <div class="locker-item-preview"><div class="shop-emoji-preview">${_emoteSvg(id) || def.emoji || ''}</div></div>
         <span class="locker-item-name">${_escHtml(name)}${timer}</span>
         ${btn}
       </div>`;

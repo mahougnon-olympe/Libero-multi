@@ -51,7 +51,7 @@ for f in glob.glob(RAW + '/*_[0-9][0-9].png'):
     if m and not m.group(1).startswith(('snakeskin', 'bg-')): groups.setdefault(m.group(1), []).append(f)
 for i, fr in sorted(groups.items()):
     fr.sort()
-    if i.startswith('clickfx'): save_anim(fr[:11], f'{ROOT}/{i}.webp', 70, crop=(60, 40, 240, 200), maxw=240)
+    if i.startswith('clickfx'): save_anim(fr, f'{ROOT}/{i}.webp', 70, crop=(40, 20, 260, 220), maxw=240)
     elif i.startswith('cursorsnake'): save_anim(fr, f'{ROOT}/{i}.webp', 90, maxw=300)
     else: save_anim(fr, f'{ROOT}/{i}.webp', 90, maxw=320)
     n += 1
