@@ -1689,3 +1689,17 @@ html:not(.light) .postits-edge { filter: brightness(.88); }
 .rb-st em { font: 700 .98rem var(--font-hand); color: var(--margin); font-style: normal; white-space: nowrap; }
 .rb-link { flex: none; width: 20px; height: 3px; background: repeating-linear-gradient(90deg, var(--line) 0 4px, transparent 4px 8px); margin-bottom: 16px; }
 @media (prefers-reduced-motion: reduce) { .postit.ready, .postit.peel { animation: none; } }
+/* Defis permanents : etagere de bocaux a billes */
+.jar-shelf { position: relative; border-radius: 14px; padding: 18px 12px 30px; background: linear-gradient(180deg, #d39a5f, #b77a43); box-shadow: inset 0 0 0 7px #8a5a2b, 0 6px 0 var(--hard); }
+html:not(.light) .jar-shelf { filter: brightness(.88); }
+.jars { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 18px 10px; position: relative; z-index: 1; }
+.jar { display: grid; justify-items: center; gap: 4px; text-align: center; min-width: 0; }
+.jar-svg { width: 120px; height: 130px; display: block; overflow: visible; }
+.jar.full .jar-svg { animation: jarHop .9s ease-in-out infinite; }
+@keyframes jarHop { 50% { transform: translateY(-5px) rotate(-2deg); } }
+.jar.claimed { opacity: .7; }
+.jar-tag { font: 400 .76rem/1.2 var(--font-display); color: #22252b; background: #fffdf3; border: 1.5px solid #22252b; padding: 2px 8px; transform: rotate(-2deg); box-shadow: 2px 2px 0 rgba(0,0,0,.25); max-width: 100%; }
+.jar-count { font: 700 1.1rem var(--font-hand); color: #fff27a; text-shadow: 0 1px 0 rgba(0,0,0,.5); font-variant-numeric: tabular-nums; }
+.jar-rw { font: 700 1rem var(--font-hand); color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.5); }
+:root:root .jar-claim { position: static; }
+@media (prefers-reduced-motion: reduce) { .jar.full .jar-svg { animation: none; } }

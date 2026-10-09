@@ -11810,18 +11810,37 @@ const ProfileHub = (() => {
         <span class="pi-rw">${_escHtml(d.challengeReward(ch.reward))}</span></div>`;
     }).join('')}</div></div>`;
   }
-  // Defis permanents : un carnet de route, chaque defi en 4 etapes jusqu'a la recompense.
+  // Defis permanents : des bocaux a billes sur l'etagere du pupitre. Chaque
+  // progression fait tomber des billes ; plein, le couvercle saute et le bocal
+  // sautille tant que la recompense n'est pas reclamee.
+  function _jarSvg(f, seed, open) {
+    const K = '#22252b', COLS = ['#d23a4f', '#173a8a', '#2f8a55', '#e0a800', '#7a4fc0', '#e8742c'];
+    const n = Math.round(Math.min(1, f) * 40), bs = [];
+    for (let k = 0; k < n; k++) {
+      const row = Math.floor(k / 5), col = k % 5, x = 42 + col * 11.5 + (row % 2 ? 5 : 0) - (row % 2 && col === 4 ? 11.5 : 0), y = 120 - row * 10.2;
+      const c = COLS[(k * 7 + seed) % COLS.length];
+      bs.push(`<circle cx="${x}" cy="${y}" r="5.6" fill="${c}" stroke="${K}" stroke-width="1.3"/><circle cx="${x - 1.8}" cy="${y - 1.8}" r="1.7" fill="#fff" opacity=".8"/>`);
+    }
+    const lid = open ? 'transform="rotate(-22 34 26) translate(-6 -12)"' : '';
+    return `<svg class="jar-svg" viewBox="0 0 130 140" aria-hidden="true">
+      <ellipse cx="65" cy="134" rx="40" ry="5" fill="rgba(0,0,0,.22)"/>
+      <path d="M34 28h62q8 0 8 9v86q0 9-9 9H35q-9 0-9-9V37q0-9 8-9z" fill="rgba(210,235,255,.32)" stroke="${K}" stroke-width="3"/>
+      <rect x="40" y="22" width="50" height="8" rx="2" fill="rgba(210,235,255,.5)" stroke="${K}" stroke-width="2.4"/>
+      ${bs.join('')}
+      <path d="M36 42v74" stroke="#fff" stroke-width="5" opacity=".55" stroke-linecap="round"/>
+      <path d="M96 46v20" stroke="#fff" stroke-width="3" opacity=".4" stroke-linecap="round"/>
+      <g ${lid}><rect x="34" y="10" width="62" height="14" rx="4" fill="${open ? '#e0a800' : '#9aa3ad'}" stroke="${K}" stroke-width="2.6"/><path d="M40 14v6M48 14v6M56 14v6M64 14v6M72 14v6M80 14v6M88 14v6" stroke="${K}" stroke-width="1.2" opacity=".45"/></g>
+      <g transform="rotate(-4 65 70)"><rect x="44" y="58" width="42" height="22" fill="#fffdf3" stroke="${K}" stroke-width="1.8"/><text x="65" y="74" text-anchor="middle" font-family="Caveat, cursive" font-weight="700" font-size="15" fill="#d23a4f">${Math.round(Math.min(1, f) * 100)} %</text></g>
+    </svg>`;
+  }
   function _roadbookHtml(d, items) {
-    return `<div class="roadbook">${items.map(ch => {
-      const name = _chName(d, ch);
-      const steps = [0.25, 0.5, 0.75, 1].map((f, k) => {
-        const v = Math.round(ch.goal * f), ok = ch.progress >= v;
-        return `${k ? '<span class="rb-link"></span>' : ''}<span class="rb-st${ok ? ' ok' : ''}"><i>${k + 1}</i>${v}${k === 3 ? `<em>${_escHtml(d.challengeReward(ch.reward))}</em>` : ''}</span>`;
-      }).join('');
+    return `<div class="jar-shelf"><div class="jars">${items.map((ch, i) => {
+      const name = _chName(d, ch), f = ch.goal ? ch.progress / ch.goal : 0, full = ch.done || f >= 1;
       const act = ch.claimed ? `<span class="pi-stamp">${_escHtml(d.challengeClaimed)}</span>`
-        : ch.done ? `<button class="challenge-claim-btn pi-claim" data-cid="${_escHtml(ch.id)}">${_escHtml(d.challengeClaim)} ${_escHtml(d.challengeReward(ch.reward))}</button>` : '';
-      return `<div class="rb-row"><div class="rb-hd"><b>${_escHtml(name)}</b><span>${Math.min(ch.progress, ch.goal)}/${ch.goal}</span>${act}</div><div class="rb-steps">${steps}</div></div>`;
-    }).join('')}</div>`;
+        : full ? `<button class="challenge-claim-btn pi-claim jar-claim" data-cid="${_escHtml(ch.id)}">${_escHtml(d.challengeClaim)} ${_escHtml(d.challengeReward(ch.reward))}</button>`
+        : `<span class="jar-count">${Math.min(ch.progress, ch.goal)} / ${ch.goal}</span>`;
+      return `<div class="jar${full && !ch.claimed ? ' full' : ''}${ch.claimed ? ' claimed' : ''}">${_jarSvg(f, i * 3, full)}<b class="jar-tag">${_escHtml(name)}</b>${act}<span class="jar-rw">${_escHtml(d.challengeReward(ch.reward))}</span></div>`;
+    }).join('')}</div></div>`;
   }
 
   function _wireClaims(root) {
