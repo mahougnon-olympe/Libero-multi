@@ -112,8 +112,7 @@ html.light body {
     box-shadow: inset 0 0 0 10px var(--frame), inset 0 0 0 12px rgba(0,0,0,.25);
   }
 }
-/* Un fond d'ecran equipe remplace l'ardoise ou la page (le cadre et la marge restent) */
-body.has-bg { background-image: none; }
+
 
 /* ── 3. Typographie ─────────────────────────────────────────────────────── */
 h1 {
@@ -603,4 +602,133 @@ html.light .ic3d-face { filter: none; }
 @media (min-width: 1024px) {
   .ck-board { --ck-cell: min(9vh, 72px); }
   :root:root .ludo-board { width: min(60vh, 540px); }
+}
+
+
+/* ══ Sequence 4a : FONDS D'ECRAN adaptes a l'ardoise et au cahier ═══════════
+   La matiere de base (ardoise ou page Seyes) est posee sur <html> et ne disparait
+   jamais. Le fond equipe (#bg-layer en CSS, #bg-canvas pour les animes) se FOND
+   dessus : sur l'ardoise en mode « ecran » (le sombre s'efface, le motif lumineux
+   devient une craie de couleur), sur le cahier en mode « produit » (le clair
+   s'efface, le motif se depose comme une encre). Chaque fond garde son motif
+   et son animation, dans les materiaux du site. */
+html {
+  background-color: var(--bg);
+  background-image: radial-gradient(130% 90% at 25% 0%, rgba(255,255,255,.055), transparent 62%);
+  background-attachment: fixed;
+}
+html.light {
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(80,130,205,.42) 31px 32px),
+    repeating-linear-gradient(0deg, transparent 0 7px, rgba(120,160,220,.2) 7px 8px);
+}
+:root:root body, :root:root body.has-bg { background: transparent !important; }
+#bg-layer, #bg-canvas { mix-blend-mode: screen; opacity: .9; }
+html.light #bg-layer, html.light #bg-canvas { mix-blend-mode: multiply; opacity: .85; }
+/* Appareils modestes : pas de fusion (couteuse a chaque image), un motif discret */
+html.perf-low #bg-layer, html.perf-low #bg-canvas { mix-blend-mode: normal; opacity: .28; }
+/* Les surfaces restent des feuilles opaques, quel que soit le fond (plus de verre floute) */
+:root:root body.has-bg .card, :root:root body.has-bg .chat, :root:root body.has-bg .game-card,
+:root:root body.has-bg .overlay > .overlay-content, :root:root body.has-bg .shop-overlay {
+  background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+/* Un fond ne change plus la couleur d'action du site : l'encre et la craie restent les memes partout */
+:root:root body[class*="bg-theme-"] { --board: inherit; --board2: inherit; --border: inherit; --glow: inherit; }
+
+/* ══ Symbole des Libs : un eclair dessine (masque CSS), de la couleur du texte ══ */
+.bolt {
+  display: inline-block; width: .74em; height: .95em; vertical-align: -.12em; margin: 0 .06em;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M9.5 1 3 9h4l-1 6 6.5-8.5h-4z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M9.5 1 3 9h4l-1 6 6.5-8.5h-4z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+:root:root .libs-counter {
+  background: var(--card); color: var(--text); border: 1.5px solid var(--line);
+  border-radius: var(--r-sm); box-shadow: 0 2px 0 var(--hard); animation: none;
+  font-family: var(--font-display); font-weight: 400;
+}
+.libs-counter .libs-icon { color: var(--accent); }
+
+/* ══ Sequence 4b : BOUTIQUE (le catalogue) ═══════════════════════════════════
+   Des fiches de catalogue posees sur la page. La rarete est ecrite sur la fiche
+   (un trait de couleur en tete + son nom) : gris commun, encre rare, rouge epique,
+   or legendaire. Pas de degrade, pas de halo. */
+:root:root .shop-fortnite { background: transparent; }
+:root:root .shop-fn-header { background: var(--card); border-bottom: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--hard); }
+:root:root .shop-fn-title { color: var(--text); font-family: var(--font-display); font-weight: 400; text-transform: none; letter-spacing: 0; }
+:root:root .shop-fn-balance { background: transparent; border: 1.5px solid var(--line); border-radius: var(--r-sm); }
+:root:root .shop-fn-balance-label { color: var(--muted); }
+:root:root .shop-fn-balance-amount { color: var(--text); }
+:root:root .shop-fn-nav { background: var(--card); border-right: 1.5px solid var(--line); }
+:root:root .shop-fn-nav-btn {
+  background: transparent; border: 1.5px solid transparent; color: var(--muted);
+  border-radius: var(--r-sm); font-family: var(--font-body);
+}
+:root:root .shop-fn-nav-btn:hover { background: var(--card2); color: var(--text); }
+:root:root .shop-fn-nav-btn.active {
+  background: var(--card2); border-color: var(--line); color: var(--text);
+  box-shadow: inset 3px 0 0 var(--margin);
+}
+:root:root .shop-fn-section-title {
+  color: var(--text); font-family: var(--font-display); font-weight: 400; font-size: 1.05rem;
+  text-transform: none; letter-spacing: 0; border-bottom: 1.5px dashed var(--border);
+}
+:root:root .shop-fn-section-desc, :root:root .shop-fn-emote-slots { color: var(--muted); }
+:root:root .shop-fn-countdown { color: var(--muted); }
+:root:root .shop-fn-countdown #shop-countdown-val { color: var(--margin); font-family: var(--font-hand); font-size: 1.05rem; }
+
+:root:root .shop-tile, :root:root .shop-tile.rarity-commun, :root:root .shop-tile.rarity-rare,
+:root:root .shop-tile.rarity-epique, :root:root .shop-tile.rarity-legendaire {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md);
+  box-shadow: var(--elev-2); border-top-width: 5px;
+}
+:root:root .shop-tile.rarity-commun     { border-top-color: #8c948f; }
+:root:root .shop-tile.rarity-rare       { border-top-color: #3d64b8; }
+:root:root .shop-tile.rarity-epique     { border-top-color: var(--margin); }
+:root:root .shop-tile.rarity-legendaire { border-top-color: #e0a800; }
+:root:root .shop-tile:hover { transform: translateY(-2px); box-shadow: 0 5px 0 var(--hard); }
+:root:root .shop-tile:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--hard); }
+:root:root .shop-tile-footer { background: transparent; border-top: 1.5px dashed var(--border); }
+:root:root .shop-tile-name { color: var(--text); font-family: var(--font-body); font-weight: 700; }
+:root:root .shop-tile-price, :root:root .bundle-item-price { color: var(--text); font-family: var(--font-display); font-weight: 400; }
+:root:root .shop-tile-price .bolt, .shop-fn-detail-price .bolt { color: var(--accent); }
+:root:root .shop-price-crossed { color: var(--muted); }
+:root:root .shop-tile-badge {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: 4px;
+  font-family: var(--font-body); color: var(--text); letter-spacing: .02em;
+}
+:root:root .shop-tile-badge.rarity-commun { color: var(--muted); }
+:root:root .shop-tile-badge.rarity-rare { color: #3d64b8; }
+html:not(.light) .shop-tile-badge.rarity-rare { color: #8fb0ff; }
+:root:root .shop-tile-badge.rarity-epique { color: var(--margin); }
+:root:root .shop-tile-badge.rarity-legendaire { color: #b8860b; }
+html:not(.light) .shop-tile-badge.rarity-legendaire { color: var(--accent); }
+:root:root .shop-tile-owned, :root:root .shop-tile-daily-badge, :root:root .bundle-item-tag {
+  background: var(--card); color: #2f8a55; border: 1.5px solid #2f8a55; border-radius: 4px;
+}
+html:not(.light) .shop-tile-owned, html:not(.light) .shop-tile-daily-badge, html:not(.light) .bundle-item-tag { color: #8fe0a8; border-color: #8fe0a8; }
+:root:root .shop-tile-saving { background: var(--margin); color: #fff; border-radius: 4px; }
+:root:root .shop-title-tag { background: var(--card2); border: 1.5px solid var(--line); color: var(--text); }
+
+/* Fiche detaillee d'un article */
+:root:root .shop-fn-detail { background: var(--bg); }
+html.light :root .shop-fn-detail, html.light .shop-fn-detail {
+  background-color: var(--bg);
+  background-image: repeating-linear-gradient(0deg, transparent 0 31px, rgba(80,130,205,.42) 31px 32px);
+}
+:root:root .shop-fn-detail-back { background: var(--card); color: var(--accent); border-bottom: 1.5px solid var(--line); }
+:root:root .shop-fn-detail-preview { background: var(--card2); border-bottom: 1.5px dashed var(--border); }
+.shop-fn-detail-name { font-family: var(--font-display); font-weight: 400; color: var(--text); }
+.shop-fn-detail-price { font-family: var(--font-display); color: var(--text); }
+:root:root .shop-bundle-content-item { background: var(--card); border: 1.5px solid var(--border); }
+:root:root .bundle-item-name { color: var(--text); }
+:root:root .shop-fn-bundle-contains { color: var(--muted); }
+:root:root .shop-fn-topup-btn { background: var(--board); color: #fff; border-radius: var(--r-sm); }
+.real-prev { background: var(--card2); }
+
+/* Ordinateur : plus de colonnes, une barre d'onglets plus large */
+@media (min-width: 1024px) {
+  .shop-fn-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
+  .shop-fn-featured { grid-template-columns: repeat(3, 1fr); }
+  :root:root .shop-fn-nav { width: 180px; min-width: 180px; }
 }

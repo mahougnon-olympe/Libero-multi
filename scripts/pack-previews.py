@@ -18,7 +18,7 @@ def save_anim(frames, dst, ms, crop=None, maxw=300):
 n = 0
 def bright(im):
     lum = ImageStat.Stat(im.convert('L')).mean[0]
-    return ImageEnhance.Brightness(im).enhance(min(2.4, 60 / max(lum, 8))) if lum < 60 else im   # fonds tres sombres : on voit enfin le motif
+    return ImageEnhance.Brightness(im).enhance(min(1.6, 50 / max(lum, 8))) if lum < 38 else im   # fonds tres sombres : on voit enfin le motif
 for f in sorted(glob.glob(RAW + '/bg-*.png')):
     if re.search(r'_\d\d\.png$', f): continue
     i = os.path.basename(f)[:-4]

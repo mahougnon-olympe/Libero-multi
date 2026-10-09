@@ -24,15 +24,15 @@ const BGS = ['bg-nuit','bg-ardoise','bg-brume','bg-crepuscule','bg-nebuleuse','b
   'bg-cyber','bg-circuit','bg-hexagones','bg-pluie','bg-tempete','bg-hologramme','bg-etoile','bg-galaxie','bg-orage','bg-synthwave',
   'bg-terrain','bg-matrice','bg-wax','bg-marche-nuit','bg-harmattan','bg-lagune'];
 
-async function ouvrir(browser, w, h) {
+async function ouvrir(browser, w, h, theme = 'dark') {
   const p = await browser.newPage();
   await p.setViewport({ width: w, height: h, deviceScaleFactor: 1 });
   await p.goto(URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await p.evaluate(() => {
+  await p.evaluate((theme) => {
     localStorage.setItem('libero_player_id', 'preview-gen-0001'); localStorage.setItem('libero_onboarded', '1');
     localStorage.setItem('libero_tuto_v2', JSON.stringify({ done: true })); localStorage.setItem('playerName', 'Apercu');
-    localStorage.setItem('lang', 'fr'); localStorage.setItem('themeMode', 'dark'); localStorage.setItem('snakeEnabled', 'true');
-  });
+    localStorage.setItem('lang', 'fr'); localStorage.setItem('themeMode', theme); localStorage.setItem('libero_admin_key', 'testkey123'); localStorage.setItem('snakeEnabled', 'true');
+  }, theme);
   await p.goto(URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await sleep(5500);
   await p.evaluate(() => document.querySelectorAll('.overlay,#tuto-wrap,#boot').forEach(o => o.remove()));
@@ -43,19 +43,22 @@ async function ouvrir(browser, w, h) {
   const browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: 'new', args: ['--no-sandbox'] });
 
   if (want('bg')) {
-    const p = await ouvrir(browser, 800, 500);
-    // Rien d'autre que le fond : on masque toute l'interface.
-    await p.addStyleTag({ content: 'body > *:not(#bg-layer):not(#bg-canvas):not(script):not(style){display:none!important} html,body{background:#0a0c18!important}' });
-    for (const id of BGS) {
-      await p.evaluate(i => { BGManager.stop(); BGManager.start(i); }, id);
-      // Les fonds animes ont besoin de quelques secondes pour montrer leurs motifs (etoiles, pluie, vagues...).
-      await sleep(/etoile|galaxie|pluie|tempete|particules|vagues|aurores|nebuleuse|matrice|orage|hologramme|circuit|synthwave/.test(id) ? 3200 : 1200);
-      await p.screenshot({ path: path.join(RAW, id + '.png') });
-      // 14 images espacees de 140 ms : pack-previews.py n'anime que les fonds qui bougent vraiment.
-      for (let k = 0; k < 14; k++) { await p.screenshot({ path: path.join(RAW, id + '_' + String(k).padStart(2, '0') + '.png') }); await sleep(140); }
-      console.log('fond', id);
+    // Deux jeux d'apercus : l'ardoise (theme sombre) et le cahier (theme clair).
+    for (const theme of ['dark', 'light']) {
+      const p = await ouvrir(browser, 800, 500, theme);
+      const suf = theme === 'light' ? '-light' : '';
+      // Rien d'autre que le fond : on masque toute l'interface (la matiere de base est sur <html>).
+      await p.addStyleTag({ content: 'body > *:not(#bg-layer):not(#bg-canvas):not(script):not(style){display:none!important} body::before{display:none!important}' });
+      for (const id of BGS) {
+        await p.evaluate(i => { BGManager.stop(); BGManager.start(i); }, id);
+        await sleep(/etoile|galaxie|pluie|tempete|particules|vagues|aurores|nebuleuse|matrice|orage|hologramme|circuit|synthwave/.test(id) ? 3200 : 1200);
+        await p.screenshot({ path: path.join(RAW, id + suf + '.png') });
+        // 14 images espacees de 140 ms : pack-previews.py n'anime que les fonds qui bougent vraiment.
+        for (let k = 0; k < 14; k++) { await p.screenshot({ path: path.join(RAW, id + suf + '_' + String(k).padStart(2, '0') + '.png') }); await sleep(140); }
+        console.log('fond', theme, id);
+      }
+      await p.close();
     }
-    await p.close();
   }
 
   // ---- decor commun des scenes : tout est masque sauf la scene ----

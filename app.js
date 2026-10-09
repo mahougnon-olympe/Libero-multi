@@ -2295,9 +2295,9 @@ function applyLang() {
   setTxt('wordle-hint-label', d.wordleHint);
   setTxt('profile-badges-title', d.profileBadgesTitle);
   setTxt('onboard-quest-title', d.onboardQuestTitle);
-  { const op = document.getElementById('ob-play');  if (op) op.innerHTML = d.obPlay  + ' <b>+50 ⚡</b>'; }
-  { const ow = document.getElementById('ob-win');   if (ow) ow.innerHTML = d.obWin   + ' <b>+100 ⚡</b>'; }
-  { const oc = document.getElementById('ob-perso'); if (oc) oc.innerHTML = d.obPerso + ' <b>+50 ⚡</b>'; }
+  { const op = document.getElementById('ob-play');  if (op) op.innerHTML = d.obPlay  + ' <b>+50 <i class="bolt" aria-label="Libs"></i></b>'; }
+  { const ow = document.getElementById('ob-win');   if (ow) ow.innerHTML = d.obWin   + ' <b>+100 <i class="bolt" aria-label="Libs"></i></b>'; }
+  { const oc = document.getElementById('ob-perso'); if (oc) oc.innerHTML = d.obPerso + ' <b>+50 <i class="bolt" aria-label="Libs"></i></b>'; }
   if (window._notify?.retexte) window._notify.retexte();
   if (window._renderBadges && window._myBadges) window._renderBadges('profile-badges', window._myBadges, window._myHonorTitle);
   setTxt('bug-card-title', d.bugCardTitle); setTxt('bug-card-sub', d.bugCardSub); setTxt('bug-title', d.bugTitle);
@@ -4081,7 +4081,7 @@ function renderSnakeLeaderboard(data) {
     <div class="lb-row lb-row-clickable" data-pname="${_escHtml(e.name)}" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
       <span class="lb-rank">${medals[i] || i + 1}</span>
       <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
-      <span class="lb-score-snake">${e.hs} ⚡</span>
+      <span class="lb-score-snake">${e.hs} <i class="bolt" aria-label="Libs"></i></span>
     </div>
   `).join('');
   el.querySelectorAll('.lb-row-clickable').forEach(row => {
@@ -4408,7 +4408,7 @@ function _triviaPointsPop(pts, fast) {
   const host = $('tg-question')?.parentElement || document.body;
   const el = document.createElement('div');
   el.className = 'tg-points-pop' + (fast ? ' fast' : '');
-  el.textContent = `+${pts} ⚡`;
+  el.textContent = `+${pts}`;
   host.appendChild(el);
   setTimeout(() => el.remove(), 1400);
 }
@@ -5266,7 +5266,7 @@ function showWaiting({ code, gameType, stake, role }) {
   // Une coupure pendant l'attente (changer d'appli pour envoyer le code) ne perd plus le salon.
   if (role) saveSession(code, role);
   $('room-code').textContent     = code;
-  $('waiting-game-name').textContent = t().games[gameType] + (stake ? ` · 💰 ${stake} ⚡` : '');
+  $('waiting-game-name').textContent = t().games[gameType] + (stake ? ` · ${stake} Libs` : '');
   const isLudo = gameType === 'ludo';
   $('waiting-seats').classList.toggle('hidden', !isLudo);
   $('btn-ludo-start').classList.toggle('hidden', !isLudo);
@@ -5520,7 +5520,7 @@ socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq,
   }
   _refreshLibsUI(prev, libsBalance, delta ?? null);
   const shopBal = $('shop-balance-display');
-  if (shopBal) shopBal.textContent = `⚡ ${libsBalance} Libs`;
+  if (shopBal) shopBal.textContent = `${libsBalance} Libs`;
   if (pendingBoostHint !== undefined) { pendingHintCharges = pendingBoostHint; _updateBoostHintBtn(); }
   _updateShopPending(pendingHintCharges);
   if (nextAt) { _nextDistAt = nextAt; _updateLibsCountdown(); }
@@ -5567,7 +5567,7 @@ socket.on('buy-boost-result', ({ ok, balance, pendingBoostHint, error } = {}) =>
     localStorage.setItem('libero_libs', String(libsBalance));
     _refreshLibsUI(prev, libsBalance, null);
     const shopBal = $('shop-balance-display');
-    if (shopBal) shopBal.textContent = `⚡ ${libsBalance} Libs`;
+    if (shopBal) shopBal.textContent = `${libsBalance} Libs`;
     _updateShopPending(pendingBoostHint);
     window._sound?.play("coin");
     _showShopFeedback(t().shopBuyOk, '#22c55e');
@@ -5854,7 +5854,7 @@ function _refreshLibsUI(prev, next, delta) {
     if (step >= steps) { clearInterval(_libsAnimTimer); balEl.textContent = next; }
   }, 30);
   if (delta !== null && delta !== 0) {
-    _spawnLibsPill(delta > 0 ? `+${delta} ⚡` : `${delta} ⚡`, delta > 0);
+    _spawnLibsPill(delta > 0 ? `+${delta} Libs` : `${delta} Libs`, delta > 0);
     _playLibsSound();
   }
 }
@@ -5899,7 +5899,7 @@ function enterShop() {
   const lbl = $('shop-balance-label');
   if (lbl) lbl.textContent = currentLang === 'fr' ? 'Ton solde' : 'Your balance';
   const shopBal = $('shop-balance-display');
-  if (shopBal) shopBal.textContent = `⚡ ${libsBalance} Libs`;
+  if (shopBal) shopBal.textContent = `${libsBalance} Libs`;
   _shopDetailItem = null;
   const _prevShopState = (() => { try { return JSON.parse(sessionStorage.getItem('shopState')) || {}; } catch { return {}; } })();
   sessionStorage.setItem('shopState', JSON.stringify({ open: true, scrollTop: _prevShopState.scrollTop || 0 }));
@@ -5959,7 +5959,7 @@ function _renderLibsTopupPanel() {
         <div class="shop-libspack-card${p.available ? '' : ' unavailable'}${p.featured ? ' featured' : ''}">
           ${p.featured ? `<span class="shop-libspack-badge">${d.shopLibsPacksFeatured}</span>` : ''}
           <div class="shop-libspack-name">${d.shopLibsPackNames[p.id] || p.id}</div>
-          <div class="shop-libspack-amount">⚡ ${p.libs}</div>
+          <div class="shop-libspack-amount"><i class="bolt" aria-label="Libs"></i> ${p.libs}</div>
           ${p.bonus ? `<div class="shop-libspack-bonus">${d.shopLibsPacksBonus(p.bonus)}</div>` : ''}
           <div class="shop-libspack-price">${p.priceFCFA.toLocaleString(fr ? 'fr-FR' : 'en-US')} FCFA</div>
           <button class="btn btn-primary shop-libspack-buy" data-pack="${p.id}" data-libs="${p.libs}" data-price="${p.priceFCFA}" ${p.available ? '' : 'disabled'}>
@@ -6382,7 +6382,7 @@ function _renderShopItems() {
     const _EM = {'emote-hello':'👋','emote-gg':'👍','emote-sad':'😢','emote-wellplayed':'🤝','emote-laugh':'😂','emote-think':'🤔','emote-cool':'🆒','emote-clap':'👏','emote-fire':'🔥','emote-heart':'❤️','emote-cry':'😭','emote-angry':'😤','emote-shock':'🤯','emote-easy':'😎','emote-eyes':'👀','emote-skull':'💀','emote-party':'🥳','emote-rocket':'🚀','emote-omg':'😱','emote-crown':'👑'};
     let previewHtml = '';
     if (type === 'background')     previewHtml = `<div class="shop-bg-preview ${id}"></div>`;
-    else if (type === 'bubble')    previewHtml = `<div class="shop-bubble-preview ${id}">Salut ! 👋</div>`;
+    else if (type === 'bubble')    previewHtml = `<div class="shop-bubble-preview ${id}">Salut !</div>`;
     else if (type === 'font')      previewHtml = `<span class="shop-fn-font-preview ${_cosmeticClass(equippedCosmetic)} ${id}">${playerPreview}</span>`;
     else if (type === 'color')     previewHtml = `<span class="shop-cosmetic-preview name-${id} ${_fontClass(equippedFont)}">${playerPreview}</span>`;
     else if (type === 'nameeffect') previewHtml = `<span class="shop-nameeffect-preview ${id}">${playerPreview}</span>`;
@@ -6403,7 +6403,7 @@ function _renderShopItems() {
     const badgeHtml = honorary
       ? `<div class="shop-tile-badge shop-tile-badge-honorary">${d.shopHonoraryBadge || '🏆'}</div>`
       : `<div class="shop-tile-badge rarity-${rarity}">${rarityLabel[rarity]}</div>`;
-    const priceDisplay = honorary ? '' : (price === 0 ? lblFree : price + ' ⚡');
+    const priceDisplay = honorary ? '' : (price === 0 ? lblFree : price + ' <i class="bolt" aria-label="Libs"></i>');
     const ownedLabel = honorary ? (d.shopHonoraryOwned || 'Obtenu') : (isEquipped ? lblEquipped : lblOwned);
     return `<div class="shop-tile${large ? ' shop-tile-large' : ''}${honorary ? ' shop-tile-honorary' : ''} rarity-${honorary ? 'honorary' : rarity}"
       data-id="${id}" data-type="${type}" data-price="${price}" data-name="${safeName}"${honorary ? ' data-honorary="1"' : ''}>
@@ -6444,8 +6444,8 @@ function _renderShopItems() {
       <div class="shop-tile-footer">
         <span class="shop-tile-name">${name}</span>
         <div class="shop-bundle-prices">
-          <span class="shop-price-crossed">${bundle.totalPrice} ⚡</span>
-          <span class="shop-tile-price">${bundle.bundlePrice} ⚡</span>
+          <span class="shop-price-crossed">${bundle.totalPrice} <i class="bolt" aria-label="Libs"></i></span>
+          <span class="shop-tile-price">${bundle.bundlePrice} <i class="bolt" aria-label="Libs"></i></span>
         </div>
       </div>
       <div class="shop-tile-badge rarity-${rarity}">${rarityLabel[rarity]}</div>
@@ -6851,15 +6851,15 @@ function _openBundleDetail(bundle, allItemsById) {
       ${prev}
       <span class="bundle-item-name">${item.name || id}</span>
       ${isOwned ? `<span class="bundle-item-tag">${lblOwned}</span>`
-               : item.type !== 'boost' ? `<span class="bundle-item-price">${item.price > 0 ? item.price + ' ⚡' : lblFree}</span>` : ''}
+               : item.type !== 'boost' ? `<span class="bundle-item-price">${item.price > 0 ? item.price + ' <i class="bolt" aria-label="Libs"></i>' : lblFree}</span>` : ''}
     </div>`;
   }).join('');
 
   const priceHtml = allOwned
     ? ''
     : `<div class="shop-fn-detail-price">
-        ${adjPrice} ⚡
-        <span class="shop-price-crossed">${ownedCount > 0 ? bundle.bundlePrice : bundle.totalPrice} ⚡</span>
+        ${adjPrice} <i class="bolt" aria-label="Libs"></i>
+        <span class="shop-price-crossed">${ownedCount > 0 ? bundle.bundlePrice : bundle.totalPrice} <i class="bolt" aria-label="Libs"></i></span>
         <span class="shop-bundle-saving-inline">${d.shopBundleSave(savings)}</span>
       </div>`;
 
@@ -6921,7 +6921,7 @@ function _openShopDetail(item) {
   if (type === 'background') {
     previewHtml = `<div class="shop-bg-preview ${id}"></div>`;
   } else if (type === 'bubble') {
-    previewHtml = `<div class="shop-bubble-preview ${id}">Salut ! 👋</div>`;
+    previewHtml = `<div class="shop-bubble-preview ${id}">Salut !</div>`;
   } else if (type === 'font') {
     previewHtml = `<span class="shop-fn-font-preview ${_cosmeticClass(equippedCosmetic)} ${id}">${playerPreview}</span>`;
   } else if (type === 'color') {
@@ -6956,7 +6956,7 @@ function _openShopDetail(item) {
     equippedClickFx, equippedEmojiPack, equippedVictoryBan, equippedSoundPack, ...equippedEmotes,
   ].includes(id);
   const lblFree    = fr ? 'Gratuit' : 'Free';
-  const priceStr   = price === 0 ? lblFree : `${price} ⚡`;
+  const priceStr   = price === 0 ? lblFree : `${price} <i class="bolt" aria-label="Libs"></i>`;
 
   let actionHtml = '';
   if (honorary) {
@@ -7356,7 +7356,9 @@ function _realPrev(type, id, fallbackHtml) {
     return `<div class="wave-prev"><svg viewBox="0 0 120 38" preserveAspectRatio="none" aria-hidden="true"><path d="${_WAVE_PATHS[_SOUND_WAVE[id]]}" fill="none" stroke="${c}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg></div>`;
   }
   if (!REAL_PREVIEW_TYPES.has(type) || !id) return fallbackHtml;
-  return `<span class="real-prev real-prev-${type}"><img src="assets/preview/${id}.webp" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('is-missing')"><span class="real-prev-fb">${fallbackHtml}</span></span>`;
+  // Les fonds ont deux apercus : l'ardoise (theme sombre) et le cahier (theme clair).
+  const suf = (type === 'background' && document.documentElement.classList.contains('light')) ? '-light' : '';
+  return `<span class="real-prev real-prev-${type}"><img src="assets/preview/${id}${suf}.webp" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('is-missing')"><span class="real-prev-fb">${fallbackHtml}</span></span>`;
 }
 
 function _cosmeticPreviewHtml(type, id, itemName) { return _realPrev(type, id, _cosmeticPreviewHtmlBase(type, id, itemName)); }
@@ -7364,7 +7366,7 @@ function _cosmeticPreviewHtmlBase(type, id, itemName) {
   const nm = _escHtml(localStorage.getItem('playerName') || 'Aa');
   switch (type) {
     case 'background':  return `<div class="shop-bg-preview ${id}"></div>`;
-    case 'bubble':      return `<div class="shop-bubble-preview ${id}">👋</div>`;
+    case 'bubble':      return `<div class="shop-bubble-preview ${id}">Salut !</div>`;
     case 'font':        return `<span class="shop-fn-font-preview ${_cosmeticClass(equippedCosmetic)} ${id}">${nm}</span>`;
     case 'color':       return `<span class="shop-cosmetic-preview name-${id} ${_fontClass(equippedFont)}">${nm}</span>`;
     case 'nameeffect':  return `<span class="shop-nameeffect-preview ${id}">${nm}</span>`;
@@ -11563,7 +11565,7 @@ const ProfileHub = (() => {
       const timer = (o && o.inShop && o.until && o.until > Date.now()) ? `<span class="locker-emote-timer">⏳ ${d.shopCountdown(o.until - Date.now())}</span>` : '';
       let btn;
       if (!isOwned) {
-        btn = `<button class="locker-emote-buy" data-buyemote="${_escHtml(id)}">${price} ⚡</button>`;
+        btn = `<button class="locker-emote-buy" data-buyemote="${_escHtml(id)}">${price} <i class="bolt" aria-label="Libs"></i></button>`;
       } else if (eq) {
         btn = `<button class="locker-eq-btn on" data-equip="${_escHtml(id)}" data-type="emote" data-on="1">${_escHtml(d.lockerUnequip)}</button>`;
       } else {
@@ -11967,7 +11969,7 @@ socket.on('onboard-update', ({ steps, reward } = {}) => {
   window._renderOnboard?.();
   window._sound?.play('success');
   if (reward && typeof showCursorSnakeToast === 'function') {
-    showCursorSnakeToast((currentLang === 'en' ? 'Step done! +' : 'Étape validée ! +') + reward + ' ⚡');
+    showCursorSnakeToast((currentLang === 'en' ? 'Step done! +' : 'Étape validée ! +') + reward + ' Libs');
   }
   if (typeof celebrate === 'function') { try { celebrate(); } catch {} }
 });
@@ -12015,7 +12017,7 @@ socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
   // Disque : 6 parts en conic-gradient + libelles positionnes par rotation.
   disc.style.background = `conic-gradient(${PRIZES.map((_, i) => `${COLORS[i]} ${i * 60}deg ${(i + 1) * 60}deg`).join(',')})`;
   disc.innerHTML = PRIZES.map((p, i) =>
-    `<span class="wheel-label" style="transform:rotate(${i * 60 + 30}deg) translateY(-58px) rotate(90deg)">${p}⚡</span>`).join('');
+    `<span class="wheel-label" style="transform:rotate(${i * 60 + 30}deg) translateY(-58px) rotate(90deg)">${p}</span>`).join('');
   function open() {
     statusEl.textContent = '';
     spinBtn.disabled = false;
@@ -12564,7 +12566,7 @@ try {
     clearSel();
     b.classList.add('active');
     pending = { kind: 'libs', amount: Number(b.dataset.amt) };
-    confirmBtn.textContent = t().friendsGiftConfirm(pending.amount + ' ⚡', friendName);
+    confirmBtn.textContent = t().friendsGiftConfirm(pending.amount + ' Libs', friendName);
     confirmBtn.classList.remove('hidden');
     statusEl.textContent = '';
   });
@@ -13402,9 +13404,9 @@ socket.on('claim-challenge-result', ({ ok, reward, allDoneBonus } = {}) => {
     el.innerHTML = `
       <span class="shop-flash-tag">${t().flashOfferTitle} · -${offer.discount}%</span>
       <span class="shop-flash-name">${_escHtml(name)}</span>
-      <span class="shop-flash-prices"><s>⚡ ${offer.price}</s> <strong>⚡ ${offer.flashPrice}</strong></span>
+      <span class="shop-flash-prices"><s>${offer.price} <i class="bolt" aria-label="Libs"></i></s> <strong>${offer.flashPrice} <i class="bolt" aria-label="Libs"></i></strong></span>
       <span class="shop-flash-timer" id="shop-flash-timer"></span>
-      ${owned ? '' : `<button class="btn btn-primary shop-flash-buy" id="shop-flash-buy">⚡</button>`}`;
+      ${owned ? '' : `<button class="btn btn-primary shop-flash-buy" id="shop-flash-buy"><i class="bolt" aria-label="Libs"></i></button>`}`;
     el.classList.remove('hidden');
     const tick = () => {
       const left = offer.endsAt - Date.now();
