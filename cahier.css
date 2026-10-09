@@ -1087,7 +1087,7 @@ html.light .bul-hd { color: #fff; }
 :root:root .level-tier-4 .bul-hd { background: var(--margin); color: #fff; }
 :root:root .level-tier-5 .bul-hd { background: #e0a800; color: #1d1600; }
 :root:root .bul-hd .vip-badge { background: transparent; color: inherit; border: 1.5px solid currentColor; font-size: .72rem; padding: 1px 7px; }
-.bul-id { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px; }
+.bul-id { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px; }
 :root:root .bul-id .pid-avatar { width: 58px; height: 58px; border-radius: 50%; background: var(--mark); color: #22252b; border: 2px solid var(--line); }
 html:not(.light) .bul-id .pid-avatar { background: rgba(255,225,105,.85); }
 .bul-id .pid-avatar .av-svg { color: #22252b; }
@@ -1475,3 +1475,11 @@ html:not(.light) { --violet: #c9a8ff; }
 .shop-emoji-preview.large .emote-svg { width: 84px; height: 84px; }
 .doodle-prev { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; color: var(--accent); }
 .doodle-prev span { width: 30px; height: 30px; display: block; }
+/* Portrait : bien visible sur le bulletin (crayon pour modifier, invitation tant qu'il n'est pas compose) */
+.pid-av-wrap { position: relative; display: inline-grid; justify-items: center; flex: none; }
+:root:root .bul-id .pid-avatar.has-portrait { width: 64px; height: 64px; background: #fff; }
+.pid-av-edit { position: absolute; right: -6px; top: 40px; width: 28px; height: 28px; padding: 3px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--card); color: var(--text); box-shadow: 0 2px 0 var(--hard); cursor: pointer; display: grid; place-items: center; }
+.pid-av-edit svg { width: 100%; height: 100%; }
+.pid-av-hint { font: 700 .95rem var(--font-hand); color: var(--margin); white-space: nowrap; margin-top: 2px; animation: ptHint 2.4s ease-in-out infinite; }
+.pid-av-hint.hidden { display: none; }
+@keyframes ptHint { 0%, 70%, 100% { transform: none; } 80% { transform: rotate(-3deg); } 90% { transform: rotate(3deg); } }

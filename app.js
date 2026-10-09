@@ -590,7 +590,7 @@ const DICT = {
     lockerEquipped:'équipé',
     vbWord:'VICTOIRE', vbVictory:'Victoire', vbBravo:'BRAVO !', vbExcellent:'Excellent travail !', vbSub:n => `${n} gagne la partie`,
     portraitCardTitle:'Mon portrait', portraitCardSub:'Dessine ta photo de profil', portraitTitle:'Mon portrait',
-    peRandom:'Au hasard', peReset:'Recommencer', peSave:'Enregistrer', peSaved:'Portrait enregistré !',
+    peHint:'Crée ton portrait', peRandom:'Au hasard', peReset:'Recommencer', peSave:'Enregistrer', peSaved:'Portrait enregistré !',
     peBuySave:(n, p) => `Débloquer ${n} élément${n > 1 ? 's' : ''} (${p} Libs) et enregistrer`,
     peLockedHint:'Les éléments marqués d\'un prix sont à débloquer (40 Libs chacun).', peNeedName:'Choisis d\'abord un pseudo.',
     peNoMoney:'Pas assez de Libs pour ces éléments.', peErr:'Impossible d\'enregistrer, réessaie.',
@@ -1355,7 +1355,7 @@ const DICT = {
     lockerEquipped:'equipped',
     vbWord:'VICTORY', vbVictory:'Victory', vbBravo:'BRAVO!', vbExcellent:'Excellent work!', vbSub:n => `${n} wins the game`,
     portraitCardTitle:'My portrait', portraitCardSub:'Draw your profile picture', portraitTitle:'My portrait',
-    peRandom:'Random', peReset:'Start over', peSave:'Save', peSaved:'Portrait saved!',
+    peHint:'Draw your portrait', peRandom:'Random', peReset:'Start over', peSave:'Save', peSaved:'Portrait saved!',
     peBuySave:(n, p) => `Unlock ${n} item${n > 1 ? 's' : ''} (${p} Libs) and save`,
     peLockedHint:'Items with a price must be unlocked (40 Libs each).', peNeedName:'Pick a username first.',
     peNoMoney:'Not enough Libs for these items.', peErr:'Could not save, try again.',
@@ -2878,10 +2878,13 @@ window._renderProfilePseudo = function () {
   // Avatar equipe, ou initiale du pseudo a defaut.
   const av = document.getElementById('profile-avatar');
   if (av) {
-    const ic = myPortrait ? _ptSvg(myPortrait) : _avatarSvg(equippedAvatar);
+    // Sans portrait compose, on montre deja la tete par defaut : le joueur voit qu'il peut la dessiner.
+    const ic = myPortrait ? _ptSvg(myPortrait) : (window.LiberoPortrait ? _ptSvg(window.LiberoPortrait.DEF) : _avatarSvg(equippedAvatar));
+    const hint = document.getElementById('pid-av-hint');
+    if (hint) { hint.textContent = t().peHint; hint.classList.toggle('hidden', !!myPortrait); }
     if (ic) av.innerHTML = ic; else av.textContent = nom.charAt(0).toUpperCase();
     av.classList.toggle('initial', !ic);
-    av.classList.toggle('has-portrait', !!myPortrait);
+    av.classList.toggle('has-portrait', !!ic && !!window.LiberoPortrait);
   }
 };
 function triggerRename(name) {
@@ -13838,6 +13841,7 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
   document.getElementById('btn-portrait-close')?.addEventListener('click', close);
   ov.addEventListener('click', e => { if (e.target === ov) close(); });
   document.getElementById('profile-avatar')?.addEventListener('click', () => window._openPortraitEditor());
+  document.getElementById('btn-portrait-edit')?.addEventListener('click', () => window._openPortraitEditor());
   document.getElementById('pe-tabs').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (!b) return; tab = b.dataset.g; paint(); });
   document.getElementById('pe-opts').addEventListener('click', e => {
     const b = e.target.closest('[data-k]'); if (!b) return;
