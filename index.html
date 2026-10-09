@@ -1178,11 +1178,6 @@
           </div>
         </div>
 
-        <!-- Badges / hauts faits du joueur -->
-        <div class="profile-badges-wrap">
-          <p class="profile-badges-title"><span class="pbt-ic" data-ic="medal">🏅</span> <span id="profile-badges-title">Mes hauts faits</span></p>
-          <div id="profile-badges" class="badge-grid"></div>
-        </div>
 
         <!-- Solde de Libs (affichage seul, non cliquable ; la boutique est un onglet a part) -->
         <div id="profile-balance-row" class="profile-balance-row profile-balance-static">
@@ -1200,6 +1195,8 @@
         <div id="perm-list" class="challenges-list"></div>
         </div>
         <div class="profile-col profile-col-right">
+        <!-- Le pupitre : chaque objet ouvre son tiroir (une rubrique ci-dessous). -->
+        <div class="pupitre" id="pupitre" role="tablist"></div>
         <!-- Cartes de navigation regroupees en sections repliables (les defis
              restent en bas). L'etat ouvert/replie est retenu d'une visite a
              l'autre par ProfileSections, dans app.js. -->
@@ -1261,6 +1258,13 @@
           <span class="pnc-text"><span id="friends-card-title">Mes amis</span><small id="friends-card-sub">Vois qui est en ligne et défie-les</small></span>
           <span class="pnc-arrow">›</span>
         </button>
+        </details>
+        <details class="profile-section" id="sec-badges" data-sec="badges">
+          <summary class="profile-sec-head"><span id="sec-badges-label">Mes hauts faits</span><span class="pst-chevron" aria-hidden="true"></span></summary
+          ><div class="profile-badges-wrap">
+            <p class="profile-badges-title"><span id="profile-badges-title">Mes hauts faits</span></p>
+            <div id="profile-badges" class="badge-grid"></div>
+          </div>
         </details>
         <details class="profile-section" id="sec-help" data-sec="help" open>
           <summary class="profile-sec-head"><span id="sec-help-label">Aide et avis</span><span class="pst-chevron" aria-hidden="true"></span></summary>

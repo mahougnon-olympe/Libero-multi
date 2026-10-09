@@ -588,6 +588,8 @@ const DICT = {
     lockerTitle:'🎒 Mon casier',
     lockerEmpty:"Tu n'as encore rien acheté dans la boutique. Passe faire un tour !",
     lockerEquipped:'équipé',
+    profileSecBadges:'Mes hauts faits', pupNoteColl:n => `${n} objet${n > 1 ? 's' : ''}`, pupNoteBadges:n => n ? `${n} haut${n > 1 ? 's' : ''} fait${n > 1 ? 's' : ''}` : 'à gagner',
+    pupNotes:{ play:'roue, VIP, QI, amis', activity:'historique et amis', help:'Libé répond', account:'compte et réglages' },
     luBonPoint:'BON POINT', luImage:'Image d\'honneur', luFelicitations:'FÉLICITATIONS DU CONSEIL', luNewLevel:'Nouveau niveau atteint !',
     luDiplome:'DIPLÔME', luAwarded:(n, lv) => `décerné à ${n}<br>pour le niveau ${lv}`, luHonour:'Tableau d\'honneur', luTap:'Touche pour continuer',
     xpNudge:n => `Plus que ${n} XP !`,
@@ -1357,6 +1359,8 @@ const DICT = {
     lockerTitle:'🎒 My locker',
     lockerEmpty:"You haven't bought anything in the shop yet. Go take a look!",
     lockerEquipped:'equipped',
+    profileSecBadges:'My achievements', pupNoteColl:n => `${n} item${n > 1 ? 's' : ''}`, pupNoteBadges:n => n ? `${n} achievement${n > 1 ? 's' : ''}` : 'to earn',
+    pupNotes:{ play:'wheel, VIP, IQ, friends', activity:'history and friends', help:'Libé answers', account:'account and settings' },
     luBonPoint:'GOOD MARK', luImage:'Merit card', luFelicitations:'HONOURS FROM THE BOARD', luNewLevel:'New level reached!',
     luDiplome:'DIPLOMA', luAwarded:(n, lv) => `awarded to ${n}<br>for level ${lv}`, luHonour:'Honour roll', luTap:'Tap to continue',
     xpNudge:n => `Only ${n} XP to go!`,
@@ -2313,6 +2317,7 @@ function applyLang() {
   if (window._renderVip)    window._renderVip();
   if (window._profileHub) window._profileHub.retexte();
   if (window._profileSections) window._profileSections.retexte();
+  window._pupitre?.paint();
   if (window._chatbot) window._chatbot.retexte();
   const bl = $('btn-lang');
   if (bl) bl.textContent = currentLang === 'fr' ? '🇫🇷 FR ⇄' : '🇬🇧 EN ⇄';
@@ -5741,6 +5746,7 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
 socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount, portrait: newPortrait } = {}) => {
+  if (newOwned !== undefined) setTimeout(() => window._pupitre?.paint(), 0);
   if (newPortrait !== undefined) { myPortrait = newPortrait; try { localStorage.setItem('libero_portrait', JSON.stringify(newPortrait)); } catch {} window._renderProfilePseudo?.(); }
   if (newBadges !== undefined) { window._myBadges = newBadges; window._renderBadges?.('profile-badges', newBadges, newHonorTitle); }
   if (newOnboard !== undefined) { window._myOnboard = newOnboard; window._renderOnboard?.(); }
@@ -12060,7 +12066,7 @@ const ProfileSections = (() => {
     const d = t();
     const L = { play: d.profileSecPlay, collection: d.profileSecCollection,
                 activity: d.profileSecActivity, account: d.profileSecAccount,
-                help: d.profileSecHelp };
+                help: d.profileSecHelp, badges: d.profileSecBadges };
     secs().forEach(sec => {
       const el = document.getElementById(sec.id + '-label');
       if (el && L[sec.dataset.sec]) el.textContent = L[sec.dataset.sec];
@@ -12070,6 +12076,123 @@ const ProfileSections = (() => {
   return { restore, retexte };
 })();
 window._profileSections = ProfileSections;
+
+// ── Le pupitre du profil : six objets dessines ouvrent chacun leur tiroir ────
+// (les rubriques <details> existantes). Un seul tiroir ouvert a la fois, retenu
+// dans localStorage (libero_pupitre) pour revenir au meme endroit apres un F5.
+(function initPupitre() {
+  const desk = document.getElementById('pupitre');
+  if (!desk) return;
+  const K = '#22252b';
+  /* Objets du pupitre, version detaillee : volumes en degrades, reflets, coutures, contenu qui depasse. */
+  const G=(id,a,b,x2='0',y2='1')=>`<linearGradient id="${id}" x1="0" y1="0" x2="${x2}" y2="${y2}"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
+  const R=(id,a,b,cx='.35',cy='.3')=>`<radialGradient id="${id}" cx="${cx}" cy="${cy}" r=".85"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient>`;
+  const BIG={
+  piggy:`<svg viewBox="0 0 170 130" aria-hidden="true"><defs>${R('pgB','#ffd6e0','#e98aa3')}${R('pgC','#fff6c8','#d9a520')}</defs>
+    <ellipse cx="86" cy="118" rx="58" ry="7" fill="rgba(0,0,0,.22)"/>
+    <path d="M52 104v14h12v-12M100 106v12h12v-14" fill="#e98aa3" stroke="${K}" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M60 106v12h12v-12M108 104v14h12v-14" fill="#f3a9bc" stroke="${K}" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M140 62q14-6 16 4t-8 10" fill="none" stroke="${K}" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="86" cy="72" rx="58" ry="40" fill="url(#pgB)" stroke="${K}" stroke-width="3.2"/>
+    <path d="M60 42q20-12 52-6" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+    <path d="M58 40l-10-20 22 10" fill="#f3a9bc" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><path d="M56 32l-3-6 7 3" fill="#e98aa3"/>
+    <ellipse cx="34" cy="74" rx="14" ry="12" fill="#f3a9bc" stroke="${K}" stroke-width="3"/><ellipse cx="30" cy="72" rx="2" ry="3" fill="${K}"/><ellipse cx="38" cy="72" rx="2" ry="3" fill="${K}"/>
+    <circle cx="54" cy="58" r="4" fill="${K}"/><circle cx="55.5" cy="56.5" r="1.3" fill="#fff"/>
+    <path d="M46 84q6 4 10 0" fill="none" stroke="#d2607e" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="76" y="32" width="30" height="7" rx="3.5" fill="#5a1a2a" stroke="${K}" stroke-width="2.5"/>
+    <g style="animation:coin 2.6s ease-in infinite"><ellipse cx="91" cy="14" rx="11" ry="11" fill="url(#pgC)" stroke="${K}" stroke-width="2.5"/><ellipse cx="91" cy="14" rx="7" ry="7" fill="none" stroke="#a3780a" stroke-width="1.4"/><text x="91" y="18.5" text-anchor="middle" font-family="Archivo Black" font-size="11" fill="#7a5508">L</text></g>
+    <g transform="translate(118 96)"><ellipse cx="0" cy="8" rx="13" ry="4.5" fill="#a3780a" stroke="${K}" stroke-width="2"/><ellipse cx="0" cy="4" rx="13" ry="4.5" fill="#d9a520" stroke="${K}" stroke-width="2"/><ellipse cx="0" cy="0" rx="13" ry="4.5" fill="url(#pgC)" stroke="${K}" stroke-width="2"/></g></svg>`,
+  pouch:`<svg viewBox="0 0 170 130" aria-hidden="true"><defs>${G('trB','#5f86d6','#2c4f9e')}${G('trZ','#f6d36b','#c99a1c','1','0')}</defs>
+    <ellipse cx="86" cy="118" rx="70" ry="7" fill="rgba(0,0,0,.22)"/>
+    <g transform="rotate(-12 50 40)"><rect x="40" y="8" width="13" height="60" fill="#ffd54a" stroke="${K}" stroke-width="2.5"/><path d="M44 8v60M49 8v60" stroke="#c9961e" stroke-width="1.4"/><path d="M40 8l6.5-12 6.5 12z" fill="#f2d2a6" stroke="${K}" stroke-width="2.4" stroke-linejoin="round"/><path d="M44.5 -1.5l2-3.5 2 3.5z" fill="${K}"/></g>
+    <g transform="rotate(8 80 40)"><rect x="66" y="2" width="18" height="70" fill="#fffdf3" stroke="${K}" stroke-width="2.5"/>${[...Array(9)].map((_,i)=>`<path d="M66 ${8+i*7}h${i%2?5:9}" stroke="${K}" stroke-width="1.6"/>`).join('')}</g>
+    <g transform="rotate(16 112 40)"><rect x="104" y="14" width="12" height="54" rx="6" fill="#e2485d" stroke="${K}" stroke-width="2.5"/><rect x="104" y="24" width="12" height="7" fill="#22252b"/><path d="M106 14q4-10 8 0" fill="#9aa3ad" stroke="${K}" stroke-width="2"/></g>
+    <path d="M16 56q0-14 16-14h106q16 0 16 14v38q0 16-16 16H32q-16 0-16-16z" fill="url(#trB)" stroke="${K}" stroke-width="3.2"/>
+    <path d="M24 92q0 8 10 8h102" fill="none" stroke="rgba(0,0,0,.2)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M28 52q50-6 110 0" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".35"/>
+    <path d="M18 60h134" stroke="url(#trZ)" stroke-width="7"/><path d="M18 60h134" stroke="${K}" stroke-width="2.2" stroke-dasharray="2.5 2.5"/>
+    <path d="M18 56.5h134M18 63.5h134" stroke="${K}" stroke-width="1.2"/>
+    <g transform="translate(128 60)"><rect x="-6" y="-8" width="12" height="16" rx="3" fill="#cfd5dc" stroke="${K}" stroke-width="2.4"/><path d="M0 8v14" stroke="${K}" stroke-width="2.4"/><circle cx="0" cy="25" r="4" fill="#e2485d" stroke="${K}" stroke-width="2"/></g>
+    <path d="M30 76h40M30 84h30" stroke="rgba(255,255,255,.35)" stroke-width="3" stroke-dasharray="4 4"/>
+    <circle cx="50" cy="90" r="9" fill="#fff27a" stroke="${K}" stroke-width="2"/><path d="M46 90l3 3 5-6" stroke="${K}" stroke-width="2" fill="none"/></svg>`,
+  bigagenda:`<svg viewBox="0 0 170 130" aria-hidden="true"><defs>${G('agC','#3ea86a','#21704a','1','1')}${G('agP','#fffef6','#ece6d2','1','0')}</defs>
+    <ellipse cx="86" cy="122" rx="56" ry="6" fill="rgba(0,0,0,.22)"/>
+    <g transform="rotate(-4 86 64)">
+    <rect x="38" y="10" width="96" height="108" rx="8" fill="#1b5c3c" stroke="${K}" stroke-width="3"/>
+    <rect x="34" y="6" width="96" height="108" rx="8" fill="url(#agC)" stroke="${K}" stroke-width="3.2"/>
+    <rect x="44" y="12" width="80" height="96" rx="3" fill="url(#agP)" stroke="${K}" stroke-width="2"/>
+    ${[...Array(7)].map((_,i)=>`<path d="M52 ${30+i*11}h64" stroke="#9ab9e6" stroke-width="1.6"/>`).join('')}
+    <text x="84" y="24" text-anchor="middle" font-family="Caveat" font-weight="700" font-size="13" fill="#d23a4f">Lundi 12</text>
+    <path d="M54 37l3 3 6-7M54 48l3 3 6-7" stroke="#d23a4f" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M68 37h40M68 48h30M54 59h44M54 70h36" stroke="#173a8a" stroke-width="2" stroke-linecap="round" opacity=".75"/>
+    <rect x="58" y="78" width="32" height="12" fill="#fff27a" opacity=".85" transform="rotate(-3 74 84)"/><text x="74" y="88" text-anchor="middle" font-family="Caveat" font-weight="700" font-size="11" fill="${K}">tournoi !</text>
+    ${[...Array(8)].map((_,i)=>`<circle cx="40" cy="${18+i*12}" r="3.2" fill="#cfd5dc" stroke="${K}" stroke-width="1.6"/>`).join('')}
+    <path d="M120 6v114" stroke="#d23a4f" stroke-width="7"/><path d="M120 6v114" stroke="${K}" stroke-width="1" opacity=".3"/>
+    <path d="M100 108v18l5-5 5 5v-18" fill="#e0a800" stroke="${K}" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M124 30h10v14h-10M124 52h10v14h-10" fill="#fff27a" stroke="${K}" stroke-width="2"/></g></svg>`,
+  bigalbum:`<svg viewBox="0 0 170 130" aria-hidden="true"><defs>${G('alC','#9a72e0','#5a35a8','1','1')}${R('alG','#fff6c8','#d4a017')}</defs>
+    <ellipse cx="86" cy="122" rx="66" ry="6" fill="rgba(0,0,0,.22)"/>
+    <rect x="22" y="14" width="128" height="102" rx="6" fill="#40237a" stroke="${K}" stroke-width="3"/>
+    <rect x="18" y="10" width="128" height="102" rx="6" fill="url(#alC)" stroke="${K}" stroke-width="3.2"/>
+    <rect x="18" y="10" width="16" height="102" rx="4" fill="#4b2a8c" stroke="${K}" stroke-width="2.4"/>
+    ${[22,46,70,94].map(y=>`<path d="M18 ${y}h16" stroke="#e0a800" stroke-width="3"/>`).join('')}
+    <rect x="44" y="20" width="94" height="82" rx="4" fill="none" stroke="#e8d7ff" stroke-width="2" stroke-dasharray="5 4"/>
+    <path d="M136 10l10 0 0 10z" fill="url(#alG)" stroke="${K}" stroke-width="2"/><path d="M136 112l10 0 0-10z" fill="url(#alG)" stroke="${K}" stroke-width="2"/>
+    ${[[70,46,'#d23a4f'],[112,46,'#173a8a'],[70,82,'#e0a800']].map(([x,y,c])=>`<circle cx="${x}" cy="${y+2}" r="15" fill="rgba(0,0,0,.25)"/><circle cx="${x}" cy="${y}" r="15" fill="${c}" stroke="${K}" stroke-width="2.4"/><circle cx="${x}" cy="${y}" r="11.5" fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="3 2.5"/><path d="M${x-5} ${y+1}l4 4 7-8" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round"/>`).join('')}
+    <circle cx="112" cy="82" r="15" fill="none" stroke="#e8d7ff" stroke-width="2.2" stroke-dasharray="4 4"/><text x="112" y="87" text-anchor="middle" font-family="Archivo Black" font-size="13" fill="#e8d7ff">?</text>
+    <path d="M60 16q30-6 70 0" stroke="#fff" stroke-width="3" opacity=".3" fill="none" stroke-linecap="round"/></svg>`,
+  buoy:`<svg viewBox="0 0 170 130" aria-hidden="true"><defs>${R('byW','#ffffff','#d9dde3')}${R('byR','#ff8a8a','#b81f36')}</defs>
+    <ellipse cx="86" cy="122" rx="50" ry="6" fill="rgba(0,0,0,.22)"/>
+    <path d="M30 38q-10 30 8 60M142 38q10 30-8 60" fill="none" stroke="#c9a36f" stroke-width="4" stroke-linecap="round" stroke-dasharray="6 3"/>
+    <circle cx="86" cy="66" r="48" fill="url(#byW)" stroke="${K}" stroke-width="3.2"/>
+    ${[0,1,2,3].map(i=>{const a=i*Math.PI/2-Math.PI/4+0.2,b=a+0.72,o=48,n=24;const P=(r,t)=>`${(86+r*Math.cos(t)).toFixed(1)} ${(66+r*Math.sin(t)).toFixed(1)}`;return `<path d="M${P(o,a)}A${o} ${o} 0 0 1 ${P(o,b)}L${P(n,b)}A${n} ${n} 0 0 0 ${P(n,a)}z" fill="url(#byR)" stroke="${K}" stroke-width="2.4"/>`}).join('')}
+    <circle cx="86" cy="66" r="24" fill="var(--wood)" stroke="${K}" stroke-width="3"/>
+    <path d="M52 40q16-16 40-14" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".7" fill="none"/>
+    ${[0,1,2,3].map(i=>{const t=i*Math.PI/2;return `<path d="M${(86+38*Math.cos(t-.12)).toFixed(1)} ${(66+38*Math.sin(t-.12)).toFixed(1)}L${(86+38*Math.cos(t+.12)).toFixed(1)} ${(66+38*Math.sin(t+.12)).toFixed(1)}" stroke="#c9a36f" stroke-width="6" stroke-linecap="round"/>`}).join('')}
+    <text x="86" y="125" text-anchor="middle" font-family="Archivo Black" font-size="9" fill="${K}" opacity="0">.</text></svg>`,
+  keys:`<svg viewBox="0 0 170 130" aria-hidden="true"><defs>${G('kyG','#ffe08a','#c9961e','1','1')}${G('kyS','#eef1f4','#9aa3ad','1','1')}</defs>
+    <ellipse cx="86" cy="120" rx="60" ry="6" fill="rgba(0,0,0,.22)"/>
+    <circle cx="62" cy="40" r="22" fill="none" stroke="${K}" stroke-width="7"/><circle cx="62" cy="40" r="22" fill="none" stroke="url(#kyS)" stroke-width="4"/>
+    <g transform="rotate(30 62 40)"><circle cx="62" cy="76" r="15" fill="url(#kyG)" stroke="${K}" stroke-width="3"/><circle cx="62" cy="76" r="5" fill="var(--wood)" stroke="${K}" stroke-width="2.4"/><path d="M58 90h8v34h-8z" fill="url(#kyG)" stroke="${K}" stroke-width="3"/><path d="M66 106h8v6h-8M66 116h6v6h-6" fill="url(#kyG)" stroke="${K}" stroke-width="2.6"/></g>
+    <g transform="rotate(-24 62 40)"><path d="M54 62h16l3 6v48l-6 6h-4l-6-6v-48z" fill="url(#kyS)" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><path d="M62 74v38" stroke="${K}" stroke-width="1.6"/><path d="M70 92l6 3-6 3M70 102l5 2-5 2" fill="none" stroke="${K}" stroke-width="2"/></g>
+    <g transform="rotate(12 62 40)"><path d="M58 60l50 0 0 30-50 0-12-15z" fill="#fffdf3" stroke="${K}" stroke-width="2.6" stroke-linejoin="round"/><circle cx="56" cy="75" r="3" fill="var(--wood)" stroke="${K}" stroke-width="1.8"/><text x="84" y="80" text-anchor="middle" font-family="Caveat" font-weight="700" font-size="15" fill="#d23a4f">Koffi</text></g>
+    <path d="M48 26q8-8 18-6" stroke="#fff" stroke-width="2.4" fill="none" opacity=".8" stroke-linecap="round"/></svg>`
+  };
+
+  const ITEMS = [['play', 'piggy'], ['collection', 'pouch'], ['activity', 'bigagenda'], ['badges', 'bigalbum'], ['help', 'buoy'], ['account', 'keys']];
+  const KEY = 'libero_pupitre';
+  let cur = null;
+  try { cur = localStorage.getItem(KEY); } catch {}
+  document.body.classList.add('pupitre-on');
+  const sec = k => document.querySelector(`#screen-profile .profile-section[data-sec="${k}"]`);
+  function note(k) {
+    const d = t();
+    if (k === 'collection') return d.pupNoteColl((ownedCosmetics || []).length);
+    if (k === 'badges') return d.pupNoteBadges(document.querySelectorAll('#profile-badges .badge').length);
+    return d.pupNotes[k] || '';
+  }
+  function paint() {
+    const d = t();
+    const L = { play: d.profileSecPlay, collection: d.profileSecCollection, activity: d.profileSecActivity, badges: d.profileSecBadges, help: d.profileSecHelp, account: d.profileSecAccount };
+    desk.innerHTML = '<span class="pup-groove" aria-hidden="true"></span><span class="pup-blot" aria-hidden="true"></span>' + ITEMS.map(([k, o]) =>
+      `<button type="button" class="pup-thing${cur === k ? ' on' : ''}" role="tab" aria-selected="${cur === k}" data-k="${k}"><span class="pup-ob">${BIG[o]}</span><span class="pup-tag">${_escHtml(L[k] || k)}</span><span class="pup-note">${_escHtml(note(k))}</span></button>`).join('');
+    document.querySelectorAll('#screen-profile .profile-section').forEach(el => {
+      const on = el.dataset.sec === cur;
+      el.classList.toggle('pup-tray', on);
+      if (on) el.open = true;
+    });
+  }
+  desk.addEventListener('click', e => {
+    const b = e.target.closest('[data-k]'); if (!b) return;
+    cur = cur === b.dataset.k ? null : b.dataset.k;
+    try { cur ? localStorage.setItem(KEY, cur) : localStorage.removeItem(KEY); } catch {}
+    paint();
+    if (cur) { const el = sec(cur); el?.classList.remove('pup-anim'); void el?.offsetWidth; el?.classList.add('pup-anim'); setTimeout(() => el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 60); }
+  });
+  window._pupitre = { paint };
+  paint();
+})();
+
 
 // ── Sauvegarde / restauration de progression (code de récupération) ──────────
 // Le code EST l'identifiant du joueur (libero_player_id). Le sauvegarder permet
@@ -12260,6 +12383,7 @@ window._profileSections = ProfileSections;
 // Rend une grille de badges (hauts faits) dans le conteneur donne. Le titre
 // honorifique, s'il existe, apparait en premier comme un badge dore special.
 window._renderBadges = function (containerId, badges, honorTitle) {
+  if (containerId === 'profile-badges') setTimeout(() => window._pupitre?.paint(), 0);
   const el = document.getElementById(containerId);
   if (!el) return;
   const en = (typeof currentLang !== 'undefined' && currentLang === 'en');
