@@ -763,7 +763,7 @@ const DICT = {
     onboarding:{
       welcomeType:"Bienvenue sur Libero's Multi",
       start:'Commencer',
-      themeLabel:'Choisis ton thème', themeDay:'☀️ Jour', themeNight:'🌙 Nuit',
+      themeLabel:'Choisis ton thème', themeDay:'Cahier', themeNight:'Ardoise',
       title:'👋 Bienvenue !',
       intro:'Tu as déjà un compte sur un autre appareil ? Colle ton code de récupération pour retrouver ta progression. Sinon, commence une nouvelle aventure.',
       label:"J'ai déjà un code de récupération",
@@ -910,7 +910,7 @@ const DICT = {
     soloLoading:'⏳ Chargement…',
     globalLbTitle:'Classement Global', globalLbEmpty:'Aucune partie jouée.', globalLbPts:'pts',
     globalLbMore:'Voir plus', globalLbLess:'Voir moins',
-    themeDay:'☀️ Thème jour', themeNight:'🌙 Thème nuit', themeToggle:'Basculer le thème',
+    themeDay:'Thème cahier', themeNight:'Thème ardoise', themeToggle:'Basculer le thème',
     mixLabel:n => `🎲 Mix (${n} thèmes)`,
     colLabel:n => `Jouer colonne ${n}`,
     restartRequested:"\nL'adversaire veut rejouer !",
@@ -971,7 +971,7 @@ const DICT = {
     shopBgTitle:'🖼 Fonds d\'écran',
     shopBgNames:{'bg-nuit':'Nuit Calme','bg-ardoise':'Ardoise Profonde','bg-brume':'Brume Violette','bg-aurore-deg':'Dégradé Aurore','bg-crepuscule':'Crépuscule au pastel','bg-cyber':'Papier millimétré','bg-circuit':'Plan de circuit au crayon','bg-hexagones':'Hexagones','bg-etoile':'Ciel Étoilé','bg-particules':'Particules Flottantes','bg-pluie':'Pluie à l\'encre','bg-vagues':'Vagues Lumineuses','bg-synthwave':'Coucher de soleil aux craies grasses','bg-nebuleuse':'Nébuleuse','bg-aurores':'Aurores Mouvantes','bg-galaxie':'Galaxie Vivante','bg-tempete':'Orage au fusain','bg-hologramme':'Papier calque','bg-wax':'Motifs Pagne','bg-marche-nuit':'Marché de Nuit','bg-terrain':'Terrain de Foot','bg-matrice':'Carnet de code','bg-harmattan':'Harmattan à l\'aquarelle','bg-orage':'Ciel d\'Orage','bg-lagune':'Coucher sur la Lagune'},
     shopNameEffectsTitle:'✨ Effets de pseudo',
-    shopNameEffectNames:{'nameeffect-blink':'Craie qui scintille','nameeffect-pulse':'Coup de surligneur','nameeffect-gradient':'Dégradé Défilant','nameeffect-sparks':'Étincelles','nameeffect-glitch':'Coup de gomme','nameeffect-rainbow':'Vague Arc-en-ciel','nameeffect-flammes':'Flammes','nameeffect-glace':'Givre','nameeffect-or':'Or Royal'},
+    shopNameEffectNames:{'nameeffect-blink':'Craie qui scintille','nameeffect-pulse':'Coup de surligneur','nameeffect-gradient':'Feutres qui défilent','nameeffect-sparks':'Étoiles de craie','nameeffect-glitch':'Coup de gomme','nameeffect-rainbow':'Crayons de couleur','nameeffect-flammes':'Encre rouge','nameeffect-glace':'Craie bleue','nameeffect-or':'Feuille d\'or'},
     shopTitlesTitle:'🏷️ Titres',
     shopTitleNames:{'title-tactician':'Tacticien','title-strategist':'Le Stratège','title-quizmaster':'Quiz Master','title-snakeking':'Roi du Snake','title-unbeaten':'Invaincu','title-champion':'Champion','title-legend':'Légende Vivante','title-sage':'Le Sage','title-wordking':'Roi du Mot','title-unstoppable':'L\'Increvable','title-generous':'Le Généreux','title-brain':'Cerveau','title-globetrotter':'Vagabond'},
     honorTitleNames:{'honor-rank1-global':'N°1 Global','honor-weekly-champ':'Champion de la semaine','honor-creator':'Créateur'},
@@ -1193,7 +1193,7 @@ const DICT = {
     helpContent:{
       general:[
         { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Morpion, Échecs), <em>Culture Générale</em> (quiz par thèmes), <em>Évents</em> (mini-jeux du week-end) et <em>Pour la communauté</em> (le mini-jeu <strong>Libero Run</strong>, une idée de joueur reprise par le créateur). Chaque section a son propre classement." },
-        { icon:'', title:'Le look du site', desc:"Le site a deux habits : l'<strong>ardoise</strong> (thème sombre, la craie sur le tableau noir) et le <strong>cahier</strong> (thème clair, la page à grands carreaux et la marge rouge). Change de thème dans <strong>Profil</strong> → <strong>Réglages</strong> → <strong>Thème</strong> ; sans choix, c'est le cahier. Tes <strong>fonds d'écran</strong> se posent sur l'ardoise ou le cahier : leurs motifs et leurs animations deviennent de la craie ou de l'encre. Change de fond quand tu veux dans ton <strong>casier</strong>." },
+        { icon:'', title:'Le look du site', desc:"Le site a deux habits : l'<strong>ardoise</strong> (la craie sur le tableau noir) et le <strong>cahier</strong> (la page à grands carreaux et la marge rouge, le thème par défaut). Change de thème dans <strong>Profil</strong> → <strong>Réglages</strong> → <strong>Thème</strong> ; sans choix, c'est le cahier. Tes <strong>fonds d'écran</strong> se posent sur l'ardoise ou le cahier : leurs motifs et leurs animations deviennent de la craie ou de l'encre. Change de fond quand tu veux dans ton <strong>casier</strong>." },
         { icon:'🎯', title:'Mon profil', desc:"L'onglet <strong>Profil</strong> (dans la barre de navigation : en bas sur téléphone et tablette, à gauche sur ordinateur) regroupe quatre choses : ton <strong>casier</strong> (voir ci-dessous), tes <strong>défis du jour</strong> (3 objectifs qui <strong>changent chaque jour</strong> : jamais le même défi deux jours de suite, avec le Snake le week-end et Libero Run en semaine ; réclame les 3 pour un <strong>bonus « journée parfaite » +30 ⚡</strong>), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. On y trouve aussi les cartes <strong>Sauvegarder ma progression</strong> (ton code de récupération) et <strong>Réinitialiser le compte</strong>. Il faut un pseudo pour en profiter." },
         { icon:'🎒', title:'Mon casier', desc:"Dans l'onglet <strong>Profil</strong>, le <strong>casier</strong> range tout ce que tu possèdes, <strong>classé par catégorie</strong>. Chaque catégorie est une <strong>carte</strong> : clique dessus pour voir les articles de ce type avec leur <strong>aperçu visuel</strong>, puis <strong>équipe</strong> ou <strong>déséquipe</strong> directement, sans passer par la boutique. Bonus : <strong>3 fonds d'écran gratuits</strong> (Nuit Calme, Ardoise Profonde, Brume Violette) sont offerts à tous les joueurs et t'attendent déjà dedans. Les articles retirés de la vente que tu avais achetés restent disponibles ici." },
         { icon:'🔐', title:'Code de récupération', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Sauvegarder ma progression</strong> affiche ton <strong>code de récupération</strong> : c'est la clé de ton compte. Note-le en lieu sûr ! Si tu changes ou perds ton appareil, colle ce code sur le nouvel appareil (même carte → <em>Restaurer</em>) pour retrouver <strong>toute ta progression</strong> : Libs, cosmétiques, série, historique et pseudo. À la toute première visite, le site te propose aussi de récupérer une progression existante. Ne partage ce code avec personne." },
@@ -1227,7 +1227,7 @@ const DICT = {
         { icon:'⚙️', title:'Paramètres', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>⚙️ Réglages</strong> regroupe tous les réglages : <strong>Langue</strong>, <strong>Thème</strong>, <strong>Serpent</strong>, <strong>Sons</strong> (effets sonores + volume), <strong>Musique</strong> (fond musical + volume) et <strong>Cartes de remboursement</strong>. Tout est mémorisé entre les sessions." },
         { icon:'🔊', title:'Sons & Musique', desc:"<strong>Sons</strong> : des effets sonores accompagnent chaque action (poser une pièce, victoire, quiz, chat, boutique, Snake…). Active/désactive-les via <strong>⚙️ → Sons</strong> et règle le volume.<br><strong>Musique</strong> : une musique ambiante joue en fond. Active/désactive-la via <strong>⚙️ → Musique</strong> avec son propre curseur de volume. Les deux se gèrent indépendamment." },
         { icon:'🐍', title:'Serpent', desc:"Un petit serpent suit ton curseur. Il <strong>grandit et change de couleur</strong> selon ton score global 🌍 : or (1er), bleu (2e), bronze (3e). Joue et grimpe dans le classement pour l'allonger ! Active ou désactive-le dans l'onglet <strong>Profil</strong> → carte <strong>Réglages</strong> → <strong>Serpent</strong>." },
-        { icon:'☀️', title:'Thème jour / nuit', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Réglages</strong> → <strong>Thème</strong> bascule entre le thème clair et sombre. Le thème clair est celui par défaut. Ton choix manuel est mémorisé entre les sessions." },
+        { icon:'', title:'Thème cahier / ardoise', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Réglages</strong> → <strong>Thème</strong> bascule entre le <strong>cahier</strong> et l'<strong>ardoise</strong>. Le cahier est le thème par défaut. Ton choix manuel est mémorisé entre les sessions." },
         { icon:'🚪', title:'Bouton Quitter', desc:"Pendant une partie, le bouton <em>🚪 Quitter</em> en haut au centre te ramène au menu principal. Si une partie est en cours, tu es averti que tu abandonneras avant de confirmer." },
         { icon:'✉️', title:'Laisser un commentaire', desc:"Dans l'onglet <strong>Profil</strong>, section <strong>Aide et avis</strong>, la carte <strong>Donner mon avis</strong> envoie un message au créateur : avis, idée, bug… Aucune connexion requise. Tu peux laisser un pseudo ou rester anonyme." },
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
@@ -1532,7 +1532,7 @@ const DICT = {
     onboarding:{
       welcomeType:"Welcome to Libero's Multi",
       start:'Start',
-      themeLabel:'Pick your theme', themeDay:'☀️ Day', themeNight:'🌙 Night',
+      themeLabel:'Pick your theme', themeDay:'Notebook', themeNight:'Slate',
       title:'👋 Welcome!',
       intro:'Already have an account on another device? Paste your recovery code to get your progress back. Otherwise, start a new adventure.',
       label:'I already have a recovery code',
@@ -1679,7 +1679,7 @@ const DICT = {
     soloLoading:'⏳ Loading…',
     globalLbTitle:'Global Leaderboard', globalLbEmpty:'No games played yet.', globalLbPts:'pts',
     globalLbMore:'See more', globalLbLess:'See less',
-    themeDay:'☀️ Day theme', themeNight:'🌙 Night theme', themeToggle:'Toggle theme',
+    themeDay:'Notebook theme', themeNight:'Slate theme', themeToggle:'Toggle theme',
     mixLabel:n => `🎲 Mix (${n} themes)`,
     colLabel:n => `Play column ${n}`,
     restartRequested:'\nOpponent wants to play again!',
@@ -1740,7 +1740,7 @@ const DICT = {
     shopBgTitle:'🖼 Wallpapers',
     shopBgNames:{'bg-nuit':'Calm Night','bg-ardoise':'Deep Slate','bg-brume':'Violet Mist','bg-aurore-deg':'Aurora Gradient','bg-crepuscule':'Pastel dusk','bg-cyber':'Graph paper','bg-circuit':'Pencil circuit plan','bg-hexagones':'Hexagons','bg-etoile':'Starry Sky','bg-particules':'Floating Particles','bg-pluie':'Ink rain','bg-vagues':'Light Waves','bg-synthwave':'Oil pastel sunset','bg-nebuleuse':'Nebula','bg-aurores':'Moving Auroras','bg-galaxie':'Living Galaxy','bg-tempete':'Charcoal storm','bg-hologramme':'Tracing paper','bg-wax':'Wax Patterns','bg-marche-nuit':'Night Market','bg-terrain':'Football Pitch','bg-matrice':'Code notebook','bg-harmattan':'Watercolour harmattan','bg-orage':'Thunder Sky','bg-lagune':'Lagoon Sunset'},
     shopNameEffectsTitle:'✨ Name Effects',
-    shopNameEffectNames:{'nameeffect-blink':'Twinkling chalk','nameeffect-pulse':'Highlighter stroke','nameeffect-gradient':'Scrolling Gradient','nameeffect-sparks':'Sparks','nameeffect-glitch':'Eraser swipe','nameeffect-rainbow':'Rainbow Wave','nameeffect-flammes':'Flames','nameeffect-glace':'Frost','nameeffect-or':'Royal Gold'},
+    shopNameEffectNames:{'nameeffect-blink':'Twinkling chalk','nameeffect-pulse':'Highlighter stroke','nameeffect-gradient':'Scrolling felt pens','nameeffect-sparks':'Chalk stars','nameeffect-glitch':'Eraser swipe','nameeffect-rainbow':'Coloured pencils','nameeffect-flammes':'Red ink','nameeffect-glace':'Blue chalk','nameeffect-or':'Gold leaf'},
     shopTitlesTitle:'🏷️ Titles',
     shopTitleNames:{'title-tactician':'Tactician','title-strategist':'The Strategist','title-quizmaster':'Quiz Master','title-snakeking':'Snake King','title-unbeaten':'Undefeated','title-champion':'Champion','title-legend':'Living Legend','title-sage':'The Wise','title-wordking':'Word King','title-unstoppable':'Unstoppable','title-generous':'The Generous','title-brain':'Big Brain','title-globetrotter':'Globetrotter'},
     honorTitleNames:{'honor-rank1-global':'#1 Global','honor-creator':'Creator'},
@@ -1962,7 +1962,7 @@ const DICT = {
     helpContent:{
       general:[
         { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess), <em>General Knowledge</em> (themed quizzes), <em>Events</em> (weekend mini-games) and <em>Community</em> (the <strong>Libero Run</strong> mini-game, a player idea brought to life by the creator). Each section has its own leaderboard." },
-        { icon:'', title:'The look of the site', desc:"The site has two outfits: the <strong>slate</strong> (dark theme, chalk on a blackboard) and the <strong>notebook</strong> (light theme, ruled paper with its red margin). Switch theme in <strong>Profile</strong> → <strong>Settings</strong> → <strong>Theme</strong>; with no choice, it is the notebook. Your <strong>backgrounds</strong> sit on the slate or the notebook: their patterns and animations turn into chalk or ink. Change background whenever you like in your <strong>locker</strong>." },
+        { icon:'', title:'The look of the site', desc:"The site has two outfits: the <strong>slate</strong> (chalk on a blackboard) and the <strong>notebook</strong> (ruled paper with its red margin, the default theme). Switch theme in <strong>Profile</strong> → <strong>Settings</strong> → <strong>Theme</strong>; with no choice, it is the notebook. Your <strong>backgrounds</strong> sit on the slate or the notebook: their patterns and animations turn into chalk or ink. Change background whenever you like in your <strong>locker</strong>." },
         { icon:'🎯', title:'My profile', desc:"The <strong>Profile</strong> tab (in the navigation bar: at the bottom on phones and tablets, on the left on computers) gathers four things: your <strong>locker</strong> (see below), your <strong>daily challenges</strong> (3 goals that <strong>change every day</strong>: never the same challenge two days in a row, with Snake on weekends and Libero Run on weekdays; claim all 3 for a <strong>'perfect day' +30 ⚡ bonus</strong>), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. You'll also find the <strong>Save my progress</strong> card (your recovery code) and the <strong>Reset account</strong> card. A nickname is required." },
         { icon:'🎒', title:'My locker', desc:"In the <strong>Profile</strong> tab, the <strong>locker</strong> holds everything you own, <strong>sorted by category</strong>. Each category is a <strong>card</strong>: tap it to see the items of that type with their <strong>visual preview</strong>, then <strong>equip</strong> or <strong>unequip</strong> directly, without opening the shop. Bonus: <strong>3 free backgrounds</strong> (Calm Night, Deep Slate, Violet Mist) are gifted to every player and are already waiting inside. Items you had bought that were later removed from sale are still available here." },
         { icon:'🔐', title:'Recovery code', desc:"In the <strong>Profile</strong> tab, the <strong>Save my progress</strong> card shows your <strong>recovery code</strong>: it is the key to your account. Write it down somewhere safe! If you change or lose your device, paste this code on the new device (same card → <em>Restore</em>) to get <strong>all your progress</strong> back: Libs, cosmetics, streak, history and nickname. On your very first visit, the site also offers to recover an existing progress. Never share this code with anyone." },
@@ -1996,7 +1996,7 @@ const DICT = {
         { icon:'⚙️', title:'Settings', desc:"In the <strong>Profile</strong> tab, the <strong>⚙️ Settings</strong> card groups all settings: <strong>Language</strong>, <strong>Theme</strong>, <strong>Snake</strong>, <strong>Sound</strong> (SFX + volume), <strong>Music</strong> (background music + volume) and <strong>Refund cards</strong>. Everything is saved between sessions." },
         { icon:'🔊', title:'Sound & Music', desc:"<strong>Sound</strong>: sound effects play on every action (placing a piece, win, quiz, chat, shop, Snake…). Toggle via <strong>⚙️ → Sound</strong> and adjust the volume.<br><strong>Music</strong>: ambient background music plays while you browse. Toggle via <strong>⚙️ → Music</strong> with its own volume slider. Both are controlled independently." },
         { icon:'🐍', title:'Snake', desc:"A little snake follows your cursor. It <strong>grows and changes colour</strong> based on your global score 🌍: gold (1st), blue (2nd), bronze (3rd). Play and climb the leaderboard to make it longer! Enable or disable it in the <strong>Profile</strong> tab → <strong>Settings</strong> card → <strong>Snake</strong>." },
-        { icon:'☀️', title:'Day / night theme', desc:"In the <strong>Profile</strong> tab, the <strong>Settings</strong> card → <strong>Theme</strong> toggles between light and dark theme. The light theme is the default. Your manual choice is remembered between sessions." },
+        { icon:'', title:'Notebook / slate theme', desc:"In the <strong>Profile</strong> tab, the <strong>Settings</strong> card → <strong>Theme</strong> switches between the <strong>notebook</strong> and the <strong>slate</strong>. The notebook is the default theme. Your choice is remembered between sessions." },
         { icon:'🚪', title:'Quit button', desc:"During a game, the <em>🚪 Quit</em> button in the top centre takes you back to the main menu. If a game is in progress, you are warned that you will forfeit before confirming." },
         { icon:'✉️', title:'Leave a comment', desc:"In the <strong>Profile</strong> tab, <strong>Help and feedback</strong> section, the <strong>Send feedback</strong> card sends a message to the creator: feedback, idea, bug… No account required. You can leave a username or stay anonymous." },
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
@@ -4038,7 +4038,7 @@ $('btn-cancel-wait').addEventListener('click', () => {
 });
 
 // Libe, le crayon : logo et personnage de l'assistant (valide sur la maquette).
-const LIBE_SVG = '<svg class="libe" viewBox="0 0 120 120" aria-hidden="true"><g class="libe-wig"><path d="M44 30h32v62H44z" fill="#ffd54a" stroke="#22252b" stroke-width="3.5"/><path d="M54 30v62M66 30v62" stroke="#c9961e" stroke-width="2"/><rect x="44" y="20" width="32" height="10" fill="#b9bec6" stroke="#22252b" stroke-width="3"/><path d="M44 20v-6q0-6 16-6t16 6v6z" fill="#f29bb0" stroke="#22252b" stroke-width="3"/><path d="M44 92l16 22 16-22z" fill="#f2d2a6" stroke="#22252b" stroke-width="3" stroke-linejoin="round"/><path d="M56 108l4 6 4-6z" fill="#22252b"/><g class="libe-eyes"><circle cx="53" cy="52" r="3.5" fill="#22252b"/><circle cx="67" cy="52" r="3.5" fill="#22252b"/></g><path d="M52 62q8 8 16 0" fill="none" stroke="#22252b" stroke-width="3" stroke-linecap="round"/><circle cx="48" cy="60" r="3" fill="#ff8e8e" opacity=".7"/><circle cx="72" cy="60" r="3" fill="#ff8e8e" opacity=".7"/></g><path class="libe-idea" d="M86 34l8-6M90 44l10-2M84 24l4-8" stroke="#e2485d" stroke-width="3" stroke-linecap="round"/></svg>';
+const LIBE_SVG = '<svg class="libe" viewBox="14 2 92 116" aria-hidden="true"><g class="libe-wig"><path d="M44 30h32v62H44z" fill="#ffd54a" stroke="#22252b" stroke-width="3.5"/><path d="M54 30v62M66 30v62" stroke="#c9961e" stroke-width="2"/><rect x="44" y="20" width="32" height="10" fill="#b9bec6" stroke="#22252b" stroke-width="3"/><path d="M44 20v-6q0-6 16-6t16 6v6z" fill="#f29bb0" stroke="#22252b" stroke-width="3"/><path d="M44 92l16 22 16-22z" fill="#f2d2a6" stroke="#22252b" stroke-width="3" stroke-linejoin="round"/><path d="M56 108l4 6 4-6z" fill="#22252b"/><g class="libe-eyes"><circle cx="53" cy="52" r="3.5" fill="#22252b"/><circle cx="67" cy="52" r="3.5" fill="#22252b"/></g><path d="M52 62q8 8 16 0" fill="none" stroke="#22252b" stroke-width="3" stroke-linecap="round"/><circle cx="48" cy="60" r="3" fill="#ff8e8e" opacity=".7"/><circle cx="72" cy="60" r="3" fill="#ff8e8e" opacity=".7"/></g><path class="libe-idea" d="M86 34l8-6M90 44l10-2M84 24l4-8" stroke="#e2485d" stroke-width="3" stroke-linecap="round"/></svg>';
 const LIBE_PENCIL = '<svg class="libe-scrib" viewBox="0 0 30 30" aria-hidden="true"><path d="M4 26l3-9L20 4l6 6L13 23z" fill="#ffd54a" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M4 26l3-9 6 6z" fill="#f2d2a6" stroke="currentColor" stroke-width="2"/></svg>';
 
 // ── Chat ──────────────────────────────────────────────────────────────────────
@@ -7337,7 +7337,7 @@ function _updateSettingsPanel() {
   const themeBtn = document.getElementById('sp-theme-btn');
   if (themeBtn) {
     const isLight = document.documentElement.classList.contains('light');
-    themeBtn.textContent = isLight ? (fr ? 'Jour ⇄' : 'Day ⇄') : (fr ? 'Nuit ⇄' : 'Night ⇄');
+    themeBtn.textContent = isLight ? (fr ? 'Cahier ⇄' : 'Notebook ⇄') : (fr ? 'Ardoise ⇄' : 'Slate ⇄');
   }
 
   const snakeBtn = document.getElementById('sp-snake-btn');
@@ -7601,6 +7601,9 @@ const _WAVE_PATHS = {
 };
 const _SOUND_WAVE = { 'soundpack-retro':'square', 'soundpack-8bit':'square', 'soundpack-cyber':'sawtooth', 'soundpack-crystal':'triangle', 'soundpack-epic':'sine' };
 const _SOUND_HUE = { 'soundpack-retro':'#f59e0b', 'soundpack-8bit':'#84cc16', 'soundpack-cyber':'#22d3ee', 'soundpack-crystal':'#a5b4fc', 'soundpack-epic':'#f472b6' };
+// A changer a chaque regeneration des apercus : /assets est garde un jour en cache
+// par le navigateur, sans ce numero les joueurs voient les anciens apercus.
+const PREVIEW_VER = '20261010';
 function _realPrev(type, id, fallbackHtml) {
   if (type === 'emojipack' && typeof EMOJI_PACK_SETS !== 'undefined' && EMOJI_PACK_SETS[id]) {
     if (typeof DOODLE_SETS !== 'undefined' && DOODLE_SETS[id]) return `<div class="pack-prev doodle-prev">${DOODLE_SETS[id].map(d => `<span>${_doodleSvg(d)}</span>`).join('')}</div>`;
@@ -7613,7 +7616,7 @@ function _realPrev(type, id, fallbackHtml) {
   if (!REAL_PREVIEW_TYPES.has(type) || !id) return fallbackHtml;
   // Les fonds ont deux apercus : l'ardoise (theme sombre) et le cahier (theme clair).
   const suf = (type === 'background' && document.documentElement.classList.contains('light')) ? '-light' : '';
-  return `<span class="real-prev real-prev-${type}"><img src="assets/preview/${id}${suf}.webp" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('is-missing')"><span class="real-prev-fb">${fallbackHtml}</span></span>`;
+  return `<span class="real-prev real-prev-${type}"><img src="assets/preview/${id}${suf}.webp?v=${PREVIEW_VER}" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('is-missing')"><span class="real-prev-fb">${fallbackHtml}</span></span>`;
 }
 
 function _cosmeticPreviewHtml(type, id, itemName) { return _realPrev(type, id, _cosmeticPreviewHtmlBase(type, id, itemName)); }

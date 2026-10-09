@@ -1581,3 +1581,23 @@ html:not(.light) .chatbot-log { background: linear-gradient(90deg, transparent 2
 .lv-nudge { display: inline-block; font: 700 1.05rem var(--font-hand); color: var(--margin); margin-left: 6px; animation: lvNud 2.2s ease-in-out infinite; }
 @keyframes lvNud { 0%, 70%, 100% { transform: none; } 75% { transform: translateX(-3px) rotate(-2deg); } 85% { transform: translateX(3px) rotate(2deg); } }
 @media (prefers-reduced-motion: reduce) { .lu-show *, .lv-nudge, .level-badge.lv-close { animation: none !important; clip-path: none !important; opacity: 1 !important; } }
+
+/* Effets de pseudo restants, sans lueur */
+@keyframes neFelt { to { background-position: 200% 0; } }
+:root:root .nameeffect-gradient { background: linear-gradient(90deg, #d23a4f 0 25%, #173a8a 25% 50%, #2f8a55 50% 75%, #e0a800 75% 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-shadow: none; animation: neFelt 3s steps(8) infinite; }
+@keyframes neStar { 0%, 100% { transform: scale(.4) rotate(0); opacity: .3; } 50% { transform: scale(1) rotate(40deg); opacity: 1; } }
+:root:root .nameeffect-sparks { animation: none; text-shadow: none; position: relative; padding-right: .7em; }
+:root:root .nameeffect-sparks::after { content: ""; position: absolute; right: 0; top: -.15em; width: .6em; height: .6em; background: currentColor; clip-path: polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); animation: neStar 1.6s ease-in-out infinite; }
+@keyframes nePencil { 0% { color: #d23a4f; } 20% { color: #e8742c; } 40% { color: #e0a800; } 60% { color: #2f8a55; } 80% { color: #173a8a; } 100% { color: #7a4fc0; } }
+:root:root .nameeffect-rainbow { filter: none; -webkit-text-fill-color: currentColor; animation: nePencil 3s steps(1) infinite; }
+@keyframes neDrip { 0%, 40% { transform: translateY(0) scale(0); } 50% { transform: translateY(0) scale(1); } 100% { transform: translateY(.9em) scale(.6); opacity: 0; } }
+:root:root .nameeffect-flammes { color: #c0262f; -webkit-text-fill-color: #c0262f; animation: none; text-shadow: none; position: relative; }
+html:not(.light) .nameeffect-flammes { color: #ff8e8e; -webkit-text-fill-color: #ff8e8e; }
+:root:root .nameeffect-flammes::after { content: ""; position: absolute; left: 45%; bottom: -.1em; width: .22em; height: .3em; border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%; background: currentColor; animation: neDrip 2.4s ease-in infinite; }
+:root:root .nameeffect-glace { color: #3d64b8; -webkit-text-fill-color: #3d64b8; text-shadow: 0 0 1px currentColor; animation: neChalk 1.8s steps(2) infinite; }
+html:not(.light) .nameeffect-glace { color: #8fb0ff; -webkit-text-fill-color: #8fb0ff; }
+@keyframes neGold { to { background-position: -200% 0; } }
+:root:root .nameeffect-or { background: linear-gradient(100deg, #8a6410 0%, #e9c25a 30%, #fff2b0 45%, #e9c25a 60%, #8a6410 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-shadow: none; animation: neGold 3.5s linear infinite; }
+/* Bouton de l'assistant : Libe centre */
+:root:root .btn-chatbot-float { display: grid; place-items: center; }
+.btn-chatbot-float .libe-slot { width: 44px; height: 44px; display: block; }
