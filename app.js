@@ -6483,7 +6483,7 @@ function _renderShopItems() {
       ${badgeHtml}
       ${extraBadge ? `<div class="shop-tile-daily-badge">${extraBadge}</div>` : ''}
       ${(() => { const o = (window._shopOverrides || {})[id]; return (o && o.inShop && o.until && o.until > Date.now()) ? `<div class="shop-tile-timer">⏳ ${d.shopCountdown(o.until - Date.now())}</div>` : ''; })()}
-      ${owned ? `<div class="shop-tile-owned">${ownedLabel}</div>` : ''}
+      ${owned ? `<div class="shop-tile-owned${isEquipped && !honorary ? ' is-eq' : ''}">${ownedLabel}</div>` : ''}
     </div>`;
   }
 

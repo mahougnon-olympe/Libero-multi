@@ -158,7 +158,7 @@ mark {
   box-shadow: var(--elev-1);
 }
 /* Le liseré de lumiere « verre poli » n'a plus de sens sur du papier ou de l'ardoise */
-.landing-card::before, .profile-nav-card::before { display: none !important; }
+.profile-nav-card::before { display: none !important; }
 .profile-modal-header { border-bottom: 1.5px dashed var(--border); }
 
 /* Fenetres : un voile simple, sans flou (le flou plein ecran coute cher au GPU) */
@@ -338,6 +338,30 @@ html.light .ic3d-face { filter: none; }
 .landing-card--tile { min-height: 100px; }
 .landing-card--tile-event .event-card-countdown { color: var(--margin); }
 .landing-card--community:hover { box-shadow: 0 5px 0 var(--hard); }
+
+/* Photos en fond des cartes d'accueil. La photo occupe le cote droit (ou le haut
+   des tuiles) et un voile de la couleur de la carte la recouvre du cote du texte :
+   les ecrits restent toujours sur un fond uni ou presque. */
+:root:root .landing-card { position: relative; overflow: hidden; isolation: isolate; }
+:root:root .landing-card > * { position: relative; z-index: 1; }
+:root:root .landing-card::before {
+  content: ""; display: block; position: absolute; inset: 0; height: auto; opacity: 1; border-radius: 0; z-index: 0; pointer-events: none;
+  background-image: linear-gradient(90deg, var(--card) 0%, var(--card) 38%, color-mix(in srgb, var(--card) 72%, transparent) 62%, color-mix(in srgb, var(--card) 30%, transparent) 100%), var(--photo, none);
+  background-size: cover, cover; background-position: center, right center;
+}
+:root:root .landing-card--tile::before {
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--card) 25%, transparent) 0%, color-mix(in srgb, var(--card) 85%, transparent) 36%, var(--card) 54%), var(--photo, none);
+  background-position: center, center top;
+}
+#btn-go-classic { --photo: url(assets/landing/classic.webp); }
+#btn-go-trivia { --photo: url(assets/landing/trivia.webp); }
+#btn-go-events { --photo: url(assets/landing/events.webp); }
+#btn-go-community { --photo: url(assets/landing/community.webp); }
+#btn-go-wordle { --photo: url(assets/landing/wordle.webp); }
+:root:root .landing-card--tile .landing-icon { background: var(--card); border-radius: var(--r-sm); padding: 3px; box-shadow: 0 0 0 1.5px var(--line); }
+@media (max-width: 600px) {
+  :root:root .landing-card--hero::before { background-image: linear-gradient(90deg, var(--card) 0%, var(--card) 45%, color-mix(in srgb, var(--card) 70%, transparent) 75%, color-mix(in srgb, var(--card) 45%, transparent) 100%), var(--photo, none); }
+}
 
 /* Le tableau d'honneur (classement global) : des lignes de cahier */
 .global-lb-card {
@@ -1161,6 +1185,8 @@ html[lang="en"] .bul-id .level-badge::before { content: "Level "; }
   background: var(--card); color: var(--margin); border: 2.5px solid var(--margin); border-radius: 4px;
   font-family: var(--font-display); font-size: .7rem; letter-spacing: .06em; padding: 2px 8px; opacity: .92;
 }
+/* Equipe : tampon a l'encre bleue (craie jaune sur l'ardoise), pour ne plus le confondre avec Possede (rouge) */
+:root:root .shop-tile-owned.is-eq { color: var(--accent); border-color: var(--accent); transform: rotate(8deg); }
 
 /* ══ CLASSEMENTS = TABLEAU D'HONNEUR ═════════════════════════════════════════
    Comme le tableau d'honneur de l'ecole : un titre souligne de deux traits, les
