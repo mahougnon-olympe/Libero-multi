@@ -1843,6 +1843,28 @@ function templatesFor(viewerId) {
     .filter(tp => tp.status === 'live' || (viewerId && tp.authorId === viewerId && tp.status !== 'refused'))
     .map(tp => templatePublic(tp, viewerId));
 }
+// Portraits types vendus des le depart (auteur « Libero », pas de part reversee).
+const P = (o) => Object.assign({ face:0, skin:10, brows:1, eyes:0, mouth:0, marks:0, beard:0, hair:1, hairCol:1, top:0, topCol:0, acc:0, bg:0, frame:0 }, o);
+const SEED_TEMPLATES = [
+  { id: 'tpl-seed-1', name: 'Reine du gèlè',      price: 80,  tag: 'party',  portrait: P({ face:1, skin:12, hair:9, eyes:1, mouth:1, marks:1, acc:6, top:4, topCol:3, bg:10, frame:4 }) },
+  { id: 'tpl-seed-2', name: 'Le prof de SVT',     price: 60,  tag: 'school', portrait: P({ face:2, skin:8, hair:11, eyes:6, mouth:2, beard:4, brows:2, top:5, topCol:2, bg:7, acc:7 }) },
+  { id: 'tpl-seed-3', name: 'Numéro 10',          price: 100, tag: 'sport',  portrait: P({ skin:14, hair:5, mouth:6, top:2, topCol:1, bg:3, acc:3 }) },
+  { id: 'tpl-seed-4', name: 'Nuit étoilée',       price: 150, tag: 'style',  portrait: P({ face:3, skin:4, hair:3, hairCol:15, eyes:7, mouth:5, marks:5, top:6, topCol:4, bg:9, frame:1 }) },
+  { id: 'tpl-seed-5', name: 'Le farceur',         price: 30,  tag: 'funny',  portrait: P({ face:4, skin:10, hair:7, hairCol:7, eyes:2, mouth:3, marks:2, top:3, topCol:6, bg:2, acc:4 }) },
+  { id: 'tpl-seed-6', name: 'Délégué de classe',  price: 60,  tag: 'school', portrait: P({ skin:13, hair:0, eyes:5, mouth:0, top:1, bg:6, frame:5 }) },
+  { id: 'tpl-seed-7', name: 'DJ du vendredi',     price: 100, tag: 'party',  portrait: P({ face:1, skin:6, hair:4, hairCol:0, eyes:7, mouth:1, top:3, topCol:7, acc:5, bg:8 }) },
+  { id: 'tpl-seed-8', name: 'Capitaine',          price: 150, tag: 'sport',  portrait: P({ face:2, skin:15, hair:8, hairCol:16, eyes:0, mouth:5, beard:3, top:6, topCol:2, acc:9, bg:10, frame:4 }) },
+  { id: 'tpl-seed-9', name: 'Mamie au marché',    price: 60,  tag: 'style',  portrait: P({ face:0, skin:9, hair:10, hairCol:11, eyes:5, mouth:0, marks:3, top:4, topCol:1, acc:6, bg:0 }) },
+  { id: 'tpl-seed-10', name: 'Le rêveur',         price: 30,  tag: 'funny',  portrait: P({ face:1, skin:3, hair:6, hairCol:8, eyes:4, mouth:4, top:0, topCol:5, bg:4, frame:3 }) },
+];
+function seedTemplates() {
+  for (const t of SEED_TEMPLATES) {
+    if (portraitTemplates.has(t.id)) continue;
+    const tp = { ...t, authorId: 'libero-system', authorName: 'Libero', status: 'live', sold: 0, at: Date.now() };
+    portraitTemplates.set(tp.id, tp); dbSaveTemplate(tp);
+  }
+}
+setTimeout(seedTemplates, 8000); // apres le chargement Mongo (idempotent)
 const AVATAR_TO_PORTRAIT = ['pt-acc-9', 'pt-bg-8', 'pt-bg-9', 'pt-bg-10'];
 function cleanPortrait(p) {
   if (!p || typeof p !== 'object') return null;
@@ -3725,6 +3747,8 @@ io.on('connection', (socket) => {
       badges: computeBadges(pid, target),
       honorTitle: target.honorTitle || null,
       portrait: target.portrait || null,
+      cosmetic: target.equippedCosmetic || null, font: target.equippedFont || null,
+      nameEffect: target.equippedNameEffect || null, title: target.equippedTitle || null,
     });
   });
   socket.on('get-friends', ({ playerId } = {}) => {

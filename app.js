@@ -922,7 +922,7 @@ const DICT = {
       subtitle:'Pose ta question sur le site',
       placeholder:'Écris ta question…',
       reset:'Effacer la conversation',
-      greeting:"Salut ! Je suis l'assistant de Libero's Multi. Pose-moi une question sur le site (Libs, boutique, livres, jeux, défis…) ou choisis un sujet ci-dessous.",
+      greeting:"Salut ! Moi c'est Libé, le crayon de Libero's Multi. Écris ta question sur la ligne : Libs, boutique, portrait, livres, jeux, défis…",
       thanks:'Avec plaisir ! Autre chose ?',
       answerIntro:"Voici ce que j'ai trouvé :",
       fallback:"Je n'ai pas de réponse précise à ça. Reformule ta question, ouvre l'aide complète avec la carte <strong>Aide</strong> du Profil, ou écris au créateur via la carte <strong>Donner mon avis</strong> (Profil, section Aide et avis).",
@@ -1691,7 +1691,7 @@ const DICT = {
       subtitle:'Ask a question about the site',
       placeholder:'Type your question…',
       reset:'Clear the conversation',
-      greeting:"Hi! I'm the Libero's Multi assistant. Ask me anything about the site (Libs, shop, books, games, challenges…) or pick a topic below.",
+      greeting:"Hi! I'm Libé, the Libero's Multi pencil. Write your question on the line: Libs, shop, portrait, books, games, challenges…",
       thanks:'You are welcome! Anything else?',
       answerIntro:'Here is what I found:',
       fallback:"I don't have a precise answer for that. Try rephrasing, open the full help with the <strong>Help</strong> card in your Profile, or message the creator with the <strong>Send feedback</strong> card (Profile, Help and feedback section).",
@@ -5229,7 +5229,14 @@ $('overlay-help').addEventListener('click', e => {
     const rb = $('chatbot-reset');    if (rb) rb.title = d.chatbot.reset;
     input.placeholder = d.chatbot.placeholder;
     buildKB();
-    renderChips();
+    // Libe parle la langue du site : si elle a change, la conversation repart dans la nouvelle langue.
+    try {
+      if (localStorage.getItem('libero_chatbot_lang') !== currentLang) {
+        localStorage.setItem('libero_chatbot_lang', currentLang);
+        localStorage.removeItem(LS_LOG);
+        restoreLog();
+      }
+    } catch(e){}
   }
   window._chatbot = { retexte };
 
@@ -5247,15 +5254,10 @@ $('overlay-help').addEventListener('click', e => {
     submit(input.value);
     input.value = '';
   });
-  chipsEl.addEventListener('click', e => {
-    const btn = e.target.closest('.chatbot-chip');
-    if (!btn) return;
-    const s = (t().chatbot.suggestions || [])[+btn.dataset.i];
-    if (s) submit(s.q);
-  });
+  // Les questions rapides sont retirees : on ecrit sa question soi-meme.
+  if (chipsEl) chipsEl.remove();
 
   buildKB();
-  renderChips();
   restoreLog();
   retexte();
   if (localStorage.getItem(LS_OPEN) === '1') openPanel();
@@ -7907,6 +7909,7 @@ const cursorSnake = (() => {
       const p  = len > 1 ? i / (len - 1) : 0;
       const sz = HEAD_SZ - p * (HEAD_SZ - TAIL_SZ);
       const el = document.createElement('div');
+      el.className = 'csnake-seg';
       let bg, shadow, radius, clip = '', scl = 1;
       if (skin) {
         const s = skin(p);
@@ -8081,10 +8084,73 @@ const cursorSnake = (() => {
       return { fill: `hsla(${curHue},${sat}%,${l}%,${a})`, glow: `hsl(${curHue},80%,65%)` };
     },
     // Le serpent est « en Game » : il joue dans le Snake Challenge.
-    enterGame() { _gameActive = true; },
-    leaveGame() { _gameActive = false; },
+    enterGame() { _gameActive = true; document.body.classList.add('snake-playing'); },
+    leaveGame() { _gameActive = false; document.body.classList.remove('snake-playing'); },
     isInGame()  { return _gameActive; },
   };
+})();
+
+// ── Trace du curseur (comme sur la maquette) ─────────────────────────────────
+// Le serpent de segments reste la mecanique (taille selon le rang, Snake
+// Challenge) mais on ne le voit plus : a la place, un canevas plein ecran trace
+// le chemin du pointeur dans la matiere du curseur equipe (craie, crayon,
+// feutre, poussiere, gribouillis, etoiles, encre). Il ne tourne que tant que le
+// trait n'a pas fini de s'effacer.
+(function initCursorTrail() {
+  if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return; // pas de curseur sur ecran tactile
+  const cv = document.createElement('canvas');
+  cv.className = 'cursor-trail'; cv.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(cv);
+  const cx = cv.getContext('2d');
+  let W = 0, H = 0, pts = [], drops = [], raf = 0;
+  function size() { const d = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0); }
+  size(); addEventListener('resize', size);
+  const LIFE = 900, DLIFE = 1200;
+  const style = () => (equippedCursorSnake || '').replace('cursorsnake-', '') || 'chalk';
+  const on = () => localStorage.getItem('snakeEnabled') !== 'false' && !document.body.classList.contains('overlay-open') && !document.body.classList.contains('snake-playing');
+  addEventListener('pointermove', e => {
+    if (e.pointerType === 'touch' || !on()) return;
+    const now = performance.now(), st = style();
+    pts.push({ x: e.clientX, y: e.clientY, t: now });
+    if (pts.length > 70) pts.shift();
+    if ((st === 'fire' && Math.random() < .12) || (st === 'stars' && Math.random() < .22) || st === 'comet')
+      drops.push({ x: e.clientX + (Math.random() - .5) * 10, y: e.clientY, vy: st === 'comet' ? -.2 : .6 + Math.random(), vx: (Math.random() - .5) * .6, t: now, r: st === 'comet' ? 1 + Math.random() * 2.5 : 2 + Math.random() * 2 });
+    if (drops.length > 80) drops.shift();
+    if (!raf) raf = requestAnimationFrame(frame);
+  }, { passive: true });
+  function star(x, y, r) { cx.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .45 : r; cx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } cx.closePath(); cx.stroke(); }
+  function frame(now) {
+    raf = 0;
+    cx.clearRect(0, 0, W, H);
+    pts = pts.filter(p => now - p.t < LIFE); drops = drops.filter(d => now - d.t < DLIFE);
+    if (!pts.length && !drops.length) return;
+    const st = style(), dark = !document.documentElement.classList.contains('light');
+    const ink = dark ? '#eef1ea' : '#22252b', red = dark ? '#ff8e8e' : '#d23a4f';
+    cx.lineCap = 'round'; cx.lineJoin = 'round';
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1], b = pts[i], k = 1 - (now - b.t) / LIFE; if (k <= 0) continue;
+      cx.globalAlpha = k;
+      if (st === 'chalk') { cx.strokeStyle = dark ? '#eef1ea' : '#4a4f58'; cx.lineWidth = 5 * k + 1; cx.beginPath(); cx.moveTo(a.x, a.y); cx.lineTo(b.x + (Math.random() - .5), b.y + (Math.random() - .5)); cx.stroke(); }
+      else if (st === 'pixel') { if (i % 2) continue; cx.fillStyle = ink; cx.beginPath(); cx.arc(b.x, b.y, 2.6, 0, 7); cx.fill(); }
+      else if (st === 'neon') { cx.strokeStyle = dark ? '#8fb0ff' : '#173a8a'; cx.lineWidth = 8; cx.beginPath(); cx.moveTo(a.x, a.y); cx.lineTo(b.x, b.y); cx.stroke(); }
+      else if (st === 'comet') { cx.strokeStyle = dark ? '#eef1ea' : '#6b7280'; cx.lineWidth = 7 * k; cx.beginPath(); cx.moveTo(a.x, a.y); cx.lineTo(b.x, b.y); cx.stroke(); }
+      else if (st === 'electric') { cx.strokeStyle = red; cx.lineWidth = 2.4; const nx = -(b.y - a.y), ny = b.x - a.x, l = Math.hypot(nx, ny) || 1, sg = (i % 2 ? 1 : -1) * 6; cx.beginPath(); cx.moveTo(a.x, a.y); cx.lineTo((a.x + b.x) / 2 + nx / l * sg, (a.y + b.y) / 2 + ny / l * sg); cx.lineTo(b.x, b.y); cx.stroke(); }
+      else if (st === 'stars') { cx.strokeStyle = dark ? '#ffe169' : '#173a8a'; cx.lineWidth = 2; if (i % 5 === 0) star(b.x, b.y, 4 + 3 * k); }
+      else if (st === 'fire') { cx.strokeStyle = dark ? '#eef1ea' : '#111318'; cx.lineWidth = 3 + 9 * k; cx.beginPath(); cx.moveTo(a.x, a.y); cx.lineTo(b.x, b.y); cx.stroke(); }
+    }
+    for (const d of drops) {
+      const k = 1 - (now - d.t) / DLIFE; cx.globalAlpha = Math.max(0, k); d.x += d.vx; d.y += d.vy;
+      if (st === 'stars') { cx.strokeStyle = dark ? '#ffe169' : '#173a8a'; cx.lineWidth = 1.6; star(d.x, d.y, d.r + 1); }
+      else if (st === 'comet') { cx.fillStyle = dark ? 'rgba(238,241,234,.7)' : 'rgba(90,95,105,.6)'; cx.beginPath(); cx.arc(d.x, d.y, d.r, 0, 7); cx.fill(); }
+      else { cx.fillStyle = dark ? '#eef1ea' : '#111318'; cx.beginPath(); cx.arc(d.x, d.y, d.r, 0, 7); cx.fill(); }
+    }
+    const hd = pts[pts.length - 1]; cx.globalAlpha = 1;
+    if (hd && now - hd.t < LIFE) {
+      if (st === 'stars') { cx.strokeStyle = dark ? '#ffe169' : '#173a8a'; cx.lineWidth = 2.4; star(hd.x, hd.y, 9); }
+      else if (st === 'chalk' || st === 'comet') { cx.fillStyle = dark ? '#eef1ea' : '#4a4f58'; cx.fillRect(hd.x - 3, hd.y - 7, 6, 14); }
+    }
+    raf = requestAnimationFrame(frame);
+  }
 })();
 
 document.getElementById('btn-snake-toggle').addEventListener('click', () => {
@@ -12990,7 +13056,7 @@ try {
     document.getElementById('playercard-level').textContent = '…';
     document.getElementById('playercard-status').textContent = '';
     const bg = document.getElementById('playercard-badges'); if (bg) bg.innerHTML = '';
-    const pcp = document.getElementById('playercard-portrait'); if (pcp) { pcp.innerHTML = ''; pcp.classList.add('hidden'); }
+    const pcp = document.getElementById('playercard-portrait'); if (pcp) pcp.innerHTML = window.LiberoPortrait ? _ptSvg(window.LiberoPortrait.DEF) : '';
     document.getElementById('btn-playercard-add').classList.add('hidden');
     overlay.classList.remove('hidden');
     socket.emit('get-player-card', { playerId: getPlayerId(), name });
@@ -13007,7 +13073,10 @@ try {
     if (c.notFound) { lvl.textContent = ''; st.textContent = d.friendsErrNotFound; return; }
     lvl.textContent = d.playerCardLevel(c.level || 1) + (c.vip ? ' · ' + d.playerCardVip : '');
     const pcp = document.getElementById('playercard-portrait');
-    if (pcp && c.portrait) { pcp.innerHTML = _ptSvg(c.portrait); pcp.classList.remove('hidden'); }
+    if (pcp && c.portrait) pcp.innerHTML = _ptSvg(c.portrait);
+    // Le pseudo s'ecrit dans sa police, sa couleur et son effet equipes.
+    const pn = document.getElementById('playercard-name');
+    if (pn) pn.innerHTML = `<span class="${[_cosmeticClass(c.cosmetic), _fontClass(c.font), _nameEffectClass(c.nameEffect)].filter(Boolean).join(' ')}">${_escHtml(c.name)}</span>`;
     window._renderBadges('playercard-badges', c.badges, c.honorTitle);
     st.textContent = (c.online ? d.playerCardOnline : d.playerCardOffline)
       + (c.isMe ? ' · ' + d.playerCardYou : c.isFriend ? ' · ' + d.playerCardFriends : c.requested ? ' · ' + d.playerCardRequested : '');

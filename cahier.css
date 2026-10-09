@@ -1612,3 +1612,17 @@ html:not(.light) .nameeffect-glace { color: #8fb0ff; -webkit-text-fill-color: #8
 :root:root .nameeffect-sparks::after { position: static; display: inline-block; vertical-align: super; margin-left: .1em; width: .5em; height: .5em; }
 :root:root .nameeffect-flammes { position: static; }
 :root:root .nameeffect-flammes::after { position: static; display: inline-block; vertical-align: -.25em; margin-left: .08em; }
+/* Trace du curseur : canevas plein ecran ; les segments du serpent ne se voient plus qu'en partie de Snake */
+.cursor-trail { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9990; }
+body:not(.snake-playing) .csnake-seg { opacity: 0 !important; }
+:root:root .btn-chatbot-float .libe-slot > svg.libe, :root:root .libe-head > svg.libe { width: 100% !important; height: 100% !important; margin: 0 !important; }
+:root:root .btn-chatbot-float .libe-slot { width: 46px !important; height: 46px !important; display: block; margin: auto; }
+/* Menu d'aide : les textes respirent (ils touchaient le bord du cadre) */
+:root:root .help-item { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; padding: 12px 16px; margin: 0; }
+:root:root .help-item .help-icon:empty { display: none; }
+:root:root .help-item:has(.help-icon:empty) { grid-template-columns: minmax(0, 1fr); }
+:root:root .help-item p { margin: 3px 0 0; }
+/* Fiche joueur : portrait a gauche, pseudo a droite (dans sa police equipee) */
+.pc-head { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
+:root:root .pc-head .pc-portrait { display: block; width: 72px; height: 72px; margin: 0; flex: none; }
+:root:root .pc-head .pc-name { margin: 0; min-width: 0; overflow-wrap: anywhere; font-size: 1.5rem; }
