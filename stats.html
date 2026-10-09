@@ -489,6 +489,35 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
 .ic3d { transform:none !important; } .ic3d-depth { display:none; }
 .ic3d-face { color:currentColor !important; filter:none !important; }
 .ic3d-face * { stroke:currentColor !important; }
+
+/* Editeur de la page de maintenance */
+.mp-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:8px}
+@media(max-width:900px){.mp-wrap{grid-template-columns:1fr}}
+.mp-form label{display:grid;gap:3px;font-size:.8rem;font-weight:700;margin:6px 0}
+.mp-form input:not([type=checkbox]):not([type=range]),.mp-form textarea,.mp-form select{width:100%;font:inherit;font-weight:400;font-size:.9rem;padding:6px 8px}
+.mp-form .hidden{display:none}
+.mp-tabs{display:flex;gap:4px}.mp-tab{padding:5px 10px}.mp-tab.on{background:var(--accent);color:var(--bg)}
+.mp-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-top:6px}
+@media(max-width:600px){.mp-grid{grid-template-columns:1fr}}
+.mp-see{align-self:center;font-weight:700;margin-left:6px}
+.mp-pv-head{display:flex;justify-content:space-between;align-items:center;font-weight:700;margin-bottom:6px}
+.mp-preview{position:relative;border-radius:8px;overflow:hidden;min-height:360px;padding:22px 16px;display:grid;place-items:center;font-family:Archivo,system-ui,sans-serif}
+.mp-preview.mw-ardoise{background:#1f2a26;box-shadow:inset 0 0 0 8px #6b4a2b;color:#eef1ea}
+.mp-preview.mw-cahier{background:#fdfdf9 linear-gradient(90deg,transparent 30px,#e2485d 30px 32px,transparent 32px);background-image:linear-gradient(90deg,transparent 30px,#e2485d 30px 32px,transparent 32px),repeating-linear-gradient(0deg,transparent 0 27px,#8fb0de 27px 28px);color:#22252b}
+.mp-preview .mw-sheet{max-width:30rem;padding-left:28px}
+.mp-preview .mw-title{font:400 1.6rem/1.1 "Archivo Black",sans-serif;margin:0 0 10px}
+.mp-preview mark{background:linear-gradient(transparent 58%,#fff27a 58%);color:inherit}
+.mp-preview.mw-ardoise mark{background:linear-gradient(transparent 60%,rgba(255,225,105,.55) 60%)}
+.mp-preview .mw-text{margin:0 0 10px;font-size:.92rem}
+.mp-preview .mw-note{border-left:3px solid #e2485d;padding-left:8px;color:#b3263a;margin:0 0 10px}
+.mp-preview.mw-ardoise .mw-note{color:#ff9e9e}
+.mp-preview .mw-date,.mp-preview .mw-sign,.mp-preview .mw-prog-l{font:700 1.2rem Caveat,cursive}
+.mp-preview .mw-count{font:400 1rem "Archivo Black",sans-serif}
+.mp-preview .mw-bar{height:12px;border:2px solid currentColor;border-radius:3px;overflow:hidden;margin:3px 0 10px}
+.mp-preview .mw-bar i{display:block;height:100%;background:repeating-linear-gradient(45deg,#fff27a 0 8px,#e0a800 8px 16px)}
+.mp-preview .mw-btn{display:inline-block;padding:7px 12px;border:2px solid currentColor;border-radius:6px;font:400 .85rem "Archivo Black",sans-serif;text-decoration:none;color:inherit;margin:4px 0}
+.mp-preview .mw-art{width:80px;height:80px;margin-bottom:6px}
+.mp-preview .mw-art svg{width:100%;height:100%}
 </style>
   <script type="module" src="icons3d.js"></script>
   <script src="portrait.js"></script>
@@ -602,6 +631,38 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
           <button id="btn-maint-off" class="green">Désactiver</button>
         </div>
         <p id="maint-status" class="sub"></p>
+        <h3 style="margin:18px 0 4px">Page de maintenance (ce que voient les joueurs)</h3>
+        <p class="sub" style="margin-top:0">Tout est modifiable. Dans le titre, entoure un mot d'astérisques pour le surligner : <code>Libero fait *peau neuve*.</code> Laisse un champ vide pour garder le texte d'origine.</p>
+        <div class="mp-wrap">
+          <div class="mp-form">
+            <div class="mp-tabs"><button type="button" class="mp-tab on" data-l="fr">Français</button><button type="button" class="mp-tab" data-l="en">English</button></div>
+            <div class="mp-lang" data-l="fr">
+              <label>Titre<input id="mp-fr-title" maxlength="120" placeholder="Libero fait *peau neuve*."></label>
+              <label>Texte<textarea id="mp-fr-text" maxlength="600" rows="3" placeholder="Le site est fermé quelques jours…"></textarea></label>
+              <label>Note (encadré rouge)<input id="mp-fr-note" maxlength="300" placeholder="ex : Retour samedi à 18h"></label>
+              <label>Signature<input id="mp-fr-sign" maxlength="80" placeholder="À très vite."></label>
+              <label>Texte du bouton<input id="mp-fr-button" maxlength="40" placeholder="ex : Suivre les travaux"></label>
+            </div>
+            <div class="mp-lang hidden" data-l="en">
+              <label>Title<input id="mp-en-title" maxlength="120" placeholder="Libero is getting *a makeover*."></label>
+              <label>Text<textarea id="mp-en-text" maxlength="600" rows="3" placeholder="The site is closed for a few days…"></textarea></label>
+              <label>Note<input id="mp-en-note" maxlength="300"></label>
+              <label>Signature<input id="mp-en-sign" maxlength="80" placeholder="See you very soon."></label>
+              <label>Button text<input id="mp-en-button" maxlength="40"></label>
+            </div>
+            <div class="mp-grid">
+              <label>Lien du bouton<input id="mp-url" maxlength="300" placeholder="https://…"></label>
+              <label>Retour prévu (compte à rebours)<input id="mp-back" type="datetime-local"></label>
+              <label><span><input type="checkbox" id="mp-prog-on"> Avancement des travaux : <b id="mp-prog-v">50</b> %</span><input id="mp-prog" type="range" min="0" max="100" value="50"></label>
+              <label>Dessin<select id="mp-draw"><option value="libe">Libé le crayon</option><option value="tools">Outils</option><option value="stickers">Stickers</option><option value="none">Aucun</option></select></label>
+              <label>Matière<select id="mp-theme"><option value="auto">Celle du joueur</option><option value="cahier">Toujours le cahier</option><option value="ardoise">Toujours l'ardoise</option></select></label>
+              <label><span><input type="checkbox" id="mp-date" checked> Afficher la date du jour</span></label>
+            </div>
+            <div class="field"><button id="btn-mp-save" class="green">Enregistrer la page</button><button id="btn-mp-reset" type="button">Revenir aux textes d'origine</button><a href="/?mur" target="_blank" rel="noopener" class="mp-see">Voir comme un joueur</a></div>
+            <p id="mp-status" class="sub"></p>
+          </div>
+          <div class="mp-preview-wrap"><div class="mp-pv-head">Aperçu <button type="button" id="mp-pv-lang">FR</button></div><div id="mp-preview" class="mp-preview"></div></div>
+        </div>
       </section>
 <section data-sec="acct">
         <h2><span class="adm-ic" data-ic="key">🔑</span> Réinitialiser un mot de passe <span id="acct-pill" class="pill"></span></h2>
@@ -1248,6 +1309,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
       renderBookPrices(d.bookPrices);
       if ($('maint-status')) $('maint-status').textContent = d.maintenance && d.maintenance.on ? ('🛠️ Maintenance ACTIVE' + (d.maintenance.block ? ' (site BLOQUÉ)' : ' (bandeau seul)') + ' : ' + (d.maintenance.message || '(sans message)')) : 'Maintenance désactivée.';
       if ($('maint-msg') && d.maintenance && d.maintenance.message && !$('maint-msg').value) $('maint-msg').value = d.maintenance.message;
+      if (window._mpLoad) window._mpLoad(d.maintenance);
       renderComments(d.comments);
       renderResets(d.resets);
       renderChart('chart-visits', d.daily || [], 'visits');
@@ -2185,6 +2247,66 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
     function f(n){if(!n.nodeValue||!RE.test(n.nodeValue))return;RE.lastIndex=0;var e=n.parentElement;if(!e||e.closest('[data-ic],input,textarea,script,style'))return;n.nodeValue=n.nodeValue.replace(RE,'').replace(/^ +/,'');}
     function w(r){if(r.nodeType===3){f(r);return;}if(r.nodeType!==1)return;var t=document.createTreeWalker(r,NodeFilter.SHOW_TEXT),x;while((x=t.nextNode()))f(x);}
     w(document.body);new MutationObserver(function(ms){ms.forEach(function(m){if(m.type==='characterData')f(m.target);else m.addedNodes.forEach(w);});}).observe(document.body,{childList:true,subtree:true,characterData:true});})();
+
+  // ── Editeur de la page de maintenance (aperçu en direct) ──
+  (function () {
+    var F = ['title', 'text', 'note', 'sign', 'button'], pvLang = 'fr', loaded = false;
+    function $$(id) { return document.getElementById(id); }
+    function esc(x) { return String(x || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    function collect() {
+      var p = { fr: {}, en: {} };
+      ['fr', 'en'].forEach(function (l) { F.forEach(function (f) { p[l][f] = $$('mp-' + l + '-' + f).value.trim(); }); });
+      p.url = $$('mp-url').value.trim();
+      p.backAt = $$('mp-back').value ? new Date($$('mp-back').value).getTime() : null;
+      p.progress = $$('mp-prog-on').checked ? +$$('mp-prog').value : null;
+      p.drawing = $$('mp-draw').value; p.theme = $$('mp-theme').value; p.showDate = $$('mp-date').checked;
+      return p;
+    }
+    function fill(p) {
+      p = p || {};
+      ['fr', 'en'].forEach(function (l) { F.forEach(function (f) { $$('mp-' + l + '-' + f).value = (p[l] && p[l][f]) || ''; }); });
+      $$('mp-url').value = p.url || '';
+      if (p.backAt) { var d = new Date(p.backAt); $$('mp-back').value = new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16); } else $$('mp-back').value = '';
+      $$('mp-prog-on').checked = p.progress !== null && p.progress !== undefined; $$('mp-prog').value = p.progress || 50;
+      $$('mp-draw').value = p.drawing || 'libe'; $$('mp-theme').value = p.theme || 'auto'; $$('mp-date').checked = p.showDate !== false;
+      preview();
+    }
+    function preview() {
+      var p = collect(), en = pvLang === 'en', L = p[pvLang];
+      $$('mp-prog-v').textContent = $$('mp-prog').value;
+      var title = L.title || (en ? 'Libero is getting *a makeover*.' : 'Libero fait *peau neuve*.');
+      var text = L.text || (en ? 'The site is closed for a few days while we redesign it. Your Libs, your cosmetics and your progress are kept safe.' : 'Le site est fermé quelques jours, le temps de le redessiner. Tes Libs, tes cosmétiques et ta progression sont bien gardés.');
+      var sign = L.sign || (en ? 'See you very soon.' : 'À très vite.');
+      var ms = p.backAt ? p.backAt - Date.now() : 0, cd = '';
+      if (p.backAt) cd = ms <= 0 ? (en ? 'Any minute now…' : 'D\'une minute à l\'autre…') : (en ? 'Back in ' : 'Retour dans ') + Math.floor(ms / 864e5) + (en ? ' d ' : ' j ') + (Math.floor(ms / 36e5) % 24) + ' h';
+      var art = p.drawing === 'none' ? '' : '<div class="mw-art"><svg viewBox="14 2 92 116"><path d="M44 30h32v62H44z" fill="#ffd54a" stroke="#22252b" stroke-width="3.5"/><rect x="44" y="20" width="32" height="10" fill="#b9bec6" stroke="#22252b" stroke-width="3"/><path d="M44 20v-6q0-6 16-6t16 6v6z" fill="#f29bb0" stroke="#22252b" stroke-width="3"/><path d="M44 92l16 22 16-22z" fill="#f2d2a6" stroke="#22252b" stroke-width="3"/><circle cx="53" cy="52" r="3.5"/><circle cx="67" cy="52" r="3.5"/><path d="M52 62q8 8 16 0" fill="none" stroke="#22252b" stroke-width="3"/></svg></div>';
+      var cah = p.theme === 'cahier' || (p.theme === 'auto' && !document.documentElement.getAttribute('data-theme-dark'));
+      var pv = $$('mp-preview'); pv.className = 'mp-preview ' + (p.theme === 'ardoise' ? 'mw-ardoise' : 'mw-cahier');
+      pv.innerHTML = '<div class="mw-sheet">' + art + (p.showDate ? '<div class="mw-date">' + new Date().toLocaleDateString(en ? 'en-GB' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) + '</div>' : '')
+        + '<h1 class="mw-title">' + esc(title).replace(/\*([^*]+)\*/g, '<mark>$1</mark>') + '</h1><p class="mw-text">' + esc(text) + '</p>'
+        + (L.note ? '<p class="mw-note">' + esc(L.note) + '</p>' : '') + (cd ? '<p class="mw-count">' + cd + '</p>' : '')
+        + (p.progress !== null ? '<div class="mw-prog"><span class="mw-prog-l">' + (en ? 'Work in progress' : 'Avancement des travaux') + ' · ' + p.progress + ' %</span><div class="mw-bar"><i style="width:' + p.progress + '%"></i></div></div>' : '')
+        + (p.url && L.button ? '<a class="mw-btn" href="#">' + esc(L.button) + '</a>' : '') + '<p class="mw-sign">' + esc(sign) + '</p></div>';
+    }
+    document.querySelectorAll('.mp-tab').forEach(function (b) { b.addEventListener('click', function () {
+      document.querySelectorAll('.mp-tab').forEach(function (x) { x.classList.toggle('on', x === b); });
+      document.querySelectorAll('.mp-lang').forEach(function (x) { x.classList.toggle('hidden', x.dataset.l !== b.dataset.l); });
+      pvLang = b.dataset.l; $$('mp-pv-lang').textContent = pvLang.toUpperCase(); preview(); }); });
+    $$('mp-pv-lang').addEventListener('click', function () { pvLang = pvLang === 'fr' ? 'en' : 'fr'; this.textContent = pvLang.toUpperCase(); preview(); });
+    document.querySelector('.mp-form').addEventListener('input', preview);
+    document.querySelector('.mp-form').addEventListener('change', preview);
+    $$('btn-mp-save').addEventListener('click', async function () {
+      this.disabled = true;
+      try { var r = await (await api('/admin/maintenance-page', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ page: collect() }) })).json();
+        $$('mp-status').textContent = r && r.ok ? 'Page enregistrée : les joueurs la voient au prochain chargement (ou dans la minute).' : 'Erreur à l\'enregistrement.'; }
+      catch (e) { $$('mp-status').textContent = 'Erreur réseau.'; }
+      this.disabled = false;
+    });
+    $$('btn-mp-reset').addEventListener('click', function () { fill(null); });
+    // Rempli une seule fois avec la page enregistree, au premier chargement des stats.
+    window._mpLoad = function (m) { if (loaded) return; loaded = true; fill(m && m.page); };
+    preview();
+  })();
 </script>
 </body>
 </html>

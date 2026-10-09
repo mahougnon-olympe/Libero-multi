@@ -466,7 +466,7 @@ async function loadData() {
   const alertDoc = configDocs.find(d => d._id === 'admin_alert_subs');
   if (Array.isArray(alertDoc?.value)) adminAlertSubs = alertDoc.value.filter(x => typeof x === 'string');
   const maintDoc = configDocs.find(d => d._id === 'maintenance');
-  if (maintDoc?.value && typeof maintDoc.value === 'object') maintenance = { on: !!maintDoc.value.on, block: !!maintDoc.value.block, message: maintDoc.value.message || '', messageEn: maintDoc.value.messageEn || '' };
+  if (maintDoc?.value && typeof maintDoc.value === 'object') maintenance = { on: !!maintDoc.value.on, block: !!maintDoc.value.block, message: maintDoc.value.message || '', messageEn: maintDoc.value.messageEn || '', page: cleanMaintPage(maintDoc.value.page) };
   const rotDoc = configDocs.find(d => d._id === 'shop_rotation');
   if (rotDoc?.value && typeof rotDoc.value === 'object') shopRotation = { ...shopRotation, ...rotDoc.value };
   db.collection('scheduled_tasks').find().toArray()
@@ -5465,7 +5465,7 @@ app.get('/api/status', (req, res) => {
   const block = !!(maintenance.on && maintenance.block);
   // Le proprietaire (cle admin envoyee par son navigateur) passe le mur pour suivre les travaux.
   const owner = block && !!req.headers['x-admin-key'] && isAdmin(req);
-  res.json({ maintenance: !!maintenance.on, block, owner, message: maintenance.message || '', messageEn: maintenance.messageEn || '',
+  res.json({ maintenance: !!maintenance.on, block, owner, message: maintenance.message || '', messageEn: maintenance.messageEn || '', page: maintenance.page || null,
     libsTopup: LIBS_TOPUP_ENABLED });
 });
 
@@ -5583,6 +5583,28 @@ app.post('/admin/alert-recipient', (req, res) => {
   res.json({ ok: true, on, count: adminAlertSubs.length, subscribed: pushSubs.has(pid) });
 });
 
+// ── Page de maintenance personnalisable (mur plein ecran) ──
+// Textes FR/EN (titre avec *mot surligne*, texte, note, signature), date de retour
+// (compte a rebours), avancement des travaux, dessin, matiere, bouton avec lien.
+function cleanMaintPage(p) {
+  if (!p || typeof p !== 'object') return null;
+  const str = (v, n) => String(v || '').replace(/[<>]/g, '').trim().slice(0, n);
+  const lang = l => ({ title: str(l?.title, 120), text: str(l?.text, 600), note: str(l?.note, 300), sign: str(l?.sign, 80), button: str(l?.button, 40) });
+  const url = str(p.url, 300);
+  const pct = Number.isFinite(+p.progress) ? Math.max(0, Math.min(100, Math.round(+p.progress))) : null;
+  const back = Number.isFinite(+p.backAt) && +p.backAt > 0 ? +p.backAt : null;
+  return { fr: lang(p.fr), en: lang(p.en), url: /^https?:\/\//i.test(url) ? url : '', progress: p.progress === '' || p.progress === null ? null : pct,
+    backAt: back, drawing: ['libe', 'tools', 'stickers', 'none'].includes(p.drawing) ? p.drawing : 'libe',
+    theme: ['auto', 'cahier', 'ardoise'].includes(p.theme) ? p.theme : 'auto', showDate: p.showDate !== false };
+}
+app.post('/admin/maintenance-page', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  maintenance = { ...maintenance, page: cleanMaintPage(req.body?.page) };
+  saveConfig('maintenance', maintenance);
+  adminAudit('maintenance-page', {});
+  res.json({ ok: true, page: maintenance.page });
+});
+
 // ── Mode maintenance ──
 app.post('/admin/maintenance', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
@@ -5592,6 +5614,7 @@ app.post('/admin/maintenance', (req, res) => {
     block: !!req.body?.on && !!req.body?.block,
     message:   String(req.body?.message   || '').trim().slice(0, 300),
     messageEn: String(req.body?.messageEn || '').trim().slice(0, 300),
+    page: maintenance.page || null,
   };
   saveConfig('maintenance', maintenance);
   adminAudit('maintenance', { on: maintenance.on, block: maintenance.block });

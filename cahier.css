@@ -1703,3 +1703,32 @@ html:not(.light) .jar-shelf { filter: brightness(.88); }
 .jar-rw { font: 700 1rem var(--font-hand); color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.5); }
 :root:root .jar-claim { position: static; }
 @media (prefers-reduced-motion: reduce) { .jar.full .jar-svg { animation: none; } }
+
+/* ══ MUR DE MAINTENANCE (reglable depuis l'admin) ═══════════════════════════ */
+html:root #maintenance-wall { font-family: var(--font-body, "Archivo", system-ui, sans-serif); overflow-y: auto; }
+html:root #maintenance-wall.mw-ardoise { background-color: #1f2a26; background-image: radial-gradient(120% 80% at 30% 0%, rgba(255,255,255,.06), transparent 60%); box-shadow: inset 0 0 0 10px #6b4a2b; color: #eef1ea; }
+html:root #maintenance-wall.mw-cahier { color: #22252b; box-shadow: none; background-color: #fdfdf9;
+  background-image: linear-gradient(90deg, transparent 40px, #e2485d 40px 42px, transparent 42px), repeating-linear-gradient(0deg, transparent 0 31px, #8fb0de 31px 32px), repeating-linear-gradient(0deg, transparent 0 7px, #c9d8ef 7px 8px); }
+html:root #maintenance-wall .mw-sheet { padding-left: 8px; }
+html:root #maintenance-wall.mw-cahier .mw-sheet { padding-left: 44px; }
+html:root #maintenance-wall .mw-title { font-family: "Archivo Black", "Archivo", system-ui, sans-serif; font-weight: 400; }
+html:root #maintenance-wall .mw-date, html:root #maintenance-wall .mw-sign { font-family: "Caveat", cursive; font-style: normal; font-weight: 700; font-size: 1.35rem; }
+html:root #maintenance-wall.mw-ardoise .mw-date, html:root #maintenance-wall.mw-ardoise .mw-sign { color: #f3f0d9; }
+html:root #maintenance-wall.mw-cahier .mw-date, html:root #maintenance-wall.mw-cahier .mw-sign { color: #173a8a; }
+html:root #maintenance-wall.mw-ardoise mark { background: linear-gradient(transparent 60%, rgba(255,225,105,.55) 60%); }
+html:root #maintenance-wall.mw-cahier mark { background: linear-gradient(transparent 55%, #fff27a 55%); }
+html:root #maintenance-wall.mw-ardoise .mw-note { color: #ff9e9e; border-color: #ff8e8e; }
+html:root #maintenance-wall.mw-cahier .mw-note { color: #b3263a; border-color: #e2485d; }
+.mw-art { width: 110px; height: 110px; margin: 0 0 8px -6px; }
+.mw-art svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.mw-stk { display: flex; gap: 4px; width: auto; height: 54px; }
+.mw-stk span { width: 50px; height: 50px; border-radius: 50%; background: #fff; border: 2px solid #22252b; padding: 9px; box-shadow: 2px 3px 0 rgba(0,0,0,.2); transform: rotate(calc(var(--k) * 14deg - 28deg)); animation: mwBob 2.4s ease-in-out infinite; animation-delay: calc(var(--k) * .2s); }
+@keyframes mwBob { 50% { transform: translateY(-5px) rotate(calc(var(--k) * 14deg - 28deg)); } }
+.mw-count { font: 400 1.25rem "Archivo Black", sans-serif; font-variant-numeric: tabular-nums; margin: 4px 0 12px; }
+.mw-prog { margin: 6px 0 14px; max-width: 26rem; }
+.mw-prog-l { font: 700 1.2rem "Caveat", cursive; }
+.mw-bar { height: 14px; border: 2px solid currentColor; border-radius: 3px; overflow: hidden; margin-top: 3px; }
+.mw-bar i { display: block; height: 100%; background: repeating-linear-gradient(45deg, #fff27a 0 8px, #e0a800 8px 16px); border-right: 2px solid currentColor; }
+.mw-btn { display: inline-block; margin: 6px 0 4px; padding: 9px 16px; border-radius: 6px; border: 2px solid currentColor; font: 400 .95rem "Archivo Black", sans-serif; text-decoration: none; color: inherit; box-shadow: 0 3px 0 rgba(0,0,0,.25); }
+html:root #maintenance-wall.mw-cahier .mw-btn { background: #173a8a; color: #fff; border-color: #0d2050; }
+html:root #maintenance-wall.mw-ardoise .mw-btn { background: #ffe169; color: #22252b; border-color: #22252b; }

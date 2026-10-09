@@ -7457,14 +7457,46 @@ function _applyMaintenanceWall(s) {
     wall.setAttribute('aria-modal', 'true');
     document.body.appendChild(wall);
   }
-  wall.innerHTML = `<div class="mw-sheet">
-    <div class="mw-date">${new Date().toLocaleDateString(en ? 'en-GB' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
-    <h1 class="mw-title">${en ? 'Libero is getting <mark>a makeover</mark>.' : 'Libero fait <mark>peau neuve</mark>.'}</h1>
-    <p class="mw-text">${en ? 'The site is closed for a few days while we redesign it. Your Libs, your cosmetics and your progress are kept safe.' : 'Le site est fermé quelques jours, le temps de le redessiner. Tes Libs, tes cosmétiques et ta progression sont bien gardés.'}</p>
-    ${msg ? `<p class="mw-note">${_escHtml(msg)}</p>` : ''}
-    <p class="mw-sign">${en ? 'See you very soon.' : 'À très vite.'}</p>
+  wall.innerHTML = _maintWallHtml(s.page, en, msg);
+  // Matiere du mur : choisie dans l'admin (cahier / ardoise), ou celle du joueur (auto).
+  const th = (s.page && s.page.theme) || 'auto';
+  const cahier = th === 'cahier' || (th === 'auto' && document.documentElement.classList.contains('light'));
+  wall.classList.toggle('mw-cahier', cahier); wall.classList.toggle('mw-ardoise', !cahier);
+  clearInterval(_mwTimer);
+  if (s.page && s.page.backAt) _mwTimer = setInterval(() => { const c = wall.querySelector('.mw-count'); if (c) c.textContent = _mwCountdown(s.page.backAt, en); }, 1000);
+}
+let _mwTimer = null;
+function _mwCountdown(at, en) {
+  const ms = at - Date.now();
+  if (ms <= 0) return en ? 'Any minute now…' : 'D\'une minute à l\'autre…';
+  const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60, sec = Math.floor(ms / 1e3) % 60;
+  return (en ? 'Back in ' : 'Retour dans ') + (d ? `${d} ${en ? 'd' : 'j'} ` : '') + `${h} h ${String(m).padStart(2, '0')} min ${String(sec).padStart(2, '0')} s`;
+}
+// Page de maintenance : tout vient du tableau de bord (fallback = textes d'origine).
+// Le titre accepte *mot* pour surligner. Partage avec l'apercu de l'admin (window._maintWallHtml).
+function _maintWallHtml(page, en, msg) {
+  const P = page || {}, L = (en ? P.en : P.fr) || {}, esc = x => _escHtml(String(x || ''));
+  const title = L.title || (en ? 'Libero is getting *a makeover*.' : 'Libero fait *peau neuve*.');
+  const text = L.text || (en ? 'The site is closed for a few days while we redesign it. Your Libs, your cosmetics and your progress are kept safe.' : 'Le site est fermé quelques jours, le temps de le redessiner. Tes Libs, tes cosmétiques et ta progression sont bien gardés.');
+  const sign = L.sign || (en ? 'See you very soon.' : 'À très vite.');
+  const note = L.note || msg || '';
+  const draw = P.drawing || 'libe';
+  const art = draw === 'none' ? '' : draw === 'libe' ? `<div class="mw-art mw-libe">${typeof LIBE_SVG !== 'undefined' ? LIBE_SVG : ''}</div>`
+    : draw === 'tools' ? `<div class="mw-art"><svg viewBox="0 0 120 90" aria-hidden="true"><g transform="rotate(-30 60 45)"><rect x="54" y="10" width="12" height="70" rx="3" fill="#ffe169" stroke="#22252b" stroke-width="3"/><rect x="40" y="6" width="40" height="16" rx="3" fill="#9aa3ad" stroke="#22252b" stroke-width="3"/></g><g transform="rotate(32 60 45)"><path d="M56 14h8v54h-8z" fill="#3d64b8" stroke="#22252b" stroke-width="3"/><path d="M50 68h20v14H50z" fill="#d23a4f" stroke="#22252b" stroke-width="3"/></g></svg></div>`
+    : `<div class="mw-art mw-stk">${[0, 1, 2, 3, 4].map(k => `<span style="--k:${k}">${typeof DOODLE_SETS !== 'undefined' ? _doodleSvg(Object.values(DOODLE_SETS)[k][k], ['#d23a4f', '#173a8a', '#2f8a55', '#e0a800', '#7a4fc0'][k]) : ''}</span>`).join('')}</div>`;
+  const pct = (P.progress !== null && P.progress !== undefined) ? `<div class="mw-prog"><span class="mw-prog-l">${en ? 'Work in progress' : 'Avancement des travaux'} · ${P.progress} %</span><div class="mw-bar"><i style="width:${P.progress}%"></i></div></div>` : '';
+  const btn = (P.url && L.button) ? `<a class="mw-btn" href="${esc(P.url)}" target="_blank" rel="noopener">${esc(L.button)}</a>` : '';
+  return `<div class="mw-sheet">${art}
+    ${P.showDate === false ? '' : `<div class="mw-date">${new Date().toLocaleDateString(en ? 'en-GB' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</div>`}
+    <h1 class="mw-title">${esc(title).replace(/\*([^*]+)\*/g, '<mark>$1</mark>')}</h1>
+    <p class="mw-text">${esc(text)}</p>
+    ${note ? `<p class="mw-note">${esc(note)}</p>` : ''}
+    ${P.backAt ? `<p class="mw-count">${_mwCountdown(P.backAt, en)}</p>` : ''}
+    ${pct}${btn}
+    <p class="mw-sign">${esc(sign)}</p>
   </div>`;
 }
+window._maintWallHtml = _maintWallHtml;
 
 document.addEventListener('DOMContentLoaded', () => {
   _loadNewsComments();
