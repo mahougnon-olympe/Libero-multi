@@ -588,6 +588,9 @@ const DICT = {
     lockerTitle:'🎒 Mon casier',
     lockerEmpty:"Tu n'as encore rien acheté dans la boutique. Passe faire un tour !",
     lockerEquipped:'équipé',
+    luBonPoint:'BON POINT', luImage:'Image d\'honneur', luFelicitations:'FÉLICITATIONS DU CONSEIL', luNewLevel:'Nouveau niveau atteint !',
+    luDiplome:'DIPLÔME', luAwarded:(n, lv) => `décerné à ${n}<br>pour le niveau ${lv}`, luHonour:'Tableau d\'honneur', luTap:'Touche pour continuer',
+    xpNudge:n => `Plus que ${n} XP !`,
     chatbotWriting:'Libé écrit…', chatbotNeedHelp:'Besoin d\'aide ?',
     vbWord:'VICTOIRE', vbVictory:'Victoire', vbBravo:'BRAVO !', vbExcellent:'Excellent travail !', vbSub:n => `${n} gagne la partie`,
     portraitCardTitle:'Mon portrait', portraitCardSub:'Dessine ta photo de profil', portraitTitle:'Mon portrait',
@@ -1354,6 +1357,9 @@ const DICT = {
     lockerTitle:'🎒 My locker',
     lockerEmpty:"You haven't bought anything in the shop yet. Go take a look!",
     lockerEquipped:'equipped',
+    luBonPoint:'GOOD MARK', luImage:'Merit card', luFelicitations:'HONOURS FROM THE BOARD', luNewLevel:'New level reached!',
+    luDiplome:'DIPLOMA', luAwarded:(n, lv) => `awarded to ${n}<br>for level ${lv}`, luHonour:'Honour roll', luTap:'Tap to continue',
+    xpNudge:n => `Only ${n} XP to go!`,
     chatbotWriting:'Libé is writing…', chatbotNeedHelp:'Need help?',
     vbWord:'VICTORY', vbVictory:'Victory', vbBravo:'BRAVO!', vbExcellent:'Excellent work!', vbSub:n => `${n} wins the game`,
     portraitCardTitle:'My portrait', portraitCardSub:'Draw your profile picture', portraitTitle:'My portrait',
@@ -12332,7 +12338,16 @@ window._renderLevel = function () {
   if (main) main.textContent = t().levelMain(lv);
   if (sub)  sub.textContent  = t().levelSub(xp, next);
   // Borne basse : un couple niveau/XP incoherent donnerait une largeur negative.
-  if (fill) fill.style.width = `${Math.max(0, Math.min(100, Math.round(((xp - cur) / (next - cur)) * 100)))}%`;
+  const pct = Math.max(0, Math.min(100, Math.round(((xp - cur) / (next - cur)) * 100)));
+  if (fill) fill.style.width = `${pct}%`;
+  // Presque au niveau suivant : le badge « respire » et le prof note combien il reste.
+  const close = pct >= 90 && xp < next;
+  badge.classList.toggle('lv-close', close);
+  let nudge = document.getElementById('lv-nudge');
+  if (close) {
+    if (!nudge && fill) { nudge = document.createElement('span'); nudge.id = 'lv-nudge'; nudge.className = 'lv-nudge'; fill.closest('.pid-main')?.appendChild(nudge); }
+    if (nudge) nudge.textContent = t().xpNudge(next - xp);
+  } else nudge?.remove();
   // Palette de la bande selon le palier de niveau (de plus en plus prestigieuse).
   const banner = document.getElementById('level-banner');
   if (banner) {
@@ -12344,8 +12359,43 @@ window._renderLevel = function () {
 socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
   window._myXp = xp; window._myLevel = level;
   window._renderLevel();
-  if (levelUp) { showCursorSnakeToast(t().levelUpToast(levelUp, reward || 0)); if (typeof celebrate === 'function') celebrate(); }
+  if (levelUp) { window._showLevelUp?.(levelUp, reward || 0); try { window._sound?.play('success'); } catch {} }
 });
+
+// ── Animation de passage de niveau, une par palier (comme a l'ecole) ─────────
+// 2-4 bon point, 5-9 image d'honneur, 10-24 felicitations du conseil,
+// 25-49 diplome, 50+ tableau d'honneur. Un clic (ou 5 s) referme.
+window._showLevelUp = function (lv, reward) {
+  const d = t(), name = _escHtml((localStorage.getItem('playerName') || '').trim() || d.profilePseudoFallback);
+  const tier = lv >= 50 ? 5 : lv >= 25 ? 4 : lv >= 10 ? 3 : lv >= 5 ? 2 : 1;
+  const rw = reward ? `<span class="lu-rw">+<b class="lu-count" data-to="${reward}">0</b> Libs</span>` : '';
+  const H = {
+    1: `<div class="lu-bp"><b>${d.luBonPoint}</b><span class="lu-hand">${d.levelMain(lv)}</span><span class="lu-st">${lv}</span></div>`,
+    2: `<div class="lu-flip"><div class="in"><div class="back"></div><div class="face"><div><b>${d.levelMain(lv)}</b><br><span>${d.luImage}</span><svg viewBox="0 0 40 40" width="56" height="56"><path d="M20 4l4.4 9.2 10 1.2-7.4 6.9 2 9.9L20 26.3l-9 4.9 2-9.9-7.4-6.9 10-1.2z" fill="#ffe169" stroke="#22252b" stroke-width="2"/></svg></div></div></div></div>`,
+    3: `<div class="lu-fel"><span class="rib">${d.luFelicitations}</span><span class="lv">${lv}</span><span class="hl">${d.luNewLevel}</span></div>`,
+    4: `<div class="lu-dip"><div class="rod"></div><div class="paper"><b>${d.luDiplome}</b><span>${d.luAwarded(name, lv)}</span></div><div class="rod"></div><div class="seal">${lv}</div></div>`,
+    5: `<div class="lu-hon"><small>${d.luHonour}</small><div class="nm">${name}</div><div class="gold">${d.levelMain(lv)}</div></div>`,
+  }[tier];
+  document.getElementById('lu-show')?.remove();
+  const ov = document.createElement('div');
+  ov.id = 'lu-show'; ov.className = 'lu-show lu-t' + tier;
+  ov.innerHTML = `<div class="lu-stage">${H}${rw}<span class="lu-close">${d.luTap}</span></div>`;
+  document.body.appendChild(ov);
+  if (tier === 5) {
+    const box = ov.querySelector('.lu-hon');
+    for (let i = 0; i < 46; i++) { const c = document.createElement('i'); c.className = 'lu-conf'; c.style.left = Math.random() * 100 + '%';
+      c.style.background = ['#ffe169', '#fff2b0', '#e0a800', '#fff'][i % 4]; c.style.setProperty('--dx', (Math.random() * 80 - 40) + 'px');
+      c.style.setProperty('--r', (Math.random() * 720) + 'deg'); c.style.animationDelay = (1.6 + Math.random() * 1.4) + 's'; box.appendChild(c); }
+  } else if (typeof celebrate === 'function' && tier >= 3) celebrate({ count: 60 });
+  // Les Libs gagnes « s'ecrivent » jusqu'au total.
+  const cnt = ov.querySelector('.lu-count');
+  if (cnt) { const to = +cnt.dataset.to, t0 = performance.now() + 900;
+    const tick = now => { const k = Math.max(0, Math.min(1, (now - t0) / 900)); cnt.textContent = Math.round(to * k); if (k < 1 && ov.isConnected) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick); }
+  const close = () => { ov.classList.add('out'); setTimeout(() => ov.remove(), 300); };
+  ov.addEventListener('click', close);
+  setTimeout(() => { if (ov.isConnected) close(); }, 5200);
+};
 
 // ── Roue de la fortune (1 tour par jour) ─────────────────────────────────────
 (function initWheel() {

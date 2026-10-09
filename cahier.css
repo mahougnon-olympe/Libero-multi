@@ -1529,3 +1529,55 @@ html:not(.light) .chatbot-log { background: linear-gradient(90deg, transparent 2
 .sticker-avalanche .stk { position: absolute; left: 0; top: 0; will-change: transform; border-radius: 50%; background: #fff; border: 2px solid rgba(34,37,43,.85); box-shadow: 2px 3px 0 rgba(0,0,0,.18); box-sizing: border-box; display: grid; place-items: center; }
 .sticker-avalanche .stk svg { width: 100%; height: 100%; display: block; }
 .sticker-avalanche .stk-emo { line-height: 1; padding: 0; }
+
+/* ══ PASSAGE DE NIVEAU : une animation par palier ═══════════════════════════ */
+.lu-show { position: fixed; inset: 0; z-index: 100000; display: grid; place-items: center; background: rgba(20,24,30,.66); animation: luFade .25s ease-out both; cursor: pointer; padding: 16px; }
+.lu-show.out { animation: luFadeOut .3s ease-in forwards; }
+@keyframes luFade { from { opacity: 0; } } @keyframes luFadeOut { to { opacity: 0; } }
+.lu-stage { display: grid; justify-items: center; gap: 10px; max-width: 100%; }
+.lu-rw { font: 700 1.6rem var(--font-hand); color: #fff27a; text-shadow: 0 2px 0 rgba(0,0,0,.4); }
+.lu-rw b { font-variant-numeric: tabular-nums; }
+.lu-close { font: 700 1.05rem var(--font-hand); color: #fff; opacity: .8; }
+.lu-bp { width: 230px; padding: 14px; border: 3px double #22252b; background: #fff7d6; color: #22252b; text-align: center; box-shadow: 0 6px 0 rgba(0,0,0,.25); animation: luBpIn .6s cubic-bezier(.3,1.5,.5,1) both; display: grid; justify-items: center; gap: 4px; }
+.lu-bp b { font: 400 1.5rem var(--font-display); }
+.lu-hand { font: 700 1.3rem var(--font-hand); color: #173a8a; }
+.lu-st { color: #d23a4f; border: 3px solid #d23a4f; border-radius: 50%; width: 64px; height: 64px; display: grid; place-items: center; font: 400 1.4rem var(--font-display); transform: rotate(-12deg); animation: luStamp .35s cubic-bezier(.3,1.6,.5,1) .7s both; }
+@keyframes luBpIn { from { transform: translateX(-140%) rotate(-12deg); } to { transform: none; } }
+@keyframes luStamp { from { transform: rotate(-12deg) scale(2.4); opacity: 0; } to { transform: rotate(-12deg) scale(1); opacity: 1; } }
+.lu-flip { width: 200px; height: 260px; perspective: 800px; }
+.lu-flip .in { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; animation: luFlip 1.2s cubic-bezier(.3,1.3,.5,1) .2s both; }
+@keyframes luFlip { from { transform: rotateY(180deg) translateY(30px); } to { transform: none; } }
+.lu-flip .face, .lu-flip .back { position: absolute; inset: 0; backface-visibility: hidden; border: 2px solid #22252b; border-radius: 10px; box-shadow: 0 6px 0 rgba(0,0,0,.25); }
+.lu-flip .back { transform: rotateY(180deg); background: repeating-linear-gradient(45deg, #173a8a 0 8px, #3d64b8 8px 16px); }
+.lu-flip .face { background: #fff radial-gradient(circle at 50% 38%, #fff27a 0 46px, transparent 47px); color: #22252b; display: grid; place-items: center; text-align: center; padding: 14px; }
+.lu-flip .face b { font: 400 1.25rem var(--font-display); }
+.lu-flip .face span { font: 700 1.2rem var(--font-hand); color: #d23a4f; }
+.lu-fel { text-align: center; display: grid; justify-items: center; background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; padding: 18px 22px; box-shadow: 0 6px 0 var(--hard); }
+.lu-fel .rib { background: #d23a4f; color: #fff; font: 400 1.05rem var(--font-display); padding: 10px 30px; clip-path: polygon(0 0,100% 0,96% 50%,100% 100%,0 100%,4% 50%); animation: luUnroll .8s ease-out .2s both; }
+@keyframes luUnroll { from { clip-path: polygon(50% 0,50% 0,50% 50%,50% 100%,50% 100%,50% 50%); } }
+.lu-fel .lv { font: 400 4.6rem/1 var(--font-display); color: var(--text); margin-top: 10px; animation: luPop .6s cubic-bezier(.3,1.6,.5,1) .9s both; }
+@keyframes luPop { from { transform: scale(0) rotate(-20deg); } }
+.lu-fel .hl { font: 700 1.4rem var(--font-hand); color: var(--accent); background: linear-gradient(transparent 55%, var(--mark) 55%) no-repeat 0 0 / 0% 100%; animation: luMark .6s ease-out 1.4s forwards; }
+@keyframes luMark { to { background-size: 100% 100%; } }
+.lu-dip { width: min(320px, 90vw); position: relative; }
+.lu-dip .paper { background: #fbf3df; color: #3a2a05; border: 2px solid #8a6410; padding: 18px 18px 22px; text-align: center; transform-origin: top; animation: luRoll 1s cubic-bezier(.3,1.1,.5,1) .3s both; }
+.lu-dip .paper b { font: 400 1.3rem var(--font-display); display: block; }
+.lu-dip .paper span { font: 700 1.3rem var(--font-hand); }
+.lu-dip .rod { height: 16px; border-radius: 8px; background: linear-gradient(#c58a4f, #7a4a22); border: 2px solid #22252b; margin: 0 -10px; }
+.lu-dip .seal { position: absolute; right: 16px; bottom: -14px; width: 56px; height: 56px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ff8a8a, #a3122a); border: 2px solid #22252b; display: grid; place-items: center; color: #fff; font: 400 .95rem var(--font-display); animation: luStamp .35s cubic-bezier(.3,1.6,.5,1) 1.4s both; }
+@keyframes luRoll { from { transform: scaleY(0); } }
+.lu-hon { width: min(380px, 92vw); background: #1f2a26; border: 10px solid #6b4a2b; border-radius: 6px; padding: 18px; text-align: center; color: #eef1ea; position: relative; overflow: hidden; }
+.lu-hon small { font: 700 1.1rem var(--font-hand); opacity: .8; }
+.lu-hon .nm { font: 700 3rem/1.1 var(--font-hand); clip-path: inset(0 100% 0 0); animation: luWrite 1.5s steps(18) .4s forwards; }
+@keyframes luWrite { to { clip-path: inset(0 0 0 0); } }
+.lu-hon .gold { font: 400 1.2rem var(--font-display); color: #ffe169; opacity: 0; animation: luIn .4s 1.9s forwards; }
+@keyframes luIn { to { opacity: 1; } }
+.lu-conf { position: absolute; top: -10px; width: 9px; height: 6px; border: 1px solid rgba(0,0,0,.4); animation: luFall 2.4s linear both; }
+@keyframes luFall { from { transform: none; } to { transform: translate(var(--dx), 300px) rotate(var(--r)); } }
+/* Entre deux niveaux : la barre se remplit au surligneur, le badge respire, le prof note le reste */
+:root:root #level-bar-fill { background: var(--mark); border-right: 2px solid var(--accent); transition: width 1.2s cubic-bezier(.3,.9,.4,1); }
+.level-badge.lv-close { animation: lvRing 2.4s ease-out infinite; border-radius: 999px; }
+@keyframes lvRing { 0% { box-shadow: 0 0 0 0 var(--mark); } 70% { box-shadow: 0 0 0 12px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+.lv-nudge { display: inline-block; font: 700 1.05rem var(--font-hand); color: var(--margin); margin-left: 6px; animation: lvNud 2.2s ease-in-out infinite; }
+@keyframes lvNud { 0%, 70%, 100% { transform: none; } 75% { transform: translateX(-3px) rotate(-2deg); } 85% { transform: translateX(3px) rotate(2deg); } }
+@media (prefers-reduced-motion: reduce) { .lu-show *, .lv-nudge, .level-badge.lv-close { animation: none !important; clip-path: none !important; opacity: 1 !important; } }
