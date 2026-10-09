@@ -1127,7 +1127,7 @@ function dbSaveFlashOffer() {
 // client). L'admin peut forcer un article dedans ou dehors, avec un compte a
 // rebours optionnel de disparition. Persiste dans server_config 'shop_overrides'.
 const DEFAULT_SHOP_TYPES = new Set(['color', 'font', 'nameeffect', 'title', 'background', 'cursorsnake', 'snakeskin',
-  'bubble', 'avatar', 'p4token', 'ttt', 'chess', 'clickfx', 'emojipack', 'victoryban', 'soundpack']);
+  'bubble', 'p4token', 'ttt', 'chess', 'clickfx', 'emojipack', 'victoryban', 'soundpack']);
 const shopOverrides = new Map(); // cosmeticId -> { inShop, until }
 function pruneShopOverrides() {
   let changed = false;

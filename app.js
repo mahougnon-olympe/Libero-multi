@@ -6404,7 +6404,7 @@ function _renderShopItems() {
   // Familles en vente. Les emotes n'y sont JAMAIS : elles ont leur propre rayon
   // dans la carte Emotes du profil.
   const KEPT_SHOP_TYPES = new Set(['color', 'font', 'nameeffect', 'title', 'background', 'boost', 'cursorsnake', 'snakeskin',
-    'bubble', 'avatar', 'p4token', 'ttt', 'chess', 'clickfx', 'emojipack', 'victoryban', 'soundpack']);
+    'bubble', 'p4token', 'ttt', 'chess', 'clickfx', 'emojipack', 'victoryban', 'soundpack']); // avatars retires : remplaces par le portrait dessine
   const rotDaily = shopRotation?.daily || [];
   const _pickKept = ids => ids.map(id => allItemsById[id]).filter(it => it && KEPT_SHOP_TYPES.has(it.type));
   // « À la une » : on garde les vedettes du serveur (uniquement des familles
@@ -6539,7 +6539,6 @@ function _renderShopItems() {
       <button class="shop-fn-nav-btn" data-section="cursorsnakes"><span class="shop-nav-icon" data-ic="mouse">🖱️</span><span class="shop-nav-label"> ${nav.cursorsnakes}</span></button>
       <button class="shop-fn-nav-btn" data-section="snakeskins"><span class="shop-nav-icon" data-ic="worm">🐍</span><span class="shop-nav-label"> ${nav.snakeskins}</span></button>
       <button class="shop-fn-nav-btn" data-section="bubbles"><span class="shop-nav-icon" data-ic="bubble">💬</span><span class="shop-nav-label"> ${nav.bubbles}</span></button>
-      <button class="shop-fn-nav-btn" data-section="avatars"><span class="shop-nav-icon" data-ic="avatar">🎭</span><span class="shop-nav-label"> ${nav.avatars}</span></button>
       <button class="shop-fn-nav-btn" data-section="p4tokens"><span class="shop-nav-icon" data-ic="token">🔴</span><span class="shop-nav-label"> ${nav.p4tokens}</span></button>
       <button class="shop-fn-nav-btn" data-section="ttt"><span class="shop-nav-icon" data-ic="hash">✖️</span><span class="shop-nav-label"> ${nav.ttt}</span></button>
       <button class="shop-fn-nav-btn" data-section="chess"><span class="shop-nav-icon" data-ic="castle">♟️</span><span class="shop-nav-label"> ${nav.chess}</span></button>
@@ -6645,11 +6644,6 @@ function _renderShopItems() {
       <div class="shop-fn-grid">${bubbleItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
-    <section class="shop-fn-section" id="shop-sec-avatars" data-section-id="avatars">
-      <h3 class="shop-fn-section-title">${d.shopAvatarsTitle}</h3>
-      <p class="shop-fn-section-desc">${d.shopSectionDescs.avatars}</p>
-      <div class="shop-fn-grid">${avatarItems.map(it => tileHtml(it)).join('')}</div>
-    </section>
 
     <section class="shop-fn-section" id="shop-sec-p4tokens" data-section-id="p4tokens">
       <h3 class="shop-fn-section-title">${d.shopP4TokensTitle}</h3>
