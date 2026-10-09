@@ -478,9 +478,10 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
       </section>
 <section data-sec="maint">
         <h2><span class="adm-ic" data-ic="tools">🛠️</span> Mode maintenance</h2>
-        <p class="sub" style="margin-top:-4px;">Affiche un bandeau d'avertissement en haut du site (non bloquant). Utile pendant une mise à jour.</p>
+        <p class="sub" style="margin-top:-4px;">Bandeau d'avertissement en haut du site, ou fermeture complète (« Bloquer le site ») : les joueurs voient alors un écran de travaux et ne peuvent plus rien faire. Toi, tu passes grâce à ta clé admin enregistrée dans ce navigateur.</p>
         <div class="field">
           <input id="maint-msg" placeholder="Message (ex : Retour à 18h)" maxlength="300" style="flex:1" />
+          <label style="display:flex;align-items:center;gap:6px;white-space:nowrap"><input type="checkbox" id="maint-block"> Bloquer le site</label>
           <button id="btn-maint-on" class="red">Activer</button>
           <button id="btn-maint-off" class="green">Désactiver</button>
         </div>
@@ -1124,7 +1125,7 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
       renderScheduled(d.scheduled);
       renderBanned(d.bannedWords);
       renderBookPrices(d.bookPrices);
-      if ($('maint-status')) $('maint-status').textContent = d.maintenance && d.maintenance.on ? ('🛠️ Maintenance ACTIVE : ' + (d.maintenance.message || '(sans message)')) : 'Maintenance désactivée.';
+      if ($('maint-status')) $('maint-status').textContent = d.maintenance && d.maintenance.on ? ('🛠️ Maintenance ACTIVE' + (d.maintenance.block ? ' (site BLOQUÉ)' : ' (bandeau seul)') + ' : ' + (d.maintenance.message || '(sans message)')) : 'Maintenance désactivée.';
       if ($('maint-msg') && d.maintenance && d.maintenance.message && !$('maint-msg').value) $('maint-msg').value = d.maintenance.message;
       renderComments(d.comments);
       renderResets(d.resets);
@@ -1552,7 +1553,7 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
 
     // Maintenance.
     async function setMaint(on) {
-      try { await api('/admin/maintenance', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ on:on, message: $('maint-msg').value.trim() }) }); await refresh(); } catch (e) {}
+      try { await api('/admin/maintenance', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ on:on, block: on && !!($('maint-block') && $('maint-block').checked), message: $('maint-msg').value.trim() }) }); await refresh(); } catch (e) {}
     }
     if ($('btn-maint-on'))  $('btn-maint-on').addEventListener('click', function () { setMaint(true); });
     if ($('btn-maint-off')) $('btn-maint-off').addEventListener('click', function () { setMaint(false); });

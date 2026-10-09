@@ -5057,3 +5057,26 @@ html.ic3d-wait [data-ic]:not(.has-ic3d):not(.ic3d-skip) { opacity: 0; }
 .ludo-pawn.can-play { box-shadow:none; filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 8px rgba(99,102,241,.95)); }
 .ludo-pawn { width:calc((100% / 15) * 1.02); height:calc((100% / 15) * 1.3);
   left:calc(var(--lc) * (100% / 15) - (100% / 15) * .01 + var(--stack) * 4px); top:calc(var(--lr) * (100% / 15) - (100% / 15) * .36 - var(--stack) * 4px); }
+
+/* Mur de maintenance (site ferme) : premier apercu du nouveau design. Theme sombre = l'ardoise, theme clair = le cahier. */
+html.site-closed body > *:not(#maintenance-wall):not(script):not(style) { display: none !important; }
+html.site-closed, html.site-closed body { overflow: hidden; }
+#maintenance-wall { position: fixed; inset: 0; z-index: 99999; display: grid; place-items: center; padding: 24px 16px;
+  background: #1f2a26; background-image: radial-gradient(120% 80% at 30% 0%, rgba(255,255,255,.06), transparent 60%);
+  box-shadow: inset 0 0 0 10px #6b4a2b; color: #eef1ea; font-family: "Karla", system-ui, sans-serif; }
+#maintenance-wall .mw-sheet { max-width: 34rem; padding-left: 8px; }
+#maintenance-wall .mw-date { color: #f3f0d9; font-size: 1.05rem; font-style: italic; margin-bottom: 8px; }
+#maintenance-wall .mw-title { font-family: "Space Grotesk", system-ui, sans-serif; font-weight: 800; font-size: clamp(1.8rem, 6vw, 2.8rem); line-height: 1.08; margin: 0 0 16px; text-wrap: balance;
+  background: none; -webkit-text-fill-color: currentColor; color: inherit; }
+#maintenance-wall mark { background: linear-gradient(transparent 60%, rgba(255,225,105,.55) 60%); color: inherit; -webkit-text-fill-color: currentColor; }
+#maintenance-wall .mw-text { font-size: 1.05rem; line-height: 1.6; margin: 0 0 12px; }
+#maintenance-wall .mw-note { border-left: 3px solid #ff8e8e; padding-left: 10px; color: #ff9e9e; margin: 0 0 12px; }
+#maintenance-wall .mw-sign { color: #f3f0d9; font-style: italic; margin: 18px 0 0; }
+html.light #maintenance-wall { color: #2b2b2b; box-shadow: none; background-color: #fdfdf9;
+  background-image: linear-gradient(90deg, transparent 40px, #e2485d 40px 42px, transparent 42px),
+    repeating-linear-gradient(0deg, transparent 0 31px, #8fb0de 31px 32px),
+    repeating-linear-gradient(0deg, transparent 0 7px, #c9d8ef 7px 8px); }
+html.light #maintenance-wall .mw-sheet { padding-left: 44px; }
+html.light #maintenance-wall .mw-date, html.light #maintenance-wall .mw-sign { color: #173a8a; }
+html.light #maintenance-wall mark { background: linear-gradient(transparent 55%, #fff27a 55%); }
+html.light #maintenance-wall .mw-note { color: #b3263a; border-color: #e2485d; }

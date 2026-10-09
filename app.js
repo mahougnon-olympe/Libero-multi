@@ -7122,22 +7122,52 @@ function _settingsOutsideClick(e) {
 
 // Banniere de maintenance : recuperee au chargement (et rafraichie toutes les 2 min).
 function _checkMaintenance() {
-  fetch(`${window.BACKEND_URL}/api/status`).then(r => r.json()).then(s => {
+  // La cle admin (posee par stats.html sur ce meme site) permet au proprietaire de passer le mur.
+  let k = null; try { k = localStorage.getItem('libero_admin_key'); } catch (_) {}
+  fetch(`${window.BACKEND_URL}/api/status`, k ? { headers: { 'X-Admin-Key': k } } : undefined).then(r => r.json()).then(s => {
     _applyTopupFlag(!!(s && s.libsTopup));
+    _applyMaintenanceWall(s);
     const el = document.getElementById('maintenance-banner');
     if (!el) return;
+    if (s && s.block && !s.owner) { el.classList.add('hidden'); return; }
     if (s && s.maintenance) {
       const msg = (currentLang === 'en' && s.messageEn) ? s.messageEn : (s.message || '');
-      el.textContent = '🛠️ ' + (msg || (currentLang === 'en' ? 'Maintenance in progress, some features may be unavailable.' : 'Maintenance en cours, certaines fonctions peuvent etre indisponibles.'));
+      el.textContent = (s.block && s.owner)
+        ? (currentLang === 'en' ? 'Owner mode: the site is closed to players.' : 'Mode propriétaire : le site est fermé aux joueurs.')
+        : (msg || (currentLang === 'en' ? 'Maintenance in progress, some features may be unavailable.' : 'Maintenance en cours, certaines fonctions peuvent être indisponibles.'));
       el.classList.remove('hidden');
     } else { el.classList.add('hidden'); }
   }).catch(() => {});
 }
 
+// Mur de maintenance : le site entier est ferme aux joueurs (le proprietaire passe).
+function _applyMaintenanceWall(s) {
+  const on = !!(s && s.block && !s.owner);
+  let wall = document.getElementById('maintenance-wall');
+  document.documentElement.classList.toggle('site-closed', on);
+  if (!on) { if (wall) wall.remove(); return; }
+  const en = currentLang === 'en';
+  const msg = (en && s.messageEn) ? s.messageEn : (s.message || '');
+  if (!wall) {
+    wall = document.createElement('div');
+    wall.id = 'maintenance-wall';
+    wall.setAttribute('role', 'alertdialog');
+    wall.setAttribute('aria-modal', 'true');
+    document.body.appendChild(wall);
+  }
+  wall.innerHTML = `<div class="mw-sheet">
+    <div class="mw-date">${new Date().toLocaleDateString(en ? 'en-GB' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+    <h1 class="mw-title">${en ? 'Libero is getting <mark>a makeover</mark>.' : 'Libero fait <mark>peau neuve</mark>.'}</h1>
+    <p class="mw-text">${en ? 'The site is closed for a few days while we redesign it. Your Libs, your cosmetics and your progress are kept safe.' : 'Le site est fermé quelques jours, le temps de le redessiner. Tes Libs, tes cosmétiques et ta progression sont bien gardés.'}</p>
+    ${msg ? `<p class="mw-note">${_escHtml(msg)}</p>` : ''}
+    <p class="mw-sign">${en ? 'See you very soon.' : 'À très vite.'}</p>
+  </div>`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   _loadNewsComments();
   _checkMaintenance();
-  setInterval(_checkMaintenance, 120_000);
+  setInterval(_checkMaintenance, 60_000);
 
   const settingsBtn = document.getElementById('btn-settings');
   if (settingsBtn) {

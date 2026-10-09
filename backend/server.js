@@ -5289,7 +5289,10 @@ app.get('/api/push-key', (req, res) => {
 
 // Statut public : sert la banniere de maintenance cote site.
 app.get('/api/status', (req, res) => {
-  res.json({ maintenance: !!maintenance.on, message: maintenance.message || '', messageEn: maintenance.messageEn || '',
+  const block = !!(maintenance.on && maintenance.block);
+  // Le proprietaire (cle admin envoyee par son navigateur) passe le mur pour suivre les travaux.
+  const owner = block && !!req.headers['x-admin-key'] && isAdmin(req);
+  res.json({ maintenance: !!maintenance.on, block, owner, message: maintenance.message || '', messageEn: maintenance.messageEn || '',
     libsTopup: LIBS_TOPUP_ENABLED });
 });
 
@@ -5412,11 +5415,13 @@ app.post('/admin/maintenance', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   maintenance = {
     on: !!req.body?.on,
+    // block : le site entier est ferme aux joueurs (mur plein ecran), pas seulement un bandeau.
+    block: !!req.body?.on && !!req.body?.block,
     message:   String(req.body?.message   || '').trim().slice(0, 300),
     messageEn: String(req.body?.messageEn || '').trim().slice(0, 300),
   };
   saveConfig('maintenance', maintenance);
-  adminAudit('maintenance', { on: maintenance.on });
+  adminAudit('maintenance', { on: maintenance.on, block: maintenance.block });
   res.json({ ok: true, maintenance });
 });
 
