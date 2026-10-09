@@ -7,7 +7,9 @@
   <title>Tableau de bord · Libero's Multi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Karla:wght@400;600;700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap">
+  <script>(function(){try{var m=localStorage.getItem('themeMode'),h=new Date().getHours();
+    if(m==='light'||(m!=='dark'&&h>=7&&h<20))document.documentElement.classList.add('light');}catch(e){}})();</script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=Archivo+Black&family=Caveat:wght@600;700&display=swap">
   <style>
     :root {
       --bg:#0a0c18; --card:#131727; --card2:#1c2040; --board:#6366f1;
@@ -374,6 +376,119 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
 #pg-body input[type=text], #pg-body input:not([type]), #pg-body input[type=password] { max-width:100%; }
 @media (max-width:560px) { #pg-body .field > input, #pg-body .field > select { flex:1 1 100% !important; max-width:100% !important; } }
 
+
+/* =====================================================================
+   CAHIER ET ARDOISE (refonte d'octobre 2026) : le meme design que le site.
+   Le tableau de bord devient un cahier de bord : ardoise la nuit, page Seyes
+   le jour. Le Plateau reste un Ludo, dessine comme celui du jeu.
+   ===================================================================== */
+:root {
+  --bg:#1f2a26; --card:#26332e; --card2:#2e3d37; --text:#eef1ea; --muted:#a7b3ab; --accent:#ffe169;
+  --border:rgba(238,241,234,.2); --rule:rgba(238,241,234,.28); --cream:#eef1ea; --gold:#ffe169; --verm:#ff8e8e;
+  --green:#8fe0a8; --red:#ff8e8e; --amber:#ffe169; --line:rgba(238,241,234,.32); --mark:rgba(255,225,105,.45); --hard:rgba(0,0,0,.32);
+  --c-red:#d23a4f; --c-green:#2f8a55; --c-yellow:#e0a800; --c-blue:#3d64b8;
+  --f-serif:'Archivo Black','Archivo',system-ui,sans-serif; --f-mono:'Archivo',system-ui,sans-serif; --f-sans:'Archivo',system-ui,sans-serif;
+  --f-hand:'Caveat',cursive;
+}
+html.light {
+  --bg:#fdfdf9; --card:#ffffff; --card2:#f3f6fc; --text:#22252b; --muted:#5e6470; --accent:#173a8a;
+  --border:rgba(34,37,43,.2); --rule:rgba(34,37,43,.3); --cream:#22252b; --gold:#173a8a; --verm:#e2485d;
+  --green:#2f8a55; --red:#e2485d; --amber:#b8860b; --line:rgba(34,37,43,.8); --mark:#fff27a; --hard:rgba(23,58,138,.16);
+}
+html { background:var(--bg); }
+body {
+  font-family:'Archivo',system-ui,sans-serif; color:var(--text); background-color:var(--bg);
+  background-image:radial-gradient(130% 90% at 25% 0%,rgba(255,255,255,.055),transparent 62%); background-size:auto;
+}
+html.light body {
+  background-image:repeating-linear-gradient(0deg,transparent 0 31px,rgba(80,130,205,.42) 31px 32px),
+    repeating-linear-gradient(0deg,transparent 0 7px,rgba(120,160,220,.2) 7px 8px);
+}
+/* La marge rouge du cahier, seulement quand il y a la place */
+@media (min-width:700px) {
+  html.light body { background-image:linear-gradient(90deg,transparent 10px,#e2485d 10px 12px,transparent 12px),
+    repeating-linear-gradient(0deg,transparent 0 31px,rgba(80,130,205,.42) 31px 32px),
+    repeating-linear-gradient(0deg,transparent 0 7px,rgba(120,160,220,.2) 7px 8px); }
+}
+h1, h2, h3 { font-family:var(--f-serif); font-weight:400; letter-spacing:0; }
+button { font-family:'Archivo',sans-serif; font-weight:700; letter-spacing:.02em; text-transform:none; font-size:.78rem;
+  border-radius:6px; background:var(--card); color:var(--text); border:1.5px solid var(--line); box-shadow:0 2px 0 var(--hard); }
+button.ghost { background:transparent; color:var(--text); border:1.5px solid var(--line); }
+button.green { background:#3d64b8; color:#fff; border-color:rgba(0,0,0,.35); }
+html.light button.green { background:#173a8a; border-color:#0d2050; }
+button.red { background:var(--verm); color:#fff; border-color:rgba(0,0,0,.3); }
+input, select, textarea { background:var(--card); color:var(--text); border:1.5px solid var(--line); border-radius:6px; font-family:'Archivo',sans-serif; }
+input:focus, select:focus, textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--mark); outline:none; }
+.pill { background:var(--card2); border:1px solid var(--border); font-family:'Archivo',sans-serif; }
+.pill.warn { background:var(--card); color:var(--verm); border-color:var(--verm); }
+a { color:var(--accent); }
+.card, #login.card { background:var(--card); border:1.5px solid var(--line); border-radius:8px; box-shadow:0 4px 0 var(--hard); }
+
+/* Bandeau : le titre du cahier */
+.mast { border-bottom:2px solid var(--line); }
+.mast-top { font-family:var(--f-hand); font-size:1.05rem; letter-spacing:0; text-transform:none; color:var(--accent); border-bottom:1px dashed var(--border); }
+.mast-title { font:400 clamp(1.9rem,5vw,3rem)/1 var(--f-serif); font-variation-settings:normal; letter-spacing:0; }
+.mast-title i { font-weight:400; color:inherit; font-style:normal; background:linear-gradient(transparent 60%,var(--mark) 60%); }
+.mast-nav a { font:700 .82rem 'Archivo',sans-serif; letter-spacing:.02em; text-transform:none; }
+.mast-nav a.on { border-color:var(--verm); }
+
+/* Le Plateau : un Ludo dessine (aplats, trait net, plus de halos ni de degrades) */
+.lede h2 { font:400 clamp(1.5rem,3.4vw,2.4rem)/1.08 var(--f-serif); font-variation-settings:normal; letter-spacing:0; }
+.lede h2 em { font-style:normal; color:inherit; background:linear-gradient(transparent 58%,var(--mark) 58%); }
+.lede p { font:700 1.2rem/1.3 var(--f-hand); color:var(--muted); }
+.status { background:var(--card); border:1.5px solid var(--line); font-family:'Archivo',sans-serif; }
+.pl-base { background:var(--card); border:2px solid var(--c); border-radius:10px; box-shadow:0 3px 0 var(--hard); }
+.pl-base::before { display:none; }
+.pl-base h3 { font:400 .9rem var(--f-serif); letter-spacing:0; text-transform:none; color:var(--c); }
+.pl-big { font:400 clamp(2.2rem,5vw,3.6rem)/1 var(--f-serif); letter-spacing:0; }
+.pl-base p { color:var(--muted); }
+.pl-plate { background:var(--card2); border:1.5px dashed var(--border); border-radius:8px; }
+.pl-pawn::before { background:var(--c); border:1.5px solid rgba(0,0,0,.35); }
+.pl-pawn::after { background:var(--c); border:1.5px solid rgba(0,0,0,.35); }
+.pl-pawn span { color:#fff; }
+.pl-arm { background:transparent; border:1.5px dashed var(--c); border-radius:10px; }
+.pl-lab { font:700 .8rem 'Archivo',sans-serif; letter-spacing:.02em; text-transform:none; }
+.pl-tile { background:var(--card); border:1.5px solid var(--line); border-left:5px solid var(--c); border-radius:8px; box-shadow:0 2px 0 var(--hard); font-family:'Archivo',sans-serif; }
+.pl-tile:hover { transform:translateY(-2px); box-shadow:0 4px 0 var(--hard); border-color:var(--line); border-left-color:var(--c); }
+.pl-tile b { font:700 .9rem 'Archivo',sans-serif; }
+.pl-tile em { font:700 1rem var(--f-hand); color:var(--muted); }
+.pl-bd { background:var(--verm); color:#fff; font-family:'Archivo',sans-serif; }
+.pl-bd::after { border-color:var(--verm); }
+.pl-tile.target { border-color:var(--accent); box-shadow:0 0 0 3px var(--mark),0 4px 0 var(--hard); }
+.pl-center { border-radius:10px; box-shadow:0 0 0 2px var(--line),0 4px 0 var(--hard); }
+.pl-dieBtn { background:var(--card); border:2px solid var(--line); }
+.pl-die { background:#fff; border:1.5px solid #22252b; box-shadow:none; }
+.pl-hint { font:700 1.15rem var(--f-hand); letter-spacing:0; }
+.pl-hint b { color:var(--text); background:linear-gradient(transparent 58%,var(--mark) 58%); }
+
+/* Les pages : un cahier de bord */
+.pg-bar { border-bottom:1.5px dashed var(--border); }
+.pg-kicker { font:700 1.15rem var(--f-hand); letter-spacing:0; text-transform:none; color:var(--verm); }
+.pg-tabs button.on { background:var(--accent); color:var(--bg); border-color:var(--accent); }
+html.light .pg-tabs button.on { color:#fff; }
+.pg-tabs .n { background:var(--verm); }
+#pg-body h2 { font:400 clamp(1.5rem,3.6vw,2.3rem)/1.08 var(--f-serif); font-variation-settings:normal; letter-spacing:0; border-bottom:2px solid var(--line); }
+#pg-body .sub { font:600 1.2rem/1.35 var(--f-hand); color:var(--muted); }
+#inactive-list:empty::before, #fraud-list:empty::before { font:700 1.15rem var(--f-hand); }
+#pg-body .kpis { border-block:2px solid var(--line); }
+#pg-body .kpi { border-right:1px dashed var(--border); }
+#pg-body .kpi .num { font:400 clamp(1.5rem,3.2vw,2.2rem)/1 var(--f-serif); font-variation-settings:normal; letter-spacing:0; }
+#pg-body .kpi .lbl { font:700 .72rem 'Archivo',sans-serif; letter-spacing:.02em; text-transform:none; }
+.cmt, .ann-row, .bot-q, .fraud-row, .chart-card, .player-chip, .kpi, .modal-box, .tbl-wrap { border-radius:8px; }
+.cmt, .ann-row, .bot-q, .player-chip, .chart-card { background:var(--card); border:1.5px solid var(--line); box-shadow:0 2px 0 var(--hard); }
+.chart .bar { background:var(--accent); opacity:.85; border-radius:2px 2px 0 0; }
+th { font-family:'Archivo',sans-serif; letter-spacing:.02em; text-transform:none; }
+.tbl-wrap { border:1.5px solid var(--line); }
+tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-color:var(--line); }
+.modal-box { background:var(--card); border:1.5px solid var(--line); box-shadow:0 6px 0 var(--hard); }
+.modal-head h2, .pd-stat .num { font-family:var(--f-serif); font-weight:400; }
+.pd-h3 { font-family:'Archivo',sans-serif; }
+.tag.ok { background:transparent; color:var(--green); border:1.5px solid var(--green); }
+.tag.wait { background:transparent; color:var(--amber); border:1.5px solid var(--amber); }
+.adm-ic, .adm-ic svg { color:var(--accent); }
+.ic3d { transform:none !important; } .ic3d-depth { display:none; }
+.ic3d-face { color:currentColor !important; filter:none !important; }
+.ic3d-face * { stroke:currentColor !important; }
 </style>
   <script type="module" src="icons3d.js"></script>
 </head>
@@ -453,7 +568,7 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
 <section data-sec="push">
         <h2><span class="adm-ic" data-ic="bell">🔔</span> Notification push <span id="push-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Envoie une notification à tous les joueurs abonnés (même site fermé). Nécessite les clés VAPID sur Render.</p>
-        <div class="field"><input id="push-title" placeholder="Titre (ex : 🏆 Tournoi ce samedi !)" maxlength="80" /></div>
+        <div class="field"><input id="push-title" placeholder="Titre (ex : Tournoi ce samedi !)" maxlength="80" /></div>
         <div class="field"><input id="push-body" placeholder="Texte de la notification" maxlength="200" />
           <button id="btn-push-send" class="green">Envoyer</button></div>
         <div class="field">
@@ -463,7 +578,7 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
             <option value="inactive7">Inactifs (7 j et plus)</option>
             <option value="active7">Actifs (moins de 7 j)</option>
             <option value="vip">Membres VIP</option>
-            <option value="big">Gros joueurs (1000 ⚡ et plus)</option>
+            <option value="big">Gros joueurs (1000 et plus)</option>
           </select>
         </div>
         <p id="push-audience" class="sub" style="margin-top:-2px"></p>
@@ -548,7 +663,7 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
           <select id="chal-kind"><option value="daily">Quotidien</option><option value="permanent">Permanent</option></select>
           <select id="chal-metric"></select>
           <input id="chal-goal" type="number" min="1" placeholder="Objectif" style="max-width:110px" />
-          <input id="chal-reward" type="number" min="1" max="10000" placeholder="Récompense ⚡" style="max-width:130px" />
+          <input id="chal-reward" type="number" min="1" max="10000" placeholder="Récompense " style="max-width:130px" />
         </div>
         <div class="field">
           <input id="chal-label" placeholder="Libellé (français)" maxlength="80" />
@@ -632,7 +747,7 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
       </section>
 <section data-sec="botlogs">
         <h2><span class="adm-ic" data-ic="robot">🤖</span> Questions posées à l'assistant <span id="bot-pill" class="pill"></span> <span id="bot-flagged-pill" class="pill hidden" style="background:rgba(251,191,36,.15);color:var(--amber)"></span></h2>
-        <p class="sub" style="margin-top:-4px;">Ce que les joueurs tapent au chatbot d'aide. Clique le drapeau 🚩 pour marquer une question à laquelle il a mal répondu : elle remonte en tête pour que tu penses à enrichir l'aide. Ça n'a aucun effet visible côté joueur.</p>
+        <p class="sub" style="margin-top:-4px;">Ce que les joueurs tapent au chatbot d'aide. Clique le drapeau pour marquer une question à laquelle il a mal répondu : elle remonte en tête pour que tu penses à enrichir l'aide. Ça n'a aucun effet visible côté joueur.</p>
         <div id="botlogs"></div>
       </section>
 <section data-sec="bugs">
@@ -651,22 +766,22 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
           <p>Bienvenue dans ton espace admin. L'accueil est un <strong>plateau</strong> : chaque coin est un domaine (Joueurs, Communauté, Boutique, Système) avec son chiffre clé et de petits pions, et chaque case ouvre une page. Une <strong>pastille pulsante</strong> signale ce qui attend ton action. Le <strong>dé</strong> au centre te désigne la prochaine chose à traiter. L'adresse change avec la page : F5 te ramène exactement au même endroit. Voici à quoi sert chaque zone :</p>
           <ul>
             <li><strong>À la une (menu du haut)</strong> : visites, joueurs nommés, parties Snake et Libero Run, achats en argent réel, abonnés aux notifications. Un coup d'œil rapide sur la santé du site.</li>
-            <li><strong>📈 30 derniers jours</strong> : deux graphiques (visites/jour et parties/jour) + les boutons d'export CSV (liste des joueurs et des achats, ouvrables dans Excel).</li>
-            <li><strong>📣 Annonces</strong> : publie un message qui apparaît en direct dans la carte News du site (français + anglais optionnel). Tu peux modifier ou retirer une annonce existante.</li>
-            <li><strong>🔔 Notification push</strong> : envoie une notification à tous les joueurs abonnés, même site fermé (nécessite les clés VAPID sur Render).</li>
-            <li><strong>⚡ Offre flash</strong> : met un cosmétique en promo quelques heures (bannière + notification automatique).</li>
-            <li><strong>🎯 Défis personnalisés</strong> : crée tes propres défis (quotidiens ou permanents) qui apparaissent chez tous les joueurs.</li>
-            <li><strong>🛍️ Catalogue boutique</strong> : liste de tous les cosmétiques. Mets-les en boutique ou retire-les, avec un compte à rebours optionnel. Les émotes sont gérées ici aussi (elles s'affichent dans la carte Émotes du profil, pas dans la boutique d'objets).</li>
-            <li><strong>🎬 Vidéos</strong> : le feed façon TikTok de l'onglet Vidéos. Colle un lien direct de vidéo (mp4) pour l'ajouter. Tu peux l'afficher/masquer, la réordonner (▲▼), la supprimer, voir ses compteurs (likes, vues, commentaires, partages) et supprimer un commentaire. Les vidéos proposées par les joueurs arrivent « en attente » (pastille orange, en tête) : clique <em>Approuver</em> pour les publier.</li>
-            <li><strong>💡 Idées &amp; suggestions</strong> : les propositions d'amélioration postées par les joueurs (onglet Idées), triées par score de votes. Change le statut (Prévue / Faite / Refusée), épingle une idée en tête, ou supprime.</li>
-            <li><strong>😴 Joueurs qui décrochent</strong> : joueurs sans activité depuis 7 jours et plus. Clique pour ouvrir leur fiche et leur offrir un cadeau de retour.</li>
-            <li><strong>🚨 Alertes fraude</strong> : signalées quand plusieurs comptes tout neufs naissent de la même connexion (IP) en 24h.</li>
-            <li><strong>📋 Journal d'audit</strong> : l'historique de TOUTES tes actions admin (cadeaux, restitutions, annonces, push, offres flash), pour ne jamais te demander « est-ce que j'ai déjà fait ça ? ».</li>
-            <li><strong>💬 Commentaires</strong> : les nouveaux commentaires attendent ta validation avant d'apparaître sur le site. Valide ou supprime.</li>
-            <li><strong>🗑️ Comptes réinitialisés</strong> : progression archivée quand un joueur réinitialise. Tu peux la restituer.</li>
-            <li><strong>👥 Joueurs</strong> : la liste de tous les joueurs. Clique un pseudo pour voir sa fiche complète (stats, cosmétiques, historique) et lui offrir des Libs ou un cosmétique.</li>
-            <li><strong>💳 Achats en argent réel</strong> : les recharges FedaPay (qui, quel pack, statut).</li>
-            <li><strong>🤖 Questions à l'assistant</strong> : ce que les joueurs demandent au chatbot. Clique le drapeau 🚩 pour marquer une question mal comprise à améliorer ; les questions flaguées remontent en tête.</li>
+            <li><strong>30 derniers jours</strong> : deux graphiques (visites/jour et parties/jour) + les boutons d'export CSV (liste des joueurs et des achats, ouvrables dans Excel).</li>
+            <li><strong>Annonces</strong> : publie un message qui apparaît en direct dans la carte News du site (français + anglais optionnel). Tu peux modifier ou retirer une annonce existante.</li>
+            <li><strong>Notification push</strong> : envoie une notification à tous les joueurs abonnés, même site fermé (nécessite les clés VAPID sur Render).</li>
+            <li><strong>Offre flash</strong> : met un cosmétique en promo quelques heures (bannière + notification automatique).</li>
+            <li><strong>Défis personnalisés</strong> : crée tes propres défis (quotidiens ou permanents) qui apparaissent chez tous les joueurs.</li>
+            <li><strong>Catalogue boutique</strong> : liste de tous les cosmétiques. Mets-les en boutique ou retire-les, avec un compte à rebours optionnel. Les émotes sont gérées ici aussi (elles s'affichent dans la carte Émotes du profil, pas dans la boutique d'objets).</li>
+            <li><strong>Vidéos</strong> : le feed façon TikTok de l'onglet Vidéos. Colle un lien direct de vidéo (mp4) pour l'ajouter. Tu peux l'afficher/masquer, la réordonner (▲▼), la supprimer, voir ses compteurs (likes, vues, commentaires, partages) et supprimer un commentaire. Les vidéos proposées par les joueurs arrivent « en attente » (pastille orange, en tête) : clique <em>Approuver</em> pour les publier.</li>
+            <li><strong>Idées &amp; suggestions</strong> : les propositions d'amélioration postées par les joueurs (onglet Idées), triées par score de votes. Change le statut (Prévue / Faite / Refusée), épingle une idée en tête, ou supprime.</li>
+            <li><strong>Joueurs qui décrochent</strong> : joueurs sans activité depuis 7 jours et plus. Clique pour ouvrir leur fiche et leur offrir un cadeau de retour.</li>
+            <li><strong>Alertes fraude</strong> : signalées quand plusieurs comptes tout neufs naissent de la même connexion (IP) en 24h.</li>
+            <li><strong>Journal d'audit</strong> : l'historique de TOUTES tes actions admin (cadeaux, restitutions, annonces, push, offres flash), pour ne jamais te demander « est-ce que j'ai déjà fait ça ? ».</li>
+            <li><strong>Commentaires</strong> : les nouveaux commentaires attendent ta validation avant d'apparaître sur le site. Valide ou supprime.</li>
+            <li><strong>Comptes réinitialisés</strong> : progression archivée quand un joueur réinitialise. Tu peux la restituer.</li>
+            <li><strong>Joueurs</strong> : la liste de tous les joueurs. Clique un pseudo pour voir sa fiche complète (stats, cosmétiques, historique) et lui offrir des Libs ou un cosmétique.</li>
+            <li><strong>Achats en argent réel</strong> : les recharges FedaPay (qui, quel pack, statut).</li>
+            <li><strong>Questions à l'assistant</strong> : ce que les joueurs demandent au chatbot. Clique le drapeau pour marquer une question mal comprise à améliorer ; les questions flaguées remontent en tête.</li>
           </ul>
         </div>
       
@@ -2028,5 +2143,12 @@ tr.clickable:hover td { background:rgba(233,185,73,.1); }
 })();
 
   </script>
+<script>
+  // Aucun emoji dans l'interface (meme regle que le site) : les textes generes par le code en sont nettoyes.
+  (function(){var RE=/(?![©®™])\p{Extended_Pictographic}|[\u{FE0F}\u{200D}]/gu;
+    function f(n){if(!n.nodeValue||!RE.test(n.nodeValue))return;RE.lastIndex=0;var e=n.parentElement;if(!e||e.closest('[data-ic],input,textarea,script,style'))return;n.nodeValue=n.nodeValue.replace(RE,'').replace(/^ +/,'');}
+    function w(r){if(r.nodeType===3){f(r);return;}if(r.nodeType!==1)return;var t=document.createTreeWalker(r,NodeFilter.SHOW_TEXT),x;while((x=t.nextNode()))f(x);}
+    w(document.body);new MutationObserver(function(ms){ms.forEach(function(m){if(m.type==='characterData')f(m.target);else m.addedNodes.forEach(w);});}).observe(document.body,{childList:true,subtree:true,characterData:true});})();
+</script>
 </body>
 </html>
