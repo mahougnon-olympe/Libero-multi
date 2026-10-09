@@ -62,7 +62,7 @@ async function ouvrir(browser, w, h, theme = 'light') {
   }
 
   // ---- decor commun des scenes : tout est masque sauf la scene ----
-  const CSS_SCENE = 'body > *:not(#pv-stage):not([style*="will-change"]):not(script):not(style){display:none!important} html,body{background:#fdfdf9!important;overflow:hidden!important}';
+  const CSS_SCENE = 'body > *:not(#pv-stage):not(.cursor-trail):not([style*="will-change"]):not(script):not(style){display:none!important} html,body{background:#fdfdf9!important;overflow:hidden!important}';
   async function scene(p, bg) {
     await p.addStyleTag({ content: CSS_SCENE });
     await p.evaluate(b => {
@@ -79,7 +79,8 @@ async function ouvrir(browser, w, h, theme = 'light') {
     const p = await ouvrir(browser, 420, 260);
     await scene(p, '#fdfdf9');
     for (const id of ['cursorsnake-pixel','cursorsnake-neon','cursorsnake-comet','cursorsnake-electric','cursorsnake-stars','cursorsnake-fire']) {
-      await p.evaluate(i => { equippedCursorSnake = i; cursorSnake.update(16, 1); cursorSnake.refreshSkin(); }, id);
+      // Le curseur est maintenant un trace sur canevas (initCursorTrail) : rien ne doit le mettre en pause.
+      await p.evaluate(i => { equippedCursorSnake = i; document.body.classList.remove('overlay-open', 'snake-playing'); }, id);
       await p.mouse.move(40, 130); await sleep(300);
       const N = 16;
       for (let k = 0; k < N; k++) {

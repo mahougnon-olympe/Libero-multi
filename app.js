@@ -7605,7 +7605,7 @@ const _SOUND_WAVE = { 'soundpack-retro':'square', 'soundpack-8bit':'square', 'so
 const _SOUND_HUE = { 'soundpack-retro':'#f59e0b', 'soundpack-8bit':'#84cc16', 'soundpack-cyber':'#22d3ee', 'soundpack-crystal':'#a5b4fc', 'soundpack-epic':'#f472b6' };
 // A changer a chaque regeneration des apercus : /assets est garde un jour en cache
 // par le navigateur, sans ce numero les joueurs voient les anciens apercus.
-const PREVIEW_VER = '20261010';
+const PREVIEW_VER = '20261010b';
 function _realPrev(type, id, fallbackHtml) {
   if (type === 'emojipack' && typeof EMOJI_PACK_SETS !== 'undefined' && EMOJI_PACK_SETS[id]) {
     if (typeof DOODLE_SETS !== 'undefined' && DOODLE_SETS[id]) return `<div class="pack-prev doodle-prev">${DOODLE_SETS[id].map(d => `<span>${_doodleSvg(d)}</span>`).join('')}</div>`;
