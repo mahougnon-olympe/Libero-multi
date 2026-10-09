@@ -69,13 +69,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- Typographie de l'interface (Space Grotesk pour les titres, Karla pour le
        texte) : chargee avant les polices cosmetiques, qui restent des articles. -->
-  <link media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Karla:wght@400;600;700&display=swap" rel="stylesheet">
+  <link media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Karla:wght@400;600;700&family=Archivo:wght@400;600;700;800&family=Archivo+Black&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
   <!-- Polices cosmetiques : chargees sans bloquer le rendu (media=print puis all).
        Elles n'habillent que des pseudos achetes, l'interface n'en depend pas. -->
   <link media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@700&family=Chakra+Petch:wght@700&family=Audiowide&family=Exo+2:wght@700&family=Bungee&family=Black+Ops+One&family=Russo+One&family=Press+Start+2P&family=VT323&family=Share+Tech+Mono&family=Major+Mono+Display&family=Cinzel:wght@700&family=Tektur:wght@700&family=Pacifico&family=Lobster&family=Fredoka:wght@700&family=Monoton&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" media="print"
         onload="this.media='all'; if (window.__cssPret) window.__cssPret();" />
   <noscript><link rel="stylesheet" href="style.css" /></noscript>
+  <!-- Design « Cahier et ardoise » : apres style.css, pour gagner a specificite egale. -->
+  <link rel="stylesheet" href="cahier.css" media="print"
+        onload="this.media='all'; if (window.__cssPret) window.__cssPret();" />
+  <noscript><link rel="stylesheet" href="cahier.css" /></noscript>
   <script>(function(){var s=sessionStorage.getItem('libero_screen');if(s&&s!=='landing'){document.documentElement.classList.add('restoring');document.documentElement.setAttribute('data-restore',s);}
     // Une partie multijoueur (ou un quiz en salon) est en cours : le serveur doit repondre avant qu'il y ait quoi que ce soit a afficher.
     // On garde donc l'ecran de demarrage, avec un message, plutot que de montrer un plateau vide qui ressemble a un bug.
@@ -124,7 +128,9 @@
     // Declencheur principal : la feuille de style est appliquee, le site est
     // presentable. « load » sert de second filet, et le plafond evite de rester
     // bloque si une ressource ne repond jamais.
-    window.__cssPret = partir;
+    // Deux feuilles (style.css puis cahier.css) : on attend les deux pour ne jamais montrer l'ancien design.
+    var feuilles = 2;
+    window.__cssPret = function () { if (--feuilles <= 0) partir(); };
     window.addEventListener('load', partir);
     setTimeout(partir, 15000);
   })();

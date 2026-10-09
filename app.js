@@ -7124,6 +7124,8 @@ function _settingsOutsideClick(e) {
 function _checkMaintenance() {
   // La cle admin (posee par stats.html sur ce meme site) permet au proprietaire de passer le mur.
   let k = null; try { k = localStorage.getItem('libero_admin_key'); } catch (_) {}
+  // ?mur dans l'adresse : le proprietaire voit le mur exactement comme un joueur.
+  if (/[?&]mur\b/.test(location.search)) k = null;
   fetch(`${window.BACKEND_URL}/api/status`, k ? { headers: { 'X-Admin-Key': k } } : undefined).then(r => r.json()).then(s => {
     _applyTopupFlag(!!(s && s.libsTopup));
     _applyMaintenanceWall(s);
