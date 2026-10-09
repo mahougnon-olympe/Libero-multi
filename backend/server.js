@@ -466,7 +466,7 @@ async function loadData() {
   const alertDoc = configDocs.find(d => d._id === 'admin_alert_subs');
   if (Array.isArray(alertDoc?.value)) adminAlertSubs = alertDoc.value.filter(x => typeof x === 'string');
   const maintDoc = configDocs.find(d => d._id === 'maintenance');
-  if (maintDoc?.value && typeof maintDoc.value === 'object') maintenance = { on: !!maintDoc.value.on, message: maintDoc.value.message || '', messageEn: maintDoc.value.messageEn || '' };
+  if (maintDoc?.value && typeof maintDoc.value === 'object') maintenance = { on: !!maintDoc.value.on, block: !!maintDoc.value.block, message: maintDoc.value.message || '', messageEn: maintDoc.value.messageEn || '' };
   const rotDoc = configDocs.find(d => d._id === 'shop_rotation');
   if (rotDoc?.value && typeof rotDoc.value === 'object') shopRotation = { ...shopRotation, ...rotDoc.value };
   db.collection('scheduled_tasks').find().toArray()
