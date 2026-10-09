@@ -9413,68 +9413,95 @@ function _currentEmojiSet() {
 // Joue la pluie (au chargement de l'accueil, et via « Tester » dans le menu).
 let _emojiRainWrap = null, _emojiRainTimer = null;
 window._playEmojiRain = function (emojisOverride) {
-  // Chaque emoji porte deux animations CSS et une couche de composition : a 100
-  // gouttes cela saturait le thread principal pendant 8,5 s, sur TOUS les ecrans
-  // (le serpent et les transitions saccadaient le temps de la pluie). On adapte
-  // donc la densite a l'ecran et a la machine, et on n'en joue jamais deux a la fois.
+  // « Avalanche de stickers » (remplace la pluie) : les dessins entrent par la gauche,
+  // tombent avec une vraie gravite, rebondissent, roulent (la rotation suit la vitesse),
+  // se poussent les uns les autres et s'empilent, puis la pile glisse hors de l'ecran
+  // a droite. Une seule boucle requestAnimationFrame, des transforms uniquement.
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   let EMOJIS = _currentEmojiSet();
-  // Un carnet de gribouillis equipe : les gouttes sont des dessins (sauf pluie perso ou forcee).
-  const _pk = localStorage.getItem('libero_equipped_emojipack') || '';
-  const DOODLES = (!emojisOverride && (localStorage.getItem('libero_emojirain_mode') || '') !== 'custom') ? DOODLE_SETS[_pk] : null;
-  const _dcol = ['#d23a4f', '#173a8a', '#2f8a55', '#e0a800', '#7a4fc0'];
   if (typeof emojisOverride === 'string' && emojisOverride.trim()) {
     const m = emojisOverride.match(/\p{Extended_Pictographic}️?/gu);
     if (m && m.length) EMOJIS = m;
   }
+  const _pk = localStorage.getItem('libero_equipped_emojipack') || '';
+  const custom = !!emojisOverride || (localStorage.getItem('libero_emojirain_mode') || '') === 'custom';
+  // Sans carnet : un melange de tous les carnets (des dessins, jamais des emojis).
+  const DOODLES = custom ? null : (DOODLE_SETS[_pk] || Object.values(DOODLE_SETS).flat());
+  const COLS = ['#d23a4f', '#173a8a', '#2f8a55', '#e0a800', '#7a4fc0', '#e8742c'];
 
-  // Une pluie deja en cours est remplacee, jamais empilee.
   clearTimeout(_emojiRainTimer);
-  if (_emojiRainWrap) _emojiRainWrap.remove();
-
+  if (_emojiRainWrap) { const old = _emojiRainWrap; old._stop?.(); old.remove(); _emojiRainWrap = null; }
   const wrap = document.createElement('div');
   wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9998;contain:strict;';
-  wrap.className = 'emoji-ok';
+  wrap.className = 'emoji-ok sticker-avalanche';
   document.body.appendChild(wrap);
   _emojiRainWrap = wrap;
 
-  // Densite proportionnelle a la surface visible (un telephone recoit environ 30
-  // gouttes la ou un grand ecran en recoit 100), divisee par deux sur les
-  // appareils modestes.
-  const area  = Math.max(1, window.innerWidth * window.innerHeight);
-  const weak  = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
-  const COUNT = Math.max(18, Math.min(100, Math.round(area / 12000) >> (weak ? 1 : 0)));
-
+  const W = window.innerWidth, H = window.innerHeight;
+  const weak = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
+  const COUNT = Math.max(16, Math.min(56, Math.round(W * H / 26000) >> (weak ? 1 : 0)));
+  const base = Math.max(30, Math.min(54, W / 22));
+  const bodies = [];
   for (let i = 0; i < COUNT; i++) {
-    const size     = (0.9 + Math.random() * 0.8).toFixed(2);
-    const left     = (Math.random() * 97).toFixed(1);
-    const fallDur  = (2.8 + Math.random() * 3).toFixed(2);
-    const swayDur  = (1.6 + Math.random() * 1.4).toFixed(2);
-    const delay    = (Math.random() * 2.8).toFixed(2);
-
-    // Outer : position fixe + balancement horizontal doux
-    const outer = document.createElement('span');
-    outer.style.cssText =
-      `position:absolute;left:${left}%;top:0;` +
-      `animation:emoji-sway ${swayDur}s ease-in-out infinite;`;
-
-    // Inner : chute verticale + opacité
-    const inner = document.createElement('span');
-    if (DOODLES) inner.innerHTML = _doodleSvg(DOODLES[Math.floor(Math.random() * DOODLES.length)], _dcol[i % _dcol.length]);
-    else inner.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
-    inner.style.cssText =
-      `display:inline-block;font-size:${size}rem;line-height:1;will-change:transform;` + (DOODLES ? `width:${(size * 1.8).toFixed(2)}rem;height:${(size * 1.8).toFixed(2)}rem;` : '') +
-      `animation:emoji-fall ${fallDur}s ${delay}s linear forwards;`;
-
-    outer.appendChild(inner);
-    wrap.appendChild(outer);
+    const r = base * (0.38 + Math.random() * 0.22);
+    const el = document.createElement('div');
+    el.className = 'stk';
+    el.style.cssText = `width:${r * 2}px;height:${r * 2}px;padding:${(r * .32).toFixed(1)}px;`;
+    if (DOODLES) el.innerHTML = _doodleSvg(DOODLES[Math.random() * DOODLES.length | 0], COLS[i % COLS.length]);
+    else { el.textContent = EMOJIS[Math.random() * EMOJIS.length | 0]; el.style.fontSize = (r * 1.25) + 'px'; el.classList.add('stk-emo'); }
+    wrap.appendChild(el);
+    bodies.push({ el, r, x: -r - Math.random() * W * .15, y: H * (0.05 + Math.random() * 0.45), vx: W * (0.25 + Math.random() * 0.35), vy: -H * Math.random() * 0.25,
+      a: Math.random() * 360, born: i * (1.6 / COUNT) + Math.random() * .25, live: false, out: false });
   }
-
-  _emojiRainTimer = setTimeout(() => {
-    wrap.remove();
-    if (_emojiRainWrap === wrap) _emojiRainWrap = null;
-  }, 8500);
+  const G = H * 2.4, FLOOR = H - 4, REST = 0.32, FRIC = 0.985;
+  let last = performance.now(), t = 0, raf = 0, stopped = false;
+  const sweepAt = 3.8, endAt = 7.5;
+  function step(now) {
+    if (stopped) return;
+    const dt = Math.min(0.032, (now - last) / 1000); last = now; t += dt;
+    for (const b of bodies) {
+      if (!b.live) { if (t >= b.born) b.live = true; else continue; }
+      if (b.out) continue;
+      b.vy += G * dt;
+      if (t > sweepAt) b.vx += W * 0.9 * dt;          // la pile se met a glisser vers la droite
+      b.x += b.vx * dt; b.y += b.vy * dt;
+      if (b.y + b.r > FLOOR) {                          // rebond amorti sur le bas de l'ecran
+        b.y = FLOOR - b.r;
+        if (b.vy > 0) b.vy = -b.vy * REST;
+        if (Math.abs(b.vy) < 40) b.vy = 0;
+        b.vx *= 0.96;
+      }
+      b.vx *= FRIC;
+      b.a += (b.vx * dt / b.r) * 57.3;                  // roule sans glisser
+      if (b.x - b.r > W + 10) b.out = true;
+    }
+    // Contacts : les stickers se poussent et s'empilent (separation + echange de vitesse).
+    for (let i = 0; i < bodies.length; i++) {
+      const a = bodies[i]; if (!a.live || a.out) continue;
+      for (let j = i + 1; j < bodies.length; j++) {
+        const b = bodies[j]; if (!b.live || b.out) continue;
+        const dx = b.x - a.x, dy = b.y - a.y, min = (a.r + b.r) * 0.92, d2 = dx * dx + dy * dy;
+        if (d2 >= min * min || d2 === 0) continue;
+        const d = Math.sqrt(d2), nx = dx / d, ny = dy / d, push = (min - d) / 2;
+        a.x -= nx * push; a.y -= ny * push; b.x += nx * push; b.y += ny * push;
+        const rv = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+        if (rv < 0) { const imp = -rv * 0.6; a.vx -= imp * nx; a.vy -= imp * ny; b.vx += imp * nx; b.vy += imp * ny; }
+      }
+    }
+    let alive = 0;
+    for (const b of bodies) {
+      if (!b.live || b.out) { if (b.out && b.el.isConnected) b.el.remove(); continue; }
+      alive++;
+      b.el.style.transform = `translate3d(${(b.x - b.r).toFixed(1)}px,${(b.y - b.r).toFixed(1)}px,0) rotate(${b.a.toFixed(1)}deg)`;
+    }
+    if ((t > sweepAt && !alive) || t > endAt) { stop(); return; }
+    raf = requestAnimationFrame(step);
+  }
+  function stop() { stopped = true; cancelAnimationFrame(raf); wrap.remove(); if (_emojiRainWrap === wrap) _emojiRainWrap = null; }
+  wrap._stop = stop;
+  raf = requestAnimationFrame(step);
+  _emojiRainTimer = setTimeout(stop, (endAt + 1) * 1000);
 };
 
 // Au chargement : uniquement sur l'accueil.

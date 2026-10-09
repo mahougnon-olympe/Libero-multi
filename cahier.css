@@ -1525,3 +1525,7 @@ html:not(.light) .chatbot-log { background: linear-gradient(90deg, transparent 2
 :root:root .chatbot-input { font: 600 1.1rem var(--font-hand); border: none; border-bottom: 2px solid var(--line); border-radius: 0; background: transparent; box-shadow: none; }
 :root:root .chatbot-input:focus { outline: none; border-bottom-color: var(--accent); }
 @media (prefers-reduced-motion: reduce) { .libe-wig, .libe-eyes, .libe-idea, .libe-scrib { animation: none; } .libe-idea { opacity: 0; } }
+/* Avalanche de stickers : chaque dessin est un autocollant decoupe (fond blanc, liseré, ombre pleine) */
+.sticker-avalanche .stk { position: absolute; left: 0; top: 0; will-change: transform; border-radius: 50%; background: #fff; border: 2px solid rgba(34,37,43,.85); box-shadow: 2px 3px 0 rgba(0,0,0,.18); box-sizing: border-box; display: grid; place-items: center; }
+.sticker-avalanche .stk svg { width: 100%; height: 100%; display: block; }
+.sticker-avalanche .stk-emo { line-height: 1; padding: 0; }
