@@ -2024,3 +2024,38 @@ html:not(.light) .tuto-ring { border-color: #ff8e8e; }
 :root:root .settings-panel .sp-refund-info { color: #ffe169; font: 700 1.15rem var(--font-hand); }
 :root:root .settings-panel .sp-legal-link { color: #b8c6bd; }
 @media (prefers-reduced-motion: reduce) { :root:root .overlay :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal), .sp-ck.on .spk::after { animation: none; } }
+
+/* ══ Pseudos lisibles partout ═══════════════════════════════════════════════
+   Classements et ailleurs : un fin CONTOUR D'ENCRE autour des lettres colorees
+   (couleur et reflet intacts). Profil : la FEUILLE METALLIQUE (ruban de la couleur,
+   lettres a l'encre, reflet qui passe). */
+:root:root :is(.name-rainbow, .name-galaxy, .name-silver, .name-bronze, .name-gold, .name-diamond, .name-color-benin, .name-color-pagne, .nameeffect-or, .nameeffect-gradient) {
+  filter: drop-shadow(1px 0 0 #22252b) drop-shadow(-1px 0 0 #22252b) drop-shadow(0 1px 0 #22252b) drop-shadow(0 -1px 0 #22252b);
+}
+html:not(.light) :is(.name-rainbow, .name-galaxy, .name-silver, .name-bronze, .name-gold, .name-diamond, .name-color-benin, .name-color-pagne, .nameeffect-or, .nameeffect-gradient) {
+  filter: drop-shadow(1px 0 0 #141c18) drop-shadow(-1px 0 0 #141c18) drop-shadow(0 1px 0 #141c18) drop-shadow(0 -1px 0 #141c18);
+}
+/* Profil : le ruban */
+.corr-label:has(.name-silver)  { --fo: linear-gradient(90deg, #b9c0c9, #eef1f4, #b9c0c9); }
+.corr-label:has(.name-diamond) { --fo: linear-gradient(90deg, #9fd8ff, #e6f7ff, #9fd8ff); }
+.corr-label:has(.name-gold)    { --fo: linear-gradient(90deg, #e0b43a, #fff0a8, #e0b43a); }
+.corr-label:has(.nameeffect-or){ --fo: linear-gradient(90deg, #c99a2e, #fbe7a1, #c99a2e); }
+.corr-label:has(.name-galaxy)  { --fo: linear-gradient(90deg, #3a145e, #7b2ff7, #f107a3); --fo-ink: #fff; }
+.corr-label:has(.name-bronze)  { --fo: linear-gradient(90deg, #b26a2a, #f0be86, #b26a2a); }
+.corr-label:has(.name-rainbow) { --fo: linear-gradient(90deg, #ffb3b3, #ffe08a, #b9f0b9, #a9dcff, #d7b8ff); }
+.corr-label:has(.name-color-benin) { --fo: linear-gradient(90deg, #9fdcbf 33%, #fff09a 33% 66%, #ffb3be 66%); }
+.corr-label:has(.name-color-pagne) { --fo: repeating-linear-gradient(45deg, #ffcf8a 0 8px, #ffe6b8 8px 16px); }
+.corr-label:has(.nameeffect-gradient) { --fo: linear-gradient(90deg, #ffb3be 0 25%, #a9c4ff 25% 50%, #9fdcbf 50% 75%, #ffe08a 75%); }
+:root:root .corr-label[style], :root:root .corr-label:is(:has(.name-silver), :has(.name-diamond), :has(.name-gold), :has(.nameeffect-or), :has(.name-galaxy), :has(.name-bronze), :has(.name-rainbow), :has(.name-color-benin), :has(.name-color-pagne), :has(.nameeffect-gradient)) {
+  position: relative; overflow: hidden; background: var(--fo);
+}
+:root:root .corr-label .pid-name-txt:is(.name-rainbow, .name-galaxy, .name-silver, .name-bronze, .name-gold, .name-diamond, .name-color-benin, .name-color-pagne, .nameeffect-or, .nameeffect-gradient) {
+  background: none; -webkit-text-fill-color: var(--fo-ink, #22252b); color: var(--fo-ink, #22252b); filter: none; animation: none;
+}
+:root:root .corr-label:is(:has(.name-silver), :has(.name-diamond), :has(.name-gold), :has(.nameeffect-or), :has(.name-galaxy), :has(.name-bronze), :has(.name-rainbow), :has(.name-color-benin), :has(.name-color-pagne), :has(.nameeffect-gradient))::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.75) 50%, transparent 65%);
+  transform: translateX(-100%); animation: foilSweep 2.6s ease-in-out infinite;
+}
+@keyframes foilSweep { 60%, 100% { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .corr-label::after { animation: none !important; } }
