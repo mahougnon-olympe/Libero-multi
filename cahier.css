@@ -2075,3 +2075,12 @@ html:not(.light) :is(.name-rainbow, .name-galaxy, .name-silver, .name-bronze, .n
 /* Le contour d'encre des pseudos depasse un peu des lettres : on laisse de l'air
    autour du nom (sans changer la hauteur de la ligne) pour que rien ne soit rogne. */
 :root:root .lb-name { padding: 4px 3px; margin: -4px -3px; }
+/* Effet « gomme » : le masque ne couvrait que la boite du texte, donc il rognait net
+   le contour d'encre et les lettres qui depassent (Lobster...). On lui donne de l'air,
+   et la gomme n'efface plus qu'a moitie (sur une couleur claire, le pseudo disparaissait). */
+:root:root .nameeffect-glitch {
+  display: inline-block; padding: 5px 4px; margin: -5px -4px; vertical-align: baseline;
+  -webkit-mask: linear-gradient(90deg, #000 30%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.45) 55%, #000 70%) 100% 0 / 300% 100%;
+  mask: linear-gradient(90deg, #000 30%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.45) 55%, #000 70%) 100% 0 / 300% 100%;
+}
+:root:root .lb-name .nameeffect-glitch { max-width: calc(100% + 8px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
