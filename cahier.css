@@ -1833,3 +1833,112 @@ html:root #maintenance-wall .mw-cone svg { width: 100%; height: 100%; display: b
 :root:root .chatbot-reset .ic3d-face, :root:root .chatbot-close .ic3d-face { color: var(--text) !important; stroke: var(--text) !important; }
 :root:root .chatbot-reset .ic3d-depth, :root:root .chatbot-close .ic3d-depth { display: none; }
 :root:root .chatbot-reset .ic3d-face *, :root:root .chatbot-close .ic3d-face * { stroke: var(--text) !important; }
+
+/* ══ Profil = CARNET DE CORRESPONDANCE ═══════════════════════════════════════
+   Couverture bleue (portrait colle AVEC son cadre, etiquette au pseudo, tampon VIP)
+   et page lignee a marge rouge. Le palier de niveau colore le dos du carnet. */
+:root:root #level-banner.profile-id {
+  display: grid; grid-template-columns: 172px minmax(0, 1fr); padding: 0; overflow: hidden;
+  background: #173a8a; border: 2.5px solid #22252b; border-left: 2.5px solid #22252b; border-radius: 8px;
+  box-shadow: 0 6px 0 var(--hard); color: #22252b;
+}
+html:not(.light):root #level-banner.profile-id { border-color: rgba(238,241,234,.5); }
+:root:root #level-banner.level-tier-1 { --spine: #8c948f; }
+:root:root #level-banner.level-tier-2 { --spine: #6fa0ff; }
+:root:root #level-banner.level-tier-3 { --spine: #4cc27f; }
+:root:root #level-banner.level-tier-4 { --spine: #ff7a8a; }
+:root:root #level-banner.level-tier-5 { --spine: #ffd34d; }
+.corr-cover {
+  position: relative; display: grid; justify-items: center; align-content: start; gap: 10px; padding: 14px 12px 16px 18px; color: #fff;
+  background: linear-gradient(90deg, var(--spine, #8c948f) 0 6px, transparent 6px), repeating-linear-gradient(45deg, rgba(255,255,255,.05) 0 4px, transparent 4px 8px);
+}
+.corr-kicker { font: 400 .72rem/1.2 var(--font-display); letter-spacing: .08em; text-transform: uppercase; text-align: center; }
+/* La photo : le portrait entier, cadre compris (plus de rognage en rond) */
+:root:root .corr-cover .pid-avatar, :root:root .corr-cover .pid-avatar.has-portrait {
+  width: 104px; height: 104px; border-radius: 2px; border: 3px solid #fff; background: #fff; padding: 0; overflow: hidden;
+  box-shadow: 2px 3px 0 rgba(0,0,0,.3); transform: rotate(3deg); display: block; color: #22252b;
+}
+.corr-cover .pid-avatar svg { display: block; width: 100%; height: 100%; }
+.corr-cover .pid-av-edit { right: -12px; top: auto; bottom: -8px; }
+.corr-cover .pid-av-hint { color: #ffe169; margin-top: -4px; }
+:root:root .corr-label {
+  margin: 0; max-width: 100%; background: #fffdf3; color: #22252b; border: 2px solid #22252b; border-radius: 4px;
+  padding: 5px 8px; transform: rotate(-2deg); text-align: center; font-family: var(--font-hand); font-weight: 700; font-size: 1.35rem; line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+:root:root .corr-label .pid-name-txt { filter: none; }
+:root:root .corr-cover .vip-badge {
+  background: transparent; color: #ffe169; border: 3px solid #ffe169; border-radius: 6px; padding: 0 8px;
+  font: 400 .8rem var(--font-display); transform: rotate(-8deg); text-shadow: none;
+}
+:root:root .corr-cover .vip-badge.hidden { display: none; }
+.corr-cover .vip-badge-count::before { content: " · "; }
+.corr-page {
+  min-width: 0; padding: 12px 16px 14px 36px; background-color: #fffef6; color: #22252b;
+  background-image: linear-gradient(90deg, transparent 22px, #e2485d 22px 23.5px, transparent 23.5px), repeating-linear-gradient(0deg, transparent 0 25px, rgba(80,130,205,.35) 25px 26px);
+}
+html:not(.light) .corr-page { background-color: #f3efe2; }
+.corr-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.corr-row > span:first-child { font: 600 .85rem var(--font-body); color: #5e6470; }
+:root:root .corr-page .level-badge { font: 700 1.6rem/1 var(--font-hand); color: #173a8a; background: none; border: none; padding: 0 4px; }
+:root:root .corr-page .level-badge::before { content: none; }
+:root:root .corr-page .level-main { display: none; }
+:root:root .corr-page .level-bar { height: 12px; margin: 4px 0 2px; border: 2px solid #22252b; border-radius: 3px; background: #fff; overflow: hidden; }
+:root:root .corr-page .level-bar-fill { background: #fff27a; border-right: 2px solid #173a8a; border-radius: 0; }
+:root:root .corr-page .level-sub { margin: 0; text-align: right; font: 700 1.05rem var(--font-hand); color: #173a8a; opacity: 1; }
+:root:root .corr-page .bul-grades { border: none; }
+:root:root .corr-page .bul-row { display: flex; justify-content: space-between; align-items: baseline; border: none; font-size: .85rem; }
+:root:root .corr-page .bul-row span { padding: 2px 0; color: #5e6470; font-weight: 600; }
+:root:root .corr-page .bul-note { border: none; text-align: right; font: 700 1.25rem var(--font-hand); color: #173a8a; }
+:root:root .corr-page .bul-note .bolt { background: #173a8a; }
+:root:root .corr-page .bul-appre { padding: 6px 0 0; font: 700 1.2rem/1.2 var(--font-hand); color: #c0262f; }
+:root:root .corr-page .bul-appre-k { color: #5e6470; }
+:root:root .corr-page .lv-nudge { color: #c0262f; margin: 0; }
+@media (max-width: 520px) {
+  :root:root #level-banner.profile-id { grid-template-columns: 1fr; }
+  .corr-cover { grid-template-columns: auto minmax(0, 1fr); justify-items: start; align-items: center; column-gap: 14px; }
+  .corr-kicker { grid-column: 1 / -1; justify-self: center; }
+  .corr-cover .pid-av-wrap { grid-row: 2 / span 3; }
+  .corr-cover .pid-av-hint { grid-column: 1; grid-row: 5; justify-self: center; }
+}
+
+/* ══ Didacticiel « Libe te guide » ═══════════════════════════════════════════
+   Plein ecran mais transparent aux clics : seuls la bulle et ses boutons en recoivent.
+   Libe (le crayon) se deplace, un cercle rouge se dessine autour de l'element. */
+:root:root .tuto-wrap { position: fixed; inset: 0; left: 0; bottom: auto; transform: none; z-index: 8000; pointer-events: none; }
+:root:root .tuto-wrap.visible { pointer-events: none; }
+:root:root .tuto-wrap.hidden { display: none; }
+.tuto-ring {
+  position: fixed; border: 3px solid #e2485d; border-radius: 50%; pointer-events: none;
+  transform: rotate(-3deg); transition: left .6s cubic-bezier(.3,1.2,.5,1), top .6s cubic-bezier(.3,1.2,.5,1), width .6s, height .6s;
+}
+.tuto-ring.hidden { display: none; }
+.tuto-ring.draw { animation: tutoWipe .7s ease-out both; }
+@keyframes tutoWipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+html:not(.light) .tuto-ring { border-color: #ff8e8e; }
+.tuto-libe { position: fixed; width: 56px; height: 72px; pointer-events: none; transition: left .7s cubic-bezier(.3,1.2,.5,1), top .7s cubic-bezier(.3,1.2,.5,1); }
+.tuto-libe svg { width: 100%; height: 100%; display: block; animation: tutoBob 1.4s ease-in-out infinite; filter: drop-shadow(2px 3px 0 rgba(0,0,0,.18)); }
+@keyframes tutoBob { 50% { transform: translateY(-5px) rotate(-3deg); } }
+:root:root .tuto-bubble {
+  position: fixed; pointer-events: auto; box-sizing: border-box; margin: 0;
+  background: #fffef6; color: #22252b; border: 2px solid #22252b; border-radius: 14px;
+  padding: 10px 14px 10px; box-shadow: 3px 4px 0 rgba(0,0,0,.18); animation: none;
+  transition: left .7s cubic-bezier(.3,1.2,.5,1), top .7s cubic-bezier(.3,1.2,.5,1);
+}
+:root:root .tuto-bubble.pop { animation: tutoPop .35s cubic-bezier(.3,1.5,.5,1) both; }
+@keyframes tutoPop { from { transform: scale(.6); opacity: 0; } }
+:root:root .tuto-text { margin: 0 0 8px; font: 700 1.3rem/1.2 var(--font-hand); color: #22252b; text-align: left; }
+:root:root .tuto-text b, :root:root .tuto-text strong { font-weight: 700; background: linear-gradient(transparent 55%, #fff27a 55%); }
+:root:root .tuto-actions { display: flex; align-items: center; gap: 6px; justify-content: flex-end; margin: 0; }
+:root:root .tuto-dots { display: flex; gap: 4px; margin: 0 auto 0 0; justify-content: flex-start; }
+:root:root .tuto-dots i { width: 7px; height: 7px; border-radius: 50%; background: #c9ced6; }
+:root:root .tuto-dots i.done { background: #8ea6d8; }
+:root:root .tuto-dots i.on { background: #173a8a; }
+:root:root .tuto-skip, :root:root .tuto-ok {
+  font: 700 .82rem var(--font-body); padding: 6px 11px; border-radius: 6px; border: 1.5px solid #22252b;
+  background: #fff; color: #22252b; box-shadow: 0 2px 0 rgba(23,58,138,.16); width: auto; cursor: pointer;
+}
+:root:root .tuto-skip { border-color: transparent; box-shadow: none; background: transparent; color: #5e6470; }
+:root:root .tuto-ok { background: #173a8a; color: #fff; }
+:root:root .tuto-highlight { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { .tuto-libe svg, .tuto-ring.draw, :root:root .tuto-bubble.pop { animation: none; } .tuto-libe, .tuto-ring, :root:root .tuto-bubble { transition: none; } }

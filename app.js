@@ -546,7 +546,7 @@ const TRIVIA_API_CAT_MAP = {
 
 const DICT = {
   fr: {
-    siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisis ta partie, ou ouvre un livre.', bulTitle:'Bulletin', bulStreak:'Série en cours', bulBalance:'Solde', bulChallenges:'Défis du jour', bulDays:n => n + (n > 1 ? ' jours' : ' jour'),
+    siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisis ta partie, ou ouvre un livre.', bulTitle:'Carnet de correspondance', bulLevel:'Niveau', bulStreak:'Série en cours', bulBalance:'Solde', bulChallenges:'Défis du jour', bulDays:n => n + (n > 1 ? ' jours' : ' jour'),
     bulAppreLabel:'Appréciation :',
     bulAppre:{ anon:'Choisis un pseudo pour recevoir tes notes.', allDone:'Tous les défis du jour sont faits. Excellent travail !', streak:n => `Très assidu : ${n} jours de suite, continue comme ça.`, high:'Joueur confirmé, redoutable sur le plateau.', mid:'De bons progrès, encore un effort pour monter de niveau.', start:'Bon début. Reviens demain pour allonger ta série.' },
     landingTitle:'Aujourd\'hui, on <mark>joue</mark>.', landingDaily:["Aujourd'hui, on <mark>joue</mark>, {n}.", "Nouvelle page, {n}. On la <mark>remplit</mark> ?", "Le tableau est propre. À toi d'écrire la <mark>victoire</mark>.", "Interro surprise ? Non, juste un <mark>quiz</mark>, {n}.", "Pas de devoirs ici, que des <mark>parties</mark>.", "Ta série t'attend, {n}. <mark>Garde-la</mark> au chaud.", "Une partie de dames avant le <mark>dîner</mark> ?", "Le robot se dit <mark>imbattable</mark>. Vérifie.", "Aujourd'hui, la <mark>chance</mark> est de ton côté, {n}.", "Un mot mystère t'attend : <mark>cinq</mark> lettres, six essais.", "Ouvre un <mark>livre</mark>, ou ouvre le jeu.", "Bon retour, {n}. Le classement a <mark>bougé</mark>.", "Échec et mat, c'est pour <mark>quand</mark> ?", "Quatre jetons alignés, c'est tout ce qu'il <mark>faut</mark>.", "Révise en jouant : SVT, Anglais et <mark>Bénin</mark> au quiz.", "Le Ludo se joue à <mark>quatre</mark>. Appelle tes amis.", "Même les champions ont <mark>commencé</mark> par une défaite.", "{n}, la roue de la fortune <mark>tourne</mark> une fois par jour.", "Un petit duel pour se <mark>réveiller</mark> ?", "Ce soir, on vise le <mark>podium</mark>.", "Le samedi, c'est <mark>tournoi</mark>. Prépare-toi, {n}.", "Ici, les erreurs ne comptent <mark>pas</mark>. Rejoue.", "Au quiz, une bonne réponse rapide vaut <mark>double</mark>.", "Le morpion, c'est simple. Gagner, <mark>moins</mark>.", "Prends ton temps, {n}. Le plateau ne <mark>bouge</mark> pas.", "Une idée pour le site ? Écris-la dans <mark>Idées</mark>.", "Aujourd'hui, tu bats ton <mark>record</mark>.", "Ton adversaire révise. Et <mark>toi</mark> ?", "Le dé est <mark>lancé</mark>, {n}.", "Cahier ouvert, crayon prêt : <mark>à toi</mark>."],
@@ -1190,7 +1190,7 @@ const DICT = {
     commentLessMin:"moins d'une minute",
     commentCooldown:str=>`⏳ Limite atteinte (3/h). Réessaie dans ${str}.`,
     commentUnknownErr:'Erreur inconnue.',
-    tutoSkip:'Passer le guide', tutoOk:"J'ai compris ✓",
+    tutoSkip:'Passer', tutoOk:'Compris', tutoEnd:'Terminé',
     newsTitle:'📰 News',
     btnHelpTitle:'Aide', btnSnakeToggle:'Activer / Désactiver le serpent', libsCounterTitle:'Ouvrir la boutique',
     snakeOverScore:(score, hs) => `Score : ${score} · Meilleur : ${hs}`,
@@ -1299,27 +1299,27 @@ const DICT = {
       { id:32, name:'Bénin',      icon:'🇧🇯' },
     ],
     tutoSteps:{
-      landing_news:'📰 Le cadre <strong>News</strong> est replié dans le coin <strong>en haut à gauche</strong>. <strong>Clique dessus</strong> pour l\'ouvrir : il affiche les dernières actualités, nouvelles fonctionnalités et annonces. Reclique pour le refermer.',
-      landing_cats:'👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose cinq sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> (mini-jeux du week-end) et <strong>Pour la communauté</strong> (le mini-jeu <strong>Libero Run</strong>) et <strong>Le Mot</strong> 🔤 (un mot mystère par jour). La barre en bas mène aussi aux <strong>Idées</strong>, à la <strong>Lecture</strong>, à la <strong>Boutique</strong> et à ton <strong>Profil</strong>.',
-      landing_lb:'🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10 + meilleur score Libero Run ÷10. Plus tu montes, plus ton serpent 🐍 grandit !',
-      landing_btns:'⚙️ Des boutons permanents sont disponibles :<br>▶ Les <strong>Réglages</strong> (thème, langue, serpent, sons, musique, cartes de remboursement) sont dans l\'onglet <strong>Profil</strong>, carte <strong>⚙️ Réglages</strong>.<br>▶ <strong>En bas à gauche</strong> : ❓ <strong>Aide</strong>. <strong>En bas à droite</strong> : 🤖 <strong>Assistant</strong> (le chatbot)',
-      landing_libs:'⚡ <strong>Libs</strong> : la monnaie virtuelle du site. Tous les joueurs classés en reçoivent toutes les 5h (1er : +10 ⚡, 2e : +5 ⚡, 3e : +3 ⚡, du 4e au 10e : +2 ⚡, ensuite +1 ⚡). Tu en gagnes aussi avec les <strong>défis du jour</strong> et ta <strong>série de connexion</strong>. Ton solde s\'affiche dans ton <strong>Profil</strong> ; dépense tes Libs dans la <strong>Boutique</strong> (onglet en bas) : cosmétiques, boosts quiz, livres exclusifs !',
-      events_snake:'🏆 Le samedi, le <strong>Tournoi</strong> se joue automatiquement (suivi en direct dans la carte <strong>News</strong> : top 10, 2000 ⚡ et le titre « Champion de la semaine » pour le meilleur).<br>🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les <strong>⚡ Libs</strong> pour grandir : chaque ⚡ mangé est ajouté à ton solde (score 10 = 10 Libs gagnés). Les bords sont traversables, tu ressors de l\'autre côté ! Ton meilleur score <strong>persiste</strong> entre les sessions.',
-      luffy_runner:'🏃 <strong>Libero Run</strong> : aide Libero à courir le plus loin possible ! Saute (↑ / Espace) par-dessus les obstacles au sol, accroupis-toi (↓) sous les obstacles volants. Attrape l\'⭐ étoile pour être invincible quelques secondes. Ton meilleur score alimente un classement dédié.',
-      home_games:'🎮 Choisis ton jeu en haut : <strong>Puissance 4</strong>, <strong>Morpion</strong>, <strong>Échecs</strong>, <strong>Dames</strong> ou <strong>Ludo</strong> 🎲 (aucun n\'est présélectionné ; le Ludo se joue <strong>jusqu\'à 4</strong> dans un salon, avec un dé par joueur). Le classement est partagé entre les cinq jeux.',
-      home_bot:'🤖 <strong>Mode Solo</strong> : joue contre le bot à 3 niveaux de difficulté : Facile, Moyen ou Difficile. Tes victoires et défaites sont comptées dans le classement !',
-      home_multi:'👥 <strong>Mode Multijoueur</strong> : entre ton pseudo (optionnel), puis clique sur <em>Créer une partie</em> pour générer un code, ou entre le code d\'un ami pour le rejoindre. En fin de partie, <em>Rejouer</em> propose une revanche que l\'autre joueur accepte ou refuse.',
-      home_lb:'🏆 <strong>Classement</strong> : victoires, défaites et nuls s\'enregistrent automatiquement après chaque partie (bot Moyen / Difficile ou multijoueur).',
-      waiting_code:'📋 <strong>Partage ce code</strong> à 4 lettres avec ton adversaire, ou clique <strong>🔗 Partager le lien</strong> : il rejoindra en un clic. La partie démarre dès qu\'il arrive, et tu peux <strong>Annuler</strong> si personne ne vient.',
-      quiz_themes:'🧠 <strong>Quiz Culture Générale</strong> : sélectionne un ou plusieurs thèmes (Histoire, Cinéma, Sciences…), puis joue en <strong>Solo</strong> ou crée un <strong>salon multijoueur</strong> à partager avec tes amis.',
-      quiz_lb:'🏆 Le <strong>classement Quiz</strong> est séparé du classement Classique. Les points sont attribués selon ta vitesse de réponse et le nombre de bonnes réponses. <strong>Réponse éclair</strong> (dans les premières secondes) = <strong>point doublé ⚡</strong>.',
-      read_catalogue:'📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Les <strong>romans exclusifs</strong> se lisent directement ici : <strong>⭐ L\'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, puis 1000 ⚡ et 2000 ⚡), <strong>Life of Georgia</strong> (2000 ⚡ le livre entier) et <strong>Life of Georgia · Tome 2</strong>, offert à ceux qui possèdent le Tome 1.',
-      profile_hub:'🎯 Ton <strong>Profil</strong> regroupe ton <strong>niveau</strong> ⭐ (chaque partie donne de l\'XP, chaque niveau des ⚡), ta <strong>série de connexion</strong> 🔥, tes <strong>défis du jour</strong>, ton <strong>casier</strong>, ton <strong>historique</strong>, tes <strong>amis</strong> 👥 (demandes d\'amis, cadeaux de Libs, défis depuis les zones de jeu), la <strong>roue de la fortune</strong> 🎡 (1 tour gratuit par jour), le <strong>test de QI</strong> 🧠 (après 10 quiz), le <strong>Pass VIP</strong> 👑 (+20% de Libs), la carte <strong>Inviter un ami</strong> 🤝 (+100 ⚡ chacun), tes <strong>émotes</strong> 😎, la <strong>pluie d\'émojis</strong> 🌈, les <strong>Réglages</strong> ⚙️ (avec les 🔔 notifications), ton <strong>compte</strong> 🔑 (pour ne jamais perdre ta progression), ton <strong>code de récupération</strong> 🔐, la <strong>réinitialisation</strong> du compte, et la section <strong>Aide et avis</strong> (l\'<strong>aide</strong> complète, l\'<strong>assistant</strong> 🤖 et la carte <strong>Donner mon avis</strong> ✉️ pour écrire au créateur).',
-      ideas_board:'💡 La section <strong>Idées</strong> : propose une amélioration du site et vote pour (▲) ou contre (▼) celles des autres joueurs. Les meilleures idées remontent en haut.',
+      landing_news:"Ici, les <b>nouvelles</b> du site. Touche pour ouvrir.",
+      landing_cats:"Choisis un <b>jeu</b> ici pour commencer.",
+      landing_lb:"Le <b>classement</b> de tous les joueurs. Joue pour monter !",
+      landing_btns:"Réglages, aide et assistant : tout est dans ton <b>Profil</b>.",
+      landing_libs:"Gagne des <b>Libs</b> en jouant, dépense-les ici.",
+      events_snake:"Mange les Libs pour grandir : ils vont dans ton <b>solde</b>.",
+      luffy_runner:"<b>Saute</b> les obstacles au sol, <b>baisse-toi</b> sous ceux qui volent.",
+      home_games:"<b>Choisis un jeu</b> pour commencer.",
+      home_bot:"Entraîne-toi contre le <b>bot</b>.",
+      home_multi:"<b>Crée une partie</b> et envoie le code à un ami.",
+      home_lb:"Chaque partie compte au <b>classement</b>.",
+      waiting_code:"Envoie ce <b>code</b> à ton ami. On commence dès qu'il arrive.",
+      read_catalogue:"Touche un livre pour le <b>lire</b>.",
+      profile_hub:"Ton <b>pupitre</b> : touche un objet pour ouvrir son tiroir.",
+      ideas_board:"Propose une idée et <b>vote</b> pour celles des autres.",
+      quiz_themes:"Choisis tes <b>thèmes</b>, puis joue seul ou entre amis.",
+      quiz_lb:"Réponds vite : une réponse éclair compte <b>double</b>.",
     },
   },
   en: {
-    siteTitle:'Multiplayer Games', siteSubtitle:'Pick a game, or open a book.', bulTitle:'Report card', bulStreak:'Current streak', bulBalance:'Balance', bulChallenges:'Daily challenges', bulDays:n => n + (n > 1 ? ' days' : ' day'),
+    siteTitle:'Multiplayer Games', siteSubtitle:'Pick a game, or open a book.', bulTitle:'Correspondence book', bulLevel:'Level', bulStreak:'Current streak', bulBalance:'Balance', bulChallenges:'Daily challenges', bulDays:n => n + (n > 1 ? ' days' : ' day'),
     bulAppreLabel:'Teacher\'s comment:',
     bulAppre:{ anon:'Pick a nickname to get your grades.', allDone:'All of today\'s challenges are done. Excellent work!', streak:n => `Very regular: ${n} days in a row, keep it up.`, high:'Seasoned player, formidable on the board.', mid:'Good progress, one more push to level up.', start:'Good start. Come back tomorrow to grow your streak.' },
     landingTitle:'Today, we <mark>play</mark>.', landingDaily:["Today, we <mark>play</mark>, {n}.", "New page, {n}. Shall we <mark>fill</mark> it?", "The board is clean. Go write the <mark>win</mark>.", "Pop quiz? No, just a <mark>quiz</mark>, {n}.", "No homework here, only <mark>games</mark>.", "Your streak is waiting, {n}. <mark>Keep</mark> it warm.", "A game of draughts before <mark>dinner</mark>?", "The bot claims it is <mark>unbeatable</mark>. Check.", "Luck is on your <mark>side</mark> today, {n}.", "A mystery word awaits: <mark>five</mark> letters, six tries.", "Open a <mark>book</mark>, or open a game.", "Welcome back, {n}. The leaderboard has <mark>moved</mark>.", "Checkmate, but <mark>when</mark>?", "Four tokens in a row is all it <mark>takes</mark>.", "Revise while playing: Biology, English and <mark>Benin</mark> in the quiz.", "Ludo is played by <mark>four</mark>. Call your friends.", "Even champions <mark>started</mark> with a loss.", "{n}, the wheel of fortune <mark>spins</mark> once a day.", "A quick duel to <mark>wake up</mark>?", "Tonight, we aim for the <mark>podium</mark>.", "Saturday means <mark>tournament</mark>. Get ready, {n}.", "Mistakes do not count <mark>here</mark>. Play again.", "In the quiz, a fast right answer counts <mark>double</mark>.", "Tic-tac-toe is simple. Winning, <mark>less</mark> so.", "Take your time, {n}. The board is not <mark>going</mark> anywhere.", "An idea for the site? Write it in <mark>Ideas</mark>.", "Today, you beat your <mark>record</mark>.", "Your opponent is revising. What about <mark>you</mark>?", "The die is <mark>cast</mark>, {n}.", "Notebook open, pencil ready: <mark>your move</mark>."],
@@ -1963,7 +1963,7 @@ const DICT = {
     commentLessMin:'under a minute',
     commentCooldown:str=>`⏳ Limit reached (3/h). Try again in ${str}.`,
     commentUnknownErr:'Unknown error.',
-    tutoSkip:'Skip guide', tutoOk:'Got it ✓',
+    tutoSkip:'Skip', tutoOk:'Got it', tutoEnd:'Done',
     newsTitle:'📰 News',
     btnHelpTitle:'Help', btnSnakeToggle:'Enable / Disable the snake', libsCounterTitle:'Open shop',
     snakeOverScore:(score, hs) => `Score: ${score} · Best: ${hs}`,
@@ -2072,23 +2072,23 @@ const DICT = {
       { id:32, name:'Benin',     icon:'🇧🇯' },
     ],
     tutoSteps:{
-      landing_news:'📰 The <strong>News</strong> card is folded in the <strong>top-left corner</strong>. <strong>Click on it</strong> to open it: it shows the latest news, updates and announcements. Click again to close it.',
-      landing_cats:'👋 Welcome to <strong>Libero\'s Multi</strong>! The home screen offers five sections: <strong>Classic Games</strong>, <strong>General Knowledge</strong>, <strong>Events</strong> (weekend mini-games) and <strong>Community</strong> (the <strong>Libero Run</strong> mini-game) and <strong>The Word</strong> 🔤 (a daily mystery word). The bottom bar also leads to <strong>Ideas</strong>, <strong>Reading</strong>, the <strong>Shop</strong> and your <strong>Profile</strong>.',
-      landing_lb:'🌍 The <strong>Global Leaderboard</strong> brings together <em>all</em> players with at least one point. Score = classic wins ×10 + Quiz points + best Snake score ×10 + best Libero Run score ÷10. The higher you climb, the longer your snake 🐍 grows!',
-      landing_btns:'⚙️ Permanent buttons are available:<br>▶ <strong>Settings</strong> (theme, language, snake, sounds, music, refund cards) live in the <strong>Profile</strong> tab, <strong>⚙️ Settings</strong> card.<br>▶ <strong>Bottom left</strong>: ❓ <strong>Help</strong>. <strong>Bottom right</strong>: 🤖 <strong>Assistant</strong> (the chatbot)',
-      landing_libs:'⚡ <strong>Libs</strong>: the site\'s virtual currency. Every ranked player receives some every 5 hours (1st: +10 ⚡, 2nd: +5 ⚡, 3rd: +3 ⚡, 4th to 10th: +2 ⚡, then +1 ⚡). You also earn them through the <strong>daily challenges</strong> and your <strong>login streak</strong>. Your balance shows in your <strong>Profile</strong>; spend your Libs in the <strong>Shop</strong> (bottom tab): cosmetics, quiz boosts, exclusive books!',
-      events_snake:'🏆 On Saturdays the <strong>Tournament</strong> runs automatically (followed live in the <strong>News</strong> card: top 10, 2000 ⚡ and the "Weekly Champion" title for the best).<br>🐍 This weekend\'s event: <strong>Snake Challenge</strong>! Click <em>Play</em>, your snake enters the arena. Eat the <strong>⚡ Libs</strong> to grow: every ⚡ eaten is added to your balance (score 10 = 10 Libs earned). Walls wrap around · you reappear on the other side! Your best score <strong>persists</strong> between sessions.',
-      luffy_runner:'🏃 <strong>Libero Run</strong>: help Libero run as far as possible! Jump (↑ / Space) over ground obstacles, duck (↓) under flying ones. Grab the ⭐ star to become invincible for a few seconds. Your best score feeds a dedicated leaderboard.',
-      home_games:'🎮 Choose your game at the top: <strong>Connect 4</strong>, <strong>Tic Tac Toe</strong>, <strong>Chess</strong>, <strong>Checkers</strong> or <strong>Ludo</strong> 🎲 (none is pre-selected; Ludo plays up to <strong>4</strong> in a lobby, with one die per player). The leaderboard is shared across all five games.',
-      home_bot:'🤖 <strong>Solo mode</strong>: play against the bot at 3 difficulty levels: Easy, Medium or Hard. Your wins and losses count in the leaderboard!',
-      home_multi:'👥 <strong>Multiplayer mode</strong>: enter your username (optional), then click <em>Create a game</em> to generate a code, or enter a friend\'s code to join them. At the end of a game, <em>Rematch</em> offers a rematch the other player accepts or declines.',
-      home_lb:'🏆 <strong>Leaderboard</strong>: wins, losses and draws are recorded automatically after each game (Medium/Hard bot or multiplayer).',
-      waiting_code:'📋 <strong>Share this 4-letter code</strong> with your opponent, or click <strong>🔗 Share link</strong>: they will join in one click. The game starts as soon as they arrive, and you can <strong>Cancel</strong> if nobody comes.',
-      quiz_themes:'🧠 <strong>General Knowledge Quiz</strong>: select one or more themes (History, Movies, Science…), then play <strong>Solo</strong> or create a <strong>multiplayer room</strong> to share with your friends.',
-      quiz_lb:'🏆 The <strong>Quiz leaderboard</strong> is separate from the Classic leaderboard. Points are awarded based on your response speed and number of correct answers. A <strong>lightning answer</strong> (within the first seconds) = <strong>double points ⚡</strong>.',
-      read_catalogue:'📚 Welcome to the <strong>Reading</strong> section! Search a book by title or author, filter by category, and click a cover to open its sheet. The <strong>exclusive novels</strong> can be read right here: <strong>⭐ L\'Affaire endormie · Tome 1</strong> (chapter 1 free, then 1000 ⚡ and 2000 ⚡), <strong>Life of Georgia</strong> (2000 ⚡ for the whole book) and <strong>Life of Georgia · Volume 2</strong>, free for owners of Volume 1.',
-      profile_hub:'🎯 Your <strong>Profile</strong> gathers your <strong>level</strong> ⭐ (every game gives XP, every level gives ⚡), your <strong>login streak</strong> 🔥, your <strong>daily challenges</strong>, your <strong>locker</strong>, your game <strong>history</strong>, your <strong>friends</strong> 👥 (friend requests, Libs gifts, challenges from the game areas), the <strong>wheel of fortune</strong> 🎡 (1 free spin a day), the <strong>IQ test</strong> 🧠 (after 10 quizzes), the <strong>VIP Pass</strong> 👑 (+20% Libs), the <strong>Invite a friend</strong> card 🤝 (+100 ⚡ each), your <strong>emotes</strong> 😎, the <strong>emoji rain</strong> 🌈, the <strong>Settings</strong> ⚙️ (with 🔔 notifications), your <strong>account</strong> 🔑 (so you never lose your progress), your <strong>recovery code</strong> 🔐, the account <strong>reset</strong>, and the <strong>Help and feedback</strong> section (the full <strong>help</strong>, the <strong>assistant</strong> 🤖 and the <strong>Send feedback</strong> ✉️ card to write to the creator).',
-      ideas_board:'💡 The <strong>Ideas</strong> section: suggest a site improvement and vote up (▲) or down (▼) on other players\' ideas. The best ideas rise to the top.',
+      landing_news:"Site <b>news</b> live here. Tap to open.",
+      landing_cats:"Pick a <b>game</b> here to start.",
+      landing_lb:"Everyone's <b>leaderboard</b>. Play to climb!",
+      landing_btns:"Settings, help and assistant: all in your <b>Profile</b>.",
+      landing_libs:"Earn <b>Libs</b> by playing, spend them here.",
+      events_snake:"Eat the Libs to grow: they go to your <b>balance</b>.",
+      luffy_runner:"<b>Jump</b> over ground obstacles, <b>duck</b> under flying ones.",
+      home_games:"<b>Pick a game</b> to start.",
+      home_bot:"Practise against the <b>bot</b>.",
+      home_multi:"<b>Create a game</b> and send the code to a friend.",
+      home_lb:"Every game counts on the <b>leaderboard</b>.",
+      waiting_code:"Send this <b>code</b> to your friend. We start when they join.",
+      read_catalogue:"Tap a book to <b>read</b> it.",
+      profile_hub:"Your <b>desk</b>: tap an object to open its drawer.",
+      ideas_board:"Suggest an idea and <b>vote</b> on others.",
+      quiz_themes:"Pick your <b>topics</b>, then play solo or with friends.",
+      quiz_lb:"Answer fast: a lightning answer counts <b>double</b>.",
     },
   },
 };
@@ -9815,31 +9815,31 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'landing_news',
       screen: 'landing',
-      text: '📰 Le cadre <strong>News</strong> est replié dans le coin <strong>en haut à gauche</strong>. <strong>Clique dessus</strong> pour l\'ouvrir : il affiche les dernières actualités, nouvelles fonctionnalités et annonces. Reclique pour le refermer.',
+      text: 'Ici, les <b>nouvelles</b> du site. Touche pour ouvrir.',
       target: '#news-card',
     },
     {
       id: 'landing_cats',
       screen: 'landing',
-      text: '👋 Bienvenue sur <strong>Libero\'s Multi</strong> ! L\'accueil propose cinq sections : <strong>Jeux Classiques</strong>, <strong>Culture Générale</strong>, <strong>Évents</strong> (mini-jeux du week-end) et <strong>Pour la communauté</strong> (le mini-jeu <strong>Libero Run</strong>) et <strong>Le Mot</strong> 🔤 (un mot mystère par jour). La barre en bas mène aussi aux <strong>Idées</strong>, à la <strong>Lecture</strong>, à la <strong>Boutique</strong> et à ton <strong>Profil</strong>.',
+      text: 'Choisis un <b>jeu</b> ici pour commencer.',
       target: '.landing-grid',
     },
     {
       id: 'landing_lb',
       screen: 'landing',
-      text: '🌍 Le <strong>Classement Global</strong> regroupe <em>tous</em> les joueurs ayant au moins un point, quelle que soit la section jouée. Score = victoires classiques ×10 + points Quiz + meilleur score Snake ×10 + meilleur score Libero Run ÷10. Plus tu montes, plus ton serpent 🐍 grandit !',
+      text: 'Le <b>classement</b> de tous les joueurs. Joue pour monter !',
       target: '.global-lb-card',
     },
     {
       id: 'landing_btns',
       screen: 'landing',
-      text: '⚙️ Des boutons permanents sont disponibles :<br>▶ Les <strong>Réglages</strong> (thème, langue, serpent, sons, musique, cartes de remboursement) sont dans l\'onglet <strong>Profil</strong>, carte <strong>⚙️ Réglages</strong>.<br>▶ <strong>En bas à gauche</strong> : ❓ <strong>Aide</strong>. <strong>En bas à droite</strong> : 🤖 <strong>Assistant</strong> (le chatbot)',
-      target: null,
+      text: 'Réglages, aide et assistant : tout est dans ton <b>Profil</b>.',
+      target: '#nav-tab-profile',
     },
     {
       id: 'landing_libs',
       screen: 'landing',
-      text: '⚡ <strong>Libs</strong> : la monnaie virtuelle du site. Tous les joueurs classés en reçoivent toutes les 5h (1er : +10 ⚡, 2e : +5 ⚡, 3e : +3 ⚡, du 4e au 10e : +2 ⚡, ensuite +1 ⚡). Tu en gagnes aussi avec les <strong>défis du jour</strong> et ta <strong>série de connexion</strong>. Ton solde s\'affiche dans ton <strong>Profil</strong> ; dépense tes Libs dans la <strong>Boutique</strong> (onglet en bas) : cosmétiques, boosts quiz, livres exclusifs !',
+      text: 'Gagne des <b>Libs</b> en jouant, dépense-les ici.',
       target: '#nav-tab-shop',
     },
 
@@ -9847,7 +9847,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'events_snake',
       screen: 'events',
-      text: '🐍 C\'est l\'évent du week-end : <strong>Snake Challenge</strong> ! Clique <em>Jouer</em>, ton serpent entre dans l\'arène. Mange les ⚡ pour grandir : chaque Lib mangé est ajouté à ton solde ! Les bords sont traversables, tu ressors de l\'autre côté. Ton meilleur score <strong>persiste</strong> entre les sessions.',
+      text: 'Mange les Libs pour grandir : ils vont dans ton <b>solde</b>.',
       target: '.event-intro',
     },
 
@@ -9855,7 +9855,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'luffy_runner',
       screen: 'luffy',
-      text: '🏃 <strong>Libero Run</strong> : aide Libero à courir le plus loin possible ! Saute (↑ / Espace) par-dessus les obstacles au sol, accroupis-toi (↓) sous les obstacles volants. Ton meilleur score alimente un classement dédié.',
+      text: '<b>Saute</b> les obstacles au sol, <b>baisse-toi</b> sous ceux qui volent.',
       target: '#luffy-intro',
     },
 
@@ -9863,25 +9863,25 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'home_games',
       screen: 'home',
-      text: '🎮 Choisis ton jeu en haut : <strong>Puissance 4</strong>, <strong>Morpion</strong>, <strong>Échecs</strong>, <strong>Dames</strong> ou <strong>Ludo</strong> 🎲 (aucun n\'est présélectionné ; le Ludo se joue <strong>jusqu\'à 4</strong> dans un salon, avec un dé par joueur). Le classement est partagé entre les cinq jeux.',
+      text: '<b>Choisis un jeu</b> pour commencer.',
       target: '.game-selector',
     },
     {
       id: 'home_bot',
       screen: 'home',
-      text: '🤖 <strong>Mode Solo</strong> : joue contre le bot à 3 niveaux de difficulté : Facile, Moyen ou Difficile. Tes victoires et défaites sont comptées dans le classement !',
+      text: 'Entraîne-toi contre le <b>bot</b>.',
       target: '.bot-row',
     },
     {
       id: 'home_multi',
       screen: 'home',
-      text: '👥 <strong>Mode Multijoueur</strong> : entre ton pseudo (optionnel), puis clique sur <em>Créer une partie</em> pour générer un code, ou entre le code d\'un ami pour le rejoindre.',
+      text: '<b>Crée une partie</b> et envoie le code à un ami.',
       target: '.card',
     },
     {
       id: 'home_lb',
       screen: 'home',
-      text: '🏆 <strong>Classement</strong> : victoires, défaites et nuls s\'enregistrent automatiquement après chaque partie (bot Moyen / Difficile ou multijoueur).',
+      text: 'Chaque partie compte au <b>classement</b>.',
       target: '.lb-card',
     },
 
@@ -9889,7 +9889,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'waiting_code',
       screen: 'waiting',
-      text: '📋 <strong>Partage ce code</strong> à 4 lettres avec ton adversaire, ou clique <strong>🔗 Partager le lien</strong> : il rejoindra en un clic. La partie démarre dès qu\'il arrive, et tu peux <strong>Annuler</strong> si personne ne vient.',
+      text: "Envoie ce <b>code</b> à ton ami. On commence dès qu'il arrive.",
       target: '#room-code',
       autoDone: true,
     },
@@ -9898,7 +9898,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'read_catalogue',
       screen: 'read',
-      text: '📚 Bienvenue dans la section <strong>Lecture</strong> ! Cherche un livre par titre ou auteur, filtre par catégorie, et clique sur une couverture pour ouvrir sa fiche. Les <strong>romans exclusifs</strong> se lisent directement ici : <strong>⭐ L\'Affaire endormie · Tome 1</strong> (chapitre 1 gratuit, puis 1000 ⚡ et 2000 ⚡), <strong>Life of Georgia</strong> (2000 ⚡ le livre entier) et <strong>Life of Georgia · Tome 2</strong>, offert à ceux qui possèdent le Tome 1.',
+      text: 'Touche un livre pour le <b>lire</b>.',
       target: '.read-wrap',
     },
 
@@ -9906,15 +9906,15 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'profile_hub',
       screen: 'profile',
-      text: '🎯 Ton <strong>Profil</strong> regroupe ta <strong>série de connexion</strong> 🔥, tes <strong>défis du jour</strong> (des ⚡ à réclamer chaque jour), ton <strong>casier</strong> (tes cosmétiques, avec aperçus et équipement), ton <strong>historique</strong> de parties, la carte <strong>Inviter un ami</strong> 🤝 (+100 ⚡ chacun), tes <strong>émotes</strong> 😎, la <strong>pluie d\'émojis</strong> 🌈, les <strong>Réglages</strong> ⚙️, ton <strong>code de récupération</strong> 🔐 (note-le pour ne jamais perdre ton compte !) et la <strong>réinitialisation</strong> du compte.',
-      target: '.profile-body',
+      text: 'Ton <b>pupitre</b> : touche un objet pour ouvrir son tiroir.',
+      target: '#pupitre',
     },
 
     // ── Idées ──
     {
       id: 'ideas_board',
       screen: 'ideas',
-      text: '💡 La section <strong>Idées</strong> : propose une amélioration du site et vote pour (▲) ou contre (▼) celles des autres joueurs. Les meilleures idées remontent en haut.',
+      text: 'Propose une idée et <b>vote</b> pour celles des autres.',
       target: null,
     },
 
@@ -9922,23 +9922,28 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'quiz_themes',
       screen: 'trivia-home',
-      text: '🧠 <strong>Quiz Culture Générale</strong> : sélectionne un ou plusieurs thèmes (Histoire, Cinéma, Sciences…), puis joue en <strong>Solo</strong> ou crée un <strong>salon multijoueur</strong> à partager avec tes amis.',
+      text: 'Choisis tes <b>thèmes</b>, puis joue seul ou entre amis.',
       target: '#trivia-themes',
     },
     {
       id: 'quiz_lb',
       screen: 'trivia-home',
-      text: '🏆 Le <strong>classement Quiz</strong> est séparé du classement Classique. Les points sont attribués selon ta vitesse de réponse et le nombre de bonnes réponses. <strong>Réponse éclair</strong> (dans les premières secondes) = <strong>point doublé ⚡</strong>.',
+      text: 'Réponds vite : une réponse éclair compte <b>double</b>.',
       target: '.lb-card',
     },
   ];
 
+  // « Libe te guide » : le crayon de l'assistant va se poser a cote de l'element,
+  // l'entoure au crayon rouge et dit UNE phrase courte dans une bulle manuscrite.
   const wrap   = document.getElementById('tuto-wrap');
   const bubble = document.getElementById('tuto-bubble');
   const dotsEl = document.getElementById('tuto-dots');
   const textEl = document.getElementById('tuto-text');
   const btnOk  = document.getElementById('tuto-ok');
   const btnSkip= document.getElementById('tuto-skip');
+  const ring   = document.getElementById('tuto-ring');
+  const libe   = document.getElementById('tuto-libe');
+  if (libe && typeof LIBE_SVG === 'string') libe.innerHTML = LIBE_SVG;
 
   let current     = null;
   let highlighted = null;
@@ -9948,33 +9953,54 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     if (highlighted) { highlighted.classList.remove('tuto-highlight'); highlighted = null; }
   }
 
-  function renderDots(activeId) {
-    dotsEl.innerHTML = '';
-    const done = getDone();
-    STEPS.forEach(s => {
-      const d = document.createElement('div');
-      d.className = 'tuto-dot' + (done[s.id] ? ' done' : s.id === activeId ? ' current' : '');
-      dotsEl.appendChild(d);
-    });
+  // Les points ne comptent que les etapes de l'ecran courant : « 2 sur 4 », pas « 9 sur 17 ».
+  function renderDots(step) {
+    const list = STEPS.filter(s => s.screen === step.screen);
+    dotsEl.innerHTML = list.map(s => `<i class="${s.id === step.id ? 'on' : isDone(s.id) ? 'done' : ''}"></i>`).join('');
+    const last = list.every(s => s.id === step.id || isDone(s.id));
+    btnOk.textContent = last ? t().tutoEnd : t().tutoOk;
   }
+
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  function place() {
+    if (!current) return;
+    const W = innerWidth, H = innerHeight;
+    const el = current.target && document.querySelector(current.target);
+    const r = el && el.getBoundingClientRect();
+    const visible = r && r.width > 0 && r.bottom > 0 && r.top < H;
+    const bw = Math.min(300, W - 24), bh = bubble.offsetHeight || 120;
+    const lw = 56, lh = 72;
+    let lx, ly, bx, by;
+    if (visible) {
+      const pad = 8;
+      ring.style.cssText = `left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + pad * 2}px;height:${r.height + pad * 2}px`;
+      ring.classList.remove('hidden');
+      // Libe se pose sous l'element s'il y a la place, sinon au-dessus.
+      const below = r.bottom + pad + lh + 10 < H - 70;
+      ly = below ? r.bottom + pad + 4 : Math.max(8, r.top - pad - lh - 4);
+      lx = clamp(r.left + r.width / 2 - lw / 2, 8, W - lw - 8);
+      // La bulle a cote de Libe, du cote ou il reste de la place.
+      bx = lx + lw + 8 + bw < W - 8 ? lx + lw + 8 : lx - bw - 8;
+      if (bx < 8) { bx = clamp(r.left, 12, W - bw - 12); by = below ? ly + lh + 4 : ly - bh - 4; }
+      else by = ly;
+      by = clamp(by, 8, H - bh - 8);
+    } else {
+      ring.classList.add('hidden');
+      lx = clamp(W / 2 - (lw + 8 + bw) / 2, 8, W - lw - 8); ly = H - lh - 110;
+      bx = clamp(lx + lw + 8, 8, W - bw - 8); by = clamp(ly - 20, 8, H - bh - 8);
+      if (bx < lx + lw) { by = ly - bh - 6; }
+    }
+    libe.style.left = lx + 'px'; libe.style.top = ly + 'px';
+    bubble.style.cssText = `width:${bw}px;left:${bx}px;top:${by}px`;
+  }
+  addEventListener('resize', () => place(), { passive: true });
+  addEventListener('scroll', () => place(), { passive: true, capture: true });
 
   function showStep(step) {
     if (isDone(step.id)) return;
     current = step;
     textEl.innerHTML = (t().tutoSteps && t().tutoSteps[step.id]) || step.text;
-    renderDots(step.id);
-
-    bubble.style.animation = 'none';
-    requestAnimationFrame(() => { bubble.style.animation = ''; });
-
-    wrap.classList.remove('hidden');
-    wrap.classList.add('visible');
-
-    clearHighlight();
-    if (step.target) {
-      const el = document.querySelector(step.target);
-      if (el) { el.classList.add('tuto-highlight'); highlighted = el; }
-    }
+    renderDots(step);
 
     // Si l'étape cible la News, forcer la carte visible pendant toute la durée
     if (step.target === '#news-card') {
@@ -9982,6 +10008,20 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
       const nc = document.getElementById('news-card');
       if (nc) nc.classList.remove('collapsed');
     }
+
+    clearHighlight();
+    const el = step.target && document.querySelector(step.target);
+    if (el) {
+      el.classList.add('tuto-highlight'); highlighted = el;
+      const r = el.getBoundingClientRect();
+      if (r.top < 0 || r.bottom > innerHeight) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+
+    wrap.classList.remove('hidden');
+    wrap.classList.add('visible');
+    // Le cercle se redessine a chaque etape, la bulle repousse.
+    ring.classList.remove('draw'); bubble.classList.remove('pop');
+    requestAnimationFrame(() => { place(); ring.classList.add('draw'); bubble.classList.add('pop'); setTimeout(place, 400); });
 
     clearTimeout(autoTimer);
     if (step.autoDone) {
@@ -12616,6 +12656,8 @@ window._renderBulletin = function () {
   const bal = window._bulBalance ?? (typeof libsBalance === 'number' ? libsBalance : 0);
   const ttl = document.getElementById('bul-title');
   if (ttl) ttl.textContent = d.bulTitle;
+  const lk = document.getElementById('corr-lv-k');
+  if (lk) lk.textContent = d.bulLevel;
   const row = (k, v) => `<div class="bul-row"><span>${_escHtml(k)}</span><span class="bul-note">${v}</span></div>`;
   g.innerHTML = row(d.bulStreak, _escHtml(d.bulDays(st)))
     + row(d.bulBalance, `${bal} <i class="bolt" aria-label="Libs"></i>`)
@@ -12634,8 +12676,7 @@ window._renderLevel = function () {
   if (!badge) return;
   const cur  = 100 * (lv - 1) * (lv - 1);
   const next = 100 * lv * lv;
-  badge.innerHTML = `<span class="level-badge-ic" data-ic="star"></span> ${lv}`;
-  window.paintUiIcons?.(badge);
+  badge.textContent = lv;
   if (main) main.textContent = t().levelMain(lv);
   if (sub)  sub.textContent  = t().levelSub(xp, next);
   // Borne basse : un couple niveau/XP incoherent donnerait une largeur negative.
