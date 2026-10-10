@@ -13327,7 +13327,8 @@ try {
     document.getElementById('account-pw-label').textContent = m === 'change' ? d.accountNewPwLabel : d.accountPwLabel;
     pw.setAttribute('autocomplete', m === 'login' ? 'current-password' : 'new-password');
     const p2 = document.getElementById('account-pseudo');
-    if (p2) p2.readOnly = (m === 'change');
+    // Verrouille seulement si le pseudo est connu, sinon le joueur doit pouvoir le taper.
+    if (p2) p2.readOnly = (m === 'change' && !!p2.value.trim());
     toggleConfirm(m === 'create' || m === 'change');
     toggleOld(m === 'change');
     status.textContent = '';
@@ -13344,6 +13345,8 @@ try {
     if (hasAccount() && want === 'create') want = 'login';
     setMode(want);
     refreshTabs();
+    // refreshTabs peut changer de mode : on recalcule le verrou du pseudo.
+    pseudo.readOnly = (mode === 'change' && !!pseudo.value.trim());
   }
   pwToggle?.addEventListener('click', () => setShown(!pwShown));
   window._openAccount = open;
