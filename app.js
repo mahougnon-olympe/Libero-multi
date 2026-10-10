@@ -13968,12 +13968,9 @@ window._renderVip = function () {
     if (!b) return;
     const m = b.dataset.method;
     if (m === 'friend') {
-      const online = window._myFriends || [];
-      document.getElementById('giftchoice-friend-list').innerHTML = online.length
-        ? online.map(f => `<div class="friend-row"><span class="friend-dot ${f.online ? 'on' : ''}"></span>
-            <span class="friend-name">${_escHtml(f.name)} <small class="friend-level">⭐ ${f.level}</small></span>
-            <button class="btn btn-primary giftchoice-pick" data-ref="${f.ref}" data-name="${_escHtml(f.name)}">${t().giftChoiceSendBtn}</button></div>`).join('')
-        : `<p class="recovery-warn">${t().giftChoiceNoFriends}</p>`;
+      renderGiftFriends();
+      // La liste n'est remplie qu'a l'ouverture de « Mes amis » : on la redemande ici.
+      socket.emit('get-friends', { playerId: getPlayerId() });
       showView('friends');
     } else {
       deliverVia = m; // 'link' | 'code'
@@ -13981,6 +13978,19 @@ window._renderVip = function () {
       confirmBtn.textContent = t().giftChoiceConfirmBtn(price);
       showView('confirm');
     }
+  });
+  function renderGiftFriends() {
+      const online = window._myFriends || [];
+      document.getElementById('giftchoice-friend-list').innerHTML = online.length
+        ? online.map(f => `<div class="friend-row"><span class="friend-dot ${f.online ? 'on' : ''}"></span>
+            <span class="friend-name">${_escHtml(f.name)} <small class="friend-level">⭐ ${f.level}</small></span>
+            <button class="btn btn-primary giftchoice-pick" data-ref="${f.ref}" data-name="${_escHtml(f.name)}">${t().giftChoiceSendBtn}</button></div>`).join('')
+        : `<p class="recovery-warn">${t().giftChoiceNoFriends}</p>`;
+  }
+  // Quand la liste arrive du serveur, on rafraichit si la vue « amis » est ouverte
+  // (initFriends a deja mis a jour window._myFriends, ce listener passe apres).
+  socket.on('friends-list', () => {
+    if (!overlay.classList.contains('hidden')) renderGiftFriends();
   });
   // Choisir un ami = confirmation directe (envoi immédiat).
   document.getElementById('giftchoice-friend-list').addEventListener('click', e => {
