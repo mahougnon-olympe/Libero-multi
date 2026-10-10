@@ -847,7 +847,7 @@
     <div class="chatbot-header">
       <div class="chatbot-header-txt">
         <span class="libe-slot libe-head"></span><span id="chatbot-title" class="chatbot-title">Assistant Libero</span>
-        <span id="chatbot-subtitle" class="chatbot-subtitle">Pose ta question sur le site</span>
+        <span id="chatbot-ai-tag" class="chatbot-ai-tag hidden">IA</span><span id="chatbot-subtitle" class="chatbot-subtitle">Pose ta question sur le site</span>
       </div>
       <button id="chatbot-reset" class="chatbot-reset" title="Effacer la conversation"><span class="ui-ic" data-ic="trash">🗑</span></button>
       <button id="chatbot-close" class="chatbot-close" aria-label="Fermer"><span class="ui-ic" data-ic="close">✕</span></button>
@@ -858,6 +858,7 @@
       <input id="chatbot-input" class="chatbot-input" type="text" autocomplete="off" placeholder="Écris ta question…" />
       <button type="submit" id="chatbot-send" class="chatbot-send" aria-label="Envoyer"><span class="ui-ic" data-ic="send">➤</span></button>
     </form>
+    <p id="chatbot-quota" class="chatbot-quota hidden" aria-live="polite"></p>
   </div>
   <!-- ── Boutons cachés (pilotés par le panneau Paramètres) ── -->
   <button id="btn-lang" class="btn-hidden" aria-hidden="true">EN</button>
@@ -905,6 +906,8 @@
     <button id="sp-push-btn" class="sp-toggle sp-ck" type="button"></button>
     <button id="sp-dmanim-btn" class="sp-toggle sp-ck" type="button"></button>
     <button id="sp-dmpush-btn" class="sp-toggle sp-ck" type="button"></button>
+    <button id="sp-libeai-btn" class="sp-toggle sp-ck" type="button"></button>
+    <p id="sp-libeai-note" class="sp-note hidden"></p>
     <div class="sp-divider"></div>
     <div class="sp-row sp-row-refund">
       <span class="sp-label" data-sp-label="settingsRefundTitle">Remboursements</span>

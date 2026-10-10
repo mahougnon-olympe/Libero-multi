@@ -2785,3 +2785,16 @@ html:not(.light) .dm-m.them { color: #9ec1ff; }
 }
 :root:root .friend-row .friend-gift svg { width: 18px; height: 18px; flex: none; }
 :root:root .friend-row .friend-gift:hover { background: rgba(255,225,105,.12) !important; }
+
+/* ══ Libe IA ══ */
+.chatbot-ai-tag { display: inline-block; margin-left: 6px; padding: 1px 5px; border: 1.5px solid currentColor; border-radius: 4px; font: 800 .58rem var(--font-body); letter-spacing: .06em; color: var(--accent); vertical-align: 3px; }
+.chatbot-ai-tag.hidden { display: none; }
+.chatbot-quota { margin: 0; padding: 0 14px 10px; font-size: .74rem; color: var(--muted); }
+.chatbot-quota.hidden { display: none; }
+:root:root .chatbot-msg-bot .chatbot-refuse { color: var(--margin, #e0435a); }
+:root:root .chatbot-act {
+  display: inline-flex; align-items: center; margin-top: 8px; min-height: 40px; padding: 0 14px; border-radius: 8px;
+  background: #1b3a8c; color: #fff; border: none; box-shadow: 0 2px 0 #0d1f55; font: 800 .8rem var(--font-body); cursor: pointer;
+}
+.sp-note { margin: -2px 0 6px 32px; font-size: .74rem; line-height: 1.35; color: rgba(238,241,234,.75); }
+.sp-note.hidden { display: none; }

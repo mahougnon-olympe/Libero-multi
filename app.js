@@ -1076,6 +1076,7 @@ const DICT = {
     shopDailyBadge:'Quotidien',
     settingsTitle:'⚙️ Paramètres',
     dm:{ title:'Mes mots', btn:'Mes mots', back:'Retour', options:'Options', online:'en ligne', offline:'hors ligne', empty:'Ajoute des amis pour leur écrire.', addFriend:'+ Ajouter un ami', first:'Écris-lui le premier mot', you:'Toi', me:'TOI', ph:'Écris un mot…', send:'Envoyer', typing:n=>`${n} écrit…`, seen:'lu', today:'aujourd\'hui', yesterday:'hier', quick:['gg','On joue ?','2 min','Bien joué !'], challenge:'Défier', challengeHint:'Choisis un jeu puis « Défier un ami ».', report:'Signaler', block:'Bloquer', reportAsk:n=>`Signaler ${n} ? Les derniers messages seront envoyés à l'équipe.`, blockAsk:n=>`Bloquer ${n} ? Il sera retiré de tes amis et ne pourra plus t'écrire.`, reported:'Merci, c\'est signalé.', blocked:'Bloqué.', noWrite:'Vous devez être amis tous les deux pour vous écrire.', err:{ rate:'Doucement, attends quelques secondes.', banned:'Ce message contient un mot interdit.', notfriend:'Vous devez être amis tous les deux pour vous écrire.', anonymous:'Choisis d\'abord un pseudo.' }, spAnim:'Animations des mots', spPush:'Me prévenir des nouveaux mots' },
+    libeAi:{ sp:'Libé IA (vraies réponses)', spNote:'Tes questions partent sans ton pseudo vers un service d\'IA (Anthropic). Voir Confidentialité.', subtitle:'Ton crayon qui sait (presque) tout', greeting:'Salut ! Je suis Libé. Pose-moi une question sur le site, tes devoirs ou ce que tu veux apprendre.', placeholder:'Écris ta question…', thinking:'Libé réfléchit…', left:n=>n > 1 ? `${n} questions restantes aujourd'hui` : n === 1 ? 'Dernière question pour aujourd\'hui' : 'Plus de questions IA aujourd\'hui : retour à minuit', quota:'Ma mine est usée pour aujourd\'hui ! Tes questions reviennent <strong>demain à minuit</strong>. En attendant, je t\'aide encore sur le site avec mes fiches :', busy:'Je suis débordé, je réponds avec mes fiches du site :', off:'Libé IA n\'est pas encore branché. Je réponds avec mes fiches du site :', acts:{ friends:'Ouvrir Mes amis', notes:'Ouvrir Mes mots', shop:'Ouvrir la boutique', profile:'Ouvrir mon profil', games:'Jeux multijoueur', trivia:'Culture générale', wordle:'Ouvrir Le Mot', events:'Ouvrir les Évents', read:'Ouvrir la Lecture', ideas:'Ouvrir les Idées', settings:'Ouvrir les réglages', account:'Ouvrir Mon compte', wheel:'Ouvrir la roue' } },
     settingsTitle:'Réglages', spCkEn:'Site en anglais', spCkSlate:'Ardoise (thème sombre)', spCkTrail:'Trait derrière le curseur', spCkSfx:'Bruitages', spCkBgm:'Musique de fond', spCkPush:'Me prévenir (notifications)', spCkInGame:'en jeu', settingsLang:'Langue', settingsTheme:'Thème', settingsSnake:'Serpent',
     settingsSnakeOn:'Activé', settingsSnakeOff:'Désactivé', settingsSnakeInGame:'🐍 En Game',
     snakeBusyInGame:'🐍 Le serpent est en Game !',
@@ -1856,6 +1857,7 @@ const DICT = {
     shopDailyBadge:'Daily',
     settingsTitle:'⚙️ Settings',
     dm:{ title:'My notes', btn:'My notes', back:'Back', options:'Options', online:'online', offline:'offline', empty:'Add friends to write to them.', addFriend:'+ Add a friend', first:'Write them the first note', you:'You', me:'YOU', ph:'Write a note…', send:'Send', typing:n=>`${n} is writing…`, seen:'read', today:'today', yesterday:'yesterday', quick:['gg','Wanna play?','2 min','Well played!'], challenge:'Challenge', challengeHint:'Pick a game, then « Challenge a friend ».', report:'Report', block:'Block', reportAsk:n=>`Report ${n}? The latest messages will be sent to the team.`, blockAsk:n=>`Block ${n}? They will be removed from your friends and can no longer write to you.`, reported:'Thanks, it has been reported.', blocked:'Blocked.', noWrite:'You both need to be friends to write.', err:{ rate:'Slow down, wait a few seconds.', banned:'This message contains a banned word.', notfriend:'You both need to be friends to write.', anonymous:'Pick a username first.' }, spAnim:'Note animations', spPush:'Notify me of new notes' },
+    libeAi:{ sp:'Libé AI (real answers)', spNote:'Your questions go to an AI service (Anthropic) without your username. See Privacy.', subtitle:'Your pencil that knows (almost) everything', greeting:'Hi! I am Libé. Ask me about the site, your homework or anything you want to learn.', placeholder:'Type your question…', thinking:'Libé is thinking…', left:n=>n > 1 ? `${n} questions left today` : n === 1 ? 'Last question for today' : 'No AI questions left today: back at midnight', quota:'My lead is worn out for today! Your questions come back <strong>tomorrow at midnight</strong>. Meanwhile I can still help with my site notes:', busy:'I am swamped, here are my site notes:', off:'Libé AI is not plugged in yet. Here are my site notes:', acts:{ friends:'Open My friends', notes:'Open My notes', shop:'Open the shop', profile:'Open my profile', games:'Multiplayer games', trivia:'Trivia', wordle:'Open The Word', events:'Open Events', read:'Open Reading', ideas:'Open Ideas', settings:'Open settings', account:'Open My account', wheel:'Open the wheel' } },
     settingsTitle:'Settings', spCkEn:'Site in English', spCkSlate:'Slate (dark theme)', spCkTrail:'Trail behind the cursor', spCkSfx:'Sound effects', spCkBgm:'Background music', spCkPush:'Notify me (notifications)', spCkInGame:'in game', settingsLang:'Language', settingsTheme:'Theme', settingsSnake:'Snake',
     settingsSnakeOn:'Enabled', settingsSnakeOff:'Disabled', settingsSnakeInGame:'🐍 In Game',
     snakeBusyInGame:'🐍 The snake is in Game!',
@@ -5237,10 +5239,78 @@ $('overlay-help').addEventListener('click', e => {
     pushLog('bot', `<p class="chatbot-intro">${esc(d.chatbot.answerIntro)}</p>` + botCards(top));
   }
 
+  // ── Libe IA (case « Libe IA » cochee dans les reglages, decochee par defaut) ──
+  const LS_AI = 'libero_libe_ai';
+  const aiOn = () => { try { return localStorage.getItem(LS_AI) === '1'; } catch { return false; } };
+  window._libeAiOn = aiOn;
+  const quotaEl = $('chatbot-quota');
+  function showLeft(n){
+    if (!quotaEl) return;
+    if (!aiOn() || typeof n !== 'number') { quotaEl.classList.add('hidden'); return; }
+    quotaEl.textContent = t().libeAi.left(n); quotaEl.classList.remove('hidden');
+  }
+  function refreshQuota(){
+    if (!aiOn()) { showLeft(null); return; }
+    fetch(`${window.BACKEND_URL}/api/libe-quota`, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ playerId: getPlayerId() }) })
+      .then(r => r.json()).then(j => showLeft(j.on ? j.left : null)).catch(() => {});
+  }
+  // Texte de l'IA -> HTML sur : echappe, **gras**, retours a la ligne.
+  const md = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+  const GO = {
+    friends: () => { closePanel(); showScreen('profile'); document.getElementById('go-friends')?.click(); },
+    notes:   () => { closePanel(); window._dmOpen?.(); },
+    shop:    () => { closePanel(); showScreen('shop'); },
+    profile: () => { closePanel(); showScreen('profile'); },
+    games:   () => { closePanel(); showScreen('home'); },
+    trivia:  () => { closePanel(); showScreen('trivia-home'); },
+    wordle:  () => { closePanel(); showScreen('wordle'); },
+    events:  () => { closePanel(); showScreen('events'); },
+    read:    () => { closePanel(); showScreen('read'); },
+    ideas:   () => { closePanel(); showScreen('ideas'); },
+    settings:() => { closePanel(); document.getElementById('btn-settings')?.click(); },
+    account: () => { closePanel(); window._openAccount?.('login'); },
+    wheel:   () => { closePanel(); document.getElementById('go-wheel')?.click(); },
+  };
+  logEl.addEventListener('click', e => {
+    const b = e.target.closest('.chatbot-act'); if (!b) return;
+    (GO[b.dataset.act] || (() => {}))();
+  });
+  function history(){
+    return [...logEl.querySelectorAll('.chatbot-msg')].slice(-7, -1).map(el => ({
+      r: el.classList.contains('chatbot-msg-user') ? 'user' : 'bot', t: el.textContent.slice(0, 600),
+    }));
+  }
+  function askAi(clean, ty){
+    const d = t();
+    fetch(`${window.BACKEND_URL}/api/libe`, {
+      method:'POST', headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ q: clean, lang: currentLang, playerId: getPlayerId(), history: history() }),
+    }).then(r => r.json()).then(j => {
+      ty.remove();
+      if (j && j.ok) {
+        const act = j.action && d.libeAi.acts[j.action] ? `<br><button type="button" class="chatbot-act" data-act="${j.action}">${esc(d.libeAi.acts[j.action])}</button>` : '';
+        pushLog('bot', `<span class="${j.refused ? 'chatbot-refuse' : ''}">${md(j.text)}</span>${act}`);
+      } else {
+        // Limite du jour, IA debordee ou pas branchee : les fiches du site prennent le relais.
+        pushLog('bot', j && j.error === 'quota' ? d.libeAi.quota : esc(j && j.error === 'off' ? d.libeAi.off : d.libeAi.busy));
+        answer(clean);
+      }
+      showLeft(j ? j.left : null);
+    }).catch(() => { ty.remove(); pushLog('bot', esc(d.libeAi.busy)); answer(clean); });
+  }
+
   function submit(text){
     const clean = (text || '').trim();
     if (!clean) return;
     pushLog('user', esc(clean));
+    if (aiOn()) {
+      const ty = document.createElement('div');
+      ty.className = 'chatbot-typing';
+      ty.innerHTML = `${LIBE_PENCIL}<span>${esc(t().libeAi.thinking)}</span>`;
+      logEl.appendChild(ty); logEl.scrollTop = logEl.scrollHeight;
+      askAi(clean, ty);
+      return;
+    }
     logBotQuestion(clean);
     // Libe « ecrit » : un crayon griffonne le temps de chercher.
     const ty = document.createElement('div');
@@ -5284,11 +5354,12 @@ $('overlay-help').addEventListener('click', e => {
     let msgs = null;
     try { msgs = JSON.parse(localStorage.getItem(LS_LOG) || 'null'); } catch(e){}
     if (msgs && msgs.length) msgs.forEach(m => pushLog(m.r, m.h, false));
-    else pushLog('bot', esc(t().chatbot.greeting), false);
+    else pushLog('bot', esc(aiOn() ? t().libeAi.greeting : t().chatbot.greeting), false);
   }
 
   function openPanel(){
     panel.classList.remove('hidden');
+    refreshQuota();
     fab.classList.add('chatbot-fab-open');
     localStorage.setItem(LS_OPEN, '1');
     setTimeout(() => { logEl.scrollTop = logEl.scrollHeight; input.focus(); }, 30);
@@ -5303,10 +5374,11 @@ $('overlay-help').addEventListener('click', e => {
   function retexte(){
     const d = t();
     fab.title = d.chatbot.fabTitle;
-    const ti = $('chatbot-title');    if (ti) ti.textContent = d.chatbot.title;
-    const su = $('chatbot-subtitle'); if (su) su.textContent = d.chatbot.subtitle;
+    const ti = $('chatbot-title');    if (ti) ti.textContent = aiOn() ? 'Libé' : d.chatbot.title;
+    const su = $('chatbot-subtitle'); if (su) su.textContent = aiOn() ? d.libeAi.subtitle : d.chatbot.subtitle;
+    $('chatbot-ai-tag')?.classList.toggle('hidden', !aiOn());
     const rb = $('chatbot-reset');    if (rb) rb.title = d.chatbot.reset;
-    input.placeholder = d.chatbot.placeholder;
+    input.placeholder = aiOn() ? d.libeAi.placeholder : d.chatbot.placeholder;
     buildKB();
     // Libe parle la langue du site : si elle a change, la conversation repart dans la nouvelle langue.
     try {
@@ -5318,6 +5390,10 @@ $('overlay-help').addEventListener('click', e => {
     } catch(e){}
   }
   window._chatbot = { retexte };
+  document.getElementById('sp-libeai-btn')?.addEventListener('click', () => {
+    try { localStorage.setItem(LS_AI, aiOn() ? '0' : '1'); localStorage.removeItem(LS_LOG); } catch(e){}
+    restoreLog(); retexte(); refreshQuota(); _updateSettingsPanel();
+  });
 
   fab.addEventListener('click', toggle);
   // Carte Assistant du hub Profil (le bouton flottant est masque sur cet ecran).
@@ -7427,6 +7503,8 @@ function _updateSettingsPanel() {
   _spCk('sp-sfx-btn', !!sfxEnabled, d.spCkSfx);
   _spCk('sp-dmanim-btn', window._dmPrefs?.().anim !== false, d.dm.spAnim);
   _spCk('sp-dmpush-btn', window._dmPrefs?.().push !== false, d.dm.spPush);
+  _spCk('sp-libeai-btn', !!window._libeAiOn?.(), d.libeAi.sp);
+  { const n = document.getElementById('sp-libeai-note'); if (n) { n.textContent = d.libeAi.spNote; n.classList.toggle('hidden', !window._libeAiOn?.()); } }
   document.getElementById('sp-vol-slider')?.closest('.sp-vol-row')?.classList.toggle('hidden', !sfxEnabled);
   const volSlider = document.getElementById('sp-vol-slider');
   if (volSlider) volSlider.value = String(Math.round(sfxVolume * 100));
