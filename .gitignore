@@ -32,3 +32,8 @@ Audio/
 bg-game-song.mp3
 quiz-thinking-timer-loop.mp3
 assets/preview/_raw/
+
+# Guide prive du projet pour les agents IA (local uniquement)
+GUIDE-PROJET.md
+AGENTS.md
+.agents/
