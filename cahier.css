@@ -2565,3 +2565,14 @@ html:not(.light) #screen-wordle { background-color: #f3efe2; }
 :root:root .nb-btn:hover { background: var(--card2); }
 :root:root .nb-btn.active { border: 2px solid var(--accent); background: linear-gradient(transparent 55%, var(--mark) 55%); }
 :root:root .who-btn { display: flex; align-items: center; justify-content: center; text-align: center; }
+
+/* Cases a cocher dessinees : la coche est posee en absolu au centre de SA case.
+   Avant, l'icone inseree dans la case prenait la premiere cellule de la grille et
+   la coche tombait dessous, donc dans la case de la ligne suivante. */
+:root:root .onboard-step .ob-check, .spk { position: relative; }
+:root:root .onboard-step .ob-check > *, .spk > * { display: none !important; }
+:root:root .onboard-step.done .ob-check::after, .sp-ck.on .spk::after {
+  position: absolute; left: 50%; top: 50%; margin: 0;
+}
+:root:root .onboard-step.done .ob-check::after { transform: translate(-45%, -60%) rotate(-6deg); }
+.sp-ck.on .spk::after { transform: translate(-45%, -62%) rotate(-6deg); }
