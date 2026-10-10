@@ -546,7 +546,7 @@ const TRIVIA_API_CAT_MAP = {
 
 const DICT = {
   fr: {
-    siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisis ta partie, ou ouvre un livre.', bulTitle:'Carnet de correspondance', bulLevel:'Niveau', bulStreak:'Série en cours', bulBalance:'Solde', bulChallenges:'Défis du jour', bulDays:n => n + (n > 1 ? ' jours' : ' jour'),
+    siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisis ta partie, ou ouvre un livre.', bulTitle:'Carnet de correspondance', bulTitles:['Carnet de correspondance','Carnet de l\'élève','Carnet du bon élève','Carnet d\'honneur','Tableau d\'honneur'], bulLevel:'Niveau', bulStreak:'Série en cours', bulBalance:'Solde', bulChallenges:'Défis du jour', bulDays:n => n + (n > 1 ? ' jours' : ' jour'),
     bulAppreLabel:'Appréciation :',
     bulAppre:{ anon:'Choisis un pseudo pour recevoir tes notes.', allDone:'Tous les défis du jour sont faits. Excellent travail !', streak:n => `Très assidu : ${n} jours de suite, continue comme ça.`, high:'Joueur confirmé, redoutable sur le plateau.', mid:'De bons progrès, encore un effort pour monter de niveau.', start:'Bon début. Reviens demain pour allonger ta série.' },
     landingTitle:'Aujourd\'hui, on <mark>joue</mark>.', landingDaily:["Aujourd'hui, on <mark>joue</mark>, {n}.", "Nouvelle page, {n}. On la <mark>remplit</mark> ?", "Le tableau est propre. À toi d'écrire la <mark>victoire</mark>.", "Interro surprise ? Non, juste un <mark>quiz</mark>, {n}.", "Pas de devoirs ici, que des <mark>parties</mark>.", "Ta série t'attend, {n}. <mark>Garde-la</mark> au chaud.", "Une partie de dames avant le <mark>dîner</mark> ?", "Le robot se dit <mark>imbattable</mark>. Vérifie.", "Aujourd'hui, la <mark>chance</mark> est de ton côté, {n}.", "Un mot mystère t'attend : <mark>cinq</mark> lettres, six essais.", "Ouvre un <mark>livre</mark>, ou ouvre le jeu.", "Bon retour, {n}. Le classement a <mark>bougé</mark>.", "Échec et mat, c'est pour <mark>quand</mark> ?", "Quatre jetons alignés, c'est tout ce qu'il <mark>faut</mark>.", "Révise en jouant : SVT, Anglais et <mark>Bénin</mark> au quiz.", "Le Ludo se joue à <mark>quatre</mark>. Appelle tes amis.", "Même les champions ont <mark>commencé</mark> par une défaite.", "{n}, la roue de la fortune <mark>tourne</mark> une fois par jour.", "Un petit duel pour se <mark>réveiller</mark> ?", "Ce soir, on vise le <mark>podium</mark>.", "Le samedi, c'est <mark>tournoi</mark>. Prépare-toi, {n}.", "Ici, les erreurs ne comptent <mark>pas</mark>. Rejoue.", "Au quiz, une bonne réponse rapide vaut <mark>double</mark>.", "Le morpion, c'est simple. Gagner, <mark>moins</mark>.", "Prends ton temps, {n}. Le plateau ne <mark>bouge</mark> pas.", "Une idée pour le site ? Écris-la dans <mark>Idées</mark>.", "Aujourd'hui, tu bats ton <mark>record</mark>.", "Ton adversaire révise. Et <mark>toi</mark> ?", "Le dé est <mark>lancé</mark>, {n}.", "Cahier ouvert, crayon prêt : <mark>à toi</mark>."],
@@ -1319,7 +1319,7 @@ const DICT = {
     },
   },
   en: {
-    siteTitle:'Multiplayer Games', siteSubtitle:'Pick a game, or open a book.', bulTitle:'Correspondence book', bulLevel:'Level', bulStreak:'Current streak', bulBalance:'Balance', bulChallenges:'Daily challenges', bulDays:n => n + (n > 1 ? ' days' : ' day'),
+    siteTitle:'Multiplayer Games', siteSubtitle:'Pick a game, or open a book.', bulTitle:'Correspondence book', bulTitles:['Correspondence book','Pupil\'s book','Good pupil\'s book','Book of honour','Honour roll'], bulLevel:'Level', bulStreak:'Current streak', bulBalance:'Balance', bulChallenges:'Daily challenges', bulDays:n => n + (n > 1 ? ' days' : ' day'),
     bulAppreLabel:'Teacher\'s comment:',
     bulAppre:{ anon:'Pick a nickname to get your grades.', allDone:'All of today\'s challenges are done. Excellent work!', streak:n => `Very regular: ${n} days in a row, keep it up.`, high:'Seasoned player, formidable on the board.', mid:'Good progress, one more push to level up.', start:'Good start. Come back tomorrow to grow your streak.' },
     landingTitle:'Today, we <mark>play</mark>.', landingDaily:["Today, we <mark>play</mark>, {n}.", "New page, {n}. Shall we <mark>fill</mark> it?", "The board is clean. Go write the <mark>win</mark>.", "Pop quiz? No, just a <mark>quiz</mark>, {n}.", "No homework here, only <mark>games</mark>.", "Your streak is waiting, {n}. <mark>Keep</mark> it warm.", "A game of draughts before <mark>dinner</mark>?", "The bot claims it is <mark>unbeatable</mark>. Check.", "Luck is on your <mark>side</mark> today, {n}.", "A mystery word awaits: <mark>five</mark> letters, six tries.", "Open a <mark>book</mark>, or open a game.", "Welcome back, {n}. The leaderboard has <mark>moved</mark>.", "Checkmate, but <mark>when</mark>?", "Four tokens in a row is all it <mark>takes</mark>.", "Revise while playing: Biology, English and <mark>Benin</mark> in the quiz.", "Ludo is played by <mark>four</mark>. Call your friends.", "Even champions <mark>started</mark> with a loss.", "{n}, the wheel of fortune <mark>spins</mark> once a day.", "A quick duel to <mark>wake up</mark>?", "Tonight, we aim for the <mark>podium</mark>.", "Saturday means <mark>tournament</mark>. Get ready, {n}.", "Mistakes do not count <mark>here</mark>. Play again.", "In the quiz, a fast right answer counts <mark>double</mark>.", "Tic-tac-toe is simple. Winning, <mark>less</mark> so.", "Take your time, {n}. The board is not <mark>going</mark> anywhere.", "An idea for the site? Write it in <mark>Ideas</mark>.", "Today, you beat your <mark>record</mark>.", "Your opponent is revising. What about <mark>you</mark>?", "The die is <mark>cast</mark>, {n}.", "Notebook open, pencil ready: <mark>your move</mark>."],
@@ -12641,7 +12641,7 @@ window._renderBulletin = function () {
   const lv = window._myLevel || 1;
   const bal = window._bulBalance ?? (typeof libsBalance === 'number' ? libsBalance : 0);
   const ttl = document.getElementById('bul-title');
-  if (ttl) ttl.textContent = d.bulTitle;
+  if (ttl) ttl.textContent = d.bulTitles[lv >= 50 ? 4 : lv >= 30 ? 3 : lv >= 15 ? 2 : lv >= 5 ? 1 : 0];
   const lk = document.getElementById('corr-lv-k');
   if (lk) lk.textContent = d.bulLevel;
   const row = (k, v) => `<div class="bul-row"><span>${_escHtml(k)}</span><span class="bul-note">${v}</span></div>`;
@@ -12652,6 +12652,33 @@ window._renderBulletin = function () {
   const txt = !named ? a.anon : (ch.total && ch.done === ch.total) ? a.allDone : st >= 3 ? a.streak(st) : lv >= 10 ? a.high : lv >= 4 ? a.mid : a.start;
   ap.innerHTML = `<span class="bul-appre-k">${_escHtml(d.bulAppreLabel)}</span> ${_escHtml(txt)}`;
 };
+// Carnet de correspondance : il s'embellit avec le niveau (22 etapes de 1 a 60, 4 matieres :
+// carton, toile au 15, cuir bordeaux au 30, cuir noir au 50). Seul le CADRE de l'etiquette
+// change : le pseudo garde sa police, sa couleur et son effet achetes.
+function _carnetClasses(l) {
+  const c = [l >= 50 ? 'cv-noir' : l >= 30 ? 'cv-cuir' : l >= 15 ? 'cv-toile' : l >= 8 ? 'cv-satin' : 'cv-carton'];
+  c.push('lab-' + (l >= 50 ? 5 : l >= 40 ? 4 : l >= 22 ? 3 : l >= 12 ? 2 : 1));
+  if (l >= 60) c.push('lab-star');
+  if (l >= 40) c.push('ph-gold'); else if (l >= 28) c.push('ph-brass');
+  if (l >= 50) c.push('pg-edge2'); else if (l >= 43) c.push('pg-edge');
+  return c.join(' ');
+}
+const _CARNET_FIL = '<svg class="cd filig" viewBox="0 0 170 300" preserveAspectRatio="none"><g fill="none" stroke="#e0b43a" stroke-width="1.2"><path d="M20 20q20 0 20 20t20 20M150 20q-20 0-20 20t-20 20M20 280q20 0 20-20t20-20M150 280q-20 0-20-20t-20-20"/><path d="M85 14l6 8-6 8-6-8z" fill="#e0b43a"/><path d="M85 286l6-8-6-8-6 8z" fill="#e0b43a"/><circle cx="40" cy="40" r="3" fill="#e0b43a"/><circle cx="130" cy="40" r="3" fill="#e0b43a"/><circle cx="40" cy="260" r="3" fill="#e0b43a"/><circle cx="130" cy="260" r="3" fill="#e0b43a"/></g></svg>';
+function _carnetDeco(l) {
+  let d = '';
+  if (l >= 50) d += _CARNET_FIL;
+  if (l >= 18) d += `<span class="cd stch"${l >= 50 ? ' style="--th:rgba(224,180,58,.7)"' : ''}></span>`;
+  if (l >= 33) d += '<span class="cd stch2"></span>';
+  if (l >= 10) { const c = l >= 20 ? 'brass' : 'brass plastic'; d += `<span class="cd ${c} tl"></span><span class="cd ${c} bl"></span>`; if (l >= 45) d += '<span class="cd brass tr"></span><span class="cd brass br"></span>'; }
+  if (l >= 5 && l < 35) d += '<span class="cd band"></span>';
+  if (l >= 25) d += `<span class="cd silk" style="--rb:${l >= 55 ? '#b3122a' : l >= 38 ? '#e0b43a' : '#3d64b8'}"></span>${l >= 38 ? '<span class="cd tassel"></span>' : ''}`;
+  if (l >= 35) d += '<span class="cd clasp"></span>';
+  if (l >= 3 && l < 40) d += '<span class="cd stk">3</span>';
+  if (l >= 40 && l < 55) d += '<span class="cd medal">40</span>';
+  if (l >= 55) d += '<span class="cd wax">L</span>';
+  if (l >= 60) d += '<span class="cd stars"><i style="left:22px;top:60px"></i><i style="right:30px;top:140px;animation-delay:.8s"></i><i style="left:30px;top:190px;animation-delay:1.6s"></i></span><span class="cd glint"></span>';
+  return d;
+}
 window._renderLevel = function () {
   const lv = window._myLevel || 1;
   const xp = window._myXp || 0;
@@ -12680,7 +12707,9 @@ window._renderLevel = function () {
   const banner = document.getElementById('level-banner');
   if (banner) {
     const tier = lv >= 50 ? 5 : lv >= 30 ? 4 : lv >= 15 ? 3 : lv >= 5 ? 2 : 1;
-    banner.className = 'level-banner profile-id level-tier-' + tier;
+    banner.className = 'level-banner profile-id level-tier-' + tier + ' ' + _carnetClasses(lv);
+    const deco = document.getElementById('corr-deco');
+    if (deco && deco.dataset.lv !== String(lv)) { deco.dataset.lv = lv; deco.innerHTML = _carnetDeco(lv); }
   }
   window._renderBulletin?.();
 };

@@ -1130,10 +1130,11 @@
                etiquette au pseudo, tampon VIP) et page lignee (niveau, XP, serie, solde, defis, mot du prof).
                Les identifiants (profile-avatar, profile-pseudo, level-*, vip-badge) restent ceux que lit app.js. -->
           <div class="corr-cover">
+            <span class="corr-deco" id="corr-deco" aria-hidden="true"></span>
             <b class="corr-kicker" id="bul-title">Carnet de correspondance</b>
             <span class="pid-av-wrap"><span class="pid-avatar" id="profile-avatar"></span><button type="button" class="pid-av-edit" id="btn-portrait-edit" aria-label="Modifier mon portrait"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-5L16 4l4 4L9 19z" fill="#ffd54a" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M4 20l1-5 4 4z" fill="#f2d2a6" stroke="currentColor" stroke-width="1.6"/></svg></button></span>
             <span class="pid-av-hint" id="pid-av-hint">Crée ton portrait</span>
-            <p id="profile-pseudo" class="pid-name corr-label">Joueur</p>
+            <span class="corr-lab-w" id="corr-lab-w"><i class="corr-rivet"></i><p id="profile-pseudo" class="pid-name corr-label">Joueur</p><i class="corr-rivet"></i></span>
             <span id="vip-badge" class="vip-badge hidden">VIP<span id="vip-badge-count" class="vip-badge-count hidden"></span></span>
           </div>
           <div class="corr-page pid-main">
