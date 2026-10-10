@@ -157,5 +157,14 @@
     return out;
   }
   function lockedIds(p){const q=normalize(p),ids=[];for(const o of OPTS){if((o.lock||[]).includes(q[o.k]))ids.push('pt-'+o.k+'-'+q[o.k]);}return ids;}
-  window.LiberoPortrait={OPTS,GROUPS,DEF,PT_PRICE,BGS,svg:p=>svg(normalize(p)),normalize,lockedIds};
+
+  // Portrait de base (« a dessiner ») : silhouette en pointilles sur une page Seyes, point
+  // d'interrogation rouge et le MEME crayon que l'accessoire « crayon sur l'oreille », en plus grand.
+  function blank(){
+    const ink='#22252b';
+    const pencil=`<g transform="translate(80 8) rotate(28) scale(1.1)"><path d="M0 5v-2.4q0-2.6 2.8-2.6t2.8 2.6v2.4z" fill="#f29bb0" stroke="${ink}" stroke-width="1.2"/><rect x="0" y="5" width="5.6" height="3" fill="#b9bec6" stroke="${ink}" stroke-width="1.1"/><path d="M0 8h5.6v20H0z" fill="#e0a800" stroke="${ink}" stroke-width="1.3"/><path d="M1.9 8v20M3.7 8v20" stroke="#b8860b" stroke-width=".7"/><path d="M0 28h5.6l-2.8 6z" fill="#f2d2a6" stroke="${ink}" stroke-width="1.2"/><path d="M2.2 32.7l.6 1.3.6-1.3z" fill="${ink}"/></g>`;
+    const rules=[12,24,36,48,60,72,84,96].map(y=>`<path d="M0 ${y}h100" stroke="rgba(80,130,205,.35)" stroke-width="1"/>`).join('');
+    return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="100" height="100" fill="#fdfdf9"/>${rules}<path d="M12 0v100" stroke="#e2485d" stroke-width="1.2" opacity=".6"/><g fill="none" stroke="#5e6470" stroke-width="2.2" stroke-dasharray="5 4" stroke-linecap="round"><ellipse cx="50" cy="44" rx="20" ry="24"/><path d="M14 100q4-26 36-28 32 2 36 28"/></g><text x="50" y="53" text-anchor="middle" font-family="Caveat, 'Segoe Print', cursive" font-weight="700" font-size="28" fill="#e2485d">?</text>${pencil}</svg>`;
+  }
+  window.LiberoPortrait={OPTS,GROUPS,DEF,PT_PRICE,BGS,svg:p=>svg(normalize(p)),blank,normalize,lockedIds};
 })();

@@ -653,7 +653,7 @@ const DICT = {
     wheelIntro:'Un tour gratuit par jour. Tente ta chance !',
     wheelSpinBtn:'Tourner la roue',
     wheelWin:p=>`+${p} Libs ! Reviens demain.`,
-    wheelDone:'⏳ Tu as déjà tourné la roue aujourd\'hui. Reviens demain !',
+    wheelDone:'Déjà tournée aujourd\'hui. Reviens demain !',
     wheelNoName:'Choisis d\'abord un pseudo pour tourner la roue.',
     // Amis
     friendsCardTitle:'Mes amis', friendsCardSub:'Vois qui est en ligne et défie-les',
@@ -1426,7 +1426,7 @@ const DICT = {
     wheelIntro:'One free spin a day. Try your luck!',
     wheelSpinBtn:'Spin the wheel',
     wheelWin:p=>`+${p} Libs! Come back tomorrow.`,
-    wheelDone:'⏳ You already spun the wheel today. Come back tomorrow!',
+    wheelDone:'Already spun today. Come back tomorrow!',
     wheelNoName:'Pick a nickname first to spin the wheel.',
     // Friends
     friendsCardTitle:'My friends', friendsCardSub:'See who is online and challenge them',
@@ -2896,7 +2896,7 @@ window._renderProfilePseudo = function () {
   const av = document.getElementById('profile-avatar');
   if (av) {
     // Sans portrait compose, on montre deja la tete par defaut : le joueur voit qu'il peut la dessiner.
-    const ic = myPortrait ? _ptSvg(myPortrait) : (window.LiberoPortrait ? _ptSvg(window.LiberoPortrait.DEF) : _avatarSvg(equippedAvatar));
+    const ic = myPortrait ? _ptSvg(myPortrait) : (window.LiberoPortrait ? _ptBlank() : _avatarSvg(equippedAvatar));
     const hint = document.getElementById('pid-av-hint');
     if (hint) { hint.textContent = t().peHint; hint.classList.toggle('hidden', !!myPortrait); }
     if (ic) av.innerHTML = ic; else av.textContent = nom.charAt(0).toUpperCase();
@@ -3050,7 +3050,10 @@ function _ptSvg(p) {
   if (!_ptCache.has(k)) { if (_ptCache.size > 300) _ptCache.clear(); _ptCache.set(k, window.LiberoPortrait.svg(p)); }
   return _ptCache.get(k);
 }
-function _lbPt(p) { return p ? `<span class="lb-pt" aria-hidden="true">${_ptSvg(p)}</span>` : ''; }
+// Sans portrait compose : la silhouette « a dessiner » (portrait de base).
+let _ptBlankSvg = '';
+function _ptBlank() { if (!_ptBlankSvg && window.LiberoPortrait?.blank) _ptBlankSvg = window.LiberoPortrait.blank(); return _ptBlankSvg; }
+function _lbPt(p) { const s = p ? _ptSvg(p) : _ptBlank(); return s ? `<span class="lb-pt" aria-hidden="true">${s}</span>` : ''; }
 try { myPortrait = JSON.parse(localStorage.getItem('libero_portrait') || 'null'); } catch { myPortrait = null; }
 
 function setPlayerBadges(gameType, yourPlayer) {
@@ -5749,7 +5752,7 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount, portrait: newPortrait } = {}) => {
+socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, wheelDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount, portrait: newPortrait } = {}) => {
   if (newOwned !== undefined) setTimeout(() => window._pupitre?.paint(), 0);
   if (newPortrait !== undefined) { myPortrait = newPortrait; try { localStorage.setItem('libero_portrait', JSON.stringify(newPortrait)); } catch {} window._renderProfilePseudo?.(); }
   if (newBadges !== undefined) { window._myBadges = newBadges; window._renderBadges?.('profile-badges', newBadges, newHonorTitle); }
@@ -5761,6 +5764,7 @@ socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq,
   if (iq !== undefined)         window._myIq = iq;
   if (iqUnlocked !== undefined) window._myIqUnlocked = iqUnlocked;
   if (iqQuizDone !== undefined) window._myIqQuizDone = iqQuizDone;
+  if (wheelDone !== undefined) window._wheelDone = !!wheelDone;
   if (iq !== undefined || iqUnlocked !== undefined) window._renderIqCard?.();
   if (vipUntil !== undefined)   { window._myVipUntil = vipUntil; window._renderVip?.(); }
   const prev = libsBalance;
@@ -12384,7 +12388,7 @@ window._profileSections = ProfileSections;
         const key = FICHE_ART[card.id];
         let art = card.querySelector(':scope > .fiche-art');
         if (card.id === 'go-portrait' && window.LiberoPortrait) {
-          const html = `<span class="ob fiche-art fiche-pt">${_ptSvg(myPortrait || window.LiberoPortrait.DEF)}</span>`;
+          const html = `<span class="ob fiche-art fiche-pt">${myPortrait ? _ptSvg(myPortrait) : _ptBlank()}</span>`;
           if (art) art.outerHTML = html; else card.insertAdjacentHTML('afterbegin', html);
         } else if (key && !art) card.insertAdjacentHTML('afterbegin', OBJ[key]);
       });
@@ -12746,9 +12750,12 @@ window._showLevelUp = function (lv, reward) {
     <circle cx="100" cy="100" r="9" fill="#2f4a3e" stroke="#eef1ea" stroke-width="2.4"/></svg>`;
   const ptr = overlay.querySelector('.wheel-pointer');
   if (ptr) ptr.innerHTML = '<svg viewBox="0 0 30 30" aria-hidden="true"><path d="M15 28L5 6q10 6 20 0z" fill="#ffe169" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg>';
+  // Deja tourne aujourd'hui (le serveur le dit a la connexion, ou on vient de tourner) :
+  // le bouton reste grise et le message reste affiche, meme apres fermeture ou F5.
   function open() {
-    statusEl.textContent = '';
-    spinBtn.disabled = false;
+    statusEl.classList.remove('wheel-won');
+    statusEl.textContent = window._wheelDone ? t().wheelDone : '';
+    spinBtn.disabled = !!window._wheelDone;
     overlay.classList.remove('hidden');
   }
   function close() { overlay.classList.add('hidden'); }
@@ -12763,9 +12770,11 @@ window._showLevelUp = function (lv, reward) {
   socket.on('wheel-result', ({ error, index, prize, balance } = {}) => {
     if (error) {
       spinning = false;
+      if (error === 'done') window._wheelDone = true; else spinBtn.disabled = false;
       statusEl.textContent = error === 'done' ? t().wheelDone : t().wheelNoName;
       return;
     }
+    window._wheelDone = true;
     // 5 tours complets + arret au centre du segment gagnant sous le pointeur.
     rotation += 360 * 5 + ((360 - (index * 60 + 30)) - (rotation % 360) + 360) % 360;
     disc.style.transition = 'transform 4.2s cubic-bezier(.12,.75,.12,1)';
@@ -13395,7 +13404,7 @@ try {
     document.getElementById('playercard-level').textContent = '…';
     document.getElementById('playercard-status').textContent = '';
     const bg = document.getElementById('playercard-badges'); if (bg) bg.innerHTML = '';
-    const pcp = document.getElementById('playercard-portrait'); if (pcp) pcp.innerHTML = window.LiberoPortrait ? _ptSvg(window.LiberoPortrait.DEF) : '';
+    const pcp = document.getElementById('playercard-portrait'); if (pcp) pcp.innerHTML = window.LiberoPortrait ? _ptBlank() : '';
     document.getElementById('btn-playercard-add').classList.add('hidden');
     overlay.classList.remove('hidden');
     socket.emit('get-player-card', { playerId: getPlayerId(), name });
