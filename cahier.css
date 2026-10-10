@@ -2528,3 +2528,40 @@ html:not(.light) #screen-wordle { background-color: #f3efe2; }
 #playercard-badges .stamp-ink svg { width: 52%; height: 52%; margin: 0; }
 #playercard-badges .stamp-ink small { display: none; }
 #playercard-badges .stamp-honor { margin: 0 6px 4px 0; padding: 0 6px; font-size: .62rem; border-color: #ffe169; color: #ffe169; }
+
+/* ══ Lancer une partie : « Avec qui ? » d'abord (jeux classiques et quiz) ══
+   Le choix ouvre seulement les reglages utiles ; cibles de 48 px, l'actif est
+   entoure d'un trait epais en plus du surligne (pas que la couleur). */
+.who-row { display: flex; gap: 8px; width: 100%; margin: 4px 0 10px; }
+.who-row.who-col { flex-direction: column; }
+:root:root .who-btn {
+  flex: 1; min-height: 48px; padding: 10px 12px; cursor: pointer;
+  background: transparent; color: var(--text); border: 1.5px solid var(--line); border-radius: var(--r-sm);
+  font-family: var(--font-body); font-weight: 700; font-size: .95rem; line-height: 1.2;
+}
+:root:root .who-btn:hover { background: var(--card2); }
+:root:root .who-btn.active {
+  border: 2.5px solid var(--accent); outline: 2px solid var(--accent); outline-offset: 1px;
+  background: linear-gradient(transparent 55%, var(--mark) 55%);
+}
+.who-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.who-pane { display: none; width: 100%; }
+.who-card[data-who="bot"]    .who-pane[data-for~="bot"],
+.who-card[data-who="friend"] .who-pane[data-for~="friend"],
+.who-card[data-who="code"]   .who-pane[data-for~="code"],
+.who-card[data-who="solo"]   .who-pane[data-for~="solo"] { display: block; }
+.who-card[data-who] .who-pane.trivia-action-row[data-for] { display: none; }
+.who-card[data-who="solo"]   .who-pane.trivia-action-row[data-for~="solo"],
+.who-card[data-who="friend"] .who-pane.trivia-action-row[data-for~="friend"] { display: flex; }
+.who-pane .bot-row .bot-btn, .who-pane .stake-btn, .nb-row .nb-btn { min-height: 48px; }
+.who-pane #btn-create, .who-pane #btn-challenge-friend { width: 100%; margin-top: 10px; }
+.nb-row { display: flex; gap: 8px; width: 100%; }
+.nb-row .nb-btn { flex: 1; }
+.who-pane .join-group { margin-top: 4px; }
+:root:root .nb-btn {
+  background: transparent; color: var(--text); border: 1.5px solid var(--line); border-radius: var(--r-sm);
+  font-family: var(--font-body); font-weight: 700; font-size: 1rem; cursor: pointer;
+}
+:root:root .nb-btn:hover { background: var(--card2); }
+:root:root .nb-btn.active { border: 2px solid var(--accent); background: linear-gradient(transparent 55%, var(--mark) 55%); }
+:root:root .who-btn { display: flex; align-items: center; justify-content: center; text-align: center; }

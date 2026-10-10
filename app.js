@@ -829,7 +829,7 @@ const DICT = {
     bookChapterLocked:'🔒 Ce chapitre est verrouillé.',
     classicTitle:'Jeux Classiques', classicDesc:'Puissance 4 · Morpion · Échecs · Dames',
     landingTagClassic:"En tête d'affiche", landingTagTrivia:'Le plus joué',
-    stepPickGame:'Choisis ton jeu', stepLaunch:'Lance la partie',
+    stepPickGame:'Quel jeu ?', stepLaunch:'Lance la partie', who:{ label:'Avec qui ?', bot:'Seul contre le robot', friend:'Avec un ami ou d\'autres joueurs', code:'J\'ai un code', stepBot:'Niveau du robot', stepStake:'Mise (le vainqueur rafle tout)', stepCode:'Code de la partie', tSolo:'Seul', tFriend:'Avec d\'autres', tCode:'Code du salon' },
     profileSecPlay:'Jouer et gagner', profileSecCollection:'Ma collection',
     profileSecActivity:'Mon activité', profileSecAccount:'Mon compte',
     profileSecHelp:'Aide et avis',
@@ -895,7 +895,7 @@ const DICT = {
     triviaNamePh:'Ton pseudo (obligatoire)',
     triviaThemesLabel:'Thèmes (sélection multiple) :', triviaDiffLabel:'Difficulté :', diffMixed:'🎲 Mixte',
     triviaNbLabel:'Nombre de questions',
-    btnSolo:'▶ Solo', btnCreateTrivia:'+ Créer un salon',
+    btnSolo:'Commencer', btnCreateTrivia:'+ Créer un salon',
     triviaCodePh:'Code à 4 lettres', btnJoinTrivia:'Rejoindre',
     triviaLbTitle:'Classement Quiz',
     triviaLbEmpty:'Aucune partie jouée pour l\'instant.',
@@ -1608,7 +1608,7 @@ const DICT = {
     bookChapterLocked:'🔒 This chapter is locked.',
     classicTitle:'Classic Games', classicDesc:'Connect 4 · Tic Tac Toe · Chess · Draughts',
     landingTagClassic:'Top billing', landingTagTrivia:'Most played',
-    stepPickGame:'Pick your game', stepLaunch:'Start the game',
+    stepPickGame:'Which game?', stepLaunch:'Start the game', who:{ label:'Who with?', bot:'Alone against the bot', friend:'With a friend or other players', code:'I have a code', stepBot:'Bot level', stepStake:'Stake (winner takes all)', stepCode:'Game code', tSolo:'Alone', tFriend:'With others', tCode:'Room code' },
     profileSecPlay:'Play and earn', profileSecCollection:'My collection',
     profileSecActivity:'My activity', profileSecAccount:'My account',
     profileSecHelp:'Help and feedback',
@@ -1674,7 +1674,7 @@ const DICT = {
     triviaNamePh:'Your username (required)',
     triviaThemesLabel:'Themes (multiple selection):', triviaDiffLabel:'Difficulty:', diffMixed:'🎲 Mixed',
     triviaNbLabel:'Number of questions',
-    btnSolo:'▶ Solo', btnCreateTrivia:'+ Create a room',
+    btnSolo:'Start', btnCreateTrivia:'+ Create a room',
     triviaCodePh:'4-letter code', btnJoinTrivia:'Join',
     triviaLbTitle:'Quiz Leaderboard',
     triviaLbEmpty:'No games played yet.',
@@ -2502,6 +2502,12 @@ function applyLang() {
   const tdh = $('trivia-diff-hint'); if (tdh) tdh.textContent = (selectedTriviaDifficulty == null) ? d.diffChoose : (d.diffHints[selectedTriviaDifficulty] || d.diffHints['']);
   const tnbl = $('trivia-nb-label');      if (tnbl) tnbl.textContent = d.triviaNbLabel;
   const bso  = $('btn-solo-trivia');      if (bso)  bso.textContent  = d.btnSolo;
+  if (d.who) {
+    const w = d.who;
+    [['step-who',w.label],['who-bot',w.bot],['who-friend',w.friend],['who-code',w.code],['step-bot',w.stepBot],['step-stake',w.stepStake],['step-code',w.stepCode],
+     ['trivia-who-label',w.label],['twho-solo',w.tSolo],['twho-friend',w.tFriend],['twho-code',w.code],['trivia-code-label',w.tCode]]
+      .forEach(([id,v]) => { const el = $(id); if (el) el.textContent = v; });
+  }
   const bct2 = $('btn-create-trivia');    if (bct2) bct2.textContent = d.btnCreateTrivia;
   const itc  = $('input-trivia-code');    if (itc)  itc.placeholder  = d.triviaCodePh;
   const bjt2 = $('btn-join-trivia');      if (bjt2) bjt2.textContent = d.btnJoinTrivia;
@@ -4490,6 +4496,27 @@ function getTriviaQCount() { return parseInt($('input-trivia-nb')?.value || 10);
 
 $('input-trivia-nb').addEventListener('input', () => {
   $('trivia-nb-val').textContent = $('input-trivia-nb').value;
+  document.querySelectorAll('#trivia-nb-btns .nb-btn').forEach(b => b.classList.toggle('active', b.dataset.nb === $('input-trivia-nb').value));
+});
+// Nombre de questions en 4 boutons (le curseur cache reste la source de verite).
+document.querySelectorAll('#trivia-nb-btns .nb-btn').forEach(b => b.addEventListener('click', () => {
+  const r = $('input-trivia-nb'); r.value = b.dataset.nb; r.dispatchEvent(new Event('input'));
+}));
+$('input-trivia-nb').dispatchEvent(new Event('input'));
+
+// « Avec qui ? » : le premier choix n'affiche que les reglages utiles. Survit au F5.
+document.querySelectorAll('.who-card').forEach(card => {
+  const key = 'libero_who_' + card.id;
+  const set = w => {
+    card.dataset.who = w;
+    card.querySelectorAll(':scope > .who-row .who-btn').forEach(b => {
+      const on = b.dataset.who === w; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    try { sessionStorage.setItem(key, w); } catch {}
+  };
+  card.querySelectorAll(':scope > .who-row .who-btn').forEach(b => b.addEventListener('click', () => set(b.dataset.who)));
+  let saved = null; try { saved = sessionStorage.getItem(key); } catch {}
+  set(saved && card.querySelector(`.who-btn[data-who="${saved}"]`) ? saved : card.dataset.who);
 });
 
 $('btn-solo-trivia').addEventListener('click', () => {
