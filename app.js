@@ -2216,8 +2216,8 @@ function applyLang() {
   const hpt = $('history-page-title'); if (hpt) hpt.textContent = d.historyTitle;
   const lcs = $('locker-card-sub');    if (lcs) lcs.textContent = d.lockerCardSub;
   const hcs = $('history-card-sub');   if (hcs) hcs.textContent = d.historyCardSub;
-  const bbl = $('btn-back-locker');    if (bbl) bbl.textContent = `← ${d.backLabel}`;
-  const bbh = $('btn-back-history');   if (bbh) bbh.textContent = `← ${d.backLabel}`;
+  const bbl = $('btn-back-locker');    if (bbl) bbl.textContent = d.backLabel;
+  const bbh = $('btn-back-history');   if (bbh) bbh.textContent = d.backLabel;
   // Récupération de progression
   const rct = $('recovery-card-title'); if (rct) rct.textContent = d.recovery.cardTitle;
   const rcs = $('recovery-card-sub');   if (rcs) rcs.textContent = d.recovery.cardSub;
@@ -2392,9 +2392,9 @@ function applyLang() {
   if (window._videoFeed) window._videoFeed.retexte();
 
   // Section Recharger + formulaire d'achat de Libs (boutique)
-  const ltb = $('libs-topup-back');    if (ltb) ltb.textContent = `← ${d.backLabel}`;
+  const ltb = $('libs-topup-back');    if (ltb) ltb.textContent = d.backLabel;
   const ltt = $('btn-libs-topup');     if (ltt) ltt.textContent = currentLang === 'fr' ? '💳 Recharger' : '💳 Top up';
-  const lbb = $('libs-buy-back');      if (lbb) lbb.textContent = `← ${d.backLabel}`;
+  const lbb = $('libs-buy-back');      if (lbb) lbb.textContent = d.backLabel;
   const lbe = $('libs-buy-email');     if (lbe) lbe.placeholder = d.shopLibsBuyEmailPh;
   const lbf = $('libs-buy-firstname'); if (lbf) lbf.placeholder = d.shopLibsBuyFirstPh;
   const lbl = $('libs-buy-lastname');  if (lbl) lbl.placeholder = d.shopLibsBuyLastPh;
@@ -2445,9 +2445,9 @@ function applyLang() {
   const lbc = $('lb-title-classic'); if (lbc) lbc.textContent = d.lbTitle;
   const bco = $('btn-copy');      if (bco) bco.textContent = d.btnCopyCode;
   const bsh = $('btn-share');     if (bsh) bsh.textContent = d.btnShare;
-  const bba = $('btn-back-classic'); if (bba) bba.textContent = `← ${d.backLabel}`;
-  const bbev = $('btn-back-events'); if (bbev) bbev.textContent = `← ${d.backLabel}`;
-  const bblf = $('btn-back-luffy');  if (bblf) bblf.textContent = `← ${d.backLabel}`;
+  const bba = $('btn-back-classic'); if (bba) bba.textContent = d.backLabel;
+  const bbev = $('btn-back-events'); if (bbev) bbev.textContent = d.backLabel;
+  const bblf = $('btn-back-luffy');  if (bblf) bblf.textContent = d.backLabel;
 
   // Waiting screen
   const wt = $('waiting-title');  if (wt) wt.textContent = d.waitingFor;
@@ -2484,7 +2484,7 @@ function applyLang() {
   const lbtt = $('lb-title-trivia');      if (lbtt) lbtt.textContent = d.triviaLbTitle;
   const btc  = $('btn-trivia-copy');      if (btc)  btc.textContent  = d.btnTriviaCopy;
   const bts  = $('btn-trivia-share');     if (bts)  bts.textContent  = d.btnTriviaShare;
-  const bbth = $('btn-back-trivia-home'); if (bbth) bbth.textContent = `← ${d.backLabel}`;
+  const bbth = $('btn-back-trivia-home'); if (bbth) bbth.textContent = d.backLabel;
 
   // Trivia waiting
   const twt  = $('trivia-waiting-title');  if (twt)  twt.textContent  = d.triviaWaitTitle;
@@ -7140,7 +7140,7 @@ function _openBundleDetail(bundle, allItemsById) {
     + `<button class="btn btn-secondary shop-detail-action-btn shop-gift-offer-btn" data-bundle-id="${bundle.id}" data-price="${bundle.bundlePrice}" data-name="${_escHtml(d.shopBundleNames[bundle.id] || bundle.id)}" data-action="gift-bundle">${d.shopGiftBtn(bundle.bundlePrice)}</button>`;
 
   panel.innerHTML = `
-    <button class="shop-fn-detail-back" id="shop-detail-back">← ${fr ? 'Retour' : 'Back'}</button>
+    <button class="shop-fn-detail-back" id="shop-detail-back">${fr ? 'Retour' : 'Back'}</button>
     <div class="shop-fn-detail-info shop-bundle-detail-info">
       <span class="shop-fn-rarity-badge ${rarity}">${rarityLabel[rarity]}</span>
       <h3 class="shop-fn-detail-name">${name}</h3>
@@ -7274,7 +7274,7 @@ function _openShopDetail(item) {
     : '';
 
   panel.innerHTML = `
-    <button class="shop-fn-detail-back" id="shop-detail-back">← ${fr ? 'Retour' : 'Back'}</button>
+    <button class="shop-fn-detail-back" id="shop-detail-back">${fr ? 'Retour' : 'Back'}</button>
     <div class="shop-fn-detail-preview">${previewHtml}</div>
     <div class="shop-fn-detail-info">
       ${honorary
@@ -10679,7 +10679,7 @@ const Wordle = (() => {
     b.innerHTML = '';
     for (let r = 0; r < ROWS; r++) {
       const row = document.createElement('div'); row.className = 'wordle-row';
-      for (let c = 0; c < COLS; c++) { const cell = document.createElement('div'); cell.className = 'wordle-cell'; row.appendChild(cell); }
+      for (let c = 0; c < COLS; c++) { const cell = document.createElement('div'); cell.className = 'wordle-cell'; cell.dataset.n = r * COLS + c + 1; row.appendChild(cell); }
       b.appendChild(row);
     }
   }
@@ -12086,7 +12086,7 @@ const ProfileHub = (() => {
       </div>`;
     }).join('');
     return `
-      <button class="locker-back-cats" data-back="1">← ${_escHtml(d.lockerBackCats)}</button>
+      <button class="locker-back-cats" data-back="1">${_escHtml(d.lockerBackCats)}</button>
       <h3 class="locker-detail-title">😎 ${_escHtml(d.lockerCats.emotes)} <small class="locker-emote-slots">${slotStr}</small></h3>
       <div class="locker-items-grid">${rows}</div>`;
   }
@@ -12120,7 +12120,7 @@ const ProfileHub = (() => {
         </div>`;
       }).join('');
       el.innerHTML = `
-        <button class="locker-back-cats" data-back="1">← ${_escHtml(d.lockerBackCats)}</button>
+        <button class="locker-back-cats" data-back="1">${_escHtml(d.lockerBackCats)}</button>
         <h3 class="locker-detail-title">${cat ? cat.icon + ' ' + _escHtml(cat.label) : ''}</h3>
         <div class="locker-items-grid">${rows || `<p class="history-empty">${_escHtml(d.lockerEmpty)}</p>`}</div>`;
       return;

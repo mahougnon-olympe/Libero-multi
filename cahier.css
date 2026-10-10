@@ -2416,3 +2416,51 @@ html:not(.light) .stamp-ink { mix-blend-mode: normal; }
 #read-grid .stack i { display: block; width: var(--w); height: 16px; background: linear-gradient(rgba(255,255,255,.2), rgba(0,0,0,.3)), var(--c); border-radius: 2px; margin-left: var(--x, 0); box-shadow: 0 1px 0 rgba(0,0,0,.4); }
 @media (max-width: 520px) { #read-grid .stack { display: none; } #read-grid .case { padding: 12px 12px 0; } #read-grid .plank { margin: 0 -10px; } }
 @media (prefers-reduced-motion: reduce) { #read-grid .sp { transition: none; } }
+
+/* ══ BOUTON RETOUR = LA FLECHE AU CRAYON ══════════════════════════════════════
+   Une fleche tracee a la main avant le mot « Retour » ecrit a l'encre ; au survol,
+   la fleche recule et le mot est surligne. Tous les boutons retour du site. */
+:root:root :is(.btn-back, .shop-fn-detail-back, .locker-back-cats) {
+  display: inline-flex; align-items: center; gap: 6px; width: auto; background: none !important; border: none !important; box-shadow: none !important;
+  padding: 4px 6px; font: 700 1.4rem/1 var(--font-hand); color: var(--accent); cursor: pointer;
+}
+:root:root :is(.btn-back, .shop-fn-detail-back, .locker-back-cats) [data-ic="back"] { display: none; }
+:root:root :is(.btn-back, .shop-fn-detail-back, .locker-back-cats)::before {
+  content: ""; flex: none; width: 40px; height: 22px; background: currentColor; transition: transform .25s var(--ease, ease);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 24'%3E%3Cpath d='M42 13q-14-3-34-1' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M13 4l-9 8 10 7' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 24'%3E%3Cpath d='M42 13q-14-3-34-1' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M13 4l-9 8 10 7' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+:root:root :is(.btn-back, .shop-fn-detail-back, .locker-back-cats):hover::before { transform: translateX(-5px); }
+:root:root :is(.btn-back, .shop-fn-detail-back, .locker-back-cats):hover { background: none; text-decoration: none; }
+:root:root :is(.btn-back, .shop-fn-detail-back, .locker-back-cats):hover { text-decoration: underline; text-decoration-color: var(--mark); text-decoration-thickness: .35em; text-underline-offset: -.15em; text-decoration-skip-ink: none; }
+html.light :is(.btn-back, .shop-fn-detail-back, .locker-back-cats) { color: #173a8a; }
+
+/* ══ LE MOT = GRILLE DE MOTS CROISES dans un cahier a petits carreaux ════════ */
+:root:root #screen-wordle { background-color: #fdfdf9; background-image: linear-gradient(rgba(80,130,205,.25) 1px, transparent 1px), linear-gradient(90deg, rgba(80,130,205,.25) 1px, transparent 1px); background-size: 14px 14px; }
+html:not(.light) #screen-wordle { background-color: #f3efe2; }
+:root:root #screen-wordle :is(.wordle-h1) { font: 700 2.3rem/1 var(--font-hand); color: #173a8a; }
+:root:root #screen-wordle .wordle-sub { color: #5e6470; }
+:root:root #screen-wordle .btn-back { color: #173a8a; }
+:root:root #screen-wordle .wordle-streak { font: 700 1.3rem var(--font-hand); color: #c0262f; }
+:root:root .wordle-board { display: grid; gap: 3px; background: #22252b; padding: 3px; box-shadow: 4px 5px 0 rgba(0,0,0,.18); width: max-content; margin-inline: auto; }
+:root:root .wordle-row { gap: 3px; }
+:root:root .wordle-cell {
+  position: relative; background: #fff; border: none; border-radius: 0; box-shadow: none; color: #173a8a;
+  font: 700 2rem/1 var(--font-hand); text-transform: uppercase;
+}
+.wordle-cell::before { content: attr(data-n); position: absolute; left: 3px; top: 1px; font: 700 .5rem var(--font-body); color: #9aa3ad; }
+:root:root .wordle-cell.filled { background: #fff; color: #173a8a; border: none; }
+:root:root .wordle-cell.wordle-correct { background: #c9efc9; color: #173a8a; }
+:root:root .wordle-cell.wordle-correct::after { content: "✓"; position: absolute; right: 3px; bottom: 0; font: 700 1rem var(--font-hand); color: #2f8a55; }
+:root:root .wordle-cell.wordle-present { background: #fff27a; color: #173a8a; }
+:root:root .wordle-cell.wordle-absent { background: #eceef2; color: #9aa3ad; }
+:root:root .wordle-key {
+  background: #fff; border: 1.5px solid #22252b; border-radius: 3px; color: #22252b; font: 700 1.25rem var(--font-hand);
+  box-shadow: 1px 2px 0 rgba(0,0,0,.15);
+}
+:root:root .wordle-key.wordle-correct { background: #c9efc9; color: #22252b; border-color: #22252b; }
+:root:root .wordle-key.wordle-present { background: #fff27a; color: #22252b; border-color: #22252b; }
+:root:root .wordle-key.wordle-absent { background: #eceef2; color: #9aa3ad; border-color: #9aa3ad; }
+:root:root .wordle-msg { font: 700 1.35rem var(--font-hand); color: #c0262f; }
+:root:root .wordle-hint-btn { background: #fffdf3; border: 1.5px solid #22252b; color: #22252b; border-radius: 4px; transform: rotate(-1deg); box-shadow: 1px 2px 0 rgba(0,0,0,.15); }
+:root:root .wordle-hint { font: 700 1.2rem var(--font-hand); color: #173a8a; background: #fff27a; border: none; padding: 4px 10px; transform: rotate(-1deg); }
