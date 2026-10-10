@@ -576,7 +576,7 @@ const DICT = {
     ideaNewTitrePh:'Titre de ta proposition', ideaNewDescPh:'Détaille ton idée (optionnel)', ideaNewSend:'Publier',
     ideaNeedName:'Choisis d\'abord un pseudo (dans Jouer) pour proposer une idée.', ideaTitleShort:'Titre trop court (4 caractères min).',
     ideaPosted:'Merci ! Ton idée est publiée.', ideaByAuthor:(n)=>`par ${n}`, ideaDeleteConfirm:'Supprimer ta suggestion ?', ideaDelete:'Supprimer',
-    ideaStatusOpen:'Ouverte', ideaStatusPlanned:'📌 Prévue', ideaStatusDone:'✅ Faite', ideaStatusRejected:'✖ Refusée',
+    ideaStatusOpen:'Ouverte', ideaStatusPlanned:'Prévue', ideaStatusDone:'Faite', ideaStatusRejected:'Refusée', ideaPinned:'Épinglée',
     feedLoading:'Chargement des vidéos…', feedEmpty:'Aucune vidéo pour le moment.\nSois le premier à en proposer une !', feedError:'Impossible de charger les vidéos.\nVérifie ta connexion et réessaie.',
     feedSubmitBtn:'🎬 Proposer une vidéo', feedShareText:'Regarde cette vidéo sur Libero\'s Multi !', feedShareCopied:'Lien copié !',
     feedNoComments:'Aucun commentaire. Lance la discussion !', feedSubmitBadUrl:'Lien invalide (http/https requis).', feedSubmitOk:'Merci ! Ta vidéo sera vérifiée avant publication.',
@@ -1349,7 +1349,7 @@ const DICT = {
     ideaNewTitrePh:'Title of your suggestion', ideaNewDescPh:'Detail your idea (optional)', ideaNewSend:'Publish',
     ideaNeedName:'Pick a nickname first (in Play) to suggest an idea.', ideaTitleShort:'Title too short (4 characters min).',
     ideaPosted:'Thanks! Your idea is published.', ideaByAuthor:(n)=>`by ${n}`, ideaDeleteConfirm:'Delete your suggestion?', ideaDelete:'Delete',
-    ideaStatusOpen:'Open', ideaStatusPlanned:'📌 Planned', ideaStatusDone:'✅ Done', ideaStatusRejected:'✖ Declined',
+    ideaStatusOpen:'Open', ideaStatusPlanned:'Planned', ideaStatusDone:'Done', ideaStatusRejected:'Declined', ideaPinned:'Pinned',
     feedLoading:'Loading videos…', feedEmpty:'No videos yet.\nBe the first to submit one!', feedError:'Could not load videos.\nCheck your connection and try again.',
     feedSubmitBtn:'🎬 Submit a video', feedShareText:'Check out this video on Libero\'s Multi!', feedShareCopied:'Link copied!',
     feedNoComments:'No comments yet. Start the conversation!', feedSubmitBadUrl:'Invalid link (http/https required).', feedSubmitOk:'Thanks! Your video will be reviewed before publishing.',
@@ -10514,30 +10514,36 @@ const IdeasBoard = (() => {
     return arr;
   }
 
+  // Le statut est un tampon dans le coin du post-it (Ouverte comprise).
   function statusBadge(st) {
-    if (!st || st === 'open') return '';
-    const map = { planned: ['idea-badge-planned', t().ideaStatusPlanned], done: ['idea-badge-done', t().ideaStatusDone], rejected: ['idea-badge-rejected', t().ideaStatusRejected] };
-    const m = map[st]; if (!m) return '';
-    return `<span class="idea-badge ${m[0]}">${esc(m[1])}</span>`;
+    const map = { open: ['open', t().ideaStatusOpen], planned: ['planned', t().ideaStatusPlanned], done: ['done', t().ideaStatusDone], rejected: ['rejected', t().ideaStatusRejected] };
+    const m = map[st || 'open']; if (!m) return '';
+    return `<span class="idea-badge idea-st-${m[0]}">${esc(m[1])}</span>`;
   }
 
+  // Tableau de la classe : chaque idee est un post-it scotche, de travers ; les votes pour
+  // sont des gommettes vertes, les votes contre des rouges (une gommette pour 5 votes, au moins une).
+  const PI_COLORS = ['#ffd0d8', '#bfe3ff', '#c9efc9', '#e5d7ff', '#ffe6b8'];
+  const PI_ROT = [-2, 1.5, -1, 2.5, -1.5];
+  const dots = (n, cls) => n > 0 ? Array.from({ length: Math.min(10, Math.max(1, Math.round(n / 5))) }, () => `<i class="${cls}"></i>`).join('') : '';
   function render() {
     const g = listEl(); if (!g) return;
     if (!items.length) { setStatus(t().ideasEmpty); return; }
     const list = sorted();
     if (!list.length) { g.innerHTML = `<p class="videocomments-empty">${esc(t().ideasNoResult)}</p>`; return; }
-    g.innerHTML = list.map(s => `
-      <div class="idea-card${s.pinned ? ' idea-pinned' : ''}" data-id="${esc(s.id)}">
+    g.innerHTML = list.map((s, k) => `
+      <div class="idea-card${s.pinned ? ' idea-pinned' : ''}" data-id="${esc(s.id)}" style="--r:${PI_ROT[k % 5]}deg;--pi:${s.pinned ? '#fff27a' : PI_COLORS[k % 5]}">
+        ${statusBadge(s.status)}
+        ${s.pinned ? `<span class="idea-pin-lbl">${esc(t().ideaPinned)}</span>` : ''}
+        <p class="idea-title">${esc(s.title)}</p>
+        ${s.description ? `<p class="idea-desc">${esc(s.description)}</p>` : ''}
+        ${s.reply ? `<p class="idea-reply"><b>${esc(t().ideaReplyLabel)}</b> ${esc(s.reply)}</p>` : ''}
+        <p class="idea-meta">${esc(t().ideaByAuthor(s.authorName))}${s.mine ? ` · <button class="idea-del" data-id="${esc(s.id)}">${esc(t().ideaDelete)}</button>` : ''}</p>
         <div class="idea-votes">
-          <button class="idea-vote up${s.myVote === 1 ? ' on' : ''}" data-dir="1" aria-label="Pour"><span class="ui-ic" data-ic="up">▲</span></button>
+          <span class="idea-dots" aria-hidden="true">${dots(s.up, 'g')}${dots(s.down, 'r')}</span>
           <span class="idea-score">${s.score > 0 ? '+' : ''}${fmt(s.score)}</span>
-          <button class="idea-vote down${s.myVote === -1 ? ' on' : ''}" data-dir="-1" aria-label="Contre"><span class="ui-ic" data-ic="down2">▼</span></button>
-        </div>
-        <div class="idea-body">
-          <p class="idea-title">${esc(s.title)} ${statusBadge(s.status)}</p>
-          ${s.description ? `<p class="idea-desc">${esc(s.description)}</p>` : ''}
-          <p class="idea-meta">${esc(t().ideaByAuthor(s.authorName))}${s.mine ? ` · <button class="idea-del" data-id="${esc(s.id)}">${esc(t().ideaDelete)}</button>` : ''}</p>
-          ${s.reply ? `<p class="idea-reply"><span class="ui-ic" data-ic="chat">💬</span> <b>${esc(t().ideaReplyLabel)}</b> ${esc(s.reply)}</p>` : ''}
+          <button class="idea-vote up${s.myVote === 1 ? ' on' : ''}" data-dir="1" aria-label="Pour">▲</button>
+          <button class="idea-vote down${s.myVote === -1 ? ' on' : ''}" data-dir="-1" aria-label="Contre">▼</button>
         </div>
       </div>`).join('');
   }
