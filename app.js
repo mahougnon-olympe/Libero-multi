@@ -588,6 +588,7 @@ const DICT = {
     lockerTitle:'🎒 Mon casier',
     lockerEmpty:"Tu n'as encore rien acheté dans la boutique. Passe faire un tour !",
     lockerEquipped:'équipé',
+    boardDaily:'Devoirs du jour', boardYear:'Objectifs de l\'année', boardPerfect:'Journée parfaite ! Bonus gagné',
     postitsTitle:'À faire aujourd\'hui',
     profileSecBadges:'Mes hauts faits', pupNoteColl:n => `${n} objet${n > 1 ? 's' : ''}`, pupNoteBadges:n => n ? `${n} haut${n > 1 ? 's' : ''} fait${n > 1 ? 's' : ''}` : 'à gagner',
     pupNotes:{ play:'roue, VIP, QI, amis', activity:'historique et amis', help:'Libé répond', account:'compte et réglages' },
@@ -1360,6 +1361,7 @@ const DICT = {
     lockerTitle:'🎒 My locker',
     lockerEmpty:"You haven't bought anything in the shop yet. Go take a look!",
     lockerEquipped:'equipped',
+    boardDaily:'Today\'s homework', boardYear:'Goals for the year', boardPerfect:'Perfect day! Bonus earned',
     postitsTitle:'To do today',
     profileSecBadges:'My achievements', pupNoteColl:n => `${n} item${n > 1 ? 's' : ''}`, pupNoteBadges:n => n ? `${n} achievement${n > 1 ? 's' : ''}` : 'to earn',
     pupNotes:{ play:'wheel, VIP, IQ, friends', activity:'history and friends', help:'Libé answers', account:'account and settings' },
@@ -11886,6 +11888,30 @@ const ProfileHub = (() => {
     }).join('')}</div></div>`;
   }
 
+  // Les defis au tableau noir : « devoirs du jour » a la craie (case cochee et barree
+  // quand c'est reclame) a gauche, « objectifs de l'annee » (permanents) a droite.
+  function _boardHtml(d, daily, perm) {
+    const now = new Date().toLocaleDateString(currentLang === 'en' ? 'en-GB' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const done = daily.filter(c => c.claimed || c.done).length;
+    const duty = ch => {
+      const pct = Math.round(100 * Math.min(ch.progress, ch.goal) / (ch.goal || 1));
+      const act = ch.claimed ? `<span class="bd-rw">+${ch.reward}</span>`
+        : ch.done ? `<button class="challenge-claim-btn bd-claim" data-cid="${_escHtml(ch.id)}">${_escHtml(d.challengeClaim)} +${ch.reward}</button>`
+        : `<span class="bd-rw">${Math.min(ch.progress, ch.goal)}/${ch.goal}</span>`;
+      return `<div class="bd-duty${ch.claimed ? ' claimed' : ''}${ch.done && !ch.claimed ? ' ready' : ''}"><span class="bd-box"></span><span class="bd-txt">${_escHtml(_chName(d, ch))}<span class="bd-bar"><i style="width:${pct}%"></i></span></span>${act}</div>`;
+    };
+    const goal = ch => {
+      const pct = Math.round(100 * Math.min(ch.progress, ch.goal) / (ch.goal || 1));
+      const act = ch.claimed ? `<span class="bd-ok">${_escHtml(d.challengeClaimed)}</span>`
+        : ch.done ? `<button class="challenge-claim-btn bd-claim" data-cid="${_escHtml(ch.id)}">${_escHtml(d.challengeClaim)} +${ch.reward}</button>` : `<em>+${ch.reward}</em>`;
+      return `<div class="bd-goal"><b><span>${_escHtml(_chName(d, ch))}</span><span>${Math.min(ch.progress, ch.goal)}/${ch.goal}</span></b><div class="bd-chalkbar" style="--p:${pct}%"></div><div class="bd-goal-act">${act}</div></div>`;
+    };
+    const perfect = daily.length && daily.every(c => c.claimed);
+    return `<div class="chalkboard"><span class="bd-stick" aria-hidden="true"></span><div class="bd-cols">
+      <div><h3 class="bd-h">${_escHtml(d.boardDaily)}</h3><div class="bd-date">${_escHtml(now)} · ${done}/${daily.length}</div>${daily.map(duty).join('')}${perfect ? `<div class="bd-perfect">${_escHtml(d.boardPerfect)}</div>` : ''}</div>
+      <div class="bd-year"><h3 class="bd-h">${_escHtml(d.boardYear)}</h3>${perm.map(goal).join('')}</div></div></div>`;
+  }
+
   function _wireClaims(root) {
     root.querySelectorAll('.challenge-claim-btn').forEach(b => {
       b.addEventListener('click', () => {
@@ -11907,12 +11933,13 @@ const ProfileHub = (() => {
       if (permList) permList.innerHTML = '';
       return;
     }
-    list.innerHTML = challenges.length ? _postitsHtml(d, challenges) : '';
+    list.innerHTML = (challenges.length || permanent.length) ? _boardHtml(d, challenges, permanent) : '';
+    ['challenges-title', 'perm-title', 'perm-sub'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
     _wireClaims(list);
     window._bulChallenges = { done: challenges.filter(c => c.claimed || c.done).length, total: challenges.length };
     window._renderBulletin?.();
     if (permList) {
-      permList.innerHTML = permanent.length ? _roadbookHtml(d, permanent) : '';
+      permList.innerHTML = ''; // les permanents sont sur le tableau noir
       _wireClaims(permList);
     }
   }
