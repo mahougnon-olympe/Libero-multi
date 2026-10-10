@@ -2207,7 +2207,7 @@ function applyLang() {
   const pmtt = $('perm-title');        if (pmtt) pmtt.textContent = d.permTitle;
   const pms = $('perm-sub');           if (pms) pms.textContent = d.permSub;
   // Cartes du profil (sans l'emoji, déjà présent en icône à gauche) + pages
-  const _plain = s => (s || '').replace(/^[^\s]+\s+/, '');
+  const _plain = s => (s || '').replace(/^[^\p{L}\p{N}\s]+\s+/u, ''); // retire un pictogramme de tete, jamais un mot
   const hit = $('history-title');      if (hit) hit.textContent = _plain(d.historyTitle);
   const lkt = $('locker-title');       if (lkt) lkt.textContent = _plain(d.lockerTitle);
   const lkpt = $('locker-page-title'); if (lkpt) lkpt.textContent = d.lockerTitle;
@@ -2880,6 +2880,7 @@ socket.on('pseudo-check-result', ({ taken }) => {
 });
 
 window._renderProfilePseudo = function () {
+  setTimeout(() => window._pupitre?.paint(), 0);
   const el = document.getElementById('profile-pseudo');
   if (!el) return;
   const raw  = (localStorage.getItem('playerName') || '').trim();
@@ -12271,9 +12272,62 @@ window._profileSections = ProfileSections;
     cur = cur === b.dataset.k ? null : b.dataset.k;
     try { cur ? localStorage.setItem(KEY, cur) : localStorage.removeItem(KEY); } catch {}
     paint();
-    if (cur) { const el = sec(cur); el?.classList.remove('pup-anim'); void el?.offsetWidth; el?.classList.add('pup-anim'); setTimeout(() => el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 60); }
+    if (cur) { const el = sec(cur); el?.querySelectorAll('.profile-nav-card').forEach(c => { c.style.animation = 'none'; void c.offsetWidth; c.style.animation = ''; }); el?.classList.remove('pup-anim'); void el?.offsetWidth; el?.classList.add('pup-anim'); setTimeout(() => el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 60); }
   });
-  window._pupitre = { paint };
+
+  // Fiches scotchees : dans le tiroir ouvert, chaque carte devient une fiche bristol
+  // avec son dessin (le portrait du joueur pour « Mon portrait »).
+  const S=(vb,b)=>`<span class="ob fiche-art"><svg viewBox="${vb}" aria-hidden="true">${b}</svg></span>`;
+  /* Objets dessines (encre noire, couleurs franches, ombre portee pleine) */
+  const OBJ={
+    wheel:S('0 0 120 90',`<g transform="translate(60 44)"><g style="transform-origin:0 0;animation:spin 6s linear infinite">${['#d23a4f','#e0a800','#2f8a55','#3d64b8','#7a4fc0','#e8742c'].map((c,i)=>`<path d="M0 0L${(36*Math.cos(i*1.047)).toFixed(1)} ${(36*Math.sin(i*1.047)).toFixed(1)}A36 36 0 0 1 ${(36*Math.cos((i+1)*1.047)).toFixed(1)} ${(36*Math.sin((i+1)*1.047)).toFixed(1)}z" fill="${c}" stroke="${K}" stroke-width="2"/>`).join('')}</g><circle r="6" fill="#fff" stroke="${K}" stroke-width="2.5"/><path d="M-6-44h12l-6 12z" fill="#fff" stroke="${K}" stroke-width="2.5"/></g><style>@keyframes spin{to{transform:rotate(360deg)}}</style>`),
+    ticket:S('0 0 120 90',`<g transform="rotate(-8 60 45)"><path d="M14 24h92v14a7 7 0 0 0 0 14v14H14V52a7 7 0 0 0 0-14z" fill="#ffe169" stroke="${K}" stroke-width="2.5"/><path d="M84 26v38" stroke="${K}" stroke-width="2" stroke-dasharray="3 3"/><text x="48" y="52" text-anchor="middle" font-family="Archivo Black" font-size="15" fill="${K}">VIP</text><text x="95" y="49" text-anchor="middle" font-family="Caveat" font-weight="700" font-size="13" fill="#d23a4f">30j</text></g>`),
+    brain:S('0 0 120 90',`<path d="M58 18q-14-6-22 4-12 0-12 14-8 8 0 18 0 14 16 14 6 8 18 2zM62 18q14-6 22 4 12 0 12 14 8 8 0 18 0 14-16 14-6 8-18 2z" fill="#ffd0d8" stroke="${K}" stroke-width="2.5" stroke-linejoin="round"/><path d="M60 18v52M40 34q8 0 10 8M80 34q-8 0-10 8M36 54q10-2 14 6M84 54q-10-2-14 6" fill="none" stroke="${K}" stroke-width="2" stroke-linecap="round"/>`),
+    postcard:S('0 0 120 90',`<g transform="rotate(5 60 45)"><rect x="12" y="18" width="96" height="58" fill="#fffdf3" stroke="${K}" stroke-width="2.5"/><rect x="82" y="24" width="20" height="24" fill="#bfe3ff" stroke="${K}" stroke-width="2" stroke-dasharray="2 2"/><path d="M60 24v46M66 56h34M66 64h28M20 30h32M20 38h28M20 46h34" stroke="${K}" stroke-width="1.6"/><text x="36" y="66" text-anchor="middle" font-family="Caveat" font-weight="700" font-size="14" fill="#d23a4f">+100</text></g>`),
+    polaroid:S('0 0 120 90',`<g transform="rotate(-6 60 45)"><rect x="34" y="8" width="52" height="64" fill="#fff" stroke="${K}" stroke-width="2.5"/><rect x="40" y="14" width="40" height="40" fill="#fff27a" stroke="${K}" stroke-width="2"/><circle cx="60" cy="31" r="9" fill="#8a5634" stroke="${K}" stroke-width="2"/><path d="M60 22q-11 0-10 8 4-4 10-4t10 4q1-8-10-8z" fill="${K}"/><path d="M46 54q2-10 14-10t14 10z" fill="#3d64b8" stroke="${K}" stroke-width="2"/><path d="M44 64h32" stroke="${K}" stroke-width="1.6"/></g>`),
+    locker:S('0 0 120 90',`<path d="M44 40V28a16 16 0 0 1 32 0v12" fill="none" stroke="#9aa3ad" stroke-width="7"/><path d="M44 40V28a16 16 0 0 1 32 0v12" fill="none" stroke="${K}" stroke-width="2"/><rect x="34" y="38" width="52" height="42" rx="6" fill="#e0a800" stroke="${K}" stroke-width="2.5"/><circle cx="60" cy="55" r="5" fill="${K}"/><path d="M60 58v10" stroke="${K}" stroke-width="4" stroke-linecap="round"/>`),
+    sticker:S('0 0 120 90',`<circle cx="52" cy="46" r="26" fill="#fff" stroke="${K}" stroke-width="2.5"/><circle cx="52" cy="46" r="20" fill="#ffe08a" stroke="${K}" stroke-width="2"/><circle cx="45" cy="42" r="2.4" fill="${K}"/><circle cx="59" cy="42" r="2.4" fill="${K}"/><path d="M44 52q8 7 16 0" fill="none" stroke="${K}" stroke-width="2.4" stroke-linecap="round"/><circle cx="84" cy="34" r="14" fill="#fff" stroke="${K}" stroke-width="2"/><path d="M84 41 77 34a4 4 0 0 1 7-4 4 4 0 0 1 7 4z" fill="#e2485d" stroke="${K}" stroke-width="1.6"/>`),
+    avalanche:S('0 0 120 90',`${[[22,64,'#d23a4f'],[46,66,'#173a8a'],[70,64,'#2f8a55'],[94,66,'#e0a800'],[34,44,'#7a4fc0'],[58,44,'#e8742c'],[82,44,'#3d64b8'],[46,24,'#2f8a55'],[70,24,'#d23a4f']].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="12" fill="#fff" stroke="${K}" stroke-width="2"/><circle cx="${x}" cy="${y}" r="5" fill="none" stroke="${c}" stroke-width="2.4"/>`).join('')}`),
+    agenda:S('0 0 120 90',`<rect x="30" y="12" width="60" height="70" rx="4" fill="#2f8a55" stroke="${K}" stroke-width="2.5"/><rect x="36" y="18" width="48" height="58" fill="#fffdf3" stroke="${K}" stroke-width="1.6"/><path d="M42 30h36M42 40h30M42 50h34M42 60h22" stroke="#7fa7df" stroke-width="2"/><path d="M44 30l3 3 6-6M44 40l3 3 6-6" stroke="#d23a4f" stroke-width="2.2" fill="none"/><rect x="72" y="6" width="8" height="20" fill="#d23a4f" stroke="${K}" stroke-width="1.6"/>`),
+    friends:S('0 0 120 90',`<circle cx="44" cy="34" r="12" fill="#ffe08a" stroke="${K}" stroke-width="2.5"/><path d="M24 76q2-24 20-24t20 24z" fill="#3d64b8" stroke="${K}" stroke-width="2.5"/><circle cx="78" cy="38" r="11" fill="#c48a5e" stroke="${K}" stroke-width="2.5"/><path d="M60 78q2-22 18-22t18 22z" fill="#d23a4f" stroke="${K}" stroke-width="2.5"/><path d="M58 60q4-6 8 0" stroke="${K}" stroke-width="2" fill="none"/>`),
+    album:S('0 0 120 90',`<rect x="22" y="14" width="76" height="64" rx="4" fill="#7a4fc0" stroke="${K}" stroke-width="2.5"/><rect x="28" y="20" width="64" height="52" fill="#efe6d2" stroke="${K}" stroke-width="1.6"/>${[[44,36,'#d23a4f'],[76,36,'#173a8a'],[44,58,'#e0a800']].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="9" fill="${c}" stroke="#fff" stroke-width="1.6" stroke-dasharray="2 2"/>`).join('')}<circle cx="76" cy="58" r="9" fill="none" stroke="${K}" stroke-width="1.6" stroke-dasharray="3 3"/>`),
+    help:S('0 0 120 90',`<circle cx="60" cy="45" r="32" fill="#fff" stroke="${K}" stroke-width="2.5"/><circle cx="60" cy="45" r="16" fill="var(--card)" stroke="${K}" stroke-width="2.5"/>${[0,1,2,3].map(i=>`<path d="M${60+32*Math.cos(i*1.571+.4)} ${45+32*Math.sin(i*1.571+.4)}L${60+16*Math.cos(i*1.571+.4)} ${45+16*Math.sin(i*1.571+.4)}A16 16 0 0 1 ${60+16*Math.cos(i*1.571+1.17)} ${45+16*Math.sin(i*1.571+1.17)}L${60+32*Math.cos(i*1.571+1.17)} ${45+32*Math.sin(i*1.571+1.17)}A32 32 0 0 0 ${60+32*Math.cos(i*1.571+.4)} ${45+32*Math.sin(i*1.571+.4)}z" fill="#e2485d" stroke="${K}" stroke-width="2"/>`).join('')}`),
+    pencil:S('0 0 120 90',`<g transform="rotate(14 60 45)"><path d="M48 18h24v50H48z" fill="#ffd54a" stroke="${K}" stroke-width="2.5"/><rect x="48" y="10" width="24" height="8" fill="#b9bec6" stroke="${K}" stroke-width="2"/><path d="M48 10v-4q0-4 12-4t12 4v4z" fill="#f29bb0" stroke="${K}" stroke-width="2"/><path d="M48 68l12 16 12-16z" fill="#f2d2a6" stroke="${K}" stroke-width="2"/><circle cx="55" cy="36" r="2.6" fill="${K}"/><circle cx="65" cy="36" r="2.6" fill="${K}"/><path d="M54 44q6 6 12 0" fill="none" stroke="${K}" stroke-width="2.2" stroke-linecap="round"/></g>`),
+    bubble:S('0 0 120 90',`<path d="M20 20h80v40H52l-16 14v-14H20z" fill="#fff" stroke="${K}" stroke-width="2.5" stroke-linejoin="round"/><path d="M32 34h56M32 46h40" stroke="#7fa7df" stroke-width="2.4" stroke-linecap="round"/>`),
+    key:S('0 0 120 90',`<circle cx="38" cy="45" r="16" fill="#e0a800" stroke="${K}" stroke-width="2.5"/><circle cx="38" cy="45" r="6" fill="var(--card)" stroke="${K}" stroke-width="2"/><path d="M54 41h46v8H92v8h-8v-8h-6v6h-8v-6H54z" fill="#e0a800" stroke="${K}" stroke-width="2.5" stroke-linejoin="round"/>`),
+    floppy:S('0 0 120 90',`<path d="M34 14h44l12 12v50H34z" fill="#173a8a" stroke="${K}" stroke-width="2.5"/><rect x="44" y="14" width="28" height="18" fill="#b9bec6" stroke="${K}" stroke-width="2"/><rect x="42" y="46" width="40" height="26" fill="#fffdf3" stroke="${K}" stroke-width="2"/><path d="M48 54h28M48 62h20" stroke="#7fa7df" stroke-width="2"/>`),
+    gear:S('0 0 120 90',`<g transform="translate(60 45)"><g style="transform-origin:0 0;animation:spin 10s linear infinite"><path d="${[...Array(8)].map((_,i)=>{const a=i*.785,b=a+.3,c=a+.48,d=a+.785;return `${i?'L':'M'}${(26*Math.cos(a)).toFixed(1)} ${(26*Math.sin(a)).toFixed(1)}L${(34*Math.cos(b)).toFixed(1)} ${(34*Math.sin(b)).toFixed(1)}L${(34*Math.cos(c)).toFixed(1)} ${(34*Math.sin(c)).toFixed(1)}L${(26*Math.cos(d)).toFixed(1)} ${(26*Math.sin(d)).toFixed(1)}`}).join('')}z" fill="#9aa3ad" stroke="${K}" stroke-width="2.5" stroke-linejoin="round"/><circle r="10" fill="var(--card)" stroke="${K}" stroke-width="2.5"/></g></g>`),
+    eraser:S('0 0 120 90',`<g transform="rotate(-14 60 45)"><rect x="28" y="30" width="64" height="30" rx="4" fill="#ffb7c5" stroke="${K}" stroke-width="2.5"/><rect x="28" y="30" width="26" height="30" fill="#3d64b8" stroke="${K}" stroke-width="2.5"/></g><path d="M20 76q14-4 28 0" stroke="${K}" stroke-width="1.6" fill="none" stroke-dasharray="2 4"/>`),
+    piggy:S('0 0 140 104',`<ellipse cx="68" cy="58" rx="44" ry="32" fill="#ffb7c5" stroke="${K}" stroke-width="3"/><path d="M28 50q-14-4-14 8t14 6" fill="#ffb7c5" stroke="${K}" stroke-width="3"/><circle cx="20" cy="58" r="2" fill="${K}"/><path d="M56 30l-6-14 16 8" fill="#ffb7c5" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><circle cx="40" cy="48" r="3" fill="${K}"/><rect x="56" y="26" width="26" height="6" rx="3" fill="${K}"/><path d="M42 86v10M90 86v10M52 88v8M80 88v8" stroke="${K}" stroke-width="7" stroke-linecap="round"/><circle cx="70" cy="14" r="9" fill="#ffe169" stroke="${K}" stroke-width="2.5"/><text x="70" y="18" text-anchor="middle" font-family="Archivo Black" font-size="10" fill="${K}">L</text>`),
+    pouch:S('0 0 140 104',`<path d="M14 40q0-14 14-14h84q14 0 14 14v34q0 14-14 14H28q-14 0-14-14z" fill="#3d64b8" stroke="${K}" stroke-width="3"/><path d="M14 44h112" stroke="#e0a800" stroke-width="5"/><path d="M14 44h112" stroke="${K}" stroke-width="1.4" stroke-dasharray="4 3"/><rect x="104" y="36" width="14" height="18" rx="3" fill="#b9bec6" stroke="${K}" stroke-width="2.5"/><path d="M36 26l-6-18 10 2 2 16M52 26l2-20 8 0-2 20M70 26l8-16 7 4-7 12" fill="#ffd54a" stroke="${K}" stroke-width="2.4" stroke-linejoin="round"/>`),
+    bigagenda:S('0 0 140 104',`<rect x="30" y="8" width="80" height="90" rx="6" fill="#2f8a55" stroke="${K}" stroke-width="3"/><rect x="38" y="16" width="64" height="74" fill="#fffdf3" stroke="${K}" stroke-width="2"/><path d="M46 32h48M46 44h40M46 56h44M46 68h28" stroke="#7fa7df" stroke-width="2.4"/><path d="M47 32l3 3 6-6M47 44l3 3 6-6" stroke="#d23a4f" stroke-width="2.4" fill="none"/><rect x="88" y="2" width="10" height="26" fill="#d23a4f" stroke="${K}" stroke-width="2"/>`)
+  };
+
+  OBJ.bug = S('0 0 120 90', `<ellipse cx="60" cy="50" rx="26" ry="30" fill="#d23a4f" stroke="${K}" stroke-width="2.6"/><path d="M60 20v60" stroke="${K}" stroke-width="2.4"/><circle cx="60" cy="22" r="11" fill="${K}"/><circle cx="48" cy="44" r="5" fill="${K}"/><circle cx="72" cy="44" r="5" fill="${K}"/><circle cx="50" cy="62" r="4" fill="${K}"/><circle cx="70" cy="62" r="4" fill="${K}"/><path d="M52 14l-6-8M68 14l6-8M34 40l-10-4M86 40l10-4M34 58l-10 2M86 58l10 2" stroke="${K}" stroke-width="2.4" stroke-linecap="round"/>`);
+  const FICHE_ART = { 'go-wheel': 'wheel', 'go-vip': 'ticket', 'go-iq': 'brain', 'go-referral': 'postcard', 'go-portrait': 'polaroid', 'go-locker': 'locker',
+    'go-emotes': 'sticker', 'go-emojirain': 'avalanche', 'go-history': 'agenda', 'go-friends': 'friends', 'go-help': 'help', 'go-chatbot': 'pencil',
+    'go-comment': 'bubble', 'go-account': 'key', 'go-recovery': 'floppy', 'go-settings': 'gear', 'go-bug': 'bug', 'go-reset': 'eraser' };
+  const COLS = { play: '#d23a4f', collection: '#e0a800', activity: '#2f8a55', badges: '#7a4fc0', help: '#3d64b8', account: '#5e6470' };
+  function decorateFiches() {
+    document.querySelectorAll('#screen-profile .profile-section').forEach(sec => {
+      sec.style.setProperty('--fc', COLS[sec.dataset.sec] || '#173a8a');
+      // Un <details> ne se met pas en grille : les cartes passent dans un conteneur .fiches.
+      let wrap = sec.querySelector(':scope > .fiches');
+      if (!wrap && sec.querySelector(':scope > .profile-nav-card')) { wrap = document.createElement('div'); wrap.className = 'fiches'; sec.querySelectorAll(':scope > .profile-nav-card').forEach(c => wrap.appendChild(c)); sec.appendChild(wrap); }
+      sec.querySelectorAll('.profile-nav-card').forEach((card, i) => {
+        card.style.setProperty('--fr', `${[-2.5, 2, -1.5, 2.5, -2, 1.5][i % 6]}deg`);
+        card.style.setProperty('--fd', `${i * 0.08}s`);
+        const key = FICHE_ART[card.id];
+        let art = card.querySelector(':scope > .fiche-art');
+        if (card.id === 'go-portrait' && window.LiberoPortrait) {
+          const html = `<span class="ob fiche-art fiche-pt">${_ptSvg(myPortrait || window.LiberoPortrait.DEF)}</span>`;
+          if (art) art.outerHTML = html; else card.insertAdjacentHTML('afterbegin', html);
+        } else if (key && !art) card.insertAdjacentHTML('afterbegin', OBJ[key]);
+      });
+    });
+  }
+  decorateFiches();
+  window._pupitre = { paint: () => { paint(); decorateFiches(); } };
   paint();
 })();
 

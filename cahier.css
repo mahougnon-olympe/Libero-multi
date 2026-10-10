@@ -1732,3 +1732,30 @@ html:root #maintenance-wall.mw-cahier .mw-note { color: #b3263a; border-color: #
 .mw-btn { display: inline-block; margin: 6px 0 4px; padding: 9px 16px; border-radius: 6px; border: 2px solid currentColor; font: 400 .95rem "Archivo Black", sans-serif; text-decoration: none; color: inherit; box-shadow: 0 3px 0 rgba(0,0,0,.25); }
 html:root #maintenance-wall.mw-cahier .mw-btn { background: #173a8a; color: #fff; border-color: #0d2050; }
 html:root #maintenance-wall.mw-ardoise .mw-btn { background: #ffe169; color: #22252b; border-color: #22252b; }
+
+/* ══ TIROIR EN FICHES SCOTCHEES ══════════════════════════════════════════════
+   La rubrique ouverte est posee sur le bois du pupitre ; chaque carte est une
+   fiche bristol scotchee (dessin, titre, petite ligne), distribuee une par une. */
+body.pupitre-on #screen-profile .profile-section.pup-tray { background: linear-gradient(180deg, #c88d52, #b77a43); border: none; border-radius: 0 0 14px 14px; box-shadow: inset 0 0 0 7px #8a5a2b, 0 8px 0 var(--hard); padding: 30px 16px 22px; margin-top: -16px; }
+body.pupitre-on .pup-tray .fiches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 26px 16px; }
+@media (max-width: 400px) { body.pupitre-on .pup-tray .fiches { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 10px; } }
+html:not(.light) body.pupitre-on #screen-profile .profile-section.pup-tray { filter: brightness(.88); }
+body.pupitre-on .pup-tray > .profile-badges-wrap { grid-column: 1 / -1; background: #fffef6; color: #22252b; padding: 14px; box-shadow: 3px 5px 0 rgba(0,0,0,.25); border-top: 6px solid var(--fc); transform: rotate(-.6deg); }
+:root:root body.pupitre-on .pup-tray .profile-nav-card {
+  position: relative; display: grid; justify-items: center; align-content: start; gap: 4px; text-align: center; min-height: 0; height: auto;
+  padding: 18px 10px 12px; border: none; border-top: 6px solid var(--fc); border-radius: 0; color: #22252b;
+  background: #fffef6 repeating-linear-gradient(0deg, transparent 0 21px, rgba(80,130,205,.35) 21px 22px);
+  box-shadow: 3px 5px 0 rgba(0,0,0,.25); transform: rotate(var(--fr)); animation: ficheDeal .5s cubic-bezier(.3,1.4,.5,1) both; animation-delay: var(--fd);
+  transition: transform .2s; }
+:root:root body.pupitre-on .pup-tray .profile-nav-card::before { content: ""; display: block; position: absolute; left: 50%; top: -14px; width: 56px; height: 18px; transform: translateX(-50%) rotate(3deg); background: rgba(255,255,255,.6); border: 1px dashed rgba(0,0,0,.15); opacity: 1; height: 18px; right: auto; border-radius: 0; }
+:root:root body.pupitre-on .pup-tray .profile-nav-card:hover { transform: rotate(0) translateY(-4px); }
+@keyframes ficheDeal { from { transform: translate(-120px, -60px) rotate(-30deg); opacity: 0; } }
+body.pupitre-on .pup-tray .profile-nav-card .fiche-art { width: 96px; height: 72px; display: block; }
+body.pupitre-on .pup-tray .profile-nav-card .fiche-art svg { width: 100%; height: 100%; display: block; overflow: visible; }
+body.pupitre-on .pup-tray .profile-nav-card .fiche-pt { width: 66px; height: 66px; border: 2px solid #22252b; background: #fff; transform: rotate(-4deg); box-shadow: 2px 3px 0 rgba(0,0,0,.2); overflow: hidden; }
+:root:root body.pupitre-on .pup-tray .profile-nav-card .pnc-icon, :root:root body.pupitre-on .pup-tray .profile-nav-card .pnc-arrow { display: none; }
+:root:root body.pupitre-on .pup-tray .profile-nav-card .pnc-text { display: grid; gap: 2px; color: #22252b; }
+:root:root body.pupitre-on .pup-tray .profile-nav-card .pnc-text > span { font: 400 .92rem var(--font-display); color: #22252b; }
+:root:root body.pupitre-on .pup-tray .profile-nav-card .pnc-text small { font: 700 1.02rem/1.15 var(--font-hand); color: #c0262f; }
+.fiche-art:not(.profile-nav-card .fiche-art) { display: none; }
+@media (prefers-reduced-motion: reduce) { body.pupitre-on .pup-tray .profile-nav-card { animation: none; } }
