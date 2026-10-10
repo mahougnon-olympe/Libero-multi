@@ -651,8 +651,8 @@ const DICT = {
     wheelCardTitle:'Roue de la fortune', wheelCardSub:"1 tour gratuit par jour, jusqu'à 250 ⚡",
     wheelTitle:'🎡 Roue de la fortune',
     wheelIntro:'Un tour gratuit par jour. Tente ta chance !',
-    wheelSpinBtn:'🎡 Tourner la roue',
-    wheelWin:p=>`🎉 Tu gagnes ${p} ⚡ ! Reviens demain pour un nouveau tour.`,
+    wheelSpinBtn:'Tourner la roue',
+    wheelWin:p=>`+${p} Libs ! Reviens demain.`,
     wheelDone:'⏳ Tu as déjà tourné la roue aujourd\'hui. Reviens demain !',
     wheelNoName:'Choisis d\'abord un pseudo pour tourner la roue.',
     // Amis
@@ -1424,8 +1424,8 @@ const DICT = {
     wheelCardTitle:'Wheel of fortune', wheelCardSub:'1 free spin a day, up to 250 ⚡',
     wheelTitle:'🎡 Wheel of fortune',
     wheelIntro:'One free spin a day. Try your luck!',
-    wheelSpinBtn:'🎡 Spin the wheel',
-    wheelWin:p=>`🎉 You win ${p} ⚡! Come back tomorrow for another spin.`,
+    wheelSpinBtn:'Spin the wheel',
+    wheelWin:p=>`+${p} Libs! Come back tomorrow.`,
     wheelDone:'⏳ You already spun the wheel today. Come back tomorrow!',
     wheelNoName:'Pick a nickname first to spin the wheel.',
     // Friends
@@ -12731,10 +12731,21 @@ window._showLevelUp = function (lv, reward) {
   const spinBtn = document.getElementById('btn-wheel-spin');
   const statusEl = document.getElementById('wheel-status');
   let spinning = false, rotation = 0;
-  // Disque : 6 parts en conic-gradient + libelles positionnes par rotation.
-  disc.style.background = `conic-gradient(${PRIZES.map((_, i) => `${COLORS[i]} ${i * 60}deg ${(i + 1) * 60}deg`).join(',')})`;
-  disc.innerHTML = PRIZES.map((p, i) =>
-    `<span class="wheel-label" style="transform:rotate(${i * 60 + 30}deg) translateY(-58px) rotate(90deg)">${p}</span>`).join('');
+  // Disque dessine a la craie (SVG) : parts hachurees de craies de couleur, chiffres a la main,
+  // le 250 entoure d'or. La part i va de i*60 a (i+1)*60 degres, comme avant (calcul d'arret inchange).
+  const CHALK = ['#9fc2ff', '#ff9ec7', '#8fe0a8', '#ffe169', '#ffb37a', '#d7b8ff'];
+  const pt = (a, r) => [100 + r * Math.sin(a * Math.PI / 180), 100 - r * Math.cos(a * Math.PI / 180)];
+  const part = (i) => { const [x0, y0] = pt(i * 60, 92), [x1, y1] = pt(i * 60 + 60, 92); return `M100 100L${x0} ${y0}A92 92 0 0 1 ${x1} ${y1}Z`; };
+  disc.style.background = 'none';
+  disc.innerHTML = `<svg viewBox="0 0 200 200" aria-hidden="true"><defs>${CHALK.map((c, i) =>
+      `<pattern id="whh${i}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(${30 + i * 25})"><path d="M0 3h6" stroke="${c}" stroke-width="2.2" opacity=".85"/></pattern>`).join('')}</defs>
+    ${PRIZES.map((_, i) => `<path d="${part(i)}" fill="url(#whh${i})" stroke="#eef1ea" stroke-width="2.4" stroke-linejoin="round"/>`).join('')}
+    <circle cx="100" cy="100" r="93" fill="none" stroke="#eef1ea" stroke-width="3" stroke-dasharray="40 3 60 2"/>
+    ${PRIZES.map((p, i) => { const [x, y] = pt(i * 60 + 30, 62); return (p === 250 ? `<circle cx="${x}" cy="${y}" r="20" fill="none" stroke="#ffe169" stroke-width="2.4"/>` : '')
+      + `<text x="${x}" y="${y}" transform="rotate(${i * 60 + 30} ${x} ${y})" text-anchor="middle" dominant-baseline="middle" font-family="Caveat, cursive" font-weight="700" font-size="${p === 250 ? 30 : 26}" fill="#fff">${p}</text>`; }).join('')}
+    <circle cx="100" cy="100" r="9" fill="#2f4a3e" stroke="#eef1ea" stroke-width="2.4"/></svg>`;
+  const ptr = overlay.querySelector('.wheel-pointer');
+  if (ptr) ptr.innerHTML = '<svg viewBox="0 0 30 30" aria-hidden="true"><path d="M15 28L5 6q10 6 20 0z" fill="#ffe169" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg>';
   function open() {
     statusEl.textContent = '';
     spinBtn.disabled = false;
@@ -12757,13 +12768,14 @@ window._showLevelUp = function (lv, reward) {
     }
     // 5 tours complets + arret au centre du segment gagnant sous le pointeur.
     rotation += 360 * 5 + ((360 - (index * 60 + 30)) - (rotation % 360) + 360) % 360;
-    disc.style.transition = 'transform 3.4s cubic-bezier(.15,.6,.15,1)';
+    disc.style.transition = 'transform 4.2s cubic-bezier(.12,.75,.12,1)';
     disc.style.transform = `rotate(${rotation}deg)`;
     setTimeout(() => {
       spinning = false;
       statusEl.textContent = t().wheelWin(prize);
+      statusEl.classList.remove('wheel-won'); void statusEl.offsetWidth; statusEl.classList.add('wheel-won');
       if (balance !== undefined) { const prev = libsBalance; libsBalance = balance; _refreshLibsUI(prev, balance, prize); }
-    }, 3500);
+    }, 4300);
   });
 })();
 
