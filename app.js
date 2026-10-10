@@ -2891,6 +2891,8 @@ window._renderProfilePseudo = function () {
   const cls = ['pid-name-txt', _cosmeticClass(equippedCosmetic), _fontClass(equippedFont),
                _nameEffectClass(equippedNameEffect)].filter(Boolean).join(' ');
   el.innerHTML = `<span class="${cls}">${_escHtml(nom)}</span>` + _titleHtml(equippedTitle, honorTitle);
+  // Le porte-cles du pupitre porte le pseudo : on le redessine quand le pseudo change.
+  if (window._pupLastName !== nom) { window._pupLastName = nom; window._pupitre?.paint?.(); }
 
   // Avatar equipe, ou initiale du pseudo a defaut.
   const av = document.getElementById('profile-avatar');
@@ -12240,6 +12242,8 @@ window._profileSections = ProfileSections;
   /* Objets du pupitre, version detaillee : volumes en degrades, reflets, coutures, contenu qui depasse. */
   const G=(id,a,b,x2='0',y2='1')=>`<linearGradient id="${id}" x1="0" y1="0" x2="${x2}" y2="${y2}"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
   const R=(id,a,b,cx='.35',cy='.3')=>`<radialGradient id="${id}" cx="${cx}" cy="${cy}" r=".85"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient>`;
+  // L'etiquette du porte-cles porte le pseudo du joueur (raccourci pour tenir sur l'etiquette).
+  const _pupName = () => { const n = (localStorage.getItem('playerName') || '').trim(); const v = n && n !== 'Anonyme' ? n : (currentLang === 'en' ? 'Me' : 'Moi'); return _escHtml(v.length > 9 ? v.slice(0, 8) + '.' : v); };
   const BIG={
   piggy:`<svg viewBox="0 0 170 130" aria-hidden="true"><defs>${R('pgB','#ffd6e0','#e98aa3')}${R('pgC','#fff6c8','#d9a520')}</defs>
     <ellipse cx="86" cy="118" rx="58" ry="7" fill="rgba(0,0,0,.22)"/>
@@ -12308,7 +12312,7 @@ window._profileSections = ProfileSections;
     <circle cx="62" cy="40" r="22" fill="none" stroke="${K}" stroke-width="7"/><circle cx="62" cy="40" r="22" fill="none" stroke="url(#kyS)" stroke-width="4"/>
     <g transform="rotate(30 62 40)"><circle cx="62" cy="76" r="15" fill="url(#kyG)" stroke="${K}" stroke-width="3"/><circle cx="62" cy="76" r="5" fill="var(--wood)" stroke="${K}" stroke-width="2.4"/><path d="M58 90h8v34h-8z" fill="url(#kyG)" stroke="${K}" stroke-width="3"/><path d="M66 106h8v6h-8M66 116h6v6h-6" fill="url(#kyG)" stroke="${K}" stroke-width="2.6"/></g>
     <g transform="rotate(-24 62 40)"><path d="M54 62h16l3 6v48l-6 6h-4l-6-6v-48z" fill="url(#kyS)" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><path d="M62 74v38" stroke="${K}" stroke-width="1.6"/><path d="M70 92l6 3-6 3M70 102l5 2-5 2" fill="none" stroke="${K}" stroke-width="2"/></g>
-    <g transform="rotate(12 62 40)"><path d="M58 60l50 0 0 30-50 0-12-15z" fill="#fffdf3" stroke="${K}" stroke-width="2.6" stroke-linejoin="round"/><circle cx="56" cy="75" r="3" fill="var(--wood)" stroke="${K}" stroke-width="1.8"/><text x="84" y="80" text-anchor="middle" font-family="Caveat" font-weight="700" font-size="15" fill="#d23a4f">Koffi</text></g>
+    <g transform="rotate(12 62 40)"><path d="M58 60l50 0 0 30-50 0-12-15z" fill="#fffdf3" stroke="${K}" stroke-width="2.6" stroke-linejoin="round"/><circle cx="56" cy="75" r="3" fill="var(--wood)" stroke="${K}" stroke-width="1.8"/><text x="84" y="80" text-anchor="middle" font-family="Caveat" font-weight="700" font-size="15" fill="#d23a4f">__PSEUDO__</text></g>
     <path d="M48 26q8-8 18-6" stroke="#fff" stroke-width="2.4" fill="none" opacity=".8" stroke-linecap="round"/></svg>`
   };
 
@@ -12328,7 +12332,7 @@ window._profileSections = ProfileSections;
     const d = t();
     const L = { play: d.profileSecPlay, collection: d.profileSecCollection, activity: d.profileSecActivity, badges: d.profileSecBadges, help: d.profileSecHelp, account: d.profileSecAccount };
     desk.innerHTML = '<span class="pup-groove" aria-hidden="true"></span><span class="pup-blot" aria-hidden="true"></span>' + ITEMS.map(([k, o]) =>
-      `<button type="button" class="pup-thing${cur === k ? ' on' : ''}" role="tab" aria-selected="${cur === k}" data-k="${k}"><span class="pup-ob">${BIG[o]}</span><span class="pup-tag">${_escHtml(L[k] || k)}</span><span class="pup-note">${_escHtml(note(k))}</span></button>`).join('');
+      `<button type="button" class="pup-thing${cur === k ? ' on' : ''}" role="tab" aria-selected="${cur === k}" data-k="${k}"><span class="pup-ob">${BIG[o].replace('__PSEUDO__', _pupName())}</span><span class="pup-tag">${_escHtml(L[k] || k)}</span><span class="pup-note">${_escHtml(note(k))}</span></button>`).join('');
     document.querySelectorAll('#screen-profile .profile-section').forEach(el => {
       const on = el.dataset.sec === cur;
       el.classList.toggle('pup-tray', on);
@@ -12588,19 +12592,89 @@ window._profileSections = ProfileSections;
 // ── Niveaux et XP ─────────────────────────────────────────────────────────────
 // Rend une grille de badges (hauts faits) dans le conteneur donne. Le titre
 // honorifique, s'il existe, apparait en premier comme un badge dore special.
+// Hauts faits = CAHIER DE TAMPONS : chaque haut fait obtenu est un tampon encreur (de travers,
+// couleur d'encre), ceux qui restent sont des cases en pointilles avec la consigne au crayon.
+// Un haut fait jamais vu (localStorage libero_badges_seen) se tamponne avec l'animation « coup de tampon ».
+const BADGE_IC={
+ level10:`<path d="M20 34l30-14 30 14-30 14z" fill="#3d64b8" stroke="#22252b" stroke-width="4" stroke-linejoin="round"/><path d="M32 40v16q18 10 36 0V40" fill="#3d64b8" stroke="#22252b" stroke-width="4"/><path d="M80 34v22" stroke="#22252b" stroke-width="4"/><circle cx="80" cy="60" r="4" fill="#ffe169" stroke="#22252b" stroke-width="3"/>`,
+ level25:`<circle cx="50" cy="56" r="22" fill="#e9c25a" stroke="#22252b" stroke-width="4"/><text x="50" y="64" text-anchor="middle" font-family="Archivo Black" font-size="20" fill="#22252b">25</text><path d="M38 34l-8-20h16l4 10 4-10h16l-8 20" fill="#d23a4f" stroke="#22252b" stroke-width="4" stroke-linejoin="round"/>`,
+ level50:`<path d="M18 70l6-38 16 16 10-24 10 24 16-16 6 38z" fill="#ffe169" stroke="#22252b" stroke-width="4" stroke-linejoin="round"/><circle cx="50" cy="56" r="5" fill="#d23a4f" stroke="#22252b" stroke-width="3"/>`,
+ win1:`<path d="M30 20h40v14q0 22-20 26-20-4-20-26z" fill="#e9c25a" stroke="#22252b" stroke-width="4"/><path d="M50 60v12M36 80h28" stroke="#22252b" stroke-width="5" stroke-linecap="round"/><text x="50" y="44" text-anchor="middle" font-family="Archivo Black" font-size="18" fill="#22252b">1</text>`,
+ win25:`<path d="M50 14l28 10v22q0 24-28 36-28-12-28-36V24z" fill="#3d64b8" stroke="#22252b" stroke-width="4" stroke-linejoin="round"/><text x="50" y="56" text-anchor="middle" font-family="Archivo Black" font-size="20" fill="#fff">25</text>`,
+ win100:`<path d="M28 16h44v16q0 24-22 28-22-4-22-28z" fill="#ffe169" stroke="#22252b" stroke-width="4"/><path d="M28 22H16q0 16 14 18M72 22h12q0 16-14 18" fill="none" stroke="#22252b" stroke-width="4"/><path d="M50 60v10M34 82h32v-8H34z" fill="#a0703f" stroke="#22252b" stroke-width="4"/>`,
+ quiz500:`<path d="M50 22q-26 0-26 26 0 14 12 20v12h28V68q12-6 12-20 0-26-26-26z" fill="#ff9ec7" stroke="#22252b" stroke-width="4"/><path d="M50 26v40M38 40q6 4 12 0M50 52q6 4 12 0" fill="none" stroke="#22252b" stroke-width="3"/>`,
+ snake50:`<path d="M20 70q0-18 18-18h24q16 0 16-14T62 24" fill="none" stroke="#22252b" stroke-width="16" stroke-linecap="round"/><path d="M20 70q0-18 18-18h24q16 0 16-14T62 24" fill="none" stroke="#e9c25a" stroke-width="9" stroke-linecap="round"/><circle cx="60" cy="22" r="3" fill="#22252b"/>`,
+ streak7:`<path d="M50 14q20 20 18 40a18 18 0 0 1-36 0q0-10 8-16 2 10 8 10-4-16 2-34z" fill="#ff8a3d" stroke="#22252b" stroke-width="4" stroke-linejoin="round"/><text x="50" y="72" text-anchor="middle" font-family="Archivo Black" font-size="18" fill="#22252b">7</text>`,
+ streak30:`<path d="M72 18L38 52" stroke="#ffe169" stroke-width="10" stroke-linecap="round"/><circle cx="36" cy="58" r="18" fill="#ff8a3d" stroke="#22252b" stroke-width="4"/><text x="36" y="65" text-anchor="middle" font-family="Archivo Black" font-size="15" fill="#22252b">30</text>`,
+ vip:`<path d="M30 22h40l14 18-34 40-34-40z" fill="#9fd8ff" stroke="#22252b" stroke-width="4" stroke-linejoin="round"/><path d="M16 40h68M38 22l-6 18 18 40 18-40-6-18" fill="none" stroke="#22252b" stroke-width="3"/>`,
+ friend5:`<circle cx="36" cy="38" r="12" fill="#ffd0d8" stroke="#22252b" stroke-width="4"/><circle cx="64" cy="38" r="12" fill="#bfe3ff" stroke="#22252b" stroke-width="4"/><path d="M14 80q0-20 22-20t22 20M42 80q0-20 22-20t22 20" fill="none" stroke="#22252b" stroke-width="4"/>`,
+ ref1:`<path d="M20 44h12l30-18v48L32 56H20z" fill="#ffe169" stroke="#22252b" stroke-width="4" stroke-linejoin="round"/><path d="M70 38q8 12 0 24M78 30q14 20 0 40" fill="none" stroke="#22252b" stroke-width="4" stroke-linecap="round"/>`,
+ iq:`<path d="M22 22h22v8a6 6 0 1 0 12 0v-8h22v22h-8a6 6 0 1 0 0 12h8v22H56v-8a6 6 0 1 0-12 0v8H22V56h8a6 6 0 1 0 0-12h-8z" fill="#c9efc9" stroke="#22252b" stroke-width="4" stroke-linejoin="round"/>`,
+ wheel:`<circle cx="50" cy="50" r="30" fill="#fff" stroke="#22252b" stroke-width="4"/>${[0,1,2,3,4,5].map(k=>{const a=k*60*Math.PI/180,b=(k+1)*60*Math.PI/180;return `<path d="M50 50L${50+30*Math.sin(a)} ${50-30*Math.cos(a)}A30 30 0 0 1 ${50+30*Math.sin(b)} ${50-30*Math.cos(b)}z" fill="${['#ff9ec7','#9fc2ff','#8fe0a8','#ffe169','#ffb37a','#d7b8ff'][k]}" stroke="#22252b" stroke-width="2"/>`}).join('')}<circle cx="50" cy="50" r="5" fill="#22252b"/><path d="M50 12l-6-8h12z" fill="#d23a4f" stroke="#22252b" stroke-width="2"/>`
+};
+const BADGE_ALL = [
+  ['level10', 'Niveau 10', 'Level 10', 'Atteins le niveau 10', 'Reach level 10'],
+  ['level25', 'Niveau 25', 'Level 25', 'Atteins le niveau 25', 'Reach level 25'],
+  ['level50', 'Niveau 50', 'Level 50', 'Atteins le niveau 50', 'Reach level 50'],
+  ['win1', 'Première victoire', 'First win', 'Gagne ta première partie', 'Win your first game'],
+  ['win25', '25 victoires', '25 wins', 'Gagne 25 parties', 'Win 25 games'],
+  ['win100', '100 victoires', '100 wins', 'Gagne 100 parties', 'Win 100 games'],
+  ['quiz500', 'Cerveau', 'Brain', 'Cumule 500 points de quiz', 'Score 500 quiz points'],
+  ['snake50', 'Serpent d\'or', 'Golden snake', 'Fais 50 au Snake', 'Score 50 in Snake'],
+  ['streak7', 'Série de 7 jours', '7-day streak', 'Connecte-toi 7 jours de suite', 'Log in 7 days in a row'],
+  ['streak30', 'Série de 30 jours', '30-day streak', 'Connecte-toi 30 jours de suite', 'Log in 30 days in a row'],
+  ['vip', 'Membre VIP', 'VIP member', 'Prends le Pass VIP', 'Get the VIP Pass'],
+  ['friend5', '5 amis', '5 friends', 'Aie 5 amis', 'Have 5 friends'],
+  ['ref1', 'Parrain', 'Referrer', 'Invite un ami qui joue', 'Invite a friend who plays'],
+  ['iq', 'Test de QI', 'IQ test', 'Passe le test de QI', 'Take the IQ test'],
+  ['wheel', 'Roue tournée', 'Wheel spun', 'Tourne la roue de la fortune', 'Spin the wheel of fortune'],
+];
+const STAMP_INK = ['#d23a4f', '#173a8a', '#2f8a55', '#6a2fb8', '#c26a00'];
+const STAMP_ROT = [-8, 6, -3, 10, -12];
+function _stampHtml(id, label, k, isNew) {
+  return `<span class="stamp-cell on${isNew ? ' stamp-new' : ''}" style="--c:${STAMP_INK[k % 5]};--r:${STAMP_ROT[k % 5]}deg" title="${_escHtml(label)}"><span class="stamp-ink"><svg viewBox="0 0 100 100" aria-hidden="true">${BADGE_IC[id] || ''}</svg><small>${_escHtml(label)}</small></span></span>`;
+}
 window._renderBadges = function (containerId, badges, honorTitle) {
   if (containerId === 'profile-badges') setTimeout(() => window._pupitre?.paint(), 0);
   const el = document.getElementById(containerId);
   if (!el) return;
   const en = (typeof currentLang !== 'undefined' && currentLang === 'en');
-  const items = [];
-  if (honorTitle) items.push(`<span class="badge badge-honor" title="${honorTitle}">🏆 ${_escHtml ? _escHtml(honorTitle) : honorTitle}</span>`);
-  (badges || []).forEach(b => {
-    const lbl = en ? (b.labelEn || b.label) : b.label;
-    items.push(`<span class="badge" title="${lbl}">${b.icon} ${lbl}</span>`);
+  const got = new Set((badges || []).map(b => b.id));
+  const mine = containerId === 'profile-badges';
+  let seen = null;
+  if (mine) { try { seen = JSON.parse(localStorage.getItem('libero_badges_seen') || 'null'); } catch {} }
+  const fresh = [];
+  const cells = BADGE_ALL.map(([id, fr, enL, cFr, cEn], k) => {
+    if (got.has(id)) {
+      const isNew = !!(seen && !seen.includes(id));
+      if (isNew) fresh.push(id);
+      return _stampHtml(id, en ? enL : fr, k, isNew);
+    }
+    // Sur la fiche d'un autre joueur, seuls les tampons obtenus s'affichent.
+    return mine ? `<span class="stamp-cell off"><small>${_escHtml(en ? cEn : cFr)}</small></span>` : '';
+  }).join('');
+  const honor = honorTitle ? `<span class="stamp-honor">${_escHtml(honorTitle)}</span>` : '';
+  if (!mine) {
+    el.innerHTML = got.size || honorTitle ? `<div class="stamp-grid stamp-grid-sm">${honor}${cells}</div>`
+      : `<span class="badge-empty">${en ? 'No badge yet.' : 'Aucun haut fait pour l\'instant.'}</span>`;
+    return;
+  }
+  el.innerHTML = `<div class="stamp-page"><p class="stamp-head">${en ? 'My achievements' : 'Mes hauts faits'} · ${got.size}/${BADGE_ALL.length}</p>${honor}<div class="stamp-grid">${cells}</div></div>`;
+  // Premier affichage : tout ce qu'on a deja est considere comme vu (pas d'avalanche de tampons).
+  if (!seen) seen = [];
+  if (seen.length === 0 && got.size && !localStorage.getItem('libero_badges_seen')) { fresh.length = 0; el.querySelectorAll('.stamp-new').forEach(e => e.classList.remove('stamp-new')); }
+  // Les nouveaux tampons tombent l'un apres l'autre, avec le bruit du tampon.
+  el.querySelectorAll('.stamp-new').forEach((e, i) => {
+    e.style.animationDelay = (0.25 + i * 0.45) + 's';
+    setTimeout(() => { try { window._sound?.play('pop'); } catch {} }, 450 + i * 450);
   });
-  el.innerHTML = items.length ? items.join('') : `<span class="badge-empty">${en ? 'No badge yet, keep playing!' : 'Aucun badge pour l\'instant, continue de jouer !'}</span>`;
+  // Tiroir ferme : on ne marque rien comme vu, l'animation se jouera a l'ouverture du tiroir.
+  if (el.offsetParent === null && localStorage.getItem('libero_badges_seen')) return;
+  try { localStorage.setItem('libero_badges_seen', JSON.stringify([...got])); } catch {}
 };
+document.getElementById('sec-badges')?.addEventListener('toggle', e => {
+  if (e.target.open && window._myBadges) window._renderBadges('profile-badges', window._myBadges, typeof honorTitle !== 'undefined' ? honorTitle : null);
+});
 
 // Onboarding gamifie : coche les etapes faites ; masque la carte quand les 3
 // sont validees.

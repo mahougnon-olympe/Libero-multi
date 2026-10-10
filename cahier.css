@@ -2292,3 +2292,37 @@ html.light #screen-shop .shop-fn-detail-back { color: #173a8a; }
 :root:root #screen-shop { background: var(--wall); }
 :root:root #screen-shop .shop-tile::after { box-shadow: none; border-bottom-width: 4px; }
 @media (min-width: 900px) { :root:root #screen-shop :is(#shop-sec-featured, #shop-sec-daily) :is(.shop-fn-featured, .shop-fn-grid) { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); } }
+
+/* ══ Hauts faits = CAHIER DE TAMPONS ════════════════════════════════════════ */
+.stamp-page {
+  background: #fffef6; border: 2px solid #22252b; border-radius: 4px; padding: 12px 12px 14px 42px; color: #22252b;
+  background-image: linear-gradient(90deg, transparent 28px, #e2485d 28px 29.5px, transparent 29.5px), repeating-linear-gradient(0deg, transparent 0 25px, rgba(80,130,205,.35) 25px 26px);
+}
+.stamp-head { margin: 0 0 8px; font: 700 1.6rem/1 var(--font-hand); color: #173a8a; }
+.stamp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px 8px; }
+.stamp-grid-sm { grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: 6px; }
+.stamp-cell { height: 92px; display: grid; place-items: center; text-align: center; position: relative; }
+.stamp-grid-sm .stamp-cell { height: 70px; }
+.stamp-ink {
+  width: 82px; height: 82px; border-radius: 50%; border: 3px solid var(--c); color: var(--c); display: grid; place-items: center;
+  position: relative; transform: rotate(var(--r)); opacity: .92; mix-blend-mode: multiply;
+  -webkit-mask: radial-gradient(circle at 30% 70%, #000 60%, rgba(0,0,0,.72) 100%); mask: radial-gradient(circle at 30% 70%, #000 60%, rgba(0,0,0,.72) 100%);
+}
+.stamp-grid-sm .stamp-ink { width: 62px; height: 62px; }
+.stamp-ink::before { content: ""; position: absolute; inset: 4px; border: 1.5px solid var(--c); border-radius: 50%; }
+.stamp-ink svg { width: 40%; height: 40%; margin-top: -14px; }
+.stamp-ink small { position: absolute; bottom: 12px; left: 8px; right: 8px; font: 400 .48rem/1.05 var(--font-display); letter-spacing: .04em; text-transform: uppercase; }
+.stamp-grid-sm .stamp-ink small { font-size: .38rem; bottom: 9px; }
+.stamp-cell.off { border: 1.5px dashed #9aa3ad; border-radius: 8px; padding: 4px; }
+.stamp-cell.off small { font: 700 1.02rem/1.05 var(--font-hand); color: #8a929c; }
+.stamp-honor { display: inline-block; margin: 0 0 10px; border: 3px double #b8860b; color: #b8860b; padding: 2px 10px; font: 400 .8rem var(--font-display); transform: rotate(-3deg); text-transform: uppercase; }
+/* Le coup de tampon : il tombe de haut, ecrase le papier, l'encre se pose */
+.stamp-new .stamp-ink { animation: stampThud .55s cubic-bezier(.3,1.6,.5,1) both; animation-delay: inherit; }
+.stamp-new { animation: stampShake .3s ease-out both; animation-delay: inherit; }
+@keyframes stampThud { 0% { transform: translateY(-40px) scale(2.2) rotate(var(--r)); opacity: 0; } 55% { transform: scale(.88) rotate(var(--r)); opacity: 1; } 100% { transform: scale(1) rotate(var(--r)); opacity: .92; } }
+@keyframes stampShake { 0%, 100% { transform: none; } 60% { transform: translateY(2px); } }
+html:not(.light) .stamp-ink { mix-blend-mode: normal; }
+@media (prefers-reduced-motion: reduce) { .stamp-new .stamp-ink, .stamp-new { animation: none; } }
+:root:root #sec-badges .profile-badges-wrap { grid-column: 1 / -1; width: 100%; max-width: 760px; margin: 0 auto; background: none; border: none; box-shadow: none; padding: 0; }
+:root:root #sec-badges .profile-badges-title { display: none; }
+:root:root #profile-badges.badge-grid { display: block; }
