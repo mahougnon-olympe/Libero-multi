@@ -1068,10 +1068,10 @@ function makeFriends(idA, idB) {
 
 // Depose un cadeau chez un joueur : credite tout de suite, et le message
 // (avec bouton OK) est affiche en direct ou a la prochaine connexion.
-function deliverGift(pid, { fromName, libsAmount = 0, cosmeticId = null, vip = false }) {
+function deliverGift(pid, { fromName, libsAmount = 0, cosmeticId = null, bundleId = null, vip = false }) {
   const entry = getLibsEntry(pid);
   if (!entry) return false;
-  const gift = { id: crypto.randomUUID(), fromName: String(fromName || '').slice(0, 20), libs: Math.max(0, Math.floor(libsAmount)), cosmeticId: cosmeticId || null, vip: !!vip, at: Date.now() };
+  const gift = { id: crypto.randomUUID(), fromName: String(fromName || '').slice(0, 20), libs: Math.max(0, Math.floor(libsAmount)), cosmeticId: cosmeticId || null, bundleId: bundleId || null, vip: !!vip, at: Date.now() };
   if (!Array.isArray(entry.pendingGifts)) entry.pendingGifts = [];
   entry.pendingGifts.push(gift);
   entry.pendingGifts = entry.pendingGifts.slice(-10);
@@ -4033,7 +4033,7 @@ io.on('connection', (socket) => {
     libs.set(id, entry); libs.set(pid, target);
     dbUpsertLibs(id, entry); dbUpsertLibs(pid, target);
     _emitToPlayer(pid, 'libs-update', { ownedCosmetics: target.ownedCosmetics, pendingBoostHint: target.pendingBoostHint, ..._equippedPayload(target), nextAt: nextDistributionAt });
-    deliverGift(pid, { fromName: entry.name, cosmeticId: granted[0] || null });
+    deliverGift(pid, { fromName: entry.name, cosmeticId: granted[0] || null, bundleId: bundleId || null });
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, nextAt: nextDistributionAt });
     socket.emit('gift-cosmetic-result', { ok: true, toFriend: target.name });
     bumpChallenge(id, 'giftsSent');
@@ -4081,7 +4081,7 @@ io.on('connection', (socket) => {
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
     socket.emit('redeem-gift-result', { ok: true, cosmeticId: rec.cosmeticId || null, bundleId: rec.bundleId || null, granted, boostAdded, fromName: rec.fromName });
     // Message « Untel t'a offert un cadeau » avec bouton OK.
-    deliverGift(id, { fromName: rec.fromName || '', cosmeticId: granted[0] || rec.cosmeticId || rec.bundleId || null });
+    deliverGift(id, { fromName: rec.fromName || '', cosmeticId: granted[0] || rec.cosmeticId || rec.bundleId || null, bundleId: rec.bundleId || null });
   });
 
   // ── Réinitialiser le compte ──────────────────────────────────────────────

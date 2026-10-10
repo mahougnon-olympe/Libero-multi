@@ -701,9 +701,9 @@ const DICT = {
     rotationGone:(n)=>`👋 ${n} a quitté la boutique.`,
     giftRecvTitle:'🎁 Tu as reçu un cadeau !',
     giftRecvLibs:(from,n)=>`${from || 'Quelqu\'un'} t'a offert ${n} ⚡ !`,
-    giftRecvCosm:from=>`${from || 'Quelqu\'un'} t'a offert un cosmétique ! Retrouve-le dans ton casier.`,
+    giftRecvCosm:(from,item)=>`${from || 'Quelqu\'un'} t'a offert ${item ? '« ' + item + ' »' : 'un cosmétique'} ! Retrouve-le dans ton casier.`,
     giftRecvVip:from=>`👑 ${from || 'Quelqu\'un'} t'a offert un Pass VIP de 30 jours ! Profite de tes +20% de Libs.`,
-    giftRecvBoth:(from,n)=>`${from || 'Quelqu\'un'} t'a offert ${n} ⚡ et un cosmétique !`,
+    giftRecvBoth:(from,n,item)=>`${from || 'Quelqu\'un'} t'a offert ${n} ⚡ et ${item ? '« ' + item + ' »' : 'un cosmétique'} !`,
     challengeFriendBtn:'⚔️ Défier un ami',
     friendPickTitle:'⚔️ Qui veux-tu défier ?',
     friendPickNone:'Aucun ami en ligne pour le moment. Ajoute des amis dans ton Profil !',
@@ -1480,9 +1480,9 @@ const DICT = {
     rotationGone:(n)=>`👋 ${n} has left the shop.`,
     giftRecvTitle:'🎁 You received a gift!',
     giftRecvLibs:(from,n)=>`${from || 'Someone'} gifted you ${n} ⚡!`,
-    giftRecvCosm:from=>`${from || 'Someone'} gifted you a cosmetic! Find it in your locker.`,
+    giftRecvCosm:(from,item)=>`${from || 'Someone'} gifted you ${item ? '"' + item + '"' : 'a cosmetic'}! Find it in your locker.`,
     giftRecvVip:from=>`👑 ${from || 'Someone'} gifted you a 30-day VIP Pass! Enjoy your +20% Libs.`,
-    giftRecvBoth:(from,n)=>`${from || 'Someone'} gifted you ${n} ⚡ and a cosmetic!`,
+    giftRecvBoth:(from,n,item)=>`${from || 'Someone'} gifted you ${n} ⚡ and ${item ? '"' + item + '"' : 'a cosmetic'}!`,
     challengeFriendBtn:'⚔️ Challenge a friend',
     friendPickTitle:'⚔️ Who do you want to challenge?',
     friendPickNone:'No friend online right now. Add friends in your Profile!',
@@ -13180,9 +13180,9 @@ window._notify = NotificationCenter;
     const g = showing;
     document.getElementById('giftrecv-msg').textContent =
       g.vip ? d.giftRecvVip(g.fromName)
-      : (g.libs > 0 && g.cosmeticId) ? d.giftRecvBoth(g.fromName, g.libs)
+      : (g.libs > 0 && g.cosmeticId) ? d.giftRecvBoth(g.fromName, g.libs, _giftItemName(g))
       : g.libs > 0 ? d.giftRecvLibs(g.fromName, g.libs)
-      : d.giftRecvCosm(g.fromName);
+      : d.giftRecvCosm(g.fromName, _giftItemName(g));
     overlay.classList.remove('hidden');
   }
   document.getElementById('btn-giftrecv-ok')?.addEventListener('click', () => {
@@ -13198,11 +13198,25 @@ window._notify = NotificationCenter;
     if (!g || !g.id || seen.has(g.id)) return;
     seen.add(g.id);
     window._sound?.play('notify'); // arrivee du cadeau
-    window._notify?.add({ type:'gift', icon:'🎁', text: (g.libs ? t().giftRecvLibs(g.fromName, g.libs) : g.vip ? t().giftRecvVip(g.fromName) : t().giftRecvCosm(g.fromName)) });
+    window._notify?.add({ type:'gift', icon:'🎁', text: (g.vip ? t().giftRecvVip(g.fromName) : (g.libs > 0 && g.cosmeticId) ? t().giftRecvBoth(g.fromName, g.libs, _giftItemName(g)) : g.libs ? t().giftRecvLibs(g.fromName, g.libs) : t().giftRecvCosm(g.fromName, _giftItemName(g))) });
     queue.push(g);
     showNext();
   });
 })();
+
+// Nom lisible d'un cadeau (pack ou article), dans la langue du joueur ; '' si inconnu.
+function _giftItemName(g) {
+  const d = t();
+  if (g.bundleId) return d.shopBundleNames?.[g.bundleId] || '';
+  const id = g.cosmeticId;
+  if (!id) return '';
+  if (d.shopBundleNames?.[id]) return d.shopBundleNames[id];
+  if (typeof _FONT_DISPLAY_NAMES !== 'undefined' && _FONT_DISPLAY_NAMES[id]) return _FONT_DISPLAY_NAMES[id];
+  for (const k of Object.keys(d)) {
+    if (/^shop\w*Names$/.test(k) && d[k] && typeof d[k] === 'object' && typeof d[k][id] === 'string') return d[k][id];
+  }
+  return '';
+}
 
 // ── Cadeau du jour (theme ete) : petite modale a la 1re connexion du jour ─────
 socket.on('daily-gift', g => {
