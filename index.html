@@ -1708,35 +1708,66 @@
 
   <!-- ── Onboarding : proposer de récupérer une progression (nouveau joueur) ── -->
   <div id="overlay-onboard" class="overlay hidden">
-    <div class="recovery-modal">
-      <div class="profile-modal-header">
-        <h2 id="onboard-title" class="profile-modal-title">Bienvenue !</h2>
+    <!-- Premiere visite = carnet a intercalaires : « Nouveau » (3 pages : pseudo, theme,
+         mot de passe ou plus tard) et « J'ai deja un carnet » (mot de passe ou code).
+         La page et l'onglet ouverts survivent a un F5 (sessionStorage libero_onboard_page). -->
+    <div class="onb-book">
+      <div class="onb-tabs" role="tablist">
+        <button type="button" class="onb-tab on" id="onb-tab-new" data-tab="new" role="tab">Nouveau</button>
+        <button type="button" class="onb-tab" id="onb-tab-old" data-tab="old" role="tab">J'ai déjà un carnet</button>
       </div>
-      <div class="recovery-body">
-        <label id="onboard-theme-label" class="recovery-label">Choisis ton thème</label>
-        <div class="onboard-theme-row">
-          <button type="button" id="onboard-theme-day" class="btn btn-secondary onboard-theme-btn">Cahier</button>
-          <button type="button" id="onboard-theme-night" class="btn btn-secondary onboard-theme-btn">Ardoise</button>
+      <div class="onb-page" id="onb-page">
+        <!-- Nouveau : page 1 -->
+        <div class="onb-p" data-p="1">
+          <div class="onb-steps"><i class="on"></i><i></i><i></i><span id="onb-pg1">page 1/3</span></div>
+          <button type="button" class="onb-have" id="onb-have"><span id="onb-have-txt">Déjà un carnet ? Ouvre-le ici</span></button>
+          <h2 class="onb-h" id="onb-phrase">Ici, tout commence par un nom.</h2>
+          <label class="onb-q" id="onboard-pseudo-label" for="onboard-pseudo">Comment veux-tu t'appeler ?</label>
+          <input id="onboard-pseudo" class="onb-ln" type="text" maxlength="20" placeholder="Ton pseudo" autocomplete="off" spellcheck="false" />
+          <button type="button" class="onb-cta" id="onb-next1">Page suivante</button>
         </div>
-        <hr class="recovery-sep" />
-        <label id="onboard-pseudo-label" class="recovery-label">Choisis ton pseudo</label>
-        <input id="onboard-pseudo" class="recovery-input" type="text" maxlength="20" placeholder="Ton pseudo" autocomplete="off" spellcheck="false" />
-        <hr class="recovery-sep" />
-        <p id="onboard-intro" class="recovery-intro">Tu as déjà un compte sur un autre appareil ? Colle ton code de récupération pour retrouver ta progression. Sinon, commence une nouvelle aventure.</p>
-        <label id="onboard-label" class="recovery-label">J'ai déjà un code de récupération</label>
-        <div class="recovery-restore-row">
-          <input id="onboard-input" class="recovery-input" type="text" placeholder="Colle ton code ici" autocomplete="off" spellcheck="false" />
-          <button id="btn-onboard-restore" class="btn btn-primary">Récupérer</button>
+        <!-- Nouveau : page 2 -->
+        <div class="onb-p hidden" data-p="2">
+          <div class="onb-steps"><i class="on"></i><i class="on"></i><i></i><span id="onb-pg2">page 2/3</span></div>
+          <h2 class="onb-h" id="onb-p2-title">Cahier ou ardoise ?</h2>
+          <p class="onb-n" id="onb-p2-note">Tu pourras changer quand tu veux dans les Réglages.</p>
+          <div class="onboard-theme-row">
+            <button type="button" id="onboard-theme-day" class="onboard-theme-btn">Cahier</button>
+            <button type="button" id="onboard-theme-night" class="onboard-theme-btn">Ardoise</button>
+          </div>
+          <button type="button" class="onb-cta" id="onb-next2">Page suivante</button>
+          <button type="button" class="onb-lnk" id="onb-back2">Page précédente</button>
         </div>
-        <p id="onboard-hint" class="recovery-warn"></p>
-        <hr class="recovery-sep" />
-        <button id="btn-onboard-account" class="btn btn-primary recovery-reset-btn">Créer un compte</button>
-        <button id="btn-onboard-login" class="btn btn-secondary recovery-reset-btn">J'ai déjà un compte, me connecter</button>
-        <button id="btn-onboard-new" class="btn btn-secondary recovery-reset-btn">Non merci, commencer sans compte</button>
+        <!-- Nouveau : page 3 -->
+        <div class="onb-p hidden" data-p="3">
+          <div class="onb-steps"><i class="on"></i><i class="on"></i><i class="on"></i><span id="onb-pg3">page 3/3</span></div>
+          <h2 class="onb-h" id="onb-p3-title">Protège ton carnet</h2>
+          <p class="onb-n" id="onb-p3-note">Un mot de passe te permet de retrouver ta progression sur un autre téléphone.</p>
+          <input id="onb-pw" class="onb-ln" type="password" maxlength="64" placeholder="Choisis un mot de passe" autocomplete="new-password" />
+          <button type="button" class="onb-cta" id="onb-protect">Protéger et commencer</button>
+          <button type="button" class="onb-lnk" id="btn-onboard-new">Plus tard, je veux jouer</button>
+        </div>
+        <!-- J'ai deja un carnet : mot de passe -->
+        <div class="onb-p hidden" data-p="login">
+          <h2 class="onb-h" id="onb-login-title">Content de te revoir !</h2>
+          <input id="onb-login-pseudo" class="onb-ln" type="text" maxlength="20" placeholder="Ton pseudo" autocomplete="username" spellcheck="false" />
+          <input id="onb-login-pw" class="onb-ln" type="password" maxlength="64" placeholder="Ton mot de passe" autocomplete="current-password" />
+          <button type="button" class="onb-cta" id="onb-login-btn">Ouvrir mon carnet</button>
+          <button type="button" class="onb-lnk" id="onb-use-code">J'ai plutôt un code de récupération</button>
+          <p class="onb-n" id="onb-forgot">Mot de passe oublié ? Écris au créateur depuis « Donner mon avis ».</p>
+        </div>
+        <!-- J'ai deja un carnet : code de recuperation -->
+        <div class="onb-p hidden" data-p="code">
+          <h2 class="onb-h" id="onb-code-title">Tu as un code ?</h2>
+          <p class="onb-n" id="onboard-intro">C'est le code de récupération noté sur ton ancien appareil (Profil, « Sauvegarder ma progression »).</p>
+          <input id="onboard-input" class="onb-ln" type="text" placeholder="Colle ton code ici" autocomplete="off" spellcheck="false" />
+          <button type="button" class="onb-cta" id="btn-onboard-restore">Récupérer ma progression</button>
+          <button type="button" class="onb-lnk" id="onb-use-pw">J'ai plutôt un mot de passe</button>
+        </div>
+        <p id="onboard-hint" class="onb-hint"></p>
       </div>
     </div>
   </div>
-
   <!-- Compte optionnel : creer / se connecter (pseudo + mot de passe) -->
   <div id="overlay-account" class="overlay hidden">
     <div class="recovery-modal">

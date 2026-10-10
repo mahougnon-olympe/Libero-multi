@@ -11,7 +11,8 @@ function _escHtml(s) {
 // ni divulgué. Généré via l'API cryptographique du navigateur (128 bits).
 // Vrai UNIQUEMENT si aucun identifiant n'existait au chargement : sert à ne
 // montrer l'animation de bienvenue qu'aux joueurs qui découvrent le site.
-window.__liberoNewVisitor = !localStorage.getItem('libero_player_id');
+// Nouveau visiteur, ou F5 au milieu du carnet de premiere visite (il n'a pas encore fini).
+window.__liberoNewVisitor = !localStorage.getItem('libero_player_id') || (!!sessionStorage.getItem('libero_onboard_page') && !localStorage.getItem('libero_onboarded'));
 function getPlayerId() {
   let id = localStorage.getItem('libero_player_id');
   if (!id) {
@@ -546,7 +547,13 @@ const TRIVIA_API_CAT_MAP = {
 
 const DICT = {
   fr: {
-    readShelfExcl:'Romans exclusifs', readShelfSoon:'À venir', readShelfSoonTxt:'Bientôt d\'autres livres…', siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisis ta partie, ou ouvre un livre.', bulTitle:'Carnet de correspondance', bulTitles:['Carnet de correspondance','Carnet de l\'élève','Carnet du bon élève','Carnet d\'honneur','Tableau d\'honneur'], bulLevel:'Niveau', bulStreak:'Série en cours', bulBalance:'Solde', bulChallenges:'Défis du jour', bulDays:n => n + (n > 1 ? ' jours' : ' jour'),
+    readShelfExcl:'Romans exclusifs', readShelfSoon:'À venir', readShelfSoonTxt:'Bientôt d\'autres livres…', onb:{ tabNew:'Nouveau', tabOld:'J\'ai déjà un carnet', phrase:'Ici, tout commence par un nom.', askName:'Comment veux-tu t\'appeler ?', pseudoPh:'Ton pseudo', next:'Page suivante', prev:'Page précédente', have:'Déjà un carnet ? Ouvre-le ici', page:n => `page ${n}/3`,
+      p2Title:'Cahier ou ardoise ?', p2Note:'Tu pourras changer quand tu veux dans les Réglages.', themeDay:'Cahier', themeNight:'Ardoise',
+      p3Title:'Protège ton carnet', p3Note:'Un mot de passe te permet de retrouver ta progression sur un autre téléphone.', pwPh:'Choisis un mot de passe', protect:'Protéger et commencer', later:'Plus tard, je veux jouer',
+      loginTitle:'Content de te revoir !', loginPw:'Ton mot de passe', loginBtn:'Ouvrir mon carnet', useCode:'J\'ai plutôt un code de récupération', forgot:'Mot de passe oublié ? Écris au créateur depuis « Donner mon avis ».',
+      codeTitle:'Tu as un code ?', codeNote:'C\'est le code de récupération noté sur ton ancien appareil (Profil, « Sauvegarder ma progression »).', codePh:'Colle ton code ici', codeBtn:'Récupérer ma progression', usePw:'J\'ai plutôt un mot de passe',
+      needPseudo:'Écris d\'abord ton pseudo.', shortPw:'Au moins 4 caractères.', welcomeBack:n => `Te revoilà, ${n} !` },
+    siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisis ta partie, ou ouvre un livre.', bulTitle:'Carnet de correspondance', bulTitles:['Carnet de correspondance','Carnet de l\'élève','Carnet du bon élève','Carnet d\'honneur','Tableau d\'honneur'], bulLevel:'Niveau', bulStreak:'Série en cours', bulBalance:'Solde', bulChallenges:'Défis du jour', bulDays:n => n + (n > 1 ? ' jours' : ' jour'),
     bulAppreLabel:'Appréciation :',
     bulAppre:{ anon:'Choisis un pseudo pour recevoir tes notes.', allDone:'Tous les défis du jour sont faits. Excellent travail !', streak:n => `Très assidu : ${n} jours de suite, continue comme ça.`, high:'Joueur confirmé, redoutable sur le plateau.', mid:'De bons progrès, encore un effort pour monter de niveau.', start:'Bon début. Reviens demain pour allonger ta série.' },
     landingTitle:'Aujourd\'hui, on <mark>joue</mark>.', landingDaily:["Aujourd'hui, on <mark>joue</mark>, {n}.", "Nouvelle page, {n}. On la <mark>remplit</mark> ?", "Le tableau est propre. À toi d'écrire la <mark>victoire</mark>.", "Interro surprise ? Non, juste un <mark>quiz</mark>, {n}.", "Pas de devoirs ici, que des <mark>parties</mark>.", "Ta série t'attend, {n}. <mark>Garde-la</mark> au chaud.", "Une partie de dames avant le <mark>dîner</mark> ?", "Le robot se dit <mark>imbattable</mark>. Vérifie.", "Aujourd'hui, la <mark>chance</mark> est de ton côté, {n}.", "Un mot mystère t'attend : <mark>cinq</mark> lettres, six essais.", "Ouvre un <mark>livre</mark>, ou ouvre le jeu.", "Bon retour, {n}. Le classement a <mark>bougé</mark>.", "Échec et mat, c'est pour <mark>quand</mark> ?", "Quatre jetons alignés, c'est tout ce qu'il <mark>faut</mark>.", "Révise en jouant : SVT, Anglais et <mark>Bénin</mark> au quiz.", "Le Ludo se joue à <mark>quatre</mark>. Appelle tes amis.", "Même les champions ont <mark>commencé</mark> par une défaite.", "{n}, la roue de la fortune <mark>tourne</mark> une fois par jour.", "Un petit duel pour se <mark>réveiller</mark> ?", "Ce soir, on vise le <mark>podium</mark>.", "Le samedi, c'est <mark>tournoi</mark>. Prépare-toi, {n}.", "Ici, les erreurs ne comptent <mark>pas</mark>. Rejoue.", "Au quiz, une bonne réponse rapide vaut <mark>double</mark>.", "Le morpion, c'est simple. Gagner, <mark>moins</mark>.", "Prends ton temps, {n}. Le plateau ne <mark>bouge</mark> pas.", "Une idée pour le site ? Écris-la dans <mark>Idées</mark>.", "Aujourd'hui, tu bats ton <mark>record</mark>.", "Ton adversaire révise. Et <mark>toi</mark> ?", "Le dé est <mark>lancé</mark>, {n}.", "Cahier ouvert, crayon prêt : <mark>à toi</mark>."],
@@ -1319,7 +1326,13 @@ const DICT = {
     },
   },
   en: {
-    readShelfExcl:'Exclusive novels', readShelfSoon:'Coming soon', readShelfSoonTxt:'More books soon…', siteTitle:'Multiplayer Games', siteSubtitle:'Pick a game, or open a book.', bulTitle:'Correspondence book', bulTitles:['Correspondence book','Pupil\'s book','Good pupil\'s book','Book of honour','Honour roll'], bulLevel:'Level', bulStreak:'Current streak', bulBalance:'Balance', bulChallenges:'Daily challenges', bulDays:n => n + (n > 1 ? ' days' : ' day'),
+    readShelfExcl:'Exclusive novels', readShelfSoon:'Coming soon', readShelfSoonTxt:'More books soon…', onb:{ tabNew:'New', tabOld:'I already have a notebook', phrase:'Here, everything starts with a name.', askName:'What should we call you?', pseudoPh:'Your nickname', next:'Next page', prev:'Previous page', have:'Already have a notebook? Open it here', page:n => `page ${n}/3`,
+      p2Title:'Notebook or slate?', p2Note:'You can change it any time in Settings.', themeDay:'Notebook', themeNight:'Slate',
+      p3Title:'Protect your notebook', p3Note:'A password lets you get your progress back on another phone.', pwPh:'Choose a password', protect:'Protect and start', later:'Later, I want to play',
+      loginTitle:'Good to see you again!', loginPw:'Your password', loginBtn:'Open my notebook', useCode:'I have a recovery code instead', forgot:'Forgot your password? Write to the creator via « Give feedback ».',
+      codeTitle:'Got a code?', codeNote:'It is the recovery code saved on your old device (Profile, « Save my progress »).', codePh:'Paste your code here', codeBtn:'Recover my progress', usePw:'I have a password instead',
+      needPseudo:'Write your nickname first.', shortPw:'At least 4 characters.', welcomeBack:n => `Welcome back, ${n}!` },
+    siteTitle:'Multiplayer Games', siteSubtitle:'Pick a game, or open a book.', bulTitle:'Correspondence book', bulTitles:['Correspondence book','Pupil\'s book','Good pupil\'s book','Book of honour','Honour roll'], bulLevel:'Level', bulStreak:'Current streak', bulBalance:'Balance', bulChallenges:'Daily challenges', bulDays:n => n + (n > 1 ? ' days' : ' day'),
     bulAppreLabel:'Teacher\'s comment:',
     bulAppre:{ anon:'Pick a nickname to get your grades.', allDone:'All of today\'s challenges are done. Excellent work!', streak:n => `Very regular: ${n} days in a row, keep it up.`, high:'Seasoned player, formidable on the board.', mid:'Good progress, one more push to level up.', start:'Good start. Come back tomorrow to grow your streak.' },
     landingTitle:'Today, we <mark>play</mark>.', landingDaily:["Today, we <mark>play</mark>, {n}.", "New page, {n}. Shall we <mark>fill</mark> it?", "The board is clean. Go write the <mark>win</mark>.", "Pop quiz? No, just a <mark>quiz</mark>, {n}.", "No homework here, only <mark>games</mark>.", "Your streak is waiting, {n}. <mark>Keep</mark> it warm.", "A game of draughts before <mark>dinner</mark>?", "The bot claims it is <mark>unbeatable</mark>. Check.", "Luck is on your <mark>side</mark> today, {n}.", "A mystery word awaits: <mark>five</mark> letters, six tries.", "Open a <mark>book</mark>, or open a game.", "Welcome back, {n}. The leaderboard has <mark>moved</mark>.", "Checkmate, but <mark>when</mark>?", "Four tokens in a row is all it <mark>takes</mark>.", "Revise while playing: Biology, English and <mark>Benin</mark> in the quiz.", "Ludo is played by <mark>four</mark>. Call your friends.", "Even champions <mark>started</mark> with a loss.", "{n}, the wheel of fortune <mark>spins</mark> once a day.", "A quick duel to <mark>wake up</mark>?", "Tonight, we aim for the <mark>podium</mark>.", "Saturday means <mark>tournament</mark>. Get ready, {n}.", "Mistakes do not count <mark>here</mark>. Play again.", "In the quiz, a fast right answer counts <mark>double</mark>.", "Tic-tac-toe is simple. Winning, <mark>less</mark> so.", "Take your time, {n}. The board is not <mark>going</mark> anywhere.", "An idea for the site? Write it in <mark>Ideas</mark>.", "Today, you beat your <mark>record</mark>.", "Your opponent is revising. What about <mark>you</mark>?", "The die is <mark>cast</mark>, {n}.", "Notebook open, pencil ready: <mark>your move</mark>."],
@@ -2367,6 +2380,17 @@ function applyLang() {
   setTxt('account-card-title', d.accountCardTitle); setTxt('account-card-sub', d.accountCardSub);
   setTxt('btn-onboard-account', d.onboardAccountBtn); setTxt('btn-onboard-login', d.onboardLoginBtn); setTxt('btn-onboard-new', d.onboardNewBtn);
   setTxt('onboard-pseudo-label', d.onboardPseudoLabel);
+  // Carnet de premiere visite (pose apres les anciens libelles, qui visaient les memes ids).
+  { const o = d.onb;
+    setTxt('onb-tab-new', o.tabNew); setTxt('onb-tab-old', o.tabOld); setTxt('onb-phrase', o.phrase); setTxt('onboard-pseudo-label', o.askName);
+    [1, 2, 3].forEach(n => setTxt('onb-pg' + n, o.page(n)));
+    setTxt('onb-next1', o.next); setTxt('onb-next2', o.next); setTxt('onb-back2', o.prev); setTxt('onb-have-txt', o.have);
+    setTxt('onb-p2-title', o.p2Title); setTxt('onb-p2-note', o.p2Note); setTxt('onboard-theme-day', o.themeDay); setTxt('onboard-theme-night', o.themeNight);
+    setTxt('onb-p3-title', o.p3Title); setTxt('onb-p3-note', o.p3Note); setTxt('onb-protect', o.protect); setTxt('btn-onboard-new', o.later);
+    setTxt('onb-login-title', o.loginTitle); setTxt('onb-login-btn', o.loginBtn); setTxt('onb-use-code', o.useCode); setTxt('onb-forgot', o.forgot);
+    setTxt('onb-code-title', o.codeTitle); setTxt('onboard-intro', o.codeNote); setTxt('btn-onboard-restore', o.codeBtn); setTxt('onb-use-pw', o.usePw);
+    const ph = (id, v) => { const e = document.getElementById(id); if (e) e.placeholder = v; };
+    ph('onboard-pseudo', o.pseudoPh); ph('onb-login-pseudo', o.pseudoPh); ph('onb-pw', o.pwPh); ph('onb-login-pw', o.loginPw); ph('onboard-input', o.codePh); }
   setTxt('wordle-title', d.wordleTitle); setTxt('wordle-sub', d.wordleSub); setTxt('wordle-back-label', d.wordleBack); setTxt('wordle-share', d.wordleShare);
   setTxt('wordle-card-title', d.wordleCardTitle); setTxt('wordle-card-desc', d.wordleCardDesc);
   setTxt('wordle-hint-label', d.wordleHint);
@@ -14063,6 +14087,9 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
   if (localStorage.getItem('libero_onboarded')) return;
   const finish = () => { try { localStorage.setItem('libero_onboarded', '1'); } catch {} };
   // Anciens joueurs (compte déjà présent avant cette fonctionnalité) : pas d'animation.
+  // F5 au milieu du carnet : le joueur a deja un identifiant, mais il n'a pas fini ; on reprend la page.
+  const _resumePage = sessionStorage.getItem('libero_onboard_page');
+  if (_resumePage) window.__liberoNewVisitor = true;
   if (!window.__liberoNewVisitor) { finish(); return; }
 
   const welcome  = document.getElementById('overlay-welcome');
@@ -14080,7 +14107,69 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
   // Icones dessinees (memes traits que le site) au lieu d'emojis.
   const ICONS = ['grid', 'castle', 'token', 'hash', 'zap'];
 
-  function showOnboard() { welcome.classList.add('hidden'); obHint.textContent = ''; obHint.classList.remove('recovery-err'); onboard.classList.remove('hidden'); _syncThemeBtns(); }
+  // Le carnet a intercalaires : une page visible a la fois, memorisee pour le F5.
+  const pages = [...onboard.querySelectorAll('.onb-p')];
+  const tabNew = document.getElementById('onb-tab-new'), tabOld = document.getElementById('onb-tab-old');
+  function go(p) {
+    pages.forEach(el => el.classList.toggle('hidden', el.dataset.p !== String(p)));
+    const old = p === 'login' || p === 'code';
+    tabNew?.classList.toggle('on', !old); tabOld?.classList.toggle('on', old);
+    obHint.textContent = ''; obHint.classList.remove('recovery-err', 'recovery-ok');
+    try { sessionStorage.setItem('libero_onboard_page', String(p)); } catch {}
+    const pg = document.getElementById('onb-page'); if (pg) { pg.classList.remove('turn'); void pg.offsetWidth; pg.classList.add('turn'); }
+    // Page 1 : l'onglet « J'ai deja un carnet » remue pour se faire remarquer.
+    if (String(p) === '1' && tabOld) { tabOld.classList.remove('nudge'); void tabOld.offsetWidth; tabOld.classList.add('nudge'); }
+    pages.find(el => el.dataset.p === String(p))?.querySelector('input')?.focus({ preventScroll: true });
+  }
+  const err = msg => { obHint.textContent = msg; obHint.classList.add('recovery-err'); };
+  function showOnboard() { welcome.classList.add('hidden'); onboard.classList.remove('hidden'); _syncThemeBtns(); go(_resumePage || '1'); }
+  tabNew?.addEventListener('click', () => go('1'));
+  tabOld?.addEventListener('click', () => go('login'));
+  document.getElementById('onb-have')?.addEventListener('click', () => go('login'));
+  document.getElementById('onb-use-code')?.addEventListener('click', () => go('code'));
+  document.getElementById('onb-use-pw')?.addEventListener('click', () => go('login'));
+  document.getElementById('onb-back2')?.addEventListener('click', () => go('1'));
+  // Le pseudo tape survit lui aussi au F5.
+  const _pIn = document.getElementById('onboard-pseudo');
+  if (_pIn) { try { _pIn.value = sessionStorage.getItem('libero_onboard_pseudo') || ''; } catch {} _pIn.addEventListener('input', () => { try { sessionStorage.setItem('libero_onboard_pseudo', _pIn.value); } catch {} }); }
+  const pseudoVal = () => (document.getElementById('onboard-pseudo')?.value || '').replace(/[<>]/g, '').trim().slice(0, 20);
+  document.getElementById('onb-next1')?.addEventListener('click', () => { const p = pseudoVal(); if (!p || p === 'Anonyme') { err(t().onb.needPseudo); return; } go('2'); });
+  document.getElementById('onboard-pseudo')?.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('onb-next1')?.click(); });
+  document.getElementById('onb-next2')?.addEventListener('click', () => go('3'));
+  // Page 3 : creer le compte (pseudo + mot de passe) puis entrer.
+  document.getElementById('onb-protect')?.addEventListener('click', async () => {
+    const pw = document.getElementById('onb-pw')?.value || '';
+    if (pw.length < 4) { err(t().onb.shortPw); return; }
+    const btn = document.getElementById('onb-protect'); btn.disabled = true;
+    try {
+      const res = await fetch(`${window.BACKEND_URL}/api/account/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pseudo: pseudoVal(), password: pw, playerId: getPlayerId() }) });
+      const j = await res.json();
+      if (!j.ok) { err(j.error || t().accountError); btn.disabled = false; return; }
+      try { localStorage.setItem('libero_has_account', '1'); } catch {}
+      window._hasAccount = true;
+      window._sound?.play('success');
+      finishNew();
+    } catch { err(t().accountError); btn.disabled = false; }
+  });
+  // J'ai deja un carnet : connexion par mot de passe.
+  async function doLogin() {
+    const p = (document.getElementById('onb-login-pseudo')?.value || '').trim(), w = document.getElementById('onb-login-pw')?.value || '';
+    if (!p) { err(t().onb.needPseudo); return; }
+    if (w.length < 4) { err(t().onb.shortPw); return; }
+    const btn = document.getElementById('onb-login-btn'); btn.disabled = true;
+    try {
+      const res = await fetch(`${window.BACKEND_URL}/api/account/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pseudo: p, password: w }) });
+      const j = await res.json();
+      if (!j.ok) { err(j.error || t().accountError); btn.disabled = false; return; }
+      window._tutoSkipAll?.();
+      try { localStorage.setItem('libero_player_id', j.playerId); localStorage.removeItem('playerName'); localStorage.setItem('libero_has_account', '1'); sessionStorage.removeItem('libero_onboard_page'); } catch {}
+      finish();
+      obHint.textContent = t().onb.welcomeBack(j.pseudo); obHint.classList.add('recovery-ok');
+      setTimeout(() => location.reload(), 700);
+    } catch { err(t().accountError); btn.disabled = false; }
+  }
+  document.getElementById('onb-login-btn')?.addEventListener('click', doLogin);
+  document.getElementById('onb-login-pw')?.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
   // Choix du thème jour / nuit dès l'arrivée : appliqué immédiatement et
   // mémorisé (le bouton ⚙️ permet d'en changer plus tard).
@@ -14104,11 +14193,12 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
   function finishNew() {
     // Pseudo obligatoire des l'arrivee : on ne demarre pas sans.
     const pseudo = (document.getElementById('onboard-pseudo')?.value || '').replace(/[<>]/g, '').trim().slice(0, 20);
-    if (!pseudo || pseudo === 'Anonyme') { obHint.textContent = t().onboardNeedPseudo; obHint.classList.add('recovery-err'); document.getElementById('onboard-pseudo')?.focus(); return; }
+    if (!pseudo || pseudo === 'Anonyme') { go('1'); err(t().onb.needPseudo); return; }
     try { localStorage.setItem('playerName', pseudo); } catch {}
     const nameInput = document.getElementById('input-name'); if (nameInput) nameInput.value = pseudo;
     if (typeof triggerRename === 'function') triggerRename(pseudo);
     onboard.classList.add('hidden');
+    try { sessionStorage.removeItem('libero_onboard_page'); sessionStorage.removeItem('libero_onboard_pseudo'); } catch {}
     finish();
     // C'est maintenant que le joueur arrive vraiment à l'accueil :
     // le didacticiel peut démarrer.
@@ -14123,6 +14213,7 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
     // Progression restaurée : ce joueur connaît déjà le site, on ne lui
     // montrera jamais le didacticiel.
     window._tutoSkipAll?.();
+    try { sessionStorage.removeItem('libero_onboard_page'); } catch {}
     localStorage.setItem('libero_player_id', raw);
     localStorage.removeItem('playerName');
     location.reload();
@@ -14130,6 +14221,7 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
   obNew?.addEventListener('click', finishNew);
   startBtn?.addEventListener('click', showOnboard);
 
+  if (_resumePage) { showOnboard(); return; }
   // Animation machine à écrire, puis cascade d'icônes et bouton Commencer.
   welcome.classList.remove('hidden');
   const msg = d.welcomeType;

@@ -2464,3 +2464,58 @@ html:not(.light) #screen-wordle { background-color: #f3efe2; }
 :root:root .wordle-msg { font: 700 1.35rem var(--font-hand); color: #c0262f; }
 :root:root .wordle-hint-btn { background: #fffdf3; border: 1.5px solid #22252b; color: #22252b; border-radius: 4px; transform: rotate(-1deg); box-shadow: 1px 2px 0 rgba(0,0,0,.15); }
 :root:root .wordle-hint { font: 700 1.2rem var(--font-hand); color: #173a8a; background: #fff27a; border: none; padding: 4px 10px; transform: rotate(-1deg); }
+
+/* ══ PREMIERE VISITE = CARNET A INTERCALAIRES ════════════════════════════════
+   « Nouveau » (3 pages qu'on tourne) / « J'ai deja un carnet ». Hors du style ardoise
+   des fenetres : c'est un carnet papier pose sur le voile. */
+.onb-book { width: min(380px, calc(100vw - 28px)); color: #22252b; }
+.onb-tabs { display: flex; gap: 3px; margin-left: 14px; }
+.onb-tab { border: 2px solid #22252b; border-bottom: none; border-radius: 8px 8px 0 0; padding: 5px 11px; font: 700 .8rem var(--font-body); color: #22252b; background: var(--t, #fff27a); opacity: .6; cursor: pointer; }
+#onb-tab-new { --t: #fff27a; } #onb-tab-old { --t: #bfe3ff; }
+.onb-tab.on { opacity: 1; transform: translateY(2px); }
+.onb-tab.nudge { animation: onbNudge 1.2s .6s ease-in-out 2; }
+@keyframes onbNudge { 0%, 100% { transform: none; } 20% { transform: translateY(-5px) rotate(-3deg); } 40% { transform: translateY(0) rotate(2deg); } 60% { transform: translateY(-3px); } }
+.onb-page {
+  position: relative; display: grid; border: 2px solid #22252b; border-radius: 4px; padding: 16px 16px 18px 46px; min-height: 360px; box-shadow: 0 8px 0 rgba(0,0,0,.25);
+  background: #fdfdf9; background-image: linear-gradient(90deg, transparent 32px, #e2485d 32px 33.5px, transparent 33.5px), repeating-linear-gradient(0deg, transparent 0 25px, rgba(80,130,205,.4) 25px 26px);
+}
+.onb-page.turn { animation: onbTurn .35s ease both; }
+@keyframes onbTurn { from { transform: perspective(800px) rotateY(-14deg); opacity: .4; } }
+.onb-p { display: grid; gap: 10px; align-content: start; }
+.onb-p.hidden { display: none; }
+.onb-steps { display: flex; gap: 4px; align-items: center; font: 700 1rem var(--font-hand); color: #5e6470; }
+.onb-steps i { width: 24px; height: 6px; border-radius: 3px; background: #d8dbe0; }
+.onb-steps i.on { background: #173a8a; }
+.onb-steps span { margin-left: 6px; }
+.onb-h { margin: 0; font: 700 1.95rem/1.02 var(--font-hand); color: #173a8a; text-decoration: none; letter-spacing: 0; }
+.onb-q { font: 700 1.25rem/1.1 var(--font-hand); color: #c0262f; }
+.onb-n { margin: 0; font: 700 1.05rem/1.15 var(--font-hand); color: #5e6470; }
+:root:root .onb-ln { width: 100%; border: none !important; border-bottom: 1.5px dashed #22252b !important; border-radius: 0; background: transparent !important; font: 700 1.35rem var(--font-hand); padding: 2px; color: #22252b !important; box-shadow: none !important; }
+:root:root .onb-ln:focus { outline: none; border-bottom-style: solid !important; background: linear-gradient(transparent 60%, rgba(255,242,122,.6) 60%) !important; }
+.onb-ln::placeholder { color: #9aa3ad; }
+.onb-cta { border: 2px solid #22252b; border-radius: 7px; background: #ffe169; padding: 10px 12px; font: 700 .95rem var(--font-body); box-shadow: 0 3px 0 #22252b; color: #22252b; cursor: pointer; }
+.onb-cta:disabled { opacity: .55; }
+.onb-lnk { background: none; border: none; padding: 0; font: 700 .85rem var(--font-body); color: #173a8a; text-decoration: underline; text-align: left; cursor: pointer; justify-self: start; }
+/* « Deja un carnet ? Ouvre-le ici » : ecrit a la main, fleche au crayon vers l'onglet bleu */
+.onb-have { position: relative; justify-self: start; margin-top: 4px; background: none; border: none; padding: 0 0 0 4px; font: 700 1.25rem var(--font-hand); color: #173a8a; cursor: pointer; }
+.onb-have span { background: linear-gradient(transparent 60%, #bfe3ff 60%); }
+.onb-have::after {
+  content: ""; position: absolute; right: -54px; top: -46px; width: 50px; height: 52px; background: #173a8a; transform: rotate(-12deg);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 52'%3E%3Cpath d='M4 48q30-4 36-40' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M30 12l10-8 6 12' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 52'%3E%3Cpath d='M4 48q30-4 36-40' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M30 12l10-8 6 12' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+/* Cahier / ardoise : deux vignettes */
+#overlay-onboard .onboard-theme-row { display: flex; gap: 10px; }
+:root:root #overlay-onboard .onboard-theme-btn { flex: 1; display: grid; justify-items: center; gap: 6px; padding: 8px; border: 2px solid #22252b; border-radius: 7px; background: #fff; color: #22252b; font: 700 .9rem var(--font-body); box-shadow: 0 2px 0 #22252b; cursor: pointer; }
+#overlay-onboard .onboard-theme-btn::before { content: ""; width: 100%; height: 40px; border: 1.5px solid #22252b; }
+#onboard-theme-day::before { background: #fdfdf9 repeating-linear-gradient(0deg, transparent 0 7px, rgba(80,130,205,.5) 7px 8px); }
+#onboard-theme-night::before { background: #2f4a3e; }
+:root:root #overlay-onboard .onboard-theme-btn.onboard-theme-active { outline: 3px solid #ffe169; outline-offset: 1px; background: #fff8c8; }
+.onb-hint { margin: 10px 0 0; min-height: 1.2em; font: 700 1.15rem var(--font-hand); color: #5e6470; }
+.onb-hint.recovery-err { color: #c0262f; } .onb-hint.recovery-ok { color: #2f8a55; }
+@media (prefers-reduced-motion: reduce) { .onb-page.turn, .onb-tab.nudge { animation: none; } }
+/* L'invitation se place en haut a droite de la page 1, sa fleche monte vers l'onglet bleu. */
+.onb-p[data-p="1"] { position: static; }
+.onb-have { position: absolute; top: 6px; right: 12px; margin: 0; max-width: 58%; text-align: right; font-size: 1.1rem; line-height: 1.05; }
+.onb-have::after { right: auto; left: -40px; top: -30px; width: 40px; height: 40px; transform: scaleX(-1) rotate(-10deg); }
+.onb-p[data-p="1"] .onb-steps { margin-top: 30px; }
