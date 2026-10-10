@@ -150,34 +150,62 @@ function botMoveConnect4(board, difficulty = 'hard') {
 //  CHESS : minimax 3 demi-coups + élagage alpha-bêta
 //  Bot joue les Noirs (Y), humain joue les Blancs (R)
 // ══════════════════════════════════════════════════════════════════
-const P_VAL = { p: 10, n: 30, b: 32, r: 50, q: 90, k: 0 };
+const P_VAL = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
+// Tables de position (vue des Blancs, ligne 0 = 8e rangee) : le bot sait ou une
+// piece est bien placee (centre, developpement, roi a l'abri), pas seulement les prises.
+const PST = {
+  p: [[0,0,0,0,0,0,0,0],[50,50,50,50,50,50,50,50],[10,10,20,30,30,20,10,10],[5,5,10,25,25,10,5,5],[0,0,0,20,20,0,0,0],[5,-5,-10,0,0,-10,-5,5],[5,10,10,-20,-20,10,10,5],[0,0,0,0,0,0,0,0]],
+  n: [[-50,-40,-30,-30,-30,-30,-40,-50],[-40,-20,0,0,0,0,-20,-40],[-30,0,10,15,15,10,0,-30],[-30,5,15,20,20,15,5,-30],[-30,0,15,20,20,15,0,-30],[-30,5,10,15,15,10,5,-30],[-40,-20,0,5,5,0,-20,-40],[-50,-40,-30,-30,-30,-30,-40,-50]],
+  b: [[-20,-10,-10,-10,-10,-10,-10,-20],[-10,0,0,0,0,0,0,-10],[-10,0,5,10,10,5,0,-10],[-10,5,5,10,10,5,5,-10],[-10,0,10,10,10,10,0,-10],[-10,10,10,10,10,10,10,-10],[-10,5,0,0,0,0,5,-10],[-20,-10,-10,-10,-10,-10,-10,-20]],
+  r: [[0,0,0,0,0,0,0,0],[5,10,10,10,10,10,10,5],[-5,0,0,0,0,0,0,-5],[-5,0,0,0,0,0,0,-5],[-5,0,0,0,0,0,0,-5],[-5,0,0,0,0,0,0,-5],[-5,0,0,0,0,0,0,-5],[0,0,0,5,5,0,0,0]],
+  q: [[-20,-10,-10,-5,-5,-10,-10,-20],[-10,0,0,0,0,0,0,-10],[-10,0,5,5,5,5,0,-10],[-5,0,5,5,5,5,0,-5],[0,0,5,5,5,5,0,-5],[-10,5,5,5,5,5,0,-10],[-10,0,5,0,0,0,0,-10],[-20,-10,-10,-5,-5,-10,-10,-20]],
+  k: [[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-20,-30,-30,-40,-40,-30,-30,-20],[-10,-20,-20,-20,-20,-20,-20,-10],[20,20,0,0,0,0,20,20],[20,30,10,0,0,10,30,20]],
+};
+const MATE = 100000;
 
-function chessEval(chess) {
+// Score du point de vue de `side` ('w' ou 'b') : materiel + placement.
+function chessEval(chess, side) {
   let s = 0;
-  for (const row of chess.board())
-    for (const sq of row)
-      if (sq) s += (sq.color === 'b' ? 1 : -1) * (P_VAL[sq.type] || 0);
+  const board = chess.board();
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+    const sq = board[r][c];
+    if (!sq) continue;
+    const v = P_VAL[sq.type] + PST[sq.type][sq.color === 'w' ? r : 7 - r][c];
+    s += sq.color === side ? v : -v;
+  }
+  // Ouverture : developper cavaliers et fous avant de sortir la dame.
+  if (chess.moveNumber() <= 10) {
+    for (const col of ['w', 'b']) {
+      const home = col === 'w' ? 7 : 0, row = board[home];
+      let undeveloped = 0;
+      [1, 2, 5, 6].forEach(c => { const p = row[c]; if (p && p.color === col && (p.type === 'n' || p.type === 'b')) undeveloped++; });
+      const q = row[3]; const queenOut = !(q && q.color === col && q.type === 'q');
+      const pen = undeveloped * 12 + (queenOut && undeveloped >= 2 ? 55 : 0);
+      s += col === side ? -pen : pen;
+    }
+  }
   return s;
 }
 
-function chessMinimax(chess, depth, alpha, beta, isBlack) {
-  if (chess.isGameOver()) {
-    if (chess.isCheckmate()) return chess.turn() === 'b' ? -10000 : 10000;
-    return 0;
-  }
-  if (depth === 0) return chessEval(chess);
+function orderMoves(moves) {
+  // Prises (victime chere, attaquant bon marche) puis promotions et echecs en tete.
+  return moves.sort((a, b) =>
+    ((b.captured ? 10 * P_VAL[b.captured] - P_VAL[b.piece] : 0) + (b.promotion ? 800 : 0) + (b.san.includes('+') ? 50 : 0)) -
+    ((a.captured ? 10 * P_VAL[a.captured] - P_VAL[a.piece] : 0) + (a.promotion ? 800 : 0) + (a.san.includes('+') ? 50 : 0)));
+}
 
-  const moves = chess.moves({ verbose: true });
-  // Tri : captures en priorité (meilleure pruning)
-  moves.sort((a, b) => (P_VAL[b.captured] || 0) - (P_VAL[a.captured] || 0));
-
-  let best = isBlack ? -Infinity : Infinity;
-  for (const m of moves) {
+// Negamax alpha-beta : score du point de vue du joueur dont c'est le tour.
+function negamax(chess, depth, alpha, beta, ply) {
+  if (chess.isCheckmate()) return -MATE + ply;
+  if (chess.isDraw() || chess.isStalemate()) return 0;
+  if (depth === 0) return chessEval(chess, chess.turn());
+  let best = -Infinity;
+  for (const m of orderMoves(chess.moves({ verbose: true }))) {
     chess.move(m);
-    const s = chessMinimax(chess, depth - 1, alpha, beta, !isBlack);
+    const s = -negamax(chess, depth - 1, -beta, -alpha, ply + 1);
     chess.undo();
-    if (isBlack) { if (s > best) best = s; alpha = Math.max(alpha, best); }
-    else         { if (s < best) best = s; beta  = Math.min(beta,  best); }
+    if (s > best) best = s;
+    if (s > alpha) alpha = s;
     if (alpha >= beta) break;
   }
   return best;
@@ -189,25 +217,36 @@ function botMoveChess(fen, difficulty = 'hard') {
 
   const moves = chess.moves({ verbose: true });
   if (!moves.length) return null;
+  const pick = m => ({ from: m.from, to: m.to, promotion: m.promotion || 'q' });
 
   if (difficulty === 'easy') {
-    const m = moves[Math.floor(Math.random() * moves.length)];
-    return { from: m.from, to: m.to, promotion: m.promotion || 'q' };
+    // Facile : souvent au hasard, mais saisit une prise gratuite de temps en temps.
+    const caps = moves.filter(m => m.captured);
+    if (caps.length && Math.random() < 0.4) return pick(caps[Math.floor(Math.random() * caps.length)]);
+    return pick(moves[Math.floor(Math.random() * moves.length)]);
   }
 
-  moves.sort((a, b) => (P_VAL[b.captured] || 0) - (P_VAL[a.captured] || 0));
-
+  // Moyen : 2 demi-coups, choisit parmi les coups a 40 points du meilleur.
+  // Difficile : 3 demi-coups, choisit parmi les coups a 12 points du meilleur.
   const depth = difficulty === 'medium' ? 1 : 2;
-
-  let bestScore = -Infinity, bestMove = moves[0];
-  for (const m of moves) {
+  const opening = (+fen.split(' ')[5] || 1) <= 8;
+  const margin = difficulty === 'medium' ? 40 : (opening ? 25 : 15);
+  const scored = [];
+  let top = -Infinity;
+  for (const m of orderMoves(moves)) {
     chess.move(m);
-    const s = chessMinimax(chess, depth, -Infinity, Infinity, false);
+    // Fenetre a la racine : un coup nettement moins bon que le meilleur est coupe tot
+    // (on garde seulement ceux qui restent dans la marge de variete).
+    const lo = top === -Infinity ? -Infinity : top - margin - 1;
+    const sc = -negamax(chess, depth, -Infinity, -lo, 1);
     chess.undo();
-    if (s > bestScore) { bestScore = s; bestMove = m; }
+    if (sc > top) top = sc;
+    scored.push({ m, s: sc });
   }
-
-  return { from: bestMove.from, to: bestMove.to, promotion: bestMove.promotion || 'q' };
+  const best = Math.max(...scored.map(x => x.s));
+  // Variete : jamais toujours le meme coup quand plusieurs se valent.
+  const good = scored.filter(x => x.s >= best - margin && (best < MATE - 100 || x.s === best));
+  return pick(good[Math.floor(Math.random() * good.length)].m);
 }
 
 module.exports = { botMoveTTT, botMoveConnect4, botMoveChess };
