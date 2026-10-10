@@ -4777,11 +4777,16 @@ app.post('/api/bot-log', (req, res) => {
 // ── Libé IA : vraies reponses par un modele d'IA, avec garde-fous ───────────
 // Active seulement si ANTHROPIC_API_KEY est definie sur Render. Le joueur doit
 // cocher « Libe IA » dans ses reglages (decoche par defaut). Sinon : aide locale.
-const LIBE_KEY = process.env.ANTHROPIC_API_KEY || '';
-const LIBE_MODEL = process.env.LIBE_MODEL || 'claude-haiku-4-5';
-const LIBE_PER_DAY = +process.env.LIBE_PER_DAY || 20;          // questions par joueur et par jour
-const LIBE_DAILY_CAP = +process.env.LIBE_DAILY_CAP || 400;      // toutes les questions du jour
-const LIBE_MONTHLY_CAP = +process.env.LIBE_MONTHLY_CAP || 6000; // toutes les questions du mois (budget)
+// Fournisseur : Gemini (offre gratuite Google) si GEMINI_API_KEY est definie,
+// sinon Claude si ANTHROPIC_API_KEY. LIBE_PROVIDER=claude|gemini force le choix.
+const _GEM = process.env.GEMINI_API_KEY || '', _ANT = process.env.ANTHROPIC_API_KEY || '';
+const LIBE_PROVIDER = process.env.LIBE_PROVIDER === 'claude' && _ANT ? 'claude' : (_GEM ? 'gemini' : (_ANT ? 'claude' : ''));
+const LIBE_KEY = LIBE_PROVIDER === 'gemini' ? _GEM : _ANT;
+const LIBE_MODEL = process.env.LIBE_MODEL || (LIBE_PROVIDER === 'gemini' ? 'gemini-2.5-flash-lite' : 'claude-haiku-4-5');
+// Quotas : plus serres avec l'offre gratuite de Gemini (limite de requetes par jour).
+const LIBE_PER_DAY = +process.env.LIBE_PER_DAY || (LIBE_PROVIDER === 'gemini' ? 10 : 20);           // par joueur et par jour
+const LIBE_DAILY_CAP = +process.env.LIBE_DAILY_CAP || (LIBE_PROVIDER === 'gemini' ? 800 : 400);     // tout le site, par jour
+const LIBE_MONTHLY_CAP = +process.env.LIBE_MONTHLY_CAP || (LIBE_PROVIDER === 'gemini' ? 24000 : 6000); // tout le site, par mois
 const libeUse = new Map();   // "jour|joueur" -> nombre
 const libeIpUse = new Map(); // "jour|ip" -> nombre (anti-contournement)
 let libeDay = { k: '', n: 0 }, libeMonth = { k: '', n: 0, inTok: 0, outTok: 0 };
@@ -4868,23 +4873,42 @@ app.post('/api/libe', async (req, res) => {
     // Fusion des roles consecutifs identiques (exige par l'API).
     const merged = [];
     messages.forEach(m => { const l = merged[merged.length - 1]; if (l && l.role === m.role) l.content += '\n' + m.content; else merged.push({ ...m }); });
+    const sys = LIBE_SYSTEM + (lang === 'en' ? '\nThe site is currently shown in English: answer in English unless the question is in French.' : '');
     const ctrl = new AbortController(); const to = setTimeout(() => ctrl.abort(), 20_000);
-    let r;
+    let r, j, text = null, inTok = 0, outTok = 0;
     try {
-      r = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST', signal: ctrl.signal,
-        headers: { 'content-type': 'application/json', 'x-api-key': LIBE_KEY, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: LIBE_MODEL, max_tokens: 400, system: LIBE_SYSTEM + (lang === 'en' ? '\nThe site is currently shown in English: answer in English unless the question is in French.' : ''), messages: merged }),
-      });
+      if (LIBE_PROVIDER === 'gemini') {
+        r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(LIBE_MODEL)}:generateContent`, {
+          method: 'POST', signal: ctrl.signal,
+          headers: { 'content-type': 'application/json', 'x-goog-api-key': LIBE_KEY },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: sys }] },
+            contents: merged.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
+            generationConfig: { maxOutputTokens: 400, temperature: 0.6 },
+          }),
+        });
+        j = await r.json().catch(() => null);
+        const cand = j?.candidates?.[0];
+        if (r.ok && cand) text = (cand.content?.parts || []).map(p => p.text || '').join('').trim() || (cand.finishReason === 'SAFETY' ? '[[REFUS]]' + (lang === 'en' ? "I can't help with that. Ask me something else!" : 'Ça, je ne peux pas. Pose-moi une autre question !') : null);
+        else if (r.ok && j?.promptFeedback?.blockReason) text = '[[REFUS]]' + (lang === 'en' ? "I can't help with that. Ask me something else!" : 'Ça, je ne peux pas. Pose-moi une autre question !');
+        inTok = j?.usageMetadata?.promptTokenCount || 0; outTok = j?.usageMetadata?.candidatesTokenCount || 0;
+      } else {
+        r = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST', signal: ctrl.signal,
+          headers: { 'content-type': 'application/json', 'x-api-key': LIBE_KEY, 'anthropic-version': '2023-06-01' },
+          body: JSON.stringify({ model: LIBE_MODEL, max_tokens: 400, system: sys, messages: merged }),
+        });
+        j = await r.json().catch(() => null);
+        if (r.ok && Array.isArray(j?.content)) text = j.content.filter(c => c.type === 'text').map(c => c.text).join('').trim();
+        inTok = j?.usage?.input_tokens || 0; outTok = j?.usage?.output_tokens || 0;
+      }
     } finally { clearTimeout(to); }
-    const j = await r.json().catch(() => null);
-    if (!r.ok || !j || !Array.isArray(j.content)) {
-      libeUse.set(d + '|' + pid, used); // echec : la question n'est pas comptee
-      logServerError?.('libe', new Error('IA ' + r.status + ' ' + JSON.stringify(j?.error || '').slice(0, 200)));
+    if (!text) {
+      libeUse.set(d + '|' + pid, used); // echec (quota gratuit atteint, panne) : la question n'est pas comptee
+      logServerError?.('libe', new Error('IA ' + LIBE_PROVIDER + ' ' + (r && r.status) + ' ' + JSON.stringify(j?.error || '').slice(0, 200)));
       return res.json({ ok: false, error: 'busy', left: LIBE_PER_DAY - used });
     }
-    libeMonth.inTok += j.usage?.input_tokens || 0; libeMonth.outTok += j.usage?.output_tokens || 0;
-    let text = j.content.filter(c => c.type === 'text').map(c => c.text).join('').trim();
+    libeMonth.inTok += inTok; libeMonth.outTok += outTok;
     const refused = text.startsWith('[[REFUS]]');
     text = text.replace('[[REFUS]]', '').trim();
     let action = null;
@@ -4898,7 +4922,7 @@ app.post('/api/libe', async (req, res) => {
 app.get('/admin/libe-usage', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   _libeKeys();
-  res.json({ on: !!LIBE_KEY, model: LIBE_MODEL, today: libeDay.n, dailyCap: LIBE_DAILY_CAP, month: libeMonth.k, monthCount: libeMonth.n, monthlyCap: LIBE_MONTHLY_CAP, inTok: libeMonth.inTok, outTok: libeMonth.outTok });
+  res.json({ on: !!LIBE_KEY, provider: LIBE_PROVIDER, model: LIBE_MODEL, perDay: LIBE_PER_DAY, today: libeDay.n, dailyCap: LIBE_DAILY_CAP, month: libeMonth.k, monthCount: libeMonth.n, monthlyCap: LIBE_MONTHLY_CAP, inTok: libeMonth.inTok, outTok: libeMonth.outTok });
 });
 
 // ── Signalements de bugs par les joueurs ──

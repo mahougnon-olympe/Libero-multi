@@ -1500,8 +1500,8 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
       try {
         var u = await (await api('/admin/libe-usage')).json();
         $('libe-usage').textContent = !u.on
-          ? 'Libé IA : pas branché (ajoute ANTHROPIC_API_KEY sur Render).'
-          : 'Libé IA (' + u.model + ') : ' + u.today + ' / ' + u.dailyCap + ' questions aujourd\'hui · ' + u.monthCount + ' / ' + u.monthlyCap + ' ce mois-ci · ' + Math.round(u.inTok / 1000) + 'k jetons lus, ' + Math.round(u.outTok / 1000) + 'k écrits.';
+          ? 'Libé IA : pas branché (ajoute GEMINI_API_KEY ou ANTHROPIC_API_KEY sur Render).'
+          : 'Libé IA (' + u.provider + ', ' + u.model + ', ' + u.perDay + ' questions par joueur et par jour) : ' + u.today + ' / ' + u.dailyCap + ' questions aujourd\'hui · ' + u.monthCount + ' / ' + u.monthlyCap + ' ce mois-ci · ' + Math.round(u.inTok / 1000) + 'k jetons lus, ' + Math.round(u.outTok / 1000) + 'k écrits.';
       } catch (e) {}
     }
     async function loadDmReports() {
