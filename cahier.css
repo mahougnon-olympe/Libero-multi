@@ -2519,3 +2519,12 @@ html:not(.light) #screen-wordle { background-color: #f3efe2; }
 .onb-have { position: absolute; top: 6px; right: 12px; margin: 0; max-width: 58%; text-align: right; font-size: 1.1rem; line-height: 1.05; }
 .onb-have::after { right: auto; left: -40px; top: -30px; width: 40px; height: 40px; transform: scaleX(-1) rotate(-10deg); }
 .onb-p[data-p="1"] .onb-steps { margin-top: 30px; }
+/* Fiche d'un joueur : les tampons en petite rangee compacte, encre eclaircie pour l'ardoise. */
+:root:root #playercard-badges.badge-grid { display: block; }
+#playercard-badges .stamp-grid-sm { display: flex; flex-wrap: wrap; gap: 4px 2px; }
+#playercard-badges .stamp-cell { width: 44px; height: 44px; }
+#playercard-badges .stamp-ink { width: 40px; height: 40px; border-width: 2px; mix-blend-mode: normal; --c2: color-mix(in srgb, var(--c) 40%, #fff); border-color: var(--c2); color: var(--c2); }
+#playercard-badges .stamp-ink::before { inset: 3px; border-color: var(--c2); }
+#playercard-badges .stamp-ink svg { width: 52%; height: 52%; margin: 0; }
+#playercard-badges .stamp-ink small { display: none; }
+#playercard-badges .stamp-honor { margin: 0 6px 4px 0; padding: 0 6px; font-size: .62rem; border-color: #ffe169; color: #ffe169; }
