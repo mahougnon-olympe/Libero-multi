@@ -76,7 +76,9 @@
       `<rect x="31" y="31" width="38" height="50" rx="18"/>`
     ][st.face];
     const neck=`<path d="M43 74v8q7 4 14 0v-8" fill="${sk}" ${W}/>`;
-    const ears=`<path d="M28 56q-5 0-4 6 1 5 6 3M72 56q5 0 4 6-1 5-6 3" fill="${sk}" stroke="${ink}" stroke-width="2"/>`;
+    // Oreilles collees au bord de chaque forme de visage, dessinees derriere lui.
+    const ex=[28,31,29,29.5,31][st.face], rx=100-ex;
+    const ears=`<path d="M${ex+3} 55q-9-1-8 7 1 6 8 4zM${rx-3} 55q9-1 8 7-1 6-8 4z" fill="${sk}" stroke="${ink}" stroke-width="2" stroke-linejoin="round"/>`;
 
     /* Cheveux de devant */
     const cap=`<path d="M29 48c0-17 9-24 21-24s21 7 21 24c-4-7-11-10-21-10s-17 3-21 10z" fill="${hc}" ${W}/>`;
@@ -148,7 +150,7 @@
     ][st.acc];
     const bald=st.hair===11;
     return `<svg viewBox="0 0 100 100" class="pt-svg" aria-hidden="true">${defs}<g clip-path="url(#${id}c)"><rect width="100" height="100" fill="${bgFill}"/>
-      ${back}${tops}${neck}${st.acc===7?`<g transform="translate(-2 0)"><path d="M74 38.6h5.6v-2.4q0-2.6-2.8-2.6t-2.8 2.6z" fill="#f29bb0" stroke="${ink}" stroke-width="1.4"/><rect x="74" y="38.6" width="5.6" height="3" fill="#b9bec6" stroke="${ink}" stroke-width="1.3"/><path d="M74 41.6h5.6v26H74z" fill="#e0a800" stroke="${ink}" stroke-width="1.5"/><path d="M75.9 41.6v26M77.7 41.6v26" stroke="#b8860b" stroke-width=".8"/><path d="M74 67.6h5.6l-2.8 6z" fill="#f2d2a6" stroke="${ink}" stroke-width="1.4"/><path d="M76.2 72.3l.6 1.3.6-1.3z" fill="${ink}"/></g>`:''}<g fill="${sk}" ${W}>${faceP}</g>${ears}${marks}${bald?front:front}${brows}${eyes}${nose}${mouth}${beard}${acc}</g></svg>`;
+      ${back}${tops}${neck}${st.acc===7?`<g transform="translate(-2 0)"><path d="M74 38.6h5.6v-2.4q0-2.6-2.8-2.6t-2.8 2.6z" fill="#f29bb0" stroke="${ink}" stroke-width="1.4"/><rect x="74" y="38.6" width="5.6" height="3" fill="#b9bec6" stroke="${ink}" stroke-width="1.3"/><path d="M74 41.6h5.6v26H74z" fill="#e0a800" stroke="${ink}" stroke-width="1.5"/><path d="M75.9 41.6v26M77.7 41.6v26" stroke="#b8860b" stroke-width=".8"/><path d="M74 67.6h5.6l-2.8 6z" fill="#f2d2a6" stroke="${ink}" stroke-width="1.4"/><path d="M76.2 72.3l.6 1.3.6-1.3z" fill="${ink}"/></g>`:''}${ears}<g fill="${sk}" ${W}>${faceP}</g>${marks}${bald?front:front}${brows}${eyes}${nose}${mouth}${beard}${acc}</g></svg>`;
   }
 
   function normalize(p){
