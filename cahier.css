@@ -2072,3 +2072,6 @@ html:not(.light) :is(.name-rainbow, .name-galaxy, .name-silver, .name-bronze, .n
 #wheel-status.wheel-won { animation: wheelWon .5s cubic-bezier(.3,1.7,.5,1); }
 @keyframes wheelWon { from { transform: scale(.4) rotate(-10deg); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { #wheel-status.wheel-won { animation: none; } }
+/* Le contour d'encre des pseudos depasse un peu des lettres : on laisse de l'air
+   autour du nom (sans changer la hauteur de la ligne) pour que rien ne soit rogne. */
+:root:root .lb-name { padding: 4px 3px; margin: -4px -3px; }
