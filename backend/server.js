@@ -30,7 +30,7 @@ const app = express();
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', resolveAllowedOrigin(req.headers.origin));
   res.setHeader('Vary', 'Origin');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
   // En-têtes de sécurité de base
   res.setHeader('X-Content-Type-Options', 'nosniff');
