@@ -1068,7 +1068,7 @@ const DICT = {
     shopLibsBuyEmailPh:'Email', shopLibsBuyFirstPh:'Prénom', shopLibsBuyLastPh:'Nom', shopLibsBuyPhonePh:'Téléphone (optionnel)',
     shopDailyBadge:'Quotidien',
     settingsTitle:'⚙️ Paramètres',
-    settingsLang:'Langue', settingsTheme:'Thème', settingsSnake:'Serpent',
+    settingsTitle:'Réglages', spCkEn:'Site en anglais', spCkSlate:'Ardoise (thème sombre)', spCkTrail:'Trait derrière le curseur', spCkSfx:'Bruitages', spCkBgm:'Musique de fond', spCkPush:'Me prévenir (notifications)', spCkInGame:'en jeu', settingsLang:'Langue', settingsTheme:'Thème', settingsSnake:'Serpent',
     settingsSnakeOn:'Activé', settingsSnakeOff:'Désactivé', settingsSnakeInGame:'🐍 En Game',
     snakeBusyInGame:'🐍 Le serpent est en Game !',
     settingsSfx:'Sons', settingsSfxOn:'Activé', settingsSfxOff:'Désactivé', settingsSfxVol:'Volume',
@@ -1841,7 +1841,7 @@ const DICT = {
     shopLibsBuyEmailPh:'Email', shopLibsBuyFirstPh:'First name', shopLibsBuyLastPh:'Last name', shopLibsBuyPhonePh:'Phone (optional)',
     shopDailyBadge:'Daily',
     settingsTitle:'⚙️ Settings',
-    settingsLang:'Language', settingsTheme:'Theme', settingsSnake:'Snake',
+    settingsTitle:'Settings', spCkEn:'Site in English', spCkSlate:'Slate (dark theme)', spCkTrail:'Trail behind the cursor', spCkSfx:'Sound effects', spCkBgm:'Background music', spCkPush:'Notify me (notifications)', spCkInGame:'in game', settingsLang:'Language', settingsTheme:'Theme', settingsSnake:'Snake',
     settingsSnakeOn:'Enabled', settingsSnakeOff:'Disabled', settingsSnakeInGame:'🐍 In Game',
     snakeBusyInGame:'🐍 The snake is in Game!',
     settingsSfx:'Sound', settingsSfxOn:'Enabled', settingsSfxOff:'Disabled', settingsSfxVol:'Volume',
@@ -7337,49 +7337,31 @@ function _showPromoFeedback(msg, color) {
 }
 
 // ── Panneau Paramètres ────────────────────────────────────────────────────────
+// Une ligne de la liste a cocher : case (cochee a la craie rouge) + phrase manuscrite.
+function _spCk(id, on, label, note) {
+  const b = typeof id === 'string' ? document.getElementById(id) : id;
+  if (!b) return;
+  b.innerHTML = `<i class="spk" aria-hidden="true"></i><span class="spk-tx">${_escHtml(label)}${note ? ` <em>(${_escHtml(note)})</em>` : ''}</span>`;
+  b.classList.toggle('on', !!on);
+  b.setAttribute('aria-pressed', on ? 'true' : 'false');
+}
 function _updateSettingsPanel() {
   const panel = document.getElementById('settings-panel');
   if (!panel || panel.classList.contains('hidden')) return;
   const d = t();
   const fr = currentLang === 'fr';
 
-  const langBtn = document.getElementById('sp-lang-btn');
-  if (langBtn) langBtn.textContent = fr ? 'FR ⇄' : 'EN ⇄';
-
-  const themeBtn = document.getElementById('sp-theme-btn');
-  if (themeBtn) {
-    const isLight = document.documentElement.classList.contains('light');
-    themeBtn.textContent = isLight ? (fr ? 'Cahier ⇄' : 'Notebook ⇄') : (fr ? 'Ardoise ⇄' : 'Slate ⇄');
-  }
-
-  const snakeBtn = document.getElementById('sp-snake-btn');
-  if (snakeBtn) {
-    if (cursorSnake.isInGame()) {
-      // Le serpent joue dans le Snake Challenge : on l'indique au lieu de l'état on/off.
-      snakeBtn.textContent = d.settingsSnakeInGame;
-      snakeBtn.classList.remove('sp-off');
-      snakeBtn.classList.add('sp-ingame');
-    } else {
-      const snakeOff = document.getElementById('btn-snake-toggle')?.classList.contains('off');
-      snakeBtn.textContent = snakeOff ? d.settingsSnakeOff : d.settingsSnakeOn;
-      snakeBtn.classList.toggle('sp-off', !!snakeOff);
-      snakeBtn.classList.remove('sp-ingame');
-    }
-  }
-
-  const sfxBtn = document.getElementById('sp-sfx-btn');
-  if (sfxBtn) {
-    sfxBtn.textContent = sfxEnabled ? d.settingsSfxOn : d.settingsSfxOff;
-    sfxBtn.classList.toggle('sp-off', !sfxEnabled);
-  }
+  _spCk('sp-lang-btn', !fr, d.spCkEn);
+  _spCk('sp-theme-btn', !document.documentElement.classList.contains('light'), d.spCkSlate);
+  if (cursorSnake.isInGame()) _spCk('sp-snake-btn', true, d.spCkTrail, d.spCkInGame);
+  else _spCk('sp-snake-btn', !document.getElementById('btn-snake-toggle')?.classList.contains('off'), d.spCkTrail);
+  _spCk('sp-sfx-btn', !!sfxEnabled, d.spCkSfx);
+  document.getElementById('sp-vol-slider')?.closest('.sp-vol-row')?.classList.toggle('hidden', !sfxEnabled);
   const volSlider = document.getElementById('sp-vol-slider');
   if (volSlider) volSlider.value = String(Math.round(sfxVolume * 100));
 
-  const bgmBtn = document.getElementById('sp-bgm-btn');
-  if (bgmBtn) {
-    bgmBtn.textContent = musicEnabled ? d.settingsBgmOn : d.settingsBgmOff;
-    bgmBtn.classList.toggle('sp-off', !musicEnabled);
-  }
+  _spCk('sp-bgm-btn', !!musicEnabled, d.spCkBgm);
+  document.getElementById('sp-bgm-vol')?.closest('.sp-vol-row')?.classList.toggle('hidden', !musicEnabled);
   const bgmSlider = document.getElementById('sp-bgm-vol');
   if (bgmSlider) bgmSlider.value = String(Math.round(bgmVolume * 100));
 
@@ -14088,7 +14070,7 @@ socket.on('claim-challenge-result', ({ ok, reward, allDoneBonus } = {}) => {
   if (!btn) return;
   const supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
   function isOn() { return supported && Notification.permission === 'granted' && localStorage.getItem('libero_push') === '1'; }
-  function refresh() { btn.textContent = isOn() ? t().settingsPushOn : t().settingsPushOff; }
+  function refresh() { _spCk(btn, isOn(), t().spCkPush); }
   window._refreshPushBtn = refresh;
   refresh();
   function b64ToU8(b64) {

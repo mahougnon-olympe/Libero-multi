@@ -1942,3 +1942,85 @@ html:not(.light) .tuto-ring { border-color: #ff8e8e; }
 :root:root .tuto-ok { background: #173a8a; color: #fff; }
 :root:root .tuto-highlight { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { .tuto-libe svg, .tuto-ring.draw, :root:root .tuto-bubble.pop { animation: none; } .tuto-libe, .tuto-ring, :root:root .tuto-bubble { transition: none; } }
+
+/* ══ FENETRES = ARDOISE DE POCHE (tous les themes) ═══════════════════════════
+   Chaque fenetre reprend localement les couleurs du theme Ardoise : tout ce qui
+   lit var(--card), var(--text)... a l'interieur passe a la craie, sans toucher au HTML.
+   Cadre en bois, grain de craie, croix a la craie rouge, boutons d'action a la craie jaune. */
+:root:root .overlay :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal),
+:root:root .settings-panel {
+  --bg: #2f4a3e; --card: #2f4a3e; --card2: rgba(255,255,255,.07); --text: #eef1ea; --muted: #b8c6bd;
+  --accent: #ffe169; --board: #ffe169; --board2: #f5d64a; --on-board: #22252b; --red: #ff9a9a; --yellow: #ffe169; --gold: #ffe169;
+  --border: rgba(238,241,234,.25); --line: rgba(238,241,234,.55); --ink: #eef1ea; --mark: rgba(255,225,105,.45); --margin: #ff9a9a; --hard: rgba(0,0,0,.35);
+  color-scheme: dark;
+  background: #2f4a3e radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px) 0 0 / 5px 5px;
+  color: #eef1ea; border: 10px solid #a0703f; border-radius: 12px;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.35), 0 7px 0 rgba(0,0,0,.35);
+  animation: ardIn .45s cubic-bezier(.3,1.4,.5,1) both;
+}
+@keyframes ardIn { from { opacity: 0; transform: translateY(26px) rotate(-2deg) scale(.94); } }
+:root:root .overlay.hidden :is(.overlay-box, .recovery-modal) { animation: none; }
+/* Titres a la craie, souligne jaune */
+:root:root .overlay :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal) :is(h2, h3, .profile-modal-title, .help-modal-title, .comment-modal-title, .snake-vote-title, .community-title) {
+  color: #fff; font-family: var(--font-hand); font-weight: 700; font-size: 1.75rem; line-height: 1.05; letter-spacing: 0;
+  text-decoration: underline; text-decoration-color: #ffe169; text-decoration-thickness: 3px; text-underline-offset: 4px;
+}
+:root:root .overlay :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal) :is(p, li, label, span, div, small, td, th) { color: inherit; }
+:root:root .overlay :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal) :is(strong, b) { color: #ffe169; background: none; }
+/* Croix de fermeture : un X a la craie rouge */
+:root:root .overlay :is([class*="close"], .recovery-close) {
+  background: transparent !important; border: none !important; box-shadow: none !important; color: #ff9a9a !important;
+  font: 700 1.7rem/1 var(--font-hand);
+}
+/* Champs : trait de craie pointille */
+:root:root .overlay :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal) :is(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), textarea, select) {
+  background: rgba(0,0,0,.18) !important; color: #fff !important; border: 2px dashed rgba(238,241,234,.6) !important; border-radius: 6px; box-shadow: none !important;
+}
+:root:root .overlay :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal) ::placeholder { color: rgba(238,241,234,.5); }
+/* Boutons : action principale a la craie jaune, les autres au trait blanc */
+:root:root .overlay :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal) :is(.btn, button):not([class*="close"]):not(.help-tab):not(.pe-opt):not(.pe-tab):not(.wheel-btn-free) {
+  background: transparent; color: #fff; border: 2px solid rgba(238,241,234,.8); box-shadow: 0 3px 0 rgba(0,0,0,.35);
+}
+:root:root .overlay :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal) :is(.btn-primary, .btn-primary *, .community-cta) {
+  background: #ffe169; color: #22252b; border-color: #1b2a23;
+}
+:root:root .overlay :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal) .btn-primary { box-shadow: 0 3px 0 #1b2a23; }
+/* Encarts clairs de l'ancien design : sur l'ardoise, de simples cadres a la craie */
+:root:root .overlay :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal) :is(.community-step, .help-item, .friend-row, .friend-req-row, .recovery-section, .iq-box, .vip-perk, .referral-box, .giftrecv-item) {
+  background: transparent; border-color: rgba(238,241,234,.3); box-shadow: none; color: #eef1ea;
+}
+:root:root .overlay :is(.community-step-num) { background: transparent; color: #ffe169; border: 2px solid #ffe169; font-family: var(--font-hand); font-weight: 700; }
+:root:root .overlay :is(hr, .sp-divider) { border-color: rgba(238,241,234,.3); }
+:root:root .overlay a { color: #ffe169; }
+/* Le portrait garde son papier (il est dessine a l'encre) */
+:root:root .overlay .recovery-modal.portrait-modal .pe-stage, :root:root .overlay .pe-prev { background: #fffef6; }
+
+/* ══ Reglages = LISTE A COCHER (sur l'ardoise) ═══════════════════════════════ */
+:root:root .settings-panel { padding: 14px 16px 12px; min-width: min(300px, calc(100vw - 32px)); }
+.sp-title { margin: 0 0 6px; font: 700 1.75rem/1 var(--font-hand); color: #fff; text-decoration: underline; text-decoration-color: #ffe169; text-decoration-thickness: 3px; text-underline-offset: 4px; }
+:root:root .settings-panel .sp-ck {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 5px 0; margin: 0;
+  background: none; border: none; border-radius: 0; box-shadow: none; text-align: left; cursor: pointer;
+  font: 700 1.3rem/1.1 var(--font-hand); color: #eef1ea; min-height: 34px;
+}
+:root:root .settings-panel .sp-ck:hover { background: none; }
+:root:root .settings-panel .sp-ck:hover .spk-tx { text-decoration: underline dotted rgba(238,241,234,.5); }
+.spk { width: 21px; height: 21px; flex: none; border: 2px solid #eef1ea; border-radius: 3px; display: grid; place-items: center; font-style: normal; }
+.sp-ck.on .spk::after { content: "✓"; color: #ff9a9a; font: 700 1.55rem/1 var(--font-hand); transform: translate(1px, -3px) rotate(-6deg); animation: spkTick .25s ease-out; }
+@keyframes spkTick { from { transform: scale(.3) rotate(-30deg); opacity: 0; } }
+.spk-tx em { font-style: normal; color: #ffe169; font-size: 1.05rem; }
+:root:root .settings-panel .sp-vol-row { display: flex; align-items: center; gap: 10px; padding: 0 0 6px 31px; }
+:root:root .settings-panel .sp-vol-row.hidden { display: none; }
+:root:root .settings-panel .sp-vol-row .sp-label { font: 700 1.05rem var(--font-hand); color: #b8c6bd; }
+/* Le volume : une reglette d'ecolier, curseur rouge */
+:root:root .settings-panel .sp-vol-slider {
+  -webkit-appearance: none; appearance: none; flex: 1; height: 22px; border: 2px solid #22252b; border-radius: 3px;
+  background: #ffe9a8 repeating-linear-gradient(90deg, #22252b 0 1.5px, transparent 1.5px 9px) bottom / 100% 7px no-repeat;
+}
+.settings-panel .sp-vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 7px; height: 30px; background: #d23a4f; border: 1.5px solid #22252b; border-radius: 2px; cursor: pointer; }
+.settings-panel .sp-vol-slider::-moz-range-thumb { width: 7px; height: 30px; background: #d23a4f; border: 1.5px solid #22252b; border-radius: 2px; cursor: pointer; }
+:root:root .settings-panel .sp-divider { background: rgba(238,241,234,.25); }
+:root:root .settings-panel :is(.sp-label, .sp-refund-info) { color: #b8c6bd; }
+:root:root .settings-panel .sp-refund-info { color: #ffe169; font: 700 1.15rem var(--font-hand); }
+:root:root .settings-panel .sp-legal-link { color: #b8c6bd; }
+@media (prefers-reduced-motion: reduce) { :root:root .overlay :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal), .sp-ck.on .spk::after { animation: none; } }
