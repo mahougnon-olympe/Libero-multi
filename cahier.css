@@ -2777,3 +2777,11 @@ html:not(.light) .dm-m.them { color: #9ec1ff; }
 #overlay-confirm { z-index: 3000; }
 :root:root .overlay .confirm-actions .btn.confirm-danger { background: transparent !important; color: #ff9a9a !important; border: 2px dashed #ff9a9a !important; box-shadow: none !important; }
 :root:root .overlay .confirm-actions .btn.confirm-danger:hover { background: rgba(255,154,154,.12) !important; }
+
+/* Liste d'amis : bouton « Offrir » lisible (dessin de cadeau + mot), plus de pilule vide. */
+:root:root .friend-row .friend-gift {
+  display: inline-flex; align-items: center; gap: 6px; width: auto; min-height: 40px; padding: 0 12px; margin: 0;
+  font: 700 1.15rem var(--font-hand); color: #ffe169 !important; border: 1.5px solid rgba(255,225,105,.6) !important; background: transparent !important;
+}
+:root:root .friend-row .friend-gift svg { width: 18px; height: 18px; flex: none; }
+:root:root .friend-row .friend-gift:hover { background: rgba(255,225,105,.12) !important; }

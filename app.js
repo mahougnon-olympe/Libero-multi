@@ -669,7 +669,7 @@ const DICT = {
     friendsAddBtn:'Ajouter', friendsAddPlaceholder:'Code ami (8 caractères)',
     friendsEmpty:'Aucun ami pour le moment. Demande leur code à tes camarades !',
     friendsOnline:'en ligne', friendsOffline:'hors ligne',
-    friendsChallengeBtn:'⚔️ Défier', friendsRemoveBtn:'Retirer de mes amis', friendRmTitle:'Retirer un ami', friendRmAsk:n=>`Retirer ${n} de tes amis ? Vous ne pourrez plus vous écrire dans « Mes mots ». Tu pourras le réajouter plus tard avec son code.`, friendRmKeep:n=>`Garder ${n}`, friendRmOk:'Retirer',
+    friendsChallengeBtn:'⚔️ Défier', friendsRemoveBtn:'Retirer de mes amis', friendGiftBtn:'Offrir', friendGiftBtnTitle:n=>`Offrir des Libs à ${n}`, friendRmTitle:'Retirer un ami', friendRmAsk:n=>`Retirer ${n} de tes amis ? Vous ne pourrez plus vous écrire dans « Mes mots ». Tu pourras le réajouter plus tard avec son code.`, friendRmKeep:n=>`Garder ${n}`, friendRmOk:'Retirer',
     friendsErrInvalid:'Code invalide.', friendsErrNotFound:'Aucun joueur avec ce code.', friendsErrFull:'Liste pleine (30 amis max).',
     friendsErrAlready:'Vous êtes déjà amis.', friendsErrNoName:'Choisis d\'abord un pseudo.',
     friendRequestSent:name=>`✅ Demande d'ami envoyée à ${name} !`,
@@ -1449,7 +1449,7 @@ const DICT = {
     friendsAddBtn:'Add', friendsAddPlaceholder:'Friend code (8 characters)',
     friendsEmpty:'No friends yet. Ask your classmates for their code!',
     friendsOnline:'online', friendsOffline:'offline',
-    friendsChallengeBtn:'⚔️ Challenge', friendsRemoveBtn:'Remove from my friends', friendRmTitle:'Remove a friend', friendRmAsk:n=>`Remove ${n} from your friends? You will no longer be able to write to each other in « My notes ». You can add them back later with their code.`, friendRmKeep:n=>`Keep ${n}`, friendRmOk:'Remove',
+    friendsChallengeBtn:'⚔️ Challenge', friendsRemoveBtn:'Remove from my friends', friendGiftBtn:'Gift', friendGiftBtnTitle:n=>`Give Libs to ${n}`, friendRmTitle:'Remove a friend', friendRmAsk:n=>`Remove ${n} from your friends? You will no longer be able to write to each other in « My notes ». You can add them back later with their code.`, friendRmKeep:n=>`Keep ${n}`, friendRmOk:'Remove',
     friendsErrInvalid:'Invalid code.', friendsErrNotFound:'No player with this code.', friendsErrFull:'List full (30 friends max).',
     friendsErrAlready:'You are already friends.', friendsErrNoName:'Pick a nickname first.',
     friendRequestSent:name=>`✅ Friend request sent to ${name}!`,
@@ -13009,7 +13009,7 @@ window._showLevelUp = function (lv, reward) {
       <div class="friend-row">
         <span class="friend-dot ${f.online ? 'on' : ''}" title="${f.online ? t().friendsOnline : t().friendsOffline}"></span>
         <span class="friend-name">${_escHtml(f.name)} <small class="friend-level">⭐ ${f.level}</small></span>
-        <button class="btn btn-secondary friend-gift" data-ref="${f.ref}" data-name="${_escHtml(f.name)}" title="🎁">🎁</button>
+        <button class="btn btn-secondary friend-gift" data-ref="${f.ref}" data-name="${_escHtml(f.name)}" title="${t().friendGiftBtnTitle(_escHtml(f.name))}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13"/><path d="M12 7c-2-3-6-3-6-.5S10 7 12 7zm0 0c2-3 6-3 6-.5S14 7 12 7z"/></svg><span>${t().friendGiftBtn}</span></button>
         <button class="friend-remove" data-rm="${f.ref}" data-name="${_escHtml(f.name)}" title="${t().friendsRemoveBtn}" aria-label="${t().friendsRemoveBtn}">✕</button>
       </div>`).join('') : `<p class="recovery-warn">${t().friendsEmpty}</p>`;
     listEl.innerHTML = reqHtml + listHtml;
