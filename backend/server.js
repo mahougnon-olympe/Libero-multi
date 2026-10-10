@@ -929,8 +929,14 @@ function challengesPayload(entry) {
 const TOURNAMENT_POINTS = { gamesWon: 10, triviaCorrect: 2, snakeEaten: 1 };
 let _tournamentEmitTimer = null;
 function tournamentPayload() {
-  const top = Object.values(tournament.scores || {})
-    .sort((a, b) => b.pts - a.pts).slice(0, 10);
+  // Un joueur n'apparait qu'une fois, meme s'il a des points sous deux identifiants.
+  const byName = new Map();
+  for (const o of Object.values(tournament.scores || {})) {
+    const k = String(o.name || '').toLowerCase();
+    const cur = byName.get(k);
+    if (cur) cur.pts += o.pts || 0; else byName.set(k, { name: o.name, pts: o.pts || 0 });
+  }
+  const top = [...byName.values()].sort((a, b) => b.pts - a.pts).slice(0, 10);
   const now = _beninDay();
   // Prochain samedi 00:00 (Benin) ou fin du samedi en cours
   const d = new Date(now); d.setUTCHours(0, 0, 0, 0);
@@ -946,6 +952,12 @@ function bumpTournament(id, entry, metric, amount) {
   const today = _tournamentTodayKey();
   if (tournament.week !== today) { finalizeTournament(); tournament.week = today; tournament.scores = {}; }
   const sc = tournament.scores[id] || { name: entry.name, pts: 0 };
+  // Meme pseudo sous un autre identifiant (autre appareil, connexion au compte) :
+  // c'est le meme joueur (les pseudos sont uniques), on regroupe ses points ici.
+  const key = String(entry.name || '').toLowerCase();
+  if (key && key !== 'anonyme') for (const [pid, o] of Object.entries(tournament.scores)) {
+    if (pid !== id && String(o.name || '').toLowerCase() === key) { sc.pts += o.pts || 0; delete tournament.scores[pid]; }
+  }
   sc.pts += pts; sc.name = entry.name;
   tournament.scores[id] = sc;
   dbSaveTournament();
@@ -955,7 +967,12 @@ function bumpTournament(id, entry, metric, amount) {
 function finalizeTournament() {
   const entries = Object.entries(tournament.scores || {});
   if (!tournament.week || !entries.length) { tournament.week = null; tournament.scores = {}; return; }
-  const [pid, best] = entries.sort((a, b) => b[1].pts - a[1].pts)[0];
+  // Total par pseudo (un joueur peut avoir des points sous deux identifiants) ;
+  // la recompense va a l'identifiant qui porte le plus de points de ce pseudo.
+  const tot = {};
+  for (const [, o] of entries) { const k = String(o.name || '').toLowerCase(); tot[k] = (tot[k] || 0) + (o.pts || 0); }
+  const [pid, best0] = entries.sort((a, b) => (tot[String(b[1].name || '').toLowerCase()] - tot[String(a[1].name || '').toLowerCase()]) || (b[1].pts - a[1].pts))[0];
+  const best = { name: best0.name, pts: tot[String(best0.name || '').toLowerCase()] };
   const entry = getLibsEntry(pid);
   if (entry) {
     const tGain = Math.round(TOURNAMENT_REWARD * vipMult(entry));
