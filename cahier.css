@@ -1816,3 +1816,20 @@ html:root #maintenance-wall .mw-cone svg { width: 100%; height: 100%; display: b
   .bd-year { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
   .bd-year .bd-h { grid-column: 1 / -1; }
 }
+
+/* ══ CORRECTIFS DU THEME CLAIR ═════════════════════════════════════════════════
+   Ces regles « html.light » etaient ecrasees par les regles :root:root (plus
+   fortes) : fin de partie / pause de Snake et Libero Run restaient sombres, donc
+   les boutons Quitter / Retour (encre foncee) ne se voyaient plus. */
+:root:root.light .snake-over-overlay, :root:root.light .snake-pause-overlay { background: rgba(253,253,249,.92); color: #22252b; }
+:root:root.light .snake-over-overlay .btn-secondary, :root:root.light .snake-pause-overlay .btn-secondary { background: #fff; color: #22252b; border: 1.5px solid #22252b; box-shadow: 0 3px 0 rgba(23,58,138,.16); }
+:root:root.light .read-overlay { background: rgba(34,37,43,.42); }
+:root:root.light .shop-fn-detail, :root:root.light .book-reader { background-color: var(--bg); background-image: repeating-linear-gradient(0deg, transparent 0 31px, rgba(80,130,205,.3) 31px 32px); }
+:root:root.light .overlay-welcome { background-color: var(--bg); background-image: repeating-linear-gradient(0deg, transparent 0 31px, rgba(80,130,205,.42) 31px 32px), repeating-linear-gradient(0deg, transparent 0 7px, rgba(120,160,220,.2) 7px 8px); }
+/* Boutons de Libe (corbeille, croix) : l'icone en relief prenait une teinte rose pale invisible sur le cahier */
+:root:root .chatbot-reset, :root:root .chatbot-close { background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-sm); color: var(--text); box-shadow: 0 2px 0 var(--hard); }
+:root:root .chatbot-reset:hover, :root:root .chatbot-close:hover { background: var(--mark); }
+:root:root .chatbot-reset svg, :root:root .chatbot-close svg { color: var(--text) !important; }
+:root:root .chatbot-reset .ic3d-face, :root:root .chatbot-close .ic3d-face { color: var(--text) !important; stroke: var(--text) !important; }
+:root:root .chatbot-reset .ic3d-depth, :root:root .chatbot-close .ic3d-depth { display: none; }
+:root:root .chatbot-reset .ic3d-face *, :root:root .chatbot-close .ic3d-face * { stroke: var(--text) !important; }
