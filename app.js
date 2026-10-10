@@ -7459,6 +7459,7 @@ function _applyMaintenanceWall(s) {
     document.body.appendChild(wall);
   }
   wall.innerHTML = _maintWallHtml(s.page, en, msg);
+  _mwAnimateProgress(wall);
   // Matiere du mur : choisie dans l'admin (cahier / ardoise), ou celle du joueur (auto).
   const th = (s.page && s.page.theme) || 'auto';
   const cahier = th === 'cahier' || (th === 'auto' && document.documentElement.classList.contains('light'));
@@ -7485,7 +7486,9 @@ function _maintWallHtml(page, en, msg) {
   const art = draw === 'none' ? '' : draw === 'libe' ? `<div class="mw-art mw-libe">${typeof LIBE_SVG !== 'undefined' ? LIBE_SVG : ''}</div>`
     : draw === 'tools' ? `<div class="mw-art"><svg viewBox="0 0 120 90" aria-hidden="true"><g transform="rotate(-30 60 45)"><rect x="54" y="10" width="12" height="70" rx="3" fill="#ffe169" stroke="#22252b" stroke-width="3"/><rect x="40" y="6" width="40" height="16" rx="3" fill="#9aa3ad" stroke="#22252b" stroke-width="3"/></g><g transform="rotate(32 60 45)"><path d="M56 14h8v54h-8z" fill="#3d64b8" stroke="#22252b" stroke-width="3"/><path d="M50 68h20v14H50z" fill="#d23a4f" stroke="#22252b" stroke-width="3"/></g></svg></div>`
     : `<div class="mw-art mw-stk">${[0, 1, 2, 3, 4].map(k => `<span style="--k:${k}">${typeof DOODLE_SETS !== 'undefined' ? _doodleSvg(Object.values(DOODLE_SETS)[k][k], ['#d23a4f', '#173a8a', '#2f8a55', '#e0a800', '#7a4fc0'][k]) : ''}</span>`).join('')}</div>`;
-  const pct = (P.progress !== null && P.progress !== undefined) ? `<div class="mw-prog"><span class="mw-prog-l">${en ? 'Work in progress' : 'Avancement des travaux'} · ${P.progress} %</span><div class="mw-bar"><i style="width:${P.progress}%"></i></div></div>` : '';
+  // Jauge « ruban de chantier » : remplie en douceur a l'arrivee (voir _mwAnimateProgress), rayures qui defilent, plot au bout.
+  const cone = '<svg viewBox="0 0 28 32" aria-hidden="true"><path d="M14 2l10 26H4z" fill="#e8742c" stroke="#22252b" stroke-width="1.8"/><path d="M8 18h12M10 12h8" stroke="#fff" stroke-width="3"/><rect x="2" y="27" width="24" height="4" rx="1" fill="#e8742c" stroke="#22252b" stroke-width="1.6"/></svg>';
+  const pct = (P.progress !== null && P.progress !== undefined) ? `<div class="mw-prog" data-pct="${P.progress}"><span class="mw-prog-l"><span>${en ? 'Work in progress' : 'Avancement des travaux'}</span><b class="mw-pc">0 %</b></span><div class="mw-bar mw-tape"><i style="width:0%"></i><span class="mw-cone" style="left:0%">${cone}</span></div></div>` : '';
   const btn = (P.url && L.button) ? `<a class="mw-btn" href="${esc(P.url)}" target="_blank" rel="noopener">${esc(L.button)}</a>` : '';
   return `<div class="mw-sheet">${art}
     ${P.showDate === false ? '' : `<div class="mw-date">${new Date().toLocaleDateString(en ? 'en-GB' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</div>`}
@@ -7498,6 +7501,16 @@ function _maintWallHtml(page, en, msg) {
   </div>`;
 }
 window._maintWallHtml = _maintWallHtml;
+function _mwAnimateProgress(root) {
+  const box = root.querySelector('.mw-prog[data-pct]'); if (!box) return;
+  const target = +box.dataset.pct, fill = box.querySelector('.mw-tape > i'), cone = box.querySelector('.mw-cone'), pc = box.querySelector('.mw-pc');
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const t0 = performance.now(), dur = reduce ? 1 : 1800 + target * 12;
+  const step = now => { const k = Math.min(1, (now - t0) / dur), v = target * (1 - Math.pow(1 - k, 3));
+    fill.style.width = v + '%'; cone.style.left = v + '%'; pc.textContent = Math.round(v) + ' %';
+    if (k < 1 && box.isConnected) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   _loadNewsComments();
