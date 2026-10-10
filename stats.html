@@ -823,6 +823,11 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
         <p class="sub" style="margin-top:-4px;">Ce que les joueurs signalent via la carte « Signaler un bug » du profil. Marque « Traité » ce qui est corrigé (il descend en bas), ou supprime. La référence joueur est anonyme (hash).</p>
         <div id="bugreports"></div>
       </section>
+<section data-sec="dmrep">
+        <h2><span class="adm-ic" data-ic="bug">!</span> Chat signalé <span id="dmrep-pill" class="pill"></span></h2>
+        <p class="sub" style="margin-top:-4px;">Conversations entre amis signalées par un joueur, avec les 15 derniers messages au moment du signalement. Les messages normaux ne sont jamais visibles ici.</p>
+        <div id="dmrep-list"></div>
+      </section>
 <section data-sec="errors">
         <h2><span class="adm-ic" data-ic="warn">⚠️</span> Erreurs serveur récentes <span id="err-pill" class="pill"></span>
           <button id="btn-err-clear" class="red" style="float:right;font-size:.8rem">Vider</button></h2>
@@ -1490,6 +1495,24 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
         if (b.dataset.tpldel) { if (!confirm('Supprimer ce modèle ?')) { b.disabled = false; return; } await api('/admin/portrait-template/' + encodeURIComponent(b.dataset.tpldel), { method:'DELETE' }); return loadTemplates(); }
       } catch (err) { b.disabled = false; }
     });
+    async function loadDmReports() {
+      try {
+        var arr = await (await api('/admin/dm-reports')).json();
+        arr = Array.isArray(arr) ? arr : [];
+        $('dmrep-pill').textContent = arr.length;
+        if (!arr.length) { $('dmrep-list').innerHTML = '<p class="empty">Aucun signalement.</p>'; return; }
+        $('dmrep-list').innerHTML = arr.map(function (r) {
+          var msgs = (r.messages || []).map(function (m) { return '<div><b>' + esc(m.who) + '</b> <span class="muted">' + new Date(m.at).toLocaleString('fr-FR') + '</span> : ' + esc(m.text) + '</div>'; }).join('');
+          return '<div class="ann-row" style="flex-direction:column;align-items:stretch;gap:6px"><span class="txt"><b>' + esc(r.by) + '</b> signale <b>' + esc(r.target) + '</b> <span class="muted">' + new Date(r.at).toLocaleString('fr-FR') + ' · réf. ' + esc(r.targetRef) + '</span></span>'
+            + '<div style="font-size:.85rem;border-left:3px solid var(--line);padding-left:8px">' + (msgs || '<span class="muted">Aucun message.</span>') + '</div>'
+            + '<span><button class="red small" data-dmrepdel="' + esc(r._id) + '">Classer</button></span></div>';
+        }).join('');
+      } catch (e) {}
+    }
+    $('dmrep-list').addEventListener('click', async function (e) {
+      var b = e.target.closest('[data-dmrepdel]'); if (!b) return;
+      b.disabled = true; await api('/admin/dm-report/' + encodeURIComponent(b.dataset.dmrepdel), { method: 'DELETE' }); loadDmReports();
+    });
     var SUGG_CACHE = [];
     var SUGG_STATUS = { open:'Ouverte', planned:'📌 Prévue', done:'✅ Faite', rejected:'✖ Refusée' };
     async function loadSuggestions() {
@@ -1649,7 +1672,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
         showDash(); render(d);
         $('live-txt').textContent = 'à jour · ' + new Date().toLocaleTimeString('fr-FR');
         startTimer();
-        loadChallenges(); loadCosmetics(); loadVideos(); loadSuggestions(); loadTemplates();
+        loadChallenges(); loadCosmetics(); loadVideos(); loadSuggestions(); loadTemplates(); loadDmReports();
       } catch (e) {
         $('login-err').textContent = e.message || 'Erreur.';
         localStorage.removeItem('libero_admin_key');
@@ -2009,6 +2032,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
     chal:     { t: 'Défis',               z: 'green',  secs: ['chal'] },
     botlogs:  { t: 'Assistant',           z: 'green',  secs: ['botlogs'] },
     bugs:     { t: 'Bugs signalés',       z: 'green',  secs: ['bugs'] },
+    dmrep:    { t: 'Chat signalé',        z: 'green',  secs: ['dmrep'] },
     catalog:  { t: 'Catalogue',           z: 'yellow', secs: ['catalog'] },
     rotation: { t: 'Rotation',            z: 'yellow', secs: ['rotation'] },
     flash:    { t: 'Offre flash',         z: 'yellow', secs: ['flash'] },
@@ -2022,7 +2046,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
   };
   var ZONES = [
     { z: 'red',    pos: 'tl', arm: 't', name: 'Joueurs',    tiles: ['players', 'inactive', 'fraud', 'resets', 'acct'] },
-    { z: 'green',  pos: 'tr', arm: 'r', name: 'Communauté', tiles: ['comments', 'sugg', 'ann', 'push', 'videos', 'chal', 'botlogs', 'bugs'] },
+    { z: 'green',  pos: 'tr', arm: 'r', name: 'Communauté', tiles: ['comments', 'sugg', 'ann', 'push', 'videos', 'chal', 'botlogs', 'bugs', 'dmrep'] },
     { z: 'yellow', pos: 'br', arm: 'b', name: 'Boutique',   tiles: ['tpl', 'catalog', 'rotation', 'flash', 'books', 'purchases'] },
     { z: 'blue',   pos: 'bl', arm: 'l', name: 'Système',    tiles: ['maint', 'banned', 'backup', 'audit', 'errors'] }
   ];

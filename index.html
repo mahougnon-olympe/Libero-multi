@@ -903,6 +903,8 @@
       <input type="range" id="sp-bgm-vol" class="sp-vol-slider" min="0" max="100" value="28">
     </div>
     <button id="sp-push-btn" class="sp-toggle sp-ck" type="button"></button>
+    <button id="sp-dmanim-btn" class="sp-toggle sp-ck" type="button"></button>
+    <button id="sp-dmpush-btn" class="sp-toggle sp-ck" type="button"></button>
     <div class="sp-divider"></div>
     <div class="sp-row sp-row-refund">
       <span class="sp-label" data-sp-label="settingsRefundTitle">Remboursements</span>
@@ -919,6 +921,38 @@
     <span class="libs-label">Libs</span>
     <span id="libs-dist-countdown" class="libs-dist-countdown"></span>
   </button>
+
+  <!-- ── Chat entre amis : le mot plie a cote de la cloche ── -->
+  <button id="dm-btn" class="dm-btn" type="button" aria-label="Mes mots" title="Mes mots">
+    <svg class="dm-env" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18v11H3z" fill="#fff" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M3 7l9 7 9-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    <span id="dm-count" class="dm-count hidden">0</span>
+  </button>
+  <div id="overlay-dm" class="dm-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="dm-title">
+    <div class="dm-box">
+      <div class="dm-hd">
+        <button type="button" id="dm-back" class="dm-back hidden" aria-label="Retour">&#8592;</button>
+        <span id="dm-who" class="dm-who"></span>
+        <h2 id="dm-title" class="dm-title">Mes mots</h2>
+        <button type="button" id="dm-menu-btn" class="dm-menu-btn hidden" aria-label="Options">&#8942;</button>
+        <button type="button" id="dm-close" class="help-close-btn" aria-label="Fermer"></button>
+      </div>
+      <div id="dm-menu" class="dm-menu hidden">
+        <button type="button" id="dm-report">Signaler</button>
+        <button type="button" id="dm-block">Bloquer</button>
+      </div>
+      <div id="dm-list" class="dm-list"></div>
+      <div id="dm-conv-wrap" class="dm-conv-wrap hidden">
+        <div id="dm-conv" class="dm-conv" aria-live="polite"></div>
+        <div id="dm-quick" class="dm-quick"></div>
+        <form id="dm-form" class="dm-comp" autocomplete="off">
+          <button type="button" id="dm-challenge" class="dm-sword">Défier</button>
+          <input id="dm-input" class="dm-in" type="text" maxlength="300" placeholder="Écris un mot…" enterkeyhint="send" />
+          <button type="submit" id="dm-send" class="dm-send" aria-label="Envoyer"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-8-6 16-3-7z"/></svg></button>
+        </form>
+        <p id="dm-err" class="dm-err" role="status"></p>
+      </div>
+    </div>
+  </div>
 
   <!-- ── Centre de notifications (cloche) ── -->
   <button id="notif-bell" class="notif-bell" title="Notifications" aria-label="Notifications">

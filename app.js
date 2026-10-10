@@ -1075,6 +1075,7 @@ const DICT = {
     shopLibsBuyEmailPh:'Email', shopLibsBuyFirstPh:'Prénom', shopLibsBuyLastPh:'Nom', shopLibsBuyPhonePh:'Téléphone (optionnel)',
     shopDailyBadge:'Quotidien',
     settingsTitle:'⚙️ Paramètres',
+    dm:{ title:'Mes mots', btn:'Mes mots', back:'Retour', options:'Options', online:'en ligne', offline:'hors ligne', empty:'Ajoute des amis pour leur écrire.', addFriend:'+ Ajouter un ami', first:'Écris-lui le premier mot', you:'Toi', me:'TOI', ph:'Écris un mot…', send:'Envoyer', typing:n=>`${n} écrit…`, seen:'lu', today:'aujourd\'hui', yesterday:'hier', quick:['gg','On joue ?','2 min','Bien joué !'], challenge:'Défier', challengeHint:'Choisis un jeu puis « Défier un ami ».', report:'Signaler', block:'Bloquer', reportAsk:n=>`Signaler ${n} ? Les derniers messages seront envoyés à l'équipe.`, blockAsk:n=>`Bloquer ${n} ? Il sera retiré de tes amis et ne pourra plus t'écrire.`, reported:'Merci, c\'est signalé.', blocked:'Bloqué.', noWrite:'Vous devez être amis tous les deux pour vous écrire.', err:{ rate:'Doucement, attends quelques secondes.', banned:'Ce message contient un mot interdit.', notfriend:'Vous devez être amis tous les deux pour vous écrire.', anonymous:'Choisis d\'abord un pseudo.' }, spAnim:'Animations des mots', spPush:'Me prévenir des nouveaux mots' },
     settingsTitle:'Réglages', spCkEn:'Site en anglais', spCkSlate:'Ardoise (thème sombre)', spCkTrail:'Trait derrière le curseur', spCkSfx:'Bruitages', spCkBgm:'Musique de fond', spCkPush:'Me prévenir (notifications)', spCkInGame:'en jeu', settingsLang:'Langue', settingsTheme:'Thème', settingsSnake:'Serpent',
     settingsSnakeOn:'Activé', settingsSnakeOff:'Désactivé', settingsSnakeInGame:'🐍 En Game',
     snakeBusyInGame:'🐍 Le serpent est en Game !',
@@ -1854,6 +1855,7 @@ const DICT = {
     shopLibsBuyEmailPh:'Email', shopLibsBuyFirstPh:'First name', shopLibsBuyLastPh:'Last name', shopLibsBuyPhonePh:'Phone (optional)',
     shopDailyBadge:'Daily',
     settingsTitle:'⚙️ Settings',
+    dm:{ title:'My notes', btn:'My notes', back:'Back', options:'Options', online:'online', offline:'offline', empty:'Add friends to write to them.', addFriend:'+ Add a friend', first:'Write them the first note', you:'You', me:'YOU', ph:'Write a note…', send:'Send', typing:n=>`${n} is writing…`, seen:'read', today:'today', yesterday:'yesterday', quick:['gg','Wanna play?','2 min','Well played!'], challenge:'Challenge', challengeHint:'Pick a game, then « Challenge a friend ».', report:'Report', block:'Block', reportAsk:n=>`Report ${n}? The latest messages will be sent to the team.`, blockAsk:n=>`Block ${n}? They will be removed from your friends and can no longer write to you.`, reported:'Thanks, it has been reported.', blocked:'Blocked.', noWrite:'You both need to be friends to write.', err:{ rate:'Slow down, wait a few seconds.', banned:'This message contains a banned word.', notfriend:'You both need to be friends to write.', anonymous:'Pick a username first.' }, spAnim:'Note animations', spPush:'Notify me of new notes' },
     settingsTitle:'Settings', spCkEn:'Site in English', spCkSlate:'Slate (dark theme)', spCkTrail:'Trail behind the cursor', spCkSfx:'Sound effects', spCkBgm:'Background music', spCkPush:'Notify me (notifications)', spCkInGame:'in game', settingsLang:'Language', settingsTheme:'Theme', settingsSnake:'Snake',
     settingsSnakeOn:'Enabled', settingsSnakeOff:'Disabled', settingsSnakeInGame:'🐍 In Game',
     snakeBusyInGame:'🐍 The snake is in Game!',
@@ -2591,6 +2593,7 @@ function applyLang() {
   const btr  = $('btn-trivia-resume');   if (btr)  btr.textContent  = d.triviaResumeBtn;
   const btpb = $('btn-trivia-pause-back'); if (btpb) btpb.textContent = d.triviaBackToQuiz;
   const btph = $('btn-trivia-pause-home'); if (btph) btph.textContent = d.triviaQuitHome;
+  { const db = $('dm-btn'); if (db && d.dm) { db.title = d.dm.btn; db.setAttribute('aria-label', d.dm.btn); } window._dmUI?.retext(); }
   // Boutons « quitter » refondus (A2 croix craie, B2 abandonner, C2 ticket, D2 liens).
   if (d.quit) {
     const q = d.quit, put = (id, v) => { const el = $(id); if (el) el.textContent = v; };
@@ -2758,6 +2761,8 @@ function showScreen(name) {
     if (_bell) _bell.classList.toggle('hidden', !onTopLevel);
     const _bpanel = document.getElementById('notif-panel');
     if (_bpanel && !onTopLevel) _bpanel.classList.add('hidden');
+    document.getElementById('dm-btn')?.classList.toggle('hidden', !onTopLevel);
+    window._dmAfterScreen?.(onTopLevel);
     // Sur mobile la barre de nav est en bas : on marque ces écrans pour remonter
     // les boutons flottants (aide / commentaire) au-dessus d'elle.
     document.body.classList.toggle('nav-bottom-visible', onTopLevel);
@@ -7420,6 +7425,8 @@ function _updateSettingsPanel() {
   if (cursorSnake.isInGame()) _spCk('sp-snake-btn', true, d.spCkTrail, d.spCkInGame);
   else _spCk('sp-snake-btn', !document.getElementById('btn-snake-toggle')?.classList.contains('off'), d.spCkTrail);
   _spCk('sp-sfx-btn', !!sfxEnabled, d.spCkSfx);
+  _spCk('sp-dmanim-btn', window._dmPrefs?.().anim !== false, d.dm.spAnim);
+  _spCk('sp-dmpush-btn', window._dmPrefs?.().push !== false, d.dm.spPush);
   document.getElementById('sp-vol-slider')?.closest('.sp-vol-row')?.classList.toggle('hidden', !sfxEnabled);
   const volSlider = document.getElementById('sp-vol-slider');
   if (volSlider) volSlider.value = String(Math.round(sfxVolume * 100));
@@ -13217,6 +13224,83 @@ function _giftItemName(g) {
   }
   return '';
 }
+
+// ── Chat entre amis : partie toujours chargee (bouton, pastille, avion) ─────
+// La fenetre elle-meme (chat.js) n'est chargee qu'a la premiere ouverture.
+(function initDmCore() {
+  const btn = document.getElementById('dm-btn'), cnt = document.getElementById('dm-count');
+  if (!btn) return;
+  const K_ANIM = 'libero_dm_anim', K_PUSH = 'libero_dm_push';
+  const get = k => { try { return localStorage.getItem(k) !== '0'; } catch { return true; } };
+  window._dmPrefs = () => ({ anim: get(K_ANIM), push: get(K_PUSH) });
+  let held = 0, loading = null;
+  function setTotal(n) {
+    n = Math.max(0, n | 0);
+    cnt.textContent = n > 9 ? '9+' : String(n);
+    cnt.classList.toggle('hidden', !n);
+  }
+  window._dmSetTotal = setTotal;
+  // Un mot arrive : avion en origami qui fait une boucle et plonge dans l'enveloppe.
+  function arrive() {
+    const reduce = !window._dmPrefs().anim || matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const r = btn.getBoundingClientRect();
+    if (reduce || !r.width || !CSS.supports('offset-path', 'path("M0 0")')) { cnt.classList.remove('dm-pop'); void cnt.offsetWidth; cnt.classList.add('dm-pop'); return; }
+    const x0 = 28, y0 = Math.round(innerHeight * .62), x1 = Math.round(r.left + r.width / 2), y1 = Math.round(r.top + r.height / 2);
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    p.setAttribute('viewBox', '0 0 24 24'); p.setAttribute('class', 'dm-plane'); p.setAttribute('aria-hidden', 'true');
+    p.innerHTML = '<path d="M3 11l18-8-7 18-3-7z" fill="#fff" stroke="#1d2433" stroke-width="1.6" stroke-linejoin="round"/><path d="M11 14l10-11" stroke="#1d2433" stroke-width="1.6"/>';
+    const mx = Math.round((x0 + x1) / 2), my = Math.round(Math.min(y0, y1) + (y0 - y1) * .25);
+    p.style.offsetPath = `path("M${x0} ${y0} C ${x0 + 70} ${y0 - 60} ${mx - 60} ${my + 90} ${mx} ${my} S ${x1 - 10} ${y1 + 80} ${x1} ${y1}")`;
+    document.body.appendChild(p);
+    p.addEventListener('animationend', () => p.remove());
+    setTimeout(() => { btn.classList.remove('dm-ring'); void btn.offsetWidth; btn.classList.add('dm-ring'); cnt.classList.remove('dm-pop'); void cnt.offsetWidth; cnt.classList.add('dm-pop'); }, 1150);
+  }
+  // Hors des ecrans principaux (parties, salons...) : aucun bandeau, aucun son.
+  // Le mot attend ; un point rouge discret sur le bouton pause, l'avion au retour.
+  window._dmAfterScreen = onTop => {
+    if (onTop && held) { held = 0; document.body.classList.remove('dm-pending'); setTimeout(arrive, 450); }
+  };
+  socket.on('connect', () => {
+    socket.emit('dm-unread', { playerId: getPlayerId() });
+    socket.emit('dm-pref', { playerId: getPlayerId(), push: window._dmPrefs().push, lang: currentLang });
+  });
+  socket.on('dm-unread', ({ total } = {}) => setTotal(total));
+  socket.on('dm-new', p => {
+    if (!p) return;
+    setTotal(p.total);
+    const ui = window._dmUI;
+    if (ui) ui.onNew(p);
+    if (ui && ui.isOpenWith(p.ref)) return; // deja lu dans la conversation ouverte
+    if (btn.classList.contains('hidden')) { held++; document.body.classList.add('dm-pending'); return; }
+    if (ui && ui.isOpen()) return;
+    arrive();
+  });
+  ['dm-list', 'dm-history', 'dm-sent', 'dm-read', 'dm-typing', 'dm-error', 'dm-reported', 'dm-blocked'].forEach(ev =>
+    socket.on(ev, p => window._dmUI?.on(ev, p)));
+  function open(ref) {
+    if (window._dmUI) { window._dmUI.open(ref); return; }
+    if (!loading) loading = new Promise((ok, ko) => {
+      const sc = document.createElement('script'); sc.src = 'chat.js?v=1'; sc.onload = ok; sc.onerror = ko;
+      document.head.appendChild(sc);
+    });
+    loading.then(() => window._dmUI?.open(ref)).catch(() => { loading = null; });
+  }
+  window._dmOpen = open;
+  btn.addEventListener('click', () => open());
+  document.getElementById('sp-dmanim-btn')?.addEventListener('click', () => {
+    try { localStorage.setItem(K_ANIM, window._dmPrefs().anim ? '0' : '1'); } catch {}
+    _updateSettingsPanel();
+  });
+  document.getElementById('sp-dmpush-btn')?.addEventListener('click', () => {
+    try { localStorage.setItem(K_PUSH, window._dmPrefs().push ? '0' : '1'); } catch {}
+    socket.emit('dm-pref', { playerId: getPlayerId(), push: window._dmPrefs().push, lang: currentLang });
+    _updateSettingsPanel();
+  });
+  // Lien de notification (?mots=ref) ou F5 avec le chat ouvert : on rouvre.
+  let want = null;
+  try { want = new URLSearchParams(location.search).get('mots') || sessionStorage.getItem('libero_dm_open'); } catch {}
+  if (want) setTimeout(() => open(want === 'list' ? undefined : want), 600);
+})();
 
 // ── Cadeau du jour (theme ete) : petite modale a la 1re connexion du jour ─────
 socket.on('daily-gift', g => {

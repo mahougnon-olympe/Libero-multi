@@ -404,6 +404,14 @@ async function loadData() {
       id: d.id || String(d.at), at: d.at || 0, where: d.where || 'app', message: d.message || '', stack: d.stack || '',
     })))
     .catch(() => {});
+  // Chat entre amis : messages des 30 derniers jours (index TTL pour l'effacement).
+  db.collection('dm_messages').createIndex({ exp: 1 }, { expireAfterSeconds: 0 }).catch(() => {});
+  db.collection('dm_messages').find({ at: { $gt: Date.now() - DM_TTL_MS } }).sort({ at: 1 }).toArray()
+    .then(docs => docs.forEach(d => _dmStore(d, false)))
+    .catch(() => {});
+  db.collection('dm_reports').find().sort({ at: -1 }).limit(100).toArray()
+    .then(docs => docs.forEach(d => dmReports.push(d)))
+    .catch(() => {});
   // Anti-repetition des quiz : restaure les questions deja vues par joueur.
   db.collection('trivia_seen').find().toArray()
     .then(docs => docs.forEach(d => {
@@ -1463,6 +1471,42 @@ function _segmentPlayerIds(segment) {
 const VIP_PRICE = 2000;
 const VIP_DURATION_MS = 30 * 24 * 3600 * 1000;
 function vipMult(entry) { return (entry && entry.vipUntil > Date.now()) ? 1.2 : 1; }
+
+// ── Chat entre amis (« mots ») ─────────────────────────────────────────────
+// Messages gardes 30 jours, seulement entre amis mutuels. En memoire par
+// conversation (cle = les deux playerId tries), copie en base avec TTL.
+const DM_TTL_MS = 30 * 86_400_000, DM_MAX_LEN = 300, DM_KEEP_PER_CONV = 200, DM_PAGE = 30;
+const dmConvs = new Map();   // convKey -> [{ id, from, to, text, at, read }]
+const dmReports = [];        // signalements (tableau de bord)
+const _dmPushAt = new Map(); // "from|to" -> derniere push (regroupement)
+function _dmKey(a, b) { return a < b ? a + '|' + b : b + '|' + a; }
+function _dmStore(m, persist = true) {
+  const k = _dmKey(m.from, m.to);
+  const arr = dmConvs.get(k) || [];
+  arr.push({ id: m.id || m._id, from: m.from, to: m.to, text: m.text, at: m.at, read: !!m.read });
+  if (arr.length > DM_KEEP_PER_CONV) arr.splice(0, arr.length - DM_KEEP_PER_CONV);
+  dmConvs.set(k, arr);
+  if (persist && db) db.collection('dm_messages').insertOne({ _id: m.id, from: m.from, to: m.to, text: m.text, at: m.at, read: false, exp: new Date(m.at + DM_TTL_MS) }).catch(() => {});
+}
+function _dmConv(a, b) {
+  const arr = dmConvs.get(_dmKey(a, b)) || [];
+  const cut = Date.now() - DM_TTL_MS;
+  return arr.filter(m => m.at > cut);
+}
+function _dmUnread(id) {
+  let n = 0;
+  for (const arr of dmConvs.values()) for (const m of arr) if (m.to === id && !m.read) n++;
+  return n;
+}
+// Amis mutuels et pas bloques : seule condition pour s'ecrire.
+function _dmAllowed(id, pid) {
+  const a = libs.get(id), b = libs.get(pid);
+  if (!a || !b) return false;
+  if (!(a.friends || []).includes(pid) || !(b.friends || []).includes(id)) return false;
+  if ((a.dmBlocked || []).includes(pid) || (b.dmBlocked || []).includes(id)) return false;
+  return true;
+}
+function _dmPublic(m, viewer) { return { id: m.id, text: m.text, at: m.at, mine: m.from === viewer, read: !!m.read }; }
 
 // Liste d'amis : projection publique (jamais les playerId secrets, uniquement
 // le code public 8 hex, le pseudo, le niveau et la presence).
@@ -3666,6 +3710,7 @@ io.on('connection', (socket) => {
     const target = libs.get(pid);
     if (!target || !target.name || target.name === 'Anonyme') { socket.emit('friends-error', { reason: 'notfound' }); return; }
     if (entry.friends.includes(pid)) { socket.emit('friends-error', { reason: 'already' }); return; }
+    if ((target.dmBlocked || []).includes(id)) { socket.emit('friends-error', { reason: 'notfound' }); return; }
     if (entry.friends.length >= 30) { socket.emit('friends-error', { reason: 'full' }); return; }
     // Si l'autre m'avait deja demande : acceptation automatique (mutuel).
     if ((entry.friendRequests || []).includes(pid)) {
@@ -3709,6 +3754,114 @@ io.on('connection', (socket) => {
     dbUpsertLibs(id, entry);
     socket.emit('friends-list', friendsPayload(entry));
   });
+  // ── Chat entre amis ──
+  const _dmFriend = (id, ref) => (getLibsEntry(id).friends || []).find(p => _playerRef(p).slice(0, 8) === String(ref || ''));
+  socket.on('dm-unread', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId); if (!id) return;
+    socket.emit('dm-unread', { total: _dmUnread(id) });
+  });
+  socket.on('dm-list', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId); if (!id) return;
+    const entry = getLibsEntry(id);
+    const online = new Set(socketPlayerIds.values());
+    const list = (entry.friends || []).map(pid => {
+      const f = libs.get(pid);
+      if (!f || !f.name || f.name === 'Anonyme') return null;
+      const conv = _dmConv(id, pid);
+      const last = conv[conv.length - 1];
+      return { ref: _playerRef(pid).slice(0, 8), name: f.name, online: online.has(pid), portrait: f.portrait || null,
+        canWrite: _dmAllowed(id, pid), unread: conv.filter(m => m.to === id && !m.read).length,
+        last: last ? { text: last.text, at: last.at, mine: last.from === id } : null };
+    }).filter(Boolean).sort((a, b) => (b.last?.at || 0) - (a.last?.at || 0) || a.name.localeCompare(b.name));
+    socket.emit('dm-list', { list, total: _dmUnread(id) });
+  });
+  socket.on('dm-history', ({ playerId, ref } = {}) => {
+    const id = safePlayerId(playerId); if (!id) return;
+    const pid = _dmFriend(id, ref); if (!pid) return;
+    const conv = _dmConv(id, pid);
+    let changed = false;
+    conv.forEach(m => { if (m.to === id && !m.read) { m.read = true; changed = true; } });
+    if (changed) {
+      if (db) db.collection('dm_messages').updateMany({ from: pid, to: id, read: false }, { $set: { read: true } }).catch(() => {});
+      _emitToPlayer(pid, 'dm-read', { ref: _playerRef(id).slice(0, 8) });
+    }
+    socket.emit('dm-history', { ref, messages: conv.slice(-DM_PAGE).map(m => _dmPublic(m, id)), canWrite: _dmAllowed(id, pid) });
+    socket.emit('dm-unread', { total: _dmUnread(id) });
+  });
+  socket.on('dm-mark-read', ({ playerId, ref } = {}) => {
+    const id = safePlayerId(playerId); if (!id) return;
+    const pid = _dmFriend(id, ref); if (!pid) return;
+    let changed = false;
+    _dmConv(id, pid).forEach(m => { if (m.to === id && !m.read) { m.read = true; changed = true; } });
+    if (!changed) return;
+    if (db) db.collection('dm_messages').updateMany({ from: pid, to: id, read: false }, { $set: { read: true } }).catch(() => {});
+    _emitToPlayer(pid, 'dm-read', { ref: _playerRef(id).slice(0, 8) });
+    socket.emit('dm-unread', { total: _dmUnread(id) });
+  });
+  socket.on('dm-send', ({ playerId, ref, text, tmp } = {}) => {
+    const id = safePlayerId(playerId); if (!id) return;
+    if (!allowAction('dm', 5, 10_000)) { socket.emit('dm-error', { tmp, error: 'rate' }); return; }
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') { socket.emit('dm-error', { tmp, error: 'anonymous' }); return; }
+    const pid = _dmFriend(id, ref);
+    if (!pid || !_dmAllowed(id, pid)) { socket.emit('dm-error', { tmp, error: 'notfriend' }); return; }
+    const clean = sanitizeText(String(text || ''), DM_MAX_LEN);
+    if (!clean) return;
+    if (containsBanned(clean)) { socket.emit('dm-error', { tmp, error: 'banned' }); return; }
+    const m = { id: crypto.randomUUID(), from: id, to: pid, text: clean, at: Date.now(), read: false };
+    _dmStore(m);
+    const myRef = _playerRef(id).slice(0, 8);
+    _emitToPlayer(id, 'dm-sent', { ref, tmp, msg: _dmPublic(m, id) });
+    _emitToPlayer(pid, 'dm-new', { ref: myRef, name: entry.name, msg: _dmPublic(m, pid), total: _dmUnread(pid) });
+    // Push seulement si l'ami n'a pas le site ouvert, regroupee (1 toutes les 3 min par ami).
+    const target = libs.get(pid);
+    const isOnline = [...socketPlayerIds.values()].includes(pid);
+    const pk = id + '|' + pid;
+    if (!isOnline && target && target.dmPush !== false && Date.now() - (_dmPushAt.get(pk) || 0) > 180_000) {
+      _dmPushAt.set(pk, Date.now());
+      const n = _dmConv(id, pid).filter(x => x.to === pid && !x.read).length;
+      const fr = (target.lang || 'fr') !== 'en';
+      sendPush(pid, { title: n > 1 ? (fr ? `${n} mots de ${entry.name}` : `${n} notes from ${entry.name}`) : (fr ? `Un mot de ${entry.name}` : `A note from ${entry.name}`),
+        body: clean.slice(0, 90), url: 'https://libero-multi.vercel.app/?mots=' + myRef });
+    }
+  });
+  socket.on('dm-typing', ({ playerId, ref } = {}) => {
+    const id = safePlayerId(playerId); if (!id) return;
+    if (!allowAction('dmtyping', 10, 10_000)) return;
+    const pid = _dmFriend(id, ref);
+    if (pid && _dmAllowed(id, pid)) _emitToPlayer(pid, 'dm-typing', { ref: _playerRef(id).slice(0, 8) });
+  });
+  socket.on('dm-pref', ({ playerId, push, lang } = {}) => {
+    const id = safePlayerId(playerId); if (!id) return;
+    const entry = getLibsEntry(id);
+    entry.dmPush = push !== false;
+    entry.lang = lang === 'en' ? 'en' : 'fr';
+    libs.set(id, entry); dbUpsertLibs(id, entry);
+  });
+  socket.on('dm-report', ({ playerId, ref } = {}) => {
+    const id = safePlayerId(playerId); if (!id) return;
+    if (!allowAction('dmreport', 3, 60_000)) return;
+    const pid = _dmFriend(id, ref); if (!pid) return;
+    const entry = getLibsEntry(id), other = libs.get(pid) || {};
+    const rep = { _id: crypto.randomUUID(), at: Date.now(), by: entry.name, byRef: _playerRef(id).slice(0, 8), target: other.name || '?', targetRef: _playerRef(pid).slice(0, 8),
+      messages: _dmConv(id, pid).slice(-15).map(m => ({ who: m.from === id ? entry.name : (other.name || '?'), text: m.text, at: m.at })) };
+    dmReports.unshift(rep); dmReports.splice(100);
+    if (db) db.collection('dm_reports').insertOne(rep).catch(() => {});
+    adminAlert('Chat signalé', `${entry.name} signale ${other.name || '?'}.`);
+    socket.emit('dm-reported', { ref });
+  });
+  socket.on('dm-block', ({ playerId, ref } = {}) => {
+    const id = safePlayerId(playerId); if (!id) return;
+    const pid = _dmFriend(id, ref); if (!pid) return;
+    const entry = getLibsEntry(id);
+    if (!Array.isArray(entry.dmBlocked)) entry.dmBlocked = [];
+    if (!entry.dmBlocked.includes(pid)) entry.dmBlocked.push(pid);
+    entry.friends = entry.friends.filter(p => p !== pid);
+    libs.set(id, entry); dbUpsertLibs(id, entry);
+    socket.emit('friends-list', friendsPayload(entry));
+    socket.emit('dm-blocked', { ref });
+  });
+
   // Cadeau de Libs a un ami (500 max par jour tous cadeaux confondus).
   socket.on('gift-friend', ({ playerId, ref, amount } = {}) => {
     if (!allowAction('giftfriend', 10, 60_000)) { socket.emit('gift-friend-result', { ok: false, error: 'rate' }); return; }
@@ -6296,6 +6449,19 @@ app.post('/api/account/change-password', (req, res) => {
   accounts.set(key, acc);
   dbUpsertAccount(key, acc);
   console.log(`[🔑] Mot de passe change : ${acc.pseudo}`);
+  res.json({ ok: true });
+});
+
+// Signalements du chat entre amis (avec les derniers messages de la conversation).
+app.get('/admin/dm-reports', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  res.json(dmReports.slice(0, 100));
+});
+app.delete('/admin/dm-report/:id', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const i = dmReports.findIndex(r => r._id === req.params.id);
+  if (i >= 0) dmReports.splice(i, 1);
+  if (db) db.collection('dm_reports').deleteOne({ _id: req.params.id }).catch(() => {});
   res.json({ ok: true });
 });
 

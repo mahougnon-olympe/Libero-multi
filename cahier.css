@@ -2646,3 +2646,117 @@ html:not(.light) #screen-wordle { background-color: #f3efe2; }
   border-left: 4px solid currentColor; border-right: 4px solid currentColor; box-sizing: border-box; border-radius: 1px;
 }
 :root:root .snake-pause-btn.hidden { display: none !important; }
+
+/* ══ CHAT ENTRE AMIS (« Mes mots ») ═════════════════════════════════════════
+   Bouton enveloppe a cote de la cloche (memes ecrans). Arrivee : avion origami
+   (offset-path pose en JS). Fenetre : plein ecran sur telephone, tiroir a droite
+   sur ordinateur. Conversation style encre : on s'ecrit dans la marge du cahier. */
+.dm-btn {
+  position: absolute; top: 14px; right: 60px; z-index: 950; width: 40px; height: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
+  background: var(--card); color: var(--text); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--hard);
+}
+.dm-btn.hidden, body.screen-shop-active .dm-btn { display: none !important; }
+.dm-btn svg { width: 22px; height: 22px; }
+.dm-count {
+  position: absolute; top: -5px; right: -5px; min-width: 19px; height: 19px; padding: 0 4px; border-radius: 999px;
+  background: var(--margin, #e0435a); color: #fff; font: 800 .68rem/19px var(--font-body); text-align: center; border: 2px solid var(--card);
+}
+.dm-count.hidden { display: none; }
+.dm-count.dm-pop { animation: dmPop .4s cubic-bezier(.3,1.7,.5,1); }
+.dm-btn.dm-ring { animation: dmRing .5s ease; }
+@keyframes dmPop { from { transform: scale(0); } to { transform: scale(1); } }
+@keyframes dmRing { 30% { transform: scale(1.18) rotate(-8deg); } 60% { transform: scale(.95) rotate(5deg); } }
+.dm-plane {
+  position: fixed; left: 0; top: 0; width: 28px; height: 28px; z-index: 2000; pointer-events: none;
+  offset-rotate: auto; animation: dmFly 1.25s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes dmFly { 0% { offset-distance: 0%; opacity: 0; } 10% { opacity: 1; } 88% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; transform: scale(.4); } }
+/* En partie : seulement un point rouge discret sur le bouton pause. */
+body.dm-pending .snake-pause-btn::after {
+  content: ""; position: absolute; top: -4px; right: -4px; width: 10px; height: 10px; border-radius: 50%;
+  background: var(--margin, #e0435a); border: 2px solid var(--card);
+}
+
+.dm-sheet { position: fixed; inset: 0; z-index: 1500; background: rgba(20,24,30,.35); }
+.dm-sheet.hidden { display: none; }
+.dm-box {
+  position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden;
+  background: var(--bg, #fbfaf6); color: var(--text); animation: dmSheetIn .22s cubic-bezier(.2,.9,.3,1);
+}
+@keyframes dmSheetIn { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (min-width: 900px) {
+  .dm-box { left: auto; width: 400px; border-left: 2px solid var(--text); box-shadow: -8px 0 0 rgba(0,0,0,.06); animation-name: dmDrawerIn; }
+  @keyframes dmDrawerIn { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+}
+.dm-hd { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 12px; min-height: 60px; border-bottom: 2px solid var(--text); background: var(--card); position: relative; }
+.dm-title { flex: 1; margin: 0; font: 700 1.6rem/1.05 var(--font-hand); color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dm-title small { display: block; font: 400 .72rem var(--font-body); color: var(--muted); }
+.dm-title small.on { color: #2f9e5a; }
+.dm-back, .dm-menu-btn { width: 44px; height: 44px; border: none; background: none; cursor: pointer; color: var(--accent); font: 700 1.6rem var(--font-hand); }
+.dm-menu-btn { font: 900 1.4rem var(--font-body); color: var(--text); }
+.dm-back.hidden, .dm-menu-btn.hidden { display: none; }
+:root:root .dm-hd .help-close-btn { color: var(--text) !important; }
+.dm-menu { position: absolute; right: 52px; top: 56px; z-index: 3; background: var(--card); border: 1.5px solid var(--text); border-radius: 10px; box-shadow: 3px 4px 0 rgba(0,0,0,.12); overflow: hidden; }
+.dm-menu.hidden { display: none; }
+.dm-menu button { display: block; width: 100%; min-height: 44px; padding: 0 18px; border: none; background: none; text-align: left; font: 700 .9rem var(--font-body); color: var(--text); cursor: pointer; }
+.dm-menu button + button { border-top: 1px dashed var(--line); color: var(--margin, #e0435a); }
+.dm-av { position: relative; flex: none; border-radius: 8px; border: 1.5px solid var(--text); background: #f0c9a0; display: grid; place-items: center; font: 800 .9rem var(--font-body); color: #22252b; }
+.dm-av svg { width: 100%; height: 100%; border-radius: 6px; display: block; }
+.dm-dot { position: absolute; right: -4px; bottom: -4px; width: 12px; height: 12px; border-radius: 50%; background: #b8bec9; border: 2px solid var(--card); }
+.dm-dot.on { background: #2f9e5a; }
+.dm-who:empty { display: none; }
+
+.dm-list { flex: 1; overflow-y: auto; }
+.dm-list.hidden, .dm-conv-wrap.hidden { display: none !important; }
+.dm-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 10px 14px; border: none; border-bottom: 1px dashed var(--line); background: none; text-align: left; cursor: pointer; color: var(--text); }
+.dm-row:hover { background: var(--card2); }
+.dm-row-n { flex: 1; min-width: 0; }
+.dm-row-n b { display: block; font-size: .95rem; }
+.dm-row-n small { display: block; color: var(--muted); font-size: .8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dm-row-n small.unread { color: var(--text); font-weight: 700; }
+.dm-row-n small.first { font-style: italic; }
+.dm-row-r { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-size: .72rem; color: var(--muted); }
+.dm-cnt { font-style: normal; background: var(--margin, #e0435a); color: #fff; font: 800 .7rem/20px var(--font-body); min-width: 20px; height: 20px; border-radius: 10px; text-align: center; padding: 0 5px; }
+.dm-empty { text-align: center; color: var(--muted); padding: 22px 16px; margin: 0; }
+.dm-add { display: block; margin: 12px auto 20px; min-height: 44px; padding: 0 16px; border: none; background: none; cursor: pointer; font: 700 1.3rem var(--font-hand); color: var(--accent); }
+
+.dm-conv-wrap { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.dm-conv {
+  flex: 1; overflow-y: auto; padding: 14px 14px 10px 46px; display: flex; flex-direction: column; gap: 12px;
+  background-color: var(--bg, #fbfaf6);
+  background-image: linear-gradient(90deg, transparent 30px, rgba(224,67,90,.5) 30px 31.5px, transparent 31.5px),
+                    repeating-linear-gradient(transparent 0 27px, rgba(80,130,205,.25) 27px 28px);
+  background-attachment: local;
+}
+.dm-day { align-self: center; font: 700 1.05rem var(--font-hand); color: var(--muted); }
+.dm-m { max-width: 86%; position: relative; font-family: Kalam, var(--font-hand), cursive; font-size: 1.02rem; line-height: 1.35; overflow-wrap: anywhere; }
+.dm-m.them { align-self: flex-start; color: #1b3a8c; }
+.dm-m.me { align-self: flex-end; text-align: right; color: var(--text); }
+.dm-name { display: block; font: 700 .64rem var(--font-body); letter-spacing: .05em; color: var(--muted); }
+.dm-name time { font-weight: 400; letter-spacing: 0; }
+.dm-m.me .dm-txt { background: linear-gradient(transparent 58%, var(--mark, rgba(251,239,122,.9)) 58%); padding: 0 2px; }
+html:not(.light) .dm-m.them { color: #9ec1ff; }
+/* L'ami : le texte s'ecrit a la plume (revele de gauche a droite), le stylo suit. */
+.dm-m.dm-in-them .dm-txt { display: inline-block; clip-path: inset(0 100% 0 0); animation: dmInk var(--dur, 1s) steps(var(--steps, 20)) forwards; }
+@keyframes dmInk { to { clip-path: inset(0 0 0 0); } }
+.dm-pen { position: absolute; width: 18px; height: 18px; bottom: 2px; left: 0; pointer-events: none; animation: dmPen var(--dur, 1s) steps(var(--steps, 20)) forwards; }
+@keyframes dmPen { 0% { left: 0; opacity: 1; } 99% { left: calc(100% - 6px); opacity: 1; } 100% { left: calc(100% - 6px); opacity: 0; } }
+/* Moi : le mot se pose, puis un coup de surligneur. */
+.dm-m.dm-in-me { animation: dmUp .3s ease both; }
+.dm-m.dm-in-me .dm-txt { background-size: 0% 100%; background-repeat: no-repeat; background-position: right; animation: dmHl .35s ease .25s forwards; }
+@keyframes dmUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes dmHl { to { background-size: 100% 100%; } }
+.dm-typing { align-self: flex-start; font: italic .95rem Kalam, var(--font-hand), cursive; color: var(--muted); }
+.dm-typing.hidden { display: none; }
+.dm-quick { display: flex; gap: 6px; padding: 8px 10px 0; overflow-x: auto; background: var(--card); scrollbar-width: none; }
+.dm-chip { flex: none; min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--text); background: transparent; color: var(--text); font: 700 .82rem var(--font-body); cursor: pointer; }
+.dm-comp { display: flex; gap: 6px; align-items: center; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); background: var(--card); margin: 0; }
+.dm-in { flex: 1; min-width: 0; min-height: 44px; border: 1.5px solid var(--text); border-radius: 10px; padding: 0 12px; font: 1rem var(--font-body); background: var(--bg, #fff); color: var(--text); }
+.dm-send { width: 46px; height: 46px; flex: none; border: none; border-radius: 10px; background: #1b3a8c; display: grid; place-items: center; cursor: pointer; box-shadow: 0 3px 0 #0d1f55; }
+.dm-send svg { width: 20px; }
+.dm-sword { flex: none; min-height: 44px; padding: 0 10px; border: 1.5px solid var(--text); border-radius: 10px; background: transparent; color: var(--text); font: 800 .75rem var(--font-body); cursor: pointer; }
+.dm-err { margin: 0; padding: 0 12px 6px; min-height: 0; font-size: .8rem; color: var(--margin, #e0435a); background: var(--card); }
+.dm-err:empty { display: none; }
+@media (prefers-reduced-motion: reduce) { .dm-box, .dm-m, .dm-txt, .dm-pen, .dm-plane, .dm-count, .dm-btn { animation: none !important; clip-path: none !important; } .dm-pen { display: none; } }
+.dm-conv > :first-child { margin-top: auto; }
