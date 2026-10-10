@@ -1967,9 +1967,9 @@ html:not(.light) .tuto-ring { border-color: #ff8e8e; }
 }
 :root:root .overlay :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal) :is(p, li, label, span, div, small, td, th) { color: inherit; }
 :root:root .overlay :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal) :is(strong, b) { color: #ffe169; background: none; }
-/* Croix de fermeture : un X a la craie rouge */
+/* Croix de fermeture : un X a la craie blanche (A2) */
 :root:root .overlay :is([class*="close"], .recovery-close) {
-  background: transparent !important; border: none !important; box-shadow: none !important; color: #ff9a9a !important;
+  background: transparent !important; border: none !important; box-shadow: none !important; color: #eef1ea !important;
   font: 700 1.7rem/1 var(--font-hand);
 }
 /* Champs : trait de craie pointille */
@@ -2580,3 +2580,58 @@ html:not(.light) #screen-wordle { background-color: #f3efe2; }
 /* La fiche d'un article (comptoir) et la recharge couvrent la grille : elles
    doivent passer AU-DESSUS des articles, qui ont leur propre empilement. */
 :root:root #screen-shop .shop-fn-detail { z-index: 30; isolation: isolate; }
+
+/* ══ Boutons « quitter » refondus ═══════════════════════════════════════════
+   A2 fermer une fenetre = croix tracee a la craie (couleur du texte de la fenetre,
+   donc craie sur l'ardoise). B2 quitter une partie = « Abandonner » au feutre rouge.
+   C2 salle d'attente = ticket a dechirer. D2 pause / fin = « Reprendre » seul bouton,
+   le reste en liens ecrits. Cibles de 44 px minimum partout. */
+:root:root :is(.help-close-btn, .profile-modal-close, .chatbot-close, .snake-vote-close) {
+  position: relative; width: 44px; height: 44px; min-width: 44px; padding: 0;
+  background: transparent !important; border: none !important; box-shadow: none !important;
+  color: var(--text); font-size: 0; cursor: pointer;
+}
+:root:root :is(.help-close-btn, .profile-modal-close, .chatbot-close, .snake-vote-close) > * { display: none !important; }
+:root:root :is(.help-close-btn, .profile-modal-close, .chatbot-close, .snake-vote-close)::before {
+  content: ""; position: absolute; inset: 6px; background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M7 6.5l18.5 19.5M24.5 6 7.5 26' stroke='%23000' stroke-width='3.4' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M7 6.5l18.5 19.5M24.5 6 7.5 26' stroke='%23000' stroke-width='3.4' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: transform .15s ease;
+}
+:root:root :is(.help-close-btn, .profile-modal-close, .chatbot-close, .snake-vote-close):hover::before { transform: rotate(8deg) scale(1.08); }
+:root:root :is(.help-close-btn, .profile-modal-close, .chatbot-close, .snake-vote-close):focus-visible { outline: 3px solid var(--accent); outline-offset: 0; border-radius: 8px; }
+
+:root:root .btn-quit.abandon-btn {
+  min-height: 44px; padding: 0 8px; background: transparent; border: none; box-shadow: none;
+  font-family: var(--font-hand); font-weight: 700; font-size: 1.35rem; color: var(--margin);
+  background-image: linear-gradient(transparent 62%, color-mix(in srgb, var(--margin) 18%, transparent) 62%);
+  background-clip: content-box;
+}
+:root:root .btn-quit.abandon-btn::before { content: "\2190"; margin-right: 4px; font-family: var(--font-body); font-size: 1rem; }
+:root:root .btn-quit.abandon-btn:hover { background-color: transparent; text-decoration: underline wavy; }
+
+:root:root :is(#screen-waiting, #screen-trivia-waiting) .code-display {
+  background: #fff8d6; color: #22252b; border: 2px dashed #22252b; border-radius: 6px;
+  transform: rotate(-1.5deg); box-shadow: 3px 4px 0 rgba(0,0,0,.12);
+  -webkit-mask: radial-gradient(circle 7px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat,
+                radial-gradient(circle 7px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+          mask: radial-gradient(circle 7px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat,
+                radial-gradient(circle 7px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+}
+:root:root .btn.tear-btn {
+  min-height: 44px; background: transparent; color: var(--muted); box-shadow: none;
+  border: 1.5px dashed var(--line); font-weight: 700;
+}
+:root:root .btn.tear-btn:hover { color: var(--margin); border-color: var(--margin); background: transparent; }
+
+:root:root .quit-link {
+  display: block; margin: 2px auto 0; min-height: 44px; padding: 0 12px;
+  background: none; border: none; box-shadow: none; cursor: pointer;
+  font-family: var(--font-hand); font-weight: 700; font-size: 1.3rem; color: #ffe169;
+  text-decoration: underline wavy rgba(255,225,105,.55); text-underline-offset: 4px;
+}
+:root:root.light .quit-link, html.light .quit-link { color: #173a8a; text-decoration-color: rgba(23,58,138,.4); }
+:root:root .quit-link:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+/* Les fenetres sont des ardoises : la croix est toujours a la craie. */
+:root:root :is(.help-close-btn, .profile-modal-close, .snake-vote-close) { color: #eef1ea !important; }
+:root:root .btn-quit.abandon-btn { background-image: none; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--margin) 35%, transparent); text-decoration-thickness: 6px; text-underline-offset: -2px; text-decoration-skip-ink: none; }

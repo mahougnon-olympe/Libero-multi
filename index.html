@@ -376,7 +376,7 @@
       <ul id="waiting-seats" class="waiting-seats hidden" aria-live="polite"></ul>
       <p id="waiting-hint" class="hint">La partie démarre automatiquement dès que ton adversaire rejoint.</p>
       <button id="btn-ludo-start" class="btn btn-primary hidden">Lancer la partie</button>
-      <button id="btn-cancel-wait" class="btn btn-secondary">Annuler</button>
+      <button id="btn-cancel-wait" class="btn tear-btn">Annuler</button>
     </div>
   </div>
 
@@ -390,7 +390,7 @@
       </div>
       <div class="game-header-center">
         <div id="turn-indicator" class="turn-text"></div>
-        <button id="btn-quit" class="btn-quit" title="Quitter la partie"><span class="ui-ic" data-ic="quit">🚪</span> Quitter</button>
+        <button id="btn-quit" class="btn-quit abandon-btn" title="Quitter la partie"><span class="ui-ic" data-ic="quit">🚪</span> Quitter</button>
       </div>
       <div class="player-badge" id="badge-y">
         <span id="label-y"></span>
@@ -532,7 +532,7 @@
       </div>
       <div id="trivia-wait-players" class="trivia-wait-players"></div>
       <button id="btn-start-trivia" class="btn btn-primary hidden">▶ Démarrer la partie</button>
-      <button id="btn-leave-trivia-wait" class="btn btn-secondary">Quitter le salon</button>
+      <button id="btn-leave-trivia-wait" class="btn tear-btn">Quitter le salon</button>
       <p id="trivia-waiting-hint" class="hint">1 à 6 joueurs. Démarre dès que tu es prêt·e.</p>
     </div>
   </div>
@@ -541,7 +541,7 @@
   <div id="screen-trivia-game" class="screen game-screen">
     <div class="tg-wrap">
       <div class="tg-header">
-        <button id="btn-quit-trivia" class="btn-quit"><span class="ui-ic" data-ic="quit">🚪</span> Quitter</button>
+        <button id="btn-quit-trivia" class="btn-quit abandon-btn"><span class="ui-ic" data-ic="quit">🚪</span> Quitter</button>
         <button id="btn-trivia-pause" class="snake-pause-btn hidden" title="Pause"><span data-ic="pause"></span></button>
       <button id="btn-boost-hint" class="boost-hint-btn hidden" title="Indice : éliminer une mauvaise réponse"></button>
         <span id="tg-q-num" class="tg-q-num"></span>
@@ -563,8 +563,8 @@
       <div class="snake-pause-overlay hidden" id="trivia-pause-overlay">
         <p class="snake-over-text" id="trivia-pause-text">Pause</p>
         <button id="btn-trivia-resume" class="btn btn-primary">▶ Reprendre</button>
-        <button id="btn-trivia-pause-back" class="btn btn-secondary"><span class="ui-ic" data-ic="back">←</span> Retour au Quiz</button>
-        <button id="btn-trivia-pause-home" class="btn btn-secondary"><span class="ui-ic" data-ic="home">🏠</span> Quitter</button>
+        <button id="btn-trivia-pause-back" class="quit-link"><span class="ui-ic" data-ic="back">←</span> Retour au Quiz</button>
+        <button id="btn-trivia-pause-home" class="quit-link"><span class="ui-ic" data-ic="home">🏠</span> Quitter</button>
       </div>
     </div>
   </div>
@@ -621,13 +621,13 @@
           <p class="snake-new-hs hidden" id="snake-new-hs">Nouveau record !</p>
           <p id="snake-over-score"></p>
           <button id="btn-snake-restart" class="btn btn-primary">Rejouer</button>
-          <button id="btn-snake-quit" class="btn btn-secondary">Quitter</button>
+          <button id="btn-snake-quit" class="quit-link">Quitter</button>
         </div>
         <div class="snake-pause-overlay hidden" id="snake-pause-overlay">
           <p class="snake-over-text" id="snake-pause-text">Pause</p>
           <button id="btn-snake-resume" class="btn btn-primary">▶ Reprendre</button>
-          <button id="btn-snake-pause-quit-events" class="btn btn-secondary"><span class="ui-ic" data-ic="back">←</span> Retour</button>
-          <button id="btn-snake-pause-quit-home" class="btn btn-secondary"><span class="ui-ic" data-ic="home">🏠</span> Quitter</button>
+          <button id="btn-snake-pause-quit-events" class="quit-link"><span class="ui-ic" data-ic="back">←</span> Retour</button>
+          <button id="btn-snake-pause-quit-home" class="quit-link"><span class="ui-ic" data-ic="home">🏠</span> Quitter</button>
         </div>
       </div>
       <p class="snake-hint" id="snake-hint-text">↑ ↓ ← → ou glisser sur mobile</p>
@@ -695,13 +695,13 @@
           <p class="snake-new-hs hidden" id="luffy-new-hs">Nouveau record !</p>
           <p id="luffy-over-score"></p>
           <button id="btn-luffy-restart" class="btn btn-primary">Rejouer</button>
-          <button id="btn-luffy-quit" class="btn btn-secondary">Quitter</button>
+          <button id="btn-luffy-quit" class="quit-link">Quitter</button>
         </div>
         <div class="snake-pause-overlay hidden" id="luffy-pause-overlay">
           <p class="snake-over-text" id="luffy-pause-text">Pause</p>
           <button id="btn-luffy-resume" class="btn btn-primary">▶ Reprendre</button>
-          <button id="btn-luffy-pause-quit-luffy" class="btn btn-secondary"><span class="ui-ic" data-ic="back">←</span> Retour</button>
-          <button id="btn-luffy-pause-quit-home" class="btn btn-secondary"><span class="ui-ic" data-ic="home">🏠</span> Quitter</button>
+          <button id="btn-luffy-pause-quit-luffy" class="quit-link"><span class="ui-ic" data-ic="back">←</span> Retour</button>
+          <button id="btn-luffy-pause-quit-home" class="quit-link"><span class="ui-ic" data-ic="home">🏠</span> Quitter</button>
         </div>
       </div>
       <p class="snake-hint" id="luffy-hint-text">↑ / Espace pour sauter · ↓ pour t'accroupir</p>

@@ -902,7 +902,7 @@ const DICT = {
     triviaLbPts:'pts', triviaLbGames:'quiz',
     triviaWaitTitle:'En attente de joueurs…', triviaWaitCode:'Code du salon :',
     btnTriviaCopy:'Copier le code', btnStartTrivia:'▶ Démarrer la partie',
-    btnLeaveTrivia:'Quitter le salon',
+    btnLeaveTrivia:'Quitter le salon', quit:{ abandon:'Abandonner', abandonAsk:'Abandonner la partie ? Elle compte comme perdue.', menuAsk:'Retourner au menu ?', tear:'Déchirer le ticket (quitter)', changeGame:'changer de jeu', quitGame:'quitter la partie', backQuiz:'retour au quiz', close:'Fermer' },
     triviaWaitHint:'1 à 6 joueurs. Démarre dès que tu es prêt·e.',
     triviaCorrect:'✅ Bonne réponse !', triviaFastBonus:'⚡ Réponse éclair : point doublé !', triviaWrong:'❌ La réponse était : ',
     triviaFinishedTitle:'Résultats finaux', btnLeaveGame:'Retour au menu', btnQuitTrivia:'🚪 Quitter',
@@ -1681,7 +1681,7 @@ const DICT = {
     triviaLbPts:'pts', triviaLbGames:'quiz',
     triviaWaitTitle:'Waiting for players…', triviaWaitCode:'Room code:',
     btnTriviaCopy:'Copy code', btnStartTrivia:'▶ Start game',
-    btnLeaveTrivia:'Leave room',
+    btnLeaveTrivia:'Leave room', quit:{ abandon:'Give up', abandonAsk:'Give up this game? It counts as a loss.', menuAsk:'Back to the menu?', tear:'Tear up the ticket (leave)', changeGame:'change game', quitGame:'quit the game', backQuiz:'back to the quiz', close:'Close' },
     triviaWaitHint:'1 to 6 players. Start whenever you\'re ready.',
     triviaCorrect:'✅ Correct!', triviaFastBonus:'⚡ Lightning answer: double points!', triviaWrong:'❌ The answer was: ',
     triviaFinishedTitle:'Final Results', btnLeaveGame:'Back to menu', btnQuitTrivia:'🚪 Quit',
@@ -2591,6 +2591,15 @@ function applyLang() {
   const btr  = $('btn-trivia-resume');   if (btr)  btr.textContent  = d.triviaResumeBtn;
   const btpb = $('btn-trivia-pause-back'); if (btpb) btpb.textContent = d.triviaBackToQuiz;
   const btph = $('btn-trivia-pause-home'); if (btph) btph.textContent = d.triviaQuitHome;
+  // Boutons « quitter » refondus (A2 croix craie, B2 abandonner, C2 ticket, D2 liens).
+  if (d.quit) {
+    const q = d.quit, put = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+    put('btn-quit', q.abandon); put('btn-quit-trivia', q.abandon);
+    put('btn-cancel-wait', q.tear); put('btn-leave-trivia-wait', q.tear);
+    ['btn-snake-quit','btn-luffy-quit','btn-snake-pause-quit-home','btn-luffy-pause-quit-home','btn-trivia-pause-home'].forEach(id => put(id, q.quitGame));
+    put('btn-snake-pause-quit-events', q.changeGame); put('btn-luffy-pause-quit-luffy', q.changeGame); put('btn-trivia-pause-back', q.backQuiz);
+    document.querySelectorAll('.help-close-btn, .profile-modal-close, .chatbot-close, .snake-vote-close').forEach(b => { b.setAttribute('aria-label', q.close); b.title = q.close; });
+  }
 
   // Community modal
   const cmt  = $('community-modal-title'); if (cmt)  cmt.textContent  = d.communityTitle;
@@ -4939,7 +4948,7 @@ function showTriviaFinished(scores) {
 }
 
 $('btn-leave-trivia-game').addEventListener('click', goToTriviaHome);
-$('btn-quit-trivia').addEventListener('click', goToTriviaHome);
+$('btn-quit-trivia').addEventListener('click', () => { if (confirm(t().quit.abandonAsk)) goToTriviaHome(); });
 $('tg-skip')?.addEventListener('click', onTriviaSkip);
 
 // ── Trivia : pause (solo uniquement) ─────────────────────────────────────────
@@ -5356,9 +5365,7 @@ document.querySelectorAll('.help-tab').forEach(tab => {
 $('btn-menu').addEventListener('click', goToHome);
 
 $('btn-quit').addEventListener('click', () => {
-  const msg = gameActive
-    ? 'Quitter en cours de partie ? Tu abandonneras la partie en cours.'
-    : 'Retourner au menu ?';
+  const msg = gameActive ? t().quit.abandonAsk : t().quit.menuAsk;
   if (confirm(msg)) goToHome();
 });
 
