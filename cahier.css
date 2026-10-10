@@ -2576,3 +2576,7 @@ html:not(.light) #screen-wordle { background-color: #f3efe2; }
 }
 :root:root .onboard-step.done .ob-check::after { transform: translate(-45%, -60%) rotate(-6deg); }
 .sp-ck.on .spk::after { transform: translate(-45%, -62%) rotate(-6deg); }
+
+/* La fiche d'un article (comptoir) et la recharge couvrent la grille : elles
+   doivent passer AU-DESSUS des articles, qui ont leur propre empilement. */
+:root:root #screen-shop .shop-fn-detail { z-index: 30; isolation: isolate; }
