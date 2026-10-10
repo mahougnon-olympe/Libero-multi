@@ -1474,7 +1474,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
         $('tpl-list').innerHTML = TPL_CACHE.map(function (x) {
           var svg = window.LiberoPortrait ? window.LiberoPortrait.svg(x.portrait) : '';
           return '<div class="ann-row" style="align-items:center;gap:12px"><span style="width:64px;height:64px;flex:none;border:1.5px solid var(--line);border-radius:6px;overflow:hidden;background:#fff">' + svg + '</span>'
-            + '<span class="txt" style="flex:1"><b>' + esc(x.name) + '</b> <span class="muted">par ' + esc(x.authorName) + ' · ' + x.price + ' Libs · ' + (x.sold || 0) + ' ventes · ' + esc(ST[x.status] || x.status) + '</span></span>'
+            + '<span class="txt" style="flex:1"><b>' + esc(x.name) + '</b> <span class="muted">par ' + esc(x.authorName) + ' · ' + (x.price ? x.price + ' Libs' : 'gratuit') + ' · ' + (x.sold || 0) + ' ventes · ' + esc(ST[x.status] || x.status) + '</span></span>'
             + '<span style="display:flex;gap:4px;flex-wrap:wrap">'
             + (x.status !== 'live' ? '<button class="small green" data-tplst="' + esc(x.id) + '|live">Valider</button>' : '')
             + (x.status !== 'refused' ? '<button class="small" data-tplst="' + esc(x.id) + '|refused">Refuser</button>' : '')

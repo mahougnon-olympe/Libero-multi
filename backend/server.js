@@ -1831,7 +1831,7 @@ for (const [k, sp] of Object.entries(PORTRAIT_SPEC)) for (const i of (sp.lock ||
 // Atelier : un joueur publie son portrait comme modele, l'admin valide, les autres
 // l'achetent. Le createur touche 70 % du prix (le reste disparait : frein a l'inflation).
 const portraitTemplates = new Map(); // id -> { id, authorId, authorName, name, price, tag, portrait, status, sold, at }
-const TEMPLATE_PRICES = [30, 60, 100, 150];
+const TEMPLATE_PRICES = [0, 30, 60, 100, 150]; // 0 = modele gratuit
 const TEMPLATE_TAGS = ['sport', 'school', 'party', 'style', 'funny'];
 const TEMPLATE_SHARE = 0.7, TEMPLATE_MIN_LEVEL = 5, TEMPLATE_MAX_PER_AUTHOR = 3;
 function templatePublic(tp, viewerId) {
@@ -4176,6 +4176,8 @@ io.on('connection', (socket) => {
     const nm = sanitizeText(String(name || ''), 24).trim();
     if (nm.length < 2 || containsBanned(nm)) { socket.emit('publish-template-result', { ok: false, error: 'name' }); return; }
     const pr = TEMPLATE_PRICES.includes(+price) ? +price : 60;
+    // Gratuit seulement sans piece payante : sinon on offrirait des cosmetiques que personne n'a payes.
+    if (pr === 0 && portraitLockedIds(entry.portrait).length) { socket.emit('publish-template-result', { ok: false, error: 'free_locked' }); return; }
     const tg = TEMPLATE_TAGS.includes(tag) ? tag : 'style';
     const mine = [...portraitTemplates.values()].filter(tp => tp.authorId === id && tp.status !== 'refused');
     if (mine.length >= TEMPLATE_MAX_PER_AUTHOR) { socket.emit('publish-template-result', { ok: false, error: 'max' }); return; }
@@ -4183,7 +4185,7 @@ io.on('connection', (socket) => {
       portrait: { ...entry.portrait }, status: 'pending', sold: 0, at: Date.now() };
     portraitTemplates.set(tp.id, tp);
     dbSaveTemplate(tp);
-    adminAlert('Nouveau modèle de portrait', `${entry.name} : « ${nm} » (${pr} Libs) attend ta validation.`);
+    adminAlert('Nouveau modèle de portrait', `${entry.name} : « ${nm} » (${pr ? pr + ' Libs' : 'gratuit'}) attend ta validation.`);
     socket.emit('publish-template-result', { ok: true, template: templatePublic(tp, id) });
     socket.emit('portrait-templates', templatesFor(id));
   });
@@ -4204,12 +4206,13 @@ io.on('connection', (socket) => {
     if (!entry.name || entry.name === 'Anonyme') { socket.emit('buy-template-result', { ok: false, error: 'anonymous' }); return; }
     if (entry.balance < tp.price) { socket.emit('buy-template-result', { ok: false, error: 'insufficient' }); return; }
     entry.balance -= tp.price;
-    portraitLockedIds(tp.portrait).forEach(c => { if (!entry.ownedCosmetics.includes(c)) entry.ownedCosmetics.push(c); });
+    if (tp.price > 0) portraitLockedIds(tp.portrait).forEach(c => { if (!entry.ownedCosmetics.includes(c)) entry.ownedCosmetics.push(c); });
     entry.portrait = { ...tp.portrait };
     libs.set(id, entry); dbUpsertLibs(id, entry);
     tp.sold = (tp.sold || 0) + 1; dbSaveTemplate(tp);
     const author = libs.get(tp.authorId);
-    if (author) {
+    // Defense : un modele gratuit ne donne jamais de piece payante.
+    if (author && tp.price > 0) {
       const gain = Math.floor(tp.price * TEMPLATE_SHARE);
       author.balance += gain; libs.set(tp.authorId, author); dbUpsertLibs(tp.authorId, author);
       _emitToPlayer(tp.authorId, 'libs-update', { balance: author.balance, delta: gain });

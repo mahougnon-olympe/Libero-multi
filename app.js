@@ -976,7 +976,7 @@ const DICT = {
     tplTags:{sport:'Sport', school:'École', party:'Fête', style:'Style', funny:'Drôle'}, tplBought:'Portrait acheté, il est sur ton profil !',
     tplPublish:'Publier comme modèle', tplPubName:'Nom du modèle', tplPubPrice:'Prix', tplPubTag:'Rayon', tplPubSend:'Envoyer à la validation',
     tplPubOk:'Envoyé ! L\'admin doit valider ton modèle avant qu\'il soit en vente.', tplPubRules:'Il faut le niveau 5. 3 modèles maximum. Tu touches 70 % de chaque vente.',
-    tplErr:{level:'Il faut le niveau 5 pour publier.', max:'Tu as déjà 3 modèles.', name:'Choisis un autre nom.', anonymous:'Choisis d\'abord un pseudo.', no_portrait:'Enregistre d\'abord ton portrait.', insufficient:'Pas assez de Libs.', own:'C\'est ton modèle !', rate:'Doucement, réessaie dans un instant.', invalid:'Ce modèle n\'est plus disponible.'},
+    tplErr:{level:'Il faut le niveau 5 pour publier.', max:'Tu as déjà 3 modèles.', name:'Choisis un autre nom.', anonymous:'Choisis d\'abord un pseudo.', no_portrait:'Enregistre d\'abord ton portrait.', insufficient:'Pas assez de Libs.', own:'C\'est ton modèle !', rate:'Doucement, réessaie dans un instant.', invalid:'Ce modèle n\'est plus disponible.', free_locked:'Un modèle gratuit ne peut pas contenir de pièce payante.'}, tplFree:'Gratuit', tplTake:'Prendre',
     tplSold:(n, b, g) => `${b} a acheté ton modèle « ${n} » : +${g} Libs`, tplLive:n => `Ton modèle « ${n} » est en vente !`, tplRefused:n => `Ton modèle « ${n} » a été refusé.`,
     shopBubbleNames:{ 'bubble-ardoise':'Ardoise', 'bubble-ocean':'Océan', 'bubble-menthe':'Menthe', 'bubble-corail':'Corail', 'bubble-ambre':'Ambre', 'bubble-lavande':'Lavande', 'bubble-rubis':'Rubis', 'bubble-emeraude':'Émeraude', 'bubble-indigo':'Indigo', 'bubble-magenta':'Papier buvard', 'bubble-cyan':'Papier millimétré', 'bubble-crepuscule':'Crépuscule', 'bubble-aurore':'Aurore', 'bubble-sunset':'Coucher de soleil', 'bubble-tropical':'Tropical', 'bubble-arcade':'Papier kraft', 'bubble-galaxie':'Galaxie', 'bubble-verre':'Papier calque', 'bubble-or':'Or liquide', 'bubble-holographique':'Encre violette', 'bubble-cameleon':'Carte à jouer' },
     shopBgTitle:'🖼 Fonds d\'écran',
@@ -1755,7 +1755,7 @@ const DICT = {
     tplTags:{sport:'Sport', school:'School', party:'Party', style:'Style', funny:'Funny'}, tplBought:'Portrait bought, it is on your profile!',
     tplPublish:'Publish as a template', tplPubName:'Template name', tplPubPrice:'Price', tplPubTag:'Shelf', tplPubSend:'Send for approval',
     tplPubOk:'Sent! The admin must approve your template before it goes on sale.', tplPubRules:'Level 5 required. 3 templates max. You earn 70% of each sale.',
-    tplErr:{level:'You need level 5 to publish.', max:'You already have 3 templates.', name:'Pick another name.', anonymous:'Pick a username first.', no_portrait:'Save your portrait first.', insufficient:'Not enough Libs.', own:'That is your template!', rate:'Slow down, try again in a moment.', invalid:'This template is no longer available.'},
+    tplErr:{level:'You need level 5 to publish.', max:'You already have 3 templates.', name:'Pick another name.', anonymous:'Pick a username first.', no_portrait:'Save your portrait first.', insufficient:'Not enough Libs.', own:'That is your template!', rate:'Slow down, try again in a moment.', invalid:'This template is no longer available.', free_locked:'A free template cannot contain paid pieces.'}, tplFree:'Free', tplTake:'Take',
     tplSold:(n, b, g) => `${b} bought your template "${n}": +${g} Libs`, tplLive:n => `Your template "${n}" is on sale!`, tplRefused:n => `Your template "${n}" was refused.`,
     shopBubbleNames:{ 'bubble-ardoise':'Slate', 'bubble-ocean':'Ocean', 'bubble-menthe':'Mint', 'bubble-corail':'Coral', 'bubble-ambre':'Amber', 'bubble-lavande':'Lavender', 'bubble-rubis':'Ruby', 'bubble-emeraude':'Emerald', 'bubble-indigo':'Indigo', 'bubble-magenta':'Blotting paper', 'bubble-cyan':'Graph paper', 'bubble-crepuscule':'Dusk', 'bubble-aurore':'Aurora', 'bubble-sunset':'Sunset', 'bubble-tropical':'Tropical', 'bubble-arcade':'Kraft paper', 'bubble-galaxie':'Galaxy', 'bubble-verre':'Tracing paper', 'bubble-or':'Liquid gold', 'bubble-holographique':'Violet ink', 'bubble-cameleon':'Playing card' },
     shopBgTitle:'🖼 Wallpapers',
@@ -14509,7 +14509,7 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
     set('portrait-card-title', d.portraitCardTitle); set('portrait-card-sub', d.portraitCardSub);
     set('portrait-title', d.portraitTitle); set('pe-random', d.peRandom); set('pe-reset', d.peReset);
-    set('pe-pub-toggle', d.tplPublish); set('pe-pub-name-l', d.tplPubName); set('pe-pub-price-l', d.tplPubPrice);
+    set('pe-pub-toggle', d.tplPublish); set('pe-pub-name-l', d.tplPubName); set('pe-pub-price-l', d.tplPubPrice); { const o = document.querySelector('#pe-pub-price option[value="0"]'); if (o) o.textContent = d.tplFree; }
     set('pe-pub-tag-l', d.tplPubTag); set('pe-pub-send', d.tplPubSend); set('pe-pub-rules', d.tplPubRules);
     const tg = document.getElementById('pe-pub-tag');
     if (tg) { const v = tg.value; tg.innerHTML = Object.entries(d.tplTags).map(([k, l]) => `<option value="${k}">${l}</option>`).join(''); if (v) tg.value = v; }
@@ -14583,10 +14583,10 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
       <div class="tp">${_ptSvg(tp.portrait)}</div>${pend ? `<span class="tpl-wait">${d.tplPending}</span>` : ''}
       <div class="ti"><div class="tn">${_escHtml(tp.name)}</div>
         <div class="ta">${d.tplBy} <u class="lb-row-clickable" data-pname="${_escHtml(tp.authorName)}">${_escHtml(tp.authorName)}</u></div>
-        <div class="tm"><span>${d.tplSales(tp.sold || 0)}<br>${(d.tplTags || {})[tp.tag] || tp.tag}</span><span class="pr">${tp.price} Libs</span></div>
+        <div class="tm"><span>${d.tplSales(tp.sold || 0)}<br>${(d.tplTags || {})[tp.tag] || tp.tag}</span><span class="pr">${tp.price ? tp.price + ' Libs' : d.tplFree}</span></div>
         <div class="tb"><button type="button" data-act="try">${d.tplTry}</button>${tp.mine
           ? `<button type="button" class="alt" data-act="del">${d.tplRemove}</button>`
-          : `<button type="button" class="buy" data-act="buy">${d.tplBuy}</button>`}</div></div></div>`;
+          : `<button type="button" class="buy" data-act="buy">${tp.price ? d.tplBuy : d.tplTake}</button>`}</div></div></div>`;
   }
   window._paintTemplates = function () {
     const g = document.getElementById('tpl-grid'), so = document.getElementById('tpl-sort');
