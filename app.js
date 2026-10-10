@@ -546,7 +546,7 @@ const TRIVIA_API_CAT_MAP = {
 
 const DICT = {
   fr: {
-    siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisis ta partie, ou ouvre un livre.', bulTitle:'Carnet de correspondance', bulTitles:['Carnet de correspondance','Carnet de l\'élève','Carnet du bon élève','Carnet d\'honneur','Tableau d\'honneur'], bulLevel:'Niveau', bulStreak:'Série en cours', bulBalance:'Solde', bulChallenges:'Défis du jour', bulDays:n => n + (n > 1 ? ' jours' : ' jour'),
+    readShelfExcl:'Romans exclusifs', readShelfSoon:'À venir', readShelfSoonTxt:'Bientôt d\'autres livres…', siteTitle:'Jeux Multijoueur', siteSubtitle:'Choisis ta partie, ou ouvre un livre.', bulTitle:'Carnet de correspondance', bulTitles:['Carnet de correspondance','Carnet de l\'élève','Carnet du bon élève','Carnet d\'honneur','Tableau d\'honneur'], bulLevel:'Niveau', bulStreak:'Série en cours', bulBalance:'Solde', bulChallenges:'Défis du jour', bulDays:n => n + (n > 1 ? ' jours' : ' jour'),
     bulAppreLabel:'Appréciation :',
     bulAppre:{ anon:'Choisis un pseudo pour recevoir tes notes.', allDone:'Tous les défis du jour sont faits. Excellent travail !', streak:n => `Très assidu : ${n} jours de suite, continue comme ça.`, high:'Joueur confirmé, redoutable sur le plateau.', mid:'De bons progrès, encore un effort pour monter de niveau.', start:'Bon début. Reviens demain pour allonger ta série.' },
     landingTitle:'Aujourd\'hui, on <mark>joue</mark>.', landingDaily:["Aujourd'hui, on <mark>joue</mark>, {n}.", "Nouvelle page, {n}. On la <mark>remplit</mark> ?", "Le tableau est propre. À toi d'écrire la <mark>victoire</mark>.", "Interro surprise ? Non, juste un <mark>quiz</mark>, {n}.", "Pas de devoirs ici, que des <mark>parties</mark>.", "Ta série t'attend, {n}. <mark>Garde-la</mark> au chaud.", "Une partie de dames avant le <mark>dîner</mark> ?", "Le robot se dit <mark>imbattable</mark>. Vérifie.", "Aujourd'hui, la <mark>chance</mark> est de ton côté, {n}.", "Un mot mystère t'attend : <mark>cinq</mark> lettres, six essais.", "Ouvre un <mark>livre</mark>, ou ouvre le jeu.", "Bon retour, {n}. Le classement a <mark>bougé</mark>.", "Échec et mat, c'est pour <mark>quand</mark> ?", "Quatre jetons alignés, c'est tout ce qu'il <mark>faut</mark>.", "Révise en jouant : SVT, Anglais et <mark>Bénin</mark> au quiz.", "Le Ludo se joue à <mark>quatre</mark>. Appelle tes amis.", "Même les champions ont <mark>commencé</mark> par une défaite.", "{n}, la roue de la fortune <mark>tourne</mark> une fois par jour.", "Un petit duel pour se <mark>réveiller</mark> ?", "Ce soir, on vise le <mark>podium</mark>.", "Le samedi, c'est <mark>tournoi</mark>. Prépare-toi, {n}.", "Ici, les erreurs ne comptent <mark>pas</mark>. Rejoue.", "Au quiz, une bonne réponse rapide vaut <mark>double</mark>.", "Le morpion, c'est simple. Gagner, <mark>moins</mark>.", "Prends ton temps, {n}. Le plateau ne <mark>bouge</mark> pas.", "Une idée pour le site ? Écris-la dans <mark>Idées</mark>.", "Aujourd'hui, tu bats ton <mark>record</mark>.", "Ton adversaire révise. Et <mark>toi</mark> ?", "Le dé est <mark>lancé</mark>, {n}.", "Cahier ouvert, crayon prêt : <mark>à toi</mark>."],
@@ -1319,7 +1319,7 @@ const DICT = {
     },
   },
   en: {
-    siteTitle:'Multiplayer Games', siteSubtitle:'Pick a game, or open a book.', bulTitle:'Correspondence book', bulTitles:['Correspondence book','Pupil\'s book','Good pupil\'s book','Book of honour','Honour roll'], bulLevel:'Level', bulStreak:'Current streak', bulBalance:'Balance', bulChallenges:'Daily challenges', bulDays:n => n + (n > 1 ? ' days' : ' day'),
+    readShelfExcl:'Exclusive novels', readShelfSoon:'Coming soon', readShelfSoonTxt:'More books soon…', siteTitle:'Multiplayer Games', siteSubtitle:'Pick a game, or open a book.', bulTitle:'Correspondence book', bulTitles:['Correspondence book','Pupil\'s book','Good pupil\'s book','Book of honour','Honour roll'], bulLevel:'Level', bulStreak:'Current streak', bulBalance:'Balance', bulChallenges:'Daily challenges', bulDays:n => n + (n > 1 ? ' days' : ' day'),
     bulAppreLabel:'Teacher\'s comment:',
     bulAppre:{ anon:'Pick a nickname to get your grades.', allDone:'All of today\'s challenges are done. Excellent work!', streak:n => `Very regular: ${n} days in a row, keep it up.`, high:'Seasoned player, formidable on the board.', mid:'Good progress, one more push to level up.', start:'Good start. Come back tomorrow to grow your streak.' },
     landingTitle:'Today, we <mark>play</mark>.', landingDaily:["Today, we <mark>play</mark>, {n}.", "New page, {n}. Shall we <mark>fill</mark> it?", "The board is clean. Go write the <mark>win</mark>.", "Pop quiz? No, just a <mark>quiz</mark>, {n}.", "No homework here, only <mark>games</mark>.", "Your streak is waiting, {n}. <mark>Keep</mark> it warm.", "A game of draughts before <mark>dinner</mark>?", "The bot claims it is <mark>unbeatable</mark>. Check.", "Luck is on your <mark>side</mark> today, {n}.", "A mystery word awaits: <mark>five</mark> letters, six tries.", "Open a <mark>book</mark>, or open a game.", "Welcome back, {n}. The leaderboard has <mark>moved</mark>.", "Checkmate, but <mark>when</mark>?", "Four tokens in a row is all it <mark>takes</mark>.", "Revise while playing: Biology, English and <mark>Benin</mark> in the quiz.", "Ludo is played by <mark>four</mark>. Call your friends.", "Even champions <mark>started</mark> with a loss.", "{n}, the wheel of fortune <mark>spins</mark> once a day.", "A quick duel to <mark>wake up</mark>?", "Tonight, we aim for the <mark>podium</mark>.", "Saturday means <mark>tournament</mark>. Get ready, {n}.", "Mistakes do not count <mark>here</mark>. Play again.", "In the quiz, a fast right answer counts <mark>double</mark>.", "Tic-tac-toe is simple. Winning, <mark>less</mark> so.", "Take your time, {n}. The board is not <mark>going</mark> anywhere.", "An idea for the site? Write it in <mark>Ideas</mark>.", "Today, you beat your <mark>record</mark>.", "Your opponent is revising. What about <mark>you</mark>?", "The die is <mark>cast</mark>, {n}.", "Notebook open, pencil ready: <mark>your move</mark>."],
@@ -10982,32 +10982,48 @@ const ReadFeed = (() => {
       ((b.titre || '').toLowerCase().includes(query) || (b.auteur || '').toLowerCase().includes(query));
   }
 
+  // L'etagere du CDI : les livres sont ranges par le dos (reliure toilee, titre et filets dores,
+  // etiquette de cote), une planche par rayon avec sa plaque de laiton. Toucher un livre le fait
+  // sortir de l'etagere, puis ouvre sa fiche habituelle.
+  const SPINE_COLORS = { 'affaire-endormie': '#2b2b2b', 'life-of-georgia': '#3d2a7a', 'life-of-georgia-2': '#1f5a6b' };
+  const SPINE_PAL = ['#7a2e3a', '#2f5a45', '#3d4f8a', '#6b4a2a', '#4a3a6b', '#2a5a6a', '#8a5a2b'];
+  const _h = str => { let h = 0; for (const c of String(str || '')) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+  function spineHTML(b, excl) {
+    const h = _h(b.id || b.titre);
+    const col = SPINE_COLORS[b.id] || SPINE_PAL[h % SPINE_PAL.length];
+    const H = 196 + (h % 28), W = 44 + (h % 3) * 4;
+    const cote = 'R<br>' + esc((b.auteur || '?').replace(/[^A-Za-zÀ-ÿ]/g, '').slice(0, 3).toUpperCase());
+    return `<button type="button" class="sp" style="--c:${col};--h:${H}px;--w:${W}px" data-bid="${esc(b.id || '')}" data-excl="${excl ? 1 : 0}" aria-label="${esc(b.titre)}">
+      <span class="bd t"></span><span class="bd t2"></span><span class="tt">${esc(spineTitle(b.titre))}</span><span class="bd b"></span><span class="cote">${cote}</span>${excl ? '' : ''}</button>`;
+  }
+  // Sur le dos, le titre court (avant « · ») et le tome en chiffres romains.
+  const spineTitle = tt => { const [base, rest] = String(tt || '').split(' · '); const m = /(?:Tome|Volume|Vol\.?)\s*(\d+)/i.exec(rest || ''); const R = ['', 'I', 'II', 'III', 'IV', 'V', 'VI']; return m ? `${base} · ${R[+m[1]] || m[1]}` : base; };
+  const decoSpine = (c, h, w) => `<span class="sp deco" style="--c:${c};--h:${h}px;--w:${w}px" aria-hidden="true"><span class="bd t"></span><span class="bd b"></span></span>`;
+  const plank = label => `<div class="plank"><span class="brass">${esc(label)}</span></div>`;
   function render() {
     const g = wrap(); if (!g) return;
     g.classList.remove('is-skel');
     const list = books.filter(matches);
     const exclList = exclusiveBooks.filter(matches);
     if (!list.length && !exclList.length) { g.innerHTML = `<p class="read-empty">${esc(t().readNoResult)}</p>`; return; }
-    g.innerHTML = '';
-    exclList.forEach((bk, i) => {
-      const card = document.createElement('div');
-      card.className = 'read-book read-book--exclusive';
-      card.innerHTML = coverHTML(bk, i) +
-        `<span class="read-book-cat read-book-cat--excl">${esc(t().bookExclusive)}</span>
-         <p class="read-book-title">${esc(bk.titre)}</p>
-         <p class="read-book-author">${esc(bk.auteur)}</p>`;
-      card.onclick = () => openBookSheet(bk);
-      g.appendChild(card);
-    });
-    list.forEach((b, i) => {
-      const card = document.createElement('div');
-      card.className = 'read-book';
-      card.innerHTML = coverHTML(b, i) +
-        `${b.categorie ? `<span class="read-book-cat">${esc(b.categorie)}</span>` : ''}
-         <p class="read-book-title">${esc(b.titre)}</p>
-         ${b.auteur ? `<p class="read-book-author">${esc(b.auteur)}</p>` : ''}`;
-      card.onclick = () => openSheet(b, i);
-      g.appendChild(card);
+    let html = '<div class="case">';
+    if (exclList.length) html += `<div class="bay">${decoSpine('#6b7d8f', 186, 36)}${exclList.map(bk => spineHTML(bk, true)).join('')}<span class="bookend" aria-hidden="true"></span><span class="stack" aria-hidden="true"><i style="--c:#7d4a5a;--w:92px"></i><i style="--c:#4a6a5a;--w:84px;--x:5px"></i><i style="--c:#8a7a4a;--w:88px;--x:2px"></i></span></div>${plank(t().readShelfExcl)}`;
+    // Une planche par rayon pour les autres livres.
+    const byCat = {};
+    list.forEach(b => { const c = catOf(b) || t().readAll; (byCat[c] = byCat[c] || []).push(b); });
+    Object.keys(byCat).forEach(c => { html += `<div class="bay">${byCat[c].map(b => spineHTML(b, false)).join('')}<span class="bookend" aria-hidden="true"></span></div>${plank(c)}`; });
+    if (!list.length) html += `<div class="bay bay-soon">${decoSpine('#5a4a6a', 120, 34)}${decoSpine('#7a3a3a', 132, 40)}${decoSpine('#3a5a6a', 118, 30)}<span class="soon">${esc(t().readShelfSoonTxt)}</span></div>${plank(t().readShelfSoon)}`;
+    g.innerHTML = html + '</div>';
+    g.querySelectorAll('.sp[data-bid]').forEach(el => {
+      el.onclick = () => {
+        g.querySelectorAll('.sp.sel').forEach(x => x.classList.remove('sel'));
+        el.classList.add('sel');
+        const id = el.dataset.bid;
+        setTimeout(() => {
+          if (el.dataset.excl === '1') { const bk = exclusiveBooks.find(x => x.id === id); if (bk) openBookSheet(bk); }
+          else { const i = books.findIndex(x => x.id === id); if (i >= 0) openSheet(books[i], i); }
+        }, 320);
+      };
     });
   }
 

@@ -2380,3 +2380,39 @@ html:not(.light) .stamp-ink { mix-blend-mode: normal; }
 :root:root #screen-ideas .idea-dots { flex: 1 1 auto; min-width: 0; }
 :root:root #screen-ideas .idea-votes { align-self: stretch; width: 100%; justify-content: flex-end; }
 .idea-dots i { flex: none; }
+
+/* ══ LECTURE = L'ETAGERE DU CDI ═════════════════════════════════════════════
+   Meuble en bois veine, fond sombre ; livres ranges par le dos (reliure toilee
+   arrondie, titre et filets dores, etiquette de cote) ; plaque de laiton par planche. */
+:root:root #read-grid { display: block; padding: 14px 4px 30px; }
+#read-grid .case { position: relative; max-width: 860px; margin: 14px auto 0; padding: 14px 18px 0; border-radius: 6px 6px 0 0; border: 2px solid #3a240f;
+  background: linear-gradient(90deg, #5b3a1e 0 18px, transparent 18px calc(100% - 18px), #5b3a1e calc(100% - 18px)), repeating-linear-gradient(90deg, rgba(0,0,0,.06) 0 2px, transparent 2px 9px), linear-gradient(#7a5230, #6b4527);
+  box-shadow: 0 10px 18px rgba(0,0,0,.25); }
+#read-grid .case::before { content: ""; position: absolute; left: -6px; right: -6px; top: -12px; height: 16px; border-radius: 4px; background: linear-gradient(#a8743f, #8a5a2b); border: 2px solid #3a240f; box-shadow: 0 3px 0 rgba(0,0,0,.25); }
+#read-grid .bay { position: relative; min-height: 250px; margin: 0 2px; display: flex; align-items: flex-end; gap: 2px; padding: 16px 10px 0; overflow-x: auto; overflow-y: visible; scrollbar-width: none;
+  background: linear-gradient(#2c1a0b 0, #3b2513 14%, #4a2f17 100%); box-shadow: inset 0 18px 22px rgba(0,0,0,.55), inset 14px 0 18px rgba(0,0,0,.4), inset -14px 0 18px rgba(0,0,0,.4); }
+#read-grid .bay-soon { min-height: 150px; opacity: .85; }
+#read-grid .soon { margin: auto; font: 700 1.3rem var(--font-hand); color: rgba(255,240,200,.7); text-align: center; }
+#read-grid .plank { position: relative; height: 22px; margin: 0 -16px; background: linear-gradient(#b98450, #9a6a3a 45%, #7d5128); border: 2px solid #3a240f; box-shadow: 0 4px 0 rgba(0,0,0,.35); }
+#read-grid .brass { position: absolute; left: 50%; top: 2px; transform: translateX(-50%); white-space: nowrap; background: linear-gradient(#f6dc8a, #c99a2e 50%, #e9c25a); border: 1.5px solid #4a3305; border-radius: 2px; padding: 0 12px; font: 400 .58rem/14px var(--font-display); letter-spacing: .12em; text-transform: uppercase; color: #3a2600; box-shadow: inset 0 0 0 2px rgba(255,255,255,.3); }
+#read-grid .brass::before, #read-grid .brass::after { content: ""; position: absolute; top: 5px; width: 4px; height: 4px; border-radius: 50%; background: #7a5508; }
+#read-grid .brass::before { left: 3px; } #read-grid .brass::after { right: 3px; }
+#read-grid .sp { position: relative; flex: none; width: var(--w, 44px); height: var(--h); border-radius: 3px 3px 1px 1px; cursor: pointer; border: none; padding: 0;
+  background: linear-gradient(90deg, rgba(0,0,0,.45) 0, rgba(0,0,0,.05) 18%, rgba(255,255,255,.22) 38%, rgba(255,255,255,.05) 55%, rgba(0,0,0,.35) 100%), var(--c);
+  box-shadow: 2px 0 2px rgba(0,0,0,.45); transition: transform .35s cubic-bezier(.3,1.3,.5,1), box-shadow .35s; transform-origin: bottom center; }
+#read-grid .sp::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 3px); pointer-events: none; }
+#read-grid .sp .bd { position: absolute; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, #7a5508, #f6dc8a 45%, #c99a2e); opacity: .9; }
+#read-grid .sp .bd.t { top: 12px; } #read-grid .sp .bd.t2 { top: 20px; height: 2px; } #read-grid .sp .bd.b { bottom: 30px; }
+#read-grid .sp .tt { position: absolute; left: 50%; top: 32px; bottom: 42px; transform: translateX(-50%) rotate(180deg); writing-mode: vertical-rl; display: flex; align-items: center; justify-content: center; overflow: hidden;
+  font: 400 .64rem/1 var(--font-display); letter-spacing: .05em; white-space: nowrap; background: linear-gradient(180deg, #fff2b0, #d4a62c 50%, #f6dc8a); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 1px 0 rgba(0,0,0,.6)); }
+#read-grid .sp .cote { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); width: 30px; background: #fffdf3; border-radius: 2px; font: 700 .5rem/1.15 var(--font-body); color: #22252b; text-align: center; padding: 2px 0; box-shadow: 0 1px 0 rgba(0,0,0,.4); }
+#read-grid .sp.deco { cursor: default; filter: saturate(.7) brightness(.9); }
+#read-grid .sp:not(.deco):hover { transform: translateY(-6px); }
+#read-grid .sp.sel { transform: translateY(-16px) scale(1.06); box-shadow: 6px 10px 14px rgba(0,0,0,.55); z-index: 3; outline: 2px solid #ffe169; outline-offset: 2px; }
+#read-grid .sp:focus-visible { outline: 3px solid #ffe169; outline-offset: 2px; }
+#read-grid .bookend { flex: none; width: 12px; height: 120px; margin-left: 6px; background: linear-gradient(90deg, #4b525a, #c9ced6 40%, #7a828c); border-radius: 2px 2px 0 0; box-shadow: 2px 0 3px rgba(0,0,0,.5); position: relative; }
+#read-grid .bookend::after { content: ""; position: absolute; left: 0; bottom: 0; width: 40px; height: 6px; background: linear-gradient(#c9ced6, #7a828c); }
+#read-grid .stack { flex: none; display: flex; flex-direction: column-reverse; margin-left: auto; margin-right: 6px; }
+#read-grid .stack i { display: block; width: var(--w); height: 16px; background: linear-gradient(rgba(255,255,255,.2), rgba(0,0,0,.3)), var(--c); border-radius: 2px; margin-left: var(--x, 0); box-shadow: 0 1px 0 rgba(0,0,0,.4); }
+@media (max-width: 520px) { #read-grid .stack { display: none; } #read-grid .case { padding: 12px 12px 0; } #read-grid .plank { margin: 0 -10px; } }
+@media (prefers-reduced-motion: reduce) { #read-grid .sp { transition: none; } }
