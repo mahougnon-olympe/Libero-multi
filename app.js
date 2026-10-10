@@ -8739,9 +8739,9 @@ function showCursorSnakeToast(msg) {
   const GROUND_OBS = [
     { id: 'tonneau', w: 25, h: 30, draw: (c, x, y, w, h) => { _rBox(c, x, y + 8, w, h - 8, '#ffb7c5'); c.fillStyle = '#3d64b8'; c.fillRect(x + 1, y + 16, w - 2, 5); } },
     { id: 'baril', w: 25, h: 30, draw: (c, x, y, w, h) => { _rBox(c, x, y + 4, w, h - 4, '#bfe3ff'); c.strokeStyle = _rInk(); c.beginPath(); c.arc(x + w / 2, y + 17, 5, 0, 7); c.stroke(); } },
-    { id: 'canon', w: 63, h: 30, draw: (c, x, y, w, h) => { _rBox(c, x, y + 16, w, 14, '#ffe169'); c.strokeStyle = _rInk(); c.lineWidth = 1.4; for (let k = 4; k < w; k += 6) { c.beginPath(); c.moveTo(x + k, y + 16); c.lineTo(x + k, y + (k % 12 === 4 ? 24 : 21)); c.stroke(); } } },
-    { id: 'rocher', w: 36, h: 28, draw: (c, x, y, w, h) => { _rBox(c, x, y + 14, w, 14, '#d23a4f'); _rBox(c, x + 3, y + 4, w - 8, 10, '#2f8a55'); } },
-    { id: 'recif', w: 35, h: 28, draw: (c, x, y, w, h) => { _rBox(c, x, y + 18, w, 10, '#173a8a'); _rBox(c, x + 2, y + 9, w - 5, 9, '#e0a800'); _rBox(c, x + 5, y, w - 9, 9, '#d23a4f'); } },
+    { id: 'canon', w: 46, h: 30, draw: (c, x, y, w, h) => { _rBox(c, x, y + 16, w, 14, '#ffe169'); c.strokeStyle = _rInk(); c.lineWidth = 1.4; for (let k = 4; k < w; k += 6) { c.beginPath(); c.moveTo(x + k, y + 16); c.lineTo(x + k, y + (k % 12 === 4 ? 24 : 21)); c.stroke(); } } },
+    { id: 'rocher', w: 32, h: 28, draw: (c, x, y, w, h) => { _rBox(c, x, y + 14, w, 14, '#d23a4f'); _rBox(c, x + 3, y + 4, w - 8, 10, '#2f8a55'); } },
+    { id: 'recif', w: 32, h: 28, draw: (c, x, y, w, h) => { _rBox(c, x, y + 18, w, 10, '#173a8a'); _rBox(c, x + 2, y + 9, w - 5, 9, '#e0a800'); _rBox(c, x + 5, y, w - 9, 9, '#d23a4f'); } },
     { id: 'crabe', w: 32, h: 20, draw: (c, x, y, w, h) => { c.strokeStyle = _rInk(); c.lineWidth = 2.4; c.beginPath(); c.moveTo(x + 4, y + h); c.lineTo(x + 4, y + 4); c.quadraticCurveTo(x + 4, y, x + 9, y); c.lineTo(x + w - 5, y); c.quadraticCurveTo(x + w, y, x + w, y + 5); c.lineTo(x + w, y + h - 4); c.quadraticCurveTo(x + w, y + h, x + w - 5, y + h); c.lineTo(x + 12, y + h); c.lineTo(x + 12, y + 6); c.lineTo(x + w - 8, y + 6); c.lineTo(x + w - 8, y + h - 5); c.stroke(); } },
     { id: 'meduse', w: 32, h: 24, draw: (c, x, y, w, h) => { c.fillStyle = _rDark() ? '#8fb0ff' : '#173a8a'; c.beginPath(); c.ellipse(x + w / 2, y + h * .62, w * .48, h * .38, 0, 0, 7); c.fill(); c.beginPath(); c.arc(x + w * .9, y + 4, 2.6, 0, 7); c.arc(x + w * .15, y + 6, 2, 0, 7); c.fill(); } },
     { id: 'dendenmushi', w: 23, h: 20, draw: (c, x, y, w, h) => { c.fillStyle = '#d23a4f'; c.strokeStyle = _rInk(); c.lineWidth = 2; c.beginPath(); c.ellipse(x + w / 2, y + 6, w / 2, 6, 0, 0, 7); c.fill(); c.stroke(); c.beginPath(); c.moveTo(x + w / 2, y + 12); c.lineTo(x + w / 2, y + h); c.stroke(); } },
@@ -8874,11 +8874,14 @@ function showCursorSnakeToast(msg) {
     const lb = luffyBox();
     for (const o of obstacles) {
       if (o.kind === 'powerup') continue;
-      const x = obstacleX(o);
-      const w = o.def.w;
-      const oTop = o.kind === 'fly' ? FLY_TOP : GROUND_Y - o.def.h;
+      // Collision juste : Libero est un bonhomme fin (on ne compte que son corps, pas
+      // la largeur de sa boite) et les obstacles perdent 4 px de marge sur chaque bord.
+      const x = obstacleX(o) + 4;
+      const w = o.def.w - 8;
+      const oTop = o.kind === 'fly' ? FLY_TOP : GROUND_Y - o.def.h + 4;
       const oBottom = o.kind === 'fly' ? FLY_TOP + FLY_H : GROUND_Y;
-      const overlapX = x < lb.x + lb.w && x + w > lb.x;
+      const bx = ducking ? lb.x + 6 : lb.x + 10, bw = ducking ? lb.w - 12 : lb.w - 20;
+      const overlapX = x < bx + bw && x + w > bx;
       const overlapY = oTop < lb.bottom && oBottom > lb.top;
       if (overlapX && overlapY) return true;
     }
