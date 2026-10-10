@@ -2760,3 +2760,6 @@ html:not(.light) .dm-m.them { color: #9ec1ff; }
 .dm-err:empty { display: none; }
 @media (prefers-reduced-motion: reduce) { .dm-box, .dm-m, .dm-txt, .dm-pen, .dm-plane, .dm-count, .dm-btn { animation: none !important; clip-path: none !important; } .dm-pen { display: none; } }
 .dm-conv > :first-child { margin-top: auto; }
+/* Meme gabarit que la cloche sur telephone (36 px, 10 px du haut), 8 px d'ecart. */
+@media (max-width: 600px) { .dm-btn { top: 10px; right: 54px; width: 36px; height: 36px; } .dm-btn svg { width: 20px; height: 20px; } }
+@media (min-width: 601px) { .dm-btn { right: 60px; } }
