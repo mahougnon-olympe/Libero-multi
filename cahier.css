@@ -2635,3 +2635,14 @@ html:not(.light) #screen-wordle { background-color: #f3efe2; }
 /* Les fenetres sont des ardoises : la croix est toujours a la craie. */
 :root:root :is(.help-close-btn, .profile-modal-close, .snake-vote-close) { color: #eef1ea !important; }
 :root:root .btn-quit.abandon-btn { background-image: none; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--margin) 35%, transparent); text-decoration-thickness: 6px; text-underline-offset: -2px; text-decoration-skip-ink: none; }
+
+/* Bouton pause (Snake, Libero Run, quiz) : les deux barres sont dessinees en CSS.
+   Avant, il ne contenait qu'une icone chargee a part ; si elle tardait, il restait
+   une petite pilule vide (le « tiret » signale par les joueurs). */
+:root:root .snake-pause-btn { position: relative; width: 44px; height: 36px; min-width: 44px; padding: 0; }
+:root:root .snake-pause-btn > * { display: none !important; }
+:root:root .snake-pause-btn::before {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 12px; height: 16px; transform: translate(-50%, -50%);
+  border-left: 4px solid currentColor; border-right: 4px solid currentColor; box-sizing: border-box; border-radius: 1px;
+}
+:root:root .snake-pause-btn.hidden { display: none !important; }
