@@ -4250,7 +4250,7 @@ function _paintGlobalLb() {
   const row = (entry, i, extra = '') => `
     <div class="global-lb-row lb-row-clickable${_lbMe(entry.name)}${i === 0 ? ' lb-top1' : ''}${extra}" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${classes[i] || ''}">${_lbRank(i)}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${_lbPt(entry.portrait)}${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
+      <span class="lb-name">${_lbPt(entry.portrait)}<span class="lb-nm ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}</span>${_titleHtml(entry.title, entry.honorTitle)}</span>
       <span class="global-lb-score">${entry.globalScore} ${t().globalLbPts}</span>
     </div>`;
   let html;
@@ -4287,7 +4287,7 @@ function renderLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row lb-row-clickable${_lbMe(entry.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${classes[i] || ''}">${_lbRank(i)}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${_lbPt(entry.portrait)}${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
+      <span class="lb-name">${_lbPt(entry.portrait)}<span class="lb-nm ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}</span>${_titleHtml(entry.title, entry.honorTitle)}</span>
       <div class="lb-stats">
         <span class="lb-w">${entry.wins}${t().lbW}</span>
         <span class="lb-l">${entry.losses}${t().lbL}</span>
@@ -4314,7 +4314,7 @@ function renderSnakeLeaderboard(data) {
   el.innerHTML = data.map((e, i) => `
     <div class="lb-row lb-row-clickable${_lbMe(e.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(e.name)}" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
       <span class="lb-rank">${_lbRank(i)}</span>
-      <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${_lbPt(e.portrait)}${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
+      <span class="lb-name">${_lbPt(e.portrait)}<span class="lb-nm ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}</span>${_titleHtml(e.title, e.honorTitle)}</span>
       <span class="lb-score-snake">${e.hs} <i class="bolt" aria-label="Libs"></i></span>
     </div>
   `).join('');
@@ -4337,7 +4337,7 @@ function renderLuffyLeaderboard(data) {
   el.innerHTML = data.map((e, i) => `
     <div class="lb-row lb-row-clickable${_lbMe(e.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(e.name)}" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
       <span class="lb-rank">${_lbRank(i)}</span>
-      <span class="lb-name ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${_lbPt(e.portrait)}${e.name}${_titleHtml(e.title, e.honorTitle)}</span>
+      <span class="lb-name">${_lbPt(e.portrait)}<span class="lb-nm ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}</span>${_titleHtml(e.title, e.honorTitle)}</span>
       <span class="lb-score-snake">${e.hs} pts</span>
     </div>
   `).join('');
@@ -4966,7 +4966,7 @@ function renderTriviaLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row lb-row-clickable${_lbMe(entry.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${_lbRank(i)}</span>
-      <span class="lb-name ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${_lbPt(entry.portrait)}${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span>
+      <span class="lb-name">${_lbPt(entry.portrait)}<span class="lb-nm ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}</span>${_titleHtml(entry.title, entry.honorTitle)}</span>
       <div class="lb-stats">
         <span class="lb-w">${entry.points} ${t().triviaLbPts}</span>
         <span class="lb-d">${entry.games} ${t().triviaLbGames}</span>
