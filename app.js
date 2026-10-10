@@ -8666,7 +8666,9 @@ function showCursorSnakeToast(msg) {
   const REF_W = 600, REF_H = 220;
   const GROUND_Y   = 190;
   const GRAVITY    = 2400;
-  const JUMP_VEL   = 760;
+  // Hauteur max = JUMP_VEL² / (2 x GRAVITY) ≈ 56 px : franchit les obstacles au sol (30 px, meme
+  // le canon de 63 px a vitesse max) mais jamais la bande aerienne (38 a 60 px) : il faut s'accroupir.
+  const JUMP_VEL   = 520;
   const LUFFY_X    = 60;
   const STAND_W = 40, STAND_H = 62;
   const DUCK_W  = 54, DUCK_H  = 32;
