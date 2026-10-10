@@ -10639,7 +10639,10 @@ window._ideasBoard = IdeasBoard;
 // ── Le Mot (façon Wordle) : mot mystère du jour, 6 essais ────────────────────
 const Wordle = (() => {
   const ROWS = 6, COLS = 5;
-  const KB = [['Q','W','E','R','T','Y','U','I','O','P'], ['A','S','D','F','G','H','J','K','L'], ['ENTER','Z','X','C','V','B','N','M','DEL']];
+  // Clavier AZERTY en francais, QWERTY en anglais (reconstruit quand la langue change).
+  const KB_EN = [['Q','W','E','R','T','Y','U','I','O','P'], ['A','S','D','F','G','H','J','K','L'], ['ENTER','Z','X','C','V','B','N','M','DEL']];
+  const KB_FR = [['A','Z','E','R','T','Y','U','I','O','P'], ['Q','S','D','F','G','H','J','K','L','M'], ['ENTER','W','X','C','V','B','N','DEL']];
+  let kbLang = null;
   let guesses = [], current = '', done = null, built = false;
 
   const board = () => document.getElementById('wordle-board');
@@ -10686,7 +10689,8 @@ const Wordle = (() => {
   function buildKeyboard() {
     const k = kbEl(); if (!k) return;
     k.innerHTML = '';
-    KB.forEach(rowKeys => {
+    kbLang = currentLang;
+    (currentLang === 'en' ? KB_EN : KB_FR).forEach(rowKeys => {
       const row = document.createElement('div'); row.className = 'wordle-kb-row';
       rowKeys.forEach(key => {
         const btn = document.createElement('button');
@@ -10818,6 +10822,7 @@ const Wordle = (() => {
 
   function enter() {
     if (!built) { buildBoard(); buildKeyboard(); built = true; }
+    else if (kbLang !== currentLang) buildKeyboard();
     loadState();
     document.getElementById('wordle-share')?.classList.toggle('hidden', !done);
     if (done === 'win') setMsg(t().wordleAlreadyWin);
