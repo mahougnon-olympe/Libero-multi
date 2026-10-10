@@ -8694,24 +8694,6 @@ function showCursorSnakeToast(msg) {
   let obstacles, nextSpawnDist, lastSpawnType;
   let invincibleUntil, nextPowerupDist, airshipX, airshipY;
 
-  // ── Sprites d'obstacles (pixel art génériques : tonneaux, rochers, animaux…) ─
-  // Le héros, lui, est dessiné au canvas (mascotte originale « Libero »).
-  const SPRITE_DIR = 'runner-sprites/';
-  function loadSprite(name) { const img = new Image(); img.src = SPRITE_DIR + name; return img; }
-  const SPR = {
-    canon:        loadSprite('canon.png'),
-    boulet:       loadSprite('boulet-canon.png'),
-    rocher:       loadSprite('rocher.png'),
-    recif:        loadSprite('recif.png'),
-    crabe:        loadSprite('crabe.png'),
-    meduse:       loadSprite('meduse.png'),
-    dendenmushi:  loadSprite('dendenmushi.png'),
-    tonneau:      loadSprite('tonneau.png'),
-    dirigeable:   loadSprite('dirigeable.png'),
-    mouette:      loadSprite('mouette.png'),
-    oiseau:       loadSprite('oiseau.png'),
-  };
-
   function getHs()   { return parseInt(localStorage.getItem(HS_KEY) || '0', 10); }
   function saveHs(n) {
     if (n > getHs()) {
