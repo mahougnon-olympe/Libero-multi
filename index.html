@@ -271,23 +271,23 @@
     <p class="step-label" id="step-pick-game">Choisis ton jeu</p>
     <div class="game-selector">
       <button class="game-btn" data-game="connect4">
-        <span class="game-btn-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="26" height="22" rx="2"/><circle cx="10" cy="12" r="2.6"/><circle cx="16" cy="12" r="2.6"/><circle cx="22" cy="12" r="2.6"/><circle cx="10" cy="20" r="2.6" fill="currentColor"/><circle cx="16" cy="20" r="2.6"/><circle cx="22" cy="20" r="2.6" fill="currentColor"/></svg></span>
+        <span class="game-btn-icon game-btn-photo"><img src="assets/games/connect4.webp" alt="" loading="lazy" decoding="async" draggable="false"></span>
         <span id="gn-connect4" class="game-btn-name">Puissance 4</span>
       </button>
       <button class="game-btn" data-game="tictactoe">
-        <span class="game-btn-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v24M20 4v24M4 12h24M4 20h24"/><path d="M5.5 5.5l4 4M9.5 5.5l-4 4"/><circle cx="24" cy="24" r="2.4"/></svg></span>
+        <span class="game-btn-icon game-btn-photo"><img src="assets/games/tictactoe.webp" alt="" loading="lazy" decoding="async" draggable="false"></span>
         <span id="gn-tictactoe" class="game-btn-name">Tic Tac Toe</span>
       </button>
       <button class="game-btn" data-game="chess">
-        <span class="game-btn-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 27h13l-1-4c-1-3 1-5 1-9 0-5-4-8-8-8l-1 3-3 2-3 6 3 2 4-2c0 4-4 6-5 10z"/><circle cx="14" cy="11" r=".6" fill="currentColor"/></svg></span>
+        <span class="game-btn-icon game-btn-photo"><img src="assets/games/chess.webp" alt="" loading="lazy" decoding="async" draggable="false"></span>
         <span id="gn-chess" class="game-btn-name">Échecs</span>
       </button>
       <button class="game-btn" data-game="checkers">
-        <span class="game-btn-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="16" cy="22" rx="11" ry="4"/><path d="M5 22v-4c0-2.2 4.9-4 11-4s11 1.8 11 4v4"/><path d="M5 18c0 2.2 4.9 4 11 4s11-1.8 11-4"/><path d="M8 13v-3c0-1.7 3.6-3 8-3s8 1.3 8 3v3"/><path d="M8 10c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span>
+        <span class="game-btn-icon game-btn-photo"><img src="assets/games/checkers.webp" alt="" loading="lazy" decoding="async" draggable="false"></span>
         <span id="gn-checkers" class="game-btn-name">Dames</span>
       </button>
       <button class="game-btn" data-game="ludo">
-        <span class="game-btn-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="22" height="22" rx="4"/><circle cx="11" cy="11" r="1.6" fill="currentColor"/><circle cx="21" cy="11" r="1.6" fill="currentColor"/><circle cx="16" cy="16" r="1.6" fill="currentColor"/><circle cx="11" cy="21" r="1.6" fill="currentColor"/><circle cx="21" cy="21" r="1.6" fill="currentColor"/></svg></span>
+        <span class="game-btn-icon game-btn-photo"><img src="assets/games/ludo.webp" alt="" loading="lazy" decoding="async" draggable="false"></span>
         <span id="gn-ludo" class="game-btn-name">Ludo</span>
       </button>
     </div>
@@ -791,7 +791,7 @@
   </div>
 
   <!-- ── Cadre News (fixe, haut gauche) ── -->
-  <div id="news-card" class="news-card">
+  <div id="news-card" class="news-card collapsed">
     <span class="news-handle"><span class="ui-ic" data-ic="news">📰</span></span>
     <p class="news-title" id="news-title-el"><span class="ui-ic" data-ic="news">📰</span> News</p>
     <div id="news-announcements"></div>

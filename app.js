@@ -2650,10 +2650,9 @@ let _newsAutoDisabled = false;
 function _scheduleNewsCollapse() {
   if (_newsAutoDisabled) return;
   clearTimeout(_newsTimer);
-  _newsTimer = setTimeout(() => {
-    const nc = document.getElementById('news-card');
-    if (nc) nc.classList.add('collapsed');
-  }, 5000);
+  // La carte News reste repliee : plus d'ouverture au demarrage ni au rafraichissement.
+  const nc = document.getElementById('news-card');
+  if (nc) nc.classList.add('collapsed');
 }
 
 // La boutique n'est plus un overlay : elle est ouverte quand son ecran est actif.
@@ -9787,9 +9786,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
   const el = document.getElementById('news-star');
   if (!el) return;
   el.innerHTML = `<span class="news-star-badge">🏆 Commentaire du jour</span><strong>${_escHtml(pseudo)}</strong> : "${_escHtml(message.slice(0, 100))}"<span class="news-star-likes"> · ❤️ ${_escHtml(likes)}</span>`;
-  el.classList.remove('hidden');
-  const nc = document.getElementById('news-card');
-  if (nc) nc.classList.remove('collapsed');
+  el.classList.remove('hidden'); // la carte News reste repliee (ouverture au clic seulement)
 });
 
 // ── Tutoriel premiers pas ──────────────────────────────────────────────────────
