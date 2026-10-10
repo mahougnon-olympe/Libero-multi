@@ -2339,7 +2339,7 @@ function applyLang() {
   const bl = $('btn-lang');
   if (bl) bl.textContent = currentLang === 'fr' ? '🇫🇷 FR ⇄' : '🇬🇧 EN ⇄';
   const btm = $('btn-theme-toggle'); if (btm) btm.title = d.themeToggle;
-  const ll = $('landing-logo'); if (ll) ll.src = currentLang === 'en' ? 'assets/logo-full-en.svg' : 'assets/logo-full.svg';
+  const ll = $('landing-logo'); if (ll) ll.src = currentLang === 'en' ? 'assets/logo-full-en.svg?v=2' : 'assets/logo-full.svg?v=2';
 
   // Barre de navigation principale
   const nth = $('nav-tab-home-label'); if (nth) nth.textContent = d.navHome;

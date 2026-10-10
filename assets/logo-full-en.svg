@@ -1,42 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64" width="300" height="64" role="img" aria-label="Multiplayer Games">
-  <defs>
-    <linearGradient id="g-hub-f" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#7c5cff"/>
-      <stop offset="1" stop-color="#22d3ee"/>
-    </linearGradient>
-    <linearGradient id="g-text" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#a78bff"/>
-      <stop offset="1" stop-color="#22d3ee"/>
-    </linearGradient>
-    <filter id="glow-f" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
-
-  <!-- Icône (mark) -->
-  <g>
-    <g stroke-linecap="round" filter="url(#glow-f)">
-      <line x1="32" y1="32" x2="32"   y2="13"   stroke="#7c5cff" stroke-width="2.8"/>
-      <line x1="32" y1="32" x2="15.5" y2="41.5" stroke="#22d3ee" stroke-width="2.8"/>
-      <line x1="32" y1="32" x2="48.5" y2="41.5" stroke="#ff4d9d" stroke-width="2.8"/>
-    </g>
-    <g filter="url(#glow-f)">
-      <circle cx="32"   cy="13"   r="4.2" fill="#7c5cff"/>
-      <circle cx="15.5" cy="41.5" r="4.2" fill="#22d3ee"/>
-      <circle cx="48.5" cy="41.5" r="4.2" fill="#ff4d9d"/>
-    </g>
-    <circle cx="32" cy="32" r="10.5" fill="url(#g-hub-f)" filter="url(#glow-f)"/>
-    <circle cx="32" cy="32" r="10.5" fill="none" stroke="#ffffff" stroke-opacity="0.2" stroke-width="1.1"/>
-    <path d="M29.5 27.5 L29.5 36.5 L37.5 32 Z" fill="#ffffff"
-          stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round"/>
-  </g>
-
-  <!-- Wordmark -->
-  <text x="72" y="30" font-family="'Space Grotesk','Segoe UI',system-ui,sans-serif"
-        font-size="22" font-weight="800" letter-spacing="-0.5"
-        fill="url(#g-text)">Games</text>
-  <text x="72" y="50" font-family="'Space Grotesk','Segoe UI',system-ui,sans-serif"
-        font-size="13" font-weight="600" letter-spacing="3"
-        fill="#9698b8">MULTIPLAYER</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64" width="300" height="64" role="img" aria-label="Libero's Multi">
+  <!-- Logo « trois points au crayon » + nom (remplace l'ancien logo neon) -->
+  <g stroke="#1d2433" stroke-width="2.4" stroke-linecap="round"><path d="M32 32V14M32 32 16 41.5M32 32l16.5 9.5"/></g>
+  <circle cx="32" cy="13" r="5" fill="#1b3a8c" stroke="#1d2433" stroke-width="2"/>
+  <circle cx="15.5" cy="41.5" r="5" fill="#e0435a" stroke="#1d2433" stroke-width="2"/>
+  <circle cx="48.5" cy="41.5" r="5" fill="#fbef7a" stroke="#1d2433" stroke-width="2"/>
+  <circle cx="32" cy="32" r="10.5" fill="#fff" stroke="#1d2433" stroke-width="2.4"/>
+  <path d="M29.5 27.5v9l8-4.5z" fill="#1d2433" stroke="#1d2433" stroke-width="1.4" stroke-linejoin="round"/>
+  <text x="68" y="41" font-family="Archivo,'Segoe UI',system-ui,sans-serif" font-size="26" font-weight="900" fill="#1d2433">Libero's <tspan font-family="Caveat,'Comic Sans MS',cursive" font-size="32" font-weight="700" fill="#e0435a">Multi</tspan></text>
 </svg>
