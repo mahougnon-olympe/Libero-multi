@@ -2763,3 +2763,17 @@ html:not(.light) .dm-m.them { color: #9ec1ff; }
 /* Meme gabarit que la cloche sur telephone (36 px, 10 px du haut), 8 px d'ecart. */
 @media (max-width: 600px) { .dm-btn { top: 10px; right: 54px; width: 36px; height: 36px; } .dm-btn svg { width: 20px; height: 20px; } }
 @media (min-width: 601px) { .dm-btn { right: 60px; } }
+
+/* Fenetre de confirmation (ardoise) : le choix sur en grand, l'action en craie rouge. */
+:root:root .confirm-modal { max-width: 380px; }
+:root:root .confirm-text { font-size: 1rem; line-height: 1.45; }
+.confirm-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.confirm-actions .btn { width: 100%; min-height: 46px; margin: 0; }
+:root:root .btn.confirm-danger {
+  background: transparent; color: #ff9a9a; border: 2px dashed #ff9a9a; box-shadow: none;
+  font-family: var(--font-hand); font-weight: 700; font-size: 1.3rem;
+}
+:root:root .btn.confirm-danger:hover { background: rgba(255,154,154,.12); }
+#overlay-confirm { z-index: 3000; }
+:root:root .overlay .confirm-actions .btn.confirm-danger { background: transparent !important; color: #ff9a9a !important; border: 2px dashed #ff9a9a !important; box-shadow: none !important; }
+:root:root .overlay .confirm-actions .btn.confirm-danger:hover { background: rgba(255,154,154,.12) !important; }

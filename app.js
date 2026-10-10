@@ -669,7 +669,7 @@ const DICT = {
     friendsAddBtn:'Ajouter', friendsAddPlaceholder:'Code ami (8 caractères)',
     friendsEmpty:'Aucun ami pour le moment. Demande leur code à tes camarades !',
     friendsOnline:'en ligne', friendsOffline:'hors ligne',
-    friendsChallengeBtn:'⚔️ Défier', friendsRemoveBtn:'✕',
+    friendsChallengeBtn:'⚔️ Défier', friendsRemoveBtn:'Retirer de mes amis', friendRmTitle:'Retirer un ami', friendRmAsk:n=>`Retirer ${n} de tes amis ? Vous ne pourrez plus vous écrire dans « Mes mots ». Tu pourras le réajouter plus tard avec son code.`, friendRmKeep:n=>`Garder ${n}`, friendRmOk:'Retirer',
     friendsErrInvalid:'Code invalide.', friendsErrNotFound:'Aucun joueur avec ce code.', friendsErrFull:'Liste pleine (30 amis max).',
     friendsErrAlready:'Vous êtes déjà amis.', friendsErrNoName:'Choisis d\'abord un pseudo.',
     friendRequestSent:name=>`✅ Demande d'ami envoyée à ${name} !`,
@@ -1449,7 +1449,7 @@ const DICT = {
     friendsAddBtn:'Add', friendsAddPlaceholder:'Friend code (8 characters)',
     friendsEmpty:'No friends yet. Ask your classmates for their code!',
     friendsOnline:'online', friendsOffline:'offline',
-    friendsChallengeBtn:'⚔️ Challenge', friendsRemoveBtn:'✕',
+    friendsChallengeBtn:'⚔️ Challenge', friendsRemoveBtn:'Remove from my friends', friendRmTitle:'Remove a friend', friendRmAsk:n=>`Remove ${n} from your friends? You will no longer be able to write to each other in « My notes ». You can add them back later with their code.`, friendRmKeep:n=>`Keep ${n}`, friendRmOk:'Remove',
     friendsErrInvalid:'Invalid code.', friendsErrNotFound:'No player with this code.', friendsErrFull:'List full (30 friends max).',
     friendsErrAlready:'You are already friends.', friendsErrNoName:'Pick a nickname first.',
     friendRequestSent:name=>`✅ Friend request sent to ${name}!`,
@@ -13010,7 +13010,7 @@ window._showLevelUp = function (lv, reward) {
         <span class="friend-dot ${f.online ? 'on' : ''}" title="${f.online ? t().friendsOnline : t().friendsOffline}"></span>
         <span class="friend-name">${_escHtml(f.name)} <small class="friend-level">⭐ ${f.level}</small></span>
         <button class="btn btn-secondary friend-gift" data-ref="${f.ref}" data-name="${_escHtml(f.name)}" title="🎁">🎁</button>
-        <button class="friend-remove" data-rm="${f.ref}" title="${t().friendsRemoveBtn}">✕</button>
+        <button class="friend-remove" data-rm="${f.ref}" data-name="${_escHtml(f.name)}" title="${t().friendsRemoveBtn}" aria-label="${t().friendsRemoveBtn}">✕</button>
       </div>`).join('') : `<p class="recovery-warn">${t().friendsEmpty}</p>`;
     listEl.innerHTML = reqHtml + listHtml;
   });
@@ -13043,7 +13043,12 @@ window._showLevelUp = function (lv, reward) {
       return;
     }
     const rm = e.target.closest('[data-rm]');
-    if (rm) { socket.emit('remove-friend', { playerId: getPlayerId(), ref: rm.dataset.rm }); return; }
+    if (rm) {
+      const n = rm.dataset.name || '';
+      _slateConfirm({ title: t().friendRmTitle, text: t().friendRmAsk(n), cancel: t().friendRmKeep(n), ok: t().friendRmOk })
+        .then(ok => { if (ok) socket.emit('remove-friend', { playerId: getPlayerId(), ref: rm.dataset.rm }); });
+      return;
+    }
     const g = e.target.closest('.friend-gift');
     if (g) window._openFriendGift?.(g.dataset.ref, g.dataset.name);
   });
@@ -13301,6 +13306,32 @@ function _giftItemName(g) {
   try { want = new URLSearchParams(location.search).get('mots') || sessionStorage.getItem('libero_dm_open'); } catch {}
   if (want) setTimeout(() => open(want === 'list' ? undefined : want), 600);
 })();
+
+// Confirmation dans le style du site (ardoise de poche) au lieu du confirm() du
+// navigateur. Le bouton sur est le choix par defaut (focus, Echap, clic dehors).
+function _slateConfirm({ title, text, ok, cancel }) {
+  const ov = document.getElementById('overlay-confirm');
+  if (!ov) return Promise.resolve(window.confirm(text));
+  document.getElementById('confirm-title').textContent = title || '';
+  document.getElementById('confirm-text').textContent = text || '';
+  const bOk = document.getElementById('btn-confirm-ok'), bNo = document.getElementById('btn-confirm-cancel'), bX = document.getElementById('btn-confirm-close');
+  bOk.textContent = ok || 'OK'; bNo.textContent = cancel || (currentLang === 'en' ? 'Cancel' : 'Annuler');
+  bX.setAttribute('aria-label', currentLang === 'en' ? 'Close' : 'Fermer');
+  const back = document.activeElement;
+  ov.classList.remove('hidden');
+  setTimeout(() => bNo.focus(), 30);
+  return new Promise(res => {
+    const done = v => {
+      ov.classList.add('hidden');
+      bOk.onclick = bNo.onclick = bX.onclick = ov.onclick = null; document.removeEventListener('keydown', key);
+      back?.focus?.(); res(v);
+    };
+    const key = e => { if (e.key === 'Escape') done(false); };
+    bOk.onclick = () => done(true); bNo.onclick = () => done(false); bX.onclick = () => done(false);
+    ov.onclick = e => { if (e.target === ov) done(false); };
+    document.addEventListener('keydown', key);
+  });
+}
 
 // ── Cadeau du jour (theme ete) : petite modale a la 1re connexion du jour ─────
 socket.on('daily-gift', g => {

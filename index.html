@@ -1866,6 +1866,23 @@
     </div>
   </div>
 
+  <!-- Confirmation generique (ardoise de poche) : _slateConfirm() dans app.js -->
+  <div id="overlay-confirm" class="overlay hidden" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-text">
+    <div class="recovery-modal confirm-modal">
+      <div class="profile-modal-header">
+        <h2 id="confirm-title" class="profile-modal-title"></h2>
+        <button id="btn-confirm-close" class="help-close-btn" type="button"></button>
+      </div>
+      <div class="recovery-body">
+        <p id="confirm-text" class="recovery-intro confirm-text"></p>
+        <div class="confirm-actions">
+          <button id="btn-confirm-cancel" class="btn btn-primary" type="button"></button>
+          <button id="btn-confirm-ok" class="btn confirm-danger" type="button"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="vendor/socket.io.min.js"></script>
   <script src="config.js"></script>
   <script src="wordle-words.js"></script>
