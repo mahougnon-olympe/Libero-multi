@@ -337,7 +337,7 @@ function makeSearcher(deadline) {
   const TT = new Map();
   let nodes = 0;
   function quiesce(chess, alpha, beta, qd) {
-    if ((++nodes & 1023) === 0 && Date.now() > deadline) throw new Timeout();
+    if ((++nodes & 63) === 0 && Date.now() > deadline) throw new Timeout();
     const stand = chessEval(chess, chess.turn());
     if (stand >= beta) return stand;
     if (stand > alpha) alpha = stand;
@@ -354,7 +354,7 @@ function makeSearcher(deadline) {
     return alpha;
   }
   function negamax(chess, depth, alpha, beta, ply) {
-    if ((++nodes & 1023) === 0 && Date.now() > deadline) throw new Timeout();
+    if ((++nodes & 63) === 0 && Date.now() > deadline) throw new Timeout();
     if (chess.isCheckmate()) return -MATE + ply;
     if (chess.isDraw()) return 0;
     const inCheck = chess.inCheck ? chess.inCheck() : chess.isCheck();
