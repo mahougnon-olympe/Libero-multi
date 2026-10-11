@@ -2885,6 +2885,9 @@ function showScreen(name) {
   document.body.classList.toggle('screen-events-active', name === 'events');
   document.body.classList.toggle('screen-snake-active', name === 'snake');
   document.body.classList.toggle('screen-arcade-active', name === 'arcade');
+  // « Avec qui ? » : vide a chaque arrivee sur l'ecran ; seul un F5 rend le choix deja fait.
+  if (!wasRestoring && name === 'home') window._whoReset?.['home-who']?.();
+  if (!wasRestoring && name === 'trivia-home') window._whoReset?.['trivia-who']?.();
   if (name === 'events') window._evCal?.render();
   if (name === 'arcade') window._arcade?.enter();
   document.body.classList.toggle('screen-luffy-active', name === 'luffy');
@@ -4703,6 +4706,7 @@ document.querySelectorAll('.who-card').forEach(card => {
     try { w ? sessionStorage.setItem(key, w) : sessionStorage.removeItem(key); } catch {}
   };
   card.querySelectorAll(':scope > .who-row .who-btn').forEach(b => b.addEventListener('click', () => set(b.dataset.who)));
+  (window._whoReset ||= {})[card.id] = () => set('');
   let saved = null; try { saved = sessionStorage.getItem(key); } catch {}
   // Aucun choix par defaut : le joueur choisit lui-meme (seul un choix deja fait revient apres F5).
   set(saved && card.querySelector(`.who-btn[data-who="${saved}"]`) ? saved : '');
