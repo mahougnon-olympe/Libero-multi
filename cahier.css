@@ -356,7 +356,7 @@ html.light .ic3d-face { filter: none; }
 #btn-go-classic { --photo: url(assets/landing/classic.webp); }
 #btn-go-trivia { --photo: url(assets/landing/trivia.webp); }
 #btn-go-events { --photo: url(assets/landing/events.webp); }
-#btn-go-community { --photo: url(assets/landing/community.webp); }
+#btn-go-community { --photo: url(assets/landing/arcade.webp); }
 #btn-go-wordle { --photo: url(assets/landing/wordle.webp); }
 :root:root .landing-card--tile .landing-icon { background: var(--card); border-radius: var(--r-sm); padding: 3px; box-shadow: 0 0 0 1.5px var(--line); }
 @media (max-width: 600px) {
