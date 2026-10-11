@@ -2872,3 +2872,17 @@ html:not(.light) .rl-blot { background: #8fb4ff; }
 html:not(.light) .chatbot-msg-bot .libe-lead { color: #b8bec9; }
 .chatbot-ai-tag.lead { color: #5b6270; border-color: #5b6270; }
 @media (prefers-reduced-motion: reduce) { .rl-first, .rl-blot { animation: none; clip-path: none; opacity: 1; transform: none; } }
+
+/* Mes mots : tiroir a emojis (recents en haut, petit espace, puis toute la liste a faire defiler). */
+.dm-emo { flex: none; width: 44px; height: 44px; border: 1.5px solid var(--text); border-radius: 10px; background: transparent; color: var(--text); display: grid; place-items: center; cursor: pointer; }
+.dm-emo svg { width: 22px; height: 22px; }
+.dm-emo.on { background: var(--hl, #fbef7a); color: #1d2433; }
+.dm-emo:focus-visible, .dm-emo-k:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+.dm-emoji { height: min(38vh, 260px); overflow-y: auto; overscroll-behavior: contain; background: var(--card); border-top: 1.5px solid var(--text); padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
+.dm-emoji.hidden, .dm-emo-grid.hidden { display: none; }
+.dm-emo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); }
+.dm-emo-recent { margin-bottom: 12px; }
+.dm-emo-k { height: 42px; border: none; background: transparent; border-radius: 8px; font-size: 1.6rem; line-height: 1; cursor: pointer; padding: 0; font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+.dm-emo-k:active { transform: scale(1.25); background: var(--card2, rgba(0,0,0,.06)); }
+@media (hover: hover) { .dm-emo-k:hover { background: var(--card2, rgba(0,0,0,.06)); } }
+@media (max-width: 380px) { .dm-sword { padding: 0 6px; } .dm-emo { width: 40px; } }

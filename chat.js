@@ -105,7 +105,7 @@
     if (matchMedia('(min-width: 900px)').matches) setTimeout(() => input.focus(), 50);
   }
   function showList() {
-    current = null; header(); save('list');
+    current = null; header(); save('list'); emoShow(false);
     socket.emit('dm-list', { playerId: getPlayerId() });
   }
   function open(ref) {
@@ -117,10 +117,11 @@
   }
   function close() {
     ov.classList.add('hidden'); document.body.classList.remove('dm-open');
-    current = null; save(null);
+    current = null; save(null); emoShow(false);
   }
   function retext() {
     $('dm-send').setAttribute('aria-label', d().send);
+    $('dm-emo').setAttribute('aria-label', d().emoji); $('dm-emoji').setAttribute('aria-label', d().emoji);
     back.setAttribute('aria-label', d().back);
     menuBtn.setAttribute('aria-label', d().options);
     input.placeholder = d().ph;
@@ -141,6 +142,42 @@
   }
   $('dm-form').addEventListener('submit', e => { e.preventDefault(); send(input.value); });
   $('dm-quick').addEventListener('click', e => { const c = e.target.closest('.dm-chip'); if (c) send(c.textContent); });
+  // ── Tiroir a emojis : les recents en haut (un petit espace), puis tous les emojis a la suite ──
+  const EMO = ('😀 😃 😄 😁 😆 😅 🤣 😂 🙂 🙃 😉 😊 😇 🥰 😍 🤩 😘 😗 😚 😙 😋 😛 😜 🤪 😝 🤑 🤗 🤭 🤫 🤔 🤐 🤨 😐 😑 😶 😏 😒 🙄 😬 😌 😔 😪 🤤 😴 😷 🤒 🤕 🤢 🤮 🥵 🥶 🥴 😵 🤯 🤠 🥳 😎 🤓 🧐 😕 😟 🙁 😮 😯 😲 😳 🥺 😦 😧 😨 😰 😥 😢 😭 😱 😖 😣 😞 😓 😩 😫 🥱 😤 😡 😠 🤬 😈 👿 💀 💩 🤡 👻 👽 🤖 😺 😸 😹 😻 😼 😽 🙀 😿 😾 ' +
+    '👋 🤚 ✋ 🖖 👌 🤏 ✌️ 🤞 🤟 🤘 🤙 👈 👉 👆 👇 ☝️ 👍 👎 ✊ 👊 🤛 🤜 👏 🙌 👐 🤲 🤝 🙏 ✍️ 💪 🦾 👀 🧠 👶 👦 👧 🧑 👨 👩 🧓 🙋 🙅 🙆 🤷 🤦 🙇 💃 🕺 🏃 🚶 ' +
+    '❤️ 🧡 💛 💚 💙 💜 🤎 🖤 🤍 💔 ❣️ 💕 💞 💓 💗 💖 💘 💝 💯 💢 💥 💫 💦 💨 💬 💭 💤 ✨ 🔥 ⭐ 🌟 ⚡ ' +
+    '🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🙈 🙉 🙊 🐔 🐧 🐦 🦅 🦉 🐴 🦄 🐝 🦋 🐌 🐞 🐢 🐍 🦎 🐙 🦀 🐠 🐬 🐳 🦈 🐊 🐘 🦒 🦓 🐪 🌵 🌴 🌳 🌱 🍀 🌸 🌻 🌹 🌍 🌙 ☀️ ⛅ 🌧️ ⛈️ 🌈 ❄️ 🌊 ' +
+    '🍎 🍊 🍋 🍌 🍉 🍇 🍓 🍒 🍑 🥭 🍍 🥥 🥑 🍅 🌶️ 🌽 🥕 🥔 🍞 🧀 🍳 🍗 🍖 🍔 🍟 🍕 🌭 🥪 🌮 🍝 🍜 🍲 🍚 🍛 🍣 🍦 🍩 🍪 🎂 🍰 🍫 🍬 🍭 🍿 🥤 🧃 ☕ 🍵 ' +
+    '⚽ 🏀 🏈 ⚾ 🎾 🏐 🏉 🎱 🏓 🏸 🥊 🥋 ⛳ 🏆 🥇 🥈 🥉 🏅 🎖️ 🎮 🕹️ 🎲 ♟️ 🧩 🎯 🎳 🎨 🎤 🎧 🎵 🎶 🎸 🥁 🎹 🎬 📚 📖 ✏️ 📝 🎒 🏫 💡 📱 💻 ⌚ 📷 🎁 🎈 🎉 🎊 🎀 👑 💎 💰 🚀 ✈️ 🚗 🚲 ⏰ ⌛ ' +
+    '✅ ❌ ❓ ❗ ‼️ ⁉️ 💤 🆗 🆒 🆕 🔝 ➕ ➖ ✔️ 🔴 🟠 🟡 🟢 🔵 🟣 ⚫ ⚪ 🇧🇯 🇫🇷 🇨🇮 🇹🇬 🇳🇬 🇸🇳 🇨🇲').split(' ');
+  const EMO_KEY = 'libero_dm_emo_recent', EMO_OPEN = 'libero_dm_emo_open';
+  const emoBtn = $('dm-emo'), emoBox = $('dm-emoji'), emoRecent = $('dm-emo-recent'), emoAll = $('dm-emo-all');
+  const recents = () => { try { return (JSON.parse(localStorage.getItem(EMO_KEY)) || []).slice(0, 8); } catch { return []; } };
+  const emoBtns = list => list.map(e => `<button type="button" class="dm-emo-k">${e}</button>`).join('');
+  function paintRecent() { const r = recents(); emoRecent.innerHTML = emoBtns(r); emoRecent.classList.toggle('hidden', !r.length); }
+  function emoShow(on) {
+    if (on && !emoAll.firstChild) emoAll.innerHTML = emoBtns(EMO);
+    if (on) { paintRecent(); input.blur(); }
+    emoBox.classList.toggle('hidden', !on);
+    emoBtn.classList.toggle('on', on);
+    emoBtn.setAttribute('aria-expanded', on ? 'true' : 'false');
+    try { on ? sessionStorage.setItem(EMO_OPEN, '1') : sessionStorage.removeItem(EMO_OPEN); } catch {}
+  }
+  emoBtn.addEventListener('click', () => emoShow(emoBox.classList.contains('hidden')));
+  emoBox.addEventListener('click', e => {
+    const k = e.target.closest('.dm-emo-k'); if (!k || input.disabled) return;
+    const em = k.textContent;
+    const a = input.selectionStart ?? input.value.length, b = input.selectionEnd ?? a;
+    const next = input.value.slice(0, a) + em + input.value.slice(b);
+    if (next.length > input.maxLength) return;
+    input.value = next;
+    try { input.setSelectionRange(a + em.length, a + em.length); } catch {}
+    try { localStorage.setItem(EMO_KEY, JSON.stringify([em, ...recents().filter(x => x !== em)].slice(0, 8))); } catch {}
+    input.dispatchEvent(new Event('input'));
+  });
+  // Taper dans le champ ferme le tiroir (le clavier du telephone revient).
+  input.addEventListener('focus', () => { if (!matchMedia('(min-width: 900px)').matches) emoShow(false); });
+  try { if (sessionStorage.getItem(EMO_OPEN)) emoShow(true); } catch {}
   input.addEventListener('input', () => {
     if (!current || Date.now() - lastTypingSent < 2500) return;
     lastTypingSent = Date.now();

@@ -954,15 +954,17 @@
         <button type="button" id="dm-report">Signaler</button>
         <button type="button" id="dm-block">Bloquer</button>
       </div>
-      <div id="dm-list" class="dm-list"></div>
+      <div id="dm-list" class="dm-list emoji-ok"></div>
       <div id="dm-conv-wrap" class="dm-conv-wrap hidden">
-        <div id="dm-conv" class="dm-conv" aria-live="polite"></div>
+        <div id="dm-conv" class="dm-conv emoji-ok" aria-live="polite"></div>
         <div id="dm-quick" class="dm-quick"></div>
         <form id="dm-form" class="dm-comp" autocomplete="off">
           <button type="button" id="dm-challenge" class="dm-sword">Défier</button>
+          <button type="button" id="dm-emo" class="dm-emo" aria-label="Émojis" aria-expanded="false" aria-controls="dm-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 14q4 4 8 0"/><path d="M9 9.5h.01M15 9.5h.01" stroke-width="3"/></svg></button>
           <input id="dm-input" class="dm-in" type="text" maxlength="300" placeholder="Écris un mot…" enterkeyhint="send" />
           <button type="submit" id="dm-send" class="dm-send" aria-label="Envoyer"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-8-6 16-3-7z"/></svg></button>
         </form>
+        <div id="dm-emoji" class="dm-emoji emoji-ok hidden" role="dialog" aria-label="Émojis"><div id="dm-emo-recent" class="dm-emo-grid dm-emo-recent"></div><div id="dm-emo-all" class="dm-emo-grid"></div></div>
         <p id="dm-err" class="dm-err" role="status"></p>
       </div>
     </div>
