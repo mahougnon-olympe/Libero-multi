@@ -315,7 +315,7 @@
       />
       <p class="pseudo-warning hidden" id="pseudo-warning"></p>
       <p class="step-label" id="step-who">Avec qui ?</p>
-      <div class="who-row who-col">
+      <div class="who-row">
         <button type="button" class="who-btn" data-who="bot" id="who-bot">Seul contre le robot</button>
         <button type="button" class="who-btn" data-who="friend" id="who-friend">Avec un ami ou d'autres joueurs</button>
         <button type="button" class="who-btn" data-who="code" id="who-code">J'ai un code</button>
@@ -339,8 +339,10 @@
           <button class="stake-btn" data-stake="100">100 Libs</button>
         </div>
       </div>
-      <button id="btn-create" class="btn btn-primary">Créer une partie multijoueur</button>
+      <div class="who-acts">
+      <button id="btn-create" class="btn btn-primary">Créer une partie</button>
       <button id="btn-challenge-friend" class="btn btn-secondary"><span class="ui-ic" data-ic="swords">⚔️</span> Défier un ami</button>
+      </div>
       </div>
       <div class="who-pane" data-for="code">
       <p class="step-label" id="step-code">Code de la partie</p>
@@ -477,13 +479,7 @@
     <div class="card who-card" id="trivia-who" data-who="">
       <input id="input-trivia-name" type="text" placeholder="Ton pseudo (optionnel)"
         maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false" />
-      <p id="trivia-who-label" class="trivia-theme-label">Avec qui ?</p>
-      <div class="who-row">
-        <button type="button" class="who-btn" data-who="solo" id="twho-solo">Seul</button>
-        <button type="button" class="who-btn" data-who="friend" id="twho-friend">Avec d'autres</button>
-        <button type="button" class="who-btn" data-who="code" id="twho-code">J'ai un code</button>
-      </div>
-      <div class="who-pane" data-for="solo friend">
+      <div class="tq-setup">
       <p id="trivia-theme-label" class="trivia-theme-label">Thèmes (sélection multiple) :</p>
       <div id="trivia-themes" class="trivia-themes"></div>
       <p id="trivia-diff-label" class="trivia-theme-label">Difficulté :</p>
@@ -496,7 +492,7 @@
       </div>
       <p id="trivia-diff-hint" class="trivia-diff-hint">Mixte : questions de tous les niveaux mélangées.</p>
       <div class="trivia-nb-row">
-        <p class="trivia-theme-label"><span id="trivia-nb-label">Nombre de questions</span> : <strong id="trivia-nb-val">10</strong></p>
+        <p class="tq-nb-label"><span id="trivia-nb-label">Nombre de questions</span> : <strong id="trivia-nb-val">10</strong></p>
         <input type="range" id="input-trivia-nb" min="10" max="40" step="5" value="10" class="trivia-nb-slider hidden" />
         <div class="nb-row" id="trivia-nb-btns">
           <button type="button" class="nb-btn" data-nb="10">10</button>
@@ -506,11 +502,17 @@
         </div>
       </div>
       </div>
+      <p id="trivia-who-label" class="trivia-theme-label">Avec qui ?</p>
+      <div class="who-row">
+        <button type="button" class="who-btn" data-who="solo" id="twho-solo">Seul</button>
+        <button type="button" class="who-btn" data-who="friend" id="twho-friend">Avec des amis</button>
+        <button type="button" class="who-btn" data-who="code" id="twho-code">J'ai un code</button>
+      </div>
       <div class="who-pane trivia-action-row" data-for="solo">
         <button id="btn-solo-trivia" class="btn btn-primary">Commencer</button>
       </div>
       <div class="who-pane trivia-action-row" data-for="friend">
-        <button id="btn-create-trivia" class="btn btn-primary">+ Créer un salon</button>
+        <button id="btn-create-trivia" class="btn btn-primary">Créer une partie</button>
         <button id="btn-challenge-friend-quiz" class="btn btn-secondary"><span class="ui-ic" data-ic="swords">⚔️</span> Défier un ami</button>
       </div>
       <div class="who-pane" data-for="code">

@@ -2886,3 +2886,11 @@ html:not(.light) .chatbot-msg-bot .libe-lead { color: #b8bec9; }
 .dm-emo-k:active { transform: scale(1.25); background: var(--card2, rgba(0,0,0,.06)); }
 @media (hover: hover) { .dm-emo-k:hover { background: var(--card2, rgba(0,0,0,.06)); } }
 @media (max-width: 380px) { .dm-sword { padding: 0 6px; } .dm-emo { width: 40px; } }
+
+/* Lancer une partie : meme ossature aux jeux et au quiz (rangee de 3, deux boutons cote a cote). */
+.who-row .who-btn { flex: 1 1 0; min-width: 0; padding-inline: 4px; white-space: normal; line-height: 1.15; }
+.who-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+:root:root .who-pane .who-acts #btn-create, :root:root .who-pane .who-acts #btn-challenge-friend { width: 100%; margin: 0; }
+.who-card[data-who="code"] .tq-setup { display: none; }
+.tq-nb-label { margin: 8px 0 4px; font-size: .82rem; font-weight: 700; color: var(--muted); }
+:root:root .who-acts .btn, :root:root #trivia-who .trivia-action-row .btn { font-size: .92rem; padding-inline: 6px; }
