@@ -4876,7 +4876,14 @@ app.post('/api/libe', async (req, res) => {
     // Fusion des roles consecutifs identiques (exige par l'API).
     const merged = [];
     messages.forEach(m => { const l = merged[merged.length - 1]; if (l && l.role === m.role) l.content += '\n' + m.content; else merged.push({ ...m }); });
-    const sys = LIBE_SYSTEM + (lang === 'en' ? '\nThe site is currently shown in English: answer in English unless the question is in French.' : '');
+    // Langue de reponse = langue du site, imposee en tete des consignes ET rappelee
+    // avec la question (les consignes sont en francais, sinon le modele reste en francais).
+    const langRule = lang === 'en'
+      ? 'RESPONSE LANGUAGE (mandatory): ENGLISH. The site is shown in English: always answer in English, even though these instructions are written in French. Translate site names if useful (Mes mots = My notes, Réglages = Settings, Boutique = Shop).\n\n'
+      : 'LANGUE DE RÉPONSE (obligatoire) : FRANÇAIS, sauf si le joueur écrit clairement dans une autre langue.\n\n';
+    const sys = langRule + LIBE_SYSTEM;
+    const last = merged[merged.length - 1];
+    if (last && last.role === 'user') last.content += lang === 'en' ? '\n\n(Answer in English.)' : '\n\n(Réponds en français.)';
     const ctrl = new AbortController(); const to = setTimeout(() => ctrl.abort(), 20_000);
     let r, j, text = null, inTok = 0, outTok = 0;
     try {
