@@ -431,7 +431,7 @@ async function loadData() {
   });
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   llbDocs.forEach(d => luffyLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, portrait: d.portrait || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, xp: d.xp || 0, iq: d.iq ?? null, iqAt: d.iqAt || 0, wheelDay: d.wheelDay || null, friends: Array.isArray(d.friends) ? d.friends : [], friendRequests: Array.isArray(d.friendRequests) ? d.friendRequests : [], pendingGifts: Array.isArray(d.pendingGifts) ? d.pendingGifts : [], giftSentDay: d.giftSentDay || null, vipUntil: d.vipUntil || 0, dailyGiftDay: d.dailyGiftDay || null, badges: Array.isArray(d.badges) ? d.badges : [], onboardRewards: Array.isArray(d.onboardRewards) ? d.onboardRewards : [], history: Array.isArray(d.history) ? d.history : [], dmBlocked: Array.isArray(d.dmBlocked) ? d.dmBlocked : [], dmPush: d.dmPush !== false, lang: d.lang || null, tttModel: d.tttModel || null }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, portrait: d.portrait || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, xp: d.xp || 0, iq: d.iq ?? null, iqAt: d.iqAt || 0, wheelDay: d.wheelDay || null, friends: Array.isArray(d.friends) ? d.friends : [], friendRequests: Array.isArray(d.friendRequests) ? d.friendRequests : [], pendingGifts: Array.isArray(d.pendingGifts) ? d.pendingGifts : [], giftSentDay: d.giftSentDay || null, vipUntil: d.vipUntil || 0, dailyGiftDay: d.dailyGiftDay || null, badges: Array.isArray(d.badges) ? d.badges : [], onboardRewards: Array.isArray(d.onboardRewards) ? d.onboardRewards : [], history: Array.isArray(d.history) ? d.history : [], dmBlocked: Array.isArray(d.dmBlocked) ? d.dmBlocked : [], dmPush: d.dmPush !== false, lang: d.lang || null, tttModel: d.tttModel || null, chessModel: d.chessModel || null }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   feedDocs.forEach(d => feedVideos.push({
@@ -455,6 +455,8 @@ async function loadData() {
   readerDocs.forEach(d => bookReaders.set(d._id, new Set(Array.isArray(d.readers) ? d.readers : [])));
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
+  const cbDoc = configDocs.find(d => d._id === 'chess_book');
+  if (cbDoc?.value && typeof cbDoc.value === 'object') chessBook = cbDoc.value;
   const tmDoc = configDocs.find(d => d._id === 'ttt_model');
   if (tmDoc?.value && typeof tmDoc.value === 'object') tttModel = tmDoc.value;
   const lDoc = configDocs.find(d => d._id === 'libe_month');
@@ -680,7 +682,7 @@ function dbUpsertLibsPurchase(cartId, purchase) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, portrait: entry.portrait || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], referredBy: entry.referredBy || null, referralRewarded: !!entry.referralRewarded, referrals: entry.referrals || 0, xp: entry.xp || 0, iq: entry.iq ?? null, iqAt: entry.iqAt || 0, wheelDay: entry.wheelDay || null, friends: entry.friends || [], friendRequests: entry.friendRequests || [], pendingGifts: entry.pendingGifts || [], giftSentDay: entry.giftSentDay || null, vipUntil: entry.vipUntil || 0, dailyGiftDay: entry.dailyGiftDay || null, badges: entry.badges || [], onboardRewards: entry.onboardRewards || [], history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [], dmBlocked: entry.dmBlocked || [], dmPush: entry.dmPush !== false, lang: entry.lang || null, tttModel: entry.tttModel || null } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, portrait: entry.portrait || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], referredBy: entry.referredBy || null, referralRewarded: !!entry.referralRewarded, referrals: entry.referrals || 0, xp: entry.xp || 0, iq: entry.iq ?? null, iqAt: entry.iqAt || 0, wheelDay: entry.wheelDay || null, friends: entry.friends || [], friendRequests: entry.friendRequests || [], pendingGifts: entry.pendingGifts || [], giftSentDay: entry.giftSentDay || null, vipUntil: entry.vipUntil || 0, dailyGiftDay: entry.dailyGiftDay || null, badges: entry.badges || [], onboardRewards: entry.onboardRewards || [], history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [], dmBlocked: entry.dmBlocked || [], dmPush: entry.dmPush !== false, lang: entry.lang || null, tttModel: entry.tttModel || null, chessModel: entry.chessModel || null } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -2527,6 +2529,39 @@ function _tttLearnMove(room, mover, boardBefore, cell) {
   } catch (e) {}
 }
 
+// ── Echecs : livre d'ouvertures commun + habitudes de chaque joueur ─────────
+let chessBook = {};
+let _chessSaveT = null;
+function _chessSave() {
+  clearTimeout(_chessSaveT);
+  _chessSaveT = setTimeout(() => {
+    if (db) db.collection('server_config').updateOne({ _id: 'chess_book' }, { $set: { value: chessBook } }, { upsert: true }).catch(() => {});
+    for (const [p, e] of libs.entries()) if (e._chessDirty) { delete e._chessDirty; dbUpsertLibs(p, e); }
+  }, 5000);
+}
+function _chessRecord(room, mover, fenBefore, move) {
+  try {
+    if (room.gameType !== 'chess') return;
+    const key = bots.chessKey(fenBefore);
+    const uci = move.from + move.to + (move.promotion && /[18]$/.test(move.to) ? move.promotion : '');
+    const n = +(fenBefore.split(' ')[5] || 1);
+    if (!room.chessLog) room.chessLog = [];
+    room.chessLog.push({ key, uci, color: mover, n });
+    // Les coups d'un humain enrichissent son modele (ses habitudes).
+    const pid = mover === 'Y' && room.vsBot ? null : safePlayerId(room.playerIds?.[mover]);
+    const e = pid ? libs.get(pid) : null;
+    if (e) { if (!e.chessModel) e.chessModel = {}; bots.chessLearnPlayer(e.chessModel, key, uci); e._chessDirty = true; _chessSave(); }
+  } catch (e) {}
+}
+function _chessGameOver(room, status, winner) {
+  try {
+    if (room.gameType !== 'chess' || !room.chessLog || !room.chessLog.length) return;
+    bots.chessBookUpdate(chessBook, room.chessLog, status === 'draw' ? 'draw' : winner);
+    room.chessLog = [];
+    _chessSave();
+  } catch (e) {}
+}
+
 // ── Bot : calcule et joue le coup du robot ─────────────────────────────────
 
 function scheduleBotMove(code) {
@@ -2563,10 +2598,13 @@ function scheduleBotMove(code) {
         break;
       }
       case 'chess': {
-        const move = bots.botMoveChess(room.state.fen, diff);
+        const hpC = safePlayerId(room.playerIds?.R);
+        const move = bots.botMoveChess(room.state.fen, diff, { book: chessBook, player: hpC ? (libs.get(hpC)?.chessModel || null) : null });
         if (!move) return;
+        const fenBeforeBot = room.state.fen;
         const res = chessGame.applyMove(room.state, move);
         if (!res) return;
+        _chessRecord(room, 'Y', fenBeforeBot, move);
         newState = { fen: res.fen, currentPlayer: res.currentPlayer, isCheck: res.isCheck };
         status = res.status; winner = res.winner;
         break;
@@ -2604,6 +2642,7 @@ function scheduleBotMove(code) {
     io.to(code).emit('game-update', { gameType: room.gameType, state: newState, status, winner });
 
     if (status !== 'playing') {
+      _chessGameOver(room, status, winner);
       const humanName = room.playerNames.R;
       const humanId   = room.playerIds?.R || humanName;
       if (humanName) {
@@ -3061,8 +3100,10 @@ io.on('connection', (socket) => {
       }
 
       case 'chess': {
+        const fenBefore = room.state.fen;
         const result = chessGame.applyMove(room.state, move);
         if (!result) return;
+        _chessRecord(room, myPlayer, fenBefore, move);
         newState = { fen: result.fen, currentPlayer: result.currentPlayer, isCheck: result.isCheck };
         status   = result.status;
         winner   = result.winner;
@@ -3097,6 +3138,7 @@ io.on('connection', (socket) => {
     io.to(roomCode).emit('game-update', { gameType: room.gameType, state: newState, status, winner });
 
     if (status !== 'playing') {
+      _chessGameOver(room, status, winner);
       bumpDaily('games');
       if (isLudoLobby(room)) {
         _finishLudoLobby(room, status, winner);
@@ -3184,7 +3226,7 @@ io.on('connection', (socket) => {
     }
 
     if (room.vsBot) {
-      room.state  = createInitialState(room.gameType, room.variant);
+      room.state  = createInitialState(room.gameType, room.variant); room.chessLog = [];
       room.status = 'playing';
       room.winner = null;
       socket.emit('game-start', { gameType: room.gameType, state: room.state, yourPlayer: 'R', vsBot: true, botDifficulty: room.botDifficulty });
@@ -3194,7 +3236,7 @@ io.on('connection', (socket) => {
     room.restartVotes.add(socket.id);
 
     if (room.restartVotes.size >= 2) {
-      room.state  = createInitialState(room.gameType, room.variant);
+      room.state  = createInitialState(room.gameType, room.variant); room.chessLog = [];
       room.status = 'playing';
       room.winner = null;
       room.restartVotes.clear();
