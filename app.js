@@ -5424,6 +5424,13 @@ $('overlay-help').addEventListener('click', e => {
     else pushLog('bot', esc(aiOn() ? t().libeAi.greeting : t().chatbot.greeting), false);
   }
 
+  // Conversation vide (seulement l'accueil) : on remet l'accueil dans la langue / le mode actuels.
+  function regreetIfEmpty(){
+    const msgs = logEl.querySelectorAll('.chatbot-msg');
+    if (msgs.length > 1 || (msgs.length === 1 && !msgs[0].classList.contains('chatbot-msg-bot'))) return;
+    try { localStorage.removeItem(LS_LOG); } catch(e){}
+    restoreLog(); persist();
+  }
   function openPanel(){
     panel.classList.remove('hidden');
     refreshQuota();
@@ -5447,19 +5454,19 @@ $('overlay-help').addEventListener('click', e => {
     const rb = $('chatbot-reset');    if (rb) rb.title = d.chatbot.reset;
     input.placeholder = aiOn() ? d.libeAi.placeholder : d.chatbot.placeholder;
     buildKB();
-    // Libe parle la langue du site : si elle a change, la conversation repart dans la nouvelle langue.
+    // Libe parle la langue du site. La conversation est GARDEE quand la langue change ;
+    // seul le message d'accueil (s'il est seul) est reecrit dans la nouvelle langue.
     try {
       if (localStorage.getItem('libero_chatbot_lang') !== currentLang) {
         localStorage.setItem('libero_chatbot_lang', currentLang);
-        localStorage.removeItem(LS_LOG);
-        restoreLog();
+        regreetIfEmpty();
       }
     } catch(e){}
   }
   window._chatbot = { retexte };
   document.getElementById('sp-libeai-btn')?.addEventListener('click', () => {
-    try { localStorage.setItem(LS_AI, aiOn() ? '0' : '1'); localStorage.removeItem(LS_LOG); } catch(e){}
-    restoreLog(); retexte(); refreshQuota(); _updateSettingsPanel();
+    try { localStorage.setItem(LS_AI, aiOn() ? '0' : '1'); } catch(e){}
+    regreetIfEmpty(); retexte(); refreshQuota(); _updateSettingsPanel();
   });
 
   fab.addEventListener('click', toggle);
