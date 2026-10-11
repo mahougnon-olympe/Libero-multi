@@ -625,7 +625,7 @@ const DICT = {
       confirm:'Restaurer cette progression ? La progression actuelle de cet appareil sera remplacée.',
     },
     tournamentTitle:'🏆 Tournoi du samedi',
-    tournamentDesc:"Chaque samedi : victoires classiques +10 pts, bonnes réponses de quiz +2 pts, ⚡ mangés au Snake +1 pt. Le meilleur gagne 2000 ⚡ et le titre « Champion de la semaine » !",
+    tournamentDesc:"Chaque samedi : victoires classiques +10 pts, bonnes réponses de quiz +2 pts, pommes mangées au Snake +1 pt. Le meilleur gagne 2000 ⚡ et le titre « Champion de la semaine » !",
     tournamentLive:(h,m)=>`🔴 Tournoi en cours ! Fin dans ${h} h ${m} min`,
     tournamentNext:days=>`Prochain tournoi samedi (dans ${days} jour${days>1?'s':''})`,
     tournamentEmpty:'Aucun point marqué pour le moment. Sois le premier !',
@@ -1111,7 +1111,7 @@ const DICT = {
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     eventsTitle:'Évents', eventsDesc:'Calendrier des week-ends',
     evMonths:['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'], evThisWeekend:x=>`Ce week-end : ${x}`, evNext:x=>`Prochain : ${x}`, evNews:x=>`<strong>Ce week-end</strong> : ${x}`, evNewsNext:(x,n)=>`<strong>Prochain évent</strong> : ${x}, dans ${n} jour${n>1?'s':''}`, evCalendarSub:'Le calendrier des week-ends', evTournament:'Tous les samedis : <b>tournoi</b>, 2000 Libs au champion.', evEmpty:'Les prochains évents arrivent bientôt.', evLive:'En cours', evReward:'Récompense', evNote:'Touche un évent pour voir ses règles. Les dates peuvent encore bouger.',
-    arcadeTitle:'Arcade', arcadeSub:'Des jeux rapides, tous les jours', arcadeRunDesc:'Aide Libero à courir le plus loin possible ! Saute les obstacles, baisse-toi sous ceux qui volent.', arcadeSnakeDesc:'Mange des Libs pour faire grandir ton serpent. Chaque Lib mangé est ajouté à ton solde.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Classements', inArcade:'Dans l\'Arcade',
+    arcadeTitle:'Arcade', arcadeSub:'Des jeux rapides, tous les jours', arcadeRunDesc:'Aide Libero à courir le plus loin possible ! Saute les obstacles, baisse-toi sous ceux qui volent.', arcadeSnakeDesc:'Mange des pommes pour faire grandir ton serpent, sans mordre ta queue.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Classements', inArcade:'Dans l\'Arcade',
     eventsDescLocked:'Week-end prochain',
     eventsLockedCard: days => `📅 Dans ${days} j`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> <u style="cursor:pointer">vote ici</u> !`,
@@ -1148,11 +1148,11 @@ const DICT = {
     challengesNames:{
       wins3:'Gagne 3 parties', play5:'Joue 5 parties (peu importe le jeu)',
       trivia5:'Réponds bien à 5 questions de quiz', trivia12:'Réponds bien à 12 questions de quiz', quiz2:'Termine 2 quiz',
-      snake30:'Mange 30 ⚡ au Snake', snake60:'Mange 60 ⚡ au Snake',
+      snake30:'Mange 30 pommes au Snake', snake60:'Mange 60 pommes au Snake',
       luffy12000:'Cumule 12000 pts au Libero Run', luffyGames3:'Fais 3 parties de Libero Run',
       perm_wins50:'Gagne 50 parties classiques', perm_wins250:'Gagne 250 parties classiques',
       perm_play500:'Joue 500 parties classiques', perm_trivia1000:'Réponds bien à 1000 questions de quiz',
-      perm_snake2000:'Mange 2000 ⚡ au Snake', perm_luffy500k:'Cumule 500 000 pts au Libero Run',
+      perm_snake2000:'Mange 2000 pommes au Snake', perm_luffy500k:'Cumule 500 000 pts au Libero Run',
       perm_streak30:'Tiens une série de connexion de 30 jours',
       perm_wheel30:'Tourne la roue de la fortune 30 fois', perm_ludo25:'Gagne 25 parties de Ludo',
       perm_gift5:'Envoie 5 cadeaux à d\'autres joueurs',
@@ -1216,7 +1216,7 @@ const DICT = {
         { icon:'🗑️', title:'Réinitialiser le compte', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Réinitialiser le compte</strong> supprime <strong>définitivement</strong> toute ta progression : Libs, cosmétiques, série, historique, et tu <strong>disparais de tous les classements</strong>. Le site redémarre ensuite comme à ta toute première visite (animation de bienvenue comprise). Il faut cocher la case de confirmation pour valider. Attention : après la réinitialisation, ton ancien code de récupération ne fonctionne plus." },
         { icon:'🎁', title:'Offrir un cosmétique ou un pack', desc:"Tu peux <strong>offrir</strong> n'importe quel cosmétique payant <strong>ou pack (bundle)</strong> de la boutique ! Ouvre sa fiche et clique <strong>🎁 Offrir</strong>, puis choisis comment l'offrir : <strong>👥 directement à un ami</strong> (il le reçoit tout de suite avec un message), <strong>🔗 par un lien</strong> à partager (WhatsApp, etc.) ou <strong>🔢 par un code</strong>. Un <strong>bouton de confirmation</strong> t'indique le prix avant de débiter tes ⚡, rien n'est envoyé tant que tu ne confirmes pas. Lien et code ne sont utilisables qu'<strong>une seule fois</strong>." },
         { icon:'🎉', title:'Évents', desc:"La carte <strong>Évents</strong> ouvre le <strong>calendrier des week-ends</strong> : chaque week-end a ses évents (Double XP, quiz en direct, Le Mot Marathon, coupes, défis…). Le week-end en cours porte le tampon <strong>En cours</strong> ; touche un évent pour voir ses règles et sa récompense. Le tournoi du samedi a lieu chaque semaine." },
-        { icon:'🏆', title:'Tournoi du samedi', desc:"Chaque <strong>samedi</strong>, un tournoi automatique se joue sur tout le site (suivi en direct dans la carte <strong>News</strong>) : victoires classiques <strong>+10 pts</strong>, bonnes réponses de quiz <strong>+2 pts</strong>, ⚡ mangés au Snake <strong>+1 pt</strong>. À minuit, le meilleur remporte <strong>2000 ⚡</strong> et le titre honorifique <strong>« Champion de la semaine »</strong>, gardé jusqu'au tournoi suivant. Le top 10 s'affiche en direct." },
+        { icon:'🏆', title:'Tournoi du samedi', desc:"Chaque <strong>samedi</strong>, un tournoi automatique se joue sur tout le site (suivi en direct dans la carte <strong>News</strong>) : victoires classiques <strong>+10 pts</strong>, bonnes réponses de quiz <strong>+2 pts</strong>, pommes mangées au Snake <strong>+1 pt</strong>. À minuit, le meilleur remporte <strong>2000 ⚡</strong> et le titre honorifique <strong>« Champion de la semaine »</strong>, gardé jusqu'au tournoi suivant. Le top 10 s'affiche en direct." },
         { icon:'🤝', title:'Inviter un ami (parrainage)', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Inviter un ami</strong> te donne ton <strong>lien d'invitation</strong>. Quand un nouveau joueur arrive par ton lien et joue sa <strong>première partie</strong>, vous recevez chacun <strong>+100 ⚡</strong>. Le nombre de joueurs que tu as parrainés s'affiche dans la fenêtre." },
         { icon:'💰', title:'Duels avec mise', desc:"En créant une partie multijoueur classique, tu peux choisir une <strong>mise</strong> (25, 50 ou 100 ⚡). Les deux joueurs paient la mise au départ et <strong>le vainqueur rafle tout</strong> (le double). Match nul ou partie annulée : chacun est <strong>remboursé</strong>. Il faut un pseudo et un solde suffisant des deux côtés ; la revanche remet la même mise si les deux peuvent payer." },
         { icon:'⭐', title:'Niveaux et XP', desc:"Chaque partie te rapporte de l'<strong>XP</strong> (+25 par partie, bonus en cas de <strong>victoire</strong> et selon ton score au <strong>quiz</strong>). Ton <strong>niveau</strong> s'affiche en haut de ton Profil avec une barre de progression. À chaque niveau gagné tu reçois des <strong>⚡ Libs</strong> (de plus en plus), et les paliers <strong>10, 25 et 50</strong> offrent un gros bonus (jusqu'à <strong>+5000 ⚡</strong>)." },
@@ -1263,7 +1263,7 @@ const DICT = {
         { icon:'🔴', title:'Jetons Puissance 4', desc:"Restyle tes pions dans la grille 7×6 (motif, texture, lueur). La distinction <strong>rouge / jaune</strong> entre les deux camps est conservée · le skin habille la couleur sans la rendre ambiguë. Tes deux adversaires verront tes jetons. Rareté : Rare à Épique." },
         { icon:'✖️', title:'Symboles Morpion', desc:"Remplace les X / O par une paire de symboles personnalisés sur la grille 3×3. Les deux symboles restent nettement distinguables. Ton adversaire voit ta paire. Exemples : Soleil / Lune ☀️🌙, Cœur / Étoile ❤️⭐. Rareté : Commun à Épique." },
         { icon:'♟️', title:'Thèmes d\'échiquier', desc:"Restyle le plateau et les pièces de l'échiquier. Le contraste cases claires / sombres et la lisibilité des pièces sont toujours garantis. Ton adversaire voit ton thème. Exemples : Cyber Grid, Marbre Royal. Rareté : Épique à Légendaire." },
-        { icon:'🐍', title:'Skins Snake (Évents)', desc:"Modifie l'apparence du serpent, des ⚡ et du plateau au <strong>Snake</strong> (dans l'Arcade). Mode solo uniquement · aucun souci d'équité. Exemples : Serpent Arc-en-ciel, Serpent de Lave, Plateau Galaxie. Rareté : Rare à Légendaire." },
+        { icon:'🐍', title:'Skins Snake (Évents)', desc:"Modifie l'apparence du serpent, de sa nourriture et du plateau au <strong>Snake</strong> (dans l'Arcade). Mode solo uniquement · aucun souci d'équité. Exemples : Serpent Arc-en-ciel, Serpent de Lave, Plateau Galaxie. Rareté : Rare à Légendaire." },
         { icon:'💥', title:'Particules de clic', desc:"Remplace les particules qui s'affichent lorsque tu cliques sur les boutons et cartes du site. Exemples : Bulles 🫧, Confettis 🎊, Feu d\'Artifice 🎆. Rareté : Commun à Épique." },
         { icon:'🌈', title:'Packs d\'émojis', desc:"Remplace le jeu d'émojis de la pluie animée au premier chargement de la page. Exemples : Pack Fête 🎉, Pack Gaming 🎮, Pack Cosmos 🌌. Rareté : Commun à Rare." },
         { icon:'🏆', title:'Bannières de victoire', desc:"Personnalise le style et l'animation de la bannière de fin de partie (victoire). Visible à l'écran de résultat des jeux classiques et du quiz. Exemples : Triomphe Néon, Flammes de Champion, Couronnement. Rareté : Épique à Légendaire." },
@@ -1320,7 +1320,7 @@ const DICT = {
       landing_lb:"Le <b>classement</b> de tous les joueurs. Joue pour monter !",
       landing_btns:"Réglages, aide et assistant : tout est dans ton <b>Profil</b>.",
       landing_libs:"Gagne des <b>Libs</b> en jouant, dépense-les ici.",
-      events_snake:"Mange les Libs pour grandir : ils vont dans ton <b>solde</b>.",
+      events_snake:"Mange les <b>pommes</b> pour grandir, sans mordre ta queue.",
       luffy_runner:"<b>Saute</b> les obstacles au sol, <b>baisse-toi</b> sous ceux qui volent.",
       home_games:"<b>Choisis un jeu</b> pour commencer.",
       home_bot:"Entraîne-toi contre le <b>bot</b>.",
@@ -1413,7 +1413,7 @@ const DICT = {
       confirm:'Restore this progress? The current progress on this device will be replaced.',
     },
     tournamentTitle:'🏆 Saturday tournament',
-    tournamentDesc:'Every Saturday: classic wins +10 pts, correct quiz answers +2 pts, ⚡ eaten in Snake +1 pt. The best player wins 2000 ⚡ and the "Weekly Champion" title!',
+    tournamentDesc:'Every Saturday: classic wins +10 pts, correct quiz answers +2 pts, apples eaten in Snake +1 pt. The best player wins 2000 ⚡ and the "Weekly Champion" title!',
     tournamentLive:(h,m)=>`🔴 Tournament live! Ends in ${h}h ${m}min`,
     tournamentNext:days=>`Next tournament on Saturday (in ${days} day${days>1?'s':''})`,
     tournamentEmpty:'No points scored yet. Be the first!',
@@ -1899,7 +1899,7 @@ const DICT = {
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     eventsTitle:'Events', eventsDesc:'Weekend calendar',
     evMonths:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], evThisWeekend:x=>`This weekend: ${x}`, evNext:x=>`Next: ${x}`, evNews:x=>`<strong>This weekend</strong>: ${x}`, evNewsNext:(x,n)=>`<strong>Next event</strong>: ${x}, in ${n} day${n>1?'s':''}`, evCalendarSub:'The weekend calendar', evTournament:'Every Saturday: <b>tournament</b>, 2000 Libs for the champion.', evEmpty:'The next events are coming soon.', evLive:'Live', evReward:'Reward', evNote:'Tap an event to see its rules. Dates may still change.',
-    arcadeTitle:'Arcade', arcadeSub:'Quick games, every day', arcadeRunDesc:'Help Libero run as far as possible! Jump over obstacles, duck under the flying ones.', arcadeSnakeDesc:'Eat Libs to make your snake grow. Every Lib eaten is added to your balance.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Leaderboards', inArcade:'In the Arcade',
+    arcadeTitle:'Arcade', arcadeSub:'Quick games, every day', arcadeRunDesc:'Help Libero run as far as possible! Jump over obstacles, duck under the flying ones.', arcadeSnakeDesc:'Eat apples to make your snake grow, without biting your own tail.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Leaderboards', inArcade:'In the Arcade',
     eventsDescLocked:'Next weekend',
     eventsLockedCard: days => `📅 In ${days}d`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> <u style="cursor:pointer">vote here</u>!`,
@@ -1936,11 +1936,11 @@ const DICT = {
     challengesNames:{
       wins3:'Win 3 games', play5:'Play 5 games (any game)',
       trivia5:'Answer 5 quiz questions right', trivia12:'Answer 12 quiz questions right', quiz2:'Finish 2 quizzes',
-      snake30:'Eat 30 ⚡ in Snake', snake60:'Eat 60 ⚡ in Snake',
+      snake30:'Eat 30 apples in Snake', snake60:'Eat 60 apples in Snake',
       luffy12000:'Rack up 12000 pts in Libero Run', luffyGames3:'Play 3 Libero Run games',
       perm_wins50:'Win 50 classic games', perm_wins250:'Win 250 classic games',
       perm_play500:'Play 500 classic games', perm_trivia1000:'Answer 1000 quiz questions right',
-      perm_snake2000:'Eat 2000 ⚡ in Snake', perm_luffy500k:'Rack up 500,000 pts in Libero Run',
+      perm_snake2000:'Eat 2000 apples in Snake', perm_luffy500k:'Rack up 500,000 pts in Libero Run',
       perm_streak30:'Hold a 30-day login streak',
       perm_wheel30:'Spin the wheel of fortune 30 times', perm_ludo25:'Win 25 Ludo games',
       perm_gift5:'Send 5 gifts to other players',
@@ -2004,7 +2004,7 @@ const DICT = {
         { icon:'🗑️', title:'Reset account', desc:"In the <strong>Profile</strong> tab, the <strong>Reset account</strong> card <strong>permanently</strong> deletes all your progress: Libs, cosmetics, streak, history, and you <strong>disappear from every leaderboard</strong>. The site then restarts as if it were your very first visit (welcome animation included). You must tick the confirmation box to proceed. Warning: after the reset, your old recovery code no longer works." },
         { icon:'🎁', title:'Gift a cosmetic or a pack', desc:"You can <strong>gift</strong> any paid cosmetic <strong>or pack (bundle)</strong> from the shop! Open its detail sheet and click <strong>🎁 Gift</strong>, then choose how: <strong>👥 straight to a friend</strong> (they get it right away with a message), <strong>🔗 via a link</strong> to share, or <strong>🔢 via a code</strong>. A <strong>confirmation button</strong> shows the price before charging your ⚡, nothing is sent until you confirm. Link and code can only be used <strong>once</strong>." },
         { icon:'🎉', title:'Events', desc:"The <strong>Events</strong> card opens the <strong>weekend calendar</strong>: each weekend has its events (Double XP, live quiz, The Word Marathon, cups, challenges…). The current weekend is stamped <strong>Live</strong>; tap an event to see its rules and reward. The Saturday tournament happens every week." },
-        { icon:'🏆', title:'Saturday tournament', desc:"Every <strong>Saturday</strong>, an automatic tournament runs across the whole site (followed live in the <strong>News</strong> card): classic wins <strong>+10 pts</strong>, correct quiz answers <strong>+2 pts</strong>, ⚡ eaten in Snake <strong>+1 pt</strong>. At midnight the best player wins <strong>2000 ⚡</strong> and the honorary <strong>\"Weekly Champion\"</strong> title, kept until the next tournament. The top 10 shows live." },
+        { icon:'🏆', title:'Saturday tournament', desc:"Every <strong>Saturday</strong>, an automatic tournament runs across the whole site (followed live in the <strong>News</strong> card): classic wins <strong>+10 pts</strong>, correct quiz answers <strong>+2 pts</strong>, apples eaten in Snake <strong>+1 pt</strong>. At midnight the best player wins <strong>2000 ⚡</strong> and the honorary <strong>\"Weekly Champion\"</strong> title, kept until the next tournament. The top 10 shows live." },
         { icon:'🤝', title:'Invite a friend (referral)', desc:"In the <strong>Profile</strong> tab, the <strong>Invite a friend</strong> card gives you your <strong>invite link</strong>. When a new player arrives through your link and plays their <strong>first game</strong>, you each receive <strong>+100 ⚡</strong>. The number of players you referred shows in the window." },
         { icon:'💰', title:'Stake duels', desc:"When creating a classic multiplayer game, you can pick a <strong>stake</strong> (25, 50 or 100 ⚡). Both players pay the stake at the start and <strong>the winner takes all</strong> (double). Draw or cancelled game: both are <strong>refunded</strong>. A nickname and enough balance are required on both sides; a rematch re-collects the same stake if both can pay." },
         { icon:'⭐', title:'Levels and XP', desc:"Every game earns you <strong>XP</strong> (+25 per game, bonus for a <strong>win</strong> and for your <strong>quiz</strong> score). Your <strong>level</strong> shows at the top of your Profile with a progress bar. Each new level rewards you with <strong>⚡ Libs</strong> (more and more), and milestones <strong>10, 25 and 50</strong> grant a big bonus (up to <strong>+5000 ⚡</strong>)." },
@@ -2051,7 +2051,7 @@ const DICT = {
         { icon:'🔴', title:'Connect 4 Tokens', desc:"Restyle your tokens in the 7×6 grid (pattern, texture, glow). The <strong>red / yellow</strong> distinction between teams is always preserved. Your opponent will see your tokens. Rarity: Rare to Epic." },
         { icon:'✖️', title:'Tic-Tac-Toe Symbols', desc:"Replace X / O with a custom pair of symbols on the 3×3 grid. Both symbols remain clearly distinguishable. Your opponent sees your pair. Examples: Sun / Moon ☀️🌙, Heart / Star ❤️⭐. Rarity: Common to Epic." },
         { icon:'♟️', title:'Chess Themes', desc:"Restyle the chessboard and pieces. Light/dark square contrast and piece legibility are always guaranteed. Your opponent sees your theme. Examples: Cyber Grid, Royal Marble. Rarity: Epic to Legendary." },
-        { icon:'🐍', title:'Snake Skins (Events)', desc:"Change the appearance of the snake, the ⚡ and the board in <strong>Snake</strong> (in the Arcade). Solo mode only · no fairness issue. Examples: Rainbow Snake, Lava Snake, Galaxy Board. Rarity: Rare to Legendary." },
+        { icon:'🐍', title:'Snake Skins (Events)', desc:"Change the appearance of the snake, its food and the board in <strong>Snake</strong> (in the Arcade). Solo mode only · no fairness issue. Examples: Rainbow Snake, Lava Snake, Galaxy Board. Rarity: Rare to Legendary." },
         { icon:'💥', title:'Click Particles', desc:"Replace the particles shown when you click buttons and cards on the site. Examples: Bubbles 🫧, Confetti 🎊, Firework 🎆. Rarity: Common to Epic." },
         { icon:'🌈', title:'Emoji Packs', desc:"Replace the emoji set in the animated emoji rain on the first page load. Examples: Party Pack 🎉, Gaming Pack 🎮, Cosmos Pack 🌌. Rarity: Common to Rare." },
         { icon:'🏆', title:'Victory Banners', desc:"Customize the style and animation of the end-of-game banner (win screen). Shown at the result screen of classic games and quizzes. Examples: Neon Triumph, Champion Flames, Coronation. Rarity: Epic to Legendary." },
@@ -2108,7 +2108,7 @@ const DICT = {
       landing_lb:"Everyone's <b>leaderboard</b>. Play to climb!",
       landing_btns:"Settings, help and assistant: all in your <b>Profile</b>.",
       landing_libs:"Earn <b>Libs</b> by playing, spend them here.",
-      events_snake:"Eat the Libs to grow: they go to your <b>balance</b>.",
+      events_snake:"Eat the <b>apples</b> to grow, without biting your tail.",
       luffy_runner:"<b>Jump</b> over ground obstacles, <b>duck</b> under flying ones.",
       home_games:"<b>Pick a game</b> to start.",
       home_bot:"Practise against the <b>bot</b>.",
@@ -2223,7 +2223,7 @@ const EV_CAL = [
   ['2026-12-19', [
     ['c5','sun','Saison « Vacances »','"Holidays" season','Quatre week-ends reliés, un passe de saison avec des paliers de récompenses.','Four linked weekends, a season pass with reward tiers.','Cosmétiques de saison','Season cosmetics']]],
   ['2026-12-26', [
-    ['c5','worm','Snake à plusieurs','Multiplayer Snake','Lancement : plusieurs serpents dans la même arène, le dernier en vie gagne la manche.','Launch: several snakes in the same arena, the last one alive wins the round.','Libs mangés et bonus de survie','Libs eaten and a survival bonus']]],
+    ['c5','worm','Snake à plusieurs','Multiplayer Snake','Lancement : plusieurs serpents dans la même arène, le dernier en vie gagne la manche.','Launch: several snakes in the same arena, the last one alive wins the round.','Bonus de survie en Libs','Survival bonus in Libs']]],
   ['2027-01-02', [
     ['c5','run','Libero Run en duel','Libero Run duel','Lancement : deux coureurs sur la même piste, le premier qui tombe perd.','Launch: two runners on the same track, the first to fall loses.','500 Libs au 1er du classement des duels','500 Libs for the top of the duel leaderboard']]],
   ['2027-01-09', [
@@ -8636,7 +8636,7 @@ function showCursorSnakeToast(msg) {
     score  = 0;
     running = true;
     paused  = false;
-    // Évent : déclare la partie au serveur, qui créditera chaque ⚡ mangé en Libs.
+    // Declare la partie au serveur : chaque pomme compte pour les defis et le tournoi.
     socket.emit('snake-game-start', { playerId: getPlayerId() });
     cursorSnake.enterGame(); // le serpent est désormais « en Game »
     document.getElementById('snake-score-val').textContent = 0;
@@ -8661,7 +8661,7 @@ function showCursorSnakeToast(msg) {
     if (head.x === food.x && head.y === food.y) {
       score++;
       SFX.snakeEat();
-      // Chaque ⚡ mangé est crédité en direct (le serveur vérifie la plausibilité).
+      // Chaque pomme est comptee en direct (le serveur verifie la plausibilite).
       socket.emit('snake-eat', { playerId: getPlayerId() });
       saveHs(score);
       document.getElementById('snake-score-val').textContent = score;
@@ -8704,7 +8704,7 @@ function showCursorSnakeToast(msg) {
     }
 
     // Pomme / food
-    const foodEmoji = skin ? skin.food : '⚡'; // évent : le serpent mange des Libs
+    const foodEmoji = skin ? skin.food : '🍎'; // une pomme, ou la nourriture du skin equipe
     ctx.font = `${CELL}px serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(foodEmoji, (food.x + 0.5) * CELL, (food.y + 0.5) * CELL);
@@ -10169,7 +10169,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     {
       id: 'events_snake',
       screen: 'snake',
-      text: 'Mange les Libs pour grandir : ils vont dans ton <b>solde</b>.',
+      text: 'Mange les <b>pommes</b> pour grandir, sans mordre ta queue.',
       target: '.event-intro',
     },
 

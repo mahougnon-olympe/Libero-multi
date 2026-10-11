@@ -14,7 +14,7 @@ Site : https://libero-multi.vercel.app
   (facile, moyen, difficile). Mises de 25, 50 ou 100 Libs.
 - **Culture generale** : quiz de 15 themes (dont Benin), solo ou salon jusqu'a 6 joueurs.
 - **Le Mot** : un mot mystere de 5 lettres en 6 essais, chaque jour.
-- **Evenements** : Snake Challenge le week-end, Libero Run, tournoi du samedi.
+- **Arcade** : Libero Run et Snake, tous les jours. **Evenements** : le calendrier des week-ends, tournoi du samedi.
 - **Lecture** : romans exclusifs lus chapitre par chapitre (FR/EN).
 - **Profil** : carnet de correspondance (niveaux 1 a 60), portrait dessine, hauts faits
   (tampons), historique, amis, compte optionnel (pseudo + mot de passe).
@@ -75,7 +75,7 @@ Site : https://libero-multi.vercel.app
 | `FEDAPAY_SECRET_KEY`, `FEDAPAY_WEBHOOK_SECRET`, `FEDAPAY_API_BASE`, `LIBS_TOPUP_ENABLED` | Recharge de Libs (fermee pour l'instant) |
 | `PROMO_CODES`, `PROMO_FILL_CODE` | Codes promo |
 | `RENDER_EXTERNAL_URL` / `SELF_URL` | Keep-alive du serveur |
-| `SNAKE_EVENT_FORCE` | Forcer l'evenement Snake hors week-end (tests) |
+| `SNAKE_EVENT_FORCE` | Forcer les defis Snake du week-end (tests) |
 
 ## Lancer en local
 
