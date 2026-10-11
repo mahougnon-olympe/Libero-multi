@@ -4782,7 +4782,7 @@ app.post('/api/bot-log', (req, res) => {
 const _GEM = process.env.GEMINI_API_KEY || '', _ANT = process.env.ANTHROPIC_API_KEY || '';
 const LIBE_PROVIDER = process.env.LIBE_PROVIDER === 'claude' && _ANT ? 'claude' : (_GEM ? 'gemini' : (_ANT ? 'claude' : ''));
 const LIBE_KEY = LIBE_PROVIDER === 'gemini' ? _GEM : _ANT;
-const LIBE_MODEL = process.env.LIBE_MODEL || (LIBE_PROVIDER === 'gemini' ? 'gemini-2.5-flash-lite' : 'claude-haiku-4-5');
+const LIBE_MODEL = process.env.LIBE_MODEL || (LIBE_PROVIDER === 'gemini' ? 'gemini-3.5-flash-lite' : 'claude-haiku-4-5');
 // Quotas : plus serres avec l'offre gratuite de Gemini (limite de requetes par jour).
 const LIBE_PER_DAY = +process.env.LIBE_PER_DAY || (LIBE_PROVIDER === 'gemini' ? 10 : 20);           // par joueur et par jour
 const LIBE_DAILY_CAP = +process.env.LIBE_DAILY_CAP || (LIBE_PROVIDER === 'gemini' ? 800 : 400);     // tout le site, par jour
