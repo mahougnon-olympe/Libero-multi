@@ -7619,7 +7619,10 @@ function _settingsOutsideClick(e) {
   if (!e.isTrusted) return; // ignore programmatic .click() calls from sp-buttons
   const panel = document.getElementById('settings-panel');
   const btn   = document.getElementById('btn-settings');
-  if (panel && !panel.contains(e.target) && btn && !btn.contains(e.target)) {
+  // Trajet du clic fige au moment du clic : une case qui se redessine (la coche
+  // remplace son contenu) ne fait plus croire a un clic en dehors du panneau.
+  const path = typeof e.composedPath === 'function' ? e.composedPath() : [e.target];
+  if (panel && btn && !path.includes(panel) && !path.includes(btn)) {
     _closeSettingsPanel();
   }
 }
