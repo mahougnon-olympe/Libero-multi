@@ -2833,3 +2833,6 @@ html:not(.light) .dm-m.them { color: #9ec1ff; }
   :root:root .chatbot-panel { top: 60px; height: auto; max-height: none; }
 }
 body:has(#chatbot-panel:not(.hidden)) .news-card { display: none !important; }
+/* Tampon « IA » pose a droite du crayon Libe (et non etire sous lui). */
+:root:root .chatbot-header-txt { position: relative; }
+:root:root .chatbot-header-txt .chatbot-ai-tag { position: absolute; left: 46px; top: 12px; margin: 0; width: auto; transform: rotate(-6deg); }
