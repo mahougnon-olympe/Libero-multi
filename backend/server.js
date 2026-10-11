@@ -457,6 +457,12 @@ async function loadData() {
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
   const lDoc = configDocs.find(d => d._id === 'libe_month');
   if (lDoc?.value?.k) libeMonth = { k: lDoc.value.k, n: lDoc.value.n || 0, inTok: lDoc.value.inTok || 0, outTok: lDoc.value.outTok || 0 };
+  const ldDoc = configDocs.find(d => d._id === 'libe_day');
+  if (ldDoc?.value?.k) {
+    libeDay = { k: ldDoc.value.k, n: ldDoc.value.n || 0 };
+    Object.entries(ldDoc.value.use || {}).forEach(([k, v]) => libeUse.set(k, v));
+    Object.entries(ldDoc.value.ip || {}).forEach(([k, v]) => libeIpUse.set(k, v));
+  }
   const tDoc = configDocs.find(d => d._id === 'tournament');
   if (tDoc?.value) tournament = { week: tDoc.value.week || null, scores: tDoc.value.scores || {}, champion: tDoc.value.champion || null };
   const gcDoc = configDocs.find(d => d._id === 'game_counters');
@@ -4837,7 +4843,12 @@ function _libeKeys() {
 let _libeSaveT = null;
 function _libeSave() {
   clearTimeout(_libeSaveT);
-  _libeSaveT = setTimeout(() => { if (db) db.collection('server_config').updateOne({ _id: 'libe_month' }, { $set: { value: { ...libeMonth } } }, { upsert: true }).catch(() => {}); }, 2000);
+  _libeSaveT = setTimeout(() => {
+    if (!db) return;
+    db.collection('server_config').updateOne({ _id: 'libe_month' }, { $set: { value: { ...libeMonth } } }, { upsert: true }).catch(() => {});
+    // Compteurs du jour (par joueur et par IP) : survivent aux redemarrages et mises a jour.
+    db.collection('server_config').updateOne({ _id: 'libe_day' }, { $set: { value: { k: libeDay.k, n: libeDay.n, use: Object.fromEntries(libeUse), ip: Object.fromEntries(libeIpUse) } } }, { upsert: true }).catch(() => {});
+  }, 1500);
 }
 function _libeLeft(pid) { const d = _libeKeys(); return Math.max(0, LIBE_PER_DAY - (libeUse.get(d + '|' + pid) || 0)); }
 
@@ -4854,7 +4865,8 @@ app.post('/api/libe', async (req, res) => {
     if (!pid || !q) return res.json({ ok: false, error: 'invalid' });
     if (!LIBE_KEY) return res.json({ ok: false, error: 'off' });
     const d = _libeKeys();
-    const ip = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown').trim();
+    // Empreinte de l'IP (jamais l'IP elle-meme, qui n'est pas enregistree en base).
+    const ip = crypto.createHash('sha256').update((req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown').trim()).digest('hex').slice(0, 16);
     const used = libeUse.get(d + '|' + pid) || 0, ipUsed = libeIpUse.get(d + '|' + ip) || 0;
     if (used >= LIBE_PER_DAY || ipUsed >= LIBE_PER_DAY * 3) return res.json({ ok: false, error: 'quota', left: 0 });
     if (libeDay.n >= LIBE_DAILY_CAP || libeMonth.n >= LIBE_MONTHLY_CAP) return res.json({ ok: false, error: 'busy', left: LIBE_PER_DAY - used });
@@ -4914,7 +4926,7 @@ app.post('/api/libe', async (req, res) => {
       }
     } finally { clearTimeout(to); }
     if (!text) {
-      libeUse.set(d + '|' + pid, used); // echec (quota gratuit atteint, panne) : la question n'est pas comptee
+      libeUse.set(d + '|' + pid, used); _libeSave(); // echec (quota gratuit atteint, panne) : la question n'est pas comptee
       logServerError?.('libe', new Error('IA ' + LIBE_PROVIDER + ' ' + (r && r.status) + ' ' + JSON.stringify(j?.error || '').slice(0, 200)));
       return res.json({ ok: false, error: 'busy', left: LIBE_PER_DAY - used });
     }
