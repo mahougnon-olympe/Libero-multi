@@ -228,15 +228,15 @@
 
       <div class="landing-tiles">
         <button class="landing-card landing-card--tile landing-card--tile-event" id="btn-go-events">
-          <span class="landing-icon" data-ic="calendar">🎉</span>
+          <span class="landing-icon" data-ic="calweek"></span>
           <h2 id="events-card-title">Évents</h2>
-          <p id="events-card-desc">Week-end · Snake Challenge</p>
+          <p id="events-card-desc">Calendrier des week-ends</p>
           <p id="event-card-countdown" class="event-card-countdown"></p>
         </button>
         <button class="landing-card landing-card--tile landing-card--community" id="btn-go-community">
-          <span class="landing-icon" data-ic="zap">🏃</span>
-          <h2 id="luffy-card-title">Libero Run</h2>
-          <p id="community-card-text">Pour la communauté</p>
+          <span class="landing-icon" data-ic="joystick"></span>
+          <h2 id="luffy-card-title">Arcade</h2>
+          <p id="community-card-text">Libero Run · Snake</p>
         </button>
         <button class="landing-card landing-card--tile" id="btn-go-wordle">
           <span class="landing-icon" data-ic="letter">🔤</span>
@@ -583,11 +583,54 @@
   </div>
 
   <!-- ── Écran Évents ── -->
+  <!-- ── Écran Arcade : Libero Run et Snake ── -->
+  <div id="screen-arcade" class="screen">
+    <button class="btn-back" id="btn-back-arcade"><span class="ui-ic" data-ic="back">←</span> Retour</button>
+    <div class="logo">
+      <h1><span class="ui-ic ttl" data-ic="joystick"></span> <span id="arcade-title">Arcade</span></h1>
+      <p class="subtitle" id="arcade-sub">Des jeux rapides, tous les jours</p>
+    </div>
+    <div class="event-intro arcade-card">
+      <div class="event-badge"><span data-ic="run"></span></div>
+      <h2 id="arcade-run-title">Libero Run</h2>
+      <p id="arcade-run-desc">Aide Libero à courir le plus loin possible !</p>
+      <div class="event-hs-display" id="arcade-run-hs"></div>
+      <button id="btn-arcade-run" class="btn btn-primary">Jouer</button>
+    </div>
+    <div class="event-intro arcade-card">
+      <div class="event-badge"><span data-ic="worm"></span></div>
+      <h2 id="arcade-snake-title">Snake</h2>
+      <p id="arcade-snake-desc">Mange des Libs pour faire grandir ton serpent.</p>
+      <div class="event-hs-display" id="arcade-snake-hs"></div>
+      <button id="btn-arcade-snake" class="btn btn-primary">Jouer</button>
+    </div>
+    <div class="snake-lb-card arcade-lb">
+      <p class="arcade-lb-title" id="arcade-lb-title">Classements</p>
+      <div class="arcade-lb-tabs" role="tablist">
+        <button type="button" role="tab" class="arcade-tab" data-t="luffy" id="arcade-tab-run">Libero Run</button>
+        <button type="button" role="tab" class="arcade-tab" data-t="snake" id="arcade-tab-snake">Snake</button>
+      </div>
+      <div id="arcade-lb-list" class="snake-lb-list"><p class="lb-empty">Aucun score enregistré.</p></div>
+    </div>
+    <button id="btn-arcade-suggest" class="luffy-suggest-link">Proposer un jeu pour cette section</button>
+  </div>
+
+  <!-- ── Écran Évents : le calendrier des week-ends ── -->
   <div id="screen-events" class="screen">
     <button class="btn-back" id="btn-back-events"><span class="ui-ic" data-ic="back">←</span> Retour</button>
     <div class="logo">
-      <h1 id="events-screen-title"><span class="ui-ic ttl" data-ic="calendar">🎉</span> Évents</h1>
-      <p class="subtitle" id="events-screen-sub">Week-end spécial</p>
+      <h1><span class="ui-ic ttl" data-ic="calweek"></span> <span id="events-screen-title">Évents</span></h1>
+      <p class="subtitle" id="events-screen-sub">Le calendrier des week-ends</p>
+    </div>
+    <div class="evcal" id="evcal"></div>
+  </div>
+
+  <!-- ── Écran Snake (jeu permanent, dans l'Arcade) ── -->
+  <div id="screen-snake" class="screen">
+    <button class="btn-back" id="btn-back-snake"><span class="ui-ic" data-ic="back">←</span> Retour</button>
+    <div class="logo">
+      <h1><span class="ui-ic ttl" data-ic="worm"></span> <span id="snake-screen-title">Snake</span></h1>
+      <p class="subtitle" id="snake-screen-sub">Dans l'Arcade</p>
     </div>
     <div class="event-intro" id="event-intro">
       <div class="event-badge"><span data-ic="worm"></span></div>

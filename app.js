@@ -1028,7 +1028,7 @@ const DICT = {
       nameeffects:"Ajoute un effet visuel animé directement sur ton pseudo.",
       titles:"Affiche un titre à côté de ton pseudo dans le classement.",
       cursorsnakes:"Remplace ton curseur de souris par un serpent animé.",
-      snakeskins:"Change l'apparence de ton serpent pendant le Snake Challenge du week-end.",
+      snakeskins:"Change l'apparence de ton serpent au Snake, dans l'Arcade.",
       avatars:"Un emoji s'affiche à côté de ton pseudo dans le classement.",
       p4tokens:"Personnalise l'apparence de tes jetons en Puissance 4.",
       ttt:"Personnalise tes symboles ✖️ et ⭕ en Morpion.",
@@ -1109,7 +1109,9 @@ const DICT = {
     helpLibsBuyDesc:'La recharge de Libs avec de l\'argent réel est <strong>temporairement indisponible</strong> : nous la retravaillons. En attendant, tu gagnes des Libs en jouant : parties, quiz, défis, roue de la fortune et tournoi du samedi.',
     helpBoostTitle:'Boost Indice (quiz)',
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
-    eventsTitle:'Évents', eventsDesc:'Ven-Dim · Snake Challenge',
+    eventsTitle:'Évents', eventsDesc:'Calendrier des week-ends',
+    evMonths:['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'], evThisWeekend:x=>`Ce week-end : ${x}`, evNext:x=>`Prochain : ${x}`, evNews:x=>`<strong>Ce week-end</strong> : ${x}`, evNewsNext:(x,n)=>`<strong>Prochain évent</strong> : ${x}, dans ${n} jour${n>1?'s':''}`, evCalendarSub:'Le calendrier des week-ends', evTournament:'Tous les samedis : <b>tournoi</b>, 2000 Libs au champion.', evEmpty:'Les prochains évents arrivent bientôt.', evLive:'En cours', evReward:'Récompense', evNote:'Touche un évent pour voir ses règles. Les dates peuvent encore bouger.',
+    arcadeTitle:'Arcade', arcadeSub:'Des jeux rapides, tous les jours', arcadeRunDesc:'Aide Libero à courir le plus loin possible ! Saute les obstacles, baisse-toi sous ceux qui volent.', arcadeSnakeDesc:'Mange des Libs pour faire grandir ton serpent. Chaque Lib mangé est ajouté à ton solde.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Classements', inArcade:'Dans l\'Arcade',
     eventsDescLocked:'Week-end prochain',
     eventsLockedCard: days => `📅 Dans ${days} j`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> <u style="cursor:pointer">vote ici</u> !`,
@@ -1123,11 +1125,11 @@ const DICT = {
     snakeVoteAlreadyNo:'❌ Tu as voté contre le retour du Snake.',
     snakeVoteChange:'(Changer d\'avis)',
     snakeVoteAnon:'Connecte-toi avec un pseudo pour voter.',
-    communityCard:'Pour la communauté',
+    communityCard:'Libero Run · Snake',
     homeClassicTitle:'Jeux Multijoueur',
     btnQuit:'🚪 Quitter',
-    eventsScreenTitle:'🎉 Évents', eventsScreenSub:'Week-end spécial',
-    snakeChallengeTitle:'Snake Challenge',
+    eventsScreenTitle:'Évents', eventsScreenSub:'Le calendrier des week-ends',
+    snakeChallengeTitle:'Snake',
     snakeChallengeDesc:'Nourris ton serpent pour le faire grandir sur tout le site !',
     btnPlay:'Jouer',
     snakeNameTitle:'🐍 Ton pseudo',
@@ -1206,14 +1208,14 @@ const DICT = {
     snakeOverScore:(score, hs) => `Score : ${score} · Meilleur : ${hs}`,
     helpContent:{
       general:[
-        { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Tic Tac Toe, Échecs, Dames, Ludo), <em>Culture Générale</em> (quiz de 15 thèmes), <em>Évents</em> (Snake Challenge le week-end), <strong>Libero Run</strong> et <strong>Le Mot</strong> (un mot mystère par jour). Chaque section a son propre classement." },
+        { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Tic Tac Toe, Échecs, Dames, Ludo), <em>Culture Générale</em> (quiz de 15 thèmes), <em>Évents</em> (le calendrier des week-ends), <strong>Arcade</strong> (Libero Run et Snake, tous les jours) et <strong>Le Mot</strong> (un mot mystère par jour). Chaque jeu a son propre classement." },
         { icon:'', title:'Le look du site', desc:"Le site a deux habits : l'<strong>ardoise</strong> (la craie sur le tableau noir) et le <strong>cahier</strong> (la page à grands carreaux et la marge rouge, le thème par défaut). Change de thème dans <strong>Profil</strong> → <strong>Réglages</strong> → <strong>Thème</strong> ; sans choix, c'est le cahier. Tes <strong>fonds d'écran</strong> se posent sur l'ardoise ou le cahier : leurs motifs et leurs animations deviennent de la craie ou de l'encre. Change de fond quand tu veux dans ton <strong>casier</strong>." },
         { icon:'🎯', title:'Mon profil', desc:"L'onglet <strong>Profil</strong> (dans la barre de navigation : en bas sur téléphone et tablette, à gauche sur ordinateur) regroupe quatre choses : ton <strong>casier</strong> (voir ci-dessous), tes <strong>défis du jour</strong> (3 objectifs qui <strong>changent chaque jour</strong> : jamais le même défi deux jours de suite, avec le Snake le week-end et Libero Run en semaine ; réclame les 3 pour un <strong>bonus « journée parfaite » +30 ⚡</strong>), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. On y trouve aussi les cartes <strong>Sauvegarder ma progression</strong> (ton code de récupération) et <strong>Réinitialiser le compte</strong>. Il faut un pseudo pour en profiter." },
         { icon:'🎒', title:'Mon casier', desc:"Dans l'onglet <strong>Profil</strong>, le <strong>casier</strong> range tout ce que tu possèdes, <strong>classé par catégorie</strong>. Chaque catégorie est une <strong>carte</strong> : clique dessus pour voir les articles de ce type avec leur <strong>aperçu visuel</strong>, puis <strong>équipe</strong> ou <strong>déséquipe</strong> directement, sans passer par la boutique. Bonus : <strong>3 fonds d'écran gratuits</strong> (Nuit Calme, Ardoise Profonde, Brume Violette) sont offerts à tous les joueurs et t'attendent déjà dedans. Les articles retirés de la vente que tu avais achetés restent disponibles ici." },
         { icon:'🔐', title:'Code de récupération', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Sauvegarder ma progression</strong> affiche ton <strong>code de récupération</strong> : c'est la clé de ton compte. Note-le en lieu sûr ! Si tu changes ou perds ton appareil, colle ce code sur le nouvel appareil (même carte → <em>Restaurer</em>) pour retrouver <strong>toute ta progression</strong> : Libs, cosmétiques, série, historique et pseudo. À la toute première visite, le site te propose aussi de récupérer une progression existante. Ne partage ce code avec personne." },
         { icon:'🗑️', title:'Réinitialiser le compte', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Réinitialiser le compte</strong> supprime <strong>définitivement</strong> toute ta progression : Libs, cosmétiques, série, historique, et tu <strong>disparais de tous les classements</strong>. Le site redémarre ensuite comme à ta toute première visite (animation de bienvenue comprise). Il faut cocher la case de confirmation pour valider. Attention : après la réinitialisation, ton ancien code de récupération ne fonctionne plus." },
         { icon:'🎁', title:'Offrir un cosmétique ou un pack', desc:"Tu peux <strong>offrir</strong> n'importe quel cosmétique payant <strong>ou pack (bundle)</strong> de la boutique ! Ouvre sa fiche et clique <strong>🎁 Offrir</strong>, puis choisis comment l'offrir : <strong>👥 directement à un ami</strong> (il le reçoit tout de suite avec un message), <strong>🔗 par un lien</strong> à partager (WhatsApp, etc.) ou <strong>🔢 par un code</strong>. Un <strong>bouton de confirmation</strong> t'indique le prix avant de débiter tes ⚡, rien n'est envoyé tant que tu ne confirmes pas. Lien et code ne sont utilisables qu'<strong>une seule fois</strong>." },
-        { icon:'🎉', title:'Évents', desc:"Des mini-jeux spéciaux sont disponibles certains week-ends. La carte est <strong>verrouillée</strong> hors week-end et indique le nombre de jours avant le prochain évent. Quand c'est actif : <em>Snake Challenge</em> · ton serpent mange des <strong>⚡ Libs</strong> pour grandir, et chaque ⚡ mangé est <strong>ajouté à ton solde</strong> (score 10 = 10 Libs gagnés). Les bords sont traversables. Un nouveau record affiche <em>🏆 Nouveau record !</em>. Appuie sur <strong>⏸</strong> (ou Échap / P) pour mettre en pause." },
+        { icon:'🎉', title:'Évents', desc:"La carte <strong>Évents</strong> ouvre le <strong>calendrier des week-ends</strong> : chaque week-end a ses évents (Double XP, quiz en direct, Le Mot Marathon, coupes, défis…). Le week-end en cours porte le tampon <strong>En cours</strong> ; touche un évent pour voir ses règles et sa récompense. Le tournoi du samedi a lieu chaque semaine." },
         { icon:'🏆', title:'Tournoi du samedi', desc:"Chaque <strong>samedi</strong>, un tournoi automatique se joue sur tout le site (suivi en direct dans la carte <strong>News</strong>) : victoires classiques <strong>+10 pts</strong>, bonnes réponses de quiz <strong>+2 pts</strong>, ⚡ mangés au Snake <strong>+1 pt</strong>. À minuit, le meilleur remporte <strong>2000 ⚡</strong> et le titre honorifique <strong>« Champion de la semaine »</strong>, gardé jusqu'au tournoi suivant. Le top 10 s'affiche en direct." },
         { icon:'🤝', title:'Inviter un ami (parrainage)', desc:"Dans l'onglet <strong>Profil</strong>, la carte <strong>Inviter un ami</strong> te donne ton <strong>lien d'invitation</strong>. Quand un nouveau joueur arrive par ton lien et joue sa <strong>première partie</strong>, vous recevez chacun <strong>+100 ⚡</strong>. Le nombre de joueurs que tu as parrainés s'affiche dans la fenêtre." },
         { icon:'💰', title:'Duels avec mise', desc:"En créant une partie multijoueur classique, tu peux choisir une <strong>mise</strong> (25, 50 ou 100 ⚡). Les deux joueurs paient la mise au départ et <strong>le vainqueur rafle tout</strong> (le double). Match nul ou partie annulée : chacun est <strong>remboursé</strong>. Il faut un pseudo et un solde suffisant des deux côtés ; la revanche remet la même mise si les deux peuvent payer." },
@@ -1261,7 +1263,7 @@ const DICT = {
         { icon:'🔴', title:'Jetons Puissance 4', desc:"Restyle tes pions dans la grille 7×6 (motif, texture, lueur). La distinction <strong>rouge / jaune</strong> entre les deux camps est conservée · le skin habille la couleur sans la rendre ambiguë. Tes deux adversaires verront tes jetons. Rareté : Rare à Épique." },
         { icon:'✖️', title:'Symboles Morpion', desc:"Remplace les X / O par une paire de symboles personnalisés sur la grille 3×3. Les deux symboles restent nettement distinguables. Ton adversaire voit ta paire. Exemples : Soleil / Lune ☀️🌙, Cœur / Étoile ❤️⭐. Rareté : Commun à Épique." },
         { icon:'♟️', title:'Thèmes d\'échiquier', desc:"Restyle le plateau et les pièces de l'échiquier. Le contraste cases claires / sombres et la lisibilité des pièces sont toujours garantis. Ton adversaire voit ton thème. Exemples : Cyber Grid, Marbre Royal. Rareté : Épique à Légendaire." },
-        { icon:'🐍', title:'Skins Snake (Évents)', desc:"Modifie l'apparence du serpent, des ⚡ et du plateau pendant le Snake Challenge. Mode solo uniquement · aucun souci d'équité. Exemples : Serpent Arc-en-ciel, Serpent de Lave, Plateau Galaxie. Rareté : Rare à Légendaire." },
+        { icon:'🐍', title:'Skins Snake (Évents)', desc:"Modifie l'apparence du serpent, des ⚡ et du plateau au <strong>Snake</strong> (dans l'Arcade). Mode solo uniquement · aucun souci d'équité. Exemples : Serpent Arc-en-ciel, Serpent de Lave, Plateau Galaxie. Rareté : Rare à Légendaire." },
         { icon:'💥', title:'Particules de clic', desc:"Remplace les particules qui s'affichent lorsque tu cliques sur les boutons et cartes du site. Exemples : Bulles 🫧, Confettis 🎊, Feu d\'Artifice 🎆. Rareté : Commun à Épique." },
         { icon:'🌈', title:'Packs d\'émojis', desc:"Remplace le jeu d'émojis de la pluie animée au premier chargement de la page. Exemples : Pack Fête 🎉, Pack Gaming 🎮, Pack Cosmos 🌌. Rareté : Commun à Rare." },
         { icon:'🏆', title:'Bannières de victoire', desc:"Personnalise le style et l'animation de la bannière de fin de partie (victoire). Visible à l'écran de résultat des jeux classiques et du quiz. Exemples : Triomphe Néon, Flammes de Champion, Couronnement. Rareté : Épique à Légendaire." },
@@ -1814,7 +1816,7 @@ const DICT = {
       nameeffects:"Add an animated visual effect directly to your username.",
       titles:"Display a title next to your username in the leaderboard.",
       cursorsnakes:"Replace your mouse cursor with an animated snake.",
-      snakeskins:"Change how your snake looks during the weekend Snake Challenge.",
+      snakeskins:"Change how your snake looks in Snake, in the Arcade.",
       avatars:"An emoji displays next to your username in the leaderboard.",
       p4tokens:"Customize the look of your Connect 4 tokens.",
       ttt:"Customize your ✖️ and ⭕ symbols in Tic-Tac-Toe.",
@@ -1895,7 +1897,9 @@ const DICT = {
     helpLibsBuyDesc:'Topping up Libs with real money is <strong>temporarily unavailable</strong>: we are reworking it. Meanwhile, you earn Libs by playing: games, quizzes, challenges, the wheel of fortune and the Saturday tournament.',
     helpBoostTitle:'Quiz Hint Boost',
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
-    eventsTitle:'Events', eventsDesc:'Fri-Sun · Snake Challenge',
+    eventsTitle:'Events', eventsDesc:'Weekend calendar',
+    evMonths:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], evThisWeekend:x=>`This weekend: ${x}`, evNext:x=>`Next: ${x}`, evNews:x=>`<strong>This weekend</strong>: ${x}`, evNewsNext:(x,n)=>`<strong>Next event</strong>: ${x}, in ${n} day${n>1?'s':''}`, evCalendarSub:'The weekend calendar', evTournament:'Every Saturday: <b>tournament</b>, 2000 Libs for the champion.', evEmpty:'The next events are coming soon.', evLive:'Live', evReward:'Reward', evNote:'Tap an event to see its rules. Dates may still change.',
+    arcadeTitle:'Arcade', arcadeSub:'Quick games, every day', arcadeRunDesc:'Help Libero run as far as possible! Jump over obstacles, duck under the flying ones.', arcadeSnakeDesc:'Eat Libs to make your snake grow. Every Lib eaten is added to your balance.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Leaderboards', inArcade:'In the Arcade',
     eventsDescLocked:'Next weekend',
     eventsLockedCard: days => `📅 In ${days}d`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> <u style="cursor:pointer">vote here</u>!`,
@@ -1909,11 +1913,11 @@ const DICT = {
     snakeVoteAlreadyNo:'❌ You voted against Snake\'s return.',
     snakeVoteChange:'(Change your mind)',
     snakeVoteAnon:'Set a username to vote.',
-    communityCard:'Community',
+    communityCard:'Libero Run · Snake',
     homeClassicTitle:'Multiplayer Games',
     btnQuit:'🚪 Quit',
-    eventsScreenTitle:'🎉 Events', eventsScreenSub:'Special weekend',
-    snakeChallengeTitle:'Snake Challenge',
+    eventsScreenTitle:'Events', eventsScreenSub:'The weekend calendar',
+    snakeChallengeTitle:'Snake',
     snakeChallengeDesc:'Feed your snake to make it grow across the whole site!',
     btnPlay:'Play',
     snakeNameTitle:'🐍 Your username',
@@ -1992,14 +1996,14 @@ const DICT = {
     snakeOverScore:(score, hs) => `Score: ${score} · Best: ${hs}`,
     helpContent:{
       general:[
-        { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess, Checkers, Ludo), <em>General Knowledge</em> (quiz with 15 themes), <em>Events</em> (Snake Challenge at the weekend), <strong>Libero Run</strong> and <strong>The Word</strong> (a mystery word every day). Each section has its own leaderboard." },
+        { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess, Checkers, Ludo), <em>General Knowledge</em> (quiz with 15 themes), <em>Events</em> (the weekend calendar), <strong>Arcade</strong> (Libero Run and Snake, every day) and <strong>The Word</strong> (a mystery word every day). Each game has its own leaderboard." },
         { icon:'', title:'The look of the site', desc:"The site has two outfits: the <strong>slate</strong> (chalk on a blackboard) and the <strong>notebook</strong> (ruled paper with its red margin, the default theme). Switch theme in <strong>Profile</strong> → <strong>Settings</strong> → <strong>Theme</strong>; with no choice, it is the notebook. Your <strong>backgrounds</strong> sit on the slate or the notebook: their patterns and animations turn into chalk or ink. Change background whenever you like in your <strong>locker</strong>." },
         { icon:'🎯', title:'My profile', desc:"The <strong>Profile</strong> tab (in the navigation bar: at the bottom on phones and tablets, on the left on computers) gathers four things: your <strong>locker</strong> (see below), your <strong>daily challenges</strong> (3 goals that <strong>change every day</strong>: never the same challenge two days in a row, with Snake on weekends and Libero Run on weekdays; claim all 3 for a <strong>'perfect day' +30 ⚡ bonus</strong>), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. You'll also find the <strong>Save my progress</strong> card (your recovery code) and the <strong>Reset account</strong> card. A nickname is required." },
         { icon:'🎒', title:'My locker', desc:"In the <strong>Profile</strong> tab, the <strong>locker</strong> holds everything you own, <strong>sorted by category</strong>. Each category is a <strong>card</strong>: tap it to see the items of that type with their <strong>visual preview</strong>, then <strong>equip</strong> or <strong>unequip</strong> directly, without opening the shop. Bonus: <strong>3 free backgrounds</strong> (Calm Night, Deep Slate, Violet Mist) are gifted to every player and are already waiting inside. Items you had bought that were later removed from sale are still available here." },
         { icon:'🔐', title:'Recovery code', desc:"In the <strong>Profile</strong> tab, the <strong>Save my progress</strong> card shows your <strong>recovery code</strong>: it is the key to your account. Write it down somewhere safe! If you change or lose your device, paste this code on the new device (same card → <em>Restore</em>) to get <strong>all your progress</strong> back: Libs, cosmetics, streak, history and nickname. On your very first visit, the site also offers to recover an existing progress. Never share this code with anyone." },
         { icon:'🗑️', title:'Reset account', desc:"In the <strong>Profile</strong> tab, the <strong>Reset account</strong> card <strong>permanently</strong> deletes all your progress: Libs, cosmetics, streak, history, and you <strong>disappear from every leaderboard</strong>. The site then restarts as if it were your very first visit (welcome animation included). You must tick the confirmation box to proceed. Warning: after the reset, your old recovery code no longer works." },
         { icon:'🎁', title:'Gift a cosmetic or a pack', desc:"You can <strong>gift</strong> any paid cosmetic <strong>or pack (bundle)</strong> from the shop! Open its detail sheet and click <strong>🎁 Gift</strong>, then choose how: <strong>👥 straight to a friend</strong> (they get it right away with a message), <strong>🔗 via a link</strong> to share, or <strong>🔢 via a code</strong>. A <strong>confirmation button</strong> shows the price before charging your ⚡, nothing is sent until you confirm. Link and code can only be used <strong>once</strong>." },
-        { icon:'🎉', title:'Events', desc:"Special mini-games appear on some weekends. The card is <strong>locked</strong> outside the weekend and shows a countdown to the next event. When active: <em>Snake Challenge</em> · your snake eats <strong>⚡ Libs</strong> to grow, and every ⚡ eaten is <strong>added to your balance</strong> (score 10 = 10 Libs earned). Walls wrap around. A new record shows <em>🏆 New record!</em>. Press <strong>⏸</strong> (or Esc / P) to pause." },
+        { icon:'🎉', title:'Events', desc:"The <strong>Events</strong> card opens the <strong>weekend calendar</strong>: each weekend has its events (Double XP, live quiz, The Word Marathon, cups, challenges…). The current weekend is stamped <strong>Live</strong>; tap an event to see its rules and reward. The Saturday tournament happens every week." },
         { icon:'🏆', title:'Saturday tournament', desc:"Every <strong>Saturday</strong>, an automatic tournament runs across the whole site (followed live in the <strong>News</strong> card): classic wins <strong>+10 pts</strong>, correct quiz answers <strong>+2 pts</strong>, ⚡ eaten in Snake <strong>+1 pt</strong>. At midnight the best player wins <strong>2000 ⚡</strong> and the honorary <strong>\"Weekly Champion\"</strong> title, kept until the next tournament. The top 10 shows live." },
         { icon:'🤝', title:'Invite a friend (referral)', desc:"In the <strong>Profile</strong> tab, the <strong>Invite a friend</strong> card gives you your <strong>invite link</strong>. When a new player arrives through your link and plays their <strong>first game</strong>, you each receive <strong>+100 ⚡</strong>. The number of players you referred shows in the window." },
         { icon:'💰', title:'Stake duels', desc:"When creating a classic multiplayer game, you can pick a <strong>stake</strong> (25, 50 or 100 ⚡). Both players pay the stake at the start and <strong>the winner takes all</strong> (double). Draw or cancelled game: both are <strong>refunded</strong>. A nickname and enough balance are required on both sides; a rematch re-collects the same stake if both can pay." },
@@ -2047,7 +2051,7 @@ const DICT = {
         { icon:'🔴', title:'Connect 4 Tokens', desc:"Restyle your tokens in the 7×6 grid (pattern, texture, glow). The <strong>red / yellow</strong> distinction between teams is always preserved. Your opponent will see your tokens. Rarity: Rare to Epic." },
         { icon:'✖️', title:'Tic-Tac-Toe Symbols', desc:"Replace X / O with a custom pair of symbols on the 3×3 grid. Both symbols remain clearly distinguishable. Your opponent sees your pair. Examples: Sun / Moon ☀️🌙, Heart / Star ❤️⭐. Rarity: Common to Epic." },
         { icon:'♟️', title:'Chess Themes', desc:"Restyle the chessboard and pieces. Light/dark square contrast and piece legibility are always guaranteed. Your opponent sees your theme. Examples: Cyber Grid, Royal Marble. Rarity: Epic to Legendary." },
-        { icon:'🐍', title:'Snake Skins (Events)', desc:"Change the appearance of the snake, the ⚡ and the board during the Snake Challenge. Solo mode only · no fairness concerns. Examples: Rainbow Snake, Lava Snake, Galaxy Board. Rarity: Rare to Legendary." },
+        { icon:'🐍', title:'Snake Skins (Events)', desc:"Change the appearance of the snake, the ⚡ and the board in <strong>Snake</strong> (in the Arcade). Solo mode only · no fairness issue. Examples: Rainbow Snake, Lava Snake, Galaxy Board. Rarity: Rare to Legendary." },
         { icon:'💥', title:'Click Particles', desc:"Replace the particles shown when you click buttons and cards on the site. Examples: Bubbles 🫧, Confetti 🎊, Firework 🎆. Rarity: Common to Epic." },
         { icon:'🌈', title:'Emoji Packs', desc:"Replace the emoji set in the animated emoji rain on the first page load. Examples: Party Pack 🎉, Gaming Pack 🎮, Cosmos Pack 🌌. Rarity: Common to Rare." },
         { icon:'🏆', title:'Victory Banners', desc:"Customize the style and animation of the end-of-game banner (win screen). Shown at the result screen of classic games and quizzes. Examples: Neon Triumph, Champion Flames, Coronation. Rarity: Epic to Legendary." },
@@ -2184,47 +2188,164 @@ function renderHelp() {
   }
 }
 
-function _isEventActive() {
-  const d = new Date().getDay();
-  return d === 5 || d === 6 || d === 0; // Vendredi 00:00 → Lundi 00:00
-}
+// ── Calendrier des Évents (week-ends) ─────────────────────────────────────────
+// Le Snake est devenu un jeu permanent (Arcade) : il n'y a plus de verrou de week-end.
+function _isEventActive() { return true; }
 
-function _getEventEndMs() {
-  const now = new Date();
-  const day = now.getDay(); // 5=Ven, 6=Sam, 0=Dim (seuls cas possibles)
-  const end = new Date(now);
-  end.setDate(now.getDate() + (((1 - day) + 7) % 7)); // prochain lundi 00:00
-  end.setHours(0, 0, 0, 0);
-  return end.getTime();
+// Un week-end = samedi 00:00 -> lundi 00:00, heure du Benin (UTC+1).
+// Chaque event : [famille, icone, titre FR, titre EN, texte FR, texte EN, recompense FR, recompense EN, jour FR, jour EN]
+// Familles : c1 bonus, c2 jeux et quiz, c3 defis, c4 communaute, c5 grand lancement.
+const EV_CAL = [
+  ['2026-10-17', [
+    ['c1','sparkle','Week-end Double XP','Double XP weekend','Toutes les parties rapportent deux fois plus d\'XP, du samedi au dimanche minuit.','Every game gives twice as much XP, from Saturday to Sunday midnight.','XP ×2','XP ×2'],
+    ['c2','help','Quiz en direct','Live quiz','20 questions jouées par tout le site en même temps, avec le classement qui bouge après chaque question.','20 questions played by the whole site at the same time, with the leaderboard moving after each question.','Podium : 1500, 800 et 400 Libs','Podium: 1500, 800 and 400 Libs','Dimanche 18 h','Sunday 6 pm']]],
+  ['2026-10-24', [
+    ['c2','letter','Le Mot Marathon','The Word Marathon','5 mots mystères le samedi et 5 le dimanche au lieu d\'un seul.','5 mystery words on Saturday and 5 on Sunday instead of one.','500 Libs au 1er, 50 Libs par mot trouvé','500 Libs for 1st, 50 Libs per word found'],
+    ['c1','tag','Soldes du cartable','Schoolbag sale','Toute la boutique à -30 %, avec un compte à rebours.','The whole shop at -30%, with a countdown.','-30 % sur la boutique','-30% in the shop','Dimanche','Sunday']]],
+  ['2026-10-31', [
+    ['c3','coins','Chasse aux Libs dorés','Golden Libs hunt','Des Libs dorés apparaissent au hasard sur les pages du site. Touche-les pour les ramasser.','Golden Libs appear at random on the site pages. Tap them to collect them.','5 à 50 Libs chacun, 20 par jour','5 to 50 Libs each, 20 per day'],
+    ['c4','handshake','Parrainage boosté','Boosted referrals','Un ami invité qui joue sa première partie rapporte plus, à toi et à lui.','An invited friend who plays their first game earns more, for you and for them.','300 Libs chacun au lieu de 100','300 Libs each instead of 100','Dimanche','Sunday']]],
+  ['2026-11-07', [
+    ['c3','bingo','Bingo Libero','Libero Bingo','Une grille de 9 objectifs rien qu\'à toi (gagner au Ludo, trouver Le Mot, offrir un cadeau…). Chaque objectif fait est tamponné.','A grid of 9 goals just for you (win at Ludo, find The Word, give a gift…). Each goal done gets stamped.','150 Libs par ligne, 1000 Libs la grille','150 Libs per line, 1000 Libs for the grid']]],
+  ['2026-11-14', [
+    ['c2','dices','Coupe Ludo','Ludo Cup','Tournoi à élimination : salons de 4, le vainqueur passe au tour suivant.','Knockout tournament: rooms of 4, the winner goes to the next round.','2000 Libs et un plateau exclusif','2000 Libs and an exclusive board','Samedi après-midi','Saturday afternoon'],
+    ['c3','crown','Problème d\'échecs','Chess puzzle','Une position à résoudre (mat en 2), une seule tentative.','A position to solve (mate in 2), one attempt only.','300 Libs et un tampon « Stratège »','300 Libs and a "Strategist" stamp','Dimanche','Sunday']]],
+  ['2026-11-21', [
+    ['c3','robot','Défi du robot difficile','Hard bot challenge','Bats le robot difficile aux échecs, aux dames ou au Puissance 4 : chaque victoire tamponne ta carte de 5 cases.','Beat the hard bot at chess, checkers or Connect 4: each win stamps your 5-box card.','300 Libs à la carte pleine','300 Libs for a full card'],
+    ['c1','swords','Week-end des duels','Duel weekend','Les mises entre amis rapportent un bonus au vainqueur, payé par le site.','Stakes between friends give the winner a bonus, paid by the site.','+20 % sur chaque mise gagnée','+20% on every stake won','Dimanche','Sunday']]],
+  ['2026-11-28', [
+    ['c4','target','Objectif commun','Common goal','Tout le site joue ensemble pour atteindre 5000 victoires ce week-end.','The whole site plays together to reach 5000 wins this weekend.','250 Libs à tous les participants si c\'est réussi','250 Libs to every player if it works']]],
+  ['2026-12-05', [
+    ['c4','sticker','Album d\'autocollants','Sticker album','Chaque partie donne un autocollant parmi 12. Les doubles s\'échangent entre amis.','Every game gives one of 12 stickers. Duplicates can be swapped with friends.','Album complet : un fond d\'écran exclusif','Full album: an exclusive background']]],
+  ['2026-12-12', [
+    ['c3','robot','Revanche du robot','The bot strikes back','Le robot difficile défie tout le monde : le classement compte qui lui résiste le plus longtemps.','The hard bot challenges everyone: the leaderboard counts who holds out the longest.','Titre « Briseur de robot »','"Bot breaker" title'],
+    ['c2','book','Chasse au trésor des romans','Novel treasure hunt','Des indices cachés dans les chapitres gratuits mènent à un mot secret.','Clues hidden in the free chapters lead to a secret word.','Un chapitre payant offert et des Libs','A paid chapter for free and Libs','Dimanche','Sunday']]],
+  ['2026-12-19', [
+    ['c5','sun','Saison « Vacances »','"Holidays" season','Quatre week-ends reliés, un passe de saison avec des paliers de récompenses.','Four linked weekends, a season pass with reward tiers.','Cosmétiques de saison','Season cosmetics']]],
+  ['2026-12-26', [
+    ['c5','worm','Snake à plusieurs','Multiplayer Snake','Lancement : plusieurs serpents dans la même arène, le dernier en vie gagne la manche.','Launch: several snakes in the same arena, the last one alive wins the round.','Libs mangés et bonus de survie','Libs eaten and a survival bonus']]],
+  ['2027-01-02', [
+    ['c5','run','Libero Run en duel','Libero Run duel','Lancement : deux coureurs sur la même piste, le premier qui tombe perd.','Launch: two runners on the same track, the first to fall loses.','500 Libs au 1er du classement des duels','500 Libs for the top of the duel leaderboard']]],
+  ['2027-01-09', [
+    ['c2','flag','Le Grand Quiz Bénin','The Great Benin Quiz','Pour la fête du 10 janvier : seul le thème Bénin rapporte des points d\'event.','For the 10 January holiday: only the Benin theme earns event points.','1000 Libs au 1er et le titre « Fierté du Bénin »','1000 Libs for 1st and the "Pride of Benin" title']]],
+  ['2027-01-16', [
+    ['c5','awale','Lancement de l\'Awalé','Awale launch','Le jeu de graines d\'Afrique de l\'Ouest arrive sur Libero, avec un tournoi d\'ouverture.','The West African seed game arrives on Libero, with an opening tournament.','1000 Libs au champion','1000 Libs for the champion']]],
+];
+const _EV_DAY = 86_400_000;
+function _evStart(iso) { return Date.parse(iso + 'T00:00:00+01:00'); }
+// Week-end en cours (ou null) et prochain week-end a venir.
+function _evNow() {
+  const now = Date.now();
+  let cur = null, next = null;
+  for (const w of EV_CAL) {
+    const a = _evStart(w[0]), b = a + 2 * _EV_DAY;
+    if (now >= a && now < b) cur = w;
+    else if (now < a && !next) next = w;
+  }
+  return { cur, next };
 }
-
-function _getDaysUntilEvent() {
-  const day = new Date().getDay();
-  return ((5 - day) + 7) % 7 || 7; // jours jusqu'au prochain vendredi
+const _evL = () => (currentLang === 'en' ? 1 : 0);
+function _evDates(iso) {
+  const a = new Date(_evStart(iso) + 3_600_000), b = new Date(a.getTime() + _EV_DAY);
+  const m = d => t().evMonths[d.getUTCMonth()];
+  return a.getUTCMonth() === b.getUTCMonth()
+    ? { big: `${a.getUTCDate()}-${b.getUTCDate()}`, small: m(a) }
+    : { big: `${a.getUTCDate()} ${m(a)}`, small: `${b.getUTCDate()} ${m(b)}` };
 }
 
 function _updateEventCountdown() {
-  const active = _isEventActive();
-  const cardBtn  = document.getElementById('btn-go-events');
+  const cardBtn = document.getElementById('btn-go-events');
   const cardDesc = document.getElementById('events-card-desc');
   const cardCount = $('event-card-countdown');
-  const newsMsg  = document.getElementById('news-event-msg');
-  const d = t();
-
-  if (active) {
-    const left = _getEventEndMs() - Date.now();
-    if (cardCount) cardCount.textContent = left > 0 ? d.eventCountdownFmt(left) : '';
-    if (cardBtn)  { cardBtn.classList.remove('landing-card--locked'); cardBtn.disabled = false; }
-    if (cardDesc) cardDesc.textContent = d.eventsDesc;
-    if (newsMsg)  { newsMsg.innerHTML = d.eventActiveMsg; newsMsg.classList.remove('vote-clickable'); }
-  } else {
-    const days = _getDaysUntilEvent();
+  const newsMsg = document.getElementById('news-event-msg');
+  const d = t(), L = _evL();
+  const { cur, next } = _evNow();
+  if (cardBtn) { cardBtn.classList.remove('landing-card--locked'); cardBtn.disabled = false; }
+  if (cur) {
+    const left = _evStart(cur[0]) + 2 * _EV_DAY - Date.now();
+    if (cardDesc) cardDesc.textContent = d.evThisWeekend(cur[1][0][2 + L]);
+    if (cardCount) cardCount.textContent = d.eventCountdownFmt(left);
+    if (newsMsg) { newsMsg.innerHTML = d.evNews(_escHtml(cur[1].map(e => e[2 + L]).join(' · '))); newsMsg.classList.remove('vote-clickable'); }
+  } else if (next) {
+    const days = Math.max(1, Math.ceil((_evStart(next[0]) - Date.now()) / _EV_DAY));
+    if (cardDesc) cardDesc.textContent = d.evNext(next[1][0][2 + L]);
     if (cardCount) cardCount.textContent = d.eventsLockedCard(days);
-    if (cardBtn)  { cardBtn.classList.add('landing-card--locked'); cardBtn.disabled = true; }
-    if (cardDesc) cardDesc.textContent = d.eventsDescLocked;
-    if (newsMsg)  { newsMsg.innerHTML = d.eventsLockedMsg(days); newsMsg.classList.add('vote-clickable'); }
+    if (newsMsg) { newsMsg.innerHTML = d.evNewsNext(_escHtml(next[1][0][2 + L]), days); newsMsg.classList.remove('vote-clickable'); }
+  } else {
+    if (cardDesc) cardDesc.textContent = d.evCalendarSub;
+    if (cardCount) cardCount.textContent = '';
   }
 }
+
+// Ecran Évents : le cahier de textes des week-ends. Une fiche touchee s'ouvre (regles et recompense).
+window._evCal = (() => {
+  const OPEN = 'libero_evcal_open';
+  let open = null; try { open = sessionStorage.getItem(OPEN); } catch {}
+  function render() {
+    const box = document.getElementById('evcal'); if (!box) return;
+    const d = t(), L = _evL(), now = Date.now();
+    const weeks = EV_CAL.filter(w => _evStart(w[0]) + 2 * _EV_DAY > now);
+    let html = `<div class="evcal-ribbon"><span data-ic="trophy"></span><span>${d.evTournament}</span></div>`;
+    if (!weeks.length) html += `<p class="evcal-empty">${d.evEmpty}</p>`;
+    weeks.forEach(w => {
+      const live = now >= _evStart(w[0]);
+      const dt = _evDates(w[0]);
+      html += `<div class="evcal-wk${live ? ' live' : ''}">${live ? `<span class="evcal-stamp">${d.evLive}</span>` : ''}
+        <div class="evcal-date">${dt.big}<small>${dt.small}</small></div><div class="evcal-evs">` +
+        w[1].map((e, k) => {
+          const id = w[0] + ':' + k, on = open === id;
+          return `<button type="button" class="evcal-ev ${e[0]}${on ? ' open' : ''}" data-id="${id}" aria-expanded="${on}">
+            <span class="evcal-ic" data-ic="${e[1]}"></span><span class="evcal-tx">${e[8] ? `<span class="evcal-day">${e[8 + L]}</span>` : ''}<b>${e[2 + L]}</b>
+            <span class="evcal-more">${e[4 + L]}<em>${d.evReward} : ${e[6 + L]}</em></span></span></button>`;
+        }).join('') + '</div></div>';
+    });
+    html += `<p class="evcal-note">${d.evNote}</p>`;
+    box.innerHTML = html;
+    try { window.paintUiIcons?.(box); } catch {} // au demarrage (F5), les icones ne sont pas encore pretes : elles seront peintes ensuite
+  }
+  document.getElementById('evcal')?.addEventListener('click', e => {
+    const b = e.target.closest('.evcal-ev'); if (!b) return;
+    open = open === b.dataset.id ? null : b.dataset.id;
+    try { open ? sessionStorage.setItem(OPEN, open) : sessionStorage.removeItem(OPEN); } catch {}
+    document.querySelectorAll('#evcal .evcal-ev').forEach(x => { const on = x.dataset.id === open; x.classList.toggle('open', on); x.setAttribute('aria-expanded', on); });
+  });
+  document.getElementById('btn-go-events')?.addEventListener('click', () => showScreen('events'));
+  document.getElementById('btn-back-events')?.addEventListener('click', () => showScreen('landing'));
+  return { render };
+})();
+
+// Ecran Arcade : Libero Run et Snake, avec un classement a onglets.
+window._arcade = (() => {
+  const TAB = 'libero_arcade_tab';
+  let tab = 'luffy'; try { tab = sessionStorage.getItem(TAB) || 'luffy'; } catch {}
+  const src = () => document.getElementById(tab === 'snake' ? 'snake-lb-list' : 'luffy-lb-list');
+  function copy() { const a = src(), b = document.getElementById('arcade-lb-list'); if (a && b) b.innerHTML = a.innerHTML; }
+  function paintTabs() {
+    document.querySelectorAll('#screen-arcade .arcade-tab').forEach(b => { const on = b.dataset.t === tab; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+  }
+  ['snake-lb-list', 'luffy-lb-list'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) new MutationObserver(() => { if (src() === el) copy(); }).observe(el, { childList: true, subtree: true, characterData: true });
+  });
+  function hs() {
+    const d = t();
+    const r = parseInt(localStorage.getItem('libero_luffy_hs') || '0', 10), n = parseInt(localStorage.getItem('libero_snake_event_hs') || '0', 10);
+    const a = document.getElementById('arcade-run-hs'), b = document.getElementById('arcade-snake-hs');
+    if (a) a.textContent = r > 0 ? d.luffyHsDisplay(r) : '';
+    if (b) b.textContent = n > 0 ? d.snakeHsDisplay(n) : '';
+  }
+  function enter() { paintTabs(); copy(); hs(); socket.emit('get-snake-leaderboard'); socket.emit('get-luffy-leaderboard'); }
+  document.querySelectorAll('#screen-arcade .arcade-tab').forEach(b => b.addEventListener('click', () => {
+    tab = b.dataset.t; try { sessionStorage.setItem(TAB, tab); } catch {}
+    paintTabs(); copy();
+  }));
+  document.getElementById('btn-go-community')?.addEventListener('click', () => showScreen('arcade'));
+  document.getElementById('btn-back-arcade')?.addEventListener('click', () => showScreen('landing'));
+  document.getElementById('btn-arcade-run')?.addEventListener('click', () => { window._openLuffy?.(); document.getElementById('btn-luffy-play')?.click(); });
+  document.getElementById('btn-arcade-snake')?.addEventListener('click', () => { window._openSnake?.(); document.getElementById('btn-event-play')?.click(); });
+  document.getElementById('btn-arcade-suggest')?.addEventListener('click', () => document.getElementById('overlay-community')?.classList.remove('hidden'));
+  return { enter };
+})();
 
 function applyLang() {
   const d = t();
@@ -2581,7 +2702,13 @@ function applyLang() {
   const sht  = $('snake-hint-text');     if (sht)  sht.textContent  = d.snakeHint;
 
   // Libero Run screen
-  const lss  = $('luffy-screen-sub');    if (lss)  lss.textContent  = d.communityCard;
+  const lss  = $('luffy-screen-sub');    if (lss)  lss.textContent  = d.inArcade;
+  const sss  = $('snake-screen-sub');    if (sss)  sss.textContent  = d.inArcade;
+  [['arcade-title','arcadeTitle'],['arcade-sub','arcadeSub'],['arcade-run-desc','arcadeRunDesc'],['arcade-snake-desc','arcadeSnakeDesc'],['arcade-tab-run','arcadeTabRun'],['arcade-tab-snake','arcadeTabSnake'],['arcade-lb-title','arcadeLbTitle'],['btn-arcade-run','btnPlay'],['btn-arcade-snake','btnPlay'],['btn-arcade-suggest','luffySuggestLink']]
+    .forEach(([id, k]) => { const el = $(id); if (el) el.textContent = d[k]; });
+  const bbsn = $('btn-back-snake'); if (bbsn) bbsn.textContent = d.backLabel;
+  const bbar = $('btn-back-arcade'); if (bbar) bbar.textContent = d.backLabel;
+  window._evCal?.render(); _updateEventCountdown();
   const lcd  = $('luffy-challenge-desc'); if (lcd) lcd.textContent  = d.luffyChallengeDesc;
   const bls  = $('btn-luffy-play');      if (bls)  bls.textContent  = d.btnPlay;
   const blsg = $('btn-luffy-suggest');   if (blsg) blsg.textContent = d.luffySuggestLink;
@@ -2756,6 +2883,10 @@ function showScreen(name) {
     }
   }
   document.body.classList.toggle('screen-events-active', name === 'events');
+  document.body.classList.toggle('screen-snake-active', name === 'snake');
+  document.body.classList.toggle('screen-arcade-active', name === 'arcade');
+  if (name === 'events') window._evCal?.render();
+  if (name === 'arcade') window._arcade?.enter();
   document.body.classList.toggle('screen-luffy-active', name === 'luffy');
   document.body.classList.toggle('screen-feed-active', name === 'feed');
   document.body.classList.toggle('screen-ideas-active', name === 'ideas');
@@ -5688,7 +5819,7 @@ socket.on('connect', () => {
     window._giftLinkTried = true;
     socket.emit('redeem-gift', { code: pendingGiftCode, playerId: getPlayerId(), name: localStorage.getItem('playerName') || '' });
   }
-  if (sessionStorage.getItem('libero_screen') === 'events') socket.emit('get-snake-leaderboard');
+  if (sessionStorage.getItem('libero_screen') === 'snake') socket.emit('get-snake-leaderboard');
   if (sessionStorage.getItem('libero_screen') === 'events') socket.emit('get-tournament');
   if (sessionStorage.getItem('libero_screen') === 'luffy')  socket.emit('get-luffy-leaderboard');
   if (window._profileHub) {
@@ -8669,11 +8800,11 @@ function showCursorSnakeToast(msg) {
   }, { passive: true });
 
   // Navigation
-  document.getElementById('btn-go-events')?.addEventListener('click', () => {
-    showScreen('events');
+  window._openSnake = () => {
+    showScreen('snake');
     updateHsDisplay();
     socket.emit('get-snake-leaderboard');
-  });
+  };
 
   function showEventIntro() {
     document.getElementById('snake-game-wrap').classList.add('hidden');
@@ -8682,14 +8813,14 @@ function showCursorSnakeToast(msg) {
     document.getElementById('snake-lb-card').classList.remove('hidden');
   }
 
-  document.getElementById('btn-back-events')?.addEventListener('click', () => {
+  document.getElementById('btn-back-snake')?.addEventListener('click', () => {
     clearInterval(gameLoop);
     running = false;
     clearSnakeSession();
     showEventIntro();
     cursorSnake.leaveGame();
     cursorSnake.show();
-    showScreen('landing');
+    showScreen('arcade');
   });
 
   function launchSnakeGame() {
@@ -8824,7 +8955,7 @@ function showCursorSnakeToast(msg) {
   // Restauration après refresh (si une partie était en cours)
   (function() {
     const saved = sessionStorage.getItem(SNAKE_SESS_KEY);
-    if (!saved || sessionStorage.getItem('libero_screen') !== 'events') {
+    if (!saved || sessionStorage.getItem('libero_screen') !== 'snake') {
       if (saved) clearSnakeSession();
       return;
     }
@@ -9394,11 +9525,11 @@ function showCursorSnakeToast(msg) {
   _duckBtn?.addEventListener('mouseleave',  releaseDuck);
 
   // ── Navigation ───────────────────────────────────────────────────────────
-  document.getElementById('btn-go-community')?.addEventListener('click', () => {
+  window._openLuffy = () => {
     showScreen('luffy');
     updateHsDisplay();
     socket.emit('get-luffy-leaderboard');
-  });
+  };
 
   document.getElementById('btn-luffy-suggest')?.addEventListener('click', () => {
     document.getElementById('overlay-community')?.classList.remove('hidden');
@@ -9416,7 +9547,7 @@ function showCursorSnakeToast(msg) {
     running = false;
     clearLuffySession();
     showLuffyIntro();
-    showScreen('landing');
+    showScreen('arcade');
   });
 
   function launchLuffyGame() {
@@ -10037,7 +10168,7 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
     // ── Évents ──
     {
       id: 'events_snake',
-      screen: 'events',
+      screen: 'snake',
       text: 'Mange les Libs pour grandir : ils vont dans ton <b>solde</b>.',
       target: '.event-intro',
     },
@@ -11536,6 +11667,14 @@ const UI_ICONS = (() => {
   const S = (inner) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
   return {
     home:    S('<path d="M3 11l9-8 9 8"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/>'),
+    joystick: S('<path d="M21 17a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1Z"/><path d="M6 15v-2M12 15V9"/><circle cx="12" cy="6" r="3"/>'),
+    calweek: S('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>'),
+    coins:   S('<circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18M7 6h1v4M16.71 13.88l.7.71-2.82 2.82"/>'),
+    handshake: S('<path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3M3 4h8"/>'),
+    bingo:   S('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>'),
+    dices:   S('<rect x="2" y="10" width="12" height="12" rx="2"/><path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6M6 18h.01M10 14h.01M15 6h.01M18 9h.01"/>'),
+    sticker: S('<path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"/><path d="M14 3v4a2 2 0 0 0 2 2h4M8 13h.01M16 13h.01M10 16s.8 1 2 1c1.3 0 2-1 2-1"/>'),
+    awale:   S('<circle cx="12" cy="12" r="10"/><path d="M17 12h.01M12 12h.01M7 12h.01"/>'),
     bulb:    S('<path d="M12 3a6 6 0 0 0-3.5 10.9c.3.2.5.6.5 1V16h6v-1.1c0-.4.2-.8.5-1A6 6 0 0 0 12 3Z"/><path d="M9.5 19h5M10.5 21.5h3"/>'),
     book:    S('<path d="M6 4h9a2 2 0 0 1 2 2v13a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M8 4v16"/>'),
     target:  S('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/>'),

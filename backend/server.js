@@ -1538,8 +1538,15 @@ function friendsPayload(entry) {
   return { friends, requests };
 }
 function levelFromXp(xp) { return 1 + Math.floor(Math.sqrt(Math.max(0, xp) / 100)); }
+// Week-ends « Double XP » du calendrier des Évents (samedi 00:00 -> lundi 00:00, heure du Benin).
+const DOUBLE_XP_WEEKENDS = ['2026-10-17'];
+function _xpMult() {
+  const now = Date.now();
+  return DOUBLE_XP_WEEKENDS.some(d => { const a = Date.parse(d + 'T00:00:00+01:00'); return now >= a && now < a + 2 * 86_400_000; }) ? 2 : 1;
+}
 function awardXp(id, entry, amount) {
   if (!id || !entry || !(amount > 0)) return;
+  amount *= _xpMult();
   const before = levelFromXp(entry.xp || 0);
   entry.xp = (entry.xp || 0) + Math.floor(amount);
   const after = levelFromXp(entry.xp);
@@ -3382,13 +3389,13 @@ io.on('connection', (socket) => {
   // confiance au client : chaque « miam » doit être plausible dans le temps.
   socket.on('snake-game-start', ({ playerId } = {}) => {
     const id = safePlayerId(playerId);
-    if (!id || !isSnakeEventDay()) return;
+    if (!id) return; // Snake est un jeu permanent (Arcade) : plus de verrou de week-end
     snakeLibsGames.set(socket.id, { playerId: id, startedAt: Date.now(), eats: 0, lastEatAt: 0 });
   });
 
   socket.on('snake-eat', ({ playerId } = {}) => {
     const id = safePlayerId(playerId);
-    if (!id || !isSnakeEventDay()) return;
+    if (!id) return; // Snake est un jeu permanent (Arcade) : plus de verrou de week-end
     const game = snakeLibsGames.get(socket.id);
     if (!game || game.playerId !== id) return; // partie jamais déclarée
     const now = Date.now();
@@ -4895,7 +4902,7 @@ FAITS SUR LE SITE (vérifiés ; pour une question sur le site, réponds UNIQUEME
 - Robot difficile : au Tic Tac Toe il ne perd jamais et apprend les habitudes des joueurs ; aux échecs il réfléchit moins d'une seconde par coup.
 - Culture générale : quiz de 15 thèmes (dont Bénin), en solo ou en salon jusqu'à 6 joueurs, 10 à 40 questions, difficulté mixte à extrême.
 - Le Mot : un mot mystère de 5 lettres à trouver en 6 essais, un nouveau chaque jour.
-- Évents : Snake Challenge le week-end ; Libero Run, un jeu de course ; tournoi le samedi (heure du Bénin) : victoire +10 pts, bonne réponse au quiz +2, Lib mangé au Snake +1 ; le meilleur gagne 2000 Libs et le titre « Champion de la semaine ».
+- Arcade (tuile de l'accueil) : Libero Run, un jeu de course, et Snake (chaque Lib mangé est ajouté au solde), jouables tous les jours. Évents : le calendrier des week-ends (Double XP, quiz en direct, Le Mot Marathon, coupes, défis…), on touche un évent pour ses règles ; tournoi le samedi (heure du Bénin) : victoire +10 pts, bonne réponse au quiz +2, Lib mangé au Snake +1 ; le meilleur gagne 2000 Libs et le titre « Champion de la semaine ».
 - Libs : la monnaie du site, maximum 19 999. On en gagne : en gagnant des parties et des mises, roue de la fortune une fois par jour (5 à 250 Libs), défis du jour, série de jours (bonus de 5 Libs le 1er jour jusqu'à 35 Libs à partir du 7e), « Premiers pas », parrainage (100 Libs), distribution toutes les 5 heures selon le classement général (1er 10, 2e 5, 3e 3, 4e à 10e 2, les autres 1), tournoi, ventes de ton modèle de portrait. Inactif plus de 48 heures : on perd 10 Libs par jour. La recharge de Libs avec de l'argent est FERMÉE pour l'instant : on ne peut pas acheter de Libs. Pass VIP : +20 % de Libs pendant 30 jours.
 - Boutique : couleurs et polices de pseudo, effets, titres, fonds, bulles, modèles de portrait des joueurs, packs, jetons Puissance 4, symboles Morpion, thèmes d'échiquier, skins Snake, particules, bannières de victoire, sons, Boost Indice pour le quiz. Les émotes s'achètent dans la carte Émotes du Profil, pas dans la boutique. On peut y offrir un article à quelqu'un : sur l'article, choisir de l'offrir à un ami, ou par lien ou code.
 - Offrir des Libs (PAS dans la boutique) : Profil, puis « Mes amis », puis le bouton « Offrir » (paquet cadeau) à côté de l'ami ; choisir 25, 50, 100, 250 ou 500 Libs (ou un Pass VIP à 2000 Libs), puis appuyer sur « Confirmer ». 500 Libs offerts maximum par jour. Il faut d'abord être amis (ajout par code ami).

@@ -64,6 +64,8 @@ html.restoring[data-restore="trivia-home"]   #screen-trivia-home,
 html.restoring[data-restore="trivia-game"]   #screen-trivia-game,
 html.restoring[data-restore="trivia-waiting"] #screen-trivia-waiting,
 html.restoring[data-restore="events"]        #screen-events,
+html.restoring[data-restore="snake"]         #screen-snake,
+html.restoring[data-restore="arcade"]        #screen-arcade,
 html.restoring[data-restore="luffy"]         #screen-luffy,
 html.restoring[data-restore="feed"]          #screen-feed,
 html.restoring[data-restore="ideas"]         #screen-ideas,
@@ -1727,8 +1729,8 @@ html.light .read-cats { background: linear-gradient(var(--bg), rgba(240,244,255,
 .snake-lb-list { display: flex; flex-direction: column; }
 .lb-score-snake { font-size: .82rem; font-weight: 700; color: var(--accent); margin-left: auto; white-space: nowrap; }
 /* Masquer les boutons flottants du bas sur l'écran Évents (évite la superposition avec le D-pad) */
-body.screen-events-active .btn-help-float,
-body.screen-events-active .btn-comment-float { display: none !important; }
+body.screen-snake-active .btn-help-float,
+body.screen-snake-active .btn-comment-float { display: none !important; }
 
 .snake-dpad {
   display: none;
@@ -1782,7 +1784,7 @@ body.screen-luffy-active .btn-comment-float { display: none !important; }
   .snake-over-overlay .btn { min-width: 200px; }
   /* Réduit la marge latérale pendant le jeu pour agrandir la map. */
   body.screen-luffy-active  #screen-luffy,
-  body.screen-events-active #screen-events { padding-left: 4px; padding-right: 4px; }
+  body.screen-snake-active #screen-snake { padding-left: 4px; padding-right: 4px; }
 }
 
 body.screen-feed-active .btn-help-float,
@@ -2310,8 +2312,8 @@ html.light .shop-fn-promo-input::placeholder { color: var(--muted); }
 /* Se masque sur les ecrans immersifs, comme le bouton d'aide */
 .screen.game-screen.active ~ .btn-chatbot-float,
 .screen.game-screen.active ~ .chatbot-panel { display: none; }
-body.screen-events-active .btn-chatbot-float,
-body.screen-events-active .chatbot-panel,
+body.screen-snake-active .btn-chatbot-float,
+body.screen-snake-active .chatbot-panel,
 body.screen-luffy-active  .btn-chatbot-float,
 body.screen-luffy-active  .chatbot-panel,
 body.screen-feed-active   .btn-chatbot-float,
