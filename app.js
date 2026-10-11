@@ -13441,7 +13441,7 @@ function _giftItemName(g) {
   function open(ref) {
     if (window._dmUI) { window._dmUI.open(ref); return; }
     if (!loading) loading = new Promise((ok, ko) => {
-      const sc = document.createElement('script'); sc.src = 'chat.js?v=2'; sc.onload = ok; sc.onerror = ko;
+      const sc = document.createElement('script'); sc.src = 'chat.js?v=3'; sc.onload = ok; sc.onerror = ko;
       document.head.appendChild(sc);
     });
     loading.then(() => window._dmUI?.open(ref)).catch(() => { loading = null; });

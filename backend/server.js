@@ -3864,7 +3864,9 @@ io.on('connection', (socket) => {
       if (db) db.collection('dm_messages').updateMany({ from: pid, to: id, read: false }, { $set: { read: true } }).catch(() => {});
       _emitToPlayer(pid, 'dm-read', { ref: _playerRef(id).slice(0, 8) });
     }
-    socket.emit('dm-history', { ref, messages: conv.slice(-DM_PAGE).map(m => _dmPublic(m, id)), canWrite: _dmAllowed(id, pid) });
+    // Bulle de chat equipee de chacun : affichee en ruban a cote de ses messages.
+    const bubbles = { me: libs.get(id)?.equippedBubble || null, them: libs.get(pid)?.equippedBubble || null };
+    socket.emit('dm-history', { ref, messages: conv.slice(-DM_PAGE).map(m => _dmPublic(m, id)), canWrite: _dmAllowed(id, pid), bubbles });
     socket.emit('dm-unread', { total: _dmUnread(id) });
   });
   socket.on('dm-mark-read', ({ playerId, ref } = {}) => {

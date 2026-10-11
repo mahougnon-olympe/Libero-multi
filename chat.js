@@ -9,6 +9,7 @@
   const listEl = $('dm-list'), wrap = $('dm-conv-wrap'), conv = $('dm-conv'), input = $('dm-input');
   const back = $('dm-back'), title = $('dm-title'), who = $('dm-who'), menuBtn = $('dm-menu-btn'), menu = $('dm-menu'), err = $('dm-err');
   const KEY = 'libero_dm_open';
+  let bubbles = { me: null, them: null };
   let friends = [], current = null, msgs = [], typingTimer = null, lastTypingSent = 0;
 
   // Police manuscrite des messages : chargee seulement ici (pas au demarrage du site).
@@ -61,7 +62,10 @@
     const name = m.mine ? d().me : (f?.name || '').toUpperCase();
     const seen = m.mine && m.read ? ` · ${esc(d().seen)}` : '';
     const body = `<span class="dm-txt">${esc(m.text)}</span>`;
-    return `<div class="dm-m ${cls}${anim || ''}" data-id="${esc(m.id || '')}"><span class="dm-name">${esc(name)} <time>${esc(hhmm(m.at))}${seen}</time></span>${body}</div>`;
+    // Bulle achetee en boutique : un ruban dans sa matiere, a cote du message.
+    const bc = typeof _bubbleClass === 'function' ? _bubbleClass(m.mine ? bubbles.me : bubbles.them) : '';
+    const rib = bc ? `<i class="dm-rib msg-bubble ${bc}" aria-hidden="true"></i>` : '';
+    return `<div class="dm-m ${cls}${anim || ''}${bc ? ' dm-has-rib' : ''}" data-id="${esc(m.id || '')}"><span class="dm-name">${esc(name)} <time>${esc(hhmm(m.at))}${seen}</time></span>${body}${rib}</div>`;
   }
   function renderConv() {
     let html = '', lastDay = '';
@@ -209,7 +213,7 @@
     p = p || {};
     if (ev === 'dm-list') { friends = p.list || []; window._dmSetTotal?.(p.total); if (!current) renderList(); else header(); }
     else if (ev === 'dm-history' && p.ref === current) {
-      msgs = p.messages || []; renderConv();
+      msgs = p.messages || []; bubbles = p.bubbles || { me: null, them: null }; renderConv();
       const f = friends.find(x => x.ref === current); if (f) f.unread = 0;
       input.disabled = p.canWrite === false; err.textContent = p.canWrite === false ? d().noWrite : '';
     }
