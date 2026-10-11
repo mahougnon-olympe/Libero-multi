@@ -2857,3 +2857,18 @@ html:not(.light) .ink-drops i, html:not(.light) .ink-lvl { background: #8fb4ff; 
 .ink-drops i.u { background: #cfd5e0 !important; }
 html:not(.light) .ink-drops i.u { background: rgba(238,241,234,.22) !important; }
 .libe-ink.off .ink-lvl::before { display: none; }
+
+/* Panne d'encre de Libe : debut a l'encre, trois taches, puis crayon gris. */
+.libe-relay { position: relative; align-self: flex-start; font: 700 1.22rem var(--font-hand); color: var(--accent); min-height: 30px; padding-right: 60px; }
+.rl-first { display: inline-block; clip-path: inset(0 100% 0 0); animation: rlWrite .8s steps(12) .1s forwards; }
+@keyframes rlWrite { to { clip-path: inset(0 0 0 0); } }
+.rl-blot { position: absolute; border-radius: 50%; background: #1b3a8c; opacity: 0; transform: scale(0); }
+.rl-blot.b1 { right: 44px; top: 8px; width: 10px; height: 10px; animation: rlBlot .25s ease .95s forwards; }
+.rl-blot.b2 { right: 28px; top: 14px; width: 6px; height: 6px; animation: rlBlot .25s ease 1.15s forwards; }
+.rl-blot.b3 { right: 6px; top: 4px; width: 15px; height: 13px; border-radius: 45% 55% 50% 50%; animation: rlBlot .25s ease 1.35s forwards; }
+@keyframes rlBlot { to { opacity: .85; transform: scale(1); } }
+html:not(.light) .rl-blot { background: #8fb4ff; }
+:root:root .chatbot-msg-bot .libe-lead { color: #5b6270; }
+html:not(.light) .chatbot-msg-bot .libe-lead { color: #b8bec9; }
+.chatbot-ai-tag.lead { color: #5b6270; border-color: #5b6270; }
+@media (prefers-reduced-motion: reduce) { .rl-first, .rl-blot { animation: none; clip-path: none; opacity: 1; transform: none; } }
