@@ -2826,3 +2826,10 @@ html:not(.light) .dm-m.them { color: #9ec1ff; }
 @media (min-width: 1024px) { .ck-board.ck-10 { --ck-cell: min(7.4vh, 60px); } }
 .ck-piece.ck-taken { opacity: .35; filter: grayscale(.6); }
 .ck-variant-tag { text-align: center; margin: 0 0 8px; font: 700 1.1rem var(--font-hand); color: var(--muted); }
+
+/* Libe sur telephone : la fenetre monte jusque sous les boutons du haut (au lieu
+   de prendre seulement la hauteur de son contenu). */
+@media (max-width: 600px) {
+  :root:root .chatbot-panel { top: 60px; height: auto; max-height: none; }
+}
+body:has(#chatbot-panel:not(.hidden)) .news-card { display: none !important; }
