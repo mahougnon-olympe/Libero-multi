@@ -2195,12 +2195,12 @@ function generateCode() {
   return code;
 }
 
-function createInitialState(gameType) {
+function createInitialState(gameType, variant) {
   switch (gameType) {
     case 'connect4':  return { board: connect4.createBoard(), currentPlayer: 'R' };
     case 'tictactoe': return tictactoe.createState();
     case 'chess':     return chessGame.createState();
-    case 'checkers':  return checkers.createState();
+    case 'checkers':  return checkers.createState(variant === 'intl' ? 'intl' : 'en');
     case 'ludo':      return ludo.createState();
   }
 }
@@ -2617,7 +2617,9 @@ io.on('connection', (socket) => {
   socket.on('announcement-dismissed', () => {});
 
   // ── Créer une room ──────────────────────────────────────────────────────
-  socket.on('create-room', ({ gameType = 'connect4', name = '', vsBot = false, botDifficulty = 'medium', playerId, stake = 0 } = {}) => {
+  socket.on('create-room', ({ gameType = 'connect4', name = '', vsBot = false, botDifficulty = 'medium', playerId, stake = 0, variant } = {}) => {
+    // Dames : regles internationales (10x10) par defaut, anglaises (8x8) au choix.
+    const ckVariant = gameType === 'checkers' ? (variant === 'en' ? 'en' : 'intl') : null;
     if (!VALID_GAMES.has(gameType)) return;
     const playerName = sanitizeName(name, 'Anonyme');
     const diff = ['easy', 'medium', 'hard'].includes(botDifficulty) ? botDifficulty : 'medium';
@@ -2636,7 +2638,8 @@ io.on('connection', (socket) => {
     rooms.set(code, {
       code,
       gameType,
-      state: createInitialState(gameType),
+      variant: ckVariant,
+      state: createInitialState(gameType, ckVariant),
       players:     { R: socket.id, Y: vsBot ? 'bot' : null },
       playerNames: { R: playerName, Y: vsBot ? '🤖 Robot' : null },
       playerIds:   { R: safePlayerId(playerId) || playerName, Y: null },
@@ -2663,9 +2666,9 @@ io.on('connection', (socket) => {
     socket.join(code);
 
     if (vsBot) {
-      socket.emit('game-start', { gameType, state: createInitialState(gameType), yourPlayer: 'R', vsBot: true, botDifficulty: diff, code });
+      socket.emit('game-start', { gameType, state: rooms.get(code).state, yourPlayer: 'R', vsBot: true, botDifficulty: diff, code });
     } else {
-      socket.emit('room-created', { code, gameType, stake: duelStake });
+      socket.emit('room-created', { code, gameType, stake: duelStake, variant: ckVariant });
       if (gameType === 'ludo') emitLudoLobby(rooms.get(code));
     }
   });
@@ -3149,7 +3152,7 @@ io.on('connection', (socket) => {
     }
 
     if (room.vsBot) {
-      room.state  = createInitialState(room.gameType);
+      room.state  = createInitialState(room.gameType, room.variant);
       room.status = 'playing';
       room.winner = null;
       socket.emit('game-start', { gameType: room.gameType, state: room.state, yourPlayer: 'R', vsBot: true, botDifficulty: room.botDifficulty });
@@ -3159,7 +3162,7 @@ io.on('connection', (socket) => {
     room.restartVotes.add(socket.id);
 
     if (room.restartVotes.size >= 2) {
-      room.state  = createInitialState(room.gameType);
+      room.state  = createInitialState(room.gameType, room.variant);
       room.status = 'playing';
       room.winner = null;
       room.restartVotes.clear();

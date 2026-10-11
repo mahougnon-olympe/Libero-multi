@@ -292,6 +292,16 @@
       </button>
     </div>
 
+    <!-- Dames : choix des regles (visible seulement quand Dames est choisi) -->
+    <div id="ck-rules" class="ck-rules hidden">
+      <p class="step-label" id="step-ck-rules">Règles</p>
+      <div class="ck-rules-row" role="radiogroup" aria-labelledby="step-ck-rules">
+        <button type="button" class="ck-rule" data-variant="intl" role="radio"><span class="ck-mini b10" aria-hidden="true"></span><b id="ck-intl-t">Internationales</b><small id="ck-intl-s">10×10 · 20 pions</small></button>
+        <button type="button" class="ck-rule" data-variant="en" role="radio"><span class="ck-mini b8" aria-hidden="true"></span><b id="ck-en-t">Anglaises</b><small id="ck-en-s">8×8 · 12 pions</small></button>
+      </div>
+      <details class="ck-diff"><summary id="ck-diff-sum">Voir les différences</summary><div id="ck-diff-body"></div></details>
+    </div>
+
     <div class="card who-card" id="home-who" data-who="friend">
       <input
         id="input-name"

@@ -1077,6 +1077,7 @@ const DICT = {
     settingsTitle:'⚙️ Paramètres',
     dm:{ title:'Mes mots', btn:'Mes mots', back:'Retour', options:'Options', online:'en ligne', offline:'hors ligne', empty:'Ajoute des amis pour leur écrire.', addFriend:'+ Ajouter un ami', first:'Écris-lui le premier mot', you:'Toi', me:'TOI', ph:'Écris un mot…', send:'Envoyer', typing:n=>`${n} écrit…`, seen:'lu', today:'aujourd\'hui', yesterday:'hier', quick:['gg','On joue ?','2 min','Bien joué !'], challenge:'Défier', challengeHint:'Choisis un jeu puis « Défier un ami ».', report:'Signaler', block:'Bloquer', reportAsk:n=>`Signaler ${n} ? Les derniers messages seront envoyés à l'équipe.`, blockAsk:n=>`Bloquer ${n} ? Il sera retiré de tes amis et ne pourra plus t'écrire.`, reported:'Merci, c\'est signalé.', blocked:'Bloqué.', noWrite:'Vous devez être amis tous les deux pour vous écrire.', err:{ rate:'Doucement, attends quelques secondes.', banned:'Ce message contient un mot interdit.', notfriend:'Vous devez être amis tous les deux pour vous écrire.', anonymous:'Choisis d\'abord un pseudo.' }, spAnim:'Animations des mots', spPush:'Me prévenir des nouveaux mots' },
     libeAi:{ sp:'Libé IA (vraies réponses)', spNote:'Tes questions partent sans ton pseudo vers un service d\'IA (Google Gemini). Voir Confidentialité.', subtitle:'Ton crayon qui sait (presque) tout', greeting:'Salut ! Je suis Libé. Pose-moi une question sur le site, tes devoirs ou ce que tu veux apprendre.', placeholder:'Écris ta question…', thinking:'Libé réfléchit…', left:(n,m)=>n > 0 ? `${n} / ${m} question${n > 1 ? 's' : ''} restante${n > 1 ? 's' : ''} aujourd'hui` : 'Plus de questions IA aujourd\'hui : retour à minuit', quota:'Ma mine est usée pour aujourd\'hui ! Tes questions reviennent <strong>demain à minuit</strong>. En attendant, je t\'aide encore sur le site avec mes fiches :', busy:'Je suis débordé, je réponds avec mes fiches du site :', off:'Libé IA n\'est pas encore branché. Je réponds avec mes fiches du site :', acts:{ friends:'Ouvrir Mes amis', notes:'Ouvrir Mes mots', shop:'Ouvrir la boutique', profile:'Ouvrir mon profil', games:'Jeux multijoueur', trivia:'Culture générale', wordle:'Ouvrir Le Mot', events:'Ouvrir les Évents', read:'Ouvrir la Lecture', ideas:'Ouvrir les Idées', settings:'Ouvrir les réglages', account:'Ouvrir Mon compte', wheel:'Ouvrir la roue' } },
+    ckRules:{ step:'Règles', intl:'Internationales', intlSub:'10×10 · 20 pions', en:'Anglaises', enSub:'8×8 · 12 pions', diff:'Voir les différences', short:{ intl:'Internationales 10×10', en:'Anglaises 8×8' }, body:'<b>Internationales</b> : damier 10×10, 20 pions chacun. Les pions prennent aussi en arrière. La dame vole sur toute la diagonale. On doit prendre le plus grand nombre de pièces. Un pion devient dame seulement s\'il finit son coup sur la dernière rangée.<br><br><b>Anglaises</b> : damier 8×8, 12 pions chacun. Les pions prennent seulement vers l\'avant. La dame avance d\'une case, dans les 4 sens. Prise obligatoire, au choix du joueur.' },
     settingsTitle:'Réglages', spCkEn:'Site en anglais', spCkSlate:'Ardoise (thème sombre)', spCkTrail:'Trait derrière le curseur', spCkSfx:'Bruitages', spCkBgm:'Musique de fond', spCkPush:'Me prévenir (notifications)', spCkInGame:'en jeu', settingsLang:'Langue', settingsTheme:'Thème', settingsSnake:'Serpent',
     settingsSnakeOn:'Activé', settingsSnakeOff:'Désactivé', settingsSnakeInGame:'🐍 En Game',
     snakeBusyInGame:'🐍 Le serpent est en Game !',
@@ -1858,6 +1859,7 @@ const DICT = {
     settingsTitle:'⚙️ Settings',
     dm:{ title:'My notes', btn:'My notes', back:'Back', options:'Options', online:'online', offline:'offline', empty:'Add friends to write to them.', addFriend:'+ Add a friend', first:'Write them the first note', you:'You', me:'YOU', ph:'Write a note…', send:'Send', typing:n=>`${n} is writing…`, seen:'read', today:'today', yesterday:'yesterday', quick:['gg','Wanna play?','2 min','Well played!'], challenge:'Challenge', challengeHint:'Pick a game, then « Challenge a friend ».', report:'Report', block:'Block', reportAsk:n=>`Report ${n}? The latest messages will be sent to the team.`, blockAsk:n=>`Block ${n}? They will be removed from your friends and can no longer write to you.`, reported:'Thanks, it has been reported.', blocked:'Blocked.', noWrite:'You both need to be friends to write.', err:{ rate:'Slow down, wait a few seconds.', banned:'This message contains a banned word.', notfriend:'You both need to be friends to write.', anonymous:'Pick a username first.' }, spAnim:'Note animations', spPush:'Notify me of new notes' },
     libeAi:{ sp:'Libé AI (real answers)', spNote:'Your questions go to an AI service (Google Gemini) without your username. See Privacy.', subtitle:'Your pencil that knows (almost) everything', greeting:'Hi! I am Libé. Ask me about the site, your homework or anything you want to learn.', placeholder:'Type your question…', thinking:'Libé is thinking…', left:(n,m)=>n > 0 ? `${n} / ${m} question${n > 1 ? 's' : ''} left today` : 'No AI questions left today: back at midnight', quota:'My lead is worn out for today! Your questions come back <strong>tomorrow at midnight</strong>. Meanwhile I can still help with my site notes:', busy:'I am swamped, here are my site notes:', off:'Libé AI is not plugged in yet. Here are my site notes:', acts:{ friends:'Open My friends', notes:'Open My notes', shop:'Open the shop', profile:'Open my profile', games:'Multiplayer games', trivia:'Trivia', wordle:'Open The Word', events:'Open Events', read:'Open Reading', ideas:'Open Ideas', settings:'Open settings', account:'Open My account', wheel:'Open the wheel' } },
+    ckRules:{ step:'Rules', intl:'International', intlSub:'10×10 · 20 pieces', en:'English', enSub:'8×8 · 12 pieces', diff:'See the differences', short:{ intl:'International 10×10', en:'English 8×8' }, body:'<b>International</b>: 10×10 board, 20 pieces each. Men also capture backwards. Kings fly along the whole diagonal. You must capture the most pieces possible. A man is crowned only if it ends its move on the last row.<br><br><b>English</b>: 8×8 board, 12 pieces each. Men capture forwards only. Kings move one square in any of the 4 directions. Capturing is mandatory, any capture you like.' },
     settingsTitle:'Settings', spCkEn:'Site in English', spCkSlate:'Slate (dark theme)', spCkTrail:'Trail behind the cursor', spCkSfx:'Sound effects', spCkBgm:'Background music', spCkPush:'Notify me (notifications)', spCkInGame:'in game', settingsLang:'Language', settingsTheme:'Theme', settingsSnake:'Snake',
     settingsSnakeOn:'Enabled', settingsSnakeOff:'Disabled', settingsSnakeInGame:'🐍 In Game',
     snakeBusyInGame:'🐍 The snake is in Game!',
@@ -2456,6 +2458,10 @@ function applyLang() {
   const gntt = $('gn-tictactoe'); if (gntt) gntt.textContent = d.games.tictactoe;
   const gnch = $('gn-chess');     if (gnch) gnch.textContent = d.games.chess;
   const gnck = $('gn-checkers');  if (gnck) gnck.textContent = d.games.checkers;
+  if (d.ckRules) {
+    [['step-ck-rules', d.ckRules.step], ['ck-intl-t', d.ckRules.intl], ['ck-intl-s', d.ckRules.intlSub], ['ck-en-t', d.ckRules.en], ['ck-en-s', d.ckRules.enSub], ['ck-diff-sum', d.ckRules.diff]].forEach(([id, v]) => { const el = $(id); if (el) el.textContent = v; });
+    const cb = $('ck-diff-body'); if (cb) cb.innerHTML = d.ckRules.body;
+  }
   const gnld = $('gn-ludo');      if (gnld) gnld.textContent = d.games.ludo;
   const bcw = $('btn-cancel-wait');   if (bcw) bcw.textContent = d.btnCancel;
   const bra = $('btn-restart-accept'); if (bra) bra.textContent = d.btnAccept;
@@ -2994,8 +3000,29 @@ document.querySelectorAll('.game-btn').forEach(btn => {
     document.querySelectorAll('.game-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     selectedGameType = btn.dataset.game;
+    window._ckRulesSync?.();
   });
 });
+
+// Dames : regles internationales (defaut) ou anglaises, choix retenu entre les visites.
+function _ckVariant() { try { return localStorage.getItem('libero_ck_variant') === 'en' ? 'en' : 'intl'; } catch { return 'intl'; } }
+(function initCkRules() {
+  const box = document.getElementById('ck-rules'); if (!box) return;
+  // Mini-damiers dessines une fois.
+  box.querySelectorAll('.ck-mini').forEach(el => {
+    const n = el.classList.contains('b10') ? 10 : 8, start = n === 10 ? 4 : 3; let h = '';
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) { const d = (r + c) % 2 === 1; h += `<i class="${d ? 'd' : ''}${d && r < start ? ' y' : ''}${d && r >= n - start ? ' r' : ''}"></i>`; }
+    el.innerHTML = h;
+  });
+  const sync = () => {
+    box.classList.toggle('hidden', selectedGameType !== 'checkers');
+    const v = _ckVariant();
+    box.querySelectorAll('.ck-rule').forEach(b => { const on = b.dataset.variant === v; b.classList.toggle('active', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); });
+  };
+  box.querySelectorAll('.ck-rule').forEach(b => b.addEventListener('click', () => { try { localStorage.setItem('libero_ck_variant', b.dataset.variant); } catch {} sync(); }));
+  window._ckRulesSync = sync;
+  sync();
+})();
 
 // ── Accueil ──────────────────────────────────────────────────────────────────
 document.querySelectorAll('.bot-btn').forEach(btn => {
@@ -3004,7 +3031,7 @@ document.querySelectorAll('.bot-btn').forEach(btn => {
     if (!getPlayerName()) { showError(t().errNoName); return; }
     if (_nameTaken) { showError(t().errNameTaken); return; }
     clearError();
-    socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), vsBot: true, botDifficulty: btn.dataset.diff, playerId: getPlayerId() });
+    socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), vsBot: true, botDifficulty: btn.dataset.diff, playerId: getPlayerId(), variant: _ckVariant() });
   });
 });
 
@@ -3013,7 +3040,7 @@ $('btn-create').addEventListener('click', () => {
   if (!getPlayerName()) { showError(t().errNoName); return; }
   if (_nameTaken) { showError(t().errNameTaken); return; }
   clearError();
-  socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), playerId: getPlayerId(), stake: window._selectedStake || 0 });
+  socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), playerId: getPlayerId(), stake: window._selectedStake || 0, variant: _ckVariant() });
 });
 
 $('btn-join').addEventListener('click', joinRoom);
@@ -3706,14 +3733,20 @@ function onChessClick(square) {
 // ══════════════════════════════════════════════════════════════════════════════
 function buildCheckers(container, state, yourPlayer) {
   const flipped = yourPlayer === 'Y';
+  const n = Math.round(Math.sqrt(state.board.length)) || 8; // 8 (anglaises) ou 10 (internationales)
+  const tag = document.createElement('p');
+  tag.className = 'ck-variant-tag';
+  tag.textContent = t().ckRules.short[n === 10 ? 'intl' : 'en'];
+  container.appendChild(tag);
   const boardEl = document.createElement('div');
   boardEl.id = 'ck-board';
-  boardEl.className = 'ck-board';
-  for (let gr = 0; gr < 8; gr++) {
-    for (let gc = 0; gc < 8; gc++) {
-      const br = flipped ? 7 - gr : gr;
-      const bc = flipped ? 7 - gc : gc;
-      const i  = br * 8 + bc;
+  boardEl.className = 'ck-board' + (n === 10 ? ' ck-10' : '');
+  boardEl.style.setProperty('--ck-n', n);
+  for (let gr = 0; gr < n; gr++) {
+    for (let gc = 0; gc < n; gc++) {
+      const br = flipped ? n - 1 - gr : gr;
+      const bc = flipped ? n - 1 - gc : gc;
+      const i  = br * n + bc;
       const dark = (gr + gc) % 2 === 1;
       const sq = document.createElement('div');
       sq.className = `ck-sq ${dark ? 'dark' : 'light'}`;
@@ -3737,7 +3770,7 @@ function updateCheckers(state) {
       const piece = document.createElement('span');
       const red  = (p === 'r' || p === 'R');
       const king = (p === 'R' || p === 'Y');
-      piece.className = `ck-piece ${red ? 'ck-red' : 'ck-yellow'}${king ? ' ck-king' : ''}`;
+      piece.className = `ck-piece ${red ? 'ck-red' : 'ck-yellow'}${king ? ' ck-king' : ''}${(state.pendingOver || []).includes(i) ? ' ck-taken' : ''}`;
       // Pions dessines (Wikimedia Commons, domaine public) : rouge et jaune, pile de deux pour la dame.
       const im = document.createElement('img');
       im.src = `assets/pieces/dames/Draughts_${king ? 'k' : 'm'}${red ? 'd' : 'y'}t45.svg`;
@@ -5660,14 +5693,14 @@ document.querySelectorAll('.stake-btn').forEach(btn => {
 
 // Ecran d'attente : salon Ludo (sieges, bouton Lancer) ou attente d'un adversaire.
 let ludoLobby = null;
-function showWaiting({ code, gameType, stake, role }) {
+function showWaiting({ code, gameType, stake, role, variant }) {
   currentRoomCode = code;
   currentGame     = gameType;
   if (role) myPlayer = role;
   // Une coupure pendant l'attente (changer d'appli pour envoyer le code) ne perd plus le salon.
   if (role) saveSession(code, role);
   $('room-code').textContent     = code;
-  $('waiting-game-name').textContent = t().games[gameType] + (stake ? ` · ${stake} Libs` : '');
+  $('waiting-game-name').textContent = t().games[gameType] + (gameType === 'checkers' && variant ? ` · ${t().ckRules.short[variant]}` : '') + (stake ? ` · ${stake} Libs` : '');
   const isLudo = gameType === 'ludo';
   $('waiting-seats').classList.toggle('hidden', !isLudo);
   $('btn-ludo-start').classList.toggle('hidden', !isLudo);
@@ -5696,8 +5729,8 @@ function renderLudoLobby(lb) {
   btn.disabled = here < 2;
   if (!iAmHost) $('waiting-hint').textContent = d.ludoWaitHost;
 }
-socket.on('room-created', ({ code, gameType, stake }) => {
-  showWaiting({ code, gameType, stake, role: 'R' });
+socket.on('room-created', ({ code, gameType, stake, variant }) => {
+  showWaiting({ code, gameType, stake, role: 'R', variant });
 });
 socket.on('ludo-joined', ({ code, gameType, stake, yourPlayer }) => {
   showWaiting({ code, gameType, stake, role: yourPlayer });
@@ -13757,7 +13790,7 @@ try {
     window._pendingFriendChallenge = { ref: b.dataset.ref, name: b.dataset.name };
     close();
     if (mode === 'classic') {
-      socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), playerId: getPlayerId(), stake: window._selectedStake || 0 });
+      socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), playerId: getPlayerId(), stake: window._selectedStake || 0, variant: _ckVariant() });
     } else {
       socket.emit('create-trivia-room', { categories: selectedTriviaCategories, name: getTriviaName(), lang: currentLang, difficulty: selectedTriviaDifficulty, amount: getTriviaQCount(), playerId: getPlayerId() });
     }
