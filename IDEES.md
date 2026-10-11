@@ -4,9 +4,8 @@ Notes d'idees pour Libero's Multi (fichier de travail, non publie : les `*.md` s
 exclus du deploiement Vercel). Coche au fur et a mesure.
 
 ## Jeux de lettres / mots a ajouter
-- [ ] **Le Mot (facon Wordle)** : deviner un mot de 5 lettres en 6 essais, un mot par
-  jour, solo + classement. Le plus fort en retention (habitude quotidienne).
-  *(En cours de construction.)*
+- [x] **Le Mot (facon Wordle)** : deviner un mot de 5 lettres en 6 essais, un mot par
+  jour. En ligne (grille facon mots croises, clavier AZERTY/QWERTY selon la langue).
 - [ ] **Le Petit Bac (Baccalaureat)** : une lettre tiree, des categories (prenom,
   ville, pays, animal, objet...), trouver un mot par categorie avant la fin du temps.
   Tres social, ideal en multi. Validation possible par vote des joueurs.
@@ -30,6 +29,10 @@ FR + EN). Le Pendu et Le Mot en ont besoin ; le Petit Bac peut se valider par vo
 - [x] **Cadeau du jour** a la 1re connexion (theme ete : fond, emote, petit lot de Libs, pluie d'emojis) -> remplace le bonus de Libs de la serie de connexion.
 - [x] **Analytics d'entonnoir** dans le dashboard (visiteur -> pseudo -> 1re partie -> revenu J+1, barres, section « Entonnoir d'acquisition »).
 - [x] **Rotation automatique de la boutique** (arrivage/jour + disparition progressive + notifications 1j/1h), voir PLAN-ROTATION-BOUTIQUE.md.
+- [x] **Chat entre amis « Mes mots »** (avion origami, ecriture a la plume, silence en partie, signaler/bloquer, 30 jours).
+- [x] **Libe IA** (Gemini ou Claude, a cocher dans les reglages, quotas, jauge encrier, relais par Libe de base).
+- [x] **Dames internationales** (10x10, dame volante, prise majoritaire) au choix avec les anglaises.
+- [x] **Modeles de portrait gratuits** (sans piece payante).
 - [ ] **Decoupe du monolithe `app.js`** pour accelerer le premier chargement (delicat,
   a faire en etapes prudentes).
 
