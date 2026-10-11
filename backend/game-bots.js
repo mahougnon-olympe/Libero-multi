@@ -37,19 +37,125 @@ function tttRandomMove(board) {
   return empties.length ? empties[Math.floor(Math.random() * empties.length)] : -1;
 }
 
-function botMoveTTT(board, difficulty = 'hard') {
+// ── Robot qui apprend les joueurs ──────────────────────────────────────────
+// 1) Il ne joue que des coups « parfaits » (minimax exact) : il ne perd jamais.
+// 2) Parmi eux, il choisit celui qui donne le plus de chances de GAGNER contre
+//    ce joueur-la, en predisant ses reponses : ce que CE joueur a deja joue dans
+//    la meme position, ce que jouent les joueurs en general, et des reflexes
+//    humains par defaut (finir une ligne, bloquer, aimer le centre).
+// Les positions sont rangees a une symetrie pres (8 rotations / miroirs).
+const TTT_SYMS = [
+  [0,1,2,3,4,5,6,7,8], [6,3,0,7,4,1,8,5,2], [8,7,6,5,4,3,2,1,0], [2,5,8,1,4,7,0,3,6],
+  [2,1,0,5,4,3,8,7,6], [6,7,8,3,4,5,0,1,2], [0,3,6,1,4,7,2,5,8], [8,5,2,7,4,1,6,3,0],
+];
+// Cle canonique d'une position du point de vue du joueur qui doit jouer.
+function tttCanon(board, mover) {
+  let best = null, bt = 0;
+  for (let t = 0; t < 8; t++) {
+    let k = '';
+    for (let i = 0; i < 9; i++) { const v = board[TTT_SYMS[t][i]]; k += v === null ? '.' : (v === mover ? 'x' : 'o'); }
+    if (best === null || k < best) { best = k; bt = t; }
+  }
+  return { key: best, t: bt }; // case canonique i <-> case reelle TTT_SYMS[t][i]
+}
+// Enregistre un coup joue par un humain dans un modele { cle: [9 compteurs] }.
+function tttLearn(model, board, mover, cell, maxKeys = 4000) {
+  if (!model || cell < 0 || cell > 8) return;
+  const { key, t } = tttCanon(board, mover);
+  const ci = TTT_SYMS[t].indexOf(cell);
+  if (!model[key]) {
+    if (Object.keys(model).length >= maxKeys) return;
+    model[key] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+  }
+  model[key][ci]++;
+}
+function tttEmpties(b) { const e = []; for (let i = 0; i < 9; i++) if (b[i] === null) e.push(i); return e; }
+const tttOther = p => (p === 'Y' ? 'R' : 'Y');
+function tttWinsNow(b, p, i) { b[i] = p; const w = tttWinner(b) === p; b[i] = null; return w; }
+
+// Prediction : probabilite de chaque case pour l'humain `mover`.
+function tttPredict(board, mover, models) {
+  const emp = tttEmpties(board);
+  const prior = {}; let ptot = 0;
+  for (const i of emp) {
+    let w = i === 4 ? 2 : ([0, 2, 6, 8].includes(i) ? 1.5 : 1);
+    if (tttWinsNow(board, mover, i)) w += 20;            // finir sa ligne
+    else if (tttWinsNow(board, tttOther(mover), i)) w += 12; // bloquer
+    prior[i] = w; ptot += w;
+  }
+  const { key, t } = tttCanon(board, mover);
+  const seen = {}; let stot = 0;
+  for (const [m, weight] of models) {
+    const c = m && m[key]; if (!c) continue;
+    for (let ci = 0; ci < 9; ci++) if (c[ci]) { const real = TTT_SYMS[t][ci]; if (board[real] === null) { seen[real] = (seen[real] || 0) + c[ci] * weight; stot += c[ci] * weight; } }
+  }
+  const PRIOR = 4; // poids des reflexes par defaut face aux donnees apprises
+  const out = {}; const tot = stot + PRIOR;
+  for (const i of emp) out[i] = ((seen[i] || 0) + PRIOR * prior[i] / ptot) / tot;
+  return out;
+}
+
+// Valeur exacte (minimax) memoisee : +1 le robot gagne, 0 nul, -1 il perd.
+const _mmMemo = new Map();
+function tttExact(b, toMove) {
+  const k = b.map(v => v || '.').join('') + toMove;
+  if (_mmMemo.has(k)) return _mmMemo.get(k);
+  const w = tttWinner(b);
+  let v;
+  if (w) v = w === 'Y' ? 1 : -1;
+  else {
+    const emp = tttEmpties(b);
+    if (!emp.length) v = 0;
+    else {
+      v = toMove === 'Y' ? -2 : 2;
+      for (const i of emp) { b[i] = toMove; const s = tttExact(b, tttOther(toMove)); b[i] = null; v = toMove === 'Y' ? Math.max(v, s) : Math.min(v, s); }
+    }
+  }
+  _mmMemo.set(k, v); return v;
+}
+// Esperance de gain : le robot joue parfaitement, l'humain selon la prediction.
+// Gagner tot vaut un peu plus que gagner tard.
+function tttExpect(b, toMove, models, depth, memo) {
+  const k = b.map(v => v || '.').join('') + toMove;
+  if (memo.has(k)) return memo.get(k);
+  const w = tttWinner(b);
+  let v;
+  if (w) v = w === 'Y' ? 1 + (9 - depth) * 0.02 : -1;
+  else {
+    const emp = tttEmpties(b);
+    if (!emp.length) v = 0;
+    else if (toMove === 'Y') {
+      const best = tttExact(b, 'Y');
+      v = -Infinity;
+      for (const i of emp) { b[i] = 'Y'; if (tttExact(b, 'R') === best) v = Math.max(v, tttExpect(b, 'R', models, depth + 1, memo)); b[i] = null; }
+    } else {
+      const pr = tttPredict(b, 'R', models); v = 0;
+      for (const i of emp) { b[i] = 'R'; v += pr[i] * tttExpect(b, 'Y', models, depth + 1, memo); b[i] = null; }
+    }
+  }
+  memo.set(k, v); return v;
+}
+
+function botMoveTTT(board, difficulty = 'hard', ctx = {}) {
   if (difficulty === 'easy') return tttRandomMove(board);
   if (difficulty === 'medium' && Math.random() < 0.35) return tttRandomMove(board);
   const b = [...board];
-  let best = -Infinity, cell = -1;
-  for (let i = 0; i < 9; i++) {
-    if (b[i] !== null) continue;
+  const emp = tttEmpties(b);
+  if (!emp.length) return -1;
+  // Modeles : ce joueur (poids fort) puis tous les joueurs.
+  const models = [[ctx.player, 3], [ctx.global, 1]];
+  const best = tttExact(b, 'Y');
+  const memo = new Map();
+  const scored = [];
+  for (const i of emp) {
     b[i] = 'Y';
-    const s = tttMinimax(b, false);
+    if (tttExact(b, 'R') === best) scored.push({ i, s: tttExpect(b, 'R', models, 1, memo) });
     b[i] = null;
-    if (s > best) { best = s; cell = i; }
   }
-  return cell;
+  const top = Math.max(...scored.map(x => x.s));
+  // Variete : on tire au sort parmi les coups (presque) aussi bons.
+  const good = scored.filter(x => x.s >= top - 0.015);
+  return good[Math.floor(Math.random() * good.length)].i;
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -249,4 +355,4 @@ function botMoveChess(fen, difficulty = 'hard') {
   return pick(good[Math.floor(Math.random() * good.length)].m);
 }
 
-module.exports = { botMoveTTT, botMoveConnect4, botMoveChess };
+module.exports = { botMoveTTT, tttLearn, botMoveConnect4, botMoveChess };
