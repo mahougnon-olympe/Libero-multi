@@ -4565,15 +4565,16 @@ $('input-trivia-nb').dispatchEvent(new Event('input'));
 document.querySelectorAll('.who-card').forEach(card => {
   const key = 'libero_who_' + card.id;
   const set = w => {
-    card.dataset.who = w;
+    card.dataset.who = w || '';
     card.querySelectorAll(':scope > .who-row .who-btn').forEach(b => {
       const on = b.dataset.who === w; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
-    try { sessionStorage.setItem(key, w); } catch {}
+    try { w ? sessionStorage.setItem(key, w) : sessionStorage.removeItem(key); } catch {}
   };
   card.querySelectorAll(':scope > .who-row .who-btn').forEach(b => b.addEventListener('click', () => set(b.dataset.who)));
   let saved = null; try { saved = sessionStorage.getItem(key); } catch {}
-  set(saved && card.querySelector(`.who-btn[data-who="${saved}"]`) ? saved : card.dataset.who);
+  // Aucun choix par defaut : le joueur choisit lui-meme (seul un choix deja fait revient apres F5).
+  set(saved && card.querySelector(`.who-btn[data-who="${saved}"]`) ? saved : '');
 });
 
 $('btn-solo-trivia').addEventListener('click', () => {
