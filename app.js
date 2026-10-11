@@ -4504,7 +4504,7 @@ function buildTriviaThemes() {
   const container = $('trivia-themes');
   container.innerHTML = t().triviaCats.map(c => `
     <button class="theme-btn${selectedTriviaCategories.includes(c.id) ? ' active' : ''}" data-id="${c.id}">
-      <span class="theme-photo"><img src="assets/quiz/${c.id}.webp" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('no-photo')"><span class="theme-art-wrap">${_themeArt(c.id)}</span></span>
+      <span class="theme-photo"><img src="assets/quiz/${c.id}.webp?v=2" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('no-photo')"><span class="theme-art-wrap">${_themeArt(c.id)}</span></span>
       <span class="theme-name">${c.name}</span>
     </button>
   `).join('');
