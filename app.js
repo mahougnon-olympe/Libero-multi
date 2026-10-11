@@ -1111,7 +1111,7 @@ const DICT = {
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     eventsTitle:'Évents', eventsDesc:'Calendrier des week-ends',
     evMonths:['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'], evThisWeekend:x=>`Ce week-end : ${x}`, evNext:x=>`Prochain : ${x}`, evNews:x=>`<strong>Ce week-end</strong> : ${x}`, evNewsNext:(x,n)=>`<strong>Prochain évent</strong> : ${x}, dans ${n} jour${n>1?'s':''}`, evCalendarSub:'Le calendrier des week-ends', evTournament:'Tous les samedis : <b>tournoi</b>, 2000 Libs au champion.', evEmpty:'Les prochains évents arrivent bientôt.', evLive:'En cours', evReward:'Récompense', evNote:'Touche un évent pour voir ses règles. Les dates peuvent encore bouger.',
-    arcadeTitle:'Arcade', arcadeSub:'Des jeux rapides, tous les jours', arcadeRunDesc:'Aide Libero à courir le plus loin possible ! Saute les obstacles, baisse-toi sous ceux qui volent.', arcadeSnakeDesc:'Mange des pommes pour faire grandir ton serpent, sans mordre ta queue.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Classements', inArcade:'Dans l\'Arcade',
+    arcadeTitle:'Arcade', arcadeSub:'Des jeux rapides, tous les jours', arcadeRunDesc:'Aide Libero à courir le plus loin possible ! Saute les obstacles, baisse-toi sous ceux qui volent.', arcadeSnakeDesc:'Mange des pommes pour faire grandir ton serpent, sans mordre ta queue.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Classements', snakeUnit:'pommes', inArcade:'Dans l\'Arcade',
     eventsDescLocked:'Week-end prochain',
     eventsLockedCard: days => `📅 Dans ${days} j`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> <u style="cursor:pointer">vote ici</u> !`,
@@ -1139,7 +1139,7 @@ const DICT = {
     btnSnakeConfirm:"C'est parti !", btnSnakeCancel:'Annuler',
     snakeLbTitle:'Classement Snake', snakeLbEmpty:'Aucun score enregistré.',
     snakeScoreLabel:'Score', snakeBestLabel:'Meilleur',
-    snakeHsDisplay:n => `🏆 Ton record : ${n} ⚡`,
+    snakeHsDisplay:n => `Ton record : ${n} pomme${n>1?'s':''}`,
     snakeLibsEarned:n => `+${n} ⚡ ajoutés à ton solde !`,
     profileCardTitle:'Mon profil', profileCardDesc:'Défis · Série · Historique',
     profileTitle:'Mon profil', profilePseudoFallback:'Joueur',
@@ -1899,7 +1899,7 @@ const DICT = {
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     eventsTitle:'Events', eventsDesc:'Weekend calendar',
     evMonths:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], evThisWeekend:x=>`This weekend: ${x}`, evNext:x=>`Next: ${x}`, evNews:x=>`<strong>This weekend</strong>: ${x}`, evNewsNext:(x,n)=>`<strong>Next event</strong>: ${x}, in ${n} day${n>1?'s':''}`, evCalendarSub:'The weekend calendar', evTournament:'Every Saturday: <b>tournament</b>, 2000 Libs for the champion.', evEmpty:'The next events are coming soon.', evLive:'Live', evReward:'Reward', evNote:'Tap an event to see its rules. Dates may still change.',
-    arcadeTitle:'Arcade', arcadeSub:'Quick games, every day', arcadeRunDesc:'Help Libero run as far as possible! Jump over obstacles, duck under the flying ones.', arcadeSnakeDesc:'Eat apples to make your snake grow, without biting your own tail.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Leaderboards', inArcade:'In the Arcade',
+    arcadeTitle:'Arcade', arcadeSub:'Quick games, every day', arcadeRunDesc:'Help Libero run as far as possible! Jump over obstacles, duck under the flying ones.', arcadeSnakeDesc:'Eat apples to make your snake grow, without biting your own tail.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Leaderboards', snakeUnit:'apples', inArcade:'In the Arcade',
     eventsDescLocked:'Next weekend',
     eventsLockedCard: days => `📅 In ${days}d`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> <u style="cursor:pointer">vote here</u>!`,
@@ -1927,7 +1927,7 @@ const DICT = {
     btnSnakeConfirm:"Let's go!", btnSnakeCancel:'Cancel',
     snakeLbTitle:'Snake Leaderboard', snakeLbEmpty:'No scores recorded yet.',
     snakeScoreLabel:'Score', snakeBestLabel:'Best',
-    snakeHsDisplay:n => `🏆 Your record: ${n} ⚡`,
+    snakeHsDisplay:n => `Your record: ${n} apple${n>1?'s':''}`,
     snakeLibsEarned:n => `+${n} ⚡ added to your balance!`,
     profileCardTitle:'My profile', profileCardDesc:'Challenges · Streak · History',
     profileTitle:'My profile', profilePseudoFallback:'Player',
@@ -4541,7 +4541,7 @@ function renderSnakeLeaderboard(data) {
     <div class="lb-row lb-row-clickable${_lbMe(e.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(e.name)}" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
       <span class="lb-rank">${_lbRank(i)}</span>
       <span class="lb-name">${_lbPt(e.portrait)}<span class="lb-nm ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span></span>
-      <span class="lb-score-snake">${e.hs} <i class="bolt" aria-label="Libs"></i></span>
+      <span class="lb-score-snake">${e.hs} <span class="lb-unit">${t().snakeUnit}</span></span>
     </div>
   `).join('');
   el.querySelectorAll('.lb-row-clickable').forEach(row => {

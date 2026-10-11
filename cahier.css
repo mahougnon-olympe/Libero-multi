@@ -2937,3 +2937,11 @@ html:not(.light) .chatbot-msg-bot .libe-lead { color: #b8bec9; }
 .evcal-note, .evcal-empty { text-align: center; font: 600 1.05rem var(--font-hand); color: var(--muted); margin: 14px 0 0; }
 @media (prefers-reduced-motion: reduce) { .evcal-ev.open .evcal-more { animation: none; } }
 .arcade-lb-title { margin: 0; padding: 2px 4px 0; font: 800 .9rem var(--font-body); color: var(--accent); }
+/* Arcade sur ordinateur : les jeux cote a cote. */
+.arcade-games { width: 100%; display: flex; flex-direction: column; align-items: center; }
+.lb-unit { font: 600 .75rem var(--font-body); color: var(--muted); }
+@media (min-width: 900px) {
+  .arcade-games { display: grid; grid-template-columns: repeat(2, minmax(0, 380px)); gap: 20px; justify-content: center; align-items: stretch; }
+  .arcade-games .arcade-card { margin: 0 !important; width: 100%; max-width: none; height: 100%; }
+  #screen-arcade .arcade-lb { margin-top: 20px; width: 100%; max-width: 780px; }
+}
