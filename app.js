@@ -4563,7 +4563,7 @@ $('input-trivia-nb').dispatchEvent(new Event('input'));
 
 // « Avec qui ? » : le premier choix n'affiche que les reglages utiles. Survit au F5.
 document.querySelectorAll('.who-card').forEach(card => {
-  const key = 'libero_who_' + card.id;
+  const key = 'libero_who2_' + card.id;
   const set = w => {
     card.dataset.who = w || '';
     card.querySelectorAll(':scope > .who-row .who-btn').forEach(b => {
