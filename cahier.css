@@ -2836,3 +2836,24 @@ body:has(#chatbot-panel:not(.hidden)) .news-card { display: none !important; }
 /* Tampon « IA » pose a droite du crayon Libe (et non etire sous lui). */
 :root:root .chatbot-header-txt { position: relative; }
 :root:root .chatbot-header-txt .chatbot-ai-tag { position: absolute; left: 46px; top: 12px; margin: 0; width: auto; transform: rotate(-6deg); }
+
+/* ══ Libe IA : jauge « encrier » (une goutte par question) ══ */
+.chatbot-quota.libe-ink { display: flex; align-items: center; gap: 10px; padding: 4px 14px 10px; }
+.chatbot-quota.libe-ink.hidden { display: none; }
+.ink-bottle { position: relative; width: 26px; height: 32px; flex: none; }
+.ink-neck { position: absolute; left: 7px; right: 7px; top: 0; height: 8px; border: 2px solid var(--text); border-bottom: none; border-radius: 3px 3px 0 0; background: var(--card); }
+.ink-glass { position: absolute; inset: 7px 0 0 0; border: 2px solid var(--text); border-radius: 5px 5px 8px 8px; overflow: hidden; background: var(--card); }
+.ink-lvl { position: absolute; left: 0; right: 0; bottom: 0; background: #1b3a8c; transition: height .6s cubic-bezier(.3,.7,.3,1); }
+.ink-lvl::before { content: ""; position: absolute; left: -10%; right: -10%; top: -3px; height: 6px; border-radius: 50%; background: #2c52b8; }
+.ink-right { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ink-drops { display: flex; gap: 3px; flex-wrap: wrap; }
+.ink-drops i { width: 8px; height: 11px; background: #1b3a8c; clip-path: polygon(50% 0, 100% 60%, 85% 100%, 15% 100%, 0 60%); transition: background .3s; }
+html:not(.light) .ink-drops i, html:not(.light) .ink-lvl { background: #8fb4ff; }
+.ink-drops i.u { background: var(--line) !important; }
+.ink-lbl { font: 700 .95rem var(--font-hand); color: var(--muted); line-height: 1.1; }
+.libe-ink.warn .ink-lbl { color: #c2410c; }
+.libe-ink.off .ink-lbl { color: var(--margin, #e0435a); }
+.libe-ink.off .ink-bottle { opacity: .55; }
+.ink-drops i.u { background: #cfd5e0 !important; }
+html:not(.light) .ink-drops i.u { background: rgba(238,241,234,.22) !important; }
+.libe-ink.off .ink-lvl::before { display: none; }
