@@ -2950,7 +2950,67 @@ function showScreen(name) {
   if (name === 'landing') { _scheduleNewsCollapse(); }
   else { clearTimeout(_newsTimer); }
   if (window._tutoOnScreen) window._tutoOnScreen(name);
+  _navRecord(name);
 }
+
+// ── Bouton retour du telephone / du navigateur ────────────────────────────────
+// Chaque changement d'ecran est inscrit dans l'historique : le retour ramene a
+// l'ecran precedent au lieu de quitter le site. En partie, il passe par le bouton
+// « Abandonner » (avec sa confirmation) ; une fenetre ouverte se ferme d'abord.
+var _nav; // var : showScreen peut tourner avant cette ligne au demarrage
+function _navRecord(name) {
+  if (!_nav) return;
+  _nav.cur = name;
+  if (_nav.pop) return;
+  const st = _nav.stack;
+  if (!st.length) { st.push(name); try { history.replaceState({ scr: name }, ''); } catch {} return; }
+  if (st[st.length - 1] === name) return;
+  // Retour par le bouton de l'ecran vers l'ecran precedent : on recule aussi dans l'historique.
+  if (st.length > 1 && st[st.length - 2] === name) { st.pop(); _nav.skip = true; history.back(); return; }
+  st.push(name);
+  try { history.pushState({ scr: name }, ''); } catch {}
+}
+_nav = { stack: [], pop: false, skip: false, cur: 'landing' };
+{
+  // Ecran de depart (accueil, ou celui rendu par un F5) : premiere entree de la pile.
+  const first = (document.querySelector('.screen.active')?.id || 'screen-landing').replace(/^screen-/, '');
+  _nav.cur = first; _nav.stack = [first];
+  try { history.replaceState({ scr: first }, ''); } catch {}
+  // Un ecran autre que l'accueil a l'ouverture : l'accueil est mis dessous, pour que le retour y mene.
+  if (first !== 'landing') { try { history.replaceState({ scr: 'landing' }, ''); history.pushState({ scr: first }, ''); } catch {} _nav.stack = ['landing', first]; }
+}
+const _NAV_QUIT = { game: 'btn-quit', waiting: 'btn-cancel-wait', 'trivia-game': 'btn-quit-trivia', 'trivia-waiting': 'btn-leave-trivia-wait' };
+function _navBackAction(cur) {
+  const ov = [...document.querySelectorAll('.overlay:not(.hidden)')].pop();
+  if (!document.getElementById('overlay-dm')?.classList.contains('hidden')) { document.getElementById('dm-close')?.click(); return; }
+  if (ov) {
+    const x = ov.querySelector('[id$="-close"], .help-close-btn');
+    if (x) x.click();
+    if (!ov.classList.contains('hidden')) ov.classList.add('hidden');
+    return;
+  }
+  const sp = document.getElementById('settings-panel');
+  if (sp && !sp.classList.contains('hidden')) { window._closeSettingsPanel ? window._closeSettingsPanel() : sp.classList.add('hidden'); return; }
+  const q = _NAV_QUIT[cur] && document.getElementById(_NAV_QUIT[cur]);
+  if (q && q.offsetParent !== null) { q.click(); return; }
+  const back = document.querySelector(`#screen-${cur} .btn-back`);
+  if (back && back.offsetParent !== null) { back.click(); return; }
+  if (cur !== 'landing') showScreen('landing');
+}
+window.addEventListener('popstate', () => {
+  if (_nav.skip) { _nav.skip = false; return; }
+  const cur = _nav.cur;
+  if (_nav.stack.length > 1) _nav.stack.pop();
+  _nav.pop = true;
+  try { _navBackAction(cur); } finally { _nav.pop = false; }
+  const now = _nav.cur, st = _nav.stack;
+  if (now === cur) {
+    // Rien n'a change (fenetre fermee, confirmation affichee) : on remet l'entree.
+    st.push(cur); try { history.pushState({ scr: cur }, ''); } catch {}
+  } else if (st[st.length - 1] !== now) {
+    st[Math.max(0, st.length - 1)] = now; try { history.replaceState({ scr: now }, ''); } catch {}
+  }
+});
 
 (function() {
   const nc = document.getElementById('news-card');
