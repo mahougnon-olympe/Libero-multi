@@ -1238,7 +1238,7 @@ const DICT = {
         { icon:'🤖', title:'Mode Solo (vs Bot)', desc:"Joue seul contre le robot. <em>Facile</em> : il joue au hasard. <em>Moyen</em> : il bloque et attaque. <em>Difficile</em> : il joue le mieux possible (au Tic Tac Toe il ne perd jamais et apprend tes habitudes). Toutes les difficultés comptent dans le classement classique et le tournoi du samedi. Pas de mise contre le robot." },
         { icon:'🔗', title:'Rejoindre', desc:"Entre le code à 4 lettres reçu et clique <em>Rejoindre</em>. La partie démarre automatiquement dès que les deux joueurs sont connectés." },
         { icon:'💬', title:'Chat', desc:"Envoie des messages à ton adversaire pendant une partie classique. Le bouton <em>Vider</em> efface l'historique côté local uniquement." },
-        { icon:'🔄', title:'Reconnexion', desc:"Si tu recharges la page, tu retrouves automatiquement ta partie classique en cours. L'adversaire a <strong>30 secondes</strong> pour se reconnecter, sinon la partie est annulée." },
+        { icon:'🔄', title:'Reconnexion', desc:"Si tu recharges la page, ou si tu quittes l'appli et la rouvres, tu retrouves automatiquement ta partie en cours. Chacun a <strong>60 secondes</strong> pour se reconnecter, sinon la partie est annulée." },
         { icon:'🔁', title:'Rejouer', desc:"En fin de partie classique, clique <em>Rejouer</em>. La partie redémarre uniquement si les deux joueurs acceptent." },
         { icon:'🌍', title:'Classement Global', desc:"Visible dès la page d'accueil, il regroupe <strong>tous les joueurs ayant au moins un point</strong>. Score = victoires classiques (×10) + points Quiz + meilleur score Snake (×10) + meilleur score Libero Run (÷10). Mis à jour en temps réel." },
         { icon:'🏆', title:'Classements par section', desc:"Chaque section garde aussi son propre classement : victoires/défaites/nuls pour les Jeux Classiques, total de points pour le Quiz." },
@@ -2026,7 +2026,7 @@ const DICT = {
         { icon:'🤖', title:'Solo mode (vs Bot)', desc:"Play alone against the robot. <em>Easy</em>: it plays at random. <em>Medium</em>: it blocks and attacks. <em>Hard</em>: it plays as well as it can (at Tic Tac Toe it never loses and learns your habits). Every difficulty counts in the classic leaderboard and the Saturday tournament. No stake against the robot." },
         { icon:'🔗', title:'Join', desc:"Enter the 4-letter code you received and click <em>Join</em>. The game starts automatically as soon as both players are connected." },
         { icon:'💬', title:'Chat', desc:"Send messages to your opponent during a classic game. The <em>Clear</em> button erases the history on your side only." },
-        { icon:'🔄', title:'Reconnection', desc:"If you reload the page, you automatically rejoin your ongoing classic game. The opponent has <strong>30 seconds</strong> to reconnect, otherwise the game is cancelled." },
+        { icon:'🔄', title:'Reconnection', desc:"If you reload the page, or leave the app and open it again, you automatically rejoin your ongoing game. Each player has <strong>60 seconds</strong> to reconnect, otherwise the game is cancelled." },
         { icon:'🔁', title:'Play again', desc:"At the end of a classic game, click <em>Play again</em>. The game restarts only if both players agree." },
         { icon:'🌍', title:'Global leaderboard', desc:"Visible from the home page, it gathers <strong>all players with at least one point</strong>. Score = classic wins (×10) + Quiz points + best Snake score (×10) + best Libero Run score (÷10). Updated in real time." },
         { icon:'🏆', title:'Section leaderboards', desc:"Each section also keeps its own leaderboard: wins/losses/draws for Classic Games, total points for Quiz." },
@@ -3263,15 +3263,32 @@ function showError(msg) { const e = $('error-msg'); e.textContent = msg; e.class
 function clearError()   { $('error-msg').classList.add('hidden'); }
 
 // ── Session (reload) ──────────────────────────────────────────────────────────
+// La partie en cours est aussi gardee dans localStorage : si l'onglet est perdu
+// (appli quittee puis rouverte, page rechargee par le telephone), on la retrouve.
+const _SESS_BACKUP_MS = 2 * 3_600_000;
 function saveSession(code, player) {
-  sessionStorage.setItem('p4session', JSON.stringify({ roomCode: code, player }));
+  const v = JSON.stringify({ roomCode: code, player });
+  sessionStorage.setItem('p4session', v);
+  try { localStorage.setItem('libero_p4_backup', JSON.stringify({ v, at: Date.now() })); } catch {}
 }
-function clearSession() { sessionStorage.removeItem('p4session'); }
+function clearSession() { sessionStorage.removeItem('p4session'); try { localStorage.removeItem('libero_p4_backup'); } catch {} }
 
 function saveTriviaSession(data) {
   sessionStorage.setItem('triviaSession', JSON.stringify(data));
+  try { localStorage.setItem('libero_tv_backup', JSON.stringify({ v: JSON.stringify(data), at: Date.now() })); } catch {}
 }
-function clearTriviaSession() { sessionStorage.removeItem('triviaSession'); }
+function clearTriviaSession() { sessionStorage.removeItem('triviaSession'); try { localStorage.removeItem('libero_tv_backup'); } catch {} }
+// Nouvel onglet sans partie en memoire : on reprend la sauvegarde recente (moins de 2 h).
+(function _restoreSessionBackup() {
+  for (const [ss, ls] of [['p4session', 'libero_p4_backup'], ['triviaSession', 'libero_tv_backup']]) {
+    try {
+      if (sessionStorage.getItem(ss)) continue;
+      const b = JSON.parse(localStorage.getItem(ls) || 'null');
+      if (b && b.v && Date.now() - b.at < _SESS_BACKUP_MS) sessionStorage.setItem(ss, b.v);
+      else localStorage.removeItem(ls);
+    } catch {}
+  }
+})();
 
 // ── Attente ───────────────────────────────────────────────────────────────────
 $('btn-copy').addEventListener('click', () => {

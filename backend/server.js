@@ -2184,7 +2184,7 @@ function distributeLibs() {
 }
 
 const CODE_CHARS   = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-const RECONNECT_MS        = 30_000;
+const RECONNECT_MS        = 60_000; // le temps de rouvrir l appli sur telephone
 const WAITING_GRACE_MS    = 5 * 60_000; // salon d'attente : le createur peut quitter l'onglet pour partager le code
 const TRIVIA_RECONNECT_MS = 20_000;
 const VALID_GAMES  = new Set(['connect4', 'tictactoe', 'chess', 'checkers', 'ludo']);
