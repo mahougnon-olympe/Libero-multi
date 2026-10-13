@@ -1163,7 +1163,7 @@ const DICT = {
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     eventsTitle:'Évents', eventsDesc:'Calendrier des week-ends',
     evMonths:['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'], evThisWeekend:x=>`Ce week-end : ${x}`, evNext:x=>`Prochain : ${x}`, evNews:x=>`<strong>Ce week-end</strong> : ${x}`, evNewsNext:(x,n)=>`<strong>Prochain évent</strong> : ${x}, dans ${n} jour${n>1?'s':''}`, evCalendarSub:'Le calendrier des week-ends', evTournament:'Tous les samedis : <b>tournoi</b>, 2000 Libs au champion.', evEmpty:'Les prochains évents arrivent bientôt.', evLive:'En cours', evReward:'Récompense', evNote:'Touche un évent pour voir ses règles. Les dates peuvent encore bouger.',
-    arcadeTitle:'Arcade', arcadeSub:'Des jeux rapides, tous les jours', arcadeRunDesc:'Aide Libero à courir le plus loin possible ! Saute les obstacles, baisse-toi sous ceux qui volent.', arcadeSnakeDesc:'Mange des pommes pour faire grandir ton serpent, sans mordre ta queue.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Classements', snakeUnit:'pommes', podium:{ title:'Résultats', sub:'Quiz à plusieurs', banner:'CHAMPION DU QUIZ', skip:'Passer', done:'Voir les résultats', you:'toi', msgWin:'Tu es le meilleur de la partie !', msgClose:n=>`Plus que ${n} point${n>1?'s':''} pour la couronne. Revanche ?`, msgOut:r=>`Tu finis ${r}e. Le podium t'attend la prochaine fois !` }, soundpackRefund:n=>`Les packs de sons ont quitté la boutique : ${n} Libs te sont rendus.`, inArcade:'Dans l\'Arcade',
+    arcadeTitle:'Arcade', arcadeSub:'Des jeux rapides, tous les jours', arcadeRunDesc:'Aide Libero à courir le plus loin possible ! Saute les obstacles, baisse-toi sous ceux qui volent.', arcadeSnakeDesc:'Mange des pommes pour faire grandir ton serpent, sans mordre ta queue.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Classements', snakeUnit:'pommes', shareCard:{ quiz:'Quiz', pts:'pts', solo:'Quiz solo', brand:'Joue avec moi sur', rankOf:(r,n)=>`${r}${r===1?'er':'e'} sur ${n}` }, podium:{ title:'Résultats', sub:'Quiz à plusieurs', banner:'CHAMPION DU QUIZ', skip:'Passer', done:'Voir les résultats', you:'toi', msgWin:'Tu es le meilleur de la partie !', msgClose:n=>`Plus que ${n} point${n>1?'s':''} pour la couronne. Revanche ?`, msgOut:r=>`Tu finis ${r}e. Le podium t'attend la prochaine fois !` }, soundpackRefund:n=>`Les packs de sons ont quitté la boutique : ${n} Libs te sont rendus.`, inArcade:'Dans l\'Arcade',
     eventsDescLocked:'Week-end prochain',
     eventsLockedCard: days => `📅 Dans ${days} j`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> <u style="cursor:pointer">vote ici</u> !`,
@@ -1950,7 +1950,7 @@ const DICT = {
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     eventsTitle:'Events', eventsDesc:'Weekend calendar',
     evMonths:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], evThisWeekend:x=>`This weekend: ${x}`, evNext:x=>`Next: ${x}`, evNews:x=>`<strong>This weekend</strong>: ${x}`, evNewsNext:(x,n)=>`<strong>Next event</strong>: ${x}, in ${n} day${n>1?'s':''}`, evCalendarSub:'The weekend calendar', evTournament:'Every Saturday: <b>tournament</b>, 2000 Libs for the champion.', evEmpty:'The next events are coming soon.', evLive:'Live', evReward:'Reward', evNote:'Tap an event to see its rules. Dates may still change.',
-    arcadeTitle:'Arcade', arcadeSub:'Quick games, every day', arcadeRunDesc:'Help Libero run as far as possible! Jump over obstacles, duck under the flying ones.', arcadeSnakeDesc:'Eat apples to make your snake grow, without biting your own tail.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Leaderboards', snakeUnit:'apples', podium:{ title:'Results', sub:'Multiplayer quiz', banner:'QUIZ CHAMPION', skip:'Skip', done:'See the results', you:'you', msgWin:'You are the best of the game!', msgClose:n=>`Only ${n} point${n>1?'s':''} away from the crown. Rematch?`, msgOut:r=>`You finished ${r}th. The podium awaits you next time!` }, soundpackRefund:n=>`Sound packs have left the shop: ${n} Libs have been refunded to you.`, inArcade:'In the Arcade',
+    arcadeTitle:'Arcade', arcadeSub:'Quick games, every day', arcadeRunDesc:'Help Libero run as far as possible! Jump over obstacles, duck under the flying ones.', arcadeSnakeDesc:'Eat apples to make your snake grow, without biting your own tail.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Leaderboards', snakeUnit:'apples', shareCard:{ quiz:'Quiz', pts:'pts', solo:'Solo quiz', brand:'Play with me on', rankOf:(r,n)=>`${r}${r===1?'st':r===2?'nd':r===3?'rd':'th'} of ${n}` }, podium:{ title:'Results', sub:'Multiplayer quiz', banner:'QUIZ CHAMPION', skip:'Skip', done:'See the results', you:'you', msgWin:'You are the best of the game!', msgClose:n=>`Only ${n} point${n>1?'s':''} away from the crown. Rematch?`, msgOut:r=>`You finished ${r}th. The podium awaits you next time!` }, soundpackRefund:n=>`Sound packs have left the shop: ${n} Libs have been refunded to you.`, inArcade:'In the Arcade',
     eventsDescLocked:'Next weekend',
     eventsLockedCard: days => `📅 In ${days}d`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> <u style="cursor:pointer">vote here</u>!`,
@@ -5103,134 +5103,109 @@ function renderTriviaScores(scores, gains) {
   }).join('');
 }
 
-// Genere une image carree du score de quiz (a partager sur WhatsApp).
-function _makeQuizShareBlob({ name, score, line, category }) {
-  return new Promise(resolve => {
-    try {
-      const S = 1080, c = document.createElement('canvas'); c.width = S; c.height = S;
-      const x = c.getContext('2d');
+// Image carree du resultat d'un quiz (a partager sur WhatsApp), au style cahier.
+//  - solo : page de cahier avec le score ;  - a plusieurs : podium des trois premiers (noms, rangs, portraits).
+// L'image est un fichier fixe : toujours en clair, quel que soit le theme de celui qui partage.
+async function _makeQuizShareBlob({ solo, scores, myIdx, category }) {
+  try {
+    const d = t().shareCard, S = 1080, INK = '#1d2433', BLUE = '#173a8a', RED = '#e2485d', GREY = '#5e6470';
+    // Les polices du site doivent etre pretes avant de dessiner dans le canvas.
+    try { await Promise.all(["900 40px 'Archivo Black'", "800 30px Archivo", "700 60px Caveat"].map(f => document.fonts.load(f))); } catch {}
+    const c = document.createElement('canvas'); c.width = S; c.height = S;
+    const x = c.getContext('2d');
+    const F = { disp: "'Archivo Black', Archivo, system-ui, sans-serif", body: "Archivo, system-ui, sans-serif", hand: "Caveat, 'Segoe Print', cursive" };
+    const rr = (X, Y, W, H, r) => { x.beginPath(); if (x.roundRect) x.roundRect(X, Y, W, H, r); else x.rect(X, Y, W, H); };
+    const fit = (txt, maxW) => { txt = String(txt || ''); if (x.measureText(txt).width <= maxW) return txt; while (txt.length > 1 && x.measureText(txt + '…').width > maxW) txt = txt.slice(0, -1); return txt + '…'; };
+    const ls = v => { try { x.letterSpacing = v; } catch {} };
+    // Page de cahier : fond, carreaux et marge rouge
+    x.fillStyle = '#fdfdf9'; x.fillRect(0, 0, S, S);
+    x.strokeStyle = '#cfdcf0'; x.lineWidth = 3;
+    for (let y = 70; y < S; y += 70) { x.beginPath(); x.moveTo(0, y); x.lineTo(S, y); x.stroke(); }
+    x.strokeStyle = RED; x.globalAlpha = .7; x.lineWidth = 5; x.beginPath(); x.moveTo(108, 0); x.lineTo(108, S); x.stroke(); x.globalAlpha = 1;
+    // Logo
+    x.beginPath(); x.arc(176, 78, 28, 0, 7); x.fillStyle = '#fff'; x.fill(); x.lineWidth = 7; x.strokeStyle = INK; x.stroke();
+    x.beginPath(); x.moveTo(168, 64); x.lineTo(190, 78); x.lineTo(168, 92); x.closePath(); x.fillStyle = INK; x.fill();
+    x.textAlign = 'left'; x.fillStyle = BLUE; x.font = `400 44px ${F.disp}`; x.fillText("Libero's Multi", 220, 94);
+    // Pastille de categorie
+    const cat = (category || '').trim() || d.quiz;
+    x.textAlign = 'center'; x.font = `800 38px ${F.body}`;
+    const cw = Math.min(S - 320, x.measureText(cat).width + 80);
+    rr((S - cw) / 2, 134, cw, 76, 38); x.fillStyle = '#fff'; x.fill(); x.lineWidth = 5; x.strokeStyle = INK; x.stroke();
+    x.fillStyle = INK; x.fillText(fit(cat, cw - 60), S / 2, 186);
+    // Surligneur jaune sous un texte manuscrit
+    const marker = (txt, cy, size) => {
+      x.font = `700 ${size}px ${F.hand}`; const w = x.measureText(txt).width;
+      x.fillStyle = '#fff27a'; x.fillRect(S / 2 - w / 2 - 12, cy - size * .3, w + 24, size * .42);
+      x.fillStyle = BLUE; x.fillText(txt, S / 2, cy);
+    };
+    const brand = () => {
+      x.font = `800 28px ${F.body}`; ls('3px');
+      const a = d.brand.toUpperCase() + ' ', b = 'LIBERO-MULTI.VERCEL.APP';
+      const wa = x.measureText(a).width, wb = x.measureText(b).width, x0 = S / 2 - (wa + wb) / 2;
+      x.textAlign = 'left'; x.fillStyle = GREY; x.fillText(a, x0, 1030); x.fillStyle = BLUE; x.fillText(b, x0 + wa, 1030); ls('0px'); x.textAlign = 'center';
+    };
 
-      // Petit utilitaire : rectangle a coins arrondis.
-      const rr = (X, Y, W, H, r) => {
-        x.beginPath();
-        x.moveTo(X + r, Y);
-        x.arcTo(X + W, Y, X + W, Y + H, r);
-        x.arcTo(X + W, Y + H, X, Y + H, r);
-        x.arcTo(X, Y + H, X, Y, r);
-        x.arcTo(X, Y, X + W, Y, r);
-        x.closePath();
-      };
-
-      // ── Fond : degrade nuit profond ──
-      const bg = x.createLinearGradient(0, 0, S, S);
-      bg.addColorStop(0, '#0b0e22'); bg.addColorStop(.55, '#080a17'); bg.addColorStop(1, '#04050d');
-      x.fillStyle = bg; x.fillRect(0, 0, S, S);
-
-      // Halo indigo central diffus.
-      const halo = x.createRadialGradient(S / 2, 470, 40, S / 2, 470, 520);
-      halo.addColorStop(0, 'rgba(99,102,241,.28)'); halo.addColorStop(1, 'rgba(99,102,241,0)');
-      x.fillStyle = halo; x.fillRect(0, 0, S, S);
-
-      // ── Carte « verre » ──
-      const M = 70, CW = S - M * 2;
-      x.save();
-      rr(M, M, CW, CW, 52);
-      const glass = x.createLinearGradient(0, M, 0, M + CW);
-      glass.addColorStop(0, 'rgba(40,46,86,.55)'); glass.addColorStop(1, 'rgba(20,24,50,.45)');
-      x.fillStyle = glass; x.fill();
-      x.lineWidth = 3; x.strokeStyle = 'rgba(129,140,248,.55)';
-      x.shadowColor = 'rgba(99,102,241,.65)'; x.shadowBlur = 40; x.stroke();
-      x.restore();
-
+    if (solo) {
+      const me = scores[0], num = String(me.score);
+      x.font = `400 340px ${F.disp}`; const wn = x.measureText(num).width;
+      x.font = `700 110px ${F.hand}`; const wp = x.measureText(' ' + d.pts).width;
+      const x0 = S / 2 - (wn + wp) / 2;
+      x.textAlign = 'left'; x.font = `400 340px ${F.disp}`; x.fillStyle = INK; x.fillText(num, x0, 640);
+      x.font = `700 110px ${F.hand}`; x.fillStyle = BLUE; x.fillText(' ' + d.pts, x0 + wn, 640);
       x.textAlign = 'center';
-
-      // ── Titre serif ──
-      x.fillStyle = '#eef1ff';
-      x.font = "700 60px Georgia, 'Times New Roman', serif";
-      x.fillText("LIBERO'S MULTI", S / 2, 205);
-
-      // ── Pastille categorie ──
-      const cat = (category || '').trim() || (currentLang === 'en' ? 'Quiz' : 'Culture Generale');
-      x.font = "600 40px 'Segoe UI', system-ui, sans-serif";
-      const catW = Math.min(CW - 120, x.measureText(cat).width + 90);
-      rr((S - catW) / 2, 268, catW, 74, 37);
-      x.fillStyle = 'rgba(15,18,40,.55)'; x.fill();
-      x.lineWidth = 2; x.strokeStyle = 'rgba(148,163,184,.5)'; x.shadowBlur = 0; x.stroke();
-      x.fillStyle = '#dbe2f5'; x.fillText(cat, S / 2, 318);
-
-      // ── Confettis / etincelles decoratifs ──
-      const spark = (px, py, r, col) => {
-        x.fillStyle = col;
-        x.beginPath();
-        for (let i = 0; i < 8; i++) {
-          const a = Math.PI / 4 * i, rad = i % 2 ? r * .4 : r;
-          const fx = px + Math.cos(a) * rad, fy = py + Math.sin(a) * rad;
-          i ? x.lineTo(fx, fy) : x.moveTo(fx, fy);
+      marker(d.solo, 770, 100);
+      x.fillStyle = INK; x.font = `800 60px ${F.body}`; x.fillText(fit(me.name || 'Libero', 760), S / 2, 900);
+      brand();
+    } else {
+      const top = scores.slice(0, 3), base = 860, W3 = 250, G = 16;
+      const cx = [S / 2 - W3 - G, S / 2, S / 2 + W3 + G], order = [1, 0, 2], H = [190, 270, 130];
+      // indices des marches : 0 = 1er (centre), 1 = 2e (gauche), 2 = 3e (droite)
+      const pos = { 0: 1, 1: 0, 2: 2 };
+      const medal = [['#fff4b8', '#ffd23f', '#d99a00'], ['#ffffff', '#d7dde6', '#8e99aa'], ['#ffd9b0', '#d08a4a', '#7d4a1d']];
+      const hh = { 0: 230, 1: 160, 2: 105 };
+      const imgs = await Promise.all(top.map(s => new Promise(res => {
+        try {
+          const raw = window.LiberoPortrait ? (s.portrait ? LiberoPortrait.svg(s.portrait) : LiberoPortrait.blank()) : '';
+          if (!raw) return res(null);
+          const svg = raw.replace('<svg ', '<svg ' + (raw.includes('xmlns=') ? '' : 'xmlns="http://www.w3.org/2000/svg" ') + 'width="300" height="300" ');
+          const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null);
+          im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+        } catch { res(null); }
+      })));
+      [1, 0, 2].forEach(i => {
+        if (i >= top.length) return;
+        const s = top[i], X = cx[pos[i]], h = hh[i], topY = base - h, mine = i === myIdx;
+        // marche
+        const g = x.createLinearGradient(0, topY, 0, base); g.addColorStop(0, medal[i][0]); g.addColorStop(.55, medal[i][1]); g.addColorStop(1, medal[i][2]);
+        rr(X - W3 / 2, topY, W3, h, [14, 14, 0, 0]); x.fillStyle = g; x.fill(); x.lineWidth = 6; x.strokeStyle = INK; x.stroke();
+        x.fillStyle = INK; x.font = `700 ${i === 0 ? 120 : 92}px ${F.hand}`; x.fillText(String(i + 1), X, topY + (i === 0 ? 112 : 88));
+        // points et nom
+        x.font = `700 54px ${F.hand}`; x.fillStyle = i === 0 ? '#b37a00' : GREY; x.fillText(s.score + ' ' + d.pts, X, topY - 20);
+        x.font = `800 ${i === 0 ? 42 : 36}px ${F.body}`; const nm = fit(s.name, W3 + 20);
+        if (mine) { const w = x.measureText(nm).width; x.fillStyle = '#fff27a'; x.fillRect(X - w / 2 - 10, topY - 108, w + 20, 40); }
+        x.fillStyle = INK; x.fillText(nm, X, topY - 76);
+        // portrait dans son cadre (or, argent, bronze)
+        const R = i === 0 ? 92 : 76, cy = topY - 132 - R;
+        x.beginPath(); x.arc(X, cy, R + 11, 0, 7); const rg = x.createLinearGradient(X - R, cy - R, X + R, cy + R); rg.addColorStop(0, medal[i][0]); rg.addColorStop(.5, medal[i][1]); rg.addColorStop(1, medal[i][2]);
+        x.fillStyle = rg; x.fill(); x.lineWidth = 6; x.strokeStyle = INK; x.stroke();
+        x.save(); x.beginPath(); x.arc(X, cy, R, 0, 7); x.clip(); x.fillStyle = '#e6e8ee'; x.fillRect(X - R, cy - R, R * 2, R * 2);
+        if (imgs[i]) x.drawImage(imgs[i], X - R, cy - R, R * 2, R * 2); x.restore();
+        x.beginPath(); x.arc(X, cy, R, 0, 7); x.lineWidth = 4; x.strokeStyle = INK; x.stroke();
+        if (i === 0) { // couronne
+          const k = cy - R - 20;
+          x.beginPath(); x.moveTo(X - 46, k); x.lineTo(X - 54, k - 56); x.lineTo(X - 24, k - 30); x.lineTo(X, k - 66); x.lineTo(X + 24, k - 30); x.lineTo(X + 54, k - 56); x.lineTo(X + 46, k); x.closePath();
+          x.fillStyle = '#ffd23f'; x.fill(); x.lineWidth = 6; x.lineJoin = 'round'; x.strokeStyle = INK; x.stroke();
+          x.beginPath(); x.arc(X, k - 22, 8, 0, 7); x.fillStyle = RED; x.fill();
         }
-        x.closePath(); x.fill();
-      };
-      const cols = ['#fcd34d', '#a5b4fc', '#e2e8f0', '#fbbf24'];
-      const deco = [
-        [235, 360, 12], [800, 350, 10], [300, 470, 8], [770, 500, 12],
-        [210, 560, 10], [845, 440, 8], [265, 410, 7], [815, 590, 9],
-      ];
-      deco.forEach((d, i) => spark(d[0], d[1], d[2], cols[i % cols.length]));
-      // Petits confettis rectangulaires.
-      const conf = [[340, 340, '#fcd34d'], [720, 400, '#a5b4fc'], [250, 500, '#fbbf24'], [830, 360, '#e2e8f0'], [780, 560, '#fcd34d']];
-      conf.forEach(([cx2, cy2, col], i) => { x.save(); x.translate(cx2, cy2); x.rotate(i * 0.9); x.fillStyle = col; x.fillRect(-12, -6, 24, 12); x.restore(); });
-
-      // ── Lauriers autour du chiffre ──
-      const laurel = (cx, cy, dir) => {
-        x.save(); x.translate(cx, cy); x.scale(dir, 1);
-        x.strokeStyle = 'rgba(165,180,252,.8)'; x.lineWidth = 5;
-        x.beginPath(); x.moveTo(0, -110); x.quadraticCurveTo(-70, 0, -30, 120); x.stroke();
-        x.fillStyle = 'rgba(165,180,252,.75)';
-        for (let i = 0; i < 7; i++) {
-          const t2 = i / 6, ly = -110 + t2 * 230;
-          const lx = -Math.sin(t2 * Math.PI) * 62 + 6;
-          x.save(); x.translate(lx, ly); x.rotate(-0.6 - t2 * 0.7);
-          x.beginPath(); x.ellipse(0, 0, 26, 11, 0, 0, Math.PI * 2); x.fill(); x.restore();
-        }
-        x.restore();
-      };
-      laurel(300, 480, 1);
-      laurel(780, 480, -1);
-
-      // ── Grand chiffre dore ──
-      const num = String(score);
-      x.font = "800 300px 'Segoe UI', system-ui, sans-serif";
-      const gold = x.createLinearGradient(0, 330, 0, 620);
-      gold.addColorStop(0, '#fff3c4'); gold.addColorStop(.5, '#fbbf24'); gold.addColorStop(1, '#d97706');
-      x.fillStyle = gold; x.shadowColor = 'rgba(251,191,36,.6)'; x.shadowBlur = 50;
-      x.fillText(num, S / 2, 590);
-      x.shadowBlur = 0;
-
-      // ── « points » ──
-      x.fillStyle = '#cbd5e1'; x.font = "700 62px 'Segoe UI', system-ui, sans-serif";
-      x.fillText(currentLang === 'en' ? 'points' : 'points', S / 2, 685);
-
-      // ── Pastille Solo / rang ──
-      const md = (line || '').trim();
-      if (md) {
-        x.font = "700 42px 'Segoe UI', system-ui, sans-serif";
-        const mW = Math.min(CW - 120, x.measureText(md).width + 90);
-        rr((S - mW) / 2, 745, mW, 78, 39);
-        x.fillStyle = 'rgba(8,10,24,.75)'; x.fill();
-        x.lineWidth = 2; x.strokeStyle = 'rgba(129,140,248,.45)'; x.stroke();
-        x.fillStyle = '#e2e8f0'; x.fillText(md, S / 2, 799);
-      }
-
-      // ── Pseudo ──
-      x.fillStyle = '#a5b4fc'; x.font = "700 56px 'Segoe UI', system-ui, sans-serif";
-      x.fillText(name || 'Libero', S / 2, 905);
-
-      // ── Pied de page ──
-      x.fillStyle = '#64748b'; x.font = "500 38px 'Segoe UI', system-ui, sans-serif";
-      x.fillText('libero-multi.vercel.app', S / 2, 985);
-
-      c.toBlob(b => resolve(b), 'image/png');
-    } catch { resolve(null); }
-  });
+      });
+      x.fillStyle = INK; x.fillRect(120, base, S - 190, 6);
+      // Le rang de celui qui partage
+      const total = scores.length;
+      if (myIdx >= 0) marker(`${scores[myIdx].name} · ${d.rankOf(myIdx + 1, total)}`, 925, 78);
+      brand();
+    }
+    return await new Promise(res => c.toBlob(b => res(b), 'image/png'));
+  } catch { return null; }
 }
 
 function showTriviaFinished(scores) {
@@ -5286,10 +5261,9 @@ function showTriviaFinished(scores) {
   document.getElementById('tg-share-rank')?.addEventListener('click', async () => {
     const me = scores[myIdx];
     const text = triviaIsSolo ? t().triviaShareSolo(me.score) : t().triviaShareRank(myIdx + 1, me.score);
-    const line = triviaIsSolo ? '🎯 Solo' : ((['🥇', '🥈', '🥉'][myIdx] || '#' + (myIdx + 1)) + '  ' + (myIdx + 1) + '/' + scores.length);
     // Priorite : partager une image du score (ideal pour WhatsApp).
     try {
-      const blob = await _makeQuizShareBlob({ name: me.name, score: me.score, line, category: getCategoryLabel(selectedTriviaCategories) });
+      const blob = await _makeQuizShareBlob({ solo: triviaIsSolo, scores: triviaIsSolo ? [me] : scores, myIdx: triviaIsSolo ? 0 : myIdx, category: getCategoryLabel(selectedTriviaCategories) });
       if (blob && navigator.canShare) {
         const file = new File([blob], 'libero-quiz.png', { type: 'image/png' });
         if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text }); return; }
