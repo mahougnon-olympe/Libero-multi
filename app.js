@@ -3501,6 +3501,45 @@ function celebrate(opts = {}) {
 }
 window._celebrate = celebrate;
 
+// Eclairs (le symbole des Libs) qui volent du centre de l'ecran vers le compteur, qui gonfle a l'arrivee.
+window._libsBolts = function (delta) {
+  const counter = document.getElementById('libs-counter');
+  if (!counter || counter.classList.contains('hidden') || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const to = counter.getBoundingClientRect(); if (!to.width) return;
+  const n = Math.max(3, Math.min(9, Math.round(3 + delta / 25)));
+  const x0 = innerWidth / 2, y0 = innerHeight * 0.55;
+  const tx = to.left + to.width / 2, ty = to.top + to.height / 2;
+  for (let i = 0; i < n; i++) {
+    const b = document.createElement('span'); b.className = 'libs-bolt'; b.setAttribute('aria-hidden', 'true');
+    b.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>';
+    document.body.appendChild(b);
+    const sx = x0 + (Math.random() * 2 - 1) * 60, sy = y0 + (Math.random() * 2 - 1) * 40;
+    const mx = (sx + tx) / 2 + (Math.random() * 2 - 1) * 90, my = Math.min(sy, ty) - 60 - Math.random() * 60;
+    const a = b.animate([
+      { transform: `translate(${sx}px,${sy}px) scale(.3) rotate(-20deg)`, opacity: 0 },
+      { transform: `translate(${sx}px,${sy - 24}px) scale(1.15) rotate(0)`, opacity: 1, offset: .2 },
+      { transform: `translate(${mx}px,${my}px) scale(1) rotate(12deg)`, opacity: 1, offset: .6 },
+      { transform: `translate(${tx}px,${ty}px) scale(.45) rotate(0)`, opacity: .2 },
+    ], { duration: 900, delay: i * 70, easing: 'cubic-bezier(.45,0,.4,1)', fill: 'both' });
+    a.onfinish = () => b.remove();
+  }
+  setTimeout(() => { counter.classList.remove('libs-gain'); void counter.offsetWidth; counter.classList.add('libs-gain'); }, 850);
+};
+
+// Fin de partie de l'Arcade : le score monte depuis 0 ; s'il bat le record, il brille en l'atteignant.
+window._scoreReveal = function (el, score, txt, isRecord) {
+  if (!el) return;
+  el.classList.remove('hs-glow');
+  if (!isRecord || !(score > 0) || matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = txt(score); if (isRecord) el.classList.add('hs-glow'); return; }
+  const t0 = performance.now(), dur = Math.min(1600, 600 + score * 6);
+  const step = now => {
+    const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = txt(Math.round(score * e));
+    if (k < 1 && el.isConnected) requestAnimationFrame(step); else el.classList.add('hs-glow');
+  };
+  requestAnimationFrame(step);
+};
+
 
 // ── Bannieres de victoire redessinees (tampon, fanions, 20/20, medaille, laurier) ──
 // Posees dans #game-status quand le joueur gagne avec une banniere equipee.
@@ -8919,8 +8958,7 @@ function showCursorSnakeToast(msg) {
     socket.emit('solo-game-over', { playerId: getPlayerId(), game: 'snake', score });
     const newHsEl = document.getElementById('snake-new-hs');
     if (newHsEl) newHsEl.classList.toggle('hidden', !isNewHs);
-    document.getElementById('snake-over-score').textContent = t().snakeOverScore(score, getHs()) +
-      (score > 0 ? ` · ${t().snakeLibsEarned(score)}` : '');
+    window._scoreReveal(document.getElementById('snake-over-score'), score, n => t().snakeOverScore(n, isNewHs ? n : getHs()), isNewHs);
     document.getElementById('snake-over-overlay').classList.remove('hidden');
   }
 
@@ -9646,7 +9684,7 @@ function showCursorSnakeToast(msg) {
     sessionStorage.setItem(SESS_KEY, JSON.stringify({ gameOver: true, score, isNewHs }));
     const newHsEl = document.getElementById('luffy-new-hs');
     if (newHsEl) newHsEl.classList.toggle('hidden', !isNewHs);
-    document.getElementById('luffy-over-score').textContent = t().snakeOverScore(score, getHs());
+    window._scoreReveal(document.getElementById('luffy-over-score'), score, n => t().snakeOverScore(n, isNewHs ? n : getHs()), isNewHs);
     document.getElementById('luffy-over-overlay').classList.remove('hidden');
     draw(performance.now());
   }
@@ -11270,6 +11308,8 @@ const Wordle = (() => {
     if (guess === ans) {
       done = 'win'; _updateStreak(true);
       setTimeout(() => window._sound?.play('word-found'), 450);
+      setTimeout(() => { const row = board()?.querySelectorAll('.wordle-row')[guesses.length - 1];
+        row?.querySelectorAll(':scope > *').forEach((c, i) => { c.style.setProperty('--i', i); c.classList.remove('wordle-wave'); void c.offsetWidth; c.classList.add('wordle-wave'); }); }, 120);
       setMsg(t().wordleWin(guesses.length));
       document.getElementById('wordle-share')?.classList.remove('hidden');
       if (typeof celebrate === 'function') celebrate({ sound: 'none' });
@@ -13429,6 +13469,11 @@ window._showLevelUp = function (lv, reward) {
     setTimeout(() => {
       spinning = false;
       statusEl.textContent = t().wheelWin(prize);
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches && disc.parentElement) {
+        disc.parentElement.querySelector('.wheel-rays')?.remove();
+        const r = document.createElement('span'); r.className = 'wheel-rays'; r.setAttribute('aria-hidden', 'true');
+        disc.parentElement.insertBefore(r, disc.parentElement.firstChild);
+      }
       window._sound?.play('wheel-win');
       statusEl.classList.remove('wheel-won'); void statusEl.offsetWidth; statusEl.classList.add('wheel-won');
       if (balance !== undefined) { const prev = libsBalance; libsBalance = balance; _refreshLibsUI(prev, balance, prize); }
@@ -13852,7 +13897,7 @@ document.getElementById('btn-dailygift-ok')?.addEventListener('click', () => {
 // ── Sons declenches par evenements : coin sur gain de Libs, pop a l'ouverture ─
 // d'un overlay/modal (via MutationObserver, sans editer chaque point d'ouverture).
 try {
-  socket.on('libs-update', ({ delta } = {}) => { if (delta > 0) { try { window._sound?.play('coin'); } catch {} } });
+  socket.on('libs-update', ({ delta } = {}) => { if (delta > 0) { try { window._sound?.play('coin'); window._libsBolts?.(delta); } catch {} } });
 } catch {}
 (function initOverlayPop() {
   try {

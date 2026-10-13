@@ -2945,3 +2945,28 @@ html:not(.light) .chatbot-msg-bot .libe-lead { color: #b8bec9; }
   .arcade-games .arcade-card { margin: 0 !important; width: 100%; max-width: none; height: 100%; }
   #screen-arcade .arcade-lb { margin-top: 20px; width: 100%; max-width: 780px; }
 }
+
+/* ══ Animations des moments forts (oct. 2026) ══ */
+/* Libs gagnes : eclairs qui volent vers le compteur */
+.libs-bolt { position: fixed; left: 0; top: 0; width: 26px; height: 26px; margin: -13px 0 0 -13px; z-index: 9999; pointer-events: none; will-change: transform, opacity; }
+.libs-bolt svg { width: 100%; height: 100%; fill: #ffd84a; stroke: #1d2433; stroke-width: 1.6; stroke-linejoin: round; filter: drop-shadow(0 0 6px rgba(255, 200, 40, .75)); }
+#libs-counter.libs-gain { animation: libsGain .55s cubic-bezier(.3, 1.8, .5, 1); }
+@keyframes libsGain { 40% { transform: scale(1.3); box-shadow: 0 0 0 6px rgba(255, 216, 74, .45); } 100% { transform: none; box-shadow: none; } }
+/* Le Mot trouve : la vague */
+.wordle-wave { animation: wordleWave .55s cubic-bezier(.3, 1.4, .5, 1) calc(var(--i, 0) * .09s) both; }
+@keyframes wordleWave { 45% { transform: translateY(-18px) scale(1.06); } 100% { transform: none; } }
+/* Roue : rayons dores qui tournent derriere la roue */
+.wheel-rays { position: absolute; left: 50%; top: 50%; width: 150%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; pointer-events: none; z-index: 0;
+  background: repeating-conic-gradient(rgba(255, 210, 60, .5) 0 12deg, transparent 12deg 30deg);
+  -webkit-mask: radial-gradient(circle, #000 35%, transparent 70%); mask: radial-gradient(circle, #000 35%, transparent 70%);
+  animation: wheelRaysIn .5s ease both, wheelRaysTurn 6s linear infinite; }
+@keyframes wheelRaysIn { from { opacity: 0; scale: .6; } to { opacity: 1; scale: 1; } }
+@keyframes wheelRaysTurn { to { rotate: 360deg; } }
+#wheel-disc { position: relative; z-index: 1; }
+#wheel-status.wheel-won { animation: wheelWonZoom .7s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes wheelWonZoom { 0% { transform: scale(.3); opacity: 0; } 100% { transform: none; opacity: 1; } }
+/* Record de l'Arcade : le score brille une fois atteint */
+.hs-glow { animation: hsGlow 1s cubic-bezier(.2, 1.6, .4, 1) both; }
+@keyframes hsGlow { 0% { transform: scale(1); } 45% { transform: scale(1.18); text-shadow: 0 0 22px rgba(255, 200, 40, .95); } 100% { transform: scale(1); text-shadow: 0 0 10px rgba(255, 200, 40, .6); } }
+@media (prefers-reduced-motion: reduce) { .wordle-wave, .wheel-rays, #libs-counter.libs-gain, .hs-glow { animation: none; } }
+:root:root .wheel-pointer { z-index: 2; }
