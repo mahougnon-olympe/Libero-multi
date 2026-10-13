@@ -944,7 +944,7 @@ const DICT = {
     triviaWaitTitle:'En attente de joueurs…', triviaWaitCode:'Code du salon :',
     btnTriviaCopy:'Copier le code', btnStartTrivia:'▶ Démarrer la partie',
     btnLeaveTrivia:'Quitter le salon', quit:{ abandon:'Abandonner', abandonAsk:'Abandonner la partie ? Elle compte comme perdue.', menuAsk:'Retourner au menu ?', tear:'Déchirer le ticket (quitter)', changeGame:'changer de jeu', quitGame:'quitter la partie', backQuiz:'retour au quiz', close:'Fermer' },
-    triviaWaitHint:'1 à 6 joueurs. Démarre dès que tu es prêt·e.',
+    triviaWaitHint:'1 à 20 joueurs. Démarre dès que tu es prêt·e.',
     triviaCorrect:'✅ Bonne réponse !', triviaFastBonus:'⚡ Réponse éclair : point doublé !', triviaWrong:'❌ La réponse était : ',
     triviaFinishedTitle:'Résultats finaux', btnLeaveGame:'Retour au menu', btnQuitTrivia:'🚪 Quitter',
     triviaPodiumWin:'🏆 Champion du quiz !', triviaPodiumTop3:'🎉 Sur le podium !', triviaPodiumOut: r => `Tu finis ${r}e, le podium t'attend la prochaine fois !`,
@@ -1315,7 +1315,7 @@ const DICT = {
         { icon:'🧠', title:'Culture Générale', desc:"Réponds à des questions à choix multiple. Sélectionne <strong>un ou plusieurs thèmes</strong> parmi 15 catégories (Histoire, Sciences, Cinéma, Musique, mais aussi <strong>SVT, Anglais, Bénin</strong> pour réviser). Les questions sont mélangées si tu choisis plusieurs thèmes. Choisis ta <strong>difficulté</strong> : Facile, Moyen, Difficile ou <strong>🔥 Extrême</strong> (questions pointues ET 15 secondes chrono par question au lieu de 30)." },
         { icon:'🌐', title:'Langue', desc:"Change la langue dans l'onglet <strong>Profil</strong> → carte <strong>Réglages</strong> → <strong>Langue</strong>. En mode <strong>FR</strong>, les questions sont traduites en français (les termes techniques restent en anglais si nécessaire). En mode <strong>EN</strong>, les questions sont en anglais d'origine. Le site détecte automatiquement ta langue au premier lancement." },
         { icon:'▶', title:'Mode Solo', desc:"Sélectionne un ou plusieurs thèmes et clique <em>Solo</em>. Tu joues seul à ton rythme. Ton score est automatiquement ajouté au classement à la fin." },
-        { icon:'👥', title:'Mode Multijoueur', desc:"Choisis tes thèmes, puis « Avec qui ? » : <em>Avec des amis</em>, et clique <em>Créer une partie</em> (2 à 6 joueurs). Partage le code à 4 lettres. L'hôte lance la partie quand tout le monde est prêt. Tout le monde voit les mêmes questions en même temps." },
+        { icon:'👥', title:'Mode Multijoueur', desc:"Choisis tes thèmes, puis « Avec qui ? » : <em>Avec des amis</em>, et clique <em>Créer une partie</em> (2 à 20 joueurs). Partage le code à 4 lettres. L'hôte lance la partie quand tout le monde est prêt. Tout le monde voit les mêmes questions en même temps." },
         { icon:'⏱', title:'Chrono', desc:"Tu as <strong>30 secondes</strong> par question. Le chrono passe en rouge sous les 5 secondes. Sans réponse dans le temps imparti, la question est perdue. Tu peux aussi <strong>⏭ passer</strong> une question qui te bloque : aucun point, mais tu ne perds pas de temps." },
         { icon:'✅', title:'Correction', desc:"Après chaque réponse (ou expiration du temps), la bonne réponse s'affiche en vert et les mauvaises en rouge. En multi, tu vois aussi le score de chaque joueur." },
         { icon:'🏆', title:'Classement Quiz', desc:"1 point par bonne réponse. Les points s'accumulent quiz après quiz, qu'on joue en solo ou en groupe. Le classement affiche le total de points et le nombre de quiz joués." },
@@ -1731,7 +1731,7 @@ const DICT = {
     triviaWaitTitle:'Waiting for players…', triviaWaitCode:'Room code:',
     btnTriviaCopy:'Copy code', btnStartTrivia:'▶ Start game',
     btnLeaveTrivia:'Leave room', quit:{ abandon:'Give up', abandonAsk:'Give up this game? It counts as a loss.', menuAsk:'Back to the menu?', tear:'Tear up the ticket (leave)', changeGame:'change game', quitGame:'quit the game', backQuiz:'back to the quiz', close:'Close' },
-    triviaWaitHint:'1 to 6 players. Start whenever you\'re ready.',
+    triviaWaitHint:'1 to 20 players. Start whenever you\'re ready.',
     triviaCorrect:'✅ Correct!', triviaFastBonus:'⚡ Lightning answer: double points!', triviaWrong:'❌ The answer was: ',
     triviaFinishedTitle:'Final Results', btnLeaveGame:'Back to menu', btnQuitTrivia:'🚪 Quit',
     triviaPodiumWin:'🏆 Quiz champion!', triviaPodiumTop3:'🎉 On the podium!', triviaPodiumOut: r => `You finished ${r}th, the podium awaits you next time!`,
@@ -2103,7 +2103,7 @@ const DICT = {
         { icon:'🧠', title:'General Knowledge', desc:"Answer multiple-choice questions. Select <strong>one or more themes</strong> from 15 categories (History, Science, Movies, Music, plus <strong>Biology, English, Benin</strong> to revise). Questions are shuffled when multiple themes are chosen. Pick your <strong>difficulty</strong>: Easy, Medium, Hard or <strong>🔥 Extreme</strong> (sharp questions AND a 15-second timer per question instead of 30)." },
         { icon:'🌐', title:'Language', desc:"Change the language in the <strong>Profile</strong> tab → <strong>Settings</strong> card → <strong>Language</strong>. In <strong>FR</strong> mode, questions are translated into French (technical terms may stay in English). In <strong>EN</strong> mode, questions are in their original English. The site auto-detects your language on first load." },
         { icon:'▶', title:'Solo mode', desc:"Select one or more themes and click <em>Solo</em>. You play at your own pace. Your score is automatically added to the leaderboard at the end." },
-        { icon:'👥', title:'Multiplayer mode', desc:"Pick your themes, then « Who with? »: <em>With friends</em>, and click <em>Create a game</em> (2 to 6 players). Share the 4-letter code. The host starts the game when everyone is ready. All players see the same questions at the same time." },
+        { icon:'👥', title:'Multiplayer mode', desc:"Pick your themes, then « Who with? »: <em>With friends</em>, and click <em>Create a game</em> (2 to 20 players). Share the 4-letter code. The host starts the game when everyone is ready. All players see the same questions at the same time." },
         { icon:'⏱', title:'Timer', desc:"You have <strong>30 seconds</strong> per question. The timer turns red under 5 seconds. If you don't answer in time, the question is lost. You can also <strong>⏭ skip</strong> a question that blocks you: no point, but no wasted time." },
         { icon:'✅', title:'Answer reveal', desc:"After each answer (or when time runs out), the correct answer is shown in green and wrong answers in red. In multiplayer, you also see each player's score." },
         { icon:'🏆', title:'Quiz leaderboard', desc:"1 point per correct answer. Points accumulate quiz after quiz. The leaderboard shows total points and number of quizzes played." },
@@ -3113,7 +3113,7 @@ window.addEventListener('popstate', () => {
 
 // ── Trivia : constantes ───────────────────────────────────────────────────────
 // Couleurs des joueurs du quiz : la palette du site (encre, rouge, vert, or, violet, sarcelle), en aplats.
-const TRIVIA_COLORS = ['#3d64b8','#d23a4f','#2f8a55','#b8860b','#7a4fb0','#2a8a8a'];
+const TRIVIA_COLORS = ['#3d64b8','#d23a4f','#2f8a55','#b8860b','#7a4fb0','#2a8a8a','#c2410c','#be185d','#4d7c0f','#1d4ed8','#9d174d','#0f766e','#a16207','#6d28d9','#b91c1c','#15803d','#0369a1','#86198f','#854d0e','#334155'];
 
 // ── Trivia : état ─────────────────────────────────────────────────────────────
 let selectedTriviaCategories = [];

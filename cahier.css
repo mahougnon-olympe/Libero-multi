@@ -3067,3 +3067,7 @@ body.pd-open { overflow: hidden; }
 .pd-static .pd-pl, .pd-static .pd-title, .pd-static .pd-msg, .pd-static .pd-rays, .pd-static .pd-crown, .pd-static .pd-banner, .pd-static .pd-rest, .pd-static .pd-gold, .pd-static .pd-ring, .pd-static .pd-halo { opacity: 1; }
 .pd-static .pd-step, .pd-static .pd-banner { transform: none; }
 @media (prefers-reduced-motion: reduce) { .pd-live *, .pd-show { animation: none !important; } }
+/* Salon de quiz jusqu'a 20 joueurs : les scores en partie defilent sur une ligne au lieu de remplir l'ecran. */
+:root:root .tg-scores { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+:root:root .tg-scores::-webkit-scrollbar { display: none; }
+:root:root .tg-scores > * { flex: none; }

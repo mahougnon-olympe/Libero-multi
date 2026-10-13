@@ -2204,6 +2204,7 @@ const TRIVIA_CATEGORIES = {
   30: 'SVT',             31: 'Anglais',         32: 'Bénin',
 };
 const TRIVIA_COLORS = ['#2563eb','#dc2626','#16a34a','#9333ea','#ea580c','#0891b2'];
+const TRIVIA_MAX = 20; // joueurs par salon de quiz
 const TRIVIA_Q_COUNT = 10;
 const TRIVIA_TIME_MS = 30_000;
 
@@ -2963,7 +2964,7 @@ io.on('connection', (socket) => {
     const room = triviaRooms.get(key);
     if (!room) return false;
     if (room.status !== 'waiting') { socket.emit('trivia-error', { message: 'La partie a déjà commencé.' }); return true; }
-    if (room.players.size >= 6)    { socket.emit('trivia-error', { message: 'Le salon est complet (6 joueurs max).' }); return true; }
+    if (room.players.size >= TRIVIA_MAX) { socket.emit('trivia-error', { message: `Le salon est complet (${TRIVIA_MAX} joueurs max).` }); return true; }
 
     const playerName = sanitizeName(name, 'Anonyme');
     const colorIndex = room.players.size;
@@ -4904,7 +4905,7 @@ FAITS SUR LE SITE (vérifiés ; pour une question sur le site, réponds UNIQUEME
 - Jeux multijoueur en temps réel : Puissance 4, Tic Tac Toe, Échecs, Dames (à 2), Ludo (salon de 2 à 4). Contre un ami (code à 4 lettres, lien ou « Défier un ami ») ou contre le robot (facile, moyen, difficile ; toutes comptent au classement ; pas de mise contre le robot). Pour lancer : choisir le jeu, puis « Avec qui ? » (seul contre le robot, avec un ami, ou « J'ai un code »). On peut miser 25, 50 ou 100 Libs : le vainqueur rafle tout.
 - Dames : deux règles au choix à la création. Internationales (par défaut) : damier 10×10, 20 pions, les pions prennent aussi en arrière, la dame vole sur toute la diagonale, il faut prendre le plus grand nombre de pièces, promotion seulement si le pion finit son coup sur la dernière rangée. Anglaises : 8×8, 12 pions, prise vers l'avant seulement, dame d'une case, prise obligatoire au choix.
 - Robot difficile : au Tic Tac Toe il ne perd jamais et apprend les habitudes des joueurs ; aux échecs il réfléchit moins d'une seconde par coup.
-- Culture générale : quiz de 15 thèmes (dont Bénin), en solo ou en salon jusqu'à 6 joueurs, 10 à 40 questions, difficulté mixte à extrême.
+- Culture générale : quiz de 15 thèmes (dont Bénin), en solo ou en salon jusqu'à 20 joueurs, 10 à 40 questions, difficulté mixte à extrême.
 - Le Mot : un mot mystère de 5 lettres à trouver en 6 essais, un nouveau chaque jour.
 - Arcade (tuile de l'accueil) : Libero Run, un jeu de course, et Snake (le serpent mange des pommes, ou la nourriture du skin équipé ; il ne rapporte PAS de Libs, mais compte pour les défis et le tournoi), jouables tous les jours. Évents : le calendrier des week-ends (Double XP, quiz en direct, Le Mot Marathon, coupes, défis…), on touche un évent pour ses règles ; tournoi le samedi (heure du Bénin) : victoire +10 pts, bonne réponse au quiz +2, Lib mangé au Snake +1 ; le meilleur gagne 2000 Libs et le titre « Champion de la semaine ».
 - Libs : la monnaie du site, maximum 19 999. On en gagne : en gagnant des parties et des mises, roue de la fortune une fois par jour (5 à 250 Libs), défis du jour, série de jours (bonus de 5 Libs le 1er jour jusqu'à 35 Libs à partir du 7e), « Premiers pas », parrainage (100 Libs), distribution toutes les 5 heures selon le classement général (1er 10, 2e 5, 3e 3, 4e à 10e 2, les autres 1), tournoi, ventes de ton modèle de portrait. Inactif plus de 48 heures : on perd 10 Libs par jour. La recharge de Libs avec de l'argent est FERMÉE pour l'instant : on ne peut pas acheter de Libs. Pass VIP : +20 % de Libs pendant 30 jours.
