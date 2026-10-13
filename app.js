@@ -506,7 +506,9 @@ try {
     let quizAudio = null, quizBroken = false, musicDucked = false;
     function quizLoopStart() {
       try {
-        if (!started || !sfxOn() || quizBroken) return;
+        // Musique du quiz : jouee si les Sons OU la Musique sont actives (la musique du site est coupee pendant le quiz).
+        if (!started || !(sfxOn() || musicOn()) || quizBroken) return;
+        if (quizAudio && !quizAudio.paused) return; // deja lancee : la musique du quiz tourne d'un bout a l'autre
         // Ecarte la musique de fond pour eviter le chevauchement avec le son du quiz.
         if (music && musicWanted && !music.paused) {
           musicDucked = true;
@@ -518,8 +520,7 @@ try {
           quizAudio.loop = true;
           quizAudio.addEventListener('error', () => { quizBroken = true; quizAudio = null; });
         }
-        quizAudio.volume = Math.min(0.55, sfxVol());
-        try { quizAudio.currentTime = 0; } catch {}
+        quizAudio.volume = musicOn() ? Math.min(1, Math.max(0.15, musicVol() * 1.6)) : Math.min(0.55, sfxVol());
         const p = quizAudio.play();
         if (p && p.catch) p.catch(() => {});
       } catch {}
@@ -547,6 +548,7 @@ try {
     document.addEventListener('visibilitychange', () => {
       if (!music || !musicWanted) return;
       if (document.hidden) { try { music.pause(); } catch {} }
+      else if (musicDucked) { /* le quiz joue sa musique */ }
       else { const p = music.play(); if (p && p.catch) p.catch(() => armRetry()); fadeTo(musicVol(), 500); }
     });
     document.addEventListener('click', onFirstInteraction, { once: true });
@@ -2928,6 +2930,7 @@ function showScreen(name) {
   // « Avec qui ? » : vide a chaque arrivee sur l'ecran ; seul un F5 rend le choix deja fait.
   if (!wasRestoring && name === 'home') window._whoReset?.['home-who']?.();
   if (!wasRestoring && name === 'trivia-home') window._whoReset?.['trivia-who']?.();
+  if (name !== 'trivia-game') { try { window._sound?.quizLoop.stop(); } catch {} } // la musique du site revient
   if (name === 'events') window._evCal?.render();
   try {
     const trk = (name === 'arcade' || name === 'snake') ? 'arcade' : name === 'luffy' ? 'run' : (name === 'game' || name === 'waiting') ? 'game' : 'main';
@@ -4934,14 +4937,13 @@ function startTriviaTimer(seconds, onExpire) {
   $('tg-timer').textContent = rem;
   $('tg-timer').classList.remove('warning');
   // Boucle « reflexion » pendant la question (coupee a 5 s par le compte a rebours).
-  if (seconds > 5 && !triviaAnsweredThis) { try { window._sound?.quizLoop.start(); } catch {} }
+  try { window._sound?.quizLoop.start(); } catch {} // musique du quiz du debut a la fin (la musique du site est coupee)
   triviaTimerInterval = setInterval(() => {
     rem--;
     $('tg-timer').textContent = rem;
     $('tg-timer').classList.toggle('warning', rem <= 5);
     // A 5 secondes : on coupe la boucle « reflexion » et le compte a rebours
     // sonore prend le relais (« top top top top top », puis « tip » a la fin).
-    if (rem === 5) { try { window._sound?.quizLoop.stop(); } catch {} }
     if (!triviaAnsweredThis) {
       if (rem > 0 && rem <= 5) { try { window._sound?.play('tick'); } catch {} }
       else if (rem <= 0)      { try { window._sound?.play('tick-final'); } catch {} }
@@ -4951,7 +4953,6 @@ function startTriviaTimer(seconds, onExpire) {
 }
 function stopTriviaTimer() {
   if (triviaTimerInterval) { clearInterval(triviaTimerInterval); triviaTimerInterval = null; }
-  try { window._sound?.quizLoop.stop(); } catch {} // securite : coupe la boucle quiz
 }
 
 // ── Trivia : affichage question ───────────────────────────────────────────────
@@ -4987,7 +4988,7 @@ function showTriviaQuestion({ questionNum, totalQuestions, question, choices, ti
 // au serveur qu'on a « répondu » pour ne pas retenir les autres (multi).
 function onTriviaSkip() {
   if (triviaAnsweredThis) return;
-  triviaAnsweredThis = true; try { window._sound?.quizLoop.stop(); } catch {}
+  triviaAnsweredThis = true;
   _updateBoostHintBtn();
   $('tg-choices').querySelectorAll('.tg-choice').forEach(b => b.disabled = true);
   const skip = $('tg-skip');
@@ -5002,7 +5003,7 @@ function onTriviaSkip() {
 
 function onTriviaChoice(choice, btn) {
   if (triviaAnsweredThis) return;
-  triviaAnsweredThis = true; triviaChoiceSelected = choice; try { window._sound?.quizLoop.stop(); } catch {}
+  triviaAnsweredThis = true; triviaChoiceSelected = choice;
   _updateBoostHintBtn();
   const _sk = $('tg-skip'); if (_sk) _sk.disabled = true;
   $('tg-choices').querySelectorAll('.tg-choice').forEach(b => b.disabled = true);
@@ -5017,7 +5018,7 @@ function onTriviaChoice(choice, btn) {
 
 function onTriviaTimeUp() {
   if (triviaAnsweredThis) return;
-  triviaAnsweredThis = true; try { window._sound?.quizLoop.stop(); } catch {}
+  triviaAnsweredThis = true;
   _updateBoostHintBtn();
   const _sk = $('tg-skip'); if (_sk) _sk.disabled = true;
   $('tg-choices').querySelectorAll('.tg-choice').forEach(b => b.disabled = true);
@@ -5225,6 +5226,7 @@ function _makeQuizShareBlob({ name, score, line, category }) {
 
 function showTriviaFinished(scores) {
   stopTriviaTimer();
+  try { window._sound?.quizLoop.stop(); } catch {} // fin du quiz : la musique du site revient
   const _skip = $('tg-skip'); if (_skip) _skip.classList.add('hidden');
   $('btn-boost-hint')?.classList.add('hidden'); // plus d'indice utilisable une fois le quiz fini
   $('tg-choices').innerHTML = '';
