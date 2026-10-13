@@ -1863,11 +1863,6 @@ const COSMETICS = [
   { id: 'victoryban-lightning', type: 'victoryban',  price: 170 },
   { id: 'victoryban-crown',     type: 'victoryban',  price: 200 },
   // Packs de sons
-  { id: 'soundpack-8bit',       type: 'soundpack',   price: 40  },
-  { id: 'soundpack-retro',      type: 'soundpack',   price: 60  },
-  { id: 'soundpack-crystal',    type: 'soundpack',   price: 80  },
-  { id: 'soundpack-cyber',      type: 'soundpack',   price: 100 },
-  { id: 'soundpack-epic',       type: 'soundpack',   price: 130 },
   // Emotes
   { id: 'emote-hello',        type: 'emote',       price: 0  },
   { id: 'emote-gg',           type: 'emote',       price: 0  },
@@ -2054,12 +2049,24 @@ function _makeGiftCode() {
   return code;
 }
 
+const SOUNDPACK_REFUND = { 'soundpack-8bit': 40, 'soundpack-retro': 60, 'soundpack-crystal': 80, 'soundpack-cyber': 100, 'soundpack-epic': 130 };
 function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
     entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, portrait: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null, streak: null, challenges: null, lifetime: {}, permClaimed: [], referredBy: null, referralRewarded: false, referrals: 0, xp: 0, iq: null, iqAt: 0, wheelDay: null, friends: [], friendRequests: [], pendingGifts: [], giftSentDay: null, vipUntil: 0, dailyGiftDay: null, badges: [], onboardRewards: [], history: [] };
     libs.set(id, entry);
+  }
+  // Packs de sons retires de la boutique (les sons sont devenus des fichiers) : rembourses.
+  const _spOwned = (entry.ownedCosmetics || []).filter(c => c in SOUNDPACK_REFUND);
+  if (_spOwned.length) {
+    const amt = _spOwned.reduce((t, c) => t + SOUNDPACK_REFUND[c], 0);
+    entry.ownedCosmetics = entry.ownedCosmetics.filter(c => !(c in SOUNDPACK_REFUND));
+    entry.equippedSoundPack = null;
+    entry.balance = Math.min(MAX_BALANCE, (entry.balance || 0) + amt);
+    entry.soundpackRefund = (entry.soundpackRefund || 0) + amt; // annonce au joueur a sa connexion
+    libs.set(id, entry);
+    try { dbUpsertLibs(id, entry); } catch {}
   }
   if (typeof entry.xp !== 'number') entry.xp = 0;
   if (!('iq' in entry)) entry.iq = null;
@@ -3689,6 +3696,7 @@ io.on('connection', (socket) => {
       socket.emit('streak-update', { count: streak.count, longest: streak.longest, bonus: 0 });
       if (dailyGift) socket.emit('daily-gift', dailyGift);
     }
+    if (entry.soundpackRefund) { socket.emit('soundpack-refund', { amount: entry.soundpackRefund }); delete entry.soundpackRefund; }
 
     const { available: refundCards, nextRefill: refundCardsNextRefill } = getRefundCardsInfo(entry);
     socket.emit('libs-update', { name: entry.name || '', refCode: _playerRef(id).slice(0, 8), referrals: entry.referrals || 0, xp: entry.xp || 0, level: levelFromXp(entry.xp || 0), iq: entry.iq ?? null, iqUnlocked: (getLifetime(entry).triviaGames || 0) >= IQ_UNLOCK_QUIZZES, iqQuizDone: getLifetime(entry).triviaGames || 0, wheelDone: entry.wheelDay === _tournamentTodayKey(), vipUntil: entry.vipUntil || 0, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, badges: computeBadges(id, entry), onboard: entry.onboardRewards || [], hasAccount: [...accounts.values()].some(a => a.playerId === id), delta: (dailyGift && dailyGift.type === 'libs') ? dailyGift.amount : undefined });
@@ -4899,7 +4907,7 @@ FAITS SUR LE SITE (vérifiés ; pour une question sur le site, réponds UNIQUEME
 - Le Mot : un mot mystère de 5 lettres à trouver en 6 essais, un nouveau chaque jour.
 - Arcade (tuile de l'accueil) : Libero Run, un jeu de course, et Snake (le serpent mange des pommes, ou la nourriture du skin équipé ; il ne rapporte PAS de Libs, mais compte pour les défis et le tournoi), jouables tous les jours. Évents : le calendrier des week-ends (Double XP, quiz en direct, Le Mot Marathon, coupes, défis…), on touche un évent pour ses règles ; tournoi le samedi (heure du Bénin) : victoire +10 pts, bonne réponse au quiz +2, Lib mangé au Snake +1 ; le meilleur gagne 2000 Libs et le titre « Champion de la semaine ».
 - Libs : la monnaie du site, maximum 19 999. On en gagne : en gagnant des parties et des mises, roue de la fortune une fois par jour (5 à 250 Libs), défis du jour, série de jours (bonus de 5 Libs le 1er jour jusqu'à 35 Libs à partir du 7e), « Premiers pas », parrainage (100 Libs), distribution toutes les 5 heures selon le classement général (1er 10, 2e 5, 3e 3, 4e à 10e 2, les autres 1), tournoi, ventes de ton modèle de portrait. Inactif plus de 48 heures : on perd 10 Libs par jour. La recharge de Libs avec de l'argent est FERMÉE pour l'instant : on ne peut pas acheter de Libs. Pass VIP : +20 % de Libs pendant 30 jours.
-- Boutique : couleurs et polices de pseudo, effets, titres, fonds, bulles, modèles de portrait des joueurs, packs, jetons Puissance 4, symboles Morpion, thèmes d'échiquier, skins Snake, particules, bannières de victoire, sons, Boost Indice pour le quiz. Les émotes s'achètent dans la carte Émotes du Profil, pas dans la boutique. On peut y offrir un article à quelqu'un : sur l'article, choisir de l'offrir à un ami, ou par lien ou code.
+- Boutique : couleurs et polices de pseudo, effets, titres, fonds, bulles, modèles de portrait des joueurs, packs, jetons Puissance 4, symboles Morpion, thèmes d'échiquier, skins Snake, particules, bannières de victoire, Boost Indice pour le quiz. Les émotes s'achètent dans la carte Émotes du Profil, pas dans la boutique. On peut y offrir un article à quelqu'un : sur l'article, choisir de l'offrir à un ami, ou par lien ou code.
 - Offrir des Libs (PAS dans la boutique) : Profil, puis « Mes amis », puis le bouton « Offrir » (paquet cadeau) à côté de l'ami ; choisir 25, 50, 100, 250 ou 500 Libs (ou un Pass VIP à 2000 Libs), puis appuyer sur « Confirmer ». 500 Libs offerts maximum par jour. Il faut d'abord être amis (ajout par code ami).
 - Profil : carnet de correspondance (niveau et XP ; le carnet s'embellit jusqu'au niveau 60), portrait à dessiner soi-même, hauts faits (tampons), historique, Mes amis (ajout par code ami, 30 amis maximum), Mon compte (pseudo + mot de passe pour retrouver sa progression sur un autre appareil ; code de récupération si oubli), réglages.
 - Mes mots : chat privé entre amis (bouton enveloppe à côté de la cloche), messages gardés 30 jours, on peut signaler ou bloquer.

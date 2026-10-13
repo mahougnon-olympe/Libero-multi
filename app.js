@@ -1152,7 +1152,7 @@ const DICT = {
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     eventsTitle:'Évents', eventsDesc:'Calendrier des week-ends',
     evMonths:['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'], evThisWeekend:x=>`Ce week-end : ${x}`, evNext:x=>`Prochain : ${x}`, evNews:x=>`<strong>Ce week-end</strong> : ${x}`, evNewsNext:(x,n)=>`<strong>Prochain évent</strong> : ${x}, dans ${n} jour${n>1?'s':''}`, evCalendarSub:'Le calendrier des week-ends', evTournament:'Tous les samedis : <b>tournoi</b>, 2000 Libs au champion.', evEmpty:'Les prochains évents arrivent bientôt.', evLive:'En cours', evReward:'Récompense', evNote:'Touche un évent pour voir ses règles. Les dates peuvent encore bouger.',
-    arcadeTitle:'Arcade', arcadeSub:'Des jeux rapides, tous les jours', arcadeRunDesc:'Aide Libero à courir le plus loin possible ! Saute les obstacles, baisse-toi sous ceux qui volent.', arcadeSnakeDesc:'Mange des pommes pour faire grandir ton serpent, sans mordre ta queue.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Classements', snakeUnit:'pommes', inArcade:'Dans l\'Arcade',
+    arcadeTitle:'Arcade', arcadeSub:'Des jeux rapides, tous les jours', arcadeRunDesc:'Aide Libero à courir le plus loin possible ! Saute les obstacles, baisse-toi sous ceux qui volent.', arcadeSnakeDesc:'Mange des pommes pour faire grandir ton serpent, sans mordre ta queue.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Classements', snakeUnit:'pommes', soundpackRefund:n=>`Les packs de sons ont quitté la boutique : ${n} Libs te sont rendus.`, inArcade:'Dans l\'Arcade',
     eventsDescLocked:'Week-end prochain',
     eventsLockedCard: days => `📅 Dans ${days} j`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> <u style="cursor:pointer">vote ici</u> !`,
@@ -1294,7 +1294,7 @@ const DICT = {
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
         { icon:'💳', titleKey:'helpLibsBuyTitle', descKey:'helpLibsBuyDesc' },
         { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
-        { icon:'🗂️', title:'Navigation boutique', desc:"À gauche de la boutique, une <strong>barre de rayons</strong> fonctionne comme des <strong>onglets</strong> : À la une, Quotidien, Bundles, Boosts, Couleurs, Polices, Effets, Titres, Fonds, Curseur, Snake, Portraits (les modèles des joueurs), Bulles, Jetons Puissance 4, Morpion, Échiquier, Particules, Émojis, Victoire, Sons et Codes. Seul le rayon choisi s'affiche. L'onglet <strong>Codes</strong> regroupe <em>Recevoir un cadeau</em> (codes cadeaux d'amis) et les <em>codes promo</em>. Sur téléphone, seules les icônes sont affichées. Les émotes ne sont pas dans la boutique : elles s'achètent dans la carte Émotes du Profil." },
+        { icon:'🗂️', title:'Navigation boutique', desc:"À gauche de la boutique, une <strong>barre de rayons</strong> fonctionne comme des <strong>onglets</strong> : À la une, Quotidien, Bundles, Boosts, Couleurs, Polices, Effets, Titres, Fonds, Curseur, Snake, Portraits (les modèles des joueurs), Bulles, Jetons Puissance 4, Morpion, Échiquier, Particules, Émojis, Victoire et Codes. Seul le rayon choisi s'affiche. L'onglet <strong>Codes</strong> regroupe <em>Recevoir un cadeau</em> (codes cadeaux d'amis) et les <em>codes promo</em>. Sur téléphone, seules les icônes sont affichées. Les émotes ne sont pas dans la boutique : elles s'achètent dans la carte Émotes du Profil." },
         { icon:'🎁', title:'Bundles', desc:"La section <strong>Bundles</strong> propose des lots thématiques regroupant plusieurs cosmétiques à prix réduit (−24 % à −28 %). Si tu possèdes déjà certains articles d'un bundle, le prix est <strong>ajusté automatiquement</strong> · tu ne paies que pour ce qu'il te manque. La sélection <strong>⭐ À la une</strong> et <strong>📅 Quotidien</strong> se renouvelle toutes les 24 h · un compte à rebours indique l'heure du prochain renouvellement." },
         { icon:'✨', title:'Effets de pseudo', desc:"Anime l'affichage de ton pseudo dans les classements, le chat, les badges et le podium. Les effets sont <strong>cumulables avec ta couleur de pseudo</strong> : la couleur reste la teinte, l'effet ajoute l'animation par-dessus. Exemples : Clignotement Néon, Glitch, Vague Arc-en-ciel. Rareté : Épique à Légendaire." },
         { icon:'🏷️', title:'Titres', desc:"Ajoute un court texte de statut affiché à côté de ton pseudo dans les classements, badges et chips de salle d'attente. Exemples : Tacticien, Quiz Master, Roi du Snake, Légende Vivante. Rareté : Commun à Épique. Les titres achetés se combinent avec les <strong>titres honorifiques</strong> (voir ci-dessous)." },
@@ -1308,7 +1308,6 @@ const DICT = {
         { icon:'💥', title:'Particules de clic', desc:"Remplace les particules qui s'affichent lorsque tu cliques sur les boutons et cartes du site. Exemples : Bulles 🫧, Confettis 🎊, Feu d\'Artifice 🎆. Rareté : Commun à Épique." },
         { icon:'🌈', title:'Packs d\'émojis', desc:"Remplace le jeu d'émojis de la pluie animée au premier chargement de la page. Exemples : Pack Fête 🎉, Pack Gaming 🎮, Pack Cosmos 🌌. Rareté : Commun à Rare." },
         { icon:'🏆', title:'Bannières de victoire', desc:"Personnalise le style et l'animation de la bannière de fin de partie (victoire). Visible à l'écran de résultat des jeux classiques et du quiz. Exemples : Triomphe Néon, Flammes de Champion, Couronnement. Rareté : Épique à Légendaire." },
-        { icon:'🔊', title:'Packs de sons', desc:"Remplace certains sons du site (achat, victoire, clic, changement du compteur Libs) par un set sonore thématique. Les packs respectent ta préférence de son (⚙️ → Sons). Exemples : Rétro Arcade, Cristal, Épique. Rareté : Rare à Épique." },
         { icon:'😎', title:'Émotes', desc:"<strong>20 réactions rapides</strong> à envoyer dans le chat des parties classiques multi, dont <strong>3 gratuites</strong> pour tous (👋 Salut, 👍 GG, 😢 Sniff). Gère-les depuis l'onglet <strong>Profil → carte Émotes</strong> : tu peux en <strong>équiper jusqu'à 5</strong>, qui apparaissent dans la barre de réactions en jeu. Les autres <strong>s'achètent directement dans cette carte Émotes</strong> (de 10 à 100 ⚡) : les émotes ne sont pas vendues dans la boutique d'objets." },
         { icon:'🎓', title:'Tutoriel', desc:"À ta première visite, un guide apparaît automatiquement pour te présenter chaque fonctionnalité écran par écran. Une fois une étape vue, elle ne s'affiche plus. Pour tout revoir depuis le début, vide le cache de ton navigateur (localStorage)." },
       ],
@@ -1940,7 +1939,7 @@ const DICT = {
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     eventsTitle:'Events', eventsDesc:'Weekend calendar',
     evMonths:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], evThisWeekend:x=>`This weekend: ${x}`, evNext:x=>`Next: ${x}`, evNews:x=>`<strong>This weekend</strong>: ${x}`, evNewsNext:(x,n)=>`<strong>Next event</strong>: ${x}, in ${n} day${n>1?'s':''}`, evCalendarSub:'The weekend calendar', evTournament:'Every Saturday: <b>tournament</b>, 2000 Libs for the champion.', evEmpty:'The next events are coming soon.', evLive:'Live', evReward:'Reward', evNote:'Tap an event to see its rules. Dates may still change.',
-    arcadeTitle:'Arcade', arcadeSub:'Quick games, every day', arcadeRunDesc:'Help Libero run as far as possible! Jump over obstacles, duck under the flying ones.', arcadeSnakeDesc:'Eat apples to make your snake grow, without biting your own tail.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Leaderboards', snakeUnit:'apples', inArcade:'In the Arcade',
+    arcadeTitle:'Arcade', arcadeSub:'Quick games, every day', arcadeRunDesc:'Help Libero run as far as possible! Jump over obstacles, duck under the flying ones.', arcadeSnakeDesc:'Eat apples to make your snake grow, without biting your own tail.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Leaderboards', snakeUnit:'apples', soundpackRefund:n=>`Sound packs have left the shop: ${n} Libs have been refunded to you.`, inArcade:'In the Arcade',
     eventsDescLocked:'Next weekend',
     eventsLockedCard: days => `📅 In ${days}d`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> <u style="cursor:pointer">vote here</u>!`,
@@ -2082,7 +2081,7 @@ const DICT = {
         { icon:'⚡', titleKey:'helpLibsTitle', descKey:'helpLibsDesc' },
         { icon:'💳', titleKey:'helpLibsBuyTitle', descKey:'helpLibsBuyDesc' },
         { icon:'💡', titleKey:'helpBoostTitle', descKey:'helpBoostDesc' },
-        { icon:'🗂️', title:'Shop navigation', desc:"On the left of the shop, a <strong>shelf bar</strong> works like <strong>tabs</strong>: Featured, Daily, Bundles, Boosts, Colors, Fonts, Effects, Titles, Backgrounds, Cursor, Snake, Portraits (player templates), Bubbles, Connect 4 tokens, Tic-Tac, Chess, Particles, Emojis, Victory, Sounds and Codes. Only the chosen shelf is shown. The <strong>Codes</strong> tab holds <em>Receive a gift</em> (gift codes from friends) and <em>promo codes</em>. On phones, only the icons are shown. Emotes are not in the shop: buy them in the Emotes card of your Profile." },
+        { icon:'🗂️', title:'Shop navigation', desc:"On the left of the shop, a <strong>shelf bar</strong> works like <strong>tabs</strong>: Featured, Daily, Bundles, Boosts, Colors, Fonts, Effects, Titles, Backgrounds, Cursor, Snake, Portraits (player templates), Bubbles, Connect 4 tokens, Tic-Tac, Chess, Particles, Emojis, Victory and Codes. Only the chosen shelf is shown. The <strong>Codes</strong> tab holds <em>Receive a gift</em> (gift codes from friends) and <em>promo codes</em>. On phones, only the icons are shown. Emotes are not in the shop: buy them in the Emotes card of your Profile." },
         { icon:'🎁', title:'Bundles', desc:"The <strong>Bundles</strong> section offers themed packs grouping several cosmetics at a reduced price (−24% to −28%). If you already own some items in a bundle, the price is <strong>automatically adjusted</strong> · you only pay for what you're missing. The <strong>⭐ Featured</strong> and <strong>📅 Daily</strong> picks refresh every 24 hours · a countdown shows the next refresh time." },
         { icon:'✨', title:'Name Effects', desc:"Animate your username display in leaderboards, chat, badges and the podium. Effects <strong>stack with your username color</strong>: the color sets the hue, the effect adds the animation on top. Examples: Neon Blink, Glitch, Rainbow Wave. Rarity: Epic to Legendary." },
         { icon:'🏷️', title:'Titles', desc:"Add a short status text displayed next to your username in leaderboards, player badges and room chips. Examples: Tactician, Quiz Master, Snake King, Living Legend. Rarity: Common to Epic. Shop titles stack with <strong>honorary titles</strong> (see below)." },
@@ -6376,6 +6375,7 @@ socket.on('redeem-result', ({ ok, delta, error } = {}) => {
   }
 });
 
+socket.on('soundpack-refund', ({ amount } = {}) => { if (amount > 0) setTimeout(() => showCursorSnakeToast(t().soundpackRefund(amount)), 1500); });
 socket.on('buy-cosmetic-result', ({ ok, cosmeticId, error } = {}) => {
   if (ok) {
     if (!ownedCosmetics.includes(cosmeticId)) ownedCosmetics.push(cosmeticId);
@@ -7086,8 +7086,7 @@ function _renderShopItems() {
     {id:'victoryban-lightning',price:170},{id:'victoryban-crown',price:200},
   ];
   const ALL_SOUNDPACKS = [
-    {id:'soundpack-8bit',price:40},{id:'soundpack-retro',price:60},{id:'soundpack-crystal',price:80},
-    {id:'soundpack-cyber',price:100},{id:'soundpack-epic',price:130},
+    // Packs de sons retires (les sons sont devenus des fichiers ElevenLabs) : rembourses par le serveur.
   ];
   const ALL_EMOTES = [
     {id:'emote-hello',price:0},{id:'emote-gg',price:0},{id:'emote-sad',price:0},{id:'emote-wellplayed',price:10},{id:'emote-laugh',price:15},{id:'emote-think',price:15},{id:'emote-cool',price:20},{id:'emote-clap',price:25},{id:'emote-fire',price:30},{id:'emote-heart',price:30},{id:'emote-cry',price:35},{id:'emote-angry',price:40},{id:'emote-shock',price:45},{id:'emote-easy',price:50},{id:'emote-eyes',price:55},{id:'emote-skull',price:60},{id:'emote-party',price:65},{id:'emote-rocket',price:70},{id:'emote-omg',price:80},{id:'emote-crown',price:100},{id:'emote-goat',price:60},{id:'emote-salute',price:30},{id:'emote-sleep',price:25},{id:'emote-target',price:40},{id:'emote-clown',price:45},
@@ -7267,7 +7266,6 @@ function _renderShopItems() {
       <button class="shop-fn-nav-btn" data-section="clickfx"><span class="shop-nav-icon" data-ic="click">✨</span><span class="shop-nav-label"> ${nav.clickfx}</span></button>
       <button class="shop-fn-nav-btn" data-section="emojipacks"><span class="shop-nav-icon" data-ic="smile">😀</span><span class="shop-nav-label"> ${nav.emojipacks}</span></button>
       <button class="shop-fn-nav-btn" data-section="victorybans"><span class="shop-nav-icon" data-ic="flag">🏆</span><span class="shop-nav-label"> ${nav.victorybans}</span></button>
-      <button class="shop-fn-nav-btn" data-section="soundpacks"><span class="shop-nav-icon" data-ic="music">🎵</span><span class="shop-nav-label"> ${nav.soundpacks}</span></button>
       <button class="shop-fn-nav-btn" data-section="codes"><span class="shop-nav-icon" data-ic="ticket">🎟️</span><span class="shop-nav-label"> ${nav.codes}</span></button>
     </nav>
     <div class="shop-fn-content">
@@ -7410,11 +7408,6 @@ function _renderShopItems() {
       <div class="shop-fn-grid">${victoryBanItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
-    <section class="shop-fn-section" id="shop-sec-soundpacks" data-section-id="soundpacks">
-      <h3 class="shop-fn-section-title">${d.shopSoundPacksTitle}</h3>
-      <p class="shop-fn-section-desc">${d.shopSectionDescs.soundpacks}</p>
-      <div class="shop-fn-grid">${soundPackItems.map(it => tileHtml(it)).join('')}</div>
-    </section>
 
     <section class="shop-fn-section" id="shop-sec-codes" data-section-id="codes">
       <h3 class="shop-fn-section-title">${d.shopGiftReceiveTitle}</h3>
@@ -12574,7 +12567,6 @@ const ProfileHub = (() => {
       { type:'clickfx',     icon:'<span data-ic="click"></span>', label:d.lockerCats.clickfx,      names:d.shopClickFxNames,     equipped:[equippedClickFx] },
       { type:'emojipack',   icon:'<span data-ic="smile"></span>', label:d.lockerCats.emojipacks,   names:d.shopEmojiPackNames,   equipped:[equippedEmojiPack] },
       { type:'victoryban',  icon:'<span data-ic="flag"></span>', label:d.lockerCats.victorybans,  names:d.shopVictoryBanNames,  equipped:[equippedVictoryBan] },
-      { type:'soundpack',   icon:'<span data-ic="music"></span>', label:d.lockerCats.soundpacks,   names:d.shopSoundPackNames,   equipped:[equippedSoundPack] },
       { type:'emote',       icon:'<span data-ic="smile"></span>', label:d.lockerCats.emotes,       names:d.shopEmoteNames,       equipped:Array.isArray(equippedEmotes) ? equippedEmotes : [] },
     ];
   }
