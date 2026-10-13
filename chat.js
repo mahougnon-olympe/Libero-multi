@@ -142,6 +142,7 @@
     if (!text || !current) return;
     err.textContent = '';
     socket.emit('dm-send', { playerId: getPlayerId(), ref: current, text, tmp: Date.now() });
+    window._sound?.play('dm-send');
     input.value = '';
   }
   $('dm-form').addEventListener('submit', e => { e.preventDefault(); send(input.value); });

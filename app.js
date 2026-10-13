@@ -339,13 +339,22 @@ try {
     const SFX_FILES = {
       click: 'sounds/click.mp3', 'click-ok': 'sounds/click-ok.mp3', 'click-back': 'sounds/click-back.mp3',
       pop: 'sounds/pop.mp3', success: 'sounds/success.mp3', error: 'sounds/error.mp3',
-      coin: 'sounds/coin.ogg', notify: 'sounds/notify.mp3',
+      coin: 'sounds/coin.mp3', notify: 'sounds/notify.mp3',
       tick: 'sounds/tick.mp3', 'tick-final': 'sounds/tick-final.mp3',
       'open-panel': 'sounds/open-panel.mp3', 'type-letter': 'sounds/type-letter.mp3',
       'piece-drop': 'sounds/piece-drop.mp3', 'piece-place': 'sounds/piece-place.mp3', 'pencil-mark': 'sounds/pencil-mark.mp3',
       capture: 'sounds/capture.mp3', check: 'sounds/check.mp3', promote: 'sounds/promote.mp3',
       'dice-roll': 'sounds/dice-roll.mp3', 'ludo-home': 'sounds/ludo-home.mp3',
       win: 'sounds/win.mp3', lose: 'sounds/lose.mp3', draw: 'sounds/draw.mp3', 'opponent-joined': 'sounds/opponent-joined.mp3',
+      'quiz-ok': 'sounds/quiz-ok.mp3', 'quiz-bad': 'sounds/quiz-bad.mp3', 'quiz-start': 'sounds/quiz-start.mp3',
+      'word-letter-ok': 'sounds/word-letter-ok.mp3', 'word-found': 'sounds/word-found.mp3',
+      'shop-buy': 'sounds/shop-buy.mp3', 'wheel-spin': 'sounds/wheel-spin.mp3', 'wheel-win': 'sounds/wheel-win.mp3',
+      'level-up': 'sounds/level-up.mp3', stamp: 'sounds/stamp.mp3', gift: 'sounds/gift.mp3',
+      'dm-send': 'sounds/dm-send.mp3', 'dm-receive': 'sounds/dm-receive.mp3', chat: 'sounds/chat.mp3',
+      'libe-write': 'sounds/libe-write.mp3', 'ink-empty': 'sounds/ink-empty.mp3',
+      'snake-eat': 'sounds/snake-eat.mp3', 'snake-over': 'sounds/snake-over.mp3',
+      'run-jump': 'sounds/run-jump.mp3', 'run-duck': 'sounds/run-duck.mp3', 'run-star': 'sounds/run-star.mp3',
+      'run-crash': 'sounds/run-crash.mp3', 'run-record': 'sounds/run-record.mp3',
     };
     // Une musique par ambiance (ElevenLabs) : l'ecran courant choisit la piste.
     const TRACKS = { main: 'sounds/bg-music.mp3', arcade: 'sounds/arcade-music.mp3', run: 'sounds/run-music.mp3', game: 'sounds/game-music.mp3' };
@@ -4510,7 +4519,7 @@ socket.on('emote-received', ({ player, emoteId, timestamp }) => {
   const el = $('chat-messages');
   el.appendChild(msg);
   el.scrollTop = el.scrollHeight;
-  SFX.chat();
+  window._sound?.play('chat');
 });
 
 $('chat-form').addEventListener('submit', e => {
@@ -4998,11 +5007,11 @@ function showTriviaReveal({ correct, correctSocketIds, gains, scores, myChoice, 
   rev.className   = `tg-reveal ${gotIt ? 'ok' : 'ko'}`;
   rev.style.animation = 'none'; void rev.offsetWidth; rev.style.animation = '';
   if (gotIt) {
-    SFX.quizOk();
+    window._sound?.play('quiz-ok');
     _triviaPointsPop(myGain?.pts || 1, myGain?.fast);
     _triviaBurst(myGain?.fast ? '⚡' : '🎉');
   } else {
-    SFX.quizBad();
+    window._sound?.play('quiz-bad');
   }
 }
 
@@ -5290,6 +5299,7 @@ document.addEventListener('keydown', e => {
 
 // ── Trivia solo : logique locale ──────────────────────────────────────────────
 function soloNextQuestion() {
+  if (triviaCurrentQ === 0 && !_soloRestored) window._sound?.play('quiz-start');
   if (triviaCurrentQ >= triviaQuestions.length) {
     clearTriviaSession();
     const name = getTriviaName();
@@ -5583,6 +5593,7 @@ $('overlay-help').addEventListener('click', e => {
   // Panne d'encre (quota du jour atteint) : Libe commence a l'encre bleue, la plume
   // crache trois taches, puis il reprend au crayon gris et dit que l'encre revient a minuit.
   function inkRelay(clean){
+    window._sound?.play('ink-empty');
     const d = t().libeAi;
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const el = document.createElement('div');
@@ -5623,6 +5634,7 @@ $('overlay-help').addEventListener('click', e => {
       const ty = document.createElement('div');
       ty.className = 'chatbot-typing';
       ty.innerHTML = `${LIBE_PENCIL}<span>${esc(t().libeAi.thinking)}</span>`;
+      window._sound?.play('libe-write');
       logEl.appendChild(ty); logEl.scrollTop = logEl.scrollHeight;
       askAi(clean, ty);
       return;
@@ -5798,6 +5810,7 @@ socket.on('trivia-room-updated', (roomState) => {
 });
 
 socket.on('trivia-start', ({ totalQuestions, categoryName }) => {
+  window._sound?.play('quiz-start');
   triviaIsSolo = false;
   triviaQuestions = { length: totalQuestions };
   $('tg-theme-label').textContent = categoryName;
@@ -6227,7 +6240,7 @@ socket.on('restart-declined', () => {
   showCursorSnakeToast(t().restartDeclined);
 });
 
-socket.on('new-message',       (msg)  => { appendMessage(msg); SFX.chat(); });
+socket.on('new-message',       (msg)  => { appendMessage(msg); window._sound?.play('chat'); });
 socket.on('leaderboard-update', (data) => {
   _classicLbData = data || [];
   renderLeaderboard(data);
@@ -6267,7 +6280,7 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, wheelDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount, portrait: newPortrait } = {}) => {
   if (newOwned !== undefined) setTimeout(() => window._pupitre?.paint(), 0);
   if (newPortrait !== undefined) { myPortrait = newPortrait; try { localStorage.setItem('libero_portrait', JSON.stringify(newPortrait)); } catch {} window._renderProfilePseudo?.(); }
-  if (newBadges !== undefined) { window._myBadges = newBadges; window._renderBadges?.('profile-badges', newBadges, newHonorTitle); }
+  if (newBadges !== undefined) { if (Array.isArray(window._myBadges) && Array.isArray(newBadges) && newBadges.length > window._myBadges.length) setTimeout(() => window._sound?.play('stamp'), 300); window._myBadges = newBadges; window._renderBadges?.('profile-badges', newBadges, newHonorTitle); }
   if (newOnboard !== undefined) { window._myOnboard = newOnboard; window._renderOnboard?.(); }
   if (newHasAccount !== undefined) { window._hasAccount = newHasAccount; if (newHasAccount) { try { localStorage.setItem('libero_has_account', '1'); } catch {} } window._refreshAccountTabs?.(); }
   if (refCode !== undefined)   window._myRefCode = refCode;
@@ -6366,7 +6379,7 @@ socket.on('redeem-result', ({ ok, delta, error } = {}) => {
 socket.on('buy-cosmetic-result', ({ ok, cosmeticId, error } = {}) => {
   if (ok) {
     if (!ownedCosmetics.includes(cosmeticId)) ownedCosmetics.push(cosmeticId);
-    window._sound?.play("coin");
+    window._sound?.play('shop-buy');
     _showShopFeedback(t().shopCosmeticBought, '#22c55e');
     if (cosmeticId?.startsWith('emote-')) _renderEmoteBar();
     if (_isShopOpen()) _renderShopItems();
@@ -8827,7 +8840,7 @@ function showCursorSnakeToast(msg) {
     snake.unshift(head);
     if (head.x === food.x && head.y === food.y) {
       score++;
-      SFX.snakeEat();
+      window._sound?.play('snake-eat');
       // Chaque pomme est comptee en direct (le serveur verifie la plausibilite).
       socket.emit('snake-eat', { playerId: getPlayerId() });
       saveHs(score);
@@ -8903,7 +8916,7 @@ function showCursorSnakeToast(msg) {
   function endGame() {
     running = false;
     clearInterval(gameLoop);
-    SFX.snakeOver();
+    window._sound?.play('snake-over');
     clearSnakeSession();
     const isNewHs = score > getHs();
     saveHs(score);
@@ -9354,7 +9367,7 @@ function showCursorSnakeToast(msg) {
       if (overlapX && overlapY) {
         obstacles.splice(i, 1);
         invincibleUntil = performance.now() + INVINCIBILITY_MS;
-        SFX.quizOk();
+        window._sound?.play('run-star');
       }
     }
   }
@@ -9389,8 +9402,8 @@ function showCursorSnakeToast(msg) {
         luffyY = 0; luffyVy = 0; jumping = false;
         // Touche encore tenue à l'atterrissage : on l'applique, la pression
         // la plus récente d'abord (maintenir Saut = rebonds enchaînés).
-        if (duckHeld && (lastHeld === 'duck' || !jumpHeld)) ducking = true;
-        else if (jumpHeld) { jumping = true; luffyVy = JUMP_VEL; }
+        if (duckHeld && (lastHeld === 'duck' || !jumpHeld)) { if (!ducking) window._sound?.play('run-duck'); ducking = true; }
+        else if (jumpHeld) { jumping = true; luffyVy = JUMP_VEL; window._sound?.play('run-jump'); }
       }
     }
 
@@ -9628,8 +9641,9 @@ function showCursorSnakeToast(msg) {
   function endGame() {
     running = false;
     cancelAnimationFrame(raf);
-    SFX.snakeOver();
+    window._sound?.play('run-crash');
     const isNewHs = score > getHs();
+    if (isNewHs && getHs() > 0) setTimeout(() => window._sound?.play('run-record'), 700);
     saveHs(score);
     const _name = localStorage.getItem('playerName');
     if (_name && getHs() === 0) socket.emit('submit-luffy-score', { name: _name, hs: 0, playerId: getPlayerId() });
@@ -9655,7 +9669,7 @@ function showCursorSnakeToast(msg) {
   function doJump() {
     if (!running || paused || jumping) return;
     ducking = false; // une pression fraîche sur Saut annule l'accroupissement
-    jumping = true; luffyVy = JUMP_VEL;
+    jumping = true; luffyVy = JUMP_VEL; window._sound?.play('run-jump');
   }
   function setDuck(v) {
     if (!running || paused || jumping) return; // en l'air : réappliqué à l'atterrissage via duckHeld
@@ -11259,12 +11273,13 @@ const Wordle = (() => {
     const ans = answer();
     const guess = current;
     guesses.push(guess); current = '';
-    window._sound?.play('pop');
+    window._sound?.play('word-letter-ok');
     if (guess === ans) {
       done = 'win'; _updateStreak(true);
+      setTimeout(() => window._sound?.play('word-found'), 450);
       setMsg(t().wordleWin(guesses.length));
       document.getElementById('wordle-share')?.classList.remove('hidden');
-      if (typeof celebrate === 'function') celebrate();
+      if (typeof celebrate === 'function') celebrate({ sound: 'none' });
     } else if (guesses.length >= ROWS) {
       done = 'lose'; _updateStreak(false);
       setMsg(t().wordleLose(ans));
@@ -13326,7 +13341,7 @@ window._renderLevel = function () {
 socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
   window._myXp = xp; window._myLevel = level;
   window._renderLevel();
-  if (levelUp) { window._showLevelUp?.(levelUp, reward || 0); try { window._sound?.play('success'); } catch {} }
+  if (levelUp) { window._showLevelUp?.(levelUp, reward || 0); try { window._sound?.play('level-up'); } catch {} }
 });
 
 // ── Animation de passage de niveau, une par palier (comme a l'ecole) ─────────
@@ -13405,6 +13420,7 @@ window._showLevelUp = function (lv, reward) {
     if (spinning) return;
     spinning = true; spinBtn.disabled = true; statusEl.textContent = '';
     socket.emit('spin-wheel', { playerId: getPlayerId() });
+    window._sound?.play('wheel-spin');
   });
   socket.on('wheel-result', ({ error, index, prize, balance } = {}) => {
     if (error) {
@@ -13421,6 +13437,7 @@ window._showLevelUp = function (lv, reward) {
     setTimeout(() => {
       spinning = false;
       statusEl.textContent = t().wheelWin(prize);
+      window._sound?.play('wheel-win');
       statusEl.classList.remove('wheel-won'); void statusEl.offsetWidth; statusEl.classList.add('wheel-won');
       if (balance !== undefined) { const prev = libsBalance; libsBalance = balance; _refreshLibsUI(prev, balance, prize); }
     }, 4300);
@@ -13660,7 +13677,7 @@ window._notify = NotificationCenter;
     overlay.classList.remove('hidden');
   }
   document.getElementById('btn-giftrecv-ok')?.addEventListener('click', () => {
-    window._sound?.play('success'); // ouverture du cadeau
+    window._sound?.play('gift'); // ouverture du cadeau
     if (showing) socket.emit('gift-ack', { playerId: getPlayerId(), giftId: showing.id });
     showing = null;
     overlay.classList.add('hidden');
@@ -13740,6 +13757,7 @@ function _giftItemName(g) {
     if (ui && ui.isOpenWith(p.ref)) return; // deja lu dans la conversation ouverte
     if (btn.classList.contains('hidden')) { held++; document.body.classList.add('dm-pending'); return; }
     if (ui && ui.isOpen()) return;
+    window._sound?.play('dm-receive');
     arrive();
   });
   ['dm-list', 'dm-history', 'dm-sent', 'dm-read', 'dm-typing', 'dm-error', 'dm-reported', 'dm-blocked'].forEach(ev =>
