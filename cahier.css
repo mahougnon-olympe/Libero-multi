@@ -3091,3 +3091,18 @@ body.pd-open { overflow: hidden; }
 @keyframes paDown { to { transform: translateY(100%); } }
 @keyframes paFade { from { opacity: 0; } } @keyframes paFadeOut { to { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .pa-sheet, .pa-dim { animation: none !important; } }
+
+/* Quiz a plusieurs : changer de reponse jusqu'a la fin du decompte, et pourcentage de chaque reponse a la correction. */
+.tg-choice { position: relative; overflow: hidden; }
+.tg-choice > * { position: relative; z-index: 1; }
+.tg-choice > .tg-pct { position: absolute; z-index: 0; left: 0; top: 0; bottom: 0; width: 0; background: color-mix(in srgb, var(--accent) 22%, transparent); transition: width .9s cubic-bezier(.22, 1, .36, 1); pointer-events: none; }
+.tg-choice.pct-in > .tg-pct { width: var(--w); }
+.tg-choice.correct > .tg-pct { background: color-mix(in srgb, #2f8a55 30%, transparent); }
+.tg-choice.wrong > .tg-pct { background: color-mix(in srgb, #e2485d 26%, transparent); }
+.tg-pct-n { margin-left: auto; flex: none; white-space: nowrap; padding-left: 8px; font: 900 1rem var(--font-body); font-variant-numeric: tabular-nums; }
+:root:root .tg-choice.picked { border-color: var(--accent); box-shadow: inset 0 0 0 3px var(--accent); background: color-mix(in srgb, var(--mark) 55%, var(--card)); }
+:root:root .tg-choice.picked .tg-choice-letter { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.tg-choice.dimmed:has(.tg-pct) { opacity: .85; }
+.tg-change-hint { text-align: center; font: 700 1.1rem var(--font-hand); color: var(--accent); margin: 8px 0 0; }
+.tg-change-hint.hidden { display: none; }
+@media (prefers-reduced-motion: reduce) { .tg-choice > .tg-pct { transition: none; } }

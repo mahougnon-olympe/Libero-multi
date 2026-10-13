@@ -1212,7 +1212,7 @@ const DICT = {
     permTitle:'🏔️ Défis permanents',
     permSub:'Des exploits de longue haleine : la progression ne se remet jamais à zéro. Récompenses énormes, jusqu\'à 5000 ⚡ !',
     challengePerfectDay: bonus => `🎉 Journée parfaite ! Les 3 défis réclamés : +${bonus} ⚡ bonus`,
-    triviaSkip:'⏭ Passer',
+    triviaSkip:'⏭ Passer', triviaChangeHint:'Tu peux encore changer de réponse jusqu\'à la fin du décompte.',
     challengeClaim:'Réclamer', challengeClaimed:'✓ Réclamé', challengeLocked:'À finir',
     challengeReward:n => `+${n} ⚡`,
     challengeClaimToast:n => `Défi réussi ! +${n} ⚡`,
@@ -1999,7 +1999,7 @@ const DICT = {
     permTitle:'🏔️ Permanent challenges',
     permSub:'Long-haul feats: progress never resets. Huge rewards, up to 5000 ⚡!',
     challengePerfectDay: bonus => `🎉 Perfect day! All 3 challenges claimed: +${bonus} ⚡ bonus`,
-    triviaSkip:'⏭ Skip',
+    triviaSkip:'⏭ Skip', triviaChangeHint:'You can still change your answer until the countdown ends.',
     challengeClaim:'Claim', challengeClaimed:'✓ Claimed', challengeLocked:'In progress',
     challengeReward:n => `+${n} ⚡`,
     challengeClaimToast:n => `Challenge complete! +${n} ⚡`,
@@ -4954,7 +4954,7 @@ function startTriviaTimer(seconds, onExpire) {
     $('tg-timer').classList.toggle('warning', rem <= 5);
     // A 5 secondes : on coupe la boucle « reflexion » et le compte a rebours
     // sonore prend le relais (« top top top top top », puis « tip » a la fin).
-    if (!triviaAnsweredThis) {
+    if (!triviaAnsweredThis || !triviaIsSolo) {
       if (rem > 0 && rem <= 5) { try { window._sound?.play('tick'); } catch {} }
       else if (rem <= 0)      { try { window._sound?.play('tick-final'); } catch {} }
     }
@@ -4978,6 +4978,7 @@ function showTriviaQuestion({ questionNum, totalQuestions, question, choices, ti
   $('tg-question').textContent = question;
   $('tg-reveal').classList.add('hidden');
   $('tg-finished').classList.add('hidden');
+  $('tg-change-hint')?.classList.add('hidden');
   if (scores) renderTriviaScores(scores);
 
   $('tg-choices').innerHTML = choices.map((c, i) => `
@@ -5012,6 +5013,20 @@ function onTriviaSkip() {
 }
 
 function onTriviaChoice(choice, btn) {
+  // A plusieurs : on peut changer de reponse jusqu'a la fin du decompte.
+  if (!triviaIsSolo) {
+    if (document.getElementById('tg-reveal') && !$('tg-reveal').classList.contains('hidden')) return;
+    if (choice === triviaChoiceSelected) return;
+    triviaAnsweredThis = true; triviaChoiceSelected = choice;
+    _updateBoostHintBtn();
+    const sk = $('tg-skip'); if (sk) sk.disabled = true;
+    $('tg-choices').querySelectorAll('.tg-choice').forEach(b => { b.classList.toggle('picked', b === btn); b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+    let hint = $('tg-change-hint');
+    if (!hint) { hint = document.createElement('p'); hint.id = 'tg-change-hint'; hint.className = 'tg-change-hint'; hint.setAttribute('aria-live', 'polite'); $('tg-choices').after(hint); }
+    hint.textContent = t().triviaChangeHint; hint.classList.remove('hidden');
+    socket.emit('trivia-answer', { choice });
+    return;
+  }
   if (triviaAnsweredThis) return;
   triviaAnsweredThis = true; triviaChoiceSelected = choice;
   _updateBoostHintBtn();
@@ -5027,6 +5042,7 @@ function onTriviaChoice(choice, btn) {
 }
 
 function onTriviaTimeUp() {
+  if (!triviaIsSolo) { $('tg-choices').querySelectorAll('.tg-choice').forEach(b => b.disabled = true); $('tg-change-hint')?.classList.add('hidden'); triviaAnsweredThis = true; return; }
   if (triviaAnsweredThis) return;
   triviaAnsweredThis = true;
   _updateBoostHintBtn();
@@ -5035,12 +5051,19 @@ function onTriviaTimeUp() {
   if (triviaIsSolo) soloReveal(null);
 }
 
-function showTriviaReveal({ correct, correctSocketIds, gains, scores, myChoice, soloGain }) {
+function showTriviaReveal({ correct, correctSocketIds, gains, scores, myChoice, soloGain, percent }) {
   stopTriviaTimer();
+  $('tg-change-hint')?.classList.add('hidden');
   const _skip = $('tg-skip'); if (_skip) _skip.classList.add('hidden');
   $('tg-choices').querySelectorAll('.tg-choice').forEach(btn => {
     const c = btn.dataset.choice;
-    btn.classList.remove('wrong');
+    btn.classList.remove('wrong', 'picked'); btn.disabled = true;
+    if (percent && c in percent) {                 // part des joueurs ayant choisi cette reponse
+      const v = percent[c];
+      btn.insertAdjacentHTML('afterbegin', `<i class="tg-pct" style="--w:${v}%" aria-hidden="true"></i>`);
+      btn.insertAdjacentHTML('beforeend', `<b class="tg-pct-n">${v} %</b>`);
+      requestAnimationFrame(() => requestAnimationFrame(() => btn.classList.add('pct-in')));
+    }
     if (c === correct) btn.classList.add('correct');
     else if (c === myChoice) { btn.classList.add('wrong'); btn.classList.add('tg-shake'); }
     else btn.classList.add('dimmed');
@@ -5850,6 +5873,10 @@ socket.on('trivia-player-answered', ({ socketId }) => {
   });
 });
 
+socket.on('trivia-countdown', ({ ms } = {}) => {
+  if (!(ms > 0) || triviaIsSolo || !$('tg-reveal').classList.contains('hidden')) return;
+  startTriviaTimer(Math.ceil(ms / 1000), () => onTriviaTimeUp());
+});
 socket.on('trivia-reveal', (data) => {
   showTriviaReveal({ ...data, myChoice: triviaChoiceSelected });
 });

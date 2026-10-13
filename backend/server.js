@@ -2526,6 +2526,7 @@ function sendTriviaQuestion(code) {
   room.answersThisRound = new Map();
   room.status = 'question';
   room.questionStartAt = Date.now(); // pour le bonus de vitesse
+  room.questionEndAt = room.questionStartAt + (room.timeMs || TRIVIA_TIME_MS);
   io.to(code).emit('trivia-question', {
     questionNum:    room.currentQ + 1,
     totalQuestions: room.totalQ,
@@ -2535,6 +2536,17 @@ function sendTriviaQuestion(code) {
     scores:         publicScores(room),
   });
   room.timer = setTimeout(() => revealTriviaAnswer(code), room.timeMs || TRIVIA_TIME_MS);
+}
+
+// Tout le monde a repondu : le decompte se raccourcit a 5 s au lieu de couper net,
+// pour que chacun puisse encore se corriger (on ne rallonge jamais le temps restant).
+function triviaShortenCountdown(code, room) {
+  const GRACE = 5000, left = (room.questionEndAt || 0) - Date.now();
+  if (left <= GRACE || room.status !== 'question') return;
+  clearTimeout(room.timer);
+  room.questionEndAt = Date.now() + GRACE;
+  room.timer = setTimeout(() => revealTriviaAnswer(code), GRACE);
+  io.to(code).emit('trivia-countdown', { ms: GRACE });
 }
 
 function revealTriviaAnswer(code) {
@@ -2562,8 +2574,18 @@ function revealTriviaAnswer(code) {
       }
     }
   }
-  io.to(code).emit('trivia-reveal', { correct, correctSocketIds, gains, scores: publicScores(room) });
-  room.revealTimer = setTimeout(() => nextTriviaQuestion(code), 3500);
+  // Pourcentage de joueurs par reponse (jamais a la derniere question du quiz). Ceux qui ont passe ne comptent pas.
+  let percent = null;
+  if (room.currentQ + 1 < room.totalQ) {
+    const counts = {}; let n = 0;
+    for (const ans of room.answersThisRound.values()) {
+      if (!ans || ans.choice === '__skip__') continue;
+      counts[ans.choice] = (counts[ans.choice] || 0) + 1; n++;
+    }
+    if (n) { percent = {}; for (const c of room.questions[room.currentQ].choices) percent[c] = Math.round((counts[c] || 0) / n * 100); }
+  }
+  io.to(code).emit('trivia-reveal', { correct, correctSocketIds, gains, scores: publicScores(room), percent });
+  room.revealTimer = setTimeout(() => nextTriviaQuestion(code), percent ? 5500 : 3500);
 }
 
 function nextTriviaQuestion(code) {
@@ -3567,14 +3589,15 @@ io.on('connection', (socket) => {
   socket.on('trivia-answer', ({ choice } = {}) => {
     const room = triviaRooms.get(triviaRoomCode);
     if (!room || room.status !== 'question') return;
-    if (room.answersThisRound.has(socket.id)) return;
     if (!room.players.has(socket.id)) return;
-    room.answersThisRound.set(socket.id, { choice: String(choice), at: Date.now() });
-    io.to(triviaRoomCode).emit('trivia-player-answered', { socketId: socket.id });
+    // Un joueur peut changer de reponse tant que le decompte tourne (le bonus de vitesse suit sa derniere reponse).
+    const ch = String(choice).slice(0, 300), prev = room.answersThisRound.get(socket.id);
+    if (prev && prev.choice === ch) return;
+    room.answersThisRound.set(socket.id, { choice: ch, at: Date.now() });
+    if (!prev) io.to(triviaRoomCode).emit('trivia-player-answered', { socketId: socket.id });
     const connectedIds = [...room.players.keys()].filter(sid => io.sockets.sockets.get(sid)?.connected);
     if (connectedIds.every(sid => room.answersThisRound.has(sid))) {
-      clearTimeout(room.timer);
-      revealTriviaAnswer(triviaRoomCode);
+      triviaShortenCountdown(triviaRoomCode, room);
     }
   });
 
@@ -4796,10 +4819,7 @@ io.on('connection', (socket) => {
                   const p = troom.players.get(sid);
                   return !p.disconnected && io.sockets.sockets.get(sid)?.connected;
                 });
-                if (connectedIds.length > 0 && connectedIds.every(sid => troom.answersThisRound.has(sid))) {
-                  clearTimeout(troom.timer);
-                  revealTriviaAnswer(triviaRoomCode);
-                }
+                if (connectedIds.length > 0 && connectedIds.every(sid => troom.answersThisRound.has(sid))) triviaShortenCountdown(triviaRoomCode, troom);
               }
             }
           }, TRIVIA_RECONNECT_MS));
