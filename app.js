@@ -5218,41 +5218,17 @@ function showTriviaFinished(scores) {
   // Rangs ecrits a la main au lieu des medailles emoji.
   const medals = ['<span class="rank-hand r1">1<sup>er</sup></span>', '<span class="rank-hand r2">2<sup>e</sup></span>', '<span class="rank-hand r3">3<sup>e</sup></span>'];
   const myIdx = triviaIsSolo ? 0 : scores.findIndex(s => s.socketId === triviaMySocketId);
-  let html = '';
-  if (!triviaIsSolo && scores.length >= 2) {
-    // Podium anime pour le top 3 (2e a gauche, 1er au centre, 3e a droite).
-    const order = [1, 0, 2].filter(i => i < scores.length);
-    html += `<div class="tg-podium">${order.map(i => {
-      const s = scores[i];
-      const col = TRIVIA_COLORS[s.colorIndex] || '#64748b';
-      return `<div class="tg-podium-col tg-podium-p${i + 1}${i === myIdx ? ' me' : ''}">
-        ${i === 0 ? '<span class="tg-podium-crown"><span data-ic="crown"></span></span>' : ''}
-        <span class="tg-podium-medal">${medals[i]}</span>
-        <span class="tg-podium-name">${_escHtml(s.name)}</span>
-        <span class="tg-podium-pts">${s.score} pts</span>
-        <div class="tg-podium-block" style="background:${col}">${i + 1}</div>
-      </div>`;
-    }).join('')}</div>`;
-    if (scores.length > 3) {
-      html += scores.slice(3).map((s, j) => `
-        <div class="tg-final-row" style="background:${TRIVIA_COLORS[s.colorIndex] || '#64748b'}">
-          <span class="tg-final-rank">${j + 4}.</span>
-          <span class="tg-final-name">${_escHtml(s.name)}</span>
-          <span class="tg-final-score">${s.score} pts</span>
-        </div>`).join('');
-    }
-    if (myIdx >= 0) {
-      const msg = myIdx === 0 ? t().triviaPodiumWin : myIdx <= 2 ? t().triviaPodiumTop3 : t().triviaPodiumOut(myIdx + 1);
-      html += `<p class="tg-podium-msg${myIdx <= 2 ? ' win' : ''}">${msg}</p>`;
-    }
-  } else {
-    html = scores.map((s, i) => `
+  // Liste des resultats (le podium anime, lui, est la scene de podium.js jouee avant).
+  let html = scores.map((s, i) => `
       <div class="tg-final-row" style="background:${TRIVIA_COLORS[s.colorIndex] || '#64748b'}">
         <span class="tg-final-rank">${medals[i] || (i+1)+'.'}</span>
         <span class="tg-final-name">${_escHtml(s.name)}</span>
         <span class="tg-final-score">${s.score} pts</span>
       </div>
     `).join('');
+  if (!triviaIsSolo && scores.length >= 2 && myIdx >= 0) {
+    const msg = myIdx === 0 ? t().triviaPodiumWin : myIdx <= 2 ? t().triviaPodiumTop3 : t().triviaPodiumOut(myIdx + 1);
+    html = `<p class="tg-podium-msg${myIdx <= 2 ? ' win' : ''}">${msg}</p>` + html;
   }
   if (myIdx >= 0) {
     html += `<button id="tg-share-rank" class="btn btn-primary tg-share-btn">${t().triviaShareBtn}</button>`;
@@ -5272,16 +5248,23 @@ function showTriviaFinished(scores) {
     if (navigator.share) { try { await navigator.share({ text }); return; } catch {} }
     try { await navigator.clipboard.writeText(text); showCursorSnakeToast(t().triviaShareCopied); } catch {}
   });
-  $('tg-finished').classList.remove('hidden');
-  // Quiz a plusieurs : la grande scene du podium (podium.js, chargee a la demande), puis les resultats.
-  if (!triviaIsSolo && scores.length >= 2) _playPodium(scores, myIdx);
+  // Quiz a plusieurs : la grande scene du podium des la fin du quiz, puis les resultats (rien d'autre avant).
+  if (!triviaIsSolo && scores.length >= 2) {
+    $('tg-finished').classList.add('hidden');
+    _playPodium(scores, myIdx).then(() => { if (document.getElementById('screen-trivia-game')?.classList.contains('active')) $('tg-finished').classList.remove('hidden'); });
+  } else $('tg-finished').classList.remove('hidden');
+}
+// podium.js est charge des le debut d'un quiz a plusieurs, pour que la scene demarre sans attente.
+function _loadPodiumJs() {
+  return new Promise(res => {
+    if (window.LiberoPodium) return res(true);
+    if (document.getElementById('podium-js')) { document.getElementById('podium-js').addEventListener('load', () => res(true)); return; }
+    const sc = document.createElement('script'); sc.id = 'podium-js'; sc.src = 'podium.js?v=1'; sc.onload = () => res(true); sc.onerror = () => res(false);
+    document.head.appendChild(sc);
+  });
 }
 function _playPodium(scores, myIdx) {
-  const go = () => window.LiberoPodium?.play(scores, myIdx, t().podium);
-  if (window.LiberoPodium) { go(); return; }
-  const sc = document.createElement('script'); sc.src = 'podium.js?v=1'; sc.onload = go;
-  sc.onerror = () => { if (myIdx === 0) celebrate(); }; // repli : l'ancienne fete
-  document.head.appendChild(sc);
+  return _loadPodiumJs().then(ok => ok && window.LiberoPodium ? window.LiberoPodium.play(scores, myIdx, t().podium) : (myIdx === 0 && celebrate(), undefined));
 }
 
 $('btn-leave-trivia-game').addEventListener('click', goToTriviaHome);
@@ -5842,6 +5825,7 @@ socket.on('trivia-room-updated', (roomState) => {
 
 socket.on('trivia-start', ({ totalQuestions, categoryName }) => {
   window._sound?.play('quiz-start');
+  _loadPodiumJs();
   triviaIsSolo = false;
   triviaQuestions = { length: totalQuestions };
   $('tg-theme-label').textContent = categoryName;
