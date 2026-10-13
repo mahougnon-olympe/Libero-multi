@@ -342,6 +342,10 @@ try {
       coin: 'sounds/coin.ogg', notify: 'sounds/notify.mp3',
       tick: 'sounds/tick.mp3', 'tick-final': 'sounds/tick-final.mp3',
       'open-panel': 'sounds/open-panel.mp3', 'type-letter': 'sounds/type-letter.mp3',
+      'piece-drop': 'sounds/piece-drop.mp3', 'piece-place': 'sounds/piece-place.mp3', 'pencil-mark': 'sounds/pencil-mark.mp3',
+      capture: 'sounds/capture.mp3', check: 'sounds/check.mp3', promote: 'sounds/promote.mp3',
+      'dice-roll': 'sounds/dice-roll.mp3', 'ludo-home': 'sounds/ludo-home.mp3',
+      win: 'sounds/win.mp3', lose: 'sounds/lose.mp3', draw: 'sounds/draw.mp3', 'opponent-joined': 'sounds/opponent-joined.mp3',
     };
     // Une musique par ambiance (ElevenLabs) : l'ecran courant choisit la piste.
     const TRACKS = { main: 'sounds/bg-music.mp3', arcade: 'sounds/arcade-music.mp3', run: 'sounds/run-music.mp3', game: 'sounds/game-music.mp3' };
@@ -3455,7 +3459,7 @@ const VICTORY_BANNER_CLASSES = ['victoryban-neon','victoryban-confetti','victory
 // Burst de confettis reutilisable : DOM leger, auto-nettoye, plafonne, et
 // desactive si le joueur a demande « reduire les animations ».
 function celebrate(opts = {}) {
-  try { window._sound?.play('success'); } catch {} // son de reussite (victoire, champion, level up)
+  try { window._sound?.play(opts.sound || 'success'); } catch {} // son de reussite (victoire, champion, level up)
   try { if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch {}
   const count = Math.min(opts.count || 90, 120);
   const layer = document.createElement('div');
@@ -3551,16 +3555,16 @@ function showGameOver(status, winner) {
     // Ludo a plusieurs : on nomme le vainqueur, « perdu » ne dit pas qui a gagne.
     if (currentGame === 'ludo' && !isBotGame && ludoSeatCount() > 2 && winner) $('status-text').textContent = t().ludoWinnerIs(ludoNameOf(winner));
     if (isWinner) {
-      celebrate(); // joue le son 'success' (fichier)
+      celebrate({ sound: 'win' }); // fanfare de victoire (fichier)
       if (equippedVictoryBan) {
         gs.classList.add(equippedVictoryBan);
         const me = (localStorage.getItem('playerName') || '').trim() || t().profilePseudoFallback;
         gs.insertAdjacentHTML('afterbegin', _victoryBannerHtml(equippedVictoryBan, t().vbSub(me)));
       }
-    } else SFX.lose();
+    } else window._sound?.play('lose');
   } else {
     $('status-text').textContent = t().gameDraw;
-    SFX.draw();
+    window._sound?.play('draw');
   }
   gs.classList.remove('hidden');
   $('btn-restart').classList.remove('hidden');
@@ -3636,7 +3640,7 @@ function buildConnect4(container, board) {
     btn.textContent = '▼';
     btn.dataset.col = col;
     btn.setAttribute('aria-label', t().colLabel(col + 1));
-    btn.addEventListener('click', () => { if (gameActive) { SFX.placePiece(); socket.emit('make-move', { col }); } });
+    btn.addEventListener('click', () => { if (gameActive) { socket.emit('make-move', { col }); } });
     arrows.appendChild(btn);
   }
 
@@ -3720,7 +3724,6 @@ function buildTTT(container, board) {
     cell.dataset.idx = i;
     cell.addEventListener('click', () => {
       if (!gameActive || cell.classList.contains('played')) return;
-      SFX.placePiece();
       socket.emit('make-move', { cell: i });
     });
     boardEl.appendChild(cell);
@@ -3963,7 +3966,6 @@ function onChessClick(square) {
       showPromoModal(myPlayer);
     } else {
       lastMove = { from, to };
-      SFX.placePiece();
       socket.emit('make-move', { from, to });
     }
     return;
@@ -4060,7 +4062,6 @@ function onCheckersClick(i) {
   if (selectedSquare !== null && availableMoves.includes(i)) {
     const from = selectedSquare;
     clearCheckersSelection();
-    SFX.placePiece();
     socket.emit('make-move', { from, to: i });
     return;
   }
@@ -4165,7 +4166,6 @@ function ludoDieFace(n) {
 }
 function ludoRollNow() {
   if (!gameActive || !ludoState || ludoState.currentPlayer !== myPlayer || ludoState.dice) return;
-  SFX.placePiece();
   socket.emit('make-move', { roll: true });
 }
 
@@ -4320,7 +4320,6 @@ function updateLudo(state) {
 function onLudoPawnClick(i) {
   if (!gameActive || !ludoState || ludoState.currentPlayer !== myPlayer || !ludoState.dice) return;
   if (!ludoPlayable(ludoState, myPlayer).includes(i)) return;
-  SFX.placePiece();
   socket.emit('make-move', { pawn: i });
 }
 
@@ -6070,6 +6069,9 @@ socket.on('stake-result', ({ outcome, winnerRole, pot } = {}) => {
 });
 
 socket.on('game-start', ({ gameType, state, yourPlayer, vsBot, botDifficulty, code, stake, pot, seats }) => {
+  // L'adversaire vient d'arriver dans ma salle d'attente.
+  _sfxPrev = { type: gameType, state };
+  if (!vsBot && document.getElementById('screen-waiting')?.classList.contains('active')) window._sound?.play('opponent-joined');
   isBotGame = !!vsBot;
   if (code) currentRoomCode = code; // couvre la jointure inter-sections / par lien
   if (gameType === 'ludo') { ludoSeatInfo = seats || null; ludoSeatAway = {}; }
@@ -6085,6 +6087,7 @@ socket.on('game-start', ({ gameType, state, yourPlayer, vsBot, botDifficulty, co
 });
 
 socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, roomCode, vsBot, botDifficulty, stake, seats, host }) => {
+  _sfxPrev = { type: gameType, state };
   currentRoomCode = roomCode;
   isBotGame = !!vsBot;
   saveSession(roomCode, yourPlayer);
@@ -6110,11 +6113,55 @@ socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, r
 
 socket.on('reconnect-failed', () => { clearSession(); showScreen('landing'); if (window.__relacherBoot) window.__relacherBoot(); showCursorSnakeToast(t().gameGone); });
 
+// Sons des parties (ElevenLabs) : deduits de la difference entre deux etats recus,
+// donc on entend aussi les coups de l'adversaire et du robot.
+let _sfxPrev = null;
+function _gameSfx(type, prevBox, st) {
+  try {
+    const prev = prevBox && prevBox.type === type ? prevBox.state : null;
+    if (!prev || !st) return;
+    const S = n => window._sound?.play(n);
+    const cnt = (arr, re) => (arr || []).flat().filter(x => x && re.test(x)).length;
+    if (type === 'connect4') { if (cnt(st.board, /./) > cnt(prev.board, /./)) S('piece-drop'); return; }
+    if (type === 'tictactoe') { if (cnt(st.board, /./) > cnt(prev.board, /./)) S('pencil-mark'); return; }
+    if (type === 'chess') {
+      if (st.fen === prev.fen) return;
+      const b = f => (f || '').split(' ')[0];
+      const pieces = f => b(f).replace(/[^a-zA-Z]/g, '').length;
+      const queens = f => (b(f).match(/[qQ]/g) || []).length;
+      if (queens(st.fen) > queens(prev.fen) && pieces(st.fen) <= pieces(prev.fen)) S('promote');
+      else if (st.isCheck) S('check');
+      else if (pieces(st.fen) < pieces(prev.fen)) S('capture');
+      else S('piece-place');
+      return;
+    }
+    if (type === 'checkers') {
+      const n = bd => (bd || []).filter(Boolean).length, k = bd => (bd || []).filter(x => x === 'R' || x === 'Y').length;
+      const caught = (st.pendingOver || []).length > (prev.pendingOver || []).length || n(st.board) < n(prev.board);
+      if (k(st.board) > k(prev.board)) S('promote');
+      else if (caught) S('capture');
+      else if (JSON.stringify(st.board) !== JSON.stringify(prev.board)) S('piece-place');
+      return;
+    }
+    if (type === 'ludo') {
+      if (st.dice && st.dice !== prev.dice) { S('dice-roll'); return; }
+      const all = o => Object.values(o || {}).flat();
+      const P = all(prev.pawns), N = all(st.pawns);
+      if (JSON.stringify(P) === JSON.stringify(N)) return;
+      const home = a => a.filter(x => x === 57).length, base = a => a.filter(x => x === -1).length;
+      if (home(N) > home(P)) S('ludo-home');
+      else if (base(N) > base(P)) S('capture');
+      else S('piece-place');
+    }
+  } catch {}
+}
 socket.on('game-update', ({ gameType, state, status, winner, resync }) => {
   if (gameType === 'chess') lastMove = null; // sera mis à jour via onChessClick
   // Un etat recu prouve que la partie est vivante : si on avait coupe le jeu
   // (« adversaire se reconnecte ») sans recevoir le « il est revenu », on le reprend.
   if (status === 'playing' && currentGame === gameType && !gameActive) { gameActive = true; hideOverlay(); }
+  if (!resync) _gameSfx(gameType, _sfxPrev, state);
+  _sfxPrev = { type: gameType, state };
   updateGameBoard(gameType, state);
 
   if (status === 'playing') {
