@@ -431,7 +431,7 @@ async function loadData() {
   });
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   llbDocs.forEach(d => luffyLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, portrait: d.portrait || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, xp: d.xp || 0, iq: d.iq ?? null, iqAt: d.iqAt || 0, wheelDay: d.wheelDay || null, friends: Array.isArray(d.friends) ? d.friends : [], friendRequests: Array.isArray(d.friendRequests) ? d.friendRequests : [], pendingGifts: Array.isArray(d.pendingGifts) ? d.pendingGifts : [], giftSentDay: d.giftSentDay || null, vipUntil: d.vipUntil || 0, dailyGiftDay: d.dailyGiftDay || null, badges: Array.isArray(d.badges) ? d.badges : [], onboardRewards: Array.isArray(d.onboardRewards) ? d.onboardRewards : [], history: Array.isArray(d.history) ? d.history : [], dmBlocked: Array.isArray(d.dmBlocked) ? d.dmBlocked : [], dmPush: d.dmPush !== false, lang: d.lang || null, tttModel: d.tttModel || null, chessModel: d.chessModel || null }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, portrait: d.portrait || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, xp: d.xp || 0, iq: d.iq ?? null, iqAt: d.iqAt || 0, wheelDay: d.wheelDay || null, friends: Array.isArray(d.friends) ? d.friends : [], friendRequests: Array.isArray(d.friendRequests) ? d.friendRequests : [], pendingGifts: Array.isArray(d.pendingGifts) ? d.pendingGifts : [], giftSentDay: d.giftSentDay || null, vipUntil: d.vipUntil || 0, dailyGiftDay: d.dailyGiftDay || null, badges: Array.isArray(d.badges) ? d.badges : [], onboardRewards: Array.isArray(d.onboardRewards) ? d.onboardRewards : [], history: Array.isArray(d.history) ? d.history : [], dmBlocked: Array.isArray(d.dmBlocked) ? d.dmBlocked : [], dmPush: d.dmPush !== false, lang: d.lang || null, tttModel: d.tttModel || null, chessModel: d.chessModel || null, pushUnopened: d.pushUnopened || 0, pushDay: d.pushDay || null, pushCount: d.pushCount || 0, pushSent: d.pushSent || {}, pushLastAt: d.pushLastAt || 0 }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   feedDocs.forEach(d => feedVideos.push({
@@ -682,7 +682,7 @@ function dbUpsertLibsPurchase(cartId, purchase) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, portrait: entry.portrait || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], referredBy: entry.referredBy || null, referralRewarded: !!entry.referralRewarded, referrals: entry.referrals || 0, xp: entry.xp || 0, iq: entry.iq ?? null, iqAt: entry.iqAt || 0, wheelDay: entry.wheelDay || null, friends: entry.friends || [], friendRequests: entry.friendRequests || [], pendingGifts: entry.pendingGifts || [], giftSentDay: entry.giftSentDay || null, vipUntil: entry.vipUntil || 0, dailyGiftDay: entry.dailyGiftDay || null, badges: entry.badges || [], onboardRewards: entry.onboardRewards || [], history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [], dmBlocked: entry.dmBlocked || [], dmPush: entry.dmPush !== false, lang: entry.lang || null, tttModel: entry.tttModel || null, chessModel: entry.chessModel || null } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, portrait: entry.portrait || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], referredBy: entry.referredBy || null, referralRewarded: !!entry.referralRewarded, referrals: entry.referrals || 0, xp: entry.xp || 0, iq: entry.iq ?? null, iqAt: entry.iqAt || 0, wheelDay: entry.wheelDay || null, friends: entry.friends || [], friendRequests: entry.friendRequests || [], pendingGifts: entry.pendingGifts || [], giftSentDay: entry.giftSentDay || null, vipUntil: entry.vipUntil || 0, dailyGiftDay: entry.dailyGiftDay || null, badges: entry.badges || [], onboardRewards: entry.onboardRewards || [], history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [], dmBlocked: entry.dmBlocked || [], dmPush: entry.dmPush !== false, lang: entry.lang || null, tttModel: entry.tttModel || null, chessModel: entry.chessModel || null, pushUnopened: entry.pushUnopened || 0, pushDay: entry.pushDay || null, pushCount: entry.pushCount || 0, pushSent: entry.pushSent || {}, pushLastAt: entry.pushLastAt || 0 } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -1458,6 +1458,76 @@ function sendPush(target, payload) {
   }
   return count;
 }
+
+// ── Rappels automatiques, sans spam ──────────────────────────────────────────
+// Regles : 5 par jour au plus (hors messages d'amis), aucune entre 22 h et 8 h (heure du Benin),
+// jamais a un joueur qui est sur le site, et on s'arrete apres 10 rappels d'affilee sans reaction
+// (une reaction = revenir sur le site dans les 3 h qui suivent un rappel).
+const AUTO_PUSH_MAX_DAY = 5, AUTO_PUSH_PAUSE_AFTER = 10, AUTO_PUSH_REACT_MS = 3 * 3_600_000;
+// Evenements annonces par rappel : [samedi de debut, titre FR, titre EN].
+// N'AJOUTER UN EVENT ICI QUE QUAND IL EST CODE : on ne notifie jamais quelque chose qui n'existe pas.
+const EV_PUSH = [['2026-10-17', 'Week-end Double XP', 'Double XP weekend']];
+const _beninDate = () => new Date(Date.now() + 3_600_000);
+function autoPushTry(pid, entry, kind, fr, en, opts = {}) {
+  if (!webpush || !pushSubs.has(pid) || !entry || !entry.name || entry.name === 'Anonyme') return false;
+  const h = _beninDate().getUTCHours();
+  if (h < 8 || h >= 22) return false;                                  // heures calmes : on n'envoie pas, la condition reste vraie le matin
+  if ((entry.pushUnopened || 0) >= AUTO_PUSH_PAUSE_AFTER) return false; // en pause
+  for (const v of socketPlayerIds.values()) if (v === pid) return false; // il est sur le site : rien a rappeler
+  const today = _dayKey();
+  if (entry.pushDay !== today) { entry.pushDay = today; entry.pushCount = 0; }
+  if ((entry.pushCount || 0) >= AUTO_PUSH_MAX_DAY) return false;
+  const txt = entry.lang === 'en' ? en : fr;
+  sendPush(pid, { title: txt[0], body: txt[1], url: 'https://libero-multi.vercel.app', tag: 'libero-' + kind });
+  entry.pushCount = (entry.pushCount || 0) + 1;
+  entry.pushUnopened = (entry.pushUnopened || 0) + 1;
+  entry.pushLastAt = Date.now();
+  if (!entry.pushSent || typeof entry.pushSent !== 'object') entry.pushSent = {};
+  entry.pushSent[kind] = opts.mark != null ? opts.mark : today;
+  libs.set(pid, entry);
+  dbUpsertLibs(pid, entry);
+  return true;
+}
+// Le joueur est revenu peu apres un rappel : c'est une reaction, on remet le compteur a zero.
+function pushReact(entry) {
+  if (entry && entry.pushLastAt && Date.now() - entry.pushLastAt < AUTO_PUSH_REACT_MS) { entry.pushUnopened = 0; entry.pushLastAt = 0; }
+}
+function _autoPushTick() {
+  try {
+    if (!webpush) return;
+    const now = _beninDate(), h = now.getUTCHours(), dow = now.getUTCDay();
+    if (h < 8 || h >= 22) return;
+    const today = _dayKey(), tomorrow = _dayKey(-1);
+    const evTomorrow = dow === 5 ? EV_PUSH.find(e => e[0] === tomorrow) : null;      // vendredi soir : le week-end arrive
+    const evToday = dow === 6 && h < 12 ? EV_PUSH.find(e => e[0] === today) : null;  // samedi matin : il commence
+    const wheelDay = _tournamentTodayKey();
+    for (const [pid, entry] of libs.entries()) {
+      if (!pushSubs.has(pid) || !entry.name) continue;
+      const sent = entry.pushSent || {};
+      const name = entry.name;
+      // 1. La serie est en danger (le soir, jusqu'a 21 h)
+      if (h >= 17 && entry.streak && (entry.streak.count || 0) >= 3 && entry.streak.lastDay !== today && sent.streak !== today) {
+        if (autoPushTry(pid, entry, 'streak', [`Ta série ne tient plus qu'à un fil, ${name}`, 'Une partie suffit pour la garder.'], [`Your streak is hanging by a thread, ${name}`, 'One game is enough to keep it.'])) continue;
+      }
+      // 2. La roue est prete (pour ceux qui la jouent regulierement)
+      if (h >= 11 && h < 20 && entry.wheelDay !== wheelDay && (entry.lifetime?.wheelSpins || 0) >= 3 && sent.wheel !== today) {
+        if (autoPushTry(pid, entry, 'wheel', ['La roue est prête', "Ton tour gratuit du jour t'attend."], ['The wheel is ready', 'Your free spin of the day is waiting.'])) continue;
+      }
+      // 3. Evenement du week-end : la veille au soir, puis au debut
+      if (evTomorrow && h >= 18 && sent.evFri !== evTomorrow[0]) {
+        if (autoPushTry(pid, entry, 'evFri', [`Ce week-end : ${evTomorrow[1]}`, "C'est dans l'onglet Évents."], [`This weekend: ${evTomorrow[2]}`, "It's in the Events tab."], { mark: evTomorrow[0] })) continue;
+      }
+      if (evToday && sent.evSat !== evToday[0]) {
+        if (autoPushTry(pid, entry, 'evSat', [`${evToday[1]} commence !`, "C'est maintenant, dans l'onglet Évents."], [`${evToday[2]} starts now!`, "It's on now, in the Events tab."], { mark: evToday[0] })) continue;
+      }
+      // 4. Retour : un seul mot apres 7 jours d'absence, puis rien avant 30 jours
+      if (h >= 10 && h < 20 && Date.now() - (entry.lastActive || 0) >= 7 * 86_400_000 && Date.now() - (typeof sent.back === 'number' ? sent.back : 0) > 30 * 86_400_000) {
+        autoPushTry(pid, entry, 'back', [`Tu nous manques, ${name}`, "Il y a du nouveau sur Libero's Multi. Viens voir !"], [`We miss you, ${name}`, "There's something new on Libero's Multi. Come and see!"], { mark: Date.now() });
+      }
+    }
+  } catch (e) { logServerError?.('auto-push', e); }
+}
+setInterval(_autoPushTick, 5 * 60_000);
 
 // Ensemble des playerId d'un segment (pour les push ciblees).
 const PUSH_BIG_LIBS = 1000; // seuil « gros joueur »
@@ -3686,6 +3756,7 @@ io.on('connection', (socket) => {
       recordNewAccount(ip);
     }
     const entry = getLibsEntry(id);
+    pushReact(entry);
 
     // Série de connexion : on garde le compteur (défis, tournoi), mais le bonus
     // de Libs est retiré au profit du Cadeau du jour (ci-dessous).
@@ -3701,7 +3772,7 @@ io.on('connection', (socket) => {
     if (entry.soundpackRefund) { socket.emit('soundpack-refund', { amount: entry.soundpackRefund }); delete entry.soundpackRefund; }
 
     const { available: refundCards, nextRefill: refundCardsNextRefill } = getRefundCardsInfo(entry);
-    socket.emit('libs-update', { name: entry.name || '', refCode: _playerRef(id).slice(0, 8), referrals: entry.referrals || 0, xp: entry.xp || 0, level: levelFromXp(entry.xp || 0), iq: entry.iq ?? null, iqUnlocked: (getLifetime(entry).triviaGames || 0) >= IQ_UNLOCK_QUIZZES, iqQuizDone: getLifetime(entry).triviaGames || 0, wheelDone: entry.wheelDay === _tournamentTodayKey(), vipUntil: entry.vipUntil || 0, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, badges: computeBadges(id, entry), onboard: entry.onboardRewards || [], hasAccount: [...accounts.values()].some(a => a.playerId === id), delta: (dailyGift && dailyGift.type === 'libs') ? dailyGift.amount : undefined });
+    socket.emit('libs-update', { name: entry.name || '', refCode: _playerRef(id).slice(0, 8), pushOn: pushSubs.has(id), pushPaused: (entry.pushUnopened || 0) >= AUTO_PUSH_PAUSE_AFTER, referrals: entry.referrals || 0, xp: entry.xp || 0, level: levelFromXp(entry.xp || 0), iq: entry.iq ?? null, iqUnlocked: (getLifetime(entry).triviaGames || 0) >= IQ_UNLOCK_QUIZZES, iqQuizDone: getLifetime(entry).triviaGames || 0, wheelDone: entry.wheelDay === _tournamentTodayKey(), vipUntil: entry.vipUntil || 0, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill, pendingHonorModal: entry.pendingHonorModal || null, badges: computeBadges(id, entry), onboard: entry.onboardRewards || [], hasAccount: [...accounts.values()].some(a => a.playerId === id), delta: (dailyGift && dailyGift.type === 'libs') ? dailyGift.amount : undefined });
     socket.emit('challenges-update', { challenges: challengesPayload(entry), permanent: permanentPayload(entry) });
     // Livraisons en attente : demandes d'amis et cadeaux recus hors ligne.
     const reqs = (entry.friendRequests || []).map(p => {
@@ -3818,6 +3889,7 @@ io.on('connection', (socket) => {
     }
     socket.emit('friend-request-sent', { name: target.name, accepted: false });
     _emitToPlayer(pid, 'friend-request', { ref: _playerRef(id).slice(0, 8), name: entry.name, level: levelFromXp(entry.xp || 0) });
+    autoPushTry(pid, getLibsEntry(pid), 'friendReq', [`${entry.name} veut devenir ton ami`, 'Réponds dans Mes amis.'], [`${entry.name} wants to be your friend`, 'Answer in My friends.']);
   });
   socket.on('respond-friend', ({ playerId, ref, accept } = {}) => {
     const id = safePlayerId(playerId);
@@ -4027,6 +4099,7 @@ io.on('connection', (socket) => {
     if (!entry.name || entry.name === 'Anonyme') return;
     const pid = entry.friends.find(p => _playerRef(p).slice(0, 8) === String(ref || ''));
     if (!pid) return;
+    autoPushTry(pid, getLibsEntry(pid), 'friendChal', [`${entry.name} te défie !`, 'Il t\'attend pour une partie.'], [`${entry.name} challenges you!`, 'They are waiting for a game.']);
     _emitToPlayer(pid, 'friend-challenge', {
       fromName: entry.name,
       code: String(code || '').toUpperCase().slice(0, 4),
@@ -4039,8 +4112,14 @@ io.on('connection', (socket) => {
     const id = safePlayerId(playerId);
     if (!id || !sub || typeof sub.endpoint !== 'string' || !sub.endpoint.startsWith('https://')) return;
     pushSubs.set(id, sub);
+    { const e = getLibsEntry(id); e.pushUnopened = 0; e.pushLastAt = 0; libs.set(id, e); dbUpsertLibs(id, e); }
     if (db) db.collection('push_subs').updateOne({ _id: id }, { $set: { sub, at: Date.now() } }, { upsert: true }).catch(() => {});
     socket.emit('push-subscribed', { ok: true });
+  });
+  // « En pause » : le joueur touche le bouton pour que les rappels reprennent.
+  socket.on('push-resume', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId); if (!id) return;
+    const e = getLibsEntry(id); e.pushUnopened = 0; e.pushLastAt = 0; libs.set(id, e); dbUpsertLibs(id, e);
   });
   socket.on('push-unsubscribe', ({ playerId } = {}) => {
     const id = safePlayerId(playerId);

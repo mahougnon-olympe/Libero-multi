@@ -1136,7 +1136,7 @@ const DICT = {
     settingsSfx:'Sons', settingsSfxOn:'Activé', settingsSfxOff:'Désactivé', settingsSfxVol:'Volume',
     settingsBgm:'Musique', settingsBgmOn:'Activée', settingsBgmOff:'Désactivée', settingsBgmVol:'Vol. musique',
     settingsRefundTitle:'Cartes de remboursement',
-    settingsPush:'Notifications', settingsPushOn:'🔔 Activées', settingsPushOff:'🔕 Désactivées',
+    spPushPause:'En pause', pushAsk:{ generic:'Un petit mot de Libé', win:'Bravo, victoire !', wheel:'Belle roue !', streak:n=>`Bravo, ${n} jours de suite !`, text:"Pour ne rien rater sur Libero's Multi et <mark>ne pas perdre ta chaîne de jours</mark>, active les notifications.", no:'Non merci', yes:'Activer' }, settingsPush:'Notifications', settingsPushOn:'🔔 Activées', settingsPushOff:'🔕 Désactivées',
     pushEnabledToast:'🔔 Notifications activées ! Tu seras prévenu des tournois, défis et annonces.',
     pushDeniedToast:'🔕 Notifications bloquées par le navigateur. Autorise-les dans les réglages du site.',
     pushUnsupported:'Ce navigateur ne gère pas les notifications.',
@@ -1923,7 +1923,7 @@ const DICT = {
     settingsSfx:'Sound', settingsSfxOn:'Enabled', settingsSfxOff:'Disabled', settingsSfxVol:'Volume',
     settingsBgm:'Music', settingsBgmOn:'Enabled', settingsBgmOff:'Disabled', settingsBgmVol:'Music vol.',
     settingsRefundTitle:'Refund cards',
-    settingsPush:'Notifications', settingsPushOn:'🔔 Enabled', settingsPushOff:'🔕 Disabled',
+    spPushPause:'Paused', pushAsk:{ generic:'A quick note from Libé', win:'Well played, a win!', wheel:'Nice spin!', streak:n=>`Well done, ${n} days in a row!`, text:"To miss nothing on Libero's Multi and <mark>keep your day streak alive</mark>, turn on notifications.", no:'No thanks', yes:'Turn on' }, settingsPush:'Notifications', settingsPushOn:'🔔 Enabled', settingsPushOff:'🔕 Disabled',
     pushEnabledToast:'🔔 Notifications enabled! You will be alerted about tournaments, challenges and news.',
     pushDeniedToast:'🔕 Notifications blocked by the browser. Allow them in the site settings.',
     pushUnsupported:'This browser does not support notifications.',
@@ -3615,6 +3615,7 @@ function showGameOver(status, winner) {
     if (currentGame === 'ludo' && !isBotGame && ludoSeatCount() > 2 && winner) $('status-text').textContent = t().ludoWinnerIs(ludoNameOf(winner));
     if (isWinner) {
       celebrate({ sound: 'win' }); // fanfare de victoire (fichier)
+      setTimeout(() => window._pushAsk?.('win', 0, true), 4500);
       if (equippedVictoryBan) {
         gs.classList.add(equippedVictoryBan);
         const me = (localStorage.getItem('playerName') || '').trim() || t().profilePseudoFallback;
@@ -6292,7 +6293,8 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, wheelDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount, portrait: newPortrait } = {}) => {
+socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, wheelDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount, portrait: newPortrait, pushOn, pushPaused } = {}) => {
+  if (pushOn !== undefined) { window._pushOn = !!pushOn; window._pushPaused = !!pushPaused; window._refreshPushBtn?.(); }
   if (newOwned !== undefined) setTimeout(() => window._pupitre?.paint(), 0);
   if (newPortrait !== undefined) { myPortrait = newPortrait; try { localStorage.setItem('libero_portrait', JSON.stringify(newPortrait)); } catch {} window._renderProfilePseudo?.(); }
   if (newBadges !== undefined) { if (Array.isArray(window._myBadges) && Array.isArray(newBadges) && newBadges.length > window._myBadges.length) setTimeout(() => window._sound?.play('stamp'), 300); window._myBadges = newBadges; window._renderBadges?.('profile-badges', newBadges, newHonorTitle); }
@@ -13452,6 +13454,7 @@ window._showLevelUp = function (lv, reward) {
         disc.parentElement.insertBefore(r, disc.parentElement.firstChild);
       }
       window._sound?.play('wheel-win');
+      setTimeout(() => window._pushAsk?.('wheel'), 3500);
       statusEl.classList.remove('wheel-won'); void statusEl.offsetWidth; statusEl.classList.add('wheel-won');
       if (balance !== undefined) { const prev = libsBalance; libsBalance = balance; _refreshLibsUI(prev, balance, prize); }
     }, 4300);
@@ -14947,6 +14950,7 @@ socket.on('challenges-update', ({ challenges, permanent } = {}) => ProfileHub.se
 socket.on('history-update',    ({ history } = {})    => ProfileHub.setHistory(history));
 socket.on('streak-update',     ({ count, longest, bonus } = {}) => {
   ProfileHub.setStreak({ count, longest, bonus });
+  if (count >= 2) setTimeout(() => window._pushAsk?.('streak', count), 4500);
   if (bonus > 0) showCursorSnakeToast(t().streakBonusToast(count, bonus));
 });
 socket.on('claim-challenge-result', ({ ok, reward, allDoneBonus } = {}) => {
@@ -14965,7 +14969,7 @@ socket.on('claim-challenge-result', ({ ok, reward, allDoneBonus } = {}) => {
   if (!btn) return;
   const supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
   function isOn() { return supported && Notification.permission === 'granted' && localStorage.getItem('libero_push') === '1'; }
-  function refresh() { _spCk(btn, isOn(), t().spCkPush); }
+  function refresh() { _spCk(btn, isOn(), t().spCkPush, isOn() && window._pushPaused ? t().spPushPause : undefined); }
   window._refreshPushBtn = refresh;
   refresh();
   function b64ToU8(b64) {
@@ -14973,10 +14977,34 @@ socket.on('claim-challenge-result', ({ ok, reward, allDoneBonus } = {}) => {
     const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
     return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
   }
+  // Activation : la fenetre du navigateur s'affiche ici (apres un « Activer » du joueur, jamais avant).
+  async function enable() {
+    if (!supported) { showCursorSnakeToast(t().pushUnsupported); return false; }
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') { showCursorSnakeToast(t().pushDeniedToast); return false; }
+      const r = await fetch(`${window.BACKEND_URL}/api/push-key`);
+      const { key } = await r.json();
+      if (!key) { showCursorSnakeToast(t().pushUnsupported); return false; }
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(key) });
+      socket.emit('push-subscribe', { playerId: getPlayerId(), sub: sub.toJSON() });
+      localStorage.setItem('libero_push', '1');
+      window._pushOn = true; window._pushPaused = false;
+      refresh();
+      showCursorSnakeToast(t().pushEnabledToast);
+      return true;
+    } catch (e) { showCursorSnakeToast(t().pushDeniedToast); return false; }
+  }
+  window._pushEnable = enable;
   btn.addEventListener('click', async () => {
     if (!supported) { showCursorSnakeToast(t().pushUnsupported); return; }
+    if (isOn() && window._pushPaused) {            // « En pause » : on touche pour reprendre
+      window._pushPaused = false; socket.emit('push-resume', { playerId: getPlayerId() }); refresh(); return;
+    }
     if (isOn()) {
       localStorage.setItem('libero_push', '0');
+      window._pushOn = false;
       socket.emit('push-unsubscribe', { playerId: getPlayerId() });
       try {
         const reg = await navigator.serviceWorker.ready;
@@ -14986,22 +15014,41 @@ socket.on('claim-challenge-result', ({ ok, reward, allDoneBonus } = {}) => {
       refresh();
       return;
     }
-    try {
-      const perm = await Notification.requestPermission();
-      if (perm !== 'granted') { showCursorSnakeToast(t().pushDeniedToast); return; }
-      const r = await fetch(`${window.BACKEND_URL}/api/push-key`);
-      const { key } = await r.json();
-      if (!key) { showCursorSnakeToast(t().pushUnsupported); return; }
-      const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(key) });
-      socket.emit('push-subscribe', { playerId: getPlayerId(), sub: sub.toJSON() });
-      localStorage.setItem('libero_push', '1');
-      refresh();
-      showCursorSnakeToast(t().pushEnabledToast);
-    } catch (e) {
-      showCursorSnakeToast(t().pushDeniedToast);
-    }
+    await enable();
   });
+
+  // ── La demande, au bon moment (victoire, roue, 2e jour de serie) ──────────
+  // Seulement si les notifications ne sont pas encore activees sur le profil du joueur,
+  // jamais pendant une partie, 3 fois au maximum, a 7 jours d'ecart.
+  const BUSY = ['screen-game', 'screen-trivia-game', 'screen-luffy', 'screen-snake', 'screen-waiting', 'screen-trivia-waiting'];
+  window._pushAsk = function (why, n, afterGame) {
+    try {
+      if (window._pushAskedNow || document.getElementById('pa-wrap')) return;
+      if (!supported || Notification.permission !== 'default') return;
+      if (window._pushOn !== false) return;                     // deja actives sur le profil (ou etat pas encore connu)
+      const name = (localStorage.getItem('playerName') || '').trim();
+      if (!name || name === 'Anonyme') return;
+      const scr = document.querySelector('.screen.active')?.id;
+      if (!afterGame && BUSY.includes(scr)) return;
+      const ios = /iPad|iPhone|iPod/.test(navigator.userAgent), standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+      if (ios && !standalone) return;                           // Apple : seulement pour le site installe
+      let st = { n: 0, at: 0 }; try { st = JSON.parse(localStorage.getItem('libero_pushask')) || st; } catch {}
+      if (st.n >= 3 || Date.now() - st.at < 7 * 86400000) return;
+      window._pushAskedNow = true;
+      st.n++; st.at = Date.now(); try { localStorage.setItem('libero_pushask', JSON.stringify(st)); } catch {}
+      const d = t().pushAsk, title = why === 'streak' ? d.streak(n) : (d[why] || d.generic);
+      const wrap = document.createElement('div'); wrap.id = 'pa-wrap'; wrap.className = 'pa-wrap';
+      wrap.innerHTML = `<div class="pa-dim"></div><div class="pa-sheet" role="dialog" aria-modal="true" aria-labelledby="pa-t"><div class="pa-grip"></div><h3 id="pa-t">${title}</h3><p>${d.text}</p><div class="pa-btns"><button type="button" class="btn btn-secondary" data-a="no">${d.no}</button><button type="button" class="btn btn-primary" data-a="yes">${d.yes}</button></div></div>`;
+      document.body.appendChild(wrap);
+      const close = () => { wrap.classList.add('pa-out'); setTimeout(() => wrap.remove(), 300); document.removeEventListener('keydown', onKey); };
+      const onKey = e => { if (e.key === 'Escape') close(); };
+      document.addEventListener('keydown', onKey);
+      wrap.querySelector('.pa-dim').addEventListener('click', close);
+      wrap.querySelector('[data-a="no"]').addEventListener('click', close);
+      wrap.querySelector('[data-a="yes"]').addEventListener('click', () => { close(); enable(); });
+      wrap.querySelector('[data-a="yes"]').focus();
+    } catch {}
+  };
 })();
 
 // ── Boutique : offre flash ────────────────────────────────────────────────────

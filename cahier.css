@@ -3071,3 +3071,23 @@ body.pd-open { overflow: hidden; }
 :root:root .tg-scores { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
 :root:root .tg-scores::-webkit-scrollbar { display: none; }
 :root:root .tg-scores > * { flex: none; }
+
+/* ══ Demande des notifications (feuille « au bon moment ») ══ */
+.pa-wrap { position: fixed; inset: 0; z-index: 10050; display: flex; align-items: flex-end; justify-content: center; }
+.pa-dim { position: absolute; inset: 0; background: rgba(20, 26, 36, .5); animation: paFade .3s ease both; }
+.pa-sheet { position: relative; width: min(100%, 460px); background: var(--bg); color: var(--text); border: 2px solid var(--text); border-bottom: none; border-radius: 20px 20px 0 0;
+  padding: 14px 18px calc(18px + env(safe-area-inset-bottom)) 36px; animation: paUp .45s cubic-bezier(.22, 1, .36, 1) both;
+  background-image: repeating-linear-gradient(transparent 0 23px, color-mix(in srgb, var(--accent) 16%, transparent) 23px 24px); }
+.pa-sheet::before { content: ""; position: absolute; left: 22px; top: 0; bottom: 0; width: 1.5px; background: var(--margin); opacity: .5; }
+.pa-grip { width: 44px; height: 5px; border-radius: 3px; background: var(--muted); opacity: .5; margin: 0 auto 10px; }
+.pa-sheet h3 { margin: 0 0 6px; font: 700 1.9rem/1 var(--font-hand); color: var(--accent); }
+.pa-sheet p { margin: 0 0 14px; font-size: .95rem; line-height: 1.5; }
+.pa-sheet mark { background: linear-gradient(transparent 58%, var(--mark) 58%); color: inherit; padding: 0 2px; }
+.pa-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pa-btns .btn { min-height: 46px; }
+.pa-wrap.pa-out .pa-sheet { animation: paDown .3s ease both; }
+.pa-wrap.pa-out .pa-dim { animation: paFadeOut .3s ease both; }
+@keyframes paUp { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes paDown { to { transform: translateY(100%); } }
+@keyframes paFade { from { opacity: 0; } } @keyframes paFadeOut { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pa-sheet, .pa-dim { animation: none !important; } }
