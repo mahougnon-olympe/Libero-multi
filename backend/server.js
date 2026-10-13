@@ -2519,7 +2519,8 @@ function finishTriviaGame(code) {
   io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
   io.emit('global-leaderboard-update', getGlobalLeaderboardData());
 
-  io.to(code).emit('trivia-finished', { scores: scores.map(({ playerId, ...rest }) => rest) });
+  // Portrait dessine de chacun : affiche sur le podium de fin de partie.
+  io.to(code).emit('trivia-finished', { scores: scores.map(({ playerId, ...rest }) => ({ ...rest, portrait: (playerId && libs.get(playerId)?.portrait) || getPortraitByName(rest.name) || null })) });
   setTimeout(() => triviaRooms.delete(code), 60_000);
 }
 

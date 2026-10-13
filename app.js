@@ -1152,7 +1152,7 @@ const DICT = {
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     eventsTitle:'Évents', eventsDesc:'Calendrier des week-ends',
     evMonths:['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'], evThisWeekend:x=>`Ce week-end : ${x}`, evNext:x=>`Prochain : ${x}`, evNews:x=>`<strong>Ce week-end</strong> : ${x}`, evNewsNext:(x,n)=>`<strong>Prochain évent</strong> : ${x}, dans ${n} jour${n>1?'s':''}`, evCalendarSub:'Le calendrier des week-ends', evTournament:'Tous les samedis : <b>tournoi</b>, 2000 Libs au champion.', evEmpty:'Les prochains évents arrivent bientôt.', evLive:'En cours', evReward:'Récompense', evNote:'Touche un évent pour voir ses règles. Les dates peuvent encore bouger.',
-    arcadeTitle:'Arcade', arcadeSub:'Des jeux rapides, tous les jours', arcadeRunDesc:'Aide Libero à courir le plus loin possible ! Saute les obstacles, baisse-toi sous ceux qui volent.', arcadeSnakeDesc:'Mange des pommes pour faire grandir ton serpent, sans mordre ta queue.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Classements', snakeUnit:'pommes', soundpackRefund:n=>`Les packs de sons ont quitté la boutique : ${n} Libs te sont rendus.`, inArcade:'Dans l\'Arcade',
+    arcadeTitle:'Arcade', arcadeSub:'Des jeux rapides, tous les jours', arcadeRunDesc:'Aide Libero à courir le plus loin possible ! Saute les obstacles, baisse-toi sous ceux qui volent.', arcadeSnakeDesc:'Mange des pommes pour faire grandir ton serpent, sans mordre ta queue.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Classements', snakeUnit:'pommes', podium:{ title:'Résultats', sub:'Quiz à plusieurs', banner:'CHAMPION DU QUIZ', skip:'Passer', done:'Voir les résultats', you:'toi', msgWin:'Tu es le meilleur de la partie !', msgClose:n=>`Plus que ${n} point${n>1?'s':''} pour la couronne. Revanche ?`, msgOut:r=>`Tu finis ${r}e. Le podium t'attend la prochaine fois !` }, soundpackRefund:n=>`Les packs de sons ont quitté la boutique : ${n} Libs te sont rendus.`, inArcade:'Dans l\'Arcade',
     eventsDescLocked:'Week-end prochain',
     eventsLockedCard: days => `📅 Dans ${days} j`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge pourrait revenir dans ${days} jour${days>1?'s':''}</strong> <u style="cursor:pointer">vote ici</u> !`,
@@ -1939,7 +1939,7 @@ const DICT = {
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     eventsTitle:'Events', eventsDesc:'Weekend calendar',
     evMonths:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], evThisWeekend:x=>`This weekend: ${x}`, evNext:x=>`Next: ${x}`, evNews:x=>`<strong>This weekend</strong>: ${x}`, evNewsNext:(x,n)=>`<strong>Next event</strong>: ${x}, in ${n} day${n>1?'s':''}`, evCalendarSub:'The weekend calendar', evTournament:'Every Saturday: <b>tournament</b>, 2000 Libs for the champion.', evEmpty:'The next events are coming soon.', evLive:'Live', evReward:'Reward', evNote:'Tap an event to see its rules. Dates may still change.',
-    arcadeTitle:'Arcade', arcadeSub:'Quick games, every day', arcadeRunDesc:'Help Libero run as far as possible! Jump over obstacles, duck under the flying ones.', arcadeSnakeDesc:'Eat apples to make your snake grow, without biting your own tail.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Leaderboards', snakeUnit:'apples', soundpackRefund:n=>`Sound packs have left the shop: ${n} Libs have been refunded to you.`, inArcade:'In the Arcade',
+    arcadeTitle:'Arcade', arcadeSub:'Quick games, every day', arcadeRunDesc:'Help Libero run as far as possible! Jump over obstacles, duck under the flying ones.', arcadeSnakeDesc:'Eat apples to make your snake grow, without biting your own tail.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Leaderboards', snakeUnit:'apples', podium:{ title:'Results', sub:'Multiplayer quiz', banner:'QUIZ CHAMPION', skip:'Skip', done:'See the results', you:'you', msgWin:'You are the best of the game!', msgClose:n=>`Only ${n} point${n>1?'s':''} away from the crown. Rematch?`, msgOut:r=>`You finished ${r}th. The podium awaits you next time!` }, soundpackRefund:n=>`Sound packs have left the shop: ${n} Libs have been refunded to you.`, inArcade:'In the Arcade',
     eventsDescLocked:'Next weekend',
     eventsLockedCard: days => `📅 In ${days}d`,
     eventsLockedMsg:  days => `🐍 <strong>Snake Challenge might be back in ${days} day${days>1?'s':''}</strong> <u style="cursor:pointer">vote here</u>!`,
@@ -5288,7 +5288,15 @@ function showTriviaFinished(scores) {
     try { await navigator.clipboard.writeText(text); showCursorSnakeToast(t().triviaShareCopied); } catch {}
   });
   $('tg-finished').classList.remove('hidden');
-  if (!triviaIsSolo && myIdx === 0) celebrate(); // champion du quiz multi
+  // Quiz a plusieurs : la grande scene du podium (podium.js, chargee a la demande), puis les resultats.
+  if (!triviaIsSolo && scores.length >= 2) _playPodium(scores, myIdx);
+}
+function _playPodium(scores, myIdx) {
+  const go = () => window.LiberoPodium?.play(scores, myIdx, t().podium);
+  if (window.LiberoPodium) { go(); return; }
+  const sc = document.createElement('script'); sc.src = 'podium.js?v=1'; sc.onload = go;
+  sc.onerror = () => { if (myIdx === 0) celebrate(); }; // repli : l'ancienne fete
+  document.head.appendChild(sc);
 }
 
 $('btn-leave-trivia-game').addEventListener('click', goToTriviaHome);
