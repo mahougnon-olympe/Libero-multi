@@ -434,7 +434,11 @@ try {
     }
 
     // ── Musique de fond ──
-    let music = null, musicWanted = false, fadeTimer = null, retryArmed = false;
+    let music = null, musicWanted = false, fadeTimer = null, retryArmed = false, musicGain = null;
+    // Volume de la musique : via Web Audio (un « gain ») quand c'est possible, car Safari sur
+    // iPhone ignore le volume d'un lecteur audio ; sinon via le lecteur lui-meme.
+    const getMV = () => musicGain ? musicGain.gain.value : (music ? music.volume : 0);
+    const setMV = v => { v = Math.max(0, Math.min(1, v)); if (musicGain) { try { musicGain.gain.value = v; } catch {} } else if (music) { try { music.volume = v; } catch {} } };
     function ensureMusic() {
       if (music || !musicSupported) return;
       try {
@@ -442,16 +446,21 @@ try {
         music.loop = true; music.preload = 'auto'; music.volume = 0;
         music.addEventListener('error', () => { musicSupported = false; warn('musique illisible: bg-music.mp3'); });
         music.src = TRACKS[curTrack] || MUSIC_FILE;
+        const ctx = ac();
+        if (ctx && ctx.createMediaElementSource) {
+          try { const src = ctx.createMediaElementSource(music); musicGain = ctx.createGain(); musicGain.gain.value = 0; src.connect(musicGain); musicGain.connect(ctx.destination); music.volume = 1; }
+          catch { musicGain = null; }
+        }
       } catch { musicSupported = false; }
     }
     function fadeTo(target, ms) {
       if (!music) return;
       try { clearInterval(fadeTimer); } catch {}
-      const from = music.volume || 0, steps = 24, dt = Math.max(16, ms / steps);
+      const from = getMV() || 0, steps = 24, dt = Math.max(16, ms / steps);
       let i = 0;
       fadeTimer = setInterval(() => {
         i++; const v = from + (target - from) * (i / steps);
-        try { music.volume = Math.max(0, Math.min(1, v)); } catch {}
+        setMV(v);
         if (i >= steps) { try { clearInterval(fadeTimer); } catch {} }
       }, dt);
     }
@@ -466,7 +475,7 @@ try {
       if (!musicSupported) return;
       ensureMusic();
       if (!music || !started) return; // avant la 1re interaction : on attend
-      try { music.volume = 0; } catch {}
+      setMV(0); if (actx && actx.state === 'suspended') { try { actx.resume(); } catch {} }
       const p = music.play();
       if (p && p.catch) p.catch(err => { if (err && err.name === 'NotAllowedError') armRetry(); });
       fadeTo(musicVol(), 1600);
@@ -481,7 +490,7 @@ try {
       fadeTo(0, 350);
       setTimeout(() => {
         if (curTrack !== name) return;
-        try { music.src = TRACKS[name]; music.currentTime = 0; music.volume = 0; } catch {}
+        try { music.src = TRACKS[name]; music.currentTime = 0; } catch {} setMV(0);
         const p = music.play(); if (p && p.catch) p.catch(() => armRetry());
         fadeTo(musicVol(), 900);
       }, 380);
@@ -531,7 +540,7 @@ try {
       if (musicDucked) {
         musicDucked = false;
         if (music && musicWanted && !document.hidden) {
-          try { music.volume = 0; } catch {}
+          setMV(0); if (actx && actx.state === 'suspended') { try { actx.resume(); } catch {} }
           const p = music.play(); if (p && p.catch) p.catch(() => armRetry());
           fadeTo(musicVol(), 800);
         }
@@ -549,7 +558,7 @@ try {
       if (!music || !musicWanted) return;
       if (document.hidden) { try { music.pause(); } catch {} }
       else if (musicDucked) { /* le quiz joue sa musique */ }
-      else { const p = music.play(); if (p && p.catch) p.catch(() => armRetry()); fadeTo(musicVol(), 500); }
+      else { if (actx && actx.state === 'suspended') { try { actx.resume(); } catch {} } const p = music.play(); if (p && p.catch) p.catch(() => armRetry()); fadeTo(musicVol(), 500); }
     });
     document.addEventListener('click', onFirstInteraction, { once: true });
     document.addEventListener('touchstart', onFirstInteraction, { once: true });
@@ -561,10 +570,10 @@ try {
         // Applique le volume immediatement (meme si la musique est en pause :
         // la valeur sera prise au prochain demarrage) et coupe tout fondu en cours.
         const nv = Math.max(0, Math.min(1, Number(v) || 0));
-        if (music) { try { clearInterval(fadeTimer); } catch {} try { music.volume = nv; } catch {} }
+        if (music) { try { clearInterval(fadeTimer); } catch {} setMV(nv); }
       } },
       quizLoop: { start: quizLoopStart, stop: quizLoopStop },
-      _state() { return { started, sfxSupported, musicSupported, unavailable: [...unavailable] }; },
+      _state() { return { started, sfxSupported, musicSupported, unavailable: [...unavailable], musicVolume: +getMV().toFixed(2), musicPlaying: !!(music && !music.paused), viaGain: !!musicGain }; },
     };
   })();
 } catch (e) { SoundManager = null; }
