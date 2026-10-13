@@ -13376,10 +13376,40 @@ window._renderLevel = function () {
   }
   window._renderBulletin?.();
 };
-socket.on('xp-update', ({ xp, level, levelUp, reward } = {}) => {
+// Gain d'XP : une pastille « +N XP » apparait, monte, puis file vers le badge de niveau (s'il est visible).
+let _xpPillN = 0;
+window._xpPill = function (n) {
+  try {
+    if (!(n > 0)) return 0;
+    const el = document.createElement('div');
+    el.className = 'xp-pill'; el.textContent = `+${n} XP`; el.setAttribute('aria-hidden', 'true');
+    const slot = _xpPillN++ % 3;
+    el.style.left = '50%'; el.style.top = `${Math.round(innerHeight * 0.62) + slot * 44}px`;
+    document.body.appendChild(el);
+    const badge = document.getElementById('level-badge'), br = badge?.getBoundingClientRect();
+    const seen = br && br.width && br.bottom > 0 && br.top < innerHeight && br.right > 0 && br.left < innerWidth;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const dx = seen ? br.left + br.width / 2 - innerWidth / 2 : 0, dy = seen ? br.top + br.height / 2 - parseFloat(el.style.top) : -90;
+    const ease = 'cubic-bezier(.2,.8,.2,1)';
+    const kf = reduce
+      ? [{ opacity: 0 }, { opacity: 1, offset: .2 }, { opacity: 1, offset: .8 }, { opacity: 0 }]
+      : [{ opacity: 0, transform: 'translate(-50%,30px) scale(.6)' },
+         { opacity: 1, transform: 'translate(-50%,0) scale(1.15)', offset: .3 },
+         { opacity: 1, transform: 'translate(-50%,-10px) scale(1)', offset: .55 },
+         { opacity: 0, transform: `translate(calc(-50% + ${dx}px),${dy}px) scale(.4)` }];
+    const an = el.animate(kf, { duration: reduce ? 1400 : 1500, easing: ease, fill: 'forwards' });
+    an.onfinish = () => {
+      el.remove();
+      if (seen && !reduce) { try { badge.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.3)' }, { transform: 'scale(1)' }], { duration: 300 }); } catch {} }
+    };
+    return 1500;
+  } catch { return 0; }
+};
+socket.on('xp-update', ({ xp, level, levelUp, reward, gained } = {}) => {
   window._myXp = xp; window._myLevel = level;
   window._renderLevel();
-  if (levelUp) { window._showLevelUp?.(levelUp, reward || 0); try { window._sound?.play('level-up'); } catch {} }
+  const wait = window._xpPill(gained) ? 1500 : 0;
+  if (levelUp) setTimeout(() => { window._showLevelUp?.(levelUp, reward || 0); try { window._sound?.play('level-up'); } catch {} }, wait);
 });
 
 // ── Animation de passage de niveau, une par palier (comme a l'ecole) ─────────

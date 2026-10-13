@@ -3106,3 +3106,7 @@ body.pd-open { overflow: hidden; }
 .tg-change-hint { text-align: center; font: 700 1.1rem var(--font-hand); color: var(--accent); margin: 8px 0 0; }
 .tg-change-hint.hidden { display: none; }
 @media (prefers-reduced-motion: reduce) { .tg-choice > .tg-pct { transition: none; } }
+
+/* Gain d'XP : pastille qui monte puis file vers le badge de niveau */
+.xp-pill { position: fixed; z-index: 99990; pointer-events: none; white-space: nowrap; opacity: 0; font: 400 34px 'Archivo Black', Archivo, system-ui, sans-serif; color: var(--text); background: linear-gradient(transparent 58%, rgba(255,225,105,.45) 58%); padding: 0 8px; will-change: transform, opacity; }
+html.light .xp-pill { color: #173a8a; }
