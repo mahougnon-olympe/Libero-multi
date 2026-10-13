@@ -2453,14 +2453,14 @@ function getTriviaRoomState(room) {
 function getRoomScores(room) {
   return [...room.players.entries()]
     .filter(([, p]) => !p.disconnected)
-    .map(([sid, p]) => ({ socketId: sid, name: p.name, playerId: p.playerId, score: p.score, colorIndex: p.colorIndex }))
+    .map(([sid, p]) => ({ socketId: sid, name: p.name, playerId: p.playerId, score: p.score, siteScore: p.siteScore || 0, colorIndex: p.colorIndex }))
     .sort((a, b) => b.score - a.score);
 }
 
 // Projection sûre pour diffusion aux clients : retire le playerId (jeton d'identité
 // secret qui, s'il fuitait, permettrait d'usurper le compte d'un autre joueur).
 function publicScores(room) {
-  return getRoomScores(room).map(({ playerId, ...rest }) => rest);
+  return getRoomScores(room).map(({ playerId, siteScore, ...rest }) => rest);
 }
 
 // Anti-répétition : ids des questions déjà servies à chaque joueur (mémoire
@@ -2566,8 +2566,12 @@ function revealTriviaAnswer(code) {
         // Bonus de vitesse : répondre dans les 40% premiers du temps double le point.
         const elapsed = (ans.at || Date.now()) - (room.questionStartAt || 0);
         const fast = elapsed <= (room.timeMs || TRIVIA_TIME_MS) * 0.4;
-        const pts  = fast ? 2 : 1;
+        const sitePts = fast ? 2 : 1; // valeur « classement du site » : inchangee, alimente classements, XP, defis
+        // Points de la partie (affiches dans le salon) : de 1000 (reponse immediate) a 500 (derniere seconde).
+        const frac = Math.min(1, Math.max(0, elapsed / (room.timeMs || TRIVIA_TIME_MS)));
+        const pts  = Math.round(1000 - 500 * frac);
         p.score += pts;
+        p.siteScore = (p.siteScore || 0) + sitePts;
         gains[sid] = { pts, fast };
         correctSocketIds.push(sid);
         bumpChallenge(p.playerId, 'triviaCorrect');
@@ -2604,16 +2608,16 @@ function finishTriviaGame(code) {
   const scores = getRoomScores(room);
 
   for (const s of scores) {
-    updateTriviaLeaderboard(s.playerId || s.name, s.name, s.score);
+    updateTriviaLeaderboard(s.playerId || s.name, s.name, s.siteScore);
     updateLastActive(s.playerId, s.name);
-    pushHistory(s.playerId, { game: 'trivia', result: null, score: s.score });
+    pushHistory(s.playerId, { game: 'trivia', result: null, score: s.siteScore });
     bumpChallenge(s.playerId, 'triviaGames'); // défi « termine N quiz »
   }
   io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
   io.emit('global-leaderboard-update', getGlobalLeaderboardData());
 
   // Portrait dessine de chacun : affiche sur le podium de fin de partie.
-  io.to(code).emit('trivia-finished', { scores: scores.map(({ playerId, ...rest }) => ({ ...rest, portrait: (playerId && libs.get(playerId)?.portrait) || getPortraitByName(rest.name) || null })) });
+  io.to(code).emit('trivia-finished', { scores: scores.map(({ playerId, siteScore, ...rest }) => ({ ...rest, portrait: (playerId && libs.get(playerId)?.portrait) || getPortraitByName(rest.name) || null })) });
   setTimeout(() => triviaRooms.delete(code), 60_000);
 }
 
