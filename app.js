@@ -337,12 +337,16 @@ let SoundManager;
 try {
   SoundManager = (() => {
     const SFX_FILES = {
-      click: 'sounds/click.ogg', 'click-ok': 'sounds/click-ok.ogg', 'click-back': 'sounds/click-back.ogg',
-      pop: 'sounds/pop.ogg', success: 'sounds/success.ogg', error: 'sounds/error.ogg',
-      coin: 'sounds/coin.ogg', notify: 'sounds/notify.ogg',
-      tick: 'sounds/tick.ogg', 'tick-final': 'sounds/tick-final.ogg',
+      click: 'sounds/click.mp3', 'click-ok': 'sounds/click-ok.mp3', 'click-back': 'sounds/click-back.mp3',
+      pop: 'sounds/pop.mp3', success: 'sounds/success.mp3', error: 'sounds/error.mp3',
+      coin: 'sounds/coin.ogg', notify: 'sounds/notify.mp3',
+      tick: 'sounds/tick.mp3', 'tick-final': 'sounds/tick-final.mp3',
+      'open-panel': 'sounds/open-panel.mp3', 'type-letter': 'sounds/type-letter.mp3',
     };
-    const MUSIC_FILE = 'sounds/bg-music.mp3';
+    // Une musique par ambiance (ElevenLabs) : l'ecran courant choisit la piste.
+    const TRACKS = { main: 'sounds/bg-music.mp3', arcade: 'sounds/arcade-music.mp3', run: 'sounds/run-music.mp3', game: 'sounds/game-music.mp3' };
+    let curTrack = 'main';
+    const MUSIC_FILE = TRACKS.main;
     const DEF_SFX_VOL = 0.5, DEF_MUSIC_VOL = 0.25;
 
     const LS = {
@@ -424,7 +428,7 @@ try {
         music = new Audio();
         music.loop = true; music.preload = 'auto'; music.volume = 0;
         music.addEventListener('error', () => { musicSupported = false; warn('musique illisible: bg-music.mp3'); });
-        music.src = MUSIC_FILE;
+        music.src = TRACKS[curTrack] || MUSIC_FILE;
       } catch { musicSupported = false; }
     }
     function fadeTo(target, ms) {
@@ -453,6 +457,29 @@ try {
       const p = music.play();
       if (p && p.catch) p.catch(err => { if (err && err.name === 'NotAllowedError') armRetry(); });
       fadeTo(musicVol(), 1600);
+    }
+    // Change de piste en fondu (seulement si la musique joue deja ; sinon la piste sera prise au demarrage).
+    function musicTrack(name) {
+      if (!TRACKS[name] || name === curTrack) return;
+      curTrack = name;
+      if (!music) return;
+      const playing = musicWanted && !music.paused;
+      if (!playing) { try { music.src = TRACKS[name]; } catch {} return; }
+      fadeTo(0, 350);
+      setTimeout(() => {
+        if (curTrack !== name) return;
+        try { music.src = TRACKS[name]; music.currentTime = 0; music.volume = 0; } catch {}
+        const p = music.play(); if (p && p.catch) p.catch(() => armRetry());
+        fadeTo(musicVol(), 900);
+      }, 380);
+    }
+    // Son ponctuel long (generique d'evenement) : lu en streaming, rattache au reglage Sons.
+    function playOnce(src) {
+      try {
+        if (!started || !sfxOn()) return;
+        const a = new Audio(src); a.volume = Math.min(0.8, sfxVol() * 1.2);
+        const p = a.play(); if (p && p.catch) p.catch(() => {});
+      } catch {}
     }
     function musicStop() {
       musicWanted = false;
@@ -514,7 +541,8 @@ try {
 
     return {
       play,
-      music: { start: musicStart, stop: musicStop, setVolume(v) {
+      playOnce,
+      music: { start: musicStart, stop: musicStop, track: musicTrack, setVolume(v) {
         // Applique le volume immediatement (meme si la musique est en pause :
         // la valeur sera prise au prochain demarrage) et coupe tout fondu en cours.
         const nv = Math.max(0, Math.min(1, Number(v) || 0));
@@ -526,7 +554,7 @@ try {
   })();
 } catch (e) { SoundManager = null; }
 // Stub de secours : les appels _sound.* disperses dans app.js ne plantent jamais.
-window._sound = SoundManager || { play() {}, music: { start() {}, stop() {}, setVolume() {} }, quizLoop: { start() {}, stop() {} }, _state() { return { stub: true }; } };
+window._sound = SoundManager || { play() {}, playOnce() {}, music: { start() {}, stop() {}, track() {}, setVolume() {} }, quizLoop: { start() {}, stop() {} }, _state() { return { stub: true }; } };
 
 let myPlayer        = null;   // 'R' | 'Y'
 let gameActive      = false;
@@ -2889,6 +2917,15 @@ function showScreen(name) {
   if (!wasRestoring && name === 'home') window._whoReset?.['home-who']?.();
   if (!wasRestoring && name === 'trivia-home') window._whoReset?.['trivia-who']?.();
   if (name === 'events') window._evCal?.render();
+  try {
+    const trk = (name === 'arcade' || name === 'snake') ? 'arcade' : name === 'luffy' ? 'run' : (name === 'game' || name === 'waiting') ? 'game' : 'main';
+    window._sound?.music.track(trk);
+    // Generique : une fois par week-end, en ouvrant le calendrier pendant un evenement.
+    if (name === 'events' && !wasRestoring && typeof _evNow === 'function') {
+      const cur = _evNow().cur;
+      if (cur && localStorage.getItem('libero_ev_jingle') !== cur[0]) { localStorage.setItem('libero_ev_jingle', cur[0]); window._sound?.playOnce('sounds/events-jingle.mp3'); }
+    }
+  } catch {}
   if (name === 'arcade') window._arcade?.enter();
   document.body.classList.toggle('screen-luffy-active', name === 'luffy');
   document.body.classList.toggle('screen-feed-active', name === 'feed');
@@ -8000,6 +8037,8 @@ function _classifyClick(el) {
   const id = (el.id || '') + ' ' + (el.className || '') + ' ' + (el.dataset ? JSON.stringify(el.dataset) : '');
   const txt = (el.textContent || '').slice(0, 40);
   const hay = id + ' ' + txt;
+  // Ouvrir un tiroir, une fenetre : le tiroir du pupitre qui glisse.
+  if (el.matches?.('#go-settings, .pup-thing, #dm-btn, #btn-chatbot, #notif-bell, #go-help')) return 'open-panel';
   if (_SND_BACK_RE.test(hay) || el.classList.contains('help-close-btn') || el.classList.contains('modal-x')) return 'click-back';
   if (_SND_OK_RE.test(hay) || el.classList.contains('btn-primary')) return 'click-ok';
   return 'click';
@@ -11159,9 +11198,9 @@ const Wordle = (() => {
   function onKey(key) {
     if (done) return;
     if (key === 'ENTER') return submit();
-    if (key === 'DEL') { current = current.slice(0, -1); window._sound?.play('click'); render(); return; }
+    if (key === 'DEL') { current = current.slice(0, -1); window._sound?.play('click-back'); render(); return; }
     if (/^[A-Z]$/.test(key) && current.length < COLS) {
-      current += key; window._sound?.play('click'); render();
+      current += key; window._sound?.play('type-letter'); render();
       // Auto-validation : des que les 5 lettres sont posees, on valide tout seul
       // (petit delai pour laisser l'animation de remplissage se voir).
       if (current.length === COLS) setTimeout(() => { if (!done && current.length === COLS) submit(); }, 220);
