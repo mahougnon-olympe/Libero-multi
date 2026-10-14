@@ -50,6 +50,7 @@ const rooms           = new Map();
 const leaderboard     = new Map();
 const triviaRooms     = new Map();
 const unoRooms        = new Map();
+let unoLaunchSent     = false; // annonce Uno deja envoyee (persiste dans server_config)
 const triviaLeaderboard = new Map();
 const snakeLeaderboard  = new Map();
 const luffyLeaderboard  = new Map();
@@ -462,6 +463,7 @@ async function loadData() {
     createdAt: d.createdAt || Date.now(), updatedAt: d.updatedAt || Date.now(),
   }));
   readerDocs.forEach(d => bookReaders.set(d._id, new Set(Array.isArray(d.readers) ? d.readers : [])));
+  unoLaunchSent = !!configDocs.find(d => d._id === 'uno_launch_push')?.value;
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
   const cbDoc = configDocs.find(d => d._id === 'chess_book');
@@ -1537,6 +1539,29 @@ function _autoPushTick() {
   } catch (e) { logServerError?.('auto-push', e); }
 }
 setInterval(_autoPushTick, 5 * 60_000);
+
+// Annonce unique du nouveau jeu (Uno) : une seule fois pour tous ceux qui ont les notifications,
+// dans la journee (10 h a 19 h, heure du Benin), jamais a ceux dont les rappels sont en pause.
+function _unoLaunchTick() {
+  try {
+    if (!webpush || unoLaunchSent || !db) return;
+    const h = _beninDate().getUTCHours();
+    if (h < 10 || h >= 19) return;
+    unoLaunchSent = true; saveConfig('uno_launch_push', true);
+    let n = 0;
+    for (const pid of pushSubs.keys()) {
+      const e = libs.get(pid);
+      if (e && (e.pushUnopened || 0) >= AUTO_PUSH_PAUSE_AFTER) continue;
+      const en = e && e.lang === 'en';
+      n += sendPush(pid, en
+        ? { title: 'Uno has arrived!', body: 'Play with up to 10 friends, or against robots. Find it first in Multiplayer games.', url: 'https://libero-multi.vercel.app', tag: 'libero-uno' }
+        : { title: 'Uno est arrivé !', body: "Joue jusqu'à 10 avec tes amis, ou contre des robots. C'est en premier dans Jeux multijoueurs.", url: 'https://libero-multi.vercel.app', tag: 'libero-uno' });
+    }
+    console.log(`Annonce Uno : ${n} notification(s) envoyée(s).`);
+  } catch (e) { logServerError?.('uno-launch-push', e); }
+}
+setInterval(_unoLaunchTick, 5 * 60_000);
+setTimeout(_unoLaunchTick, 60_000);
 
 // Ensemble des playerId d'un segment (pour les push ciblees).
 const PUSH_BIG_LIBS = 1000; // seuil « gros joueur »
