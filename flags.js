@@ -55,7 +55,7 @@
   // ── Ecrans ──────────────────────────────────────────────────────────────────
   let home = null, game = null, S = null, raf = 0, tick = 0, S_rows = [];
   const ordEn = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th'));
-  function loadCss() { if (document.getElementById('flags-css')) return; const l = document.createElement('link'); l.id = 'flags-css'; l.rel = 'stylesheet'; l.href = 'flags.css?v=2'; document.head.appendChild(l); }
+  function loadCss() { if (document.getElementById('flags-css')) return; const l = document.createElement('link'); l.id = 'flags-css'; l.rel = 'stylesheet'; l.href = 'flags.css?v=3'; document.head.appendChild(l); }
   function ensure() {
     loadCss();
     if (home) return;
@@ -107,7 +107,9 @@
     const flagOf = { serie: 'FR', chrono: 'JP', salon: 'BJ', jour: 'NL' };
     $('#fh-modes', home).innerHTML = Object.keys(d.modes).map(k => `<button type="button" class="fh-mode" data-m="${k}" aria-pressed="${P.mode === k}"><span class="fi"><img src="assets/flags/${flagOf[k].toLowerCase()}.svg" alt="" draggable="false"></span><b>${d.modes[k][0]}</b><small>${d.modes[k][1]}</small></button>`).join('');
     const chips = (id, obj, key) => { $('#' + id, home).innerHTML = Object.keys(obj).map(k => `<button type="button" class="fh-chip" data-v="${k}" aria-pressed="${P[key] === k}">${obj[k]}</button>`).join(''); };
-    chips('fh-levels', d.levels, 'level'); chips('fh-conts', d.conts, 'cont');
+    chips('fh-levels', d.levels, 'level');
+    const CC = { all: ['FR', 'JP', 'BJ', 'BR'], AF: ['NG', 'SN', 'CI', 'ML'], EU: ['FR', 'DE', 'IT', 'NL'], AS: ['JP', 'IN', 'CN', 'KR'], AM: ['BR', 'CA', 'AR', 'MX'], OC: ['AU', 'NZ', 'FJ', 'PG'] };
+    $('#fh-conts', home).innerHTML = Object.keys(d.conts).map(k => `<button type="button" class="fh-ct" data-v="${k}" aria-pressed="${P.cont === k}"><span class="ph">${CC[k].map(c => `<img src="assets/flags/${c.toLowerCase()}.svg" alt="" draggable="false">`).join('')}</span><b>${d.conts[k]}</b></button>`).join('');
     $('#fh-nbs', home).innerHTML = [10, 20, 30].map(n => `<button type="button" class="fh-chip" data-v="${n}" aria-pressed="${P.nb === n}">${n}</button>`).join('');
     $('#fh-opts', home).style.display = P.mode === 'jour' ? 'none' : '';
     $('#fh-nb', home).style.display = P.mode === 'salon' ? '' : 'none';
@@ -119,7 +121,7 @@
     $('#fh-start', home).onclick = startFromHome;
     home.querySelectorAll('.fh-mode').forEach(b => b.onclick = () => { P.mode = b.dataset.m; wr(PK, P); renderHome(); });
     home.querySelectorAll('#fh-levels .fh-chip').forEach(b => b.onclick = () => { P.level = b.dataset.v; wr(PK, P); renderHome(); });
-    home.querySelectorAll('#fh-conts .fh-chip').forEach(b => b.onclick = () => { P.cont = b.dataset.v; wr(PK, P); renderHome(); });
+    home.querySelectorAll('#fh-conts .fh-ct').forEach(b => b.onclick = () => { P.cont = b.dataset.v; wr(PK, P); renderHome(); });
     home.querySelectorAll('#fh-nbs .fh-chip').forEach(b => b.onclick = () => { P.nb = +b.dataset.v; wr(PK, P); renderHome(); });
     $('#fh-lb-t', home).textContent = d.lb;
     if (!$('#fh-lb', home).dataset.ok) $('#fh-lb', home).innerHTML = `<p class="lb-empty">${d.lbEmpty}</p>`;
@@ -255,7 +257,7 @@
       $('#fg-send').onclick = submitTyped; $('#fg-skip').onclick = () => finishQ(null, true);
     } else {
       const ch = F.choices(S.cur, 4);
-      $('#fg-ans').innerHTML = `<div class="fg-opts">${ch.map(c => `<button class="fg-opt" type="button" data-c="${c}">${esc(nm(c))}</button>`).join('')}</div>`;
+      $('#fg-ans').innerHTML = `<div class="fg-opts">${ch.map(c => `<button class="fg-opt" type="button" data-c="${c}"><i class="fg-let">${'ABCD'[ch.indexOf(c)]}</i>${esc(nm(c))}</button>`).join('')}</div>`;
       $('#fg-ans').querySelectorAll('.fg-opt').forEach(b => b.onclick = () => { if (!S.busy) finishQ(b.dataset.c, false, b); });
     }
     if (!reduce() && !resume) A(stage, [{ opacity: 0, transform: 'translateY(-40px) scale(.7)' }, { opacity: 1, transform: 'translateY(0) scale(1)' }], { duration: 520 });

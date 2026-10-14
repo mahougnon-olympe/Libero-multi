@@ -3360,7 +3360,7 @@ function _flagsLoad() {
   if (window.LiberoFlags) return Promise.resolve(window.LiberoFlags);
   if (_flagsP) return _flagsP;
   _flagsP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'flags.js?v=2';
+    const sc = document.createElement('script'); sc.src = 'flags.js?v=3';
     sc.onload = () => res(window.LiberoFlags); sc.onerror = () => { _flagsP = null; res(null); };
     document.head.appendChild(sc);
   });

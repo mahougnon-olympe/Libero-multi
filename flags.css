@@ -92,3 +92,18 @@ body.screen-flag-game-active .btn-help-float, body.screen-flag-game-active .btn-
 @media (min-width: 900px) { .fe { align-items: center; min-height: 62vh; } .fe-recap { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 12px; } .fe .num { font-size: 96px; } }
 .fh-play { padding: 10px 0 2px; background: linear-gradient(transparent, var(--bg) 38%); }
 @media (min-width: 900px) { .fh-play { background: none; padding: 0; } }
+
+/* Style des themes du quiz : tuiles a image, la choisie prend l'accent et le nom surligne */
+.fh-conts, #fh-conts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.fh-ct { border: 2px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); padding: 5px 5px 7px; display: grid; gap: 5px; text-align: center; cursor: pointer; font: inherit; }
+.fh-ct .ph { display: grid; grid-template-columns: 1fr 1fr; aspect-ratio: 16 / 10; border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden; background: var(--card2); }
+.fh-ct .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fh-ct b { font-size: .78rem; font-weight: 700; }
+.fh-ct[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 3px 0 rgba(0,0,0,.25); }
+.fh-ct[aria-pressed="true"] b { background: linear-gradient(transparent 55%, var(--mark, rgba(255,225,105,.5)) 55%); }
+.fh-ct[aria-pressed="true"] .ph { border-color: var(--accent); border-width: 2px; }
+@media (min-width: 900px) { #fh-conts { grid-template-columns: repeat(3, 1fr); } }
+.fg-opt { display: flex; align-items: center; gap: 10px; text-align: left; padding: 12px 12px; box-shadow: 0 2px 0 rgba(0,0,0,.2); }
+.fg-let { width: 24px; height: 24px; border: 2px solid var(--text); border-radius: 50%; display: grid; place-items: center; font: 700 14px Caveat, cursive; font-style: normal; flex: none; }
+.fg-opts { grid-template-columns: 1fr; }
+.fg-stage .flag-frame { background: var(--card); }
