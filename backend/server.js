@@ -4180,7 +4180,7 @@ io.on('connection', (socket) => {
     }
     // Bulle de chat equipee de chacun : affichee en ruban a cote de ses messages.
     const bubbles = { me: libs.get(id)?.equippedBubble || null, them: libs.get(pid)?.equippedBubble || null };
-    socket.emit('dm-history', { ref, messages: conv.slice(-DM_PAGE).map(m => _dmPublic(m, id)), canWrite: _dmAllowed(id, pid), bubbles });
+    socket.emit('dm-history', { ref, name: libs.get(pid)?.name || '', messages: conv.slice(-DM_PAGE).map(m => _dmPublic(m, id)), canWrite: _dmAllowed(id, pid), bubbles });
     socket.emit('dm-unread', { total: _dmUnread(id) });
   });
   socket.on('dm-mark-read', ({ playerId, ref } = {}) => {

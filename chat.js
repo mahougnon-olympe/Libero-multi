@@ -10,7 +10,7 @@
   const back = $('dm-back'), title = $('dm-title'), who = $('dm-who'), menuBtn = $('dm-menu-btn'), menu = $('dm-menu'), err = $('dm-err');
   const KEY = 'libero_dm_open';
   let bubbles = { me: null, them: null };
-  let friends = [], current = null, msgs = [], typingTimer = null, lastTypingSent = 0, replying = null;
+  let friends = [], current = null, msgs = [], typingTimer = null, lastTypingSent = 0, replying = null, curName = '';
   const RKEY = 'libero_dm_reply';
 
   // Police manuscrite des messages : chargee seulement ici (pas au demarrage du site).
@@ -62,7 +62,7 @@
     const cls = m.mine ? 'me' : 'them';
     const name = m.mine ? d().me : (f?.name || '').toUpperCase();
     const seen = m.mine && m.read ? ` · ${esc(d().seen)}` : '';
-    const qn = m.reply ? (m.reply.mine ? d().me : (f?.name || '')) : '';
+    const qn = m.reply ? (m.reply.mine ? d().me : (f?.name || curName)) : '';
     const quote = m.reply ? `<button type="button" class="dm-quote dm-quote-go" data-go="${esc(m.reply.id)}"><b>${esc(qn)}</b><span>${esc(m.reply.text)}</span></button>` : '';
     const body = `${quote}<span class="dm-txt">${esc(m.text)}</span>`;
     // Bulle achetee en boutique : un ruban dans sa matiere, a cote du message.
@@ -105,7 +105,7 @@
     menu.classList.add('hidden');
   }
   function openConv(ref) {
-    current = ref; msgs = []; err.textContent = ''; setReply(null, true);
+    current = ref; msgs = []; curName = ''; err.textContent = ''; setReply(null, true);
     conv.innerHTML = '<p class="dm-empty">…</p>';
     header(); save(ref);
     socket.emit('dm-history', { playerId: getPlayerId(), ref });
@@ -143,7 +143,7 @@
   function setReply(m, restoring) {
     replying = m;
     const bar = $('dm-replybar');
-    if (m) { $('dm-rb-n').textContent = m.mine ? d().me : (friends.find(x => x.ref === current)?.name || ''); $('dm-rb-t').textContent = String(m.text).slice(0, 80); }
+    if (m) { $('dm-rb-n').textContent = m.mine ? d().me : (friends.find(x => x.ref === current)?.name || curName); $('dm-rb-t').textContent = String(m.text).slice(0, 80); }
     bar.classList.toggle('hidden', !m);
     if (!restoring) { try { m ? sessionStorage.setItem(RKEY, JSON.stringify({ ref: current, id: m.id, text: m.text, mine: m.mine })) : sessionStorage.removeItem(RKEY); } catch {} }
     if (m) input.focus({ preventScroll: true });
@@ -253,7 +253,7 @@
     p = p || {};
     if (ev === 'dm-list') { friends = p.list || []; window._dmSetTotal?.(p.total); if (!current) renderList(); else header(); }
     else if (ev === 'dm-history' && p.ref === current) {
-      msgs = p.messages || []; bubbles = p.bubbles || { me: null, them: null }; renderConv();
+      curName = p.name || curName; msgs = p.messages || []; bubbles = p.bubbles || { me: null, them: null }; renderConv();
       const f = friends.find(x => x.ref === current); if (f) f.unread = 0;
       input.disabled = p.canWrite === false; err.textContent = p.canWrite === false ? d().noWrite : '';
       try { const rd = JSON.parse(sessionStorage.getItem(RKEY) || 'null'); if (rd && rd.ref === current && !replying) setReply({ id: rd.id, text: rd.text, mine: rd.mine }, true); } catch {}
