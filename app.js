@@ -613,7 +613,7 @@ const DICT = {
     accountTitle:'🔑 Mon compte', accountTabCreate:'Créer', accountTabLogin:'Se connecter',
     accountCreateIntro:'Crée un compte pour ne jamais perdre ta progression et te reconnecter sur un autre appareil.',
     accountLoginIntro:'Connecte-toi avec ton pseudo et ton mot de passe pour retrouver ta progression.',
-    accountPseudoLabel:'Pseudo', accountPwLabel:'Mot de passe', accountPwConfirmLabel:'Confirme le mot de passe', accountPwMismatch:'Les mots de passe ne correspondent pas.', accountCreateBtn:'Créer mon compte', accountLoginBtn:'Se connecter',
+    accountPseudoLabel:'Pseudo', accountPwLabel:'Mot de passe', accountPwConfirmLabel:'Confirme le mot de passe', accountPwMismatch:'Les mots de passe ne correspondent pas.', accountCreateBtn:'Créer mon compte', accountLoginBtn:'Se connecter', logoutBtn:'Se déconnecter de cet appareil', logoutNote:'Ta progression reste sur ton compte.', logoutTitle:'Te déconnecter ?', logoutAsk:'Tu retrouveras tout en te reconnectant avec ton pseudo et ton mot de passe.', logoutOk:'Se déconnecter',
     accountNeedPseudo:'Choisis un pseudo.', accountShortPw:'Mot de passe trop court (4 caractères min).',
     accountTabChange:'Mot de passe', accountChangeIntro:'Choisis un nouveau mot de passe. Il faut connaitre ton mot de passe actuel.', accountChangeBtn:'Changer mon mot de passe', accountOldPwLabel:'Mot de passe actuel', accountNewPwLabel:'Nouveau mot de passe', accountNeedOldPw:'Entre ton mot de passe actuel.', accountPwChanged:'Mot de passe changé !',
     accountCreated:'Compte créé ! Ta progression est protégée.', accountError:'Une erreur est survenue, réessaie.', accountWelcome:(n)=>`Bienvenue ${n} ! Chargement…`,
@@ -1400,7 +1400,7 @@ const DICT = {
     accountTitle:'🔑 My account', accountTabCreate:'Create', accountTabLogin:'Log in',
     accountCreateIntro:'Create an account so you never lose your progress and can log back in on another device.',
     accountLoginIntro:'Log in with your nickname and password to get your progress back.',
-    accountPseudoLabel:'Nickname', accountPwLabel:'Password', accountPwConfirmLabel:'Confirm password', accountPwMismatch:'Passwords do not match.', accountCreateBtn:'Create my account', accountLoginBtn:'Log in',
+    accountPseudoLabel:'Nickname', accountPwLabel:'Password', accountPwConfirmLabel:'Confirm password', accountPwMismatch:'Passwords do not match.', accountCreateBtn:'Create my account', accountLoginBtn:'Log in', logoutBtn:'Log out of this device', logoutNote:'Your progress stays on your account.', logoutTitle:'Log out?', logoutAsk:'You will get everything back by logging in again with your nickname and password.', logoutOk:'Log out',
     accountNeedPseudo:'Choose a nickname.', accountShortPw:'Password too short (4 characters min).',
     accountTabChange:'Password', accountChangeIntro:'Choose a new password. You need to know your current password.', accountChangeBtn:'Change my password', accountOldPwLabel:'Current password', accountNewPwLabel:'New password', accountNeedOldPw:'Enter your current password.', accountPwChanged:'Password changed!',
     accountCreated:'Account created! Your progress is safe.', accountError:'Something went wrong, try again.', accountWelcome:(n)=>`Welcome ${n}! Loading…`,
@@ -2561,7 +2561,7 @@ function applyLang() {
   setTxt('ideanew-send', d.ideaNewSend);
   setTxt('ideas-filter-mine', d.ideasFilterMine); setPh('ideas-search', d.ideasSearchPh);
   if (window._ideasBoard) window._ideasBoard.retexte();
-  setTxt('account-title', d.accountTitle); setTxt('account-tab-create', d.accountTabCreate); setTxt('account-tab-login', d.accountTabLogin); setTxt('account-tab-change', d.accountTabChange);
+  setTxt('account-title', d.accountTitle); setTxt('btn-logout', d.logoutBtn); setTxt('logout-note', d.logoutNote); setTxt('account-tab-create', d.accountTabCreate); setTxt('account-tab-login', d.accountTabLogin); setTxt('account-tab-change', d.accountTabChange);
   setTxt('account-pseudo-label', d.accountPseudoLabel); setTxt('account-pw-label', d.accountPwLabel); setTxt('account-pw2-label', d.accountPwConfirmLabel); setTxt('account-oldpw-label', d.accountOldPwLabel);
   setTxt('account-card-title', d.accountCardTitle); setTxt('account-card-sub', d.accountCardSub);
   setTxt('btn-onboard-account', d.onboardAccountBtn); setTxt('btn-onboard-login', d.onboardLoginBtn); setTxt('btn-onboard-new', d.onboardNewBtn);
@@ -14014,6 +14014,7 @@ try {
     const owns = hasAccount();
     tabCreate.classList.toggle('hidden', owns);
     tabChange?.classList.toggle('hidden', !owns);
+    document.getElementById('logout-zone')?.classList.toggle('hidden', !owns);
     if (owns) { if (mode === 'create') setMode('login'); }
   }
   window._refreshAccountTabs = refreshTabs;
@@ -14122,6 +14123,21 @@ try {
   submit.addEventListener('click', doSubmit);
   pw.addEventListener('keydown', e => { if (e.key === 'Enter') doSubmit(); });
 
+  // Deconnexion : on oublie l'identifiant de cet appareil (le compte et la progression restent sur le serveur).
+  document.getElementById('btn-logout')?.addEventListener('click', async () => {
+    const d = t();
+    if (!await _slateConfirm({ title: d.logoutTitle, text: d.logoutAsk, ok: d.logoutOk })) return;
+    try { socket.emit('push-unsubscribe', { playerId: getPlayerId() }); } catch {}
+    try { const reg = await navigator.serviceWorker?.ready; const sub = await reg?.pushManager?.getSubscription(); if (sub) await sub.unsubscribe(); } catch {}
+    // On garde seulement les reglages de l'appareil (langue, theme, sons, musique, serpent).
+    const KEEP = ['lang', 'themeMode', 'bgmEnabled', 'bgmVolume', 'sfxEnabled', 'sfxVolume', 'snakeEnabled'];
+    try {
+      const keep = {}; KEEP.forEach(k => { const v = localStorage.getItem(k); if (v !== null) keep[k] = v; });
+      localStorage.clear(); sessionStorage.clear();
+      Object.entries(keep).forEach(([k, v]) => localStorage.setItem(k, v));
+    } catch {}
+    location.reload();
+  });
   document.getElementById('go-account')?.addEventListener('click', () => open('create'));
   document.getElementById('btn-onboard-account')?.addEventListener('click', () => open('create'));
   document.getElementById('btn-onboard-login')?.addEventListener('click', () => open('login'));

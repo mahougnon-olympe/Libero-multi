@@ -3110,3 +3110,9 @@ body.pd-open { overflow: hidden; }
 /* Gain d'XP : pastille qui monte puis file vers le badge de niveau */
 .xp-pill { position: fixed; z-index: 99990; pointer-events: none; white-space: nowrap; opacity: 0; font: 400 34px 'Archivo Black', Archivo, system-ui, sans-serif; color: var(--text); background: linear-gradient(transparent 58%, rgba(255,225,105,.45) 58%); padding: 0 8px; will-change: transform, opacity; }
 html.light .xp-pill { color: #173a8a; }
+
+/* Deconnexion (Mon compte) : separee du formulaire par un trait en pointilles */
+.logout-zone { display: grid; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 2px dashed var(--border); }
+.logout-zone.hidden { display: none; }
+.logout-btn { width: 100%; background: transparent; border: 2px solid var(--red); color: var(--red); font-weight: 800; }
+.logout-zone .recovery-intro { margin: 0; font-size: 13px; }
