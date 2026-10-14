@@ -3856,9 +3856,11 @@ io.on('connection', (socket) => {
     const rows = [];
     for (const [id, e] of libs.entries()) {
       const b = e.flagsBest; if (!b || !e.name || e.name === 'Anonyme') continue;
-      if ((b.serie || 0) > 0) rows.push({ name: e.name, serie: b.serie || 0, chrono: b.chrono || 0 });
+      if ((b.serie || 0) > 0) rows.push({ name: e.name, points: b.serie || 0, games: b.chrono || 0 });
     }
-    return rows.sort((a, c) => c.serie - a.serie || c.chrono - a.chrono).slice(0, 10);
+    // Meme presentation que les autres classements : cosmetiques, titre, portrait du joueur.
+    return rows.sort((a, c) => c.points - a.points || c.games - a.games || a.name.localeCompare(c.name)).slice(0, 10)
+      .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), honorTitle: getHonorTitleByName(e.name), avatar: getAvatarByName(e.name), portrait: getPortraitByName(e.name), cursorSnake: getCursorSnakeByName(e.name) }));
   }
   socket.on('get-flags-leaderboard', () => socket.emit('flags-leaderboard', { rows: flagsLeaderboard() }));
 

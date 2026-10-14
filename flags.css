@@ -1,16 +1,9 @@
 /* Devine le drapeau : accueil du jeu et ecran de partie solo. Charge a la demande (flags.js). */
-#screen-flag-home .fh-card { display: grid; gap: 10px; }
 .fh-lab { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 6px 0 0; }
-.fh-modes { display: grid; gap: 8px; }
-.fh-mode { display: flex; align-items: center; gap: 10px; text-align: left; width: 100%; padding: 8px 10px; border: 2px solid var(--text); border-radius: 12px; background: var(--card); color: var(--text); cursor: pointer; font: inherit; }
-.fh-mode b { display: block; font-weight: 800; } .fh-mode small { color: var(--muted); font-size: 12px; }
-.fh-mode[aria-pressed="true"] { background: var(--yellow, #ffe169); color: #1d2433; box-shadow: 0 0 0 3px var(--red); } .fh-mode[aria-pressed="true"] small { color: #1d2433; }
-.fh-mode .fi { width: 42px; flex: none; } .fh-mode .fi img { width: 100%; display: block; border: 2px solid var(--text); border-radius: 4px; aspect-ratio: 4/3; object-fit: cover; }
 .fh-chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .fh-chip { border: 2px solid var(--border); background: var(--card); color: var(--text); border-radius: 18px; padding: 5px 12px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
 .fh-chip[aria-pressed="true"] { background: var(--yellow, #ffe169); color: #1d2433; border-color: var(--text); }
 .fh-note { border: 2px dashed var(--border); border-radius: 10px; padding: 8px 10px; font-size: 13px; color: var(--muted); margin: 0; }
-.fh-acts { display: flex; gap: 8px; flex-wrap: wrap; } .fh-acts .btn { flex: 1; min-width: 140px; }
 .fh-join { display: flex; gap: 8px; } .fh-join input { flex: 1; min-width: 0; text-transform: uppercase; }
 .fh-err { color: var(--red); font-weight: 700; margin: 0; }
 
@@ -39,15 +32,63 @@ html.light .fg-cap { color: var(--board, #173a8a); }
 .fg-hint { text-align: center; color: var(--muted); font-size: 13px; min-height: 18px; margin: 0; }
 .fg-fx { position: absolute; pointer-events: none; z-index: 20; }
 .fg-big { position: absolute; z-index: 30; pointer-events: none; font: 400 44px 'Archivo Black', system-ui, sans-serif; white-space: nowrap; text-shadow: 0 3px 0 rgba(0,0,0,.3); left: 50%; }
-.fg-end { position: absolute; inset: 0; z-index: 40; display: grid; place-items: center; background: rgba(10,14,12,.72); padding: 16px; }
-.fg-end .box { background: var(--card); border: 3px solid var(--text); border-radius: 18px; padding: 18px; display: grid; gap: 10px; justify-items: center; text-align: center; width: 100%; max-width: 340px; }
-.fg-end h3 { font: 700 38px Caveat, 'Segoe Print', cursive; margin: 0; background: linear-gradient(transparent 80%, var(--yellow, #ffe169) 80%); }
-.fg-end .num { font: 400 48px 'Archivo Black', system-ui, sans-serif; }
-.fg-end .stars { display: flex; gap: 4px; } .fg-end .stars svg { width: 34px; height: 34px; }
-.fg-end .rec { background: var(--yellow, #ffe169); color: #1d2433; border-radius: 8px; padding: 2px 10px; font-weight: 800; font-size: 13px; }
-.fg-end .acts { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; } .fg-end .acts .btn { flex: 1; min-width: 120px; }
 .fg-count { position: absolute; inset: 0; z-index: 35; display: grid; place-items: center; pointer-events: none; font: 400 110px 'Archivo Black', system-ui, sans-serif; color: var(--accent); text-shadow: 0 4px 0 rgba(0,0,0,.3); }
 html.light .fg-count { color: var(--board, #173a8a); }
 body.screen-flag-game-active .btn-help-float, body.screen-flag-game-active .btn-comment-float, body.screen-flag-game-active .btn-chatbot-float, body.screen-flag-game-active .chatbot-panel { display: none !important; }
 .fg-in input { flex: 1 1 0; width: 0; min-width: 0; display: block; height: 46px; padding: 0 12px; }
 .fg-in .btn { flex: none; width: auto; padding-inline: 18px; }
+
+/* ── Accueil (guirlande, grandes cartes, bouton Jouer toujours visible) ── */
+.fh-grid { display: grid; gap: 14px; width: 100%; max-width: 560px; margin: 0 auto; padding: 0 12px 24px; grid-template-columns: minmax(0, 1fr); }
+.fh-bunting { position: relative; height: 92px; margin: -4px -12px 0; }
+.fh-bunting svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fh-bunting .fb { position: absolute; width: 11%; transform-origin: 50% 0; animation: fhSway 3s ease-in-out infinite; }
+.fh-bunting .fb img { display: block; width: 100%; aspect-ratio: 4 / 4.2; object-fit: cover; border: 1.5px solid var(--text); clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%); }
+@keyframes fhSway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+.fh-head { text-align: center; } .fh-head h1 { margin: 0; } .fh-head .subtitle { margin: 2px 0 0; }
+.fh-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+.fh-stats div { border: 2px solid var(--border); border-radius: 12px; background: var(--card); padding: 6px 4px; }
+.fh-stats b { display: block; font: 400 21px 'Archivo Black', system-ui, sans-serif; } .fh-stats small { font-size: 11px; color: var(--muted); font-weight: 700; }
+.fh-name input { width: 100%; }
+.fh-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fh-mode { display: grid; gap: 4px; text-align: left; padding: 10px; border: 2px solid var(--text); border-radius: 14px; background: var(--card); color: var(--text); cursor: pointer; font: inherit; box-shadow: 0 3px 0 var(--text); }
+.fh-mode .fi { width: 62%; } .fh-mode .fi img { width: 100%; display: block; border: 2px solid var(--text); border-radius: 4px; aspect-ratio: 4 / 3; object-fit: cover; }
+.fh-mode b { font-weight: 800; font-size: 15px; } .fh-mode small { color: var(--muted); font-size: 12px; line-height: 1.25; }
+.fh-mode[aria-pressed="true"] { background: var(--yellow, #ffe169); color: #1d2433; box-shadow: 0 0 0 3px var(--red), 0 3px 0 var(--text); } .fh-mode[aria-pressed="true"] small { color: #1d2433; }
+.fh-opts-box { display: grid; gap: 8px; align-content: start; }
+.fh-play { position: sticky; bottom: 10px; z-index: 5; }
+.fh-play .btn { width: 100%; padding: 14px; font-size: 17px; box-shadow: 0 4px 0 var(--text); }
+.fh-lb-card { margin: 0; }
+@media (min-width: 900px) {
+  .fh-grid { max-width: 1040px; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px 28px; grid-template-areas: "bun head" "modes stats" "modes name" "modes opts" "modes play" "lb lb"; align-items: start; }
+  .fh-bunting { grid-area: bun; margin: 0; } .fh-head { grid-area: head; text-align: left; align-self: center; }
+  .fh-modes-box { grid-area: modes; } .fh-stats { grid-area: stats; } .fh-name { grid-area: name; } .fh-opts-box { grid-area: opts; } .fh-play { grid-area: play; position: static; } .fh-lb-card { grid-area: lb; max-width: none; }
+  .fh-bunting .fb { width: 9%; }
+}
+
+/* ── Ecran de partie : sur grand ecran, drapeau a gauche et reponses a droite ── */
+.fg { max-width: 560px; }
+.fg-main { display: grid; gap: 12px; }
+.fg-side { display: grid; gap: 10px; align-content: center; }
+@media (min-width: 900px) {
+  .fg { max-width: 1040px; padding: 18px 28px 28px; gap: 16px; }
+  .fg-main { grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: center; min-height: 420px; }
+  .fg-stage .flag-frame { width: min(480px, 100%); }
+  .fg-opts { grid-template-columns: 1fr; } .fg-cap { text-align: left; font-size: 30px; }
+  .fg-opt { padding: 16px 12px; font-size: 17px; }
+}
+
+/* ── Fin de partie : une vraie page avec le recapitulatif des drapeaux ── */
+.fe { display: grid; gap: 22px; align-items: start; padding-top: 8px; }
+.fe-left { display: grid; gap: 8px; justify-items: center; text-align: center; }
+.fe h3 { font: 700 40px Caveat, 'Segoe Print', cursive; margin: 0; background: linear-gradient(transparent 80%, var(--yellow, #ffe169) 80%); }
+.fe .num { font: 400 72px 'Archivo Black', system-ui, sans-serif; line-height: 1; } .fe-sub { color: var(--muted); font-weight: 700; }
+.fe .stars { display: flex; gap: 4px; } .fe .stars svg { width: 36px; height: 36px; }
+.fe .rec { background: var(--yellow, #ffe169); color: #1d2433; border-radius: 8px; padding: 2px 12px; font-weight: 800; font-size: 13px; }
+.fe .acts { display: flex; gap: 10px; flex-wrap: wrap; width: 100%; max-width: 380px; margin-top: 6px; } .fe .acts .btn { flex: 1; min-width: 130px; }
+.fe-recap { display: grid; grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); gap: 8px; }
+.fe-f .flag-frame { width: 100%; } .fe-f.no { filter: grayscale(1) opacity(.45); }
+@media (min-width: 900px) { .fe { grid-template-columns: 1fr 1fr; gap: 40px; padding-top: 40px; } .fe-recap { grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); } }
+@media (min-width: 900px) { .fe { align-items: center; min-height: 62vh; } .fe-recap { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 12px; } .fe .num { font-size: 96px; } }
+.fh-play { padding: 10px 0 2px; background: linear-gradient(transparent, var(--bg) 38%); }
+@media (min-width: 900px) { .fh-play { background: none; padding: 0; } }

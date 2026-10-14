@@ -3360,7 +3360,7 @@ function _flagsLoad() {
   if (window.LiberoFlags) return Promise.resolve(window.LiberoFlags);
   if (_flagsP) return _flagsP;
   _flagsP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'flags.js?v=1';
+    const sc = document.createElement('script'); sc.src = 'flags.js?v=2';
     sc.onload = () => res(window.LiberoFlags); sc.onerror = () => { _flagsP = null; res(null); };
     document.head.appendChild(sc);
   });
@@ -3371,6 +3371,19 @@ function _flagsLoad() {
 function _flagImgHtml(code) {
   const fr = window._myFlagFrame || '';
   return `<span class="flag-frame"${fr ? ` data-frame="${fr}"` : ''}><img class="flag-img" src="assets/flags/${String(code).toLowerCase()}.svg" alt="" aria-label="${currentLang === 'en' ? 'Flag' : 'Drapeau'}" draggable="false"></span>`;
+}
+// Classement Drapeaux : exactement le meme rendu que les autres classements (rang, portrait, cosmetiques, titre, fiche joueur au clic).
+function _renderFlagsLb(list, data, lblW, lblD) {
+  list.innerHTML = data.map((entry, i) => `
+    <div class="lb-row lb-row-clickable${_lbMe(entry.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
+      <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${_lbRank(i)}</span>
+      <span class="lb-name">${_lbPt(entry.portrait)}<span class="lb-nm ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${_escHtml(entry.name)}${_titleHtml(entry.title, entry.honorTitle)}</span></span>
+      <div class="lb-stats">
+        <span class="lb-w">${entry.points} ${lblW}</span>
+        <span class="lb-d">${entry.games} ${lblD}</span>
+      </div>
+    </div>`).join('');
+  list.querySelectorAll('.lb-row-clickable').forEach(row => row.addEventListener('click', () => window._openPlayerCard?.(row.dataset.pname)));
 }
 function _flagLabel(code) { try { return window.FlagsData.name(code, currentLang === 'en' ? 'en' : 'fr'); } catch { return code; } }
 

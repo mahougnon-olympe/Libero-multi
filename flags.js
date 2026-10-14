@@ -10,7 +10,7 @@
       modes: { serie: ['Série', "3 vies, jusqu'où iras-tu ?"], chrono: ['Contre la montre', '60 secondes, une erreur coûte 3 s'], salon: ['Salon entre amis', '2 à 20 joueurs, points selon la vitesse'], jour: ['Drapeau du jour', 'Un drapeau par jour, avec des indices'] },
       levels: { easy: 'Facile', medium: 'Moyen', hard: 'Difficile', extreme: 'Extrême' }, conts: { all: 'Tous', AF: 'Afrique', EU: 'Europe', AS: 'Asie', AM: 'Amériques', OC: 'Océanie' },
       note: { serie: 'En solo. Difficile et Extrême passent en saisie du nom.', chrono: 'Dès que tu reconnais, réponds : chaque seconde compte.', salon: 'Un salon de quiz : même drapeau pour tous, classement en direct.', jour: 'Le même drapeau pour tout le monde, aujourd\'hui. 3 essais.' },
-      lb: 'Classement Drapeaux', lbEmpty: 'Aucun score pour l\'instant.', lbPts: 'drapeaux', question: 'Quel est ce pays ?', typeIt: 'Écris le nom du pays', send: 'Valider', skip: 'Passer', letters: n => `${n} lettres`,
+      lb: 'Classement Drapeaux', lbEmpty: 'Aucun score pour l\'instant.', lbPts: 'drapeaux', lbChrono: 'contre la montre', play: 'Jouer', recSerie: 'Record série', recChrono: 'Record chrono', myRank: 'Mon rang', yourFlags: 'Tes drapeaux', foundLbl: 'drapeaux trouvés', question: 'Quel est ce pays ?', typeIt: 'Écris le nom du pays', send: 'Valider', skip: 'Passer', letters: n => `${n} lettres`,
       streak: n => `Série de ${n} !`, good: 'Bravo !', wasIt: n => `C'était : ${n}`, oops: 'Oups', go: "C'est parti !", sec: 's', lives: 'Vies', found: n => `${n} drapeau${n > 1 ? 'x' : ''}`,
       over: 'Partie terminée', record: 'Nouveau record', again: 'Rejouer', quit: 'Quitter', leaveAsk: 'Quitter la partie ?', leaveText: 'Ta partie en cours sera perdue.', leaveOk: 'Quitter',
       allFound: 'Tu les as tous trouvés !', timeUp: 'Temps écoulé', dayDone: n => `Tu as déjà joué aujourd'hui. Prochain drapeau dans ${n}.`, daySolved: 'Trouvé !', dayFail: n => `C'était : ${n}`,
@@ -21,7 +21,7 @@
       modes: { serie: ['Streak', 'How far can you go with 3 lives?'], chrono: ['Time attack', '60 seconds, a mistake costs 3 s'], salon: ['Room with friends', '2 to 20 players, points by speed'], jour: ['Flag of the day', 'One flag a day, with hints'] },
       levels: { easy: 'Easy', medium: 'Medium', hard: 'Hard', extreme: 'Extreme' }, conts: { all: 'All', AF: 'Africa', EU: 'Europe', AS: 'Asia', AM: 'Americas', OC: 'Oceania' },
       note: { serie: 'Solo. Hard and Extreme switch to typing the name.', chrono: 'Answer as soon as you recognise it: every second counts.', salon: 'A quiz room: same flag for everyone, live ranking.', jour: 'The same flag for everyone, today. 3 tries.' },
-      lb: 'Flags ranking', lbEmpty: 'No score yet.', lbPts: 'flags', question: 'Which country is this?', typeIt: 'Type the country name', send: 'Submit', skip: 'Skip', letters: n => `${n} letters`,
+      lb: 'Flags ranking', lbEmpty: 'No score yet.', lbPts: 'flags', lbChrono: 'time attack', play: 'Play', recSerie: 'Streak record', recChrono: 'Time record', myRank: 'My rank', yourFlags: 'Your flags', foundLbl: 'flags found', question: 'Which country is this?', typeIt: 'Type the country name', send: 'Submit', skip: 'Skip', letters: n => `${n} letters`,
       streak: n => `Streak of ${n}!`, good: 'Well done!', wasIt: n => `It was: ${n}`, oops: 'Oops', go: "Let's go!", sec: 's', lives: 'Lives', found: n => `${n} flag${n > 1 ? 's' : ''}`,
       over: 'Game over', record: 'New record', again: 'Play again', quit: 'Leave', leaveAsk: 'Leave the game?', leaveText: 'Your current game will be lost.', leaveOk: 'Leave',
       allFound: 'You found them all!', timeUp: "Time's up", dayDone: n => `You already played today. Next flag in ${n}.`, daySolved: 'Found it!', dayFail: n => `It was: ${n}`,
@@ -53,29 +53,34 @@
   const setBest = (m, v) => { const b = rd(BESTK, {}); if (v > (b[m] || 0)) { b[m] = v; wr(BESTK, b); return true; } return false; };
 
   // ── Ecrans ──────────────────────────────────────────────────────────────────
-  let home = null, game = null, S = null, raf = 0, tick = 0;
-  function loadCss() { if (document.getElementById('flags-css')) return; const l = document.createElement('link'); l.id = 'flags-css'; l.rel = 'stylesheet'; l.href = 'flags.css?v=1'; document.head.appendChild(l); }
+  let home = null, game = null, S = null, raf = 0, tick = 0, S_rows = [];
+  const ordEn = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th'));
+  function loadCss() { if (document.getElementById('flags-css')) return; const l = document.createElement('link'); l.id = 'flags-css'; l.rel = 'stylesheet'; l.href = 'flags.css?v=2'; document.head.appendChild(l); }
   function ensure() {
     loadCss();
     if (home) return;
     const host = document.getElementById('screen-home')?.parentNode || document.body;
     home = el(`<div id="screen-flag-home" class="screen">
       <button class="btn-back" id="fh-back"></button>
-      <div class="logo"><h1 id="fh-title"></h1><p class="subtitle" id="fh-sub"></p></div>
-      <div class="card who-card fh-card" id="fh-card">
-        <input id="fh-name" type="text" maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false" />
-        <p class="fh-lab" id="fh-l-mode"></p><div class="fh-modes" id="fh-modes"></div>
-        <div id="fh-opts">
-          <p class="fh-lab" id="fh-l-level"></p><div class="fh-chips" id="fh-levels"></div>
-          <p class="fh-lab" id="fh-l-cont"></p><div class="fh-chips" id="fh-conts"></div>
+      <div class="fh-grid" id="fh-grid">
+        <div class="fh-bunting" id="fh-bunting" aria-hidden="true"></div>
+        <div class="fh-head"><h1 id="fh-title"></h1><p class="subtitle" id="fh-sub"></p></div>
+        <div class="fh-stats" id="fh-stats"></div>
+        <div class="fh-name"><input id="fh-name" type="text" maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false" /></div>
+        <div class="fh-modes-box"><p class="fh-lab" id="fh-l-mode"></p><div class="fh-modes" id="fh-modes"></div></div>
+        <div class="fh-opts-box">
+          <div id="fh-opts">
+            <p class="fh-lab" id="fh-l-level"></p><div class="fh-chips" id="fh-levels"></div>
+            <p class="fh-lab" id="fh-l-cont"></p><div class="fh-chips" id="fh-conts"></div>
+          </div>
+          <div id="fh-nb"><p class="fh-lab" id="fh-l-nb"></p><div class="fh-chips" id="fh-nbs"></div></div>
+          <p class="fh-note" id="fh-note"></p>
+          <div class="fh-join" id="fh-joinbox"><input id="fh-code" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" /><button class="btn btn-secondary" id="fh-join"></button></div>
+          <p class="fh-err hidden" id="fh-err"></p>
         </div>
-        <div id="fh-nb"><p class="fh-lab" id="fh-l-nb"></p><div class="fh-chips" id="fh-nbs"></div></div>
-        <p class="fh-note" id="fh-note"></p>
-        <div class="fh-acts" id="fh-go"></div>
-        <div class="fh-join" id="fh-joinbox"><input id="fh-code" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" /><button class="btn btn-secondary" id="fh-join"></button></div>
-        <p class="fh-err hidden" id="fh-err"></p>
+        <div class="fh-play" id="fh-go"></div>
+        <div class="lb-card fh-lb-card"><div class="lb-header"><span></span><span class="lb-title" id="fh-lb-t"></span></div><div class="lb-list" id="fh-lb"></div></div>
       </div>
-      <div class="lb-card"><div class="lb-header"><span></span><span class="lb-title" id="fh-lb-t"></span></div><div class="lb-list" id="fh-lb"></div></div>
     </div>`);
     game = el(`<div id="screen-flag-game" class="screen"><div class="fg" id="fg"></div></div>`);
     host.appendChild(home); host.appendChild(game);
@@ -93,9 +98,14 @@
     ensure(); const d = U(), me = (localStorage.getItem('playerName') || '').trim();
     $('#fh-back', home).textContent = d.back; $('#fh-title', home).textContent = d.title; $('#fh-sub', home).textContent = d.sub;
     const ni = $('#fh-name', home); ni.placeholder = d.pseudoPh; if (document.activeElement !== ni) ni.value = me;
+    const bn = ['FR', 'JP', 'BJ', 'CI', 'IT', 'NL', 'NG'];
+    $('#fh-bunting', home).innerHTML = `<svg viewBox="0 0 400 90" preserveAspectRatio="none"><path d="M0 10 Q100 46 200 16 T400 10" fill="none" stroke="var(--text)" stroke-width="2.5"/></svg>` + bn.map((c, i) => `<span class="fb" style="left:${i * 14.2 + 1}%;top:${[16, 28, 34, 22, 14, 28, 34][i]}px;animation-delay:${i * .25}s"><img src="assets/flags/${c.toLowerCase()}.svg" alt="" draggable="false"></span>`).join('');
+    const rk = (S_rows || []).findIndex(r => r.name === me);
+    const mine = rk >= 0 ? S_rows[rk] : null, rs = Math.max(bestOf('serie'), mine ? mine.points : 0), rc = Math.max(bestOf('chrono'), mine ? mine.games : 0);
+    $('#fh-stats', home).innerHTML = `<div><b>${rs}</b><small>${d.recSerie}</small></div><div><b>${rc}</b><small>${d.recChrono}</small></div><div><b>${rk >= 0 ? (L() === 'en' ? ordEn(rk + 1) : (rk === 0 ? '1er' : (rk + 1) + 'e')) : '-'}</b><small>${d.myRank}</small></div>`;
     $('#fh-l-mode', home).textContent = d.mode; $('#fh-l-level', home).textContent = d.level; $('#fh-l-cont', home).textContent = d.cont; $('#fh-l-nb', home).textContent = d.nbq;
     const flagOf = { serie: 'FR', chrono: 'JP', salon: 'BJ', jour: 'NL' };
-    $('#fh-modes', home).innerHTML = Object.keys(d.modes).map(k => `<button type="button" class="fh-mode" data-m="${k}" aria-pressed="${P.mode === k}"><span class="fi"><img src="assets/flags/${flagOf[k].toLowerCase()}.svg" alt="" draggable="false"></span><span><b>${d.modes[k][0]}</b><small>${d.modes[k][1]}</small></span></button>`).join('');
+    $('#fh-modes', home).innerHTML = Object.keys(d.modes).map(k => `<button type="button" class="fh-mode" data-m="${k}" aria-pressed="${P.mode === k}"><span class="fi"><img src="assets/flags/${flagOf[k].toLowerCase()}.svg" alt="" draggable="false"></span><b>${d.modes[k][0]}</b><small>${d.modes[k][1]}</small></button>`).join('');
     const chips = (id, obj, key) => { $('#' + id, home).innerHTML = Object.keys(obj).map(k => `<button type="button" class="fh-chip" data-v="${k}" aria-pressed="${P[key] === k}">${obj[k]}</button>`).join(''); };
     chips('fh-levels', d.levels, 'level'); chips('fh-conts', d.conts, 'cont');
     $('#fh-nbs', home).innerHTML = [10, 20, 30].map(n => `<button type="button" class="fh-chip" data-v="${n}" aria-pressed="${P.nb === n}">${n}</button>`).join('');
@@ -104,7 +114,7 @@
     $('#fh-note', home).textContent = d.note[P.mode];
     const go = $('#fh-go', home);
     if (P.mode === 'salon') { go.innerHTML = `<button class="btn btn-primary" id="fh-start">${d.create}</button>`; $('#fh-joinbox', home).style.display = ''; }
-    else { go.innerHTML = `<button class="btn btn-primary" id="fh-start">${d.start}</button>`; $('#fh-joinbox', home).style.display = 'none'; }
+    else { go.innerHTML = `<button class="btn btn-primary" id="fh-start">${d.play}</button>`; $('#fh-joinbox', home).style.display = 'none'; }
     $('#fh-code', home).placeholder = d.codePh; $('#fh-join', home).textContent = d.join;
     $('#fh-start', home).onclick = startFromHome;
     home.querySelectorAll('.fh-mode').forEach(b => b.onclick = () => { P.mode = b.dataset.m; wr(PK, P); renderHome(); });
@@ -119,10 +129,11 @@
     try { socket.emit('get-flags-leaderboard'); } catch {}
   }
   function renderLb(rows) {
+    S_rows = rows || [];
     if (!home) return; const lb = $('#fh-lb', home); lb.dataset.ok = '1';
-    if (!rows || !rows.length) { lb.innerHTML = `<p class="lb-empty">${U().lbEmpty}</p>`; return; }
-    const me = (localStorage.getItem('playerName') || '').trim();
-    lb.innerHTML = rows.map((r, i) => `<div class="lb-row${r.name === me ? ' lb-me' : ''}${i === 0 ? ' lb-top1' : ''}"><span class="lb-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}">${typeof _lbRank === 'function' ? _lbRank(i) : i + 1}</span><span class="lb-name"><span class="lb-nm">${esc(r.name)}</span></span><div class="lb-stats"><span class="lb-w">${r.serie} ${U().lbPts}</span></div></div>`).join('');
+    if (!rows || !rows.length) { lb.innerHTML = `<p class="lb-empty">${U().lbEmpty}</p>`; }
+    else if (typeof _renderFlagsLb === 'function') _renderFlagsLb(lb, rows, U().lbPts, U().lbChrono);
+    renderHome();
   }
   function err(m) { if (!home) return; const e = $('#fh-err', home); e.textContent = m; e.classList.remove('hidden'); }
   function clearErr() { if (home) $('#fh-err', home).classList.add('hidden'); }
@@ -157,7 +168,7 @@
   function startRun(mode) {
     ensure();
     const deck = shuffle(poolFor(P.level, P.cont));
-    S = { mode, level: P.level, cont: P.cont, type: typed(), deck, i: -1, lives: 3, score: 0, streak: 0, left: 60000, busy: false, over: false, qStart: 0, cur: null, tries: 0 };
+    S = { mode, level: P.level, cont: P.cont, type: typed(), deck, i: -1, lives: 3, score: 0, streak: 0, left: 60000, busy: false, over: false, qStart: 0, cur: null, tries: 0, results: [] };
     saveRun(); showGame(); intro().then(next);
   }
   function startDay() {
@@ -174,7 +185,7 @@
     const list = F.LIST.filter(x => x.l <= 2).map(x => x.c).sort();
     return list[h % list.length];
   }
-  function saveRun() { if (!S || S.mode === 'jour') return; try { sessionStorage.setItem(RUN, JSON.stringify({ mode: S.mode, level: S.level, cont: S.cont, type: S.type, deck: S.deck, i: S.i, lives: S.lives, score: S.score, streak: S.streak, left: S.left, cur: S.cur })); } catch {} }
+  function saveRun() { if (!S || S.mode === 'jour') return; try { sessionStorage.setItem(RUN, JSON.stringify({ mode: S.mode, level: S.level, cont: S.cont, type: S.type, deck: S.deck, i: S.i, lives: S.lives, score: S.score, streak: S.streak, left: S.left, cur: S.cur, results: S.results })); } catch {} }
   function saveDay() { if (!S || S.mode !== 'jour') return; wr(DAYK, { day: S.day, code: S.cur, tries: S.tries, qStart: S.qStart, over: !!S.over, solved: !!S.solved }); }
   function clearRun() { try { sessionStorage.removeItem(RUN); } catch {} }
 
@@ -184,7 +195,7 @@
     showScreen('flag-game');
   }
   const fg = () => $('#fg', game);
-  function frame() { return `<div class="fg-hud" id="fg-hud"></div><div class="fg-bar" id="fg-bar"><i></i></div><div class="fg-stage" id="fg-stage"></div><div class="fg-cap" id="fg-cap"></div><div id="fg-ans"></div>`; }
+  function frame() { return `<div class="fg-hud" id="fg-hud"></div><div class="fg-bar" id="fg-bar"><i></i></div><div class="fg-main"><div class="fg-stage" id="fg-stage"></div><div class="fg-side"><div class="fg-cap" id="fg-cap"></div><div id="fg-ans"></div></div></div>`; }
   function hud() {
     if (!S || !$('#fg-hud')) return; const d = U();
     const q = `<button class="fg-q" id="fg-quit" type="button">${d.quit}</button>`;
@@ -279,6 +290,7 @@
     if (!S || S.busy || S.over) return;
     const right = !skipped && answer != null && (S.type ? F.match(S.cur, answer) : answer === S.cur);
     S.busy = true; cancelAnimationFrame(raf);
+    if (S.mode !== 'jour') (S.results = S.results || []).push({ c: S.cur, ok: !!right });
     const d = U(), stage = $('#fg-stage'); if (stage) { stage.classList.remove('blur'); stage.style.removeProperty('--bl'); }
     if (S.mode === 'jour') return dayAnswer(right, answer);
     if (right) {
@@ -332,10 +344,10 @@
     try { socket.emit('flags-solo-finished', { playerId: getPlayerId(), mode, score }); } catch {}
     const th = mode === 'chrono' ? [8, 15, 25] : [5, 10, 20], stars = th.filter(x => score >= x).length;
     snd(score > 0 ? 'win' : 'lose');
-    const o = el(`<div class="fg-end"><div class="box"><h3>${esc(title || d.over)}</h3><div class="num" id="fg-cnt">0</div><div class="stars" id="fg-stars"></div>${record ? `<span class="rec">${d.record}</span>` : ''}<div class="acts"><button class="btn btn-primary" id="fg-again">${d.again}</button><button class="btn tear-btn" id="fg-out">${d.quit}</button></div></div></div>`);
-    fg().appendChild(o);
-    const t0 = performance.now(); (function f() { const p = Math.min(1, (performance.now() - t0) / (reduce() ? 1 : 1200)); $('#fg-cnt').textContent = d.found(Math.round(score * p)); if (p < 1) requestAnimationFrame(f); })();
-    [0, 1, 2].forEach(i => { const s = el(STAR); if (i >= stars) s.style.opacity = '.25'; $('#fg-stars').appendChild(s); if (i < stars && !reduce()) A(s, [{ opacity: 0, transform: 'scale(0) rotate(-90deg)' }, { opacity: 1, transform: 'scale(1.3) rotate(10deg)', offset: .6 }, { opacity: 1, transform: 'scale(1) rotate(0)' }], { duration: 500, delay: 800 + i * 250 }); });
+    const recap = (S.results || []).map(r => `<span class="fe-f${r.ok ? '' : ' no'}" title="${esc(nm(r.c))}">${flagImg(r.c)}</span>`).join('');
+    fg().innerHTML = `<div class="fe"><div class="fe-left"><h3>${esc(title || d.over)}</h3><div class="num" id="fg-cnt">0</div><div class="fe-sub">${d.foundLbl}</div><div class="stars" id="fg-stars"></div>${record ? `<span class="rec">${d.record}</span>` : ''}<div class="acts"><button class="btn btn-primary" id="fg-again">${d.again}</button><button class="btn tear-btn" id="fg-out">${d.quit}</button></div></div><div class="fe-right"><p class="fh-lab">${d.yourFlags}</p><div class="fe-recap">${recap}</div></div></div>`;
+    const t0 = performance.now(); (function f() { const p = Math.min(1, (performance.now() - t0) / (reduce() ? 1 : 1200)); const c = $('#fg-cnt'); if (c) c.textContent = Math.round(score * p); if (p < 1) requestAnimationFrame(f); })();
+    [0, 1, 2].forEach(i => { const st = el(STAR); if (i >= stars) st.style.opacity = '.25'; $('#fg-stars').appendChild(st); if (i < stars && !reduce()) A(st, [{ opacity: 0, transform: 'scale(0) rotate(-90deg)' }, { opacity: 1, transform: 'scale(1.3) rotate(10deg)', offset: .6 }, { opacity: 1, transform: 'scale(1) rotate(0)' }], { duration: 500, delay: 800 + i * 250 }); });
     $('#fg-again').onclick = () => startRun(mode); $('#fg-out').onclick = leaveToHome;
     setTimeout(() => { try { socket.emit('get-flags-leaderboard'); } catch {} }, 600);
   }
@@ -392,7 +404,7 @@
     let st = null; try { st = JSON.parse(sessionStorage.getItem(RUN) || 'null'); } catch {}
     const screen = sessionStorage.getItem('libero_screen');
     if (screen === 'flag-game') {
-      if (st && st.deck) { S = Object.assign({ busy: false, over: false, tries: 1, qStart: 0 }, st); S.i = Math.max(0, st.i); showGame(); renderQuestion(true); return true; }
+      if (st && st.deck) { S = Object.assign({ busy: false, over: false, tries: 1, qStart: 0, results: [] }, st); S.i = Math.max(0, st.i); showGame(); renderQuestion(true); return true; }
       const day = rd(DAYK, {}); if (day.day === dayKey() && !day.over) { startDay(); return true; }
       if (day.day === dayKey() && day.over) { startDay(); return true; }
     }
