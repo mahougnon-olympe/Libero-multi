@@ -11,6 +11,7 @@ const tictactoe  = require('./game-tictactoe');
 const chessGame  = require('./game-chess');
 const checkers   = require('./game-checkers');
 const ludo       = require('./game-ludo');
+const unoGame    = require('./game-uno');
 const triviaGame = require('./game-trivia');
 const bots       = require('./game-bots');
 
@@ -48,6 +49,7 @@ const io = new Server(server, { cors: { origin: ALLOWED_ORIGINS.length ? ALLOWED
 const rooms           = new Map();
 const leaderboard     = new Map();
 const triviaRooms     = new Map();
+const unoRooms        = new Map();
 const triviaLeaderboard = new Map();
 const snakeLeaderboard  = new Map();
 const luffyLeaderboard  = new Map();
@@ -2293,7 +2295,7 @@ function generateCode() {
     code = Array.from({ length: 4 }, () =>
       CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]
     ).join('');
-  } while (rooms.has(code) || triviaRooms.has(code)); // unique aux deux sections
+  } while (rooms.has(code) || triviaRooms.has(code) || unoRooms.has(code)); // unique aux trois sections
   return code;
 }
 
@@ -2783,10 +2785,118 @@ function scheduleBotMove(code) {
 
 // ── Socket ─────────────────────────────────────────────────────────────────
 
+
+// ── Uno : salons de 2 a 6 joueurs (robots possibles) ─────────────────────────
+// Systeme a part des autres jeux : un salon = { code, host (playerId), players:[{pid,name,sid,bot,ci,connected,afk}], status, state }.
+// L'identite d'un joueur est son playerId (jamais envoye aux autres) : la reprise apres F5 se fait par code + playerId.
+const UNO_TURN_MS = 40_000, UNO_RECONNECT_MS = 60_000, UNO_WAIT_MS = 5 * 60_000, UNO_BOTS = ['Robo Léa', 'Robo Max', 'Robo Zoé', 'Robo Tom', 'Robo Eva'];
+const _unoSeatOf = (room, pid) => room.state ? room.state.seats.indexOf(pid) : -1;
+const _unoPlayer = (room, pid) => room.players.find(p => p.pid === pid);
+function _unoPublic(room) {
+  const list = room.state ? room.state.seats.map(pid => _unoPlayer(room, pid)).filter(Boolean) : room.players;
+  return list.map(p => ({ name: p.name, bot: !!p.bot, connected: p.bot || p.connected, ci: p.ci, afk: !!p.afk,
+    portrait: p.bot ? null : (libs.get(p.pid)?.portrait || null), host: p.pid === room.host }));
+}
+function unoEmit(room, ev) {
+  room.seq = (room.seq || 0) + 1;
+  for (const p of room.players) {
+    if (p.bot || !p.sid) continue;
+    const seat = room.state ? _unoSeatOf(room, p.pid) : -1;
+    let e = ev || null;
+    // Les cartes piochees ne vont qu'a celui qui a pioche.
+    if (e && e.mine) { e = Object.assign({}, e); if (seat === e.seat) e.mine = ev.mine.map(c => c.id); else delete e.mine; }
+    const base = { code: room.code, status: room.status, players: _unoPublic(room), youHost: p.pid === room.host, seq: room.seq, ev: e };
+    if (room.state) Object.assign(base, unoGame.view(room.state, p.pid), { mySeat: seat, turnEnd: room.turnEnd || 0 });
+    io.to(p.sid).emit(room.state ? 'uno-state' : 'uno-lobby', base);
+  }
+}
+function _unoClear(room) { clearTimeout(room.timer); clearTimeout(room.botTimer); room.timer = room.botTimer = null; }
+function unoSchedule(room) {
+  _unoClear(room);
+  if (room.status !== 'playing' || !room.state || room.state.winner) { room.turnEnd = 0; return; }
+  const p = _unoPlayer(room, unoGame.current(room.state));
+  if (!p) return;
+  if (p.bot || !p.connected || p.afk) {
+    room.turnEnd = 0;
+    room.botTimer = setTimeout(() => unoAuto(room, p.pid), 1100 + Math.random() * 900);
+  } else {
+    room.turnEnd = Date.now() + UNO_TURN_MS;
+    room.timer = setTimeout(() => { p.afkN = (p.afkN || 0) + 1; if (p.afkN >= 2) p.afk = true; unoAuto(room, p.pid); }, UNO_TURN_MS);
+  }
+}
+// Le robot (ou le delai ecoule) joue a la place du joueur.
+function unoAuto(room, pid) {
+  if (room.status !== 'playing' || !room.state || unoGame.current(room.state) !== pid) return;
+  const a = unoGame.botAct(room.state, pid);
+  unoAct(room, pid, a.act, a);
+}
+function unoAct(room, pid, act, a = {}) {
+  const st = room.state;
+  if (!st || room.status !== 'playing') return false;
+  let r;
+  if (act === 'play') r = unoGame.play(st, pid, a.cardId, a.color, !!a.uno);
+  else if (act === 'draw') r = unoGame.draw(st, pid);
+  else if (act === 'pass') r = unoGame.pass(st, pid);
+  else if (act === 'call') r = unoGame.call(st, pid);
+  else return false;
+  if (!r.ok) return false;
+  // Les cartes piochees ne sont jamais revelees aux autres : on n'envoie que leur nombre.
+  const ev = Object.assign({}, r.ev);
+  const hide = x => x && Array.isArray(x.cards) ? { seat: x.seat, n: x.cards.length } : x;
+  if (ev.t === 'draw') { ev.n = ev.cards.length; ev.mine = ev.cards; delete ev.cards; }
+  if (ev.draw) ev.draw = hide(ev.draw);
+  if (ev.penalty) ev.penalty = hide(ev.penalty);
+  ev.name = _unoPlayer(room, pid)?.name;
+  if (act === 'call') { unoEmit(room, ev); return true; }
+  if (act !== 'call') { const pl = _unoPlayer(room, pid); if (pl && !pl.bot) { pl.afkN = 0; pl.afk = false; } }
+  if (st.winner) { unoFinish(room); unoEmit(room, ev); return true; }
+  unoSchedule(room);
+  unoEmit(room, ev);
+  return true;
+}
+function unoFinish(room) {
+  _unoClear(room);
+  room.status = 'finished'; room.turnEnd = 0;
+  const st = room.state, winner = st.winner;
+  bumpDaily('games');
+  const all = room.played || [];
+  all.forEach(pid => {
+    const p = _unoPlayer(room, pid) || (room.left || []).find(x => x.pid === pid);
+    if (!p || p.bot) return;
+    const res = pid === winner ? 'win' : 'loss';
+    updateLeaderboard(pid, p.name, res);
+    pushHistory(pid, { game: 'uno', result: res });
+    updateLastActive(pid, p.name);
+    if (res === 'win') bumpChallenge(pid, 'gamesWon');
+  });
+  io.emit('leaderboard-update', getLeaderboardData());
+  io.emit('global-leaderboard-update', getGlobalLeaderboardData());
+}
+function unoRemove(room, pid) {
+  const p = _unoPlayer(room, pid); if (!p) return;
+  clearTimeout(p.fgt);
+  if (room.status === 'playing' && room.state && _unoSeatOf(room, pid) >= 0) {
+    (room.left = room.left || []).push({ pid, name: p.name });
+    const wasTurn = unoGame.current(room.state) === pid;
+    unoGame.forfeit(room.state, pid);
+    room.players = room.players.filter(x => x.pid !== pid);
+    if (room.state.winner) { unoFinish(room); unoEmit(room, { t: 'left', name: p.name }); }
+    else { unoSchedule(room); unoEmit(room, { t: 'left', name: p.name }); }
+    void wasTurn;
+  } else {
+    room.players = room.players.filter(x => x.pid !== pid);
+    if (room.status === 'waiting') unoEmit(room, null);
+  }
+  if (room.host === pid) { const nh = room.players.find(x => !x.bot && x.connected) || room.players.find(x => !x.bot); room.host = nh ? nh.pid : null; }
+  if (!room.players.some(x => !x.bot)) { _unoClear(room); unoRooms.delete(room.code); }
+  else if (room.status !== 'playing') unoEmit(room, null);
+}
+
 io.on('connection', (socket) => {
   let roomCode      = null;
   let myPlayer      = null;
   let triviaRoomCode = null;
+  let unoCode = null, unoPid = null;
 
   // Anti-abus : limite la cadence des actions économiques sur CE socket, pour
   // qu'un playerId éventuellement divulgué ne puisse pas être vidé/harcelé en
@@ -3086,6 +3196,7 @@ io.on('connection', (socket) => {
   socket.on('join-room', ({ code, name = '', playerId } = {}) => {
     if (tryJoinClassic(code, name, playerId)) return;
     if (tryJoinTrivia(code, name, playerId))  return;
+    if (tryJoinUno(code, name, playerId))     return;
     socket.emit('error', { message: 'Room introuvable. Vérifie le code.' });
   });
 
@@ -3094,6 +3205,7 @@ io.on('connection', (socket) => {
   socket.on('join-by-code', ({ code, name = '', playerId } = {}) => {
     if (tryJoinClassic(code, name, playerId)) return;
     if (tryJoinTrivia(code, name, playerId))  return;
+    if (tryJoinUno(code, name, playerId))     return;
     socket.emit('join-code-failed', { message: 'Partie introuvable. Vérifie le lien ou le code.' });
   });
 
@@ -4762,8 +4874,116 @@ io.on('connection', (socket) => {
     socket.emit('boost-hint-result', { eliminateChoice: eliminate });
   });
 
+
+  // ── Uno ─────────────────────────────────────────────────────────────────────
+  function tryJoinUno(code, name, playerId) {
+    const key = (code || '').toUpperCase().trim();
+    const room = unoRooms.get(key);
+    if (!room) return false;
+    const pid = safePlayerId(playerId) || ('g' + socket.id);
+    const known = _unoPlayer(room, pid);
+    if (known) { _unoAttach(room, known); return true; }            // il revient dans son salon
+    if (room.status !== 'waiting') { socket.emit('uno-error', { message: 'started' }); return true; }
+    if (room.players.length >= unoGame.MAX_PLAYERS) { socket.emit('uno-error', { message: 'full' }); return true; }
+    const used = new Set(room.players.map(p => p.ci));
+    let ci = 0; while (used.has(ci)) ci++;
+    const p = { pid, name: sanitizeName(name, 'Anonyme'), sid: socket.id, bot: false, ci, connected: true, afk: false };
+    room.players.push(p);
+    _unoAttach(room, p);
+    return true;
+  }
+  function _unoAttach(room, p) {
+    clearTimeout(p.fgt);
+    p.sid = socket.id; p.connected = true; p.afk = false; p.afkN = 0;
+    unoCode = room.code; unoPid = p.pid;
+    socket.join(room.code);
+    socket.emit('uno-joined', { code: room.code });
+    unoEmit(room, null);
+    if (room.status === 'playing') unoSchedule(room);
+  }
+  const unoMine = () => { const room = unoRooms.get(unoCode); return room && _unoPlayer(room, unoPid) ? room : null; };
+
+  socket.on('create-uno-room', ({ name = '', playerId } = {}) => {
+    if (!allowAction('unocreate', 5, 30_000)) return;
+    if (unoCode) { const old = unoMine(); if (old) { socket.leave(old.code); unoRemove(old, unoPid); } }
+    const pid = safePlayerId(playerId) || ('g' + socket.id);
+    const code = generateCode();
+    const p = { pid, name: sanitizeName(name, 'Anonyme'), sid: socket.id, bot: false, ci: 0, connected: true, afk: false };
+    const room = { code, host: pid, players: [p], status: 'waiting', state: null, seq: 0, timer: null, botTimer: null, turnEnd: 0, played: [], left: [] };
+    unoRooms.set(code, room);
+    _unoAttach(room, p);
+    socket.emit('uno-created', { code });
+  });
+  socket.on('join-uno-room', ({ code, name = '', playerId } = {}) => {
+    if (!tryJoinUno(code, name, playerId)) socket.emit('uno-error', { message: 'notfound' });
+  });
+  socket.on('reconnect-uno-room', ({ code, playerId } = {}) => {
+    const room = unoRooms.get(String(code || '').toUpperCase().trim());
+    const pid = safePlayerId(playerId);
+    const p = room && pid ? _unoPlayer(room, pid) : null;
+    if (!p) { socket.emit('uno-reconnect-failed'); return; }
+    _unoAttach(room, p);
+  });
+  socket.on('uno-add-bot', () => {
+    const room = unoMine(); if (!room || room.status !== 'waiting' || room.host !== unoPid) return;
+    if (room.players.length >= unoGame.MAX_PLAYERS) return;
+    const names = new Set(room.players.map(p => p.name));
+    const name = UNO_BOTS.find(n => !names.has(n)) || ('Robo ' + (room.players.length + 1));
+    const used = new Set(room.players.map(p => p.ci)); let ci = 0; while (used.has(ci)) ci++;
+    room.players.push({ pid: 'bot' + crypto.randomUUID().slice(0, 8), name, sid: null, bot: true, ci, connected: true, afk: false });
+    unoEmit(room, null);
+  });
+  socket.on('uno-remove-bot', () => {
+    const room = unoMine(); if (!room || room.status !== 'waiting' || room.host !== unoPid) return;
+    const i = room.players.map(p => p.bot).lastIndexOf(true);
+    if (i >= 0) { room.players.splice(i, 1); unoEmit(room, null); }
+  });
+  function unoStart(room) {
+    room.state = unoGame.createState(room.players.map(p => p.pid));
+    room.status = 'playing'; room.left = []; room.played = room.players.map(p => p.pid);
+    room.players.forEach(p => { p.afk = false; p.afkN = 0; });
+    unoSchedule(room);
+    unoEmit(room, { t: 'deal' });
+  }
+  socket.on('start-uno', () => {
+    const room = unoMine(); if (!room || room.status !== 'waiting' || room.host !== unoPid) return;
+    if (room.players.length < 2) { socket.emit('uno-error', { message: 'need2' }); return; }
+    unoStart(room);
+  });
+  socket.on('uno-restart', () => {
+    const room = unoMine(); if (!room || room.status !== 'finished' || room.host !== unoPid) return;
+    room.players = room.players.filter(p => p.bot || p.connected);
+    if (room.players.length < 2) { room.status = 'waiting'; room.state = null; unoEmit(room, null); return; }
+    unoStart(room);
+  });
+  function unoDo(act, a) {
+    const room = unoMine(); if (!room || !allowAction('unoact', 14, 5000)) return;
+    unoAct(room, unoPid, act, a || {});
+  }
+  socket.on('uno-play', ({ cardId, color, uno } = {}) => unoDo('play', { cardId: Number(cardId), color: String(color || ''), uno: !!uno }));
+  socket.on('uno-draw', () => unoDo('draw'));
+  socket.on('uno-pass', () => unoDo('pass'));
+  socket.on('uno-call', () => unoDo('call'));
+  socket.on('leave-uno-room', () => {
+    const room = unoMine(); if (!room) { unoCode = unoPid = null; return; }
+    socket.leave(room.code);
+    unoRemove(room, unoPid);
+    unoCode = unoPid = null;
+  });
+
   // ── Déconnexion ──────────────────────────────────────────────────────────
   socket.on('disconnect', () => {
+    // Uno : le siege est garde le temps de la grace (un robot joue ses tours), puis le joueur est retire.
+    if (unoCode) {
+      const room = unoRooms.get(unoCode), p = room && _unoPlayer(room, unoPid);
+      if (p && p.sid === socket.id) {
+        p.connected = false; p.sid = null;
+        const code = unoCode, pid = unoPid;
+        p.fgt = setTimeout(() => { const r = unoRooms.get(code); const q = r && _unoPlayer(r, pid); if (q && !q.connected) unoRemove(r, pid); }, room.status === 'playing' ? UNO_RECONNECT_MS : UNO_WAIT_MS);
+        if (room.status === 'playing' && room.state && unoGame.current(room.state) === pid) unoSchedule(room);
+        unoEmit(room, null);
+      }
+    }
     socketPlayerIds.delete(socket.id); hiddenSockets.delete(socket.id);
     snakeLibsGames.delete(socket.id);
     // Jeu classique
