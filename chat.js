@@ -10,7 +10,8 @@
   const back = $('dm-back'), title = $('dm-title'), who = $('dm-who'), menuBtn = $('dm-menu-btn'), menu = $('dm-menu'), err = $('dm-err');
   const KEY = 'libero_dm_open';
   let bubbles = { me: null, them: null };
-  let friends = [], current = null, msgs = [], typingTimer = null, lastTypingSent = 0;
+  let friends = [], current = null, msgs = [], typingTimer = null, lastTypingSent = 0, replying = null;
+  const RKEY = 'libero_dm_reply';
 
   // Police manuscrite des messages : chargee seulement ici (pas au demarrage du site).
   if (!document.getElementById('dm-font')) {
@@ -61,11 +62,13 @@
     const cls = m.mine ? 'me' : 'them';
     const name = m.mine ? d().me : (f?.name || '').toUpperCase();
     const seen = m.mine && m.read ? ` · ${esc(d().seen)}` : '';
-    const body = `<span class="dm-txt">${esc(m.text)}</span>`;
+    const qn = m.reply ? (m.reply.mine ? d().me : (f?.name || '')) : '';
+    const quote = m.reply ? `<button type="button" class="dm-quote dm-quote-go" data-go="${esc(m.reply.id)}"><b>${esc(qn)}</b><span>${esc(m.reply.text)}</span></button>` : '';
+    const body = `${quote}<span class="dm-txt">${esc(m.text)}</span>`;
     // Bulle achetee en boutique : un ruban dans sa matiere, a cote du message.
     const bc = typeof _bubbleClass === 'function' ? _bubbleClass(m.mine ? bubbles.me : bubbles.them) : '';
     const rib = bc ? `<i class="dm-rib msg-bubble ${bc}" aria-hidden="true"></i>` : '';
-    return `<div class="dm-m ${cls}${anim || ''}${bc ? ' dm-has-rib' : ''}" data-id="${esc(m.id || '')}"><span class="dm-name">${esc(name)} <time>${esc(hhmm(m.at))}${seen}</time></span>${body}${rib}</div>`;
+    return `<div class="dm-m ${cls}${anim || ''}${bc ? ' dm-has-rib' : ''}" data-id="${esc(m.id || '')}"><button type="button" class="dm-rep" aria-label="${esc(d().reply)}">&#8617; ${esc(d().reply)}</button><span class="dm-name">${esc(name)} <time>${esc(hhmm(m.at))}${seen}</time></span>${body}${rib}</div>`;
   }
   function renderConv() {
     let html = '', lastDay = '';
@@ -102,7 +105,7 @@
     menu.classList.add('hidden');
   }
   function openConv(ref) {
-    current = ref; msgs = []; err.textContent = '';
+    current = ref; msgs = []; err.textContent = ''; setReply(null, true);
     conv.innerHTML = '<p class="dm-empty">…</p>';
     header(); save(ref);
     socket.emit('dm-history', { playerId: getPlayerId(), ref });
@@ -136,12 +139,48 @@
     if (!ov.classList.contains('hidden')) { header(); if (!current) renderList(); else renderConv(); }
   }
 
+  // ── Repondre a un mot (glisser a droite sur telephone, bouton au survol sur ordinateur) ──
+  function setReply(m, restoring) {
+    replying = m;
+    const bar = $('dm-replybar');
+    if (m) { $('dm-rb-n').textContent = m.mine ? d().me : (friends.find(x => x.ref === current)?.name || ''); $('dm-rb-t').textContent = String(m.text).slice(0, 80); }
+    bar.classList.toggle('hidden', !m);
+    if (!restoring) { try { m ? sessionStorage.setItem(RKEY, JSON.stringify({ ref: current, id: m.id, text: m.text, mine: m.mine })) : sessionStorage.removeItem(RKEY); } catch {} }
+    if (m) input.focus({ preventScroll: true });
+  }
+  function startReply(el) {
+    const m = msgs.find(x => x.id === el.dataset.id);
+    if (m) { setReply(m); try { navigator.vibrate?.(15); } catch {} }
+  }
+  $('dm-rb-x').onclick = () => setReply(null);
+  conv.addEventListener('click', e => {
+    const r = e.target.closest('.dm-rep'); if (r) { startReply(r.closest('.dm-m')); return; }
+    const q = e.target.closest('.dm-quote-go'); if (!q) return;
+    const t = conv.querySelector(`.dm-m[data-id="${CSS.escape(q.dataset.go)}"]`);
+    if (!t) { err.textContent = d().gone; return; }
+    t.scrollIntoView({ block: 'center', behavior: reduce() ? 'auto' : 'smooth' });
+    t.classList.remove('dm-hi'); void t.offsetWidth; t.classList.add('dm-hi');
+  });
+  let sx = 0, sy = 0, sm = null, sdx = 0;
+  conv.addEventListener('touchstart', e => { const m = e.target.closest('.dm-m'); sm = m || null; sdx = 0; if (m) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; } }, { passive: true });
+  conv.addEventListener('touchmove', e => {
+    if (!sm) return; const dx = e.touches[0].clientX - sx, dy = Math.abs(e.touches[0].clientY - sy);
+    if (dy > 24 && dx < 20) { sm.style.transform = ''; sm = null; return; }
+    if (dx > 0 && dx > dy) { sdx = Math.min(dx, 70); sm.style.transform = `translateX(${sdx}px)`; sm.classList.toggle('dm-pull', sdx > 50); }
+  }, { passive: true });
+  conv.addEventListener('touchend', () => {
+    if (!sm) return; const m = sm; sm = null;
+    m.style.transition = 'transform .2s'; m.style.transform = ''; setTimeout(() => { m.style.transition = ''; m.classList.remove('dm-pull'); }, 220);
+    if (sdx > 50) startReply(m);
+  });
+
   // ── Envoi ──
   function send(text) {
     text = String(text || '').trim();
     if (!text || !current) return;
     err.textContent = '';
-    socket.emit('dm-send', { playerId: getPlayerId(), ref: current, text, tmp: Date.now() });
+    socket.emit('dm-send', { playerId: getPlayerId(), ref: current, text, tmp: Date.now(), replyTo: replying ? replying.id : undefined });
+    setReply(null);
     window._sound?.play('dm-send');
     input.value = '';
   }
@@ -217,6 +256,7 @@
       msgs = p.messages || []; bubbles = p.bubbles || { me: null, them: null }; renderConv();
       const f = friends.find(x => x.ref === current); if (f) f.unread = 0;
       input.disabled = p.canWrite === false; err.textContent = p.canWrite === false ? d().noWrite : '';
+      try { const rd = JSON.parse(sessionStorage.getItem(RKEY) || 'null'); if (rd && rd.ref === current && !replying) setReply({ id: rd.id, text: rd.text, mine: rd.mine }, true); } catch {}
     }
     else if (ev === 'dm-sent' && p.ref === current && p.msg) appendMsg(p.msg);
     else if (ev === 'dm-read' && p.ref === current) {

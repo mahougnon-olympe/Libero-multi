@@ -1600,10 +1600,10 @@ function _dmKey(a, b) { return a < b ? a + '|' + b : b + '|' + a; }
 function _dmStore(m, persist = true) {
   const k = _dmKey(m.from, m.to);
   const arr = dmConvs.get(k) || [];
-  arr.push({ id: m.id || m._id, from: m.from, to: m.to, text: m.text, at: m.at, read: !!m.read });
+  arr.push({ id: m.id || m._id, from: m.from, to: m.to, text: m.text, at: m.at, read: !!m.read, reply: m.reply || null });
   if (arr.length > DM_KEEP_PER_CONV) arr.splice(0, arr.length - DM_KEEP_PER_CONV);
   dmConvs.set(k, arr);
-  if (persist && db) db.collection('dm_messages').insertOne({ _id: m.id, from: m.from, to: m.to, text: m.text, at: m.at, read: false, exp: new Date(m.at + DM_TTL_MS) }).catch(() => {});
+  if (persist && db) db.collection('dm_messages').insertOne({ _id: m.id, from: m.from, to: m.to, text: m.text, at: m.at, read: false, reply: m.reply || null, exp: new Date(m.at + DM_TTL_MS) }).catch(() => {});
 }
 function _dmConv(a, b) {
   const arr = dmConvs.get(_dmKey(a, b)) || [];
@@ -1623,7 +1623,7 @@ function _dmAllowed(id, pid) {
   if ((a.dmBlocked || []).includes(pid) || (b.dmBlocked || []).includes(id)) return false;
   return true;
 }
-function _dmPublic(m, viewer) { return { id: m.id, text: m.text, at: m.at, mine: m.from === viewer, read: !!m.read }; }
+function _dmPublic(m, viewer) { const r = m.reply ? { id: m.reply.id, text: m.reply.text, mine: m.reply.from === viewer } : undefined; return { id: m.id, text: m.text, at: m.at, mine: m.from === viewer, read: !!m.read, reply: r }; }
 
 // Liste d'amis : projection publique (jamais les playerId secrets, uniquement
 // le code public 8 hex, le pseudo, le niveau et la presence).
@@ -4193,7 +4193,7 @@ io.on('connection', (socket) => {
     _emitToPlayer(pid, 'dm-read', { ref: _playerRef(id).slice(0, 8) });
     socket.emit('dm-unread', { total: _dmUnread(id) });
   });
-  socket.on('dm-send', ({ playerId, ref, text, tmp } = {}) => {
+  socket.on('dm-send', ({ playerId, ref, text, tmp, replyTo } = {}) => {
     const id = safePlayerId(playerId); if (!id) return;
     if (!allowAction('dm', 5, 10_000)) { socket.emit('dm-error', { tmp, error: 'rate' }); return; }
     const entry = getLibsEntry(id);
@@ -4204,6 +4204,11 @@ io.on('connection', (socket) => {
     if (!clean) return;
     if (containsBanned(clean)) { socket.emit('dm-error', { tmp, error: 'banned' }); return; }
     const m = { id: crypto.randomUUID(), from: id, to: pid, text: clean, at: Date.now(), read: false };
+    // Reponse a un mot : on garde un extrait du mot cite (il doit exister dans cette conversation).
+    if (typeof replyTo === 'string' && replyTo.length < 64) {
+      const orig = _dmConv(id, pid).find(x => x.id === replyTo);
+      if (orig) m.reply = { id: orig.id, from: orig.from, text: String(orig.text).slice(0, 80) };
+    }
     _dmStore(m);
     const myRef = _playerRef(id).slice(0, 8);
     _emitToPlayer(id, 'dm-sent', { ref, tmp, msg: _dmPublic(m, id) });

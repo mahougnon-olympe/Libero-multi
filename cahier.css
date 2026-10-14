@@ -3145,3 +3145,22 @@ html.light .xp-pill { color: #173a8a; }
 @media (prefers-reduced-motion: reduce) { .flag-frame[data-frame="cloth"] { animation: none; } }
 #tg-question .flag-frame { margin: 4px 0; }
 #tg-question .flag-frame { display: block; margin: 4px auto; }
+
+/* Repondre a un mot */
+.dm-m { transition: background .3s; }
+.dm-rep { display: none; position: absolute; top: -12px; z-index: 2; border: 1.5px solid var(--text); border-radius: 8px; background: var(--card); color: var(--text); font: 700 .7rem var(--font-body); padding: 2px 8px; cursor: pointer; box-shadow: 0 2px 0 rgba(0,0,0,.15); }
+.dm-m.me .dm-rep { right: 0; } .dm-m.them .dm-rep { left: 0; }
+@media (hover: hover) { .dm-m:hover .dm-rep { display: inline-block; } }
+.dm-pull::before { content: "\21A9"; position: absolute; left: -40px; top: 50%; margin-top: -14px; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--text); background: var(--mark, #fff27a); color: #22252b; display: grid; place-items: center; font: 800 15px var(--font-body); }
+.dm-quote { display: block; text-align: left; border: 0; border-left: 4px solid var(--margin, #e2485d); background: var(--card2); border-radius: 0 6px 6px 0; padding: 3px 8px; margin: 2px 0 3px; font: .82rem/1.25 var(--font-body); color: var(--muted); max-width: 100%; }
+.dm-quote b { display: block; color: var(--margin, #e2485d); font-size: .72rem; }
+.dm-quote span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dm-quote-go { cursor: pointer; width: 100%; }
+.dm-m.me .dm-quote { margin-left: auto; }
+.dm-hi { animation: dmHiBg 1.6s ease 1; }
+@keyframes dmHiBg { 0%, 60% { background: var(--mark, #fff27a); } 100% { background: transparent; } }
+.dm-replybar { display: flex; gap: 8px; align-items: center; border-top: 2px solid var(--line); padding: 6px 10px; background: var(--card2); }
+.dm-replybar.hidden { display: none; }
+.dm-replybar .dm-quote { flex: 1; min-width: 0; margin: 0; }
+.dm-rb-x { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--line); background: var(--card); color: var(--text); font: 800 16px var(--font-body); cursor: pointer; flex: none; }
+@media (prefers-reduced-motion: reduce) { .dm-hi { animation: none; background: var(--mark, #fff27a); } }
