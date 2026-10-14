@@ -209,6 +209,13 @@ const PROMO_CODES = (() => {
 })();
 const PROMO_FILL_CODE = (process.env.PROMO_FILL_CODE || 'SDFT').trim().toUpperCase();
 const socketPlayerIds = new Map();
+// Sockets dont la page est en arriere-plan (telephone verrouille, onglet cache) : la connexion reste
+// ouverte un moment, mais le joueur ne voit rien. Pour les notifications il compte comme absent.
+const hiddenSockets = new Set();
+function _playerActive(pid) {
+  for (const [sid, v] of socketPlayerIds) if (v === pid && !hiddenSockets.has(sid)) return true;
+  return false;
+}
 const playerIdAliases = new Map();
 // Codes cadeaux : un joueur paie un cosmetique pour l'offrir, ce qui genere un
 // code que le destinataire echange. code -> { cosmeticId, fromName, createdAt, redeemedBy, redeemedAt }
@@ -1473,7 +1480,7 @@ function autoPushTry(pid, entry, kind, fr, en, opts = {}) {
   const h = _beninDate().getUTCHours();
   if (h < 8 || h >= 22) return false;                                  // heures calmes : on n'envoie pas, la condition reste vraie le matin
   if ((entry.pushUnopened || 0) >= AUTO_PUSH_PAUSE_AFTER) return false; // en pause
-  for (const v of socketPlayerIds.values()) if (v === pid) return false; // il est sur le site : rien a rappeler
+  if (_playerActive(pid)) return false; // il regarde le site : rien a rappeler
   const today = _dayKey();
   if (entry.pushDay !== today) { entry.pushDay = today; entry.pushCount = 0; }
   if ((entry.pushCount || 0) >= AUTO_PUSH_MAX_DAY) return false;
@@ -4005,18 +4012,19 @@ io.on('connection', (socket) => {
     const myRef = _playerRef(id).slice(0, 8);
     _emitToPlayer(id, 'dm-sent', { ref, tmp, msg: _dmPublic(m, id) });
     _emitToPlayer(pid, 'dm-new', { ref: myRef, name: entry.name, msg: _dmPublic(m, pid), total: _dmUnread(pid) });
-    // Push seulement si l'ami n'a pas le site ouvert, regroupee (1 toutes les 3 min par ami).
+    // Push seulement si l'ami n'a pas le site ouvert, regroupee (1 toutes les 20 s par ami, meme tag donc la notification se remplace).
     const target = libs.get(pid);
-    const isOnline = [...socketPlayerIds.values()].includes(pid);
+    const isOnline = _playerActive(pid);
     const pk = id + '|' + pid;
-    if (!isOnline && target && target.dmPush !== false && Date.now() - (_dmPushAt.get(pk) || 0) > 180_000) {
+    if (!isOnline && target && target.dmPush !== false && Date.now() - (_dmPushAt.get(pk) || 0) > 20_000) {
       _dmPushAt.set(pk, Date.now());
       const n = _dmConv(id, pid).filter(x => x.to === pid && !x.read).length;
       const fr = (target.lang || 'fr') !== 'en';
       sendPush(pid, { title: n > 1 ? (fr ? `${n} mots de ${entry.name}` : `${n} notes from ${entry.name}`) : (fr ? `Un mot de ${entry.name}` : `A note from ${entry.name}`),
-        body: clean.slice(0, 90), url: 'https://libero-multi.vercel.app/?mots=' + myRef });
+        body: clean.slice(0, 90), url: 'https://libero-multi.vercel.app/?mots=' + myRef, tag: 'dm-' + myRef });
     }
   });
+  socket.on('app-visible', (v) => { if (v === false) hiddenSockets.add(socket.id); else hiddenSockets.delete(socket.id); });
   socket.on('dm-typing', ({ playerId, ref } = {}) => {
     const id = safePlayerId(playerId); if (!id) return;
     if (!allowAction('dmtyping', 10, 10_000)) return;
@@ -4756,7 +4764,7 @@ io.on('connection', (socket) => {
 
   // ── Déconnexion ──────────────────────────────────────────────────────────
   socket.on('disconnect', () => {
-    socketPlayerIds.delete(socket.id);
+    socketPlayerIds.delete(socket.id); hiddenSockets.delete(socket.id);
     snakeLibsGames.delete(socket.id);
     // Jeu classique
     if (roomCode) {

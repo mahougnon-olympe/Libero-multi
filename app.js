@@ -5940,8 +5940,14 @@ function restoreSoloTrivia() {
 }
 let _soloRestored = false;
 
+// Dit au serveur si la page est visible : en arriere-plan on recoit les notifications push comme si on etait hors du site.
+function _sendVisible() { try { socket.emit('app-visible', document.visibilityState !== 'hidden'); } catch {} }
+document.addEventListener('visibilitychange', _sendVisible);
+window.addEventListener('pagehide', () => { try { socket.emit('app-visible', false); } catch {} });
+window.addEventListener('pageshow', _sendVisible);
 socket.on('connect', () => {
   triviaMySocketId = socket.id;
+  _sendVisible();
   // 1) Reprendre la partie en cours EN PREMIER : c'est ce que le joueur attend devant l'ecran de demarrage.
   const _p4 = sessionStorage.getItem('p4session');
   let _hold = false;
