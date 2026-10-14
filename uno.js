@@ -52,7 +52,7 @@
   }
   function loadCss() {
     if (document.getElementById('uno-css')) return;
-    const l = document.createElement('link'); l.id = 'uno-css'; l.rel = 'stylesheet'; l.href = 'uno.css?v=1'; document.head.appendChild(l);
+    const l = document.createElement('link'); l.id = 'uno-css'; l.rel = 'stylesheet'; l.href = 'uno.css?v=2'; document.head.appendChild(l);
   }
 
   // ── Etat ────────────────────────────────────────────────────────────────────
@@ -184,9 +184,9 @@
     return out;
   }
   function coords(k, m) {
-    const span = m > 5 ? 1.02 : 1, th = Math.PI / 2 + span * (Math.PI / 2 - (k + .5) * Math.PI / m) * -1 * -1;
-    const a = Math.PI - (k + .5) * Math.PI / m;
-    return { x: 50 + (m > 5 ? 43 : 41) * Math.cos(a), y: 40 - 27 * Math.sin(a) + (m > 5 && k % 2 ? 10 : 0), th };
+    const a = Math.PI - (k + .5) * Math.PI / m, c = Math.cos(a);
+    const zig = m > 5 && Math.abs(c) < .72 && k % 2 ? 11 : 0;      // en haut les pastilles se serrent : une sur deux descend
+    return { x: 50 + (m > 5 ? 43 : 41) * c, y: 38 - 26 * Math.sin(a) + zig };
   }
   function plHtml(v, seat, k, m) {
     const p = v.players[seat], c = coords(k, m), cnt = v.counts[seat], mini = m > 5 ? 0 : Math.min(cnt, 6);
@@ -314,7 +314,7 @@
       const an = A(e, [{ transform: 'translateY(0) rotate(0)' }, { transform: `translateY(${h + 80}px) rotate(${(Math.random() - .5) * 720}deg)` }], { duration: 1800 + Math.random() * 1400, delay: Math.random() * 700, easing: 'cubic-bezier(.3,.1,.6,1)' });
       an.onfinish = () => e.remove();
     }
-    big(v.winner === v.mySeat ? U().win : U().winOf(v.players[v.winner]?.name || ''), '#1d2433', 26, 'var(--accent)');
+    big(v.winner === v.mySeat ? U().win : U().winOf(v.players[v.winner]?.name || ''), '#1d2433', 26, 'var(--yellow, #ffe169)');
     await wait(1400);
   }
   async function dealAnim(v) {
@@ -334,7 +334,7 @@
     const dr = discRect();
     const fl = fly(back('lg'), { x: d.x, y: d.y, w: d.w, h: d.h }, { x: dr.x, y: dr.y, w: dr.w, h: dr.h }, { d: 500 });
     await fl;
-    big(U().go, '#1d2433', 24, 'var(--accent)'); snd('opponent-joined');
+    big(U().go, '#1d2433', 24, 'var(--yellow, #ffe169)'); snd('opponent-joined');
   }
 
   // ── File des etats : un a la fois, animation puis rendu ─────────────────────
