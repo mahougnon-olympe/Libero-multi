@@ -118,6 +118,7 @@ let equippedClickFx      = null;
 let equippedEmojiPack    = null;
 let equippedVictoryBan   = null;
 let equippedSoundPack    = null;
+let equippedUnoSkin      = null;
 let equippedEmotes       = [];
 let honorTitle           = null;
 let _shopDetailItem         = null;
@@ -662,7 +663,7 @@ const DICT = {
     peLockedHint:'Les éléments marqués d\'un prix sont à débloquer (40 Libs chacun).', peNeedName:'Choisis d\'abord un pseudo.',
     peNoMoney:'Pas assez de Libs pour ces éléments.', peErr:'Impossible d\'enregistrer, réessaie.',
     lockerEquip:'Équiper', lockerUnequip:'Déséquiper',
-    lockerCats:{ colors:'Couleurs de pseudo', nameeffects:'Effets de pseudo', titles:'Titres', bgs:"Fonds d'écran", bubbles:'Bulles de chat', fonts:'Polices', cursorsnakes:'Curseur', snakeskins:'Skins Snake', avatars:'Avatars', p4tokens:'Jetons Puissance 4', ttt:'Symboles Morpion', chess:"Thèmes d'échiquier", clickfx:'Particules de clic', emojipacks:"Packs d'émojis", victorybans:'Bannières de victoire', soundpacks:'Packs de sons', emotes:'Emotes', honorary:'Titre honorifique' },
+    lockerCats:{ colors:'Couleurs de pseudo', nameeffects:'Effets de pseudo', titles:'Titres', bgs:"Fonds d'écran", bubbles:'Bulles de chat', fonts:'Polices', cursorsnakes:'Curseur', snakeskins:'Skins Snake', avatars:'Avatars', p4tokens:'Jetons Puissance 4', ttt:'Symboles Morpion', chess:"Thèmes d'échiquier", clickfx:'Particules de clic', emojipacks:"Packs d'émojis", victorybans:'Bannières de victoire', unoskins:'Skins Uno', soundpacks:'Packs de sons', emotes:'Emotes', honorary:'Titre honorifique' },
     lockerCardSub:'Tes cosmétiques et leurs aperçus',
     historyCardSub:'Ton historique de jeu',
     recovery:{
@@ -1062,6 +1063,8 @@ const DICT = {
     shopEmojiPackNames:{'emojipack-animals':'Carnet Animaux','emojipack-hearts':'Carnet Cœurs','emojipack-party':'Carnet Fête','emojipack-gaming':'Carnet Jeux','emojipack-cosmos':'Carnet Cosmos'},
     shopVictoryBansTitle:'🏆 Bannières de victoire',
     shopVictoryBanNames:{'victoryban-neon':'Tampon « Bravo ! »','victoryban-confetti':'Guirlande de fanions','victoryban-flames':'20/20 au stylo rouge','victoryban-lightning':'Médaille d\'or','victoryban-crown':'Couronne de laurier dorée'},
+    shopUnoSkinsTitle:'Skins de cartes Uno',
+    shopUnoSkinNames:{'unoskin-felt':'Papier cartonné','unoskin-metal':'Métal brossé','unoskin-gold':'Noir et or','unoskin-neon':'Néon'},
     shopSoundPacksTitle:'🔊 Packs de sons',
     shopSoundPackNames:{'soundpack-8bit':'8-bit','soundpack-retro':'Rétro Arcade','soundpack-crystal':'Cristal','soundpack-cyber':'Cyber','soundpack-epic':'Épique'},
     shopEmotesTitle:'😎 Emotes',
@@ -1089,6 +1092,7 @@ const DICT = {
       emojipacks:"Remplace les émojis du chat par un pack thématique.",
       victorybans:"Une bannière animée s'affiche sur l'écran de fin quand tu gagnes.",
       soundpacks:"Remplace les effets sonores du jeu par un pack personnalisé.",
+      unoskins:"Change l'apparence de tes cartes au Uno : relief, reflets et couleurs vives. Tu vois tes cartes avec ton skin, chacun voit les siennes.",
       emotes:"Envoie une réaction express à tes adversaires en cours de partie.",
     },
     shopRotationLabel:'Renouvellement dans',
@@ -1104,7 +1108,7 @@ const DICT = {
     shopBundleInsufficientFunds:'Champion, tu n\'as pas assez de Libs.',
     shopBundleError:'Erreur lors de l\'achat.',
     shopBundleNames:{ 'bundle-debutant':'Pack Débutant','bundle-retro':'Pack Rétro','bundle-neon-arcade':'Pack Néon Arcade','bundle-galaxie':'Pack Galaxie','bundle-prestige-or':'Pack Prestige Or','bundle-hologramme':'Pack Hologramme Ultime' },
-    shopNavLabels:{ featured:'À la une', daily:'Quotidien', bundles:'Bundles', boosts:'Boosts', colors:'Couleurs', fonts:'Polices', bubbles:'Bulles', bgs:'Fonds', nameeffects:'Effets', titles:'Titres', codes:'Codes', cursorsnakes:'Curseur', snakeskins:'Snake', avatars:'Avatars', p4tokens:'P4', ttt:'Morpion', chess:'Échiquier', clickfx:'Particules', emojipacks:'Émojis', victorybans:'Victoire', soundpacks:'Sons', emotes:'Emotes' },
+    shopNavLabels:{ featured:'À la une', daily:'Quotidien', bundles:'Bundles', boosts:'Boosts', colors:'Couleurs', fonts:'Polices', bubbles:'Bulles', bgs:'Fonds', nameeffects:'Effets', titles:'Titres', codes:'Codes', cursorsnakes:'Curseur', snakeskins:'Snake', avatars:'Avatars', p4tokens:'P4', ttt:'Morpion', chess:'Échiquier', clickfx:'Particules', emojipacks:'Émojis', victorybans:'Victoire', soundpacks:'Sons', unoskins:'Uno', emotes:'Emotes' },
     shopLibsPacksTitle:'💳 Recharger tes Libs',
     shopLibsPacksDesc:'Achète des Libs ⚡ avec de l\'argent réel (mobile money / carte, paiement sécurisé FedaPay). Le crédit est vérifié par nos serveurs, jamais instantané côté navigateur.',
     shopLibsPacksLoading:'Chargement des packs…',
@@ -1221,7 +1225,7 @@ const DICT = {
     streakSub:(l, b) => `Record : ${l} jour${l > 1 ? 's' : ''}${b > 0 ? ` · +${b} ⚡ aujourd'hui` : ''}`,
     streakBonusToast:(n, b) => `Jour ${n} de connexion · +${b} ⚡ !`,
     historyEmpty:'Aucune partie pour l\'instant. Lance une partie !',
-    historyGameNames:{ connect4:'Puissance 4', tictactoe:'Morpion', chess:'Échecs', trivia:'Quiz', snake:'Snake', luffy:'Libero Run' },
+    historyGameNames:{ connect4:'Puissance 4', tictactoe:'Morpion', chess:'Échecs', checkers:'Dames', ludo:'Ludo', uno:'Uno', trivia:'Quiz', snake:'Snake', luffy:'Libero Run' },
     historyResults:{ win:'Victoire', loss:'Défaite', draw:'Match nul' },
     historyScore:n => `${n} pts`,
     bookReaders:n => `${n} lecteur${n > 1 ? 's' : ''}`,
@@ -1449,7 +1453,7 @@ const DICT = {
     peLockedHint:'Items with a price must be unlocked (40 Libs each).', peNeedName:'Pick a username first.',
     peNoMoney:'Not enough Libs for these items.', peErr:'Could not save, try again.',
     lockerEquip:'Equip', lockerUnequip:'Unequip',
-    lockerCats:{ colors:'Name colors', nameeffects:'Name effects', titles:'Titles', bgs:'Backgrounds', bubbles:'Chat bubbles', fonts:'Fonts', cursorsnakes:'Cursor', snakeskins:'Snake skins', avatars:'Avatars', p4tokens:'Connect 4 tokens', ttt:'Tic-Tac-Toe symbols', chess:'Chessboard themes', clickfx:'Click particles', emojipacks:'Emoji packs', victorybans:'Victory banners', soundpacks:'Sound packs', emotes:'Emotes', honorary:'Honorary title' },
+    lockerCats:{ colors:'Name colors', nameeffects:'Name effects', titles:'Titles', bgs:'Backgrounds', bubbles:'Chat bubbles', fonts:'Fonts', cursorsnakes:'Cursor', snakeskins:'Snake skins', avatars:'Avatars', p4tokens:'Connect 4 tokens', ttt:'Tic-Tac-Toe symbols', chess:'Chessboard themes', clickfx:'Click particles', emojipacks:'Emoji packs', victorybans:'Victory banners', unoskins:'Uno skins', soundpacks:'Sound packs', emotes:'Emotes', honorary:'Honorary title' },
     lockerCardSub:'Your cosmetics and their previews',
     historyCardSub:'Your game history',
     recovery:{
@@ -1849,6 +1853,8 @@ const DICT = {
     shopEmojiPackNames:{'emojipack-animals':'Animal notebook','emojipack-hearts':'Hearts notebook','emojipack-party':'Party notebook','emojipack-gaming':'Games notebook','emojipack-cosmos':'Cosmos notebook'},
     shopVictoryBansTitle:'🏆 Victory Banners',
     shopVictoryBanNames:{'victoryban-neon':'"Bravo!" stamp','victoryban-confetti':'Bunting','victoryban-flames':'20/20 in red pen','victoryban-lightning':'Gold medal','victoryban-crown':'Golden laurel wreath'},
+    shopUnoSkinsTitle:'Uno card skins',
+    shopUnoSkinNames:{'unoskin-felt':'Cardstock','unoskin-metal':'Brushed metal','unoskin-gold':'Black and gold','unoskin-neon':'Neon'},
     shopSoundPacksTitle:'🔊 Sound Packs',
     shopSoundPackNames:{'soundpack-8bit':'8-bit','soundpack-retro':'Retro Arcade','soundpack-crystal':'Crystal','soundpack-cyber':'Cyber','soundpack-epic':'Epic'},
     shopEmotesTitle:'😎 Emotes',
@@ -1876,6 +1882,7 @@ const DICT = {
       emojipacks:"Replace chat emojis with a themed pack.",
       victorybans:"An animated banner appears on the end screen when you win.",
       soundpacks:"Replace game sound effects with a custom pack.",
+      unoskins:"Changes how your cards look in Uno: relief, shine and vivid colours. You see your cards with your skin, everyone sees their own.",
       emotes:"Send a quick reaction to your opponents during a match.",
     },
     shopRotationLabel:'Refreshes in',
@@ -1891,7 +1898,7 @@ const DICT = {
     shopBundleInsufficientFunds:'Champion, you don\'t have enough Libs.',
     shopBundleError:'Purchase failed.',
     shopBundleNames:{ 'bundle-debutant':'Starter Pack','bundle-retro':'Retro Pack','bundle-neon-arcade':'Neon Arcade Pack','bundle-galaxie':'Galaxy Pack','bundle-prestige-or':'Gold Prestige Pack','bundle-hologramme':'Ultimate Hologram Pack' },
-    shopNavLabels:{ featured:'Featured', daily:'Daily', bundles:'Bundles', boosts:'Boosts', colors:'Colors', fonts:'Fonts', bubbles:'Bubbles', bgs:'Backgrounds', nameeffects:'Effects', titles:'Titles', codes:'Codes', cursorsnakes:'Cursor', snakeskins:'Snake', avatars:'Avatars', p4tokens:'P4', ttt:'Tic-Tac', chess:'Chess', clickfx:'Particles', emojipacks:'Emojis', victorybans:'Victory', soundpacks:'Sounds', emotes:'Emotes' },
+    shopNavLabels:{ featured:'Featured', daily:'Daily', bundles:'Bundles', boosts:'Boosts', colors:'Colors', fonts:'Fonts', bubbles:'Bubbles', bgs:'Backgrounds', nameeffects:'Effects', titles:'Titles', codes:'Codes', cursorsnakes:'Cursor', snakeskins:'Snake', avatars:'Avatars', p4tokens:'P4', ttt:'Tic-Tac', chess:'Chess', clickfx:'Particles', emojipacks:'Emojis', victorybans:'Victory', soundpacks:'Sounds', unoskins:'Uno', emotes:'Emotes' },
     shopLibsPacksTitle:'💳 Top up your Libs',
     shopLibsPacksDesc:'Buy Libs ⚡ with real money (mobile money / card, secure FedaPay checkout). Credit is verified by our servers, never instant on the browser side.',
     shopLibsPacksLoading:'Loading packs…',
@@ -2008,7 +2015,7 @@ const DICT = {
     streakSub:(l, b) => `Best: ${l} day${l > 1 ? 's' : ''}${b > 0 ? ` · +${b} ⚡ today` : ''}`,
     streakBonusToast:(n, b) => `Day ${n} streak · +${b} ⚡!`,
     historyEmpty:'No games yet. Start one!',
-    historyGameNames:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', trivia:'Quiz', snake:'Snake', luffy:'Libero Run' },
+    historyGameNames:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', checkers:'Checkers', ludo:'Ludo', uno:'Uno', trivia:'Quiz', snake:'Snake', luffy:'Libero Run' },
     historyResults:{ win:'Win', loss:'Loss', draw:'Draw' },
     historyScore:n => `${n} pts`,
     bookReaders:n => `${n} reader${n > 1 ? 's' : ''}`,
@@ -6372,7 +6379,7 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, wheelDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount, portrait: newPortrait, pushOn, pushPaused } = {}) => {
+socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, wheelDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedUnoSkin: newUnoSkin, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount, portrait: newPortrait, pushOn, pushPaused } = {}) => {
   if (pushOn !== undefined) { window._pushOn = !!pushOn; window._pushPaused = !!pushPaused; window._refreshPushBtn?.(); }
   if (newOwned !== undefined) setTimeout(() => window._pupitre?.paint(), 0);
   if (newPortrait !== undefined) { myPortrait = newPortrait; try { localStorage.setItem('libero_portrait', JSON.stringify(newPortrait)); } catch {} window._renderProfilePseudo?.(); }
@@ -6425,6 +6432,7 @@ socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq,
     if (newEmojiPack   !== undefined) { equippedEmojiPack = newEmojiPack; localStorage.setItem('libero_equipped_emojipack', newEmojiPack || ''); }
     if (newVictoryBan  !== undefined) equippedVictoryBan  = newVictoryBan;
     if (newSoundPack   !== undefined) equippedSoundPack   = newSoundPack;
+    if (newUnoSkin     !== undefined) { equippedUnoSkin = newUnoSkin; window._myUnoSkin = newUnoSkin ? String(newUnoSkin).replace('unoskin-', '') : null; }
     if (newEmotes !== undefined) equippedEmotes = newEmotes || [];
     _renderEmoteBar();
     if (_isShopOpen()) _renderShopItems();
@@ -6493,7 +6501,7 @@ socket.on('buy-cosmetic-result', ({ ok, cosmeticId, error } = {}) => {
   }
 });
 
-socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedEmotes: newEmotes } = {}) => {
+socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedUnoSkin: newUnoSkin, equippedEmotes: newEmotes } = {}) => {
   if (ok) {
     if (newCosmetic !== undefined) equippedCosmetic = newCosmetic;
     if (newFont     !== undefined) equippedFont     = newFont;
@@ -6515,6 +6523,7 @@ socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippe
     if (newEmojiPack   !== undefined) { equippedEmojiPack = newEmojiPack; localStorage.setItem('libero_equipped_emojipack', newEmojiPack || ''); }
     if (newVictoryBan  !== undefined) equippedVictoryBan  = newVictoryBan;
     if (newSoundPack   !== undefined) equippedSoundPack   = newSoundPack;
+    if (newUnoSkin     !== undefined) { equippedUnoSkin = newUnoSkin; window._myUnoSkin = newUnoSkin ? String(newUnoSkin).replace('unoskin-', '') : null; }
     if (newEmotes !== undefined) { equippedEmotes = newEmotes || []; _renderEmoteBar(); }
     if (_isShopOpen()) _renderShopItems();
   }
@@ -7182,6 +7191,7 @@ function _renderShopItems() {
     {id:'victoryban-neon',price:90},{id:'victoryban-confetti',price:110},{id:'victoryban-flames',price:150},
     {id:'victoryban-lightning',price:170},{id:'victoryban-crown',price:200},
   ];
+  const ALL_UNOSKINS = [{id:'unoskin-felt',price:120},{id:'unoskin-metal',price:160},{id:'unoskin-gold',price:200},{id:'unoskin-neon',price:240}];
   const ALL_SOUNDPACKS = [
     // Packs de sons retires (les sons sont devenus des fichiers ElevenLabs) : rembourses par le serveur.
   ];
@@ -7204,6 +7214,7 @@ function _renderShopItems() {
   const clickFxItems     = ALL_CLICKFX.map(x      => ({ ...x, type:'clickfx',     name: d.shopClickFxNames[x.id] }));
   const emojiPackItems   = ALL_EMOJIPACKS.map(x   => ({ ...x, type:'emojipack',   name: d.shopEmojiPackNames[x.id] }));
   const victoryBanItems  = ALL_VICTORYBANS.map(x  => ({ ...x, type:'victoryban',  name: d.shopVictoryBanNames[x.id] }));
+  const unoSkinItems     = ALL_UNOSKINS.map(x     => ({ ...x, type:'unoskin',     name: d.shopUnoSkinNames[x.id] }));
   const soundPackItems   = ALL_SOUNDPACKS.map(x   => ({ ...x, type:'soundpack',   name: d.shopSoundPackNames[x.id] }));
   const emoteItems       = ALL_EMOTES.map(x       => ({ ...x, type:'emote',       name: d.shopEmoteNames[x.id] }));
 
@@ -7211,7 +7222,7 @@ function _renderShopItems() {
   [...colorItems, ...fontItems, ...bubbleItems, ...bgItems,
    ...nameEffectItems, ...titleItems, ...cursorSnakeItems, ...snakeSkinItems, ...avatarItems,
    ...p4TokenItems, ...tttItems, ...chessItems,
-   ...clickFxItems, ...emojiPackItems, ...victoryBanItems, ...soundPackItems, ...emoteItems,
+   ...clickFxItems, ...emojiPackItems, ...victoryBanItems, ...unoSkinItems, ...soundPackItems, ...emoteItems,
   ].forEach(it => { allItemsById[it.id] = it; });
   allItemsById['boost_hint_10'] = { id:'boost_hint_10', type:'boost', price:3, name:d.shopBoostHintName };
   allItemsById['boost_hint_20'] = { id:'boost_hint_20', type:'boost', price:5, name:d.shopBoostHintName };
@@ -7221,7 +7232,7 @@ function _renderShopItems() {
   // Familles en vente. Les emotes n'y sont JAMAIS : elles ont leur propre rayon
   // dans la carte Emotes du profil.
   const KEPT_SHOP_TYPES = new Set(['color', 'font', 'nameeffect', 'title', 'background', 'boost', 'cursorsnake', 'snakeskin',
-    'bubble', 'p4token', 'ttt', 'chess', 'clickfx', 'emojipack', 'victoryban', 'soundpack']); // avatars retires : remplaces par le portrait dessine
+    'bubble', 'p4token', 'ttt', 'chess', 'clickfx', 'emojipack', 'victoryban', 'soundpack', 'unoskin']); // avatars retires : remplaces par le portrait dessine
   const rotDaily = shopRotation?.daily || [];
   const _pickKept = ids => ids.map(id => allItemsById[id]).filter(it => it && KEPT_SHOP_TYPES.has(it.type));
   // « À la une » : on garde les vedettes du serveur (uniquement des familles
@@ -7242,7 +7253,7 @@ function _renderShopItems() {
   const _ovState = it => { const o = _ov[it.id]; if (!o) return null; return o.inShop && (!o.until || o.until > Date.now()); };
   const _applyOv = arr => { for (let i = arr.length - 1; i >= 0; i--) { if (_ovState(arr[i]) === false) arr.splice(i, 1); } };
   [featuredItems, dailyItems, colorItems, fontItems, bgItems, nameEffectItems, titleItems, cursorSnakeItems, snakeSkinItems,
-    bubbleItems, avatarItems, p4TokenItems, tttItems, chessItems, clickFxItems, emojiPackItems, victoryBanItems, soundPackItems].forEach(_applyOv);
+    bubbleItems, avatarItems, p4TokenItems, tttItems, chessItems, clickFxItems, emojiPackItems, victoryBanItems, unoSkinItems, soundPackItems].forEach(_applyOv);
   Object.keys(_ov).forEach(oid => {
     const it = allItemsById[oid];
     // Les emotes ne remontent JAMAIS dans la boutique d'objets (rayon dedie dans le profil).
@@ -7257,7 +7268,7 @@ function _renderShopItems() {
     const isEquipped = !honorary && [equippedCosmetic, equippedFont, equippedBubble, equippedBackground,
       equippedNameEffect, equippedTitle, equippedCursorSnake, equippedAvatar,
       equippedP4Token, equippedTtt, equippedChess, equippedSnakeSkin,
-      equippedClickFx, equippedEmojiPack, equippedVictoryBan, equippedSoundPack, ...equippedEmotes,
+      equippedClickFx, equippedEmojiPack, equippedVictoryBan, equippedSoundPack, equippedUnoSkin, ...equippedEmotes,
     ].includes(id);
     const safeName = (name || id).replace(/"/g, '&quot;');
     const _AV = {'avatar-gamepad':'🎮','avatar-cat':'🐱','avatar-lightning':'⚡','avatar-rocket':'🚀','avatar-robot':'🤖','avatar-skull':'💀','avatar-crown':'👑','avatar-ball':'⚽','avatar-lion':'🦁','avatar-ghost':'👻','avatar-unicorn':'🦄','avatar-dragon':'🐉'};
@@ -7283,6 +7294,7 @@ function _renderShopItems() {
     else if (type === 'emojipack')  previewHtml = `<div class="shop-emoji-preview">${_EP[id]||'🎉'}</div>`;
     else if (type === 'victoryban') previewHtml = `<div class="shop-emoji-preview">🏆</div>`;
     else if (type === 'soundpack')  previewHtml = `<div class="shop-emoji-preview">🎵</div>`;
+    else if (type === 'unoskin')    previewHtml = `<div class="shop-emoji-preview">🃏</div>`;
     else if (type === 'emote')      previewHtml = `<div class="shop-emoji-preview">${_EM[id]||'😊'}</div>`;
     previewHtml = _realPrev(type, id, previewHtml);
     const badgeHtml = honorary
@@ -7363,6 +7375,7 @@ function _renderShopItems() {
       <button class="shop-fn-nav-btn" data-section="clickfx"><span class="shop-nav-icon" data-ic="click">✨</span><span class="shop-nav-label"> ${nav.clickfx}</span></button>
       <button class="shop-fn-nav-btn" data-section="emojipacks"><span class="shop-nav-icon" data-ic="smile">😀</span><span class="shop-nav-label"> ${nav.emojipacks}</span></button>
       <button class="shop-fn-nav-btn" data-section="victorybans"><span class="shop-nav-icon" data-ic="flag">🏆</span><span class="shop-nav-label"> ${nav.victorybans}</span></button>
+      <button class="shop-fn-nav-btn" data-section="unoskins"><span class="shop-nav-icon" data-ic="cards">🃏</span><span class="shop-nav-label"> ${nav.unoskins}</span></button>
       <button class="shop-fn-nav-btn" data-section="codes"><span class="shop-nav-icon" data-ic="ticket">🎟️</span><span class="shop-nav-label"> ${nav.codes}</span></button>
     </nav>
     <div class="shop-fn-content">
@@ -7503,6 +7516,12 @@ function _renderShopItems() {
       <h3 class="shop-fn-section-title">${d.shopVictoryBansTitle}</h3>
       <p class="shop-fn-section-desc">${d.shopSectionDescs.victorybans}</p>
       <div class="shop-fn-grid">${victoryBanItems.map(it => tileHtml(it)).join('')}</div>
+    </section>
+
+    <section class="shop-fn-section" id="shop-sec-unoskins" data-section-id="unoskins">
+      <h3 class="shop-fn-section-title">${d.shopUnoSkinsTitle}</h3>
+      <p class="shop-fn-section-desc">${d.shopSectionDescs.unoskins}</p>
+      <div class="shop-fn-grid">${unoSkinItems.map(it => tileHtml(it)).join('')}</div>
     </section>
 
 
@@ -7816,7 +7835,7 @@ function _openShopDetail(item) {
     previewHtml = `<span class="shop-title-preview">${playerPreview} <span class="shop-title-tag">${name || ''}</span></span>`;
   } else {
     const _DETAIL_EMOJI = {
-      'cursorsnake':'🐍','snakeskin':'🐍','chess':'♟️♜','victoryban':'🏆','soundpack':'🎵🔊',
+      'cursorsnake':'🐍','snakeskin':'🐍','chess':'♟️♜','victoryban':'🏆','soundpack':'🎵🔊','unoskin':'🃏',
       'p4token':'🔴🟡',
     };
     const _ITEM_EMOJI = {
@@ -7835,7 +7854,7 @@ function _openShopDetail(item) {
   const isEquipped = !honorary && [equippedCosmetic, equippedFont, equippedBubble, equippedBackground,
     equippedNameEffect, equippedTitle, equippedCursorSnake, equippedAvatar,
     equippedP4Token, equippedTtt, equippedChess, equippedSnakeSkin,
-    equippedClickFx, equippedEmojiPack, equippedVictoryBan, equippedSoundPack, ...equippedEmotes,
+    equippedClickFx, equippedEmojiPack, equippedVictoryBan, equippedSoundPack, equippedUnoSkin, ...equippedEmotes,
   ].includes(id);
   const lblFree    = fr ? 'Gratuit' : 'Free';
   const priceStr   = price === 0 ? lblFree : `${price} <i class="bolt" aria-label="Libs"></i>`;
@@ -8258,7 +8277,7 @@ const _LOCKER_EMOJI = {
 };
 // Apercus reels (captures du vrai rendu, assets/preview/<id>.webp, generes par scripts/gen-previews.js).
 // Chaque article garde son ancien rendu en repli : si le fichier manque, rien ne casse.
-const REAL_PREVIEW_TYPES = new Set(['background','cursorsnake','snakeskin','p4token','ttt','chess','clickfx','victoryban']);
+const REAL_PREVIEW_TYPES = new Set(['background','cursorsnake','snakeskin','p4token','ttt','chess','clickfx','victoryban','unoskin']);
 // Forme d'onde de chaque pack sonore (celle que le synthe joue vraiment, voir wt()/fs()) : on la dessine.
 const _WAVE_PATHS = {
   square:   'M2 30 V10 H22 V30 H42 V10 H62 V30 H82 V10 H102 V30 H118',
@@ -8270,7 +8289,7 @@ const _SOUND_WAVE = { 'soundpack-retro':'square', 'soundpack-8bit':'square', 'so
 const _SOUND_HUE = { 'soundpack-retro':'#f59e0b', 'soundpack-8bit':'#84cc16', 'soundpack-cyber':'#22d3ee', 'soundpack-crystal':'#a5b4fc', 'soundpack-epic':'#f472b6' };
 // A changer a chaque regeneration des apercus : /assets est garde un jour en cache
 // par le navigateur, sans ce numero les joueurs voient les anciens apercus.
-const PREVIEW_VER = '20261010b';
+const PREVIEW_VER = '20261014a';
 function _realPrev(type, id, fallbackHtml) {
   if (type === 'emojipack' && typeof EMOJI_PACK_SETS !== 'undefined' && EMOJI_PACK_SETS[id]) {
     if (typeof DOODLE_SETS !== 'undefined' && DOODLE_SETS[id]) return `<div class="pack-prev doodle-prev">${DOODLE_SETS[id].map(d => `<span>${_doodleSvg(d)}</span>`).join('')}</div>`;
@@ -8306,6 +8325,7 @@ function _cosmeticPreviewHtmlBase(type, id, itemName) {
     case 'emojipack':   return `<div class="shop-emoji-preview">${_LOCKER_EMOJI.emojipack[id] || '🎉'}</div>`;
     case 'victoryban':  return `<div class="shop-emoji-preview">🏆</div>`;
     case 'soundpack':   return `<div class="shop-emoji-preview">🎵</div>`;
+    case 'unoskin':     return `<div class="shop-emoji-preview">🃏</div>`;
     case 'emote':       return `<div class="shop-emoji-preview">${_emoteSvg(id) || _LOCKER_EMOJI.emote[id] || ''}</div>`;
     default: return '';
   }
@@ -8319,7 +8339,7 @@ function _cosmeticNameById(id) {
   const maps = ['shopBgNames', 'shopEmoteNames', 'shopCosmeticNames', 'shopNameEffectNames',
     'shopTitleNames', 'shopCursorSnakeNames', 'shopSnakeSkinNames', 'shopAvatarNames',
     'shopBubbleNames', 'shopChessNames', 'shopClickFxNames', 'shopEmojiPackNames',
-    'shopSoundPackNames', 'shopTttNames', 'shopVictoryBanNames', 'shopBundleNames'];
+    'shopSoundPackNames', 'shopUnoSkinNames', 'shopTttNames', 'shopVictoryBanNames', 'shopBundleNames'];
   for (const m of maps) { const mp = d[m]; if (mp && mp[id]) return mp[id]; }
   return id;
 }
@@ -12673,6 +12693,7 @@ const ProfileHub = (() => {
       { type:'clickfx',     icon:'<span data-ic="click"></span>', label:d.lockerCats.clickfx,      names:d.shopClickFxNames,     equipped:[equippedClickFx] },
       { type:'emojipack',   icon:'<span data-ic="smile"></span>', label:d.lockerCats.emojipacks,   names:d.shopEmojiPackNames,   equipped:[equippedEmojiPack] },
       { type:'victoryban',  icon:'<span data-ic="flag"></span>', label:d.lockerCats.victorybans,  names:d.shopVictoryBanNames,  equipped:[equippedVictoryBan] },
+      { type:'unoskin',     icon:'<span data-ic="cards"></span>', label:d.lockerCats.unoskins,     names:d.shopUnoSkinNames,     equipped:[equippedUnoSkin] },
       { type:'emote',       icon:'<span data-ic="smile"></span>', label:d.lockerCats.emotes,       names:d.shopEmoteNames,       equipped:Array.isArray(equippedEmotes) ? equippedEmotes : [] },
     ];
   }

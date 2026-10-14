@@ -66,7 +66,7 @@ const MAP = {
   bubble:['MessageCircle','#bae6fd','#1d4ed8'], avatar:['CircleUser','#fbcfe8','#9d174d'],
   token:['CircleDot','#fecaca','#b91c1c'],      hash:['Hash','#c7d2fe','#3730a3'],
   castle:['Castle','#fde68a','#a16207'],        click:['MousePointerClick','#a5f3fc','#0e7490'],
-  flag:['Flag','#bbf7d0','#15803d'],            music:['Music','#e9d5ff','#7e22ce'],
+  flag:['Flag','#bbf7d0','#15803d'],            music:['Music','#e9d5ff','#7e22ce'], cards:['Spade','#fecaca','#b91c1c'],
 };
 
 /* Reglages du relief. */

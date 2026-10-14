@@ -1,5 +1,5 @@
 /* Uno : cartes realistes, table ronde, salon. Charge a la demande (uno.js). Theme clair/sombre via les jetons du site. */
-.uno-cards, #screen-uno {
+.uno-cards {
   --cR: #ff1f3d; --cY: #ffd400; --cG: #00b050; --cB: #0a6cff;
   --u-edge: #fff; --u-oval: #fff; --u-back: #0d0f13; --u-backoval: linear-gradient(160deg, #ff4a5f, #ff1f3d 45%, #b00020);
   --u-gloss: .55; --u-ring: rgba(0,0,0,.3);
