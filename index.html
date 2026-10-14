@@ -473,6 +473,25 @@
     </div>
   </div>
 
+  <!-- ── Quiz : choix du jeu (culture generale ou drapeaux) ── -->
+  <div id="screen-quiz-hub" class="screen">
+    <button class="btn-back" id="btn-back-quiz-hub"><span class="ui-ic" data-ic="back">←</span> Retour</button>
+    <div class="logo">
+      <h1 id="qh-title">Quiz</h1>
+      <p id="qh-sub" class="subtitle">À quoi veux-tu jouer ?</p>
+    </div>
+    <div class="qh-cards">
+      <button type="button" class="qh-card" id="qh-quiz">
+        <span class="qh-ic" aria-hidden="true">?</span>
+        <span><b id="qh-quiz-t">Culture Générale</b><small id="qh-quiz-s">15 thèmes, de 10 à 40 questions</small></span>
+      </button>
+      <button type="button" class="qh-card" id="qh-flags">
+        <span class="qh-ic" aria-hidden="true"><img src="assets/flags/bj.svg" alt="" draggable="false"></span>
+        <span><b><span id="qh-flags-t">Devine le drapeau</span><span class="qh-new" id="qh-new">Nouveau</span></b><small id="qh-flags-s">Série, contre la montre, salon, drapeau du jour</small></span>
+      </button>
+    </div>
+  </div>
+
   <!-- ── Écran 4 : Culture Générale (accueil) ── -->
   <div id="screen-trivia-home" class="screen">
     <button class="btn-back" id="btn-back-trivia-home"><span class="ui-ic" data-ic="back">←</span> Retour</button>
@@ -1958,6 +1977,7 @@
   <script src="config.js"></script>
   <script src="wordle-words.js"></script>
   <script src="portrait.js"></script>
+  <script src="flags-data.js"></script>
   <script src="app.js"></script>
   <!-- Icones en relief : vrai paquet lucide-react en module ES, charge apres
        le reste. Si le CDN ne repond pas, le jeu a trait de UI_ICONS reste. -->

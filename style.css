@@ -60,6 +60,7 @@ html.restoring #news-card { display: none !important; }
 html.restoring[data-restore="home"]          #screen-home,
 html.restoring[data-restore="game"]          #screen-game,
 html.restoring[data-restore="waiting"]       #screen-waiting,
+html.restoring[data-restore="quiz-hub"]     #screen-quiz-hub,
 html.restoring[data-restore="trivia-home"]   #screen-trivia-home,
 html.restoring[data-restore="trivia-game"]   #screen-trivia-game,
 html.restoring[data-restore="trivia-waiting"] #screen-trivia-waiting,
@@ -255,7 +256,7 @@ h1 {
   outline: none; border-color: var(--board); box-shadow: 0 0 12px rgba(99,102,241,.25);
 }
 
-#input-name, #input-trivia-name {
+#input-name, #input-trivia-name, #fh-name {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid var(--border);
@@ -265,10 +266,10 @@ h1 {
   background: var(--card2);
   transition: border-color .2s, box-shadow .2s;
 }
-#input-name:focus, #input-trivia-name:focus {
+#input-name:focus, #input-trivia-name:focus, #fh-name:focus {
   outline: none; border-color: var(--board); box-shadow: 0 0 12px rgba(99,102,241,.2);
 }
-#input-name::placeholder, #input-trivia-name::placeholder { color: var(--muted); }
+#input-name::placeholder, #input-trivia-name::placeholder, #fh-name::placeholder { color: var(--muted); }
 
 /* ── Error ── */
 .error-msg { color: var(--red); font-size: .875rem; text-align: center; font-weight: 500; }
@@ -2045,7 +2046,7 @@ body { transition: background-color .8s ease, color .5s ease; }
 .card, .lb-card, .chat, .game-status, .overlay-box, .help-modal,
 .tg-question-box, .tg-choice, .code-display, .game-btn, .theme-btn,
 .btn-secondary, .promo-btn, #chat-input,
-#input-name, #input-code, #input-trivia-name, #input-trivia-code {
+#input-name, #input-code, #input-trivia-name, #input-trivia-code, #fh-name, #fh-code {
   transition: background-color .5s ease, color .4s ease,
               border-color .4s ease, box-shadow .4s ease;
 }

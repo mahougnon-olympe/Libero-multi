@@ -12,6 +12,7 @@ const chessGame  = require('./game-chess');
 const checkers   = require('./game-checkers');
 const ludo       = require('./game-ludo');
 const unoGame    = require('./game-uno');
+const flagsGame  = require('./game-flags');
 const triviaGame = require('./game-trivia');
 const bots       = require('./game-bots');
 
@@ -441,7 +442,7 @@ async function loadData() {
   });
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   llbDocs.forEach(d => luffyLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, portrait: d.portrait || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedUnoSkin: d.equippedUnoSkin || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, xp: d.xp || 0, iq: d.iq ?? null, iqAt: d.iqAt || 0, wheelDay: d.wheelDay || null, friends: Array.isArray(d.friends) ? d.friends : [], friendRequests: Array.isArray(d.friendRequests) ? d.friendRequests : [], pendingGifts: Array.isArray(d.pendingGifts) ? d.pendingGifts : [], giftSentDay: d.giftSentDay || null, vipUntil: d.vipUntil || 0, dailyGiftDay: d.dailyGiftDay || null, badges: Array.isArray(d.badges) ? d.badges : [], onboardRewards: Array.isArray(d.onboardRewards) ? d.onboardRewards : [], history: Array.isArray(d.history) ? d.history : [], dmBlocked: Array.isArray(d.dmBlocked) ? d.dmBlocked : [], dmPush: d.dmPush !== false, lang: d.lang || null, tttModel: d.tttModel || null, chessModel: d.chessModel || null, pushUnopened: d.pushUnopened || 0, pushDay: d.pushDay || null, pushCount: d.pushCount || 0, pushSent: d.pushSent || {}, pushLastAt: d.pushLastAt || 0 }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, portrait: d.portrait || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedUnoSkin: d.equippedUnoSkin || null, equippedFlagFrame: d.equippedFlagFrame || null, flagsBest: d.flagsBest || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, xp: d.xp || 0, iq: d.iq ?? null, iqAt: d.iqAt || 0, wheelDay: d.wheelDay || null, friends: Array.isArray(d.friends) ? d.friends : [], friendRequests: Array.isArray(d.friendRequests) ? d.friendRequests : [], pendingGifts: Array.isArray(d.pendingGifts) ? d.pendingGifts : [], giftSentDay: d.giftSentDay || null, vipUntil: d.vipUntil || 0, dailyGiftDay: d.dailyGiftDay || null, badges: Array.isArray(d.badges) ? d.badges : [], onboardRewards: Array.isArray(d.onboardRewards) ? d.onboardRewards : [], history: Array.isArray(d.history) ? d.history : [], dmBlocked: Array.isArray(d.dmBlocked) ? d.dmBlocked : [], dmPush: d.dmPush !== false, lang: d.lang || null, tttModel: d.tttModel || null, chessModel: d.chessModel || null, pushUnopened: d.pushUnopened || 0, pushDay: d.pushDay || null, pushCount: d.pushCount || 0, pushSent: d.pushSent || {}, pushLastAt: d.pushLastAt || 0 }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   feedDocs.forEach(d => feedVideos.push({
@@ -693,7 +694,7 @@ function dbUpsertLibsPurchase(cartId, purchase) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, portrait: entry.portrait || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedUnoSkin: entry.equippedUnoSkin || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], referredBy: entry.referredBy || null, referralRewarded: !!entry.referralRewarded, referrals: entry.referrals || 0, xp: entry.xp || 0, iq: entry.iq ?? null, iqAt: entry.iqAt || 0, wheelDay: entry.wheelDay || null, friends: entry.friends || [], friendRequests: entry.friendRequests || [], pendingGifts: entry.pendingGifts || [], giftSentDay: entry.giftSentDay || null, vipUntil: entry.vipUntil || 0, dailyGiftDay: entry.dailyGiftDay || null, badges: entry.badges || [], onboardRewards: entry.onboardRewards || [], history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [], dmBlocked: entry.dmBlocked || [], dmPush: entry.dmPush !== false, lang: entry.lang || null, tttModel: entry.tttModel || null, chessModel: entry.chessModel || null, pushUnopened: entry.pushUnopened || 0, pushDay: entry.pushDay || null, pushCount: entry.pushCount || 0, pushSent: entry.pushSent || {}, pushLastAt: entry.pushLastAt || 0 } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, portrait: entry.portrait || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedUnoSkin: entry.equippedUnoSkin || null, equippedFlagFrame: entry.equippedFlagFrame || null, flagsBest: entry.flagsBest || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], referredBy: entry.referredBy || null, referralRewarded: !!entry.referralRewarded, referrals: entry.referrals || 0, xp: entry.xp || 0, iq: entry.iq ?? null, iqAt: entry.iqAt || 0, wheelDay: entry.wheelDay || null, friends: entry.friends || [], friendRequests: entry.friendRequests || [], pendingGifts: entry.pendingGifts || [], giftSentDay: entry.giftSentDay || null, vipUntil: entry.vipUntil || 0, dailyGiftDay: entry.dailyGiftDay || null, badges: entry.badges || [], onboardRewards: entry.onboardRewards || [], history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [], dmBlocked: entry.dmBlocked || [], dmPush: entry.dmPush !== false, lang: entry.lang || null, tttModel: entry.tttModel || null, chessModel: entry.chessModel || null, pushUnopened: entry.pushUnopened || 0, pushDay: entry.pushDay || null, pushCount: entry.pushCount || 0, pushSent: entry.pushSent || {}, pushLastAt: entry.pushLastAt || 0 } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -1191,7 +1192,7 @@ function dbSaveFlashOffer() {
 // client). L'admin peut forcer un article dedans ou dehors, avec un compte a
 // rebours optionnel de disparition. Persiste dans server_config 'shop_overrides'.
 const DEFAULT_SHOP_TYPES = new Set(['color', 'font', 'nameeffect', 'title', 'background', 'cursorsnake', 'snakeskin',
-  'bubble', 'p4token', 'ttt', 'chess', 'clickfx', 'emojipack', 'victoryban', 'soundpack', 'unoskin']);
+  'bubble', 'p4token', 'ttt', 'chess', 'clickfx', 'emojipack', 'victoryban', 'soundpack', 'unoskin', 'flagframe']);
 const shopOverrides = new Map(); // cosmeticId -> { inShop, until }
 function pruneShopOverrides() {
   let changed = false;
@@ -1690,7 +1691,7 @@ function pushHistory(id, item) {
   completeOnboardStep(id, entry, 'play');
   if (item.result === 'win') completeOnboardStep(id, entry, 'win');
   // XP : chaque partie en rapporte, gagner ou briller au quiz en rapporte plus.
-  awardXp(id, entry, 25 + (item.result === 'win' ? 25 : 0) + (item.game === 'trivia' ? Math.min(60, (item.score || 0) * 2) : 0));
+  awardXp(id, entry, 25 + (item.result === 'win' ? 25 : 0) + ((item.game === 'trivia' || item.game === 'flags') ? Math.min(60, (item.score || 0) * 2) : 0));
   if (!Array.isArray(entry.history)) entry.history = [];
   entry.history.unshift({ game: item.game, result: item.result || null, score: item.score ?? null, at: Date.now() });
   entry.history = entry.history.slice(0, 20);
@@ -1971,6 +1972,11 @@ const COSMETICS = [
   { id: 'unoskin-metal', type: 'unoskin', price: 160 },
   { id: 'unoskin-gold',  type: 'unoskin', price: 200 },
   { id: 'unoskin-neon',  type: 'unoskin', price: 240 },
+  // Cadres de drapeau (Devine le drapeau) : le cadre « classique » est le defaut gratuit, hors boutique
+  { id: 'flagframe-wood',  type: 'flagframe', price: 120 },
+  { id: 'flagframe-gold',  type: 'flagframe', price: 200 },
+  { id: 'flagframe-neon',  type: 'flagframe', price: 240 },
+  { id: 'flagframe-cloth', type: 'flagframe', price: 280 },
   // Packs de sons
   // Emotes
   { id: 'emote-hello',        type: 'emote',       price: 0  },
@@ -2096,6 +2102,7 @@ function _equippedPayload(entry) {
     equippedVictoryBan:  entry.equippedVictoryBan  || null,
     equippedSoundPack:   entry.equippedSoundPack   || null,
     equippedUnoSkin:     entry.equippedUnoSkin     || null,
+    equippedFlagFrame:   entry.equippedFlagFrame   || null,
     equippedEmotes:      entry.equippedEmotes      || [],
     honorTitle:          entry.honorTitle          || null,
   };
@@ -2164,7 +2171,7 @@ function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, portrait: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedUnoSkin: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null, streak: null, challenges: null, lifetime: {}, permClaimed: [], referredBy: null, referralRewarded: false, referrals: 0, xp: 0, iq: null, iqAt: 0, wheelDay: null, friends: [], friendRequests: [], pendingGifts: [], giftSentDay: null, vipUntil: 0, dailyGiftDay: null, badges: [], onboardRewards: [], history: [] };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, portrait: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedUnoSkin: null, equippedFlagFrame: null, flagsBest: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null, streak: null, challenges: null, lifetime: {}, permClaimed: [], referredBy: null, referralRewarded: false, referrals: 0, xp: 0, iq: null, iqAt: 0, wheelDay: null, friends: [], friendRequests: [], pendingGifts: [], giftSentDay: null, vipUntil: 0, dailyGiftDay: null, badges: [], onboardRewards: [], history: [] };
     libs.set(id, entry);
   }
   // Packs de sons retires de la boutique (les sons sont devenus des fichiers) : rembourses.
@@ -2212,6 +2219,8 @@ function getLibsEntry(id) {
   if (!('equippedVictoryBan'  in entry)) entry.equippedVictoryBan  = null;
   if (!('equippedSoundPack'   in entry)) entry.equippedSoundPack   = null;
   if (!('equippedUnoSkin'     in entry)) entry.equippedUnoSkin     = null;
+  if (!('equippedFlagFrame'   in entry)) entry.equippedFlagFrame   = null;
+  if (!('flagsBest'           in entry)) entry.flagsBest           = null;
   if (!Array.isArray(entry.equippedEmotes)) entry.equippedEmotes = entry.equippedEmote ? [entry.equippedEmote] : [];
   if (!('honorTitle'          in entry)) entry.honorTitle          = null;
   if (!('pendingHonorModal'   in entry)) entry.pendingHonorModal   = null;
@@ -2483,6 +2492,7 @@ function getTriviaRoomState(room) {
     code:         room.code,
     hostId:       room.hostId,
     categoryName: room.categoryName,
+    kind:         room.kind || 'quiz',
     status:       room.status,
     players: [...room.players.entries()].filter(([, p]) => !p.disconnected).map(([sid, p]) => ({
       socketId: sid, name: p.name, colorIndex: p.colorIndex, score: p.score,
@@ -2539,6 +2549,11 @@ function startTriviaGame(code) {
   const room = triviaRooms.get(code);
   if (!room) return;
   try {
+    if (room.kind === 'flags') {
+      room.questions = flagsGame.pickQuestions({ amount: room.totalQ, level: room.difficulty || '', continent: room.continent || '' });
+      room.totalQ = room.questions.length;
+      throw new Error('flags-ok');
+    }
     const cats = room.categories || [room.category];
     const lang = room.lang || 'fr';
     const diff = room.difficulty || '';
@@ -2549,14 +2564,16 @@ function startTriviaGame(code) {
     room.questions = triviaGame.pickQuestions({ cats, amount: room.totalQ, lang, diff, seen });
     room.totalQ = room.questions.length; // au cas où le pool serait plus court que demandé
     markTriviaSeen(pids, room.questions);
-  } catch {
-    io.to(code).emit('trivia-error', { message: 'Impossible de charger les questions. Réessaie.' });
-    room.status = 'waiting';
-    return;
+  } catch (e) {
+    if (!(e && e.message === 'flags-ok')) {
+      io.to(code).emit('trivia-error', { message: 'Impossible de charger les questions. Réessaie.' });
+      room.status = 'waiting';
+      return;
+    }
   }
   room.status   = 'question';
   room.currentQ = 0;
-  io.to(code).emit('trivia-start', { totalQuestions: room.totalQ, categoryName: room.categoryName });
+  io.to(code).emit('trivia-start', { totalQuestions: room.totalQ, categoryName: room.categoryName, kind: room.kind || 'quiz' });
   sendTriviaQuestion(code);
 }
 
@@ -2572,6 +2589,7 @@ function sendTriviaQuestion(code) {
     questionNum:    room.currentQ + 1,
     totalQuestions: room.totalQ,
     question:       q.question,
+    flag:           q.flag || null,
     choices:        q.choices,
     timeLimit:      (room.timeMs || TRIVIA_TIME_MS) / 1000,
     scores:         publicScores(room),
@@ -2648,10 +2666,11 @@ function finishTriviaGame(code) {
   bumpDaily('games');
   const scores = getRoomScores(room);
 
+  const isFlags = room.kind === 'flags';
   for (const s of scores) {
-    updateTriviaLeaderboard(s.playerId || s.name, s.name, s.siteScore);
+    if (!isFlags) updateTriviaLeaderboard(s.playerId || s.name, s.name, s.siteScore); // les drapeaux n'entrent pas au classement du quiz
     updateLastActive(s.playerId, s.name);
-    pushHistory(s.playerId, { game: 'trivia', result: null, score: s.siteScore });
+    pushHistory(s.playerId, { game: isFlags ? 'flags' : 'trivia', result: null, score: s.siteScore });
     bumpChallenge(s.playerId, 'triviaGames'); // défi « termine N quiz »
   }
   io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
@@ -3216,7 +3235,7 @@ io.on('connection', (socket) => {
     room.players.set(socket.id, { name: playerName, playerId: safePlayerId(playerId) || playerName, colorIndex, score: 0 });
     triviaRoomCode = key;
     socket.join(key);
-    socket.emit('trivia-room-joined', { code: key, categoryName: room.categoryName });
+    socket.emit('trivia-room-joined', { code: key, categoryName: room.categoryName, kind: room.kind || 'quiz' });
     io.to(key).emit('trivia-room-updated', getTriviaRoomState(room));
     return true;
   }
@@ -3697,9 +3716,10 @@ io.on('connection', (socket) => {
   });
 
   // ── Trivia : créer un salon ──────────────────────────────────────────────
-  socket.on('create-trivia-room', ({ categories, name = '', lang = 'fr', difficulty = '', amount, playerId } = {}) => {
-    const cats = [].concat(categories || []).map(c => parseInt(c)).filter(c => TRIVIA_CATEGORIES[c]);
-    if (cats.length === 0) return;
+  socket.on('create-trivia-room', ({ categories, name = '', lang = 'fr', difficulty = '', amount, playerId, kind, continent } = {}) => {
+    const isFlags = kind === 'flags';
+    const cats = isFlags ? [] : [].concat(categories || []).map(c => parseInt(c)).filter(c => TRIVIA_CATEGORIES[c]);
+    if (!isFlags && cats.length === 0) return;
     const playerName = sanitizeName(name, 'Anonyme');
     const roomLang = ['fr', 'en'].includes(lang) ? lang : 'fr';
     // 'extreme' = questions pointues (pool hard) + chrono reduit a 15 s.
@@ -3710,10 +3730,10 @@ io.on('connection', (socket) => {
     const players = new Map();
     players.set(socket.id, { name: playerName, playerId: safePlayerId(playerId) || playerName, colorIndex: 0, score: 0 });
     const catNames = cats.map(c => TRIVIA_CATEGORIES[c]);
-    const categoryName = cats.length <= 2 ? catNames.join(' · ') : `Mix (${cats.length})`;
+    const categoryName = isFlags ? 'flags' : (cats.length <= 2 ? catNames.join(' · ') : `Mix (${cats.length})`);
     triviaRooms.set(code, {
       code, hostId: socket.id, categories: cats,
-      categoryName,
+      categoryName, kind: isFlags ? 'flags' : 'quiz', continent: flagsGame.CONTINENTS.includes(continent) ? continent : '',
       lang: roomLang, difficulty: roomDiff,
       timeMs: roomDiff === 'extreme' ? 15_000 : TRIVIA_TIME_MS,
       players, questions: null, currentQ: -1,
@@ -3722,7 +3742,7 @@ io.on('connection', (socket) => {
     });
     triviaRoomCode = code;
     socket.join(code);
-    socket.emit('trivia-room-created', { code, categoryName, roomState: getTriviaRoomState(triviaRooms.get(code)) });
+    socket.emit('trivia-room-created', { code, categoryName, kind: isFlags ? 'flags' : 'quiz', roomState: getTriviaRoomState(triviaRooms.get(code)) });
   });
 
   // ── Trivia : rejoindre ───────────────────────────────────────────────────
@@ -3811,6 +3831,36 @@ io.on('connection', (socket) => {
     io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
     io.emit('global-leaderboard-update', getGlobalLeaderboardData());
   });
+
+  // ── Devine le drapeau, solo : historique, XP, defis et meilleurs scores ───────────
+  socket.on('flags-solo-finished', ({ playerId, mode, score } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id || !['serie', 'chrono', 'jour'].includes(mode)) return;
+    if (!allowAction('flagsolo', 6, 60_000)) return;
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') return;
+    const sc = Math.min(300, Math.max(0, Math.floor(Number(score) || 0)));
+    const fb = entry.flagsBest = Object.assign({ serie: 0, chrono: 0, jour: 0 }, entry.flagsBest || {});
+    let record = false;
+    if (mode !== 'jour' && sc > (fb[mode] || 0)) { fb[mode] = sc; record = true; }
+    if (mode === 'jour') fb.jour = (fb.jour || 0) + (sc > 0 ? 1 : 0);
+    libs.set(id, entry); dbUpsertLibs(id, entry);
+    bumpDaily('games');
+    pushHistory(id, { game: 'flags', result: null, score: sc });
+    if (sc > 0) bumpChallenge(id, 'triviaCorrect', sc);
+    bumpChallenge(id, 'triviaGames');
+    socket.emit('flags-solo-result', { mode, score: sc, record, best: fb[mode] || 0 });
+    io.emit('flags-leaderboard-update');
+  });
+  function flagsLeaderboard() {
+    const rows = [];
+    for (const [id, e] of libs.entries()) {
+      const b = e.flagsBest; if (!b || !e.name || e.name === 'Anonyme') continue;
+      if ((b.serie || 0) > 0) rows.push({ name: e.name, serie: b.serie || 0, chrono: b.chrono || 0 });
+    }
+    return rows.sort((a, c) => c.serie - a.serie || c.chrono - a.chrono).slice(0, 10);
+  }
+  socket.on('get-flags-leaderboard', () => socket.emit('flags-leaderboard', { rows: flagsLeaderboard() }));
 
   // ── Fin de partie solo (Snake / Luffy) : historique + défis ──────────────
   socket.on('solo-game-over', ({ playerId, game, score } = {}) => {
@@ -4814,6 +4864,7 @@ io.on('connection', (socket) => {
       else if (cosmType === 'victoryban')  entry.equippedVictoryBan  = cosmeticId;
       else if (cosmType === 'soundpack')   entry.equippedSoundPack   = cosmeticId;
       else if (cosmType === 'unoskin')     entry.equippedUnoSkin     = cosmeticId;
+      else if (cosmType === 'flagframe')   entry.equippedFlagFrame   = cosmeticId;
       else if (cosmType === 'emote') {
         const arr = entry.equippedEmotes || [];
         if (remove) { entry.equippedEmotes = arr.filter(e => e !== cosmeticId); }
@@ -4866,6 +4917,7 @@ io.on('connection', (socket) => {
     if (entry.equippedVictoryBan  === cosmeticId) entry.equippedVictoryBan  = null;
     if (entry.equippedSoundPack   === cosmeticId) entry.equippedSoundPack   = null;
     if (entry.equippedUnoSkin     === cosmeticId) entry.equippedUnoSkin     = null;
+    if (entry.equippedFlagFrame   === cosmeticId) entry.equippedFlagFrame   = null;
     entry.equippedEmotes = (entry.equippedEmotes || []).filter(e => e !== cosmeticId);
     entry.balance = Math.min(MAX_BALANCE, entry.balance + cosmetic.price);
     entry.refundCardsUsedAt.push(Date.now());
@@ -5138,6 +5190,7 @@ io.on('connection', (socket) => {
         questionNum:    troom.currentQ + 1,
         totalQuestions: troom.totalQ,
         question:       q.question,
+        flag:           q.flag || null,
         choices:        q.choices,
         timeLimit:      TRIVIA_TIME_MS / 1000,
         scores:         publicScores(troom),
