@@ -70,11 +70,23 @@
     const rib = bc ? `<i class="dm-rib msg-bubble ${bc}" aria-hidden="true"></i>` : '';
     return `<div class="dm-m ${cls}${anim || ''}${bc ? ' dm-has-rib' : ''}" data-id="${esc(m.id || '')}"><button type="button" class="dm-rep" aria-label="${esc(d().reply)}">&#8617; ${esc(d().reply)}</button><span class="dm-name">${esc(name)} <time>${esc(hhmm(m.at))}${seen}</time></span>${body}${rib}</div>`;
   }
+  // La mise en page (bande de messages rapides, police, clavier) bouge apres le premier rendu : on recolle au dernier mot tant que le joueur n'a pas fait defiler lui-meme.
+  let stickT = 0, userScrolled = false;
+  conv.addEventListener('wheel', () => { userScrolled = true; }, { passive: true });
+  conv.addEventListener('touchmove', () => { userScrolled = true; }, { passive: true });
+  function stickBottom() {
+    userScrolled = false; clearTimeout(stickT);
+    const go = () => { if (!userScrolled) conv.scrollTop = conv.scrollHeight; };
+    go(); requestAnimationFrame(() => { go(); requestAnimationFrame(go); });
+    [120, 350, 800].forEach(ms => setTimeout(go, ms));
+    try { document.fonts && document.fonts.ready.then(go); } catch {}
+  }
+  if (window.ResizeObserver) new ResizeObserver(() => { if (!userScrolled && current) conv.scrollTop = conv.scrollHeight; }).observe(conv);
   function renderConv() {
     let html = '', lastDay = '';
     msgs.forEach(m => { const dl = dayLabel(m.at); if (dl !== lastDay) { html += `<div class="dm-day">${esc(dl)}</div>`; lastDay = dl; } html += msgHTML(m); });
     conv.innerHTML = html + `<div id="dm-typing" class="dm-typing hidden"></div>`;
-    conv.scrollTop = conv.scrollHeight;
+    stickBottom();
   }
   // La reponse de l'ami s'ecrit a la plume, lettre par lettre, stylo qui avance.
   function appendMsg(m) {
