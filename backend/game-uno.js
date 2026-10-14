@@ -1,9 +1,9 @@
-// Moteur du jeu de cartes Uno (2 a 6 joueurs). Pur : aucun reseau, aucune horloge.
+// Moteur du jeu de cartes Uno (2 a 10 joueurs). Pur : aucun reseau, aucune horloge.
 // Carte : { id, c: 'R'|'Y'|'G'|'B'|'W', v: '0'..'9' | 'S' (passe) | 'R' (sens) | 'D' (+2) | 'W' (joker) | 'F' (joker +4) }
 // Etat  : { seats:[ids], hands:{id:[cartes]}, draw:[], discard:[], dir:1|-1, turn:index, color, drawn:null|cardId,
 //           called:{id:true}, winner:null|id, seq }
 const COLORS = ['R', 'Y', 'G', 'B'];
-const MAX_PLAYERS = 6, HAND = 7;
+const MAX_PLAYERS = 10, HAND = 7;
 
 function buildDeck() {
   const deck = []; let id = 0;
@@ -22,7 +22,7 @@ function shuffle(a, rnd = Math.random) {
 }
 
 function createState(seats, rnd = Math.random) {
-  if (!Array.isArray(seats) || seats.length < 2 || seats.length > MAX_PLAYERS) throw new Error('uno: 2 a 6 joueurs');
+  if (!Array.isArray(seats) || seats.length < 2 || seats.length > MAX_PLAYERS) throw new Error('uno: 2 a 10 joueurs');
   const draw = shuffle(buildDeck(), rnd);
   const hands = {}; seats.forEach(id => { hands[id] = []; });
   for (let r = 0; r < HAND; r++) for (const id of seats) hands[id].push(draw.pop());
@@ -70,7 +70,7 @@ function play(s, id, cardId, color, uno, rnd = Math.random) {
   if (hand.length === 0) { s.winner = id; ev.win = true; return { ok: true, ev }; }
   let steps = 1;
   if (card.v === 'R') { if (s.seats.length === 2) steps = 2; else s.dir = -s.dir; ev.reverse = true; }
-  if (card.v === 'S') { steps = 2; ev.skip = s.seats[nextIdx(s)]; }
+  if (card.v === 'S') { steps = 2; ev.skip = nextIdx(s); }
   if (card.v === 'D' || card.v === 'F') {
     const victim = s.seats[nextIdx(s)], n = card.v === 'D' ? 2 : 4;
     ev.draw = { seat: s.seats.indexOf(victim), cards: drawCards(s, victim, n, rnd) }; steps = 2;

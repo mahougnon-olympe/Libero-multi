@@ -3116,3 +3116,6 @@ html.light .xp-pill { color: #173a8a; }
 .logout-zone.hidden { display: none; }
 .logout-btn { width: 100%; background: transparent; border: 2px solid var(--red); color: var(--red); font-weight: 800; }
 .logout-zone .recovery-intro { margin: 0; font-size: 13px; }
+
+/* Uno : pas de mise ni de defi d'ami dans l'accueil des jeux (le salon se partage par code ou lien) */
+#home-who.is-uno .stake-row, #home-who.is-uno #step-stake, #home-who.is-uno #btn-challenge-friend { display: none; }

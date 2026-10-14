@@ -893,7 +893,7 @@ const DICT = {
     triviaTitle:'Culture Générale', triviaDesc:'Quiz par thèmes · Solo & Multi',
     homeSubtitle:'2 joueurs • Temps réel',
     botLabel:'🤖 Jouer seul contre le robot :',
-    botEasy:'😊 Facile', botMedium:'🎯 Moyen', botHard:'💀 Difficile',
+    botEasy:'😊 Facile', botMedium:'🎯 Moyen', botHard:'💀 Difficile', unoBotsStep:'Nombre de robots', unoBots:n=>`${n} robot${n>1?'s':''}`,
     btnCreate:'Créer une partie',
     namePh:'Ton pseudo (obligatoire)', codePh:'Code à 4 lettres', errNoName:'Entre un pseudo pour continuer.',
     errNameTaken:'🚫 Ce pseudo est déjà pris. Choisis-en un autre.',
@@ -919,7 +919,7 @@ const DICT = {
     dcDisconnectedMsg:'L\'adversaire a quitté la partie.',
     btnBackHome:'Retour à l\'accueil', backLabel:'Retour',
     promoTitle:'Promouvoir le pion',
-    games:{ connect4:'Puissance 4', tictactoe:'Tic Tac Toe', chess:'Échecs', checkers:'Dames', ludo:'Ludo' },
+    games:{ connect4:'Puissance 4', tictactoe:'Tic Tac Toe', chess:'Échecs', checkers:'Dames', ludo:'Ludo', uno:'Uno' },
     ludoRoll:'🎲 Lancer le dé', ludoDice:d=>`🎲 Dé : ${d}`, ludoNoMove:'Aucun coup possible, le tour passe.',
     ludoLobbyTitle:'Salon Ludo', ludoLobbyHint:'Dès 2 joueurs, le créateur peut lancer la partie. 4 joueurs maximum.',
     ludoStartBtn:'Lancer la partie', ludoWaitHost:'En attente du lancement par le créateur…', ludoNeedTwo:'Il faut au moins 2 joueurs pour lancer.',
@@ -1680,7 +1680,7 @@ const DICT = {
     triviaTitle:'General Knowledge', triviaDesc:'Themed quizzes · Solo & Multi',
     homeSubtitle:'2 players • Real time',
     botLabel:'🤖 Play solo against the bot:',
-    botEasy:'😊 Easy', botMedium:'🎯 Medium', botHard:'💀 Hard',
+    botEasy:'😊 Easy', botMedium:'🎯 Medium', botHard:'💀 Hard', unoBotsStep:'Number of robots', unoBots:n=>`${n} robot${n>1?'s':''}`,
     btnCreate:'Create a game',
     namePh:'Your username (required)', codePh:'4-letter code', errNoName:'Enter a username to continue.',
     errNameTaken:'🚫 This username is already taken. Choose another one.',
@@ -1706,7 +1706,7 @@ const DICT = {
     dcDisconnectedMsg:'Your opponent left the game.',
     btnBackHome:'Back to home', backLabel:'Back',
     promoTitle:'Promote pawn',
-    games:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', checkers:'Checkers', ludo:'Ludo' },
+    games:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', checkers:'Checkers', ludo:'Ludo', uno:'Uno' },
     ludoRoll:'🎲 Roll the dice', ludoDice:d=>`🎲 Dice: ${d}`, ludoNoMove:'No possible move, turn passes.',
     ludoLobbyTitle:'Ludo lobby', ludoLobbyHint:'From 2 players on, the host can start the game. 4 players maximum.',
     ludoStartBtn:'Start the game', ludoWaitHost:'Waiting for the host to start…', ludoNeedTwo:'You need at least 2 players to start.',
@@ -2643,6 +2643,7 @@ function applyLang() {
     const cb = $('ck-diff-body'); if (cb) cb.innerHTML = d.ckRules.body;
   }
   const gnld = $('gn-ludo');      if (gnld) gnld.textContent = d.games.ludo;
+  const gnun = $('gn-uno');       if (gnun) gnun.textContent = d.games.uno;
   const bcw = $('btn-cancel-wait');   if (bcw) bcw.textContent = d.btnCancel;
   const bra = $('btn-restart-accept'); if (bra) bra.textContent = d.btnAccept;
   const brf = $('btn-restart-refuse'); if (brf) brf.textContent = d.btnRefuse;
@@ -2698,6 +2699,7 @@ function applyLang() {
      ['trivia-who-label',w.label],['twho-solo',w.tSolo],['twho-friend',w.tFriend],['twho-code',w.code],['trivia-code-label',w.tCode]]
       .forEach(([id,v]) => { const el = $(id); if (el) el.textContent = v; });
   }
+  window._unoWhoSync?.();
   const bct2 = $('btn-create-trivia');    if (bct2) bct2.textContent = d.btnCreateTrivia;
   const itc  = $('input-trivia-code');    if (itc)  itc.placeholder  = d.triviaCodePh;
   const bjt2 = $('btn-join-trivia');      if (bjt2) bjt2.textContent = d.btnJoinTrivia;
@@ -2936,6 +2938,7 @@ function showScreen(name) {
   document.body.classList.toggle('screen-events-active', name === 'events');
   document.body.classList.toggle('screen-snake-active', name === 'snake');
   document.body.classList.toggle('screen-arcade-active', name === 'arcade');
+  document.body.classList.toggle('screen-uno-active', name === 'uno');
   // « Avec qui ? » : vide a chaque arrivee sur l'ecran ; seul un F5 rend le choix deja fait.
   if (!wasRestoring && name === 'home') window._whoReset?.['home-who']?.();
   if (!wasRestoring && name === 'trivia-home') window._whoReset?.['trivia-who']?.();
@@ -3052,6 +3055,7 @@ function _navBackAction(cur) {
   }
   const sp = document.getElementById('settings-panel');
   if (sp && !sp.classList.contains('hidden')) { window._closeSettingsPanel ? window._closeSettingsPanel() : sp.classList.add('hidden'); return; }
+  if (cur === 'uno') { const b = ['un-menu', 'un-leave'].map(i => document.getElementById(i)).find(x => x && x.offsetParent !== null); if (b) { b.click(); return; } }
   const q = _NAV_QUIT[cur] && document.getElementById(_NAV_QUIT[cur]);
   if (q && q.offsetParent !== null) { q.click(); return; }
   const back = document.querySelector(`#screen-${cur} .btn-back`);
@@ -3264,6 +3268,7 @@ document.querySelectorAll('.game-btn').forEach(btn => {
     btn.classList.add('active');
     selectedGameType = btn.dataset.game;
     window._ckRulesSync?.();
+    window._unoWhoSync?.();
   });
 });
 
@@ -3294,6 +3299,7 @@ document.querySelectorAll('.bot-btn').forEach(btn => {
     if (!getPlayerName()) { showError(t().errNoName); return; }
     if (_nameTaken) { showError(t().errNameTaken); return; }
     clearError();
+    if (selectedGameType === 'uno') { window._unoStart({ bots: +btn.dataset.unobots || 1 }); return; }
     socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), vsBot: true, botDifficulty: btn.dataset.diff, playerId: getPlayerId(), variant: _ckVariant() });
   });
 });
@@ -3303,6 +3309,7 @@ $('btn-create').addEventListener('click', () => {
   if (!getPlayerName()) { showError(t().errNoName); return; }
   if (_nameTaken) { showError(t().errNameTaken); return; }
   clearError();
+  if (selectedGameType === 'uno') { window._unoStart({}); return; }
   socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), playerId: getPlayerId(), stake: window._selectedStake || 0, variant: _ckVariant() });
 });
 
@@ -3322,6 +3329,44 @@ function joinRoom() {
 
 function showError(msg) { const e = $('error-msg'); e.textContent = msg; e.classList.remove('hidden'); }
 function clearError()   { $('error-msg').classList.add('hidden'); }
+
+
+// ── Uno : charge a la demande (uno.js + uno.css), puis relaie les evenements du serveur ──────────
+let _unoP = null;
+function _unoLoad() {
+  if (window.LiberoUno) return Promise.resolve(window.LiberoUno);
+  if (_unoP) return _unoP;
+  _unoP = new Promise(res => {
+    const sc = document.createElement('script'); sc.src = 'uno.js?v=1';
+    sc.onload = () => res(window.LiberoUno); sc.onerror = () => { _unoP = null; res(null); };
+    document.head.appendChild(sc);
+  });
+  return _unoP;
+}
+['uno-joined', 'uno-created', 'uno-lobby', 'uno-state', 'uno-error', 'uno-reconnect-failed'].forEach(ev => socket.on(ev, d => { _unoLoad().then(u => u && u.on(ev, d || {})); }));
+window._unoStart = function (opts) {
+  _unoLoad().then(u => { if (u) { u.loadCss(); u.create(opts || {}); } });
+};
+// Reprise apres F5 / coupure : la partie en cours revient toute seule.
+window._unoResume = function () {
+  try {
+    const raw = sessionStorage.getItem('libero_uno') || (JSON.parse(localStorage.getItem('libero_uno') || 'null') || {}).code;
+    if (raw) _unoLoad().then(u => u && u.reconnect());
+  } catch {}
+};
+// « Avec qui ? » : pour Uno, le choix du robot devient un nombre de robots et la mise disparait.
+window._unoWhoSync = function () {
+  const on = selectedGameType === 'uno', d = t();
+  const card = document.getElementById('home-who'); if (!card) return;
+  card.classList.toggle('is-uno', on);
+  const stepBot = document.getElementById('step-bot');
+  const btns = [...card.querySelectorAll('.bot-btn')];
+  if (stepBot) stepBot.textContent = on ? d.unoBotsStep : (d.who?.stepBot || stepBot.textContent);
+  btns.forEach((b, i) => {
+    if (on) { if (b.dataset.orig === undefined) b.dataset.orig = b.textContent; b.dataset.unobots = [1, 3, 5][i]; b.textContent = d.unoBots([1, 3, 5][i]); }
+    else if (b.dataset.orig !== undefined) { b.textContent = b.dataset.orig; delete b.dataset.orig; delete b.dataset.unobots; }
+  });
+};
 
 // ── Session (reload) ──────────────────────────────────────────────────────────
 // La partie en cours est aussi gardee dans localStorage : si l'onglet est perdu
@@ -5947,6 +5992,7 @@ window.addEventListener('pagehide', () => { try { socket.emit('app-visible', fal
 window.addEventListener('pageshow', _sendVisible);
 socket.on('connect', () => {
   triviaMySocketId = socket.id;
+  window._unoResume?.();
   _sendVisible();
   // 1) Reprendre la partie en cours EN PREMIER : c'est ce que le joueur attend devant l'ecran de demarrage.
   const _p4 = sessionStorage.getItem('p4session');
@@ -11864,6 +11910,14 @@ document.body.classList.add('nav-bottom-visible');
   // Écrans gérés par la reconnexion socket · ils se restaurent via p4session/triviaSession
   if (saved === 'game' || saved === 'waiting') {
     if (!sessionStorage.getItem('p4session')) {
+      document.documentElement.classList.remove('restoring');
+      document.documentElement.removeAttribute('data-restore');
+      sessionStorage.removeItem('libero_screen');
+    }
+    return;
+  }
+  if (saved === 'uno') {
+    if (!sessionStorage.getItem('libero_uno') && !localStorage.getItem('libero_uno')) {
       document.documentElement.classList.remove('restoring');
       document.documentElement.removeAttribute('data-restore');
       sessionStorage.removeItem('libero_screen');

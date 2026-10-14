@@ -2786,10 +2786,10 @@ function scheduleBotMove(code) {
 // ── Socket ─────────────────────────────────────────────────────────────────
 
 
-// ── Uno : salons de 2 a 6 joueurs (robots possibles) ─────────────────────────
+// ── Uno : salons de 2 a 10 joueurs (robots possibles) ─────────────────────────
 // Systeme a part des autres jeux : un salon = { code, host (playerId), players:[{pid,name,sid,bot,ci,connected,afk}], status, state }.
 // L'identite d'un joueur est son playerId (jamais envoye aux autres) : la reprise apres F5 se fait par code + playerId.
-const UNO_TURN_MS = 40_000, UNO_RECONNECT_MS = 60_000, UNO_WAIT_MS = 5 * 60_000, UNO_BOTS = ['Robo Léa', 'Robo Max', 'Robo Zoé', 'Robo Tom', 'Robo Eva'];
+const UNO_TURN_MS = 40_000, UNO_RECONNECT_MS = 60_000, UNO_WAIT_MS = 5 * 60_000, UNO_BOTS = ['Robo Léa', 'Robo Max', 'Robo Zoé', 'Robo Tom', 'Robo Eva', 'Robo Sam', 'Robo Mia', 'Robo Leo', 'Robo Ana'];
 const _unoSeatOf = (room, pid) => room.state ? room.state.seats.indexOf(pid) : -1;
 const _unoPlayer = (room, pid) => room.players.find(p => p.pid === pid);
 function _unoPublic(room) {
