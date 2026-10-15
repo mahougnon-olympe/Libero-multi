@@ -14,12 +14,13 @@
       prize: 'Le 1er de la finale gagne un prix', prizeTbd: 'Prix à annoncer', prizeIs: 'Prix du champion',
       join: s => `Rejoindre : ${s}`, watch: 'Regarder sans jouer', notEl: 'Réservé aux joueurs qualifiés. Tu peux regarder.', closed: "Pas de session ouverte pour l'instant.",
       next: (n, t) => `Prochaine session : ${n}, ${t}`, opensIn: t => `Ouvre dans ${t}`, youIn: 'Tu es inscrit(e)',
-      rulesH: 'Les règles du jeu', themesH: 'Les manches', ready: "J'ai compris, je suis prêt", flagRound: n => `Manche drapeaux : ${n} drapeau${n > 1 ? 'x' : ''} à reconnaître`,
+      rulesH: 'Les règles du jeu', ready: "J'ai compris, je suis prêt", flagRound: n => `Manche drapeaux : ${n} drapeau${n > 1 ? 'x' : ''} à reconnaître`,
       rQ: n => ['questions', `${n}`], rules: {
         q: (s, th) => [[`${s.themeQ + s.flagQ}`, 'questions', `${s.themeQ} de culture générale, puis ${s.flagQ} drapeau${s.flagQ > 1 ? 'x' : ''}`], [`${Math.round(s.timeMs / 1000)} s`, 'par question', 'plus tu réponds vite, plus tu gagnes (1000 à 500 pts)'], [`${s.qualify}`, 'places', `les ${s.qualify} meilleurs passent à la suite`], ['0', 'pénalité', 'une mauvaise réponse ne retire rien']],
         f: (s, th) => [[`${s.themeQ + s.flagQ}`, 'questions', `${s.themeQ} de culture générale très difficiles, puis ${s.flagQ} drapeau${s.flagQ > 1 ? 'x' : ''}`], [`${Math.round(s.timeMs / 1000)} s`, 'par question', 'tout se joue à la seconde'], ['1', 'champion', 'le 1er gagne le prix, tous les yeux sont sur vous'], ['0', 'pénalité', 'une mauvaise réponse ne retire rien']],
       },
-      themes: { history: 'Histoire', geography: 'Géographie', science: 'Sciences', sport: 'Sport', cinema: 'Cinéma', music: 'Musique', flag: 'Drapeaux' },
+      themes: { benin: 'Bénin', history: 'Histoire', geography: 'Géographie', science: 'Sciences', sport: 'Sport', cinema: 'Cinéma', music: 'Musique', flag: 'Drapeaux' },
+      nextBtn: 'Suivant', prevBtn: 'Précédent', drawSoon: 'Les thèmes seront tirés au sort en direct, juste avant le départ.', readyQ: 'Prêt à jouer ?', drawH: 'Tirage des thèmes', drawFix: 'Le Bénin est toujours au programme', drawN: (a, b) => `Tirage du thème ${a} sur ${b}...`, drawSum: l => `Au programme : ${l}`, startsIn: 'Départ dans', testChip: 'TEST', code: 'Code organisateur', codePh: 'Code', codeGo: 'Ouvrir', codeBad: 'Code inconnu ou test terminé.', errBad: 'Code inconnu ou test terminé.',
       lobbyH: 'Le quiz commence dans', inRoom: n => `${n} joueur${n > 1 ? 's' : ''} dans la salle`, stay: 'Ne quitte pas : tu es dans la salle', watching: n => `${n} regardent`,
       q: (a, b) => `Question ${a} sur ${b}`, answered: (a, b) => `${a} / ${b} ont répondu`, manche: 'MANCHE DRAPEAUX', manche2: 'Devine le drapeau', whichFlag: 'À quel pays appartient ce drapeau ?',
       readonly: 'Lecture seule : tu ne peux pas répondre', spec: 'SPECTATEUR', rest: 'Joueurs restants', all: 'Tout le tournoi', mode: 'Choisis comment regarder',
@@ -39,12 +40,13 @@
       prize: 'The winner of the final gets a prize', prizeTbd: 'Prize to be announced', prizeIs: "Champion's prize",
       join: s => `Join: ${s}`, watch: 'Watch without playing', notEl: 'Reserved for qualified players. You can watch.', closed: 'No session open right now.',
       next: (n, t) => `Next session: ${n}, ${t}`, opensIn: t => `Opens in ${t}`, youIn: "You're in",
-      rulesH: 'The rules', themesH: 'The rounds', ready: "Got it, I'm ready", flagRound: n => `Flag round: ${n} flag${n > 1 ? 's' : ''} to recognise`,
+      rulesH: 'The rules', ready: "Got it, I'm ready", flagRound: n => `Flag round: ${n} flag${n > 1 ? 's' : ''} to recognise`,
       rules: {
         q: (s) => [[`${s.themeQ + s.flagQ}`, 'questions', `${s.themeQ} general knowledge, then ${s.flagQ} flag${s.flagQ > 1 ? 's' : ''}`], [`${Math.round(s.timeMs / 1000)} s`, 'per question', 'the faster you answer, the more you earn (1000 to 500 pts)'], [`${s.qualify}`, 'places', `the best ${s.qualify} go through`], ['0', 'penalty', 'a wrong answer takes nothing away']],
         f: (s) => [[`${s.themeQ + s.flagQ}`, 'questions', `${s.themeQ} very hard general knowledge, then ${s.flagQ} flag${s.flagQ > 1 ? 's' : ''}`], [`${Math.round(s.timeMs / 1000)} s`, 'per question', 'every second counts'], ['1', 'champion', 'the winner gets the prize, all eyes are on you'], ['0', 'penalty', 'a wrong answer takes nothing away']],
       },
-      themes: { history: 'History', geography: 'Geography', science: 'Science', sport: 'Sport', cinema: 'Cinema', music: 'Music', flag: 'Flags' },
+      themes: { benin: 'Benin', history: 'History', geography: 'Geography', science: 'Science', sport: 'Sport', cinema: 'Cinema', music: 'Music', flag: 'Flags' },
+      nextBtn: 'Next', prevBtn: 'Back', drawSoon: 'The themes will be drawn live, just before the start.', readyQ: 'Ready to play?', drawH: 'Theme draw', drawFix: 'Benin is always on the programme', drawN: (a, b) => `Drawing theme ${a} of ${b}...`, drawSum: l => `On the programme: ${l}`, startsIn: 'Starts in', testChip: 'TEST', code: 'Organiser code', codePh: 'Code', codeGo: 'Open', codeBad: 'Unknown code or test over.', errBad: 'Unknown code or test over.',
       lobbyH: 'The quiz starts in', inRoom: n => `${n} player${n > 1 ? 's' : ''} in the room`, stay: "Don't leave: you're in the room", watching: n => `${n} watching`,
       q: (a, b) => `Question ${a} of ${b}`, answered: (a, b) => `${a} / ${b} answered`, manche: 'FLAG ROUND', manche2: 'Guess the flag', whichFlag: 'Which country does this flag belong to?',
       readonly: "Read only: you can't answer", spec: 'SPECTATOR', rest: 'Remaining players', all: 'Whole tournament', mode: 'Choose how to watch',
@@ -64,12 +66,12 @@
   const wait = ms => new Promise(r => setTimeout(r, reduce() ? 0 : ms));
   const KEY = 'libero_live';
   const COL = ['#ffb3b3', '#b3d4ff', '#b9f0c2', '#ffe08a', '#d9c2ff', '#ffc9a1', '#9fe3e0', '#f5b3e0'];
-  const THEME_LIST = ['history', 'geography', 'science', 'sport', 'cinema', 'music'];
+  const THEME_LIST = ['benin', 'history', 'geography', 'science', 'sport', 'cinema', 'music'];
   const pname = () => (localStorage.getItem('playerName') || '').trim();
 
   let root = null, body = null, info = null, off = 0;
-  let V = { role: null, mode: 'remaining', sid: null, view: 'prog', q: null, picked: -1, my: null, prev: null, tm: null, cdt: null, lastBoard: null, rulesSid: null };
-  const save = () => { try { sessionStorage.setItem(KEY, JSON.stringify({ role: V.role, mode: V.mode })); } catch {} };
+  let V = { role: null, mode: 'remaining', code: '', themes: null, sid: null, view: 'prog', q: null, picked: -1, my: null, prev: null, tm: null, cdt: null, lastBoard: null, rulesSid: null };
+  const save = () => { try { sessionStorage.setItem(KEY, JSON.stringify({ role: V.role, mode: V.mode, code: V.code })); } catch {} };
   const load = () => { try { return JSON.parse(sessionStorage.getItem(KEY) || 'null') || {}; } catch { return {}; } };
   const now = () => Date.now() + off;
   const av = (name, portrait, i) => {
@@ -77,7 +79,7 @@
     return `<span style="font-weight:800">${esc((name || '?')[0].toUpperCase())}</span>`;
   };
 
-  function loadCss() { if (document.getElementById('live-css')) return; const l = document.createElement('link'); l.id = 'live-css'; l.rel = 'stylesheet'; l.href = 'live.css?v=2'; document.head.appendChild(l); }
+  function loadCss() { if (document.getElementById('live-css')) return; const l = document.createElement('link'); l.id = 'live-css'; l.rel = 'stylesheet'; l.href = 'live.css?v=3'; document.head.appendChild(l); }
   function ensure() {
     loadCss();
     if (root) return;
@@ -113,9 +115,9 @@
   // ── Programme ──
   function prog() {
     ensure(); showScreen('live');
-    const d = U(); if (!info) { scene(`<p class="lv-hand">${d.sub}</p>`, 'prog'); socket.emit('live-get', { playerId: getPlayerId() }); return; }
+    const d = U(); if (!info) { scene(`<p class="lv-hand">${d.sub}</p>`, 'prog'); socket.emit('live-get', { playerId: getPlayerId(), code: V.code }); return; }
     const act = info.sessions.find(s => (s.status === 'lobby' || s.status === 'live') && s.me.eligible && !s.me.joined) || info.sessions.find(s => s.status === 'lobby' || s.status === 'live');
-    let h = `<h1 class="lv-h1">${d.title}</h1><p class="lv-hand">${d.sub}</p>`;
+    let h = `<h1 class="lv-h1">${d.title}${info.test ? ` <span class="lv-chip gray">${d.testChip}</span>` : ''}</h1><p class="lv-hand">${d.sub}</p>`;
     h += info.sessions.map(s => {
       const chipC = s.status === 'done' ? 'ok' : s.status === 'live' ? 'red' : s.status === 'lobby' ? 'red' : 'gray';
       const lines = [`${when(s.start)} · ${d.detail(s)} · ${d.qual(s.qualify)}`];
@@ -135,7 +137,14 @@
       h += nx ? `<p class="lv-ghost">${d.next(d.sess[nx.id], when(nx.start))}</p>` : `<p class="lv-ghost">${d.over}</p>`;
       if (nx || info.sessions.some(s => s.status === 'done')) h += `<button class="lv-btn alt" id="lv-watch">${d.watch}</button>`;
     }
+    h += `<button class="lv-link" id="lv-code">${V.code ? '' : d.code}</button>`;
     scene(h, 'prog');
+    const cd = $('#lv-code', root);
+    if (cd) cd.onclick = () => {
+      cd.outerHTML = `<div class="lv-codebox"><input id="lv-codein" maxlength="8" placeholder="${d.codePh}" autocomplete="off" autocapitalize="characters"><button class="lv-btn" id="lv-codego">${d.codeGo}</button></div>`;
+      const go = () => { const v = ($('#lv-codein', root).value || '').trim().toUpperCase(); if (!v) return; V.code = v; save(); socket.emit('live-get', { playerId: getPlayerId(), code: v }); };
+      $('#lv-codego', root).onclick = go; $('#lv-codein', root).onkeydown = e => { if (e.key === 'Enter') go(); }; $('#lv-codein', root).focus();
+    };
     const j = $('#lv-join', root); if (j) j.onclick = () => rules(act.id);
     const w = $('#lv-watch', root); if (w) w.onclick = chooseWatch;
   }
@@ -145,28 +154,72 @@
     body.querySelectorAll('[data-m]').forEach(b => b.onclick = () => watch(b.dataset.m));
     $('#lv-cancel', root).onclick = prog;
   }
-  function watch(mode) { V.role = 'spec'; V.mode = mode; save(); socket.emit('live-watch', { playerId: getPlayerId(), mode }); specIdle(); }
+  function watch(mode) { V.role = 'spec'; V.mode = mode; save(); socket.emit('live-watch', { playerId: getPlayerId(), mode, code: V.code }); specIdle(); }
   function specIdle() { if (V.role === 'spec' && ['prog', 'watch', 'rules'].includes(V.view)) bracket(); }
 
-  // ── Regles annoncees avant la session ──
-  async function rules(sid) {
+  // ── Regles annoncees avant la session : une par une, le temps de bien lire ──
+  const STEP_MS = 6000;
+  function rules(sid) {
     const s = S(sid); if (!s) return prog();
     const d = U(), key = sid === 'f' ? 'f' : 'q', rows = d.rules[key](s);
-    V.rulesSid = sid;
-    const themes = THEME_LIST.map((t, i) => `<div class="lv-tl" style="animation-delay:${.9 + i * .12}s"><i style="background:${COL[i]}">${d.themes[t][0]}</i>${d.themes[t]}</div>`).join('') +
-      (s.flagQ ? `<div class="lv-tl flag" style="animation-delay:${.9 + 6 * .12}s">${d.flagRound(s.flagQ)}</div>` : '');
-    scene(`<span class="lv-chip red" style="align-self:flex-start">${d.sess[sid].toUpperCase()}</span><h1 class="lv-h1">${d.rulesH}</h1>` +
-      rows.map((r, i) => `<div class="lv-ri" style="animation-delay:${.2 + i * .22}s"><b>${esc(r[0])}</b><div>${esc(r[1])}<span>${esc(r[2])}</span></div></div>`).join('') +
-      `<p class="lv-hand" style="margin-top:2px">${d.themesH}</p><div class="lv-th">${themes}</div><button class="lv-btn" id="lv-ok" style="opacity:0">${d.ready}</button>`, 'rules');
-    const b = $('#lv-ok', root); setTimeout(() => { if (b) { b.style.transition = 'opacity .5s'; b.style.opacity = 1; } }, reduce() ? 0 : 1900);
-    b.onclick = () => { V.role = 'player'; save(); socket.emit('live-join', { playerId: getPlayerId(), name: pname() || 'Anonyme' }); };
+    V.rulesSid = sid; let i = 0, tm = null;
+    const total = rows.length + 1; // les regles, puis « pret ? »
+    scene(`<div class="lv-row"><span class="lv-chip red">${d.sess[sid].toUpperCase()}</span>${info && info.test ? `<span class="lv-chip gray">${d.testChip}</span>` : ''}</div><p class="lv-hand">${d.rulesH}</p>
+      <div class="lv-rs-big" id="lv-rb"></div><div class="lv-dots" id="lv-dots">${'<i></i>'.repeat(total)}</div><div class="lv-rtimer" id="lv-rt"><i></i></div><div class="lv-done" id="lv-rd"></div>
+      <div class="lv-nav"><button class="lv-btn alt" id="lv-rp">${d.prevBtn}</button><button class="lv-btn" id="lv-rn">${d.nextBtn}</button></div>`, 'rules');
+    const big = $('#lv-rb', root), dots = $('#lv-dots', root), done = $('#lv-rd', root), tbar = $('#lv-rt', root).firstElementChild;
+    function show() {
+      clearTimeout(tm);
+      big.style.animation = 'none'; void big.offsetWidth; big.style.animation = '';
+      if (i < rows.length) { const r = rows[i]; big.innerHTML = `<b>${esc(r[0])}</b><h3>${esc(r[1])}</h3><p>${esc(r[2])}</p>`; }
+      else big.innerHTML = `<h3>${d.readyQ}</h3><p>${d.drawSoon}</p><button class="lv-btn" id="lv-ok" style="margin-top:10px">${d.ready}</button>`;
+      dots.querySelectorAll('i').forEach((x, k) => { x.className = k < i ? 'd' : k === i ? 'on' : ''; });
+      done.innerHTML = rows.slice(0, Math.min(i, rows.length)).map(r => `<span>${esc(r[0])} ${esc(r[1])}</span>`).join('');
+      $('#lv-rp', root).disabled = i === 0; $('#lv-rn', root).style.visibility = i >= total - 1 ? 'hidden' : '';
+      try { tbar.getAnimations().forEach(a => a.cancel()); } catch {}
+      if (i < total - 1) { if (!reduce()) tbar.animate([{ transform: 'scaleX(1)' }, { transform: 'scaleX(0)' }], { duration: STEP_MS, fill: 'forwards', easing: 'linear' }); tm = setTimeout(() => { i++; show(); }, STEP_MS); }
+      else tbar.style.transform = 'scaleX(0)';
+      const ok = $('#lv-ok', root); if (ok) ok.onclick = () => { V.role = 'player'; save(); socket.emit('live-join', { playerId: getPlayerId(), name: pname() || 'Anonyme', code: V.code }); };
+    }
+    $('#lv-rn', root).onclick = () => { if (i < total - 1) { i++; show(); } };
+    $('#lv-rp', root).onclick = () => { if (i > 0) { i--; show(); } };
+    V.rulesStop = () => clearTimeout(tm);
+    show();
+  }
+
+  // ── Tirage des themes, a la vue de tous ──
+  async function drawScene(d0) {
+    if (!V.role) return;
+    const d = U(), themes = d0.themes, replay = d0.replay !== false && !reduce();
+    V.themes = themes;
+    const tile = (t, i) => `<div class="lv-dw${t === 'benin' ? ' bj' : ''}" data-t="${t}"><i style="background:${COL[i]}">${d.themes[t][0]}</i>${d.themes[t]}${t === 'benin' ? '<span class="lock">FIXE</span>' : ''}</div>`;
+    scene(`<span class="lv-eye" style="align-self:flex-start">${d.drawH}</span><p class="lv-hand" id="lv-dh">${d.drawH}</p><div class="lv-draw" id="lv-dg">${THEME_LIST.map(tile).join('')}<div class="lv-dw flag" style="grid-column:span 2">${d.themes.flag}<br><small>${L() === 'en' ? 'always last' : 'toujours en dernier'}</small></div></div><div class="lv-slot" id="lv-slot"></div><div class="lv-ans" id="lv-ds"></div><div class="lv-sum" id="lv-sum" style="opacity:0"></div><div class="lv-cd" id="lv-cd" style="font-size:40px">0:00</div>`, 'draw');
+    const tiles = [...$('#lv-dg', root).querySelectorAll('.lv-dw[data-t]')], by = t => tiles.find(x => x.dataset.t === t);
+    const sum = () => { $('#lv-sum', root).textContent = d.drawSum(themes.map(t => d.themes[t]).join(', ') + ' + ' + d.themes.flag.toLowerCase()); $('#lv-sum', root).style.opacity = 1; };
+    V.cdt = setInterval(tickLobby, 250); tickLobby();
+    const rest = themes.slice(1);
+    if (!replay) { by('benin').classList.add('won'); rest.forEach(t => by(t).classList.add('won')); tiles.forEach(x => { if (!themes.includes(x.dataset.t)) x.classList.add('out'); }); sum(); return; }
+    const mine = V.view; snd('quiz-start');
+    $('#lv-ds', root).textContent = d.drawFix; by('benin').classList.add('won'); await wait(1800);
+    const slot = $('#lv-slot', root); slot.innerHTML = rest.map(() => '<div class="lv-reel"><div>?</div></div>').join('');
+    const reels = [...slot.querySelectorAll('.lv-reel')], pool = THEME_LIST.slice(1), chosen = [];
+    for (let n = 0; n < rest.length; n++) {
+      if (V.view !== 'draw') return;
+      $('#lv-ds', root).textContent = d.drawN(n + 1, rest.length);
+      const txt = reels[n].firstElementChild, avail = pool.filter(p => !chosen.includes(p));
+      await new Promise(res => { let k = 0; const total = 16 + n * 4; (function spin() { if (V.view !== 'draw') return res(); const p = avail[k % avail.length]; tiles.forEach(t => t.classList.remove('spin')); by(p).classList.add('spin'); txt.textContent = d.themes[p]; k++; if (k > total) return res(); setTimeout(spin, Math.min(170, 60 + k * 5)); })(); });
+      tiles.forEach(t => t.classList.remove('spin')); const win = rest[n]; chosen.push(win); by(win).classList.add('won'); txt.textContent = d.themes[win]; reels[n].classList.add('stop'); await wait(900);
+    }
+    if (V.view !== 'draw') return;
+    tiles.forEach(x => { if (!themes.includes(x.dataset.t)) x.classList.add('out'); }); $('#lv-ds', root).textContent = ''; sum();
   }
 
   // ── Salle d'attente ──
   function lobby(d0) {
-    const d = U(); V.sid = d0.sid; off = d0.now - Date.now();
+    const d = U(); V.sid = d0.sid; off = d0.now - Date.now(); V.startAt = d0.startAt;
+    if (V.view === 'draw') { top(d0.specs ? d.watching(d0.specs) : ''); return; }
     if (V.view !== 'lobby') {
-      scene(`<h1 class="lv-h1">${d.sess[d0.sid]}</h1><p class="lv-hand">${d.lobbyH}</p><div class="lv-cd" id="lv-cd">0:00</div><div class="lv-box"><div class="lv-ans" id="lv-in"></div></div><p class="lv-ghost">${V.role === 'spec' ? '' : d.stay}</p>`, 'lobby');
+      scene(`<h1 class="lv-h1">${d.sess[d0.sid]}</h1><p class="lv-hand">${d.lobbyH}</p><div class="lv-cd" id="lv-cd">0:00</div><div class="lv-box"><div class="lv-ans" id="lv-in"></div></div><p class="lv-ghost">${V.role === 'spec' ? '' : d.stay}</p><p class="lv-ghost" style="opacity:.8">${d.drawSoon}</p>`, 'lobby');
       V.cdt = setInterval(tickLobby, 250);
     }
     V.startAt = d0.startAt; $('#lv-in', root).innerHTML = `<b>${d0.n}</b> ${d.inRoom(d0.n).replace(/^\d+ /, '')}`;
@@ -289,7 +342,7 @@
 
   // ── Spectateur : tout le tournoi ──
   function bracket() {
-    const d = U(); if (!info) { socket.emit('live-get', { playerId: getPlayerId() }); return; }
+    const d = U(); if (!info) { socket.emit('live-get', { playerId: getPlayerId(), code: V.code }); return; }
     const cols = info.sessions.map((s, i) => `<div class="col"><h4>${d.bk[i]}</h4><div class="num">${s.status === 'done' ? s.players : s.players || '·'}</div>${s.top.map(t => `<div class="pl">${esc(t.name)}</div>`).join('') || `<div class="pl" style="opacity:.5">${d.st[s.status]}</div>`}</div>`).join('');
     scene(`<div class="lv-tabs"><button data-m="remaining" class="${V.mode === 'remaining' ? 'on' : ''}">${d.rest}</button><button data-m="all" class="${V.mode === 'all' ? 'on' : ''}">${d.all}</button></div><div class="lv-bk">${cols}</div><div class="lv-ghost">${(info.active ? d.st.live : d.closed)}</div>`, 'bk');
     body.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { V.mode = b.dataset.m; save(); bracket(); });
@@ -303,16 +356,17 @@
     if (toProg) prog(); else showScreen('events');
   }
   function err(code) {
-    const d = U(); const m = { notqualified: d.errNotQ, late: d.errLate, closed: d.errClosed, aborted: d.errAbort }[code] || d.errClosed;
+    const d = U(); const m = { badcode: d.errBad, notqualified: d.errNotQ, late: d.errLate, closed: d.errClosed, aborted: d.errAbort }[code] || d.errClosed;
     try { showCursorSnakeToast(m); } catch {}
     if (V.role === 'player' && V.view === 'rules') { V.role = null; save(); }
     if (code === 'aborted') { V.role = null; try { sessionStorage.removeItem(KEY); } catch {} }
+    if (code === 'badcode') { V.code = ''; save(); socket.emit('live-get', { playerId: getPlayerId(), code: '' }); return; }
     if (['prog', 'rules', 'watch'].includes(V.view) || code === 'aborted') prog();
   }
   function restore() {
-    ensure(); const s = load();
-    if (s.role === 'player') { V.role = 'player'; socket.emit('live-join', { playerId: getPlayerId(), name: pname() || 'Anonyme' }); }
-    else if (s.role === 'spec') { V.role = 'spec'; V.mode = s.mode || 'remaining'; socket.emit('live-watch', { playerId: getPlayerId(), mode: V.mode }); }
+    ensure(); const s = load(); V.code = s.code || '';
+    if (s.role === 'player') { V.role = 'player'; socket.emit('live-join', { playerId: getPlayerId(), name: pname() || 'Anonyme', code: V.code }); }
+    else if (s.role === 'spec') { V.role = 'spec'; V.mode = s.mode || 'remaining'; socket.emit('live-watch', { playerId: getPlayerId(), mode: V.mode, code: V.code }); }
     showScreen('live'); if (!s.role) prog(); else scene('', 'prog');
   }
 
@@ -322,10 +376,11 @@
     d = d || {};
     switch (ev) {
       case 'live-info': info = d; off = d.now - Date.now(); if (root && root.classList.contains('active') && ['prog'].includes(V.view)) prog(); else if (V.view === 'bk') bracket(); break;
-      case 'live-phase': socket.emit('live-get', { playerId: getPlayerId() }); break;
+      case 'live-phase': socket.emit('live-get', { playerId: getPlayerId(), code: V.code }); break;
       case 'live-joined': V.sid = d.sid; break;
       case 'live-watching': V.mode = d.mode; break;
       case 'live-lobby': if (V.role) lobby(d); break;
+      case 'live-draw': if (V.role) drawScene(d); break;
       case 'live-start': if (V.role) { V.lastBoard = null; snd('quiz-start'); curtain(U().sess[d.sid], '', false); } break;
       case 'live-q': if (V.role) { clearInterval(V.cdt); showQ(d); } break;
       case 'live-answered': if (V.view === 'q') onAnswered(d); break;
@@ -337,7 +392,7 @@
       case 'live-error': err(d.code); break;
     }
   }
-  function open() { ensure(); try { sessionStorage.removeItem(KEY); } catch {} V = Object.assign(V, { role: null, view: 'prog' }); prog(); socket.emit('live-get', { playerId: getPlayerId() }); }
-  function resume() { if (V.role === 'player') socket.emit('live-join', { playerId: getPlayerId(), name: pname() || 'Anonyme' }); else if (V.role === 'spec') socket.emit('live-watch', { playerId: getPlayerId(), mode: V.mode }); }
+  function open() { ensure(); try { sessionStorage.removeItem(KEY); } catch {} V = Object.assign(V, { role: null, view: 'prog', code: '' }); prog(); socket.emit('live-get', { playerId: getPlayerId(), code: V.code }); }
+  function resume() { if (V.role === 'player') socket.emit('live-join', { playerId: getPlayerId(), name: pname() || 'Anonyme', code: V.code }); else if (V.role === 'spec') socket.emit('live-watch', { playerId: getPlayerId(), mode: V.mode, code: V.code }); }
   window.LiberoLive = { open, restore, resume, on, info: () => info };
 })();

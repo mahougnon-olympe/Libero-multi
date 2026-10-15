@@ -4,7 +4,7 @@
 // (voir `releaseLive` dans game-trivia.js).
 // Ligne : [question FR, question EN, bonne reponse, faux 1, faux 2, faux 3]
 // Un choix peut etre bilingue : "texte FR|texte EN". Difficultes : medium, hard, extreme.
-const RAW = { history: {}, geography: {}, science: {}, sport: {}, cinema: {}, music: {} };
+const RAW = { benin: {}, history: {}, geography: {}, science: {}, sport: {}, cinema: {}, music: {} };
 const T = (theme, level, rows) => { RAW[theme][level] = rows; };
 module.exports.RAW = RAW;
 module.exports.T = T;
@@ -12,6 +12,7 @@ module.exports.T = T;
 require('./trivia-live-history');
 require('./trivia-live-geo-sci');
 require('./trivia-live-sport-cine-music');
+require('./trivia-live-benin');
 
 const split = s => { const p = String(s).split('|'); return [p[0], p.length > 1 ? p[1] : p[0]]; };
 // Format interne identique a trivia-questions.js : { f, fc, e, ec, a:0 } (choix melanges au service).
@@ -47,3 +48,4 @@ for (const t in FULL) { LIVE[t] = {}; for (const l in FULL[t]) LIVE[t][l] = FULL
 module.exports.LIVE = LIVE;
 module.exports.DROPPED = () => { let n = 0; for (const t in FULL) for (const l in FULL[t]) n += FULL[t][l].length - LIVE[t][l].length; return n; };
 module.exports.THEMES = Object.keys(RAW);
+module.exports.DRAW_THEMES = Object.keys(RAW).filter(t => t !== 'benin'); // le Benin est toujours au programme, hors tirage

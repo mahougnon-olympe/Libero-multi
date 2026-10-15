@@ -685,6 +685,19 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
           <button id="btn-live-reset" class="red">Remettre le tournoi à zéro</button>
         </div>
         <p id="live-status" class="sub"></p>
+        <h3 style="margin:18px 0 4px">Test organisateur (sans toucher au vrai tournoi)</h3>
+        <p class="sub" style="margin-top:0">Lance une session d'essai avec des robots, autant de fois que tu veux. Rien n'est enregistré : pas de classement, pas de Libs, pas de questions « consommées ». Ouvre le site, va dans Évents, Quiz en direct, puis tout en bas « Code organisateur » et tape le code. Tu peux jouer ou regarder.</p>
+        <div class="field">
+          <select id="live-t-sid"><option value="q">Quart de finale</option><option value="s">Demi-finale</option><option value="f">Finale</option></select>
+          <label>Robots <input id="live-t-bots" type="number" min="0" max="300" value="30" style="width:70px"></label>
+          <label>Salle (s) <input id="live-t-lobby" type="number" min="20" max="600" value="60" style="width:70px"></label>
+          <label>Temps/question (s) <input id="live-t-time" type="number" min="3" max="60" value="" placeholder="auto" style="width:70px"></label>
+        </div>
+        <div class="field">
+          <button id="btn-live-test" class="green">Lancer un test</button>
+          <button id="btn-live-test-stop" class="red">Arrêter les tests</button>
+        </div>
+        <p id="live-test-out" class="sub"></p>
       </section>
 <section data-sec="acct">
         <h2><span class="adm-ic" data-ic="key">🔑</span> Réinitialiser un mot de passe <span id="acct-pill" class="pill"></span></h2>
@@ -1852,6 +1865,17 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
       if ($('btn-live-abort')) $('btn-live-abort').addEventListener('click', function () { if (confirm('Arrêter la session en cours ?')) liveSend({ action: 'abort' }); });
       if ($('btn-live-reset')) $('btn-live-reset').addEventListener('click', function () { if (confirm('Remettre tout le tournoi à zéro (résultats effacés) ?')) liveSend({ action: 'reset' }); });
       if ($('btn-live-reset-used')) $('btn-live-reset-used').addEventListener('click', function () { if (confirm('Les questions déjà tirées pourront revenir. Continuer ?')) liveSend({ action: 'reset-used' }); });
+      if ($('btn-live-test')) $('btn-live-test').addEventListener('click', async function () {
+        var body = { action: 'test', sid: $('live-t-sid').value, bots: +$('live-t-bots').value || 0, lobbySec: +$('live-t-lobby').value || 60 };
+        if ($('live-t-time').value) body.timeMs = (+$('live-t-time').value) * 1000;
+        try {
+          var r = await api('/admin/live', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+          var d = await r.json();
+          if (d.test) $('live-test-out').innerHTML = 'Test lancé. Code : <b style="font-size:1.4em;letter-spacing:.2em">' + d.test.code + '</b> (' + d.test.bots + ' robots, départ dans ' + (body.lobbySec) + ' s)';
+          else $('live-test-out').textContent = 'Échec du lancement.';
+        } catch (e) { $('live-test-out').textContent = 'Échec du lancement.'; }
+      });
+      if ($('btn-live-test-stop')) $('btn-live-test-stop').addEventListener('click', function () { liveSend({ action: 'test-stop' }); $('live-test-out').textContent = 'Tests arrêtés.'; });
       setTimeout(liveLoad, 1500);
     })();
 

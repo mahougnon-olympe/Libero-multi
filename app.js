@@ -3383,7 +3383,7 @@ function _liveLoad() {
   if (window.LiberoLive) return Promise.resolve(window.LiberoLive);
   if (_liveP) return _liveP;
   _liveP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'live.js?v=3';
+    const sc = document.createElement('script'); sc.src = 'live.js?v=6';
     sc.onload = () => res(window.LiberoLive); sc.onerror = () => { _liveP = null; res(null); };
     document.head.appendChild(sc);
   });
@@ -3409,7 +3409,7 @@ function _livePaint() {
   window._evCal?.render?.();
 }
 document.addEventListener('click', e => { const b = e.target.closest?.('.live-cta'); if (b) _liveLoad().then(m => m && m.open()); });
-['live-info', 'live-phase', 'live-joined', 'live-watching', 'live-lobby', 'live-start', 'live-q', 'live-answered', 'live-countdown', 'live-reveal', 'live-me', 'live-end', 'live-result', 'live-error', 'live-ack'].forEach(ev => socket.on(ev, d => {
+['live-info', 'live-phase', 'live-joined', 'live-watching', 'live-lobby', 'live-draw', 'live-start', 'live-q', 'live-answered', 'live-countdown', 'live-reveal', 'live-me', 'live-end', 'live-result', 'live-error', 'live-ack'].forEach(ev => socket.on(ev, d => {
   if (ev === 'live-info') { window._liveInfo = d; _livePaint(); }
   if (ev === 'live-phase') socket.emit('live-get', { playerId: getPlayerId() });
   if (window.LiberoLive) window.LiberoLive.on(ev, d || {});
