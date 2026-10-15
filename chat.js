@@ -64,11 +64,11 @@
     const seen = m.mine && m.read ? ` · ${esc(d().seen)}` : '';
     const qn = m.reply ? (m.reply.mine ? d().me : (f?.name || curName)) : '';
     const quote = m.reply ? `<button type="button" class="dm-quote dm-quote-go" data-go="${esc(m.reply.id)}"><b>${esc(qn)}</b><span>${esc(m.reply.text)}</span></button>` : '';
-    const body = `${quote}<span class="dm-txt">${esc(m.text)}</span>`;
-    // Bulle achetee en boutique : un ruban dans sa matiere, a cote du message.
+    // Bulle achetee en boutique : le mot est ecrit dans une vraie bulle, dans sa matiere.
     const bc = typeof _bubbleClass === 'function' ? _bubbleClass(m.mine ? bubbles.me : bubbles.them) : '';
-    const rib = bc ? `<i class="dm-rib msg-bubble ${bc}" aria-hidden="true"></i>` : '';
-    return `<div class="dm-m ${cls}${anim || ''}${bc ? ' dm-has-rib' : ''}" data-id="${esc(m.id || '')}"><button type="button" class="dm-rep" aria-label="${esc(d().reply)}">&#8617; ${esc(d().reply)}</button><span class="dm-name">${esc(name)} <time>${esc(hhmm(m.at))}${seen}</time></span>${body}${rib}</div>`;
+    const body = `${quote}<span class="dm-txt${bc ? ' dm-bub msg-bubble ' + bc : ''}">${esc(m.text)}</span>`;
+    const rib = '';
+    return `<div class="dm-m ${cls}${anim || ''}" data-id="${esc(m.id || '')}"><button type="button" class="dm-rep" aria-label="${esc(d().reply)}">&#8617; ${esc(d().reply)}</button><span class="dm-name">${esc(name)} <time>${esc(hhmm(m.at))}${seen}</time></span>${body}${rib}</div>`;
   }
   // La mise en page (bande de messages rapides, police, clavier) bouge apres le premier rendu : on recolle au dernier mot tant que le joueur n'a pas fait defiler lui-meme.
   let stickT = 0, userScrolled = false;

@@ -3173,3 +3173,7 @@ html.light .xp-pill { color: #173a8a; }
 .live-cta .lv-live { flex: none; } .live-cta small { display: block; font-weight: 700; opacity: .8; }
 .live-pill { position: fixed; right: 12px; bottom: 76px; z-index: 40; border: 2px solid var(--line); border-radius: 99px; background: var(--margin); color: #fff; padding: 8px 14px; font: 800 13px var(--font-body); cursor: pointer; box-shadow: var(--elev-3); display: none; }
 .live-pill.on { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Chat entre amis : la bulle de la boutique enveloppe le mot (plus de simple ruban) */
+:root:root .dm-m .dm-txt.dm-bub { display: inline-block; max-width: 100%; padding: 7px 13px 8px; border-radius: 16px 16px 16px 4px; font-family: inherit; text-align: left; box-shadow: 0 2px 0 rgba(0,0,0,.18); }
+:root:root .dm-m.me .dm-txt.dm-bub { border-radius: 16px 16px 4px 16px; }
