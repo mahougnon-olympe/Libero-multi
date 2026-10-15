@@ -1176,6 +1176,7 @@ const DICT = {
     helpBoostTitle:'Boost Indice (quiz)',
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     eventsTitle:'Évents', eventsDesc:'Calendrier des week-ends',
+    livePill:'EN DIRECT', liveCtaT:'Quiz en direct', liveCtaOpen:'La salle est ouverte, rejoins-nous', liveCtaNext:'Le tournoi du week-end, en trois sessions', 
     evMonths:['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'], evThisWeekend:x=>`Ce week-end : ${x}`, evNext:x=>`Prochain : ${x}`, evNews:x=>`<strong>Ce week-end</strong> : ${x}`, evNewsNext:(x,n)=>`<strong>Prochain évent</strong> : ${x}, dans ${n} jour${n>1?'s':''}`, evCalendarSub:'Le calendrier des week-ends', evTournament:'Tous les samedis : <b>tournoi</b>, 2000 Libs au champion.', evEmpty:'Les prochains évents arrivent bientôt.', evLive:'En cours', evReward:'Récompense', evNote:'Touche un évent pour voir ses règles. Les dates peuvent encore bouger.',
     arcadeTitle:'Arcade', arcadeSub:'Des jeux rapides, tous les jours', arcadeRunDesc:'Aide Libero à courir le plus loin possible ! Saute les obstacles, baisse-toi sous ceux qui volent.', arcadeSnakeDesc:'Mange des pommes pour faire grandir ton serpent, sans mordre ta queue.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Classements', snakeUnit:'pommes', shareCard:{ quiz:'Quiz', pts:'pts', solo:'Quiz solo', brand:'Joue avec moi sur', rankOf:(r,n)=>`${r}${r===1?'er':'e'} sur ${n}` }, podium:{ title:'Résultats', sub:'Quiz à plusieurs', banner:'CHAMPION DU QUIZ', skip:'Passer', done:'Voir les résultats', you:'toi', msgWin:'Tu es le meilleur de la partie !', msgClose:n=>`Plus que ${n} point${n>1?'s':''} pour la couronne. Revanche ?`, msgOut:r=>`Tu finis ${r}e. Le podium t'attend la prochaine fois !` }, soundpackRefund:n=>`Les packs de sons ont quitté la boutique : ${n} Libs te sont rendus.`, inArcade:'Dans l\'Arcade',
     eventsDescLocked:'Week-end prochain',
@@ -1974,6 +1975,7 @@ const DICT = {
     helpBoostTitle:'Quiz Hint Boost',
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     eventsTitle:'Events', eventsDesc:'Weekend calendar',
+    livePill:'LIVE', liveCtaT:'Live quiz', liveCtaOpen:'The room is open, join us', liveCtaNext:'The weekend tournament, in three sessions', 
     evMonths:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], evThisWeekend:x=>`This weekend: ${x}`, evNext:x=>`Next: ${x}`, evNews:x=>`<strong>This weekend</strong>: ${x}`, evNewsNext:(x,n)=>`<strong>Next event</strong>: ${x}, in ${n} day${n>1?'s':''}`, evCalendarSub:'The weekend calendar', evTournament:'Every Saturday: <b>tournament</b>, 2000 Libs for the champion.', evEmpty:'The next events are coming soon.', evLive:'Live', evReward:'Reward', evNote:'Tap an event to see its rules. Dates may still change.',
     arcadeTitle:'Arcade', arcadeSub:'Quick games, every day', arcadeRunDesc:'Help Libero run as far as possible! Jump over obstacles, duck under the flying ones.', arcadeSnakeDesc:'Eat apples to make your snake grow, without biting your own tail.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Leaderboards', snakeUnit:'apples', shareCard:{ quiz:'Quiz', pts:'pts', solo:'Solo quiz', brand:'Play with me on', rankOf:(r,n)=>`${r}${r===1?'st':r===2?'nd':r===3?'rd':'th'} of ${n}` }, podium:{ title:'Results', sub:'Multiplayer quiz', banner:'QUIZ CHAMPION', skip:'Skip', done:'See the results', you:'you', msgWin:'You are the best of the game!', msgClose:n=>`Only ${n} point${n>1?'s':''} away from the crown. Rematch?`, msgOut:r=>`You finished ${r}th. The podium awaits you next time!` }, soundpackRefund:n=>`Sound packs have left the shop: ${n} Libs have been refunded to you.`, inArcade:'In the Arcade',
     eventsDescLocked:'Next weekend',
@@ -2274,7 +2276,7 @@ function _isEventActive() { return true; }
 const EV_CAL = [
   ['2026-10-17', [
     ['c1','sparkle','Week-end Double XP','Double XP weekend','Toutes les parties rapportent deux fois plus d\'XP, du samedi au dimanche minuit.','Every game gives twice as much XP, from Saturday to Sunday midnight.','XP ×2','XP ×2'],
-    ['c2','help','Quiz en direct','Live quiz','20 questions jouées par tout le site en même temps, avec le classement qui bouge après chaque question.','20 questions played by the whole site at the same time, with the leaderboard moving after each question.','Podium : 1500, 800 et 400 Libs','Podium: 1500, 800 and 400 Libs','Dimanche 18 h','Sunday 6 pm']]],
+    ['c2','help','Quiz en direct','Live quiz','Un tournoi en trois sessions : quart de finale samedi 18 h, demi-finale dimanche 15 h, finale dimanche 19 h (heure du Bénin). Des questions inédites, jamais vues dans les autres quiz, et une manche de drapeaux. Les règles sont annoncées avant chaque étape, et tu peux regarder en spectateur.','A tournament in three sessions: quarterfinal Saturday 6 pm, semifinal Sunday 3 pm, final Sunday 7 pm (Benin time). Brand-new questions, never seen in other quizzes, and a flag round. The rules are announced before each stage, and you can watch as a spectator.','Un prix pour le 1er de la finale','A prize for the winner of the final','Samedi et dimanche','Saturday and Sunday']]],
   ['2026-10-24', [
     ['c2','letter','Le Mot Marathon','The Word Marathon','5 mots mystères le samedi et 5 le dimanche au lieu d\'un seul.','5 mystery words on Saturday and 5 on Sunday instead of one.','500 Libs au 1er, 50 Libs par mot trouvé','500 Libs for 1st, 50 Libs per word found'],
     ['c1','tag','Soldes du cartable','Schoolbag sale','Toute la boutique à -30 %, avec un compte à rebours.','The whole shop at -30%, with a countdown.','-30 % sur la boutique','-30% in the shop','Dimanche','Sunday']]],
@@ -2361,7 +2363,7 @@ window._evCal = (() => {
     const box = document.getElementById('evcal'); if (!box) return;
     const d = t(), L = _evL(), now = Date.now();
     const weeks = EV_CAL.filter(w => _evStart(w[0]) + 2 * _EV_DAY > now);
-    let html = `<div class="evcal-ribbon"><span data-ic="trophy"></span><span>${d.evTournament}</span></div>`;
+    let html = _liveCtaHtml() + `<div class="evcal-ribbon"><span data-ic="trophy"></span><span>${d.evTournament}</span></div>`;
     if (!weeks.length) html += `<p class="evcal-empty">${d.evEmpty}</p>`;
     weeks.forEach(w => {
       const live = now >= _evStart(w[0]);
@@ -3375,6 +3377,43 @@ function _flagsLoad() {
   });
   return _flagsP;
 }
+// ── Quiz en direct (tournoi) : live.js + live.css a la demande ──────────────────────────────
+let _liveP = null;
+function _liveLoad() {
+  if (window.LiberoLive) return Promise.resolve(window.LiberoLive);
+  if (_liveP) return _liveP;
+  _liveP = new Promise(res => {
+    const sc = document.createElement('script'); sc.src = 'live.js?v=3';
+    sc.onload = () => res(window.LiberoLive); sc.onerror = () => { _liveP = null; res(null); };
+    document.head.appendChild(sc);
+  });
+  return _liveP;
+}
+window._liveInfo = null;
+// Bandeau « en direct » en haut des Évents et pastille sur l'accueil, tant qu'une salle est ouverte.
+function _liveCtaHtml() {
+  const inf = window._liveInfo; if (!inf) return '';
+  const act = inf.sessions.find(s => s.status === 'lobby' || s.status === 'live');
+  const nxt = inf.sessions.find(s => s.status === 'scheduled');
+  if (!act && !nxt) return '';
+  const d = t();
+  return `<button type="button" class="live-cta" data-live="1"><span class="lv-live"><i></i>${d.livePill}</span><span>${d.liveCtaT}<small>${act ? d.liveCtaOpen : d.liveCtaNext}</small></span></button>`;
+}
+function _livePaint() {
+  const inf = window._liveInfo;
+  const act = inf && inf.sessions.find(s => s.status === 'lobby' || s.status === 'live');
+  let p = document.getElementById('live-pill');
+  if (!p) { p = document.createElement('button'); p.id = 'live-pill'; p.className = 'live-pill'; p.type = 'button'; p.onclick = () => _liveLoad().then(m => m && m.open()); document.body.appendChild(p); }
+  p.innerHTML = `<span class="lv-live" style="background:#fff;color:#e2485d"><i style="background:#e2485d"></i>${t().livePill}</span>${t().liveCtaT}`;
+  p.classList.toggle('on', !!act && !document.getElementById('screen-live')?.classList.contains('active'));
+  window._evCal?.render?.();
+}
+document.addEventListener('click', e => { const b = e.target.closest?.('.live-cta'); if (b) _liveLoad().then(m => m && m.open()); });
+['live-info', 'live-phase', 'live-joined', 'live-watching', 'live-lobby', 'live-start', 'live-q', 'live-answered', 'live-countdown', 'live-reveal', 'live-me', 'live-end', 'live-result', 'live-error', 'live-ack'].forEach(ev => socket.on(ev, d => {
+  if (ev === 'live-info') { window._liveInfo = d; _livePaint(); }
+  if (ev === 'live-phase') socket.emit('live-get', { playerId: getPlayerId() });
+  if (window.LiberoLive) window.LiberoLive.on(ev, d || {});
+}));
 ['flags-leaderboard', 'flags-leaderboard-update'].forEach(ev => socket.on(ev, d => { _flagsLoad().then(f => f && f.on(ev, d || {})); }));
 // Drapeau + cadre equipe (quiz a plusieurs et partie solo). Pas d'alt : il donnerait la reponse.
 function _flagImgHtml(code) {
@@ -6064,6 +6103,7 @@ window.addEventListener('pageshow', _sendVisible);
 socket.on('connect', () => {
   triviaMySocketId = socket.id;
   window._unoResume?.();
+  try { socket.emit('live-get', { playerId: getPlayerId() }); window.LiberoLive?.resume?.(); } catch {}
   _sendVisible();
   // 1) Reprendre la partie en cours EN PREMIER : c'est ce que le joueur attend devant l'ecran de demarrage.
   const _p4 = sessionStorage.getItem('p4session');
@@ -12038,6 +12078,7 @@ document.body.classList.add('nav-bottom-visible');
     }
     return;
   }
+  if (saved === 'live') { _liveLoad().then(m => { if (m) m.restore(); else showScreen('landing'); }); return; }
   if (saved === 'flag-home' || saved === 'flag-game') { _flagsLoad().then(f => { if (f) f.restore(); else { showScreen('landing'); } }); return; }
   // Restauration directe (home, trivia-home, events)
   if (saved === 'trivia-home') buildTriviaThemes();

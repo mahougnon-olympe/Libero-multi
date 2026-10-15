@@ -465,6 +465,7 @@ async function loadData() {
   }));
   readerDocs.forEach(d => bookReaders.set(d._id, new Set(Array.isArray(d.readers) ? d.readers : [])));
   unoLaunchSent = !!configDocs.find(d => d._id === 'uno_launch_push')?.value;
+  liveQuiz.load(configDocs.find(d => d._id === 'live_cfg')?.value, configDocs.find(d => d._id === 'live_state')?.value);
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
   const cbDoc = configDocs.find(d => d._id === 'chess_book');
@@ -1663,6 +1664,31 @@ function awardXp(id, entry, amount) {
   }
   _emitToPlayer(id, 'xp-update', { xp: entry.xp, level: after, gained: Math.floor(amount), levelUp: after > before ? after : null, reward: reward || undefined });
 }
+
+// ── Quiz en direct (tournoi) : moteur dans live-quiz.js ──
+const liveQuiz = require('./live-quiz')({
+  io, saveConfig, safePlayerId, sanitizeName,
+  portraitOf: (pid, name) => (pid && libs.get(pid)?.portrait) || getPortraitByName(name) || null,
+  pushAll: (fr, en) => {
+    if (!webpush) return 0;
+    const h = _beninDate().getUTCHours(); if (h >= 22 || h < 8) return 0;
+    let n = 0;
+    for (const pid of pushSubs.keys()) {
+      const e = libs.get(pid);
+      if (e && (e.pushUnopened || 0) >= AUTO_PUSH_PAUSE_AFTER) continue;
+      const m = e && e.lang === 'en' ? en : fr;
+      n += sendPush(pid, { title: m[0], body: m[1], url: 'https://libero-multi.vercel.app', tag: 'libero-live' });
+    }
+    return n;
+  },
+  xp: (pid, amount) => { const e = libs.get(pid); if (e) awardXp(pid, e, amount); },
+  credit: (pid, amount) => {
+    const e = libs.get(pid); if (!e) return;
+    e.balance = Math.min(MAX_BALANCE, (e.balance || 0) + amount);
+    dbUpsertLibs(pid, e);
+    _emitToPlayer(pid, 'libs-update', { balance: e.balance, delta: amount });
+  },
+});
 
 // ── Onboarding gamifie : 3 mini-etapes recompensees en Libs ──────────────────
 const ONBOARD_STEPS = { play: 50, win: 100, perso: 50 };
@@ -2957,6 +2983,7 @@ function unoRemove(room, pid) {
 }
 
 io.on('connection', (socket) => {
+  liveQuiz.attach(socket);
   let roomCode      = null;
   let myPlayer      = null;
   let triviaRoomCode = null;
@@ -6519,6 +6546,10 @@ app.post('/admin/maintenance-page', (req, res) => {
   res.json({ ok: true, page: maintenance.page });
 });
 
+// ── Quiz en direct : reglages organisateur ──
+app.get('/admin/live', (req, res) => { if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' }); res.json(liveQuiz.admin({})); });
+app.post('/admin/live', (req, res) => { if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' }); adminAudit('live', { action: req.body?.action || 'cfg' }); res.json(liveQuiz.admin(req.body)); });
+
 // ── Mode maintenance ──
 app.post('/admin/maintenance', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
@@ -7589,5 +7620,6 @@ async function mergeDuplicateNames() {
   });
 
   const PORT = process.env.PORT || 3001;
+  liveQuiz.start();
   server.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));
 })();

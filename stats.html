@@ -665,6 +665,27 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
           <div class="mp-preview-wrap"><div class="mp-pv-head">Aperçu <button type="button" id="mp-pv-lang">FR</button></div><div id="mp-preview" class="mp-preview"></div></div>
         </div>
       </section>
+<section data-sec="maint">
+        <h2><span class="adm-ic" data-ic="trophy">🏆</span> Quiz en direct (tournoi)</h2>
+        <p class="sub" style="margin-top:-4px;">Trois sessions : quart, demi, finale. Les heures sont à l'heure du Bénin. Une session non commencée peut être déplacée ou annulée ; une fois lancée, seuls le prix et les récompenses se changent.</p>
+        <div id="live-adm"><p class="sub">Chargement...</p></div>
+        <div class="field" style="margin-top:8px">
+          <input id="live-prize-fr" placeholder="Prix du champion (FR)" maxlength="200" style="flex:1" />
+          <input id="live-prize-en" placeholder="Champion's prize (EN)" maxlength="200" style="flex:1" />
+        </div>
+        <div class="field">
+          <label>Libs 1er <input id="live-r1" type="number" min="0" value="0" style="width:80px"></label>
+          <label>2e <input id="live-r2" type="number" min="0" value="0" style="width:80px"></label>
+          <label>3e <input id="live-r3" type="number" min="0" value="0" style="width:80px"></label>
+          <button id="btn-live-save" class="green">Enregistrer</button>
+        </div>
+        <div class="field">
+          <button id="btn-live-reset-used" class="red" title="Les questions déjà tirées par le tournoi pourront revenir">Réinitialiser les questions déjà tirées</button>
+          <button id="btn-live-abort" class="red">Arrêter la session en cours</button>
+          <button id="btn-live-reset" class="red">Remettre le tournoi à zéro</button>
+        </div>
+        <p id="live-status" class="sub"></p>
+      </section>
 <section data-sec="acct">
         <h2><span class="adm-ic" data-ic="key">🔑</span> Réinitialiser un mot de passe <span id="acct-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">SAV : un joueur a oublié son mot de passe. Les comptes n'ont pas d'e-mail, donc tu poses toi-même un mot de passe provisoire ; le joueur se reconnecte avec, puis le change dans Mon compte -> Mot de passe. La progression n'est jamais touchée.</p>
@@ -1794,6 +1815,45 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
       b.disabled = true;
       try { await api('/admin/schedule/' + encodeURIComponent(b.dataset.id), { method:'DELETE' }); await refresh(); } catch (e2) { b.disabled = false; }
     });
+
+
+    // Quiz en direct : reglages du tournoi.
+    (function () {
+      var DAYS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+      function toLocal(iso) { var d = new Date(Date.parse(iso) + 3600000); return d.toISOString().slice(0, 16); }
+      async function liveLoad() {
+        if (!$('live-adm')) return;
+        try {
+          var r = await api('/admin/live'); if (!r.ok) return; var d = await r.json();
+          var names = { q: 'Quart de finale', s: 'Demi-finale', f: 'Finale' };
+          $('live-adm').innerHTML = d.cfg.sessions.map(function (s) {
+            var done = d.done[s.id];
+            return '<div class="field" data-sid="' + s.id + '"><b style="min-width:110px">' + names[s.id] + '</b>' +
+              '<input type="datetime-local" class="lv-start" value="' + toLocal(s.start) + '" ' + (done ? 'disabled' : '') + '>' +
+              '<label>Passent <input type="number" class="lv-q" min="1" value="' + s.qualify + '" style="width:70px" ' + (done ? 'disabled' : '') + '></label>' +
+              '<label>Questions <input type="number" class="lv-tq" min="0" value="' + s.themeQ + '" style="width:60px" ' + (done ? 'disabled' : '') + '> + drapeaux <input type="number" class="lv-fq" min="0" value="' + s.flagQ + '" style="width:60px" ' + (done ? 'disabled' : '') + '></label>' +
+              '<label style="white-space:nowrap"><input type="checkbox" class="lv-can" ' + (s.cancelled ? 'checked' : '') + (done ? ' disabled' : '') + '> Annulée</label>' +
+              (done ? '<span class="sub">terminée : ' + done.players + ' joueurs</span>' : '') + '</div>';
+          }).join('');
+          if (!$('live-prize-fr').value) $('live-prize-fr').value = d.cfg.prize.fr || '';
+          if (!$('live-prize-en').value) $('live-prize-en').value = d.cfg.prize.en || '';
+          [1, 2, 3].forEach(function (k) { $('live-r' + k).value = d.cfg.rewards[k] || 0; });
+          $('live-status').textContent = (d.active ? 'Session en cours : ' + d.active.sid + ' (' + d.active.status + ', ' + d.active.players + ' joueurs). ' : 'Aucune session en cours. ') + 'Questions déjà tirées : ' + d.usedCount + '.' + (d.champion ? ' Champion : ' + d.champion.name + '.' : '');
+        } catch (e) {}
+      }
+      async function liveSend(body) { try { await api('/admin/live', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); } catch (e) {} await liveLoad(); }
+      if ($('btn-live-save')) $('btn-live-save').addEventListener('click', function () {
+        var sessions = Array.prototype.map.call(document.querySelectorAll('#live-adm [data-sid]'), function (row) {
+          var v = row.querySelector('.lv-start').value;
+          return { id: row.dataset.sid, start: v ? v + ':00+01:00' : undefined, qualify: +row.querySelector('.lv-q').value, themeQ: +row.querySelector('.lv-tq').value, flagQ: +row.querySelector('.lv-fq').value, cancelled: row.querySelector('.lv-can').checked };
+        });
+        liveSend({ cfg: { sessions: sessions, prize: { fr: $('live-prize-fr').value, en: $('live-prize-en').value }, rewards: { 1: +$('live-r1').value, 2: +$('live-r2').value, 3: +$('live-r3').value } } });
+      });
+      if ($('btn-live-abort')) $('btn-live-abort').addEventListener('click', function () { if (confirm('Arrêter la session en cours ?')) liveSend({ action: 'abort' }); });
+      if ($('btn-live-reset')) $('btn-live-reset').addEventListener('click', function () { if (confirm('Remettre tout le tournoi à zéro (résultats effacés) ?')) liveSend({ action: 'reset' }); });
+      if ($('btn-live-reset-used')) $('btn-live-reset-used').addEventListener('click', function () { if (confirm('Les questions déjà tirées pourront revenir. Continuer ?')) liveSend({ action: 'reset-used' }); });
+      setTimeout(liveLoad, 1500);
+    })();
 
     // Maintenance.
     async function setMaint(on) {

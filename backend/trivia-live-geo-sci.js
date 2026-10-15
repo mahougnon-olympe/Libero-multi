@@ -1,0 +1,73 @@
+const { T } = require('./trivia-live');
+T('geography', 'medium', [
+  ["Quelle est la capitale de l'Australie ?", "What is the capital of Australia?", "Canberra", "Sydney", "Melbourne", "Perth"],
+  ["Quel est le plus long fleuve d'Europe ?", "What is the longest river in Europe?", "La Volga|The Volga", "Le Danube|The Danube", "Le Rhin|The Rhine", "La Loire|The Loire"],
+  ["Quelle est la capitale du Nigeria ?", "What is the capital of Nigeria?", "Abuja", "Lagos", "Kano", "Ibadan"],
+  ["Quel est le plus grand désert chaud du monde ?", "What is the largest hot desert in the world?", "Le Sahara|The Sahara", "Le Gobi|The Gobi", "Le Kalahari|The Kalahari", "Le Namib|The Namib"],
+  ["Lequel de ces pays n'a pas accès à la mer ?", "Which of these countries has no access to the sea?", "Le Burkina Faso|Burkina Faso", "Le Ghana|Ghana", "Le Togo|Togo", "Le Sénégal|Senegal"],
+  ["Quelle est la plus haute montagne d'Afrique ?", "What is the highest mountain in Africa?", "Le Kilimandjaro|Mount Kilimanjaro", "Le mont Kenya|Mount Kenya", "Le mont Cameroun|Mount Cameroon", "Le Toubkal"],
+  ["Quelle est la capitale du Canada ?", "What is the capital of Canada?", "Ottawa", "Toronto", "Montréal|Montreal", "Vancouver"],
+  ["Quel est le pays le plus peuplé d'Afrique ?", "What is the most populous country in Africa?", "Le Nigeria|Nigeria", "L'Éthiopie|Ethiopia", "L'Égypte|Egypt", "La RD Congo|DR Congo"],
+  ["Quel océan baigne la côte est de l'Afrique ?", "Which ocean washes the east coast of Africa?", "L'océan Indien|The Indian Ocean", "L'océan Atlantique|The Atlantic Ocean", "L'océan Pacifique|The Pacific Ocean", "L'océan Arctique|The Arctic Ocean"],
+  ["Lequel de ces pays n'a pas de rive sur le lac Victoria ?", "Which of these countries has no shore on Lake Victoria?", "Le Rwanda|Rwanda", "L'Ouganda|Uganda", "Le Kenya|Kenya", "La Tanzanie|Tanzania"],
+]);
+T('geography', 'hard', [
+  ["Quelle est la capitale de la Mongolie ?", "What is the capital of Mongolia?", "Oulan-Bator|Ulaanbaatar", "Astana", "Bichkek|Bishkek", "Tachkent|Tashkent"],
+  ["Quel est le plus grand lac d'Afrique par sa superficie ?", "What is the largest lake in Africa by area?", "Le lac Victoria|Lake Victoria", "Le lac Tanganyika|Lake Tanganyika", "Le lac Malawi|Lake Malawi", "Le lac Tchad|Lake Chad"],
+  ["Quel détroit sépare l'Espagne du Maroc ?", "Which strait separates Spain from Morocco?", "Le détroit de Gibraltar|The Strait of Gibraltar", "Le Bosphore|The Bosphorus", "Le détroit d'Ormuz|The Strait of Hormuz", "Le détroit de Magellan|The Strait of Magellan"],
+  ["Quelle est la capitale du Burkina Faso ?", "What is the capital of Burkina Faso?", "Ouagadougou", "Bobo-Dioulasso", "Niamey", "Bamako"],
+  ["Lequel de ces pays est traversé par l'équateur ?", "Which of these countries does the equator cross?", "Le Gabon|Gabon", "Le Ghana|Ghana", "Le Sénégal|Senegal", "La Namibie|Namibia"],
+  ["Quel est le plus petit pays d'Afrique par sa superficie ?", "What is the smallest country in Africa by area?", "Les Seychelles|Seychelles", "La Gambie|The Gambia", "Les Comores|Comoros", "Le Cap-Vert|Cape Verde"],
+  ["Quel fleuve traverse la ville de Niamey ?", "Which river flows through the city of Niamey?", "Le Niger|The Niger", "Le Sénégal|The Senegal", "Le Congo|The Congo", "La Volta|The Volta"],
+  ["Quelle est la capitale de la Nouvelle-Zélande ?", "What is the capital of New Zealand?", "Wellington", "Auckland", "Christchurch", "Hamilton"],
+  ["Quel pays possède le plus de fuseaux horaires, territoires d'outre-mer compris ?", "Which country has the most time zones, overseas territories included?", "La France|France", "La Russie|Russia", "Les États-Unis|The United States", "Le Royaume-Uni|The United Kingdom"],
+  ["Quel est le point le plus bas des terres émergées ?", "What is the lowest point on dry land?", "Les rives de la mer Morte|The shores of the Dead Sea", "Le lac Assal|Lake Assal", "La vallée de la Mort|Death Valley", "Le lac Eyre|Lake Eyre"],
+]);
+T('geography', 'extreme', [
+  ["Quelle est la capitale du Bhoutan ?", "What is the capital of Bhutan?", "Thimphou|Thimphu", "Katmandou|Kathmandu", "Dacca|Dhaka", "Colombo"],
+  ["Quel est le plus long fleuve d'Asie ?", "What is the longest river in Asia?", "Le Yangtsé|The Yangtze", "Le Mékong|The Mekong", "Le Gange|The Ganges", "Le fleuve Jaune|The Yellow River"],
+  ["Quelle est la capitale de l'Érythrée ?", "What is the capital of Eritrea?", "Asmara", "Djibouti", "Mogadiscio|Mogadishu", "Addis-Abeba|Addis Ababa"],
+  ["Quel pays compte le plus grand nombre de lacs ?", "Which country has the most lakes?", "Le Canada|Canada", "La Russie|Russia", "La Finlande|Finland", "Les États-Unis|The United States"],
+  ["Quel est le plus haut sommet d'Amérique du Sud ?", "What is the highest peak in South America?", "L'Aconcagua", "Le Chimborazo", "Le Huascarán", "L'Illimani"],
+  ["Quelle est la capitale du Kazakhstan ?", "What is the capital of Kazakhstan?", "Astana", "Almaty", "Bichkek|Bishkek", "Douchanbé|Dushanbe"],
+  ["Quel détroit sépare l'Asie de l'Amérique du Nord ?", "Which strait separates Asia from North America?", "Le détroit de Béring|The Bering Strait", "Le détroit de Malacca|The Strait of Malacca", "Le détroit de Davis|The Davis Strait", "Le détroit d'Hudson|The Hudson Strait"],
+  ["Lequel de ces pays d'Afrique de l'Ouest n'a pas de côte ?", "Which of these West African countries has no coastline?", "Le Mali|Mali", "La Guinée|Guinea", "Le Liberia", "La Sierra Leone"],
+  ["Quelle est la plus grande île du monde ?", "What is the largest island in the world?", "Le Groenland|Greenland", "La Nouvelle-Guinée|New Guinea", "Bornéo|Borneo", "Madagascar"],
+  ["Quelle est la capitale officielle de la Tanzanie ?", "What is the official capital of Tanzania?", "Dodoma", "Dar es Salaam", "Zanzibar", "Arusha"],
+]);
+T('science', 'medium', [
+  ["Quel est le symbole chimique de l'or ?", "What is the chemical symbol for gold?", "Au", "Ag", "Or", "Gd"],
+  ["Quelle planète est la plus proche du Soleil ?", "Which planet is closest to the Sun?", "Mercure|Mercury", "Vénus|Venus", "Mars", "La Terre|Earth"],
+  ["Combien d'os compte le squelette d'un adulte ?", "How many bones does an adult skeleton have?", "206", "201", "212", "300"],
+  ["Quel gaz est le plus abondant dans l'atmosphère terrestre ?", "Which gas is the most abundant in Earth's atmosphere?", "L'azote|Nitrogen", "L'oxygène|Oxygen", "Le dioxyde de carbone|Carbon dioxide", "L'argon|Argon"],
+  ["Quel organe produit l'insuline ?", "Which organ produces insulin?", "Le pancréas|The pancreas", "Le foie|The liver", "Le rein|The kidney", "L'estomac|The stomach"],
+  ["Quelle est la vitesse de la lumière dans le vide, environ ?", "What is the speed of light in a vacuum, roughly?", "300 000 km/s", "150 000 km/s", "30 000 km/s", "3 000 000 km/s"],
+  ["Qui a formulé la théorie de la relativité ?", "Who formulated the theory of relativity?", "Albert Einstein", "Isaac Newton", "Niels Bohr", "Galilée|Galileo"],
+  ["Quel est le plus grand organe du corps humain ?", "What is the largest organ of the human body?", "La peau|The skin", "Le foie|The liver", "L'intestin|The intestine", "Le cerveau|The brain"],
+  ["Quelle est la formule chimique de l'eau ?", "What is the chemical formula of water?", "H2O", "CO2", "O2", "HO"],
+  ["Quelle planète est connue pour ses anneaux les plus visibles ?", "Which planet is known for its most visible rings?", "Saturne|Saturn", "Jupiter", "Uranus", "Neptune"],
+]);
+T('science', 'hard', [
+  ["Quel élément a pour numéro atomique 6 ?", "Which element has atomic number 6?", "Le carbone|Carbon", "L'azote|Nitrogen", "L'oxygène|Oxygen", "Le bore|Boron"],
+  ["Combien de chromosomes compte une cellule humaine ordinaire ?", "How many chromosomes does an ordinary human cell have?", "46", "44", "48", "23"],
+  ["Quelle est l'unité de mesure de la force ?", "What is the unit of force?", "Le newton|The newton", "Le joule|The joule", "Le watt|The watt", "Le pascal|The pascal"],
+  ["Quel groupe sanguin est donneur universel ?", "Which blood group is the universal donor?", "O négatif|O negative", "AB positif|AB positive", "A négatif|A negative", "B positif|B positive"],
+  ["Quel est le plus long os du corps humain ?", "What is the longest bone in the human body?", "Le fémur|The femur", "Le tibia", "L'humérus|The humerus", "Le radius"],
+  ["Quelle planète possède la plus grande lune du système solaire, Ganymède ?", "Which planet has the largest moon in the solar system, Ganymede?", "Jupiter", "Saturne|Saturn", "Neptune", "Uranus"],
+  ["Quel est le pH d'une solution neutre ?", "What is the pH of a neutral solution?", "7", "0", "14", "1"],
+  ["Qui a découvert la pénicilline ?", "Who discovered penicillin?", "Alexander Fleming", "Louis Pasteur", "Marie Curie", "Robert Koch"],
+  ["Quel organite produit l'énergie de la cellule ?", "Which organelle produces the cell's energy?", "La mitochondrie|The mitochondrion", "Le noyau|The nucleus", "Le ribosome|The ribosome", "Le lysosome|The lysosome"],
+  ["Quel gaz est le principal responsable de l'effet de serre d'origine humaine ?", "Which gas is the main driver of the human-made greenhouse effect?", "Le dioxyde de carbone|Carbon dioxide", "L'hélium|Helium", "L'azote|Nitrogen", "Le néon|Neon"],
+]);
+T('science', 'extreme', [
+  ["Quelle particule transmet l'interaction électromagnétique ?", "Which particle carries the electromagnetic interaction?", "Le photon|The photon", "Le gluon|The gluon", "Le boson W|The W boson", "Le graviton|The graviton"],
+  ["Quel est l'élément le plus abondant de l'univers ?", "What is the most abundant element in the universe?", "L'hydrogène|Hydrogen", "L'hélium|Helium", "L'oxygène|Oxygen", "Le carbone|Carbon"],
+  ["Combien de prix Nobel Marie Curie a-t-elle reçus ?", "How many Nobel Prizes did Marie Curie receive?", "2", "1", "3", "4"],
+  ["Quelle est la valeur du zéro absolu en degrés Celsius ?", "What is absolute zero in degrees Celsius?", "-273,15 °C", "-100 °C", "-459,67 °C", "-300 °C"],
+  ["Quel scientifique a découvert la radioactivité en 1896 ?", "Which scientist discovered radioactivity in 1896?", "Henri Becquerel", "Marie Curie", "Ernest Rutherford", "Wilhelm Röntgen"],
+  ["Que relie la formule E = mc² ?", "What does the formula E = mc² link?", "La masse et l'énergie|Mass and energy", "La force et l'accélération|Force and acceleration", "La chaleur et la pression|Heat and pressure", "La charge et la tension|Charge and voltage"],
+  ["Quel métal est liquide à température ambiante ?", "Which metal is liquid at room temperature?", "Le mercure|Mercury", "Le plomb|Lead", "L'étain|Tin", "Le zinc|Zinc"],
+  ["Quel est le plus petit os du corps humain ?", "What is the smallest bone in the human body?", "L'étrier|The stapes", "Le marteau|The malleus", "L'enclume|The incus", "Le pisiforme|The pisiform"],
+  ["Qui a décrit la structure en double hélice de l'ADN en 1953 ?", "Who described the double helix structure of DNA in 1953?", "Watson et Crick|Watson and Crick", "Mendel et Darwin|Mendel and Darwin", "Pasteur et Koch|Pasteur and Koch", "Curie et Becquerel|Curie and Becquerel"],
+  ["Quelle planète du système solaire est la plus dense ?", "Which planet in the solar system is the densest?", "La Terre|Earth", "Mercure|Mercury", "Saturne|Saturn", "Mars"],
+]);

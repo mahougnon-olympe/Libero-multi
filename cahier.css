@@ -3164,3 +3164,12 @@ html.light .xp-pill { color: #173a8a; }
 .dm-replybar .dm-quote { flex: 1; min-width: 0; margin: 0; }
 .dm-rb-x { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--line); background: var(--card); color: var(--text); font: 800 16px var(--font-body); cursor: pointer; flex: none; }
 @media (prefers-reduced-motion: reduce) { .dm-hi { animation: none; background: var(--mark, #fff27a); } }
+
+/* Quiz en direct : bandeau et pastille (le reste est dans live.css) */
+.lv-live { display: inline-flex; align-items: center; gap: 6px; background: var(--margin); color: #fff; border-radius: 99px; padding: 3px 10px; font: 800 11px var(--font-body); letter-spacing: .08em; }
+.lv-live i { width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: lvPulse 1.2s infinite; }
+@keyframes lvPulse { 50% { opacity: .25; transform: scale(.7); } }
+.live-cta { display: flex; align-items: center; gap: 10px; width: 100%; border: 2px solid var(--line); border-radius: 12px; background: var(--mark); color: #22252b; padding: 10px 12px; font: 800 14px var(--font-body); cursor: pointer; text-align: left; margin-bottom: 10px; box-shadow: var(--elev-2); }
+.live-cta .lv-live { flex: none; } .live-cta small { display: block; font-weight: 700; opacity: .8; }
+.live-pill { position: fixed; right: 12px; bottom: 76px; z-index: 40; border: 2px solid var(--line); border-radius: 99px; background: var(--margin); color: #fff; padding: 8px 14px; font: 800 13px var(--font-body); cursor: pointer; box-shadow: var(--elev-3); display: none; }
+.live-pill.on { display: inline-flex; align-items: center; gap: 6px; }
