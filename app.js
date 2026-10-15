@@ -3360,7 +3360,7 @@ function _flagsLoad() {
   if (window.LiberoFlags) return Promise.resolve(window.LiberoFlags);
   if (_flagsP) return _flagsP;
   _flagsP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'flags.js?v=3';
+    const sc = document.createElement('script'); sc.src = 'flags.js?v=4';
     sc.onload = () => res(window.LiberoFlags); sc.onerror = () => { _flagsP = null; res(null); };
     document.head.appendChild(sc);
   });
@@ -5655,6 +5655,7 @@ $('overlay-help').addEventListener('click', e => {
     const wrap = document.createElement('div');
     wrap.className = 'chatbot-msg chatbot-msg-' + role;
     wrap.innerHTML = html;
+    if (role === 'user' && typeof equippedBubble !== 'undefined' && _bubbleClass(equippedBubble)) wrap.classList.add('msg-bubble', _bubbleClass(equippedBubble));
     logEl.appendChild(wrap);
     logEl.scrollTop = logEl.scrollHeight;
     if (save !== false) persist();
@@ -10415,7 +10416,7 @@ function _renderNewsComments(data) {
     const isLiked = liked.includes(c.id);
     return `<div class="news-comment">
       <div class="news-comment-meta"><strong>${_escHtml(c.pseudo)}</strong><span>${_timeAgo(c.date)}</span></div>
-      <p class="news-comment-msg">${_escHtml(c.message.slice(0, 140))}</p>
+      <p class="news-comment-msg msg-bubble ${_bubbleClass(c.bubble)}">${_escHtml(c.message.slice(0, 140))}</p>
       <button class="news-like-btn${isLiked ? ' liked' : ''}" data-id="${_escHtml(c.id)}">❤️ ${_escHtml(c.likes)}</button>
     </div>`;
   }).join('');
@@ -11038,7 +11039,7 @@ const VideoFeed = (() => {
       const row = document.createElement('div');
       row.className = 'videocomment';
       const nm = document.createElement('span'); nm.className = 'videocomment-name'; nm.textContent = c.name || 'Anonyme';
-      const tx = document.createElement('p');   tx.className = 'videocomment-text'; tx.textContent = c.text;
+      const tx = document.createElement('p');   tx.className = 'videocomment-text msg-bubble ' + _bubbleClass(c.bubble); tx.textContent = c.text;
       row.appendChild(nm); row.appendChild(tx);
       list.appendChild(row);
     });

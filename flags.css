@@ -60,9 +60,9 @@ body.screen-flag-game-active .btn-help-float, body.screen-flag-game-active .btn-
 .fh-play .btn { width: 100%; padding: 14px; font-size: 17px; box-shadow: 0 4px 0 var(--text); }
 .fh-lb-card { margin: 0; }
 @media (min-width: 900px) {
-  .fh-grid { max-width: 1040px; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px 28px; grid-template-areas: "bun head" "modes stats" "modes name" "modes opts" "modes play" "lb lb"; align-items: start; }
+  .fh-grid { max-width: 1040px; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px 28px; grid-template-areas: "bun head" "who stats" "modes name" "modes opts" "modes play" "lb lb"; align-items: start; }
   .fh-bunting { grid-area: bun; margin: 0; } .fh-head { grid-area: head; text-align: left; align-self: center; }
-  .fh-modes-box { grid-area: modes; } .fh-stats { grid-area: stats; } .fh-name { grid-area: name; } .fh-opts-box { grid-area: opts; } .fh-play { grid-area: play; position: static; } .fh-lb-card { grid-area: lb; max-width: none; }
+  .fh-who-box { grid-area: who; } .fh-modes-box { grid-area: modes; } .fh-stats { grid-area: stats; } .fh-name { grid-area: name; } .fh-opts-box { grid-area: opts; } .fh-play { grid-area: play; position: static; } .fh-lb-card { grid-area: lb; max-width: none; }
   .fh-bunting .fb { width: 9%; }
 }
 
@@ -107,3 +107,7 @@ body.screen-flag-game-active .btn-help-float, body.screen-flag-game-active .btn-
 .fg-let { width: 24px; height: 24px; border: 2px solid var(--text); border-radius: 50%; display: grid; place-items: center; font: 700 14px Caveat, cursive; font-style: normal; flex: none; }
 .fg-opts { grid-template-columns: 1fr; }
 .fg-stage .flag-frame { background: var(--card); }
+
+.fh-who-box .who-row { width: 100%; }
+#fh-joinbox { display: flex; }
+#fh-joinbox { gap: 8px; } #fh-joinbox input { flex: 1 1 0; width: 0; min-width: 0; height: 46px; text-align: center; letter-spacing: .3em; font-size: 20px; } #fh-joinbox .btn { flex: none; width: auto; padding-inline: 18px; }

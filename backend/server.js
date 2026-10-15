@@ -1716,6 +1716,13 @@ function getFontByName(name) {
   return null;
 }
 
+function getBubbleByName(name) {
+  for (const [, e] of libs.entries()) {
+    if (e.name === name && e.equippedBubble) return e.equippedBubble;
+  }
+  return null;
+}
+
 function getNameEffectByName(name) {
   for (const [, e] of libs.entries()) {
     if (e.name === name && e.equippedNameEffect) return e.equippedNameEffect;
@@ -3749,6 +3756,7 @@ io.on('connection', (socket) => {
   socket.on('join-trivia-room', ({ code, name = '', playerId } = {}) => {
     if (tryJoinTrivia(code, name, playerId))  return;
     if (tryJoinClassic(code, name, playerId)) return;
+    if (tryJoinUno(code, name, playerId))     return;
     socket.emit('trivia-error', { message: 'Salon introuvable. Vérifie le code.' });
   });
 
@@ -5918,6 +5926,7 @@ function _newsCommentsPayload() {
       message: c.message,
       date:   c.date,
       likes:  commentLikeMap.get(c._id.toString())?.size || 0,
+      bubble: getBubbleByName(c.pseudo),
     }));
 }
 
@@ -6813,7 +6822,7 @@ app.get('/api/feed-video/:id/comments', (req, res) => {
   const v = _findVideo(req.params.id);
   if (!v) return res.status(404).json({ error: 'Vidéo introuvable.' });
   res.json((v.comments || []).slice().sort((a, b) => b.at - a.at)
-    .map(c => ({ id: c.id, name: c.name, text: c.text, at: c.at })));
+    .map(c => ({ id: c.id, name: c.name, text: c.text, at: c.at, bubble: getBubbleByName(c.name) })));
 });
 
 // Public : ajoute un commentaire à une vidéo (visible immédiatement ; l'admin peut supprimer).

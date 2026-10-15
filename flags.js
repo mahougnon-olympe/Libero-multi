@@ -6,10 +6,10 @@
   const L = () => (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en' : 'fr';
   const D = {
     fr: { title: 'Devine le drapeau', sub: 'Trouve le pays avant la fin du chrono.', back: 'Retour', pseudoPh: 'Ton pseudo (optionnel)', needName: 'Choisis un pseudo pour jouer.',
-      mode: 'Mode', level: 'Niveau', cont: 'Continent', start: 'Commencer', create: 'Créer un salon', join: 'Rejoindre', codePh: 'Code à 4 lettres', code: 'Code du salon', nbq: 'Nombre de drapeaux',
+      who: 'Avec qui ?', whoOpts: { solo: 'Seul', friend: 'Avec des amis', code: "J'ai un code" }, mode: 'Mode', level: 'Niveau', cont: 'Continent', start: 'Commencer', create: 'Créer un salon', join: 'Rejoindre', codePh: 'Code à 4 lettres', code: 'Code du salon', nbq: 'Nombre de drapeaux',
       modes: { serie: ['Série', "3 vies, jusqu'où iras-tu ?"], chrono: ['Contre la montre', '60 secondes, une erreur coûte 3 s'], salon: ['Salon entre amis', '2 à 20 joueurs, points selon la vitesse'], jour: ['Drapeau du jour', 'Un drapeau par jour, avec des indices'] },
       levels: { easy: 'Facile', medium: 'Moyen', hard: 'Difficile', extreme: 'Extrême' }, conts: { all: 'Tous', AF: 'Afrique', EU: 'Europe', AS: 'Asie', AM: 'Amériques', OC: 'Océanie' },
-      note: { serie: 'En solo. Difficile et Extrême passent en saisie du nom.', chrono: 'Dès que tu reconnais, réponds : chaque seconde compte.', salon: 'Un salon de quiz : même drapeau pour tous, classement en direct.', jour: 'Le même drapeau pour tout le monde, aujourd\'hui. 3 essais.' },
+      note: { code: 'Demande le code à celui qui a créé le salon. Les réglages sont les siens.', serie: 'En solo. Difficile et Extrême passent en saisie du nom.', chrono: 'Dès que tu reconnais, réponds : chaque seconde compte.', salon: 'Un salon de quiz : même drapeau pour tous, classement en direct.', jour: 'Le même drapeau pour tout le monde, aujourd\'hui. 3 essais.' },
       lb: 'Classement Drapeaux', lbEmpty: 'Aucun score pour l\'instant.', lbPts: 'drapeaux', lbChrono: 'contre la montre', play: 'Jouer', recSerie: 'Record série', recChrono: 'Record chrono', myRank: 'Mon rang', yourFlags: 'Tes drapeaux', foundLbl: 'drapeaux trouvés', question: 'Quel est ce pays ?', typeIt: 'Écris le nom du pays', send: 'Valider', skip: 'Passer', letters: n => `${n} lettres`,
       streak: n => `Série de ${n} !`, good: 'Bravo !', wasIt: n => `C'était : ${n}`, oops: 'Oups', go: "C'est parti !", sec: 's', lives: 'Vies', found: n => `${n} drapeau${n > 1 ? 'x' : ''}`,
       over: 'Partie terminée', record: 'Nouveau record', again: 'Rejouer', quit: 'Quitter', leaveAsk: 'Quitter la partie ?', leaveText: 'Ta partie en cours sera perdue.', leaveOk: 'Quitter',
@@ -17,10 +17,10 @@
       hint1: c => `Indice : continent ${c}`, hint2: l => `Indice : commence par ${l}`, hint3: n => `Indice : ${n} lettres`, tries: n => `${n} essai${n > 1 ? 's' : ''}`, wrong: 'Pas ce pays, essaie encore',
       kTitle: 'Drapeaux', hubErr: 'Impossible de rejoindre ce salon.' },
     en: { title: 'Guess the flag', sub: 'Find the country before the timer runs out.', back: 'Back', pseudoPh: 'Your nickname (optional)', needName: 'Pick a nickname to play.',
-      mode: 'Mode', level: 'Level', cont: 'Continent', start: 'Start', create: 'Create a room', join: 'Join', codePh: '4-letter code', code: 'Room code', nbq: 'Number of flags',
+      who: 'Who with?', whoOpts: { solo: 'Alone', friend: 'With friends', code: 'I have a code' }, mode: 'Mode', level: 'Level', cont: 'Continent', start: 'Start', create: 'Create a room', join: 'Join', codePh: '4-letter code', code: 'Room code', nbq: 'Number of flags',
       modes: { serie: ['Streak', 'How far can you go with 3 lives?'], chrono: ['Time attack', '60 seconds, a mistake costs 3 s'], salon: ['Room with friends', '2 to 20 players, points by speed'], jour: ['Flag of the day', 'One flag a day, with hints'] },
       levels: { easy: 'Easy', medium: 'Medium', hard: 'Hard', extreme: 'Extreme' }, conts: { all: 'All', AF: 'Africa', EU: 'Europe', AS: 'Asia', AM: 'Americas', OC: 'Oceania' },
-      note: { serie: 'Solo. Hard and Extreme switch to typing the name.', chrono: 'Answer as soon as you recognise it: every second counts.', salon: 'A quiz room: same flag for everyone, live ranking.', jour: 'The same flag for everyone, today. 3 tries.' },
+      note: { code: 'Ask the room creator for the code. The settings are theirs.', serie: 'Solo. Hard and Extreme switch to typing the name.', chrono: 'Answer as soon as you recognise it: every second counts.', salon: 'A quiz room: same flag for everyone, live ranking.', jour: 'The same flag for everyone, today. 3 tries.' },
       lb: 'Flags ranking', lbEmpty: 'No score yet.', lbPts: 'flags', lbChrono: 'time attack', play: 'Play', recSerie: 'Streak record', recChrono: 'Time record', myRank: 'My rank', yourFlags: 'Your flags', foundLbl: 'flags found', question: 'Which country is this?', typeIt: 'Type the country name', send: 'Submit', skip: 'Skip', letters: n => `${n} letters`,
       streak: n => `Streak of ${n}!`, good: 'Well done!', wasIt: n => `It was: ${n}`, oops: 'Oops', go: "Let's go!", sec: 's', lives: 'Lives', found: n => `${n} flag${n > 1 ? 's' : ''}`,
       over: 'Game over', record: 'New record', again: 'Play again', quit: 'Leave', leaveAsk: 'Leave the game?', leaveText: 'Your current game will be lost.', leaveOk: 'Leave',
@@ -49,13 +49,16 @@
   const rd = (k, d) => { try { return Object.assign({}, d, JSON.parse(localStorage.getItem(k) || 'null') || {}); } catch { return d; } };
   const wr = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
   const P = rd(PK, { mode: 'serie', level: 'medium', cont: 'all', nb: 10 });
+  const WK = 'libero_flag_who';
+  const getWho = () => { try { return sessionStorage.getItem(WK) || ''; } catch { return ''; } };
+  const setWho = v => { try { v ? sessionStorage.setItem(WK, v) : sessionStorage.removeItem(WK); } catch {} };
   const bestOf = m => (rd(BESTK, {}))[m] || 0;
   const setBest = (m, v) => { const b = rd(BESTK, {}); if (v > (b[m] || 0)) { b[m] = v; wr(BESTK, b); return true; } return false; };
 
   // ── Ecrans ──────────────────────────────────────────────────────────────────
   let home = null, game = null, S = null, raf = 0, tick = 0, S_rows = [];
   const ordEn = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th'));
-  function loadCss() { if (document.getElementById('flags-css')) return; const l = document.createElement('link'); l.id = 'flags-css'; l.rel = 'stylesheet'; l.href = 'flags.css?v=3'; document.head.appendChild(l); }
+  function loadCss() { if (document.getElementById('flags-css')) return; const l = document.createElement('link'); l.id = 'flags-css'; l.rel = 'stylesheet'; l.href = 'flags.css?v=5'; document.head.appendChild(l); }
   function ensure() {
     loadCss();
     if (home) return;
@@ -67,6 +70,7 @@
         <div class="fh-head"><h1 id="fh-title"></h1><p class="subtitle" id="fh-sub"></p></div>
         <div class="fh-stats" id="fh-stats"></div>
         <div class="fh-name"><input id="fh-name" type="text" maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false" /></div>
+        <div class="fh-who-box"><p class="fh-lab" id="fh-l-who"></p><div class="who-row" id="fh-who"></div></div>
         <div class="fh-modes-box"><p class="fh-lab" id="fh-l-mode"></p><div class="fh-modes" id="fh-modes"></div></div>
         <div class="fh-opts-box">
           <div id="fh-opts">
@@ -103,22 +107,31 @@
     const rk = (S_rows || []).findIndex(r => r.name === me);
     const mine = rk >= 0 ? S_rows[rk] : null, rs = Math.max(bestOf('serie'), mine ? mine.points : 0), rc = Math.max(bestOf('chrono'), mine ? mine.games : 0);
     $('#fh-stats', home).innerHTML = `<div><b>${rs}</b><small>${d.recSerie}</small></div><div><b>${rc}</b><small>${d.recChrono}</small></div><div><b>${rk >= 0 ? (L() === 'en' ? ordEn(rk + 1) : (rk === 0 ? '1er' : (rk + 1) + 'e')) : '-'}</b><small>${d.myRank}</small></div>`;
+    const who = getWho(); home.dataset.who = who;
+    $('#fh-l-who', home).textContent = d.who;
+    $('#fh-who', home).innerHTML = ['solo', 'friend', 'code'].map(k => `<button type="button" class="who-btn${who === k ? ' active' : ''}" data-w="${k}">${d.whoOpts[k]}</button>`).join('');
+    if (who === 'solo' && P.mode === 'salon') P.mode = 'serie';
     $('#fh-l-mode', home).textContent = d.mode; $('#fh-l-level', home).textContent = d.level; $('#fh-l-cont', home).textContent = d.cont; $('#fh-l-nb', home).textContent = d.nbq;
     const flagOf = { serie: 'FR', chrono: 'JP', salon: 'BJ', jour: 'NL' };
-    $('#fh-modes', home).innerHTML = Object.keys(d.modes).map(k => `<button type="button" class="fh-mode" data-m="${k}" aria-pressed="${P.mode === k}"><span class="fi"><img src="assets/flags/${flagOf[k].toLowerCase()}.svg" alt="" draggable="false"></span><b>${d.modes[k][0]}</b><small>${d.modes[k][1]}</small></button>`).join('');
+    $('#fh-modes', home).innerHTML = Object.keys(d.modes).filter(k => k !== 'salon').map(k => `<button type="button" class="fh-mode" data-m="${k}" aria-pressed="${P.mode === k}"><span class="fi"><img src="assets/flags/${flagOf[k].toLowerCase()}.svg" alt="" draggable="false"></span><b>${d.modes[k][0]}</b><small>${d.modes[k][1]}</small></button>`).join('');
     const chips = (id, obj, key) => { $('#' + id, home).innerHTML = Object.keys(obj).map(k => `<button type="button" class="fh-chip" data-v="${k}" aria-pressed="${P[key] === k}">${obj[k]}</button>`).join(''); };
     chips('fh-levels', d.levels, 'level');
     const CC = { all: ['FR', 'JP', 'BJ', 'BR'], AF: ['NG', 'SN', 'CI', 'ML'], EU: ['FR', 'DE', 'IT', 'NL'], AS: ['JP', 'IN', 'CN', 'KR'], AM: ['BR', 'CA', 'AR', 'MX'], OC: ['AU', 'NZ', 'FJ', 'PG'] };
     $('#fh-conts', home).innerHTML = Object.keys(d.conts).map(k => `<button type="button" class="fh-ct" data-v="${k}" aria-pressed="${P.cont === k}"><span class="ph">${CC[k].map(c => `<img src="assets/flags/${c.toLowerCase()}.svg" alt="" draggable="false">`).join('')}</span><b>${d.conts[k]}</b></button>`).join('');
     $('#fh-nbs', home).innerHTML = [10, 20, 30].map(n => `<button type="button" class="fh-chip" data-v="${n}" aria-pressed="${P.nb === n}">${n}</button>`).join('');
-    $('#fh-opts', home).style.display = P.mode === 'jour' ? 'none' : '';
-    $('#fh-nb', home).style.display = P.mode === 'salon' ? '' : 'none';
-    $('#fh-note', home).textContent = d.note[P.mode];
+    const solo = who === 'solo', fr = who === 'friend', cd = who === 'code';
+    $('.fh-modes-box', home).style.display = solo ? '' : 'none';
+    $('#fh-opts', home).style.display = ((solo && P.mode !== 'jour') || fr) ? '' : 'none';
+    $('#fh-nb', home).style.display = fr ? '' : 'none';
+    $('#fh-note', home).style.display = who ? '' : 'none';
+    $('#fh-note', home).textContent = d.note[solo ? P.mode : fr ? 'salon' : 'code'];
+    $('#fh-joinbox', home).style.display = cd ? '' : 'none';
     const go = $('#fh-go', home);
-    if (P.mode === 'salon') { go.innerHTML = `<button class="btn btn-primary" id="fh-start">${d.create}</button>`; $('#fh-joinbox', home).style.display = ''; }
-    else { go.innerHTML = `<button class="btn btn-primary" id="fh-start">${d.play}</button>`; $('#fh-joinbox', home).style.display = 'none'; }
+    go.style.display = (solo || fr) ? '' : 'none';
+    go.innerHTML = `<button class="btn btn-primary" id="fh-start">${fr ? d.create : d.play}</button>`;
     $('#fh-code', home).placeholder = d.codePh; $('#fh-join', home).textContent = d.join;
     $('#fh-start', home).onclick = startFromHome;
+    home.querySelectorAll('#fh-who .who-btn').forEach(b => b.onclick = () => { setWho(b.dataset.w); clearErr(); renderHome(); });
     home.querySelectorAll('.fh-mode').forEach(b => b.onclick = () => { P.mode = b.dataset.m; wr(PK, P); renderHome(); });
     home.querySelectorAll('#fh-levels .fh-chip').forEach(b => b.onclick = () => { P.level = b.dataset.v; wr(PK, P); renderHome(); });
     home.querySelectorAll('#fh-conts .fh-ct').forEach(b => b.onclick = () => { P.cont = b.dataset.v; wr(PK, P); renderHome(); });
@@ -126,8 +139,8 @@
     $('#fh-lb-t', home).textContent = d.lb;
     if (!$('#fh-lb', home).dataset.ok) $('#fh-lb', home).innerHTML = `<p class="lb-empty">${d.lbEmpty}</p>`;
   }
-  function showHome() {
-    ensure(); renderHome(); showScreen('flag-home');
+  function showHome(keepWho) {
+    ensure(); if (keepWho !== true) setWho(''); renderHome(); showScreen('flag-home');
     try { socket.emit('get-flags-leaderboard'); } catch {}
   }
   function renderLb(rows) {
@@ -145,7 +158,7 @@
     clearErr();
     const name = (localStorage.getItem('playerName') || '').trim();
     if (!name) { err(U().needName); $('#fh-name', home).focus(); return; }
-    if (P.mode === 'salon') {
+    if (getWho() === 'friend') {
       const diff = P.level === 'easy' ? 'easy' : P.level === 'medium' ? 'medium' : P.level === 'hard' ? 'hard' : 'extreme';
       socket.emit('create-trivia-room', { kind: 'flags', name, lang: L(), difficulty: diff, amount: P.nb, playerId: getPlayerId(), continent: P.cont === 'all' ? '' : P.cont });
       return;
@@ -410,7 +423,7 @@
       const day = rd(DAYK, {}); if (day.day === dayKey() && !day.over) { startDay(); return true; }
       if (day.day === dayKey() && day.over) { startDay(); return true; }
     }
-    showHome(); return false;
+    showHome(true); return false;
   }
   function on(ev, d) {
     if (ev === 'flags-leaderboard') renderLb(d.rows); else if (ev === 'flags-leaderboard-update') { if (home && home.classList.contains('active')) socket.emit('get-flags-leaderboard'); }
