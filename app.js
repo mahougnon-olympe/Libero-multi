@@ -104,6 +104,7 @@ let ownedCosmetics     = [];
 let equippedCosmetic   = null;
 let equippedFont       = null;
 let equippedBubble     = null;
+let triviaIsFlags      = false;
 let equippedBackground   = localStorage.getItem('libero_equipped_bg') || null;
 let equippedNameEffect   = null;
 let equippedTitle        = null;
@@ -966,6 +967,10 @@ const DICT = {
     triviaShareRank: (rank, score) => rank === 1
       ? `🏆 J'ai fini 1er au quiz de groupe sur Libero's Multi avec ${score} pts ! Tu crois pouvoir me battre ? Viens me défier : https://libero-multi.vercel.app`
       : `🎯 J'ai fini ${rank}e au quiz de groupe sur Libero's Multi avec ${score} pts ! Viens jouer avec nous : https://libero-multi.vercel.app`,
+    triviaShareRankF: (rank, score) => rank === 1
+      ? `🏆 J'ai fini 1er au jeu Devine le drapeau sur Libero's Multi avec ${score} pts ! Tu crois pouvoir me battre ? Viens me défier : https://libero-multi.vercel.app`
+      : `🚩 J'ai fini ${rank}e au jeu Devine le drapeau sur Libero's Multi avec ${score} pts ! Viens jouer avec nous : https://libero-multi.vercel.app`,
+    triviaPodiumWinF:'🏆 Champion des drapeaux !', flagsPodium:{ sub:'Devine le drapeau à plusieurs', banner:'CHAMPION DES DRAPEAUX' },
     triviaShareSolo: score => `🧠 J'ai marqué ${score} pts au quiz sur Libero's Multi ! Essaie de faire mieux : https://libero-multi.vercel.app`,
     triviaShareCopied:'📋 Message copié ! Colle-le à tes amis.',
     errNoTheme:'Choisis au moins un thème pour commencer.',
@@ -1757,6 +1762,10 @@ const DICT = {
     triviaFinishedTitle:'Final Results', btnLeaveGame:'Back to menu', btnQuitTrivia:'🚪 Quit',
     triviaPodiumWin:'🏆 Quiz champion!', triviaPodiumTop3:'🎉 On the podium!', triviaPodiumOut: r => `You finished ${r}th, the podium awaits you next time!`,
     triviaShareBtn:'📣 Share my result',
+    triviaShareRankF: (rank, score) => rank === 1
+      ? `🏆 I finished 1st at Guess the Flag on Libero's Multi with ${score} pts! Think you can beat me? Come challenge me: https://libero-multi.vercel.app`
+      : `🚩 I finished ${rank}${rank===2?'nd':rank===3?'rd':'th'} at Guess the Flag on Libero's Multi with ${score} pts! Come play with us: https://libero-multi.vercel.app`,
+    triviaPodiumWinF:'🏆 Flag champion!', flagsPodium:{ sub:'Guess the Flag, multiplayer', banner:'FLAG CHAMPION' },
     triviaShareRank: (rank, score) => rank === 1
       ? `🏆 I finished 1st in a group quiz on Libero's Multi with ${score} pts! Think you can beat me? Come challenge me: https://libero-multi.vercel.app`
       : `🎯 I finished #${rank} in a group quiz on Libero's Multi with ${score} pts! Come play with us: https://libero-multi.vercel.app`,
@@ -4880,7 +4889,7 @@ function goToTriviaHome() {
   if (triviaRoomCode) socket.emit('leave-trivia-room');
   stopTriviaTimer();
   clearTriviaSession();
-  triviaRoomCode = null; triviaIsHost = false; triviaIsSolo = false;
+  triviaRoomCode = null; triviaIsHost = false; triviaIsSolo = false; triviaIsFlags = false;
   triviaAnsweredThis = false; triviaChoiceSelected = null;
   pendingHintCharges = 0; hintsUsedThisQ = 0;
   _updateBoostHintBtn();
@@ -5352,7 +5361,7 @@ function showTriviaFinished(scores) {
       </div>
     `).join('');
   if (!triviaIsSolo && scores.length >= 2 && myIdx >= 0) {
-    const msg = myIdx === 0 ? t().triviaPodiumWin : myIdx <= 2 ? t().triviaPodiumTop3 : t().triviaPodiumOut(myIdx + 1);
+    const msg = myIdx === 0 ? (triviaIsFlags ? t().triviaPodiumWinF : t().triviaPodiumWin) : myIdx <= 2 ? t().triviaPodiumTop3 : t().triviaPodiumOut(myIdx + 1);
     html = `<p class="tg-podium-msg${myIdx <= 2 ? ' win' : ''}">${msg}</p>` + html;
   }
   if (myIdx >= 0) {
@@ -5361,12 +5370,12 @@ function showTriviaFinished(scores) {
   $('tg-final-scores').innerHTML = html;
   document.getElementById('tg-share-rank')?.addEventListener('click', async () => {
     const me = scores[myIdx];
-    const text = triviaIsSolo ? t().triviaShareSolo(me.score) : t().triviaShareRank(myIdx + 1, me.score);
+    const text = triviaIsSolo ? t().triviaShareSolo(me.score) : (triviaIsFlags ? t().triviaShareRankF : t().triviaShareRank)(myIdx + 1, me.score);
     // Priorite : partager une image du score (ideal pour WhatsApp).
     try {
-      const blob = await _makeQuizShareBlob({ solo: triviaIsSolo, scores: triviaIsSolo ? [me] : scores, myIdx: triviaIsSolo ? 0 : myIdx, category: getCategoryLabel(selectedTriviaCategories) });
+      const blob = await _makeQuizShareBlob({ solo: triviaIsSolo, scores: triviaIsSolo ? [me] : scores, myIdx: triviaIsSolo ? 0 : myIdx, category: triviaIsFlags ? t().flagsTitle : getCategoryLabel(selectedTriviaCategories) });
       if (blob && navigator.canShare) {
-        const file = new File([blob], 'libero-quiz.png', { type: 'image/png' });
+        const file = new File([blob], triviaIsFlags ? 'libero-drapeaux.png' : 'libero-quiz.png', { type: 'image/png' });
         if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text }); return; }
       }
     } catch {}
@@ -5389,7 +5398,7 @@ function _loadPodiumJs() {
   });
 }
 function _playPodium(scores, myIdx) {
-  return _loadPodiumJs().then(ok => ok && window.LiberoPodium ? window.LiberoPodium.play(scores, myIdx, t().podium) : (myIdx === 0 && celebrate(), undefined));
+  return _loadPodiumJs().then(ok => ok && window.LiberoPodium ? window.LiberoPodium.play(scores, myIdx, triviaIsFlags ? { ...t().podium, ...t().flagsPodium } : t().podium) : (myIdx === 0 && celebrate(), undefined));
 }
 
 $('btn-leave-trivia-game').addEventListener('click', goToTriviaHome);
@@ -5930,6 +5939,7 @@ $('btn-quit').addEventListener('click', () => {
 // ── Socket Trivia ─────────────────────────────────────────────────────────────
 socket.on('trivia-room-created', ({ code, categoryName, roomState, kind }) => {
   if (kind === 'flags') categoryName = t().flagsTitle;
+  triviaIsFlags = kind === 'flags';
   triviaRoomCode = code; triviaIsHost = true;
   saveTriviaSession({ isSolo: false, code, mySocketId: socket.id });
   $('trivia-room-code').textContent = code;
@@ -5939,6 +5949,7 @@ socket.on('trivia-room-created', ({ code, categoryName, roomState, kind }) => {
 });
 
 socket.on('trivia-room-joined', ({ code, categoryName, kind }) => {
+  triviaIsFlags = kind === 'flags';
   if (kind === 'flags') categoryName = t().flagsTitle;
   triviaRoomCode = code; triviaIsHost = false;
   saveTriviaSession({ isSolo: false, code, mySocketId: socket.id });
@@ -5955,7 +5966,7 @@ socket.on('trivia-start', ({ totalQuestions, categoryName, kind }) => {
   if (kind === 'flags') categoryName = t().flagsTitle;
   window._sound?.play('quiz-start');
   _loadPodiumJs();
-  triviaIsSolo = false;
+  triviaIsSolo = false; triviaIsFlags = kind === 'flags';
   triviaQuestions = { length: totalQuestions };
   $('tg-theme-label').textContent = categoryName;
   $('tg-scores').innerHTML = '';
@@ -5995,7 +6006,7 @@ socket.on('trivia-solo-questions', (questions) => {
   $('btn-solo-trivia').textContent = t().btnSolo;
   triviaQuestions = shuffle(questions);
   if (!triviaQuestions.length) { showTriviaError(t().errLoadQ); return; }
-  triviaIsSolo = true; triviaCurrentQ = 0; triviaScore = 0; triviaRoomCode = null;
+  triviaIsSolo = true; triviaIsFlags = false; triviaCurrentQ = 0; triviaScore = 0; triviaRoomCode = null;
   hintsUsedThisQ = 0;
   socket.emit('activate-quiz-boost', { playerId: getPlayerId() });
   triviaPaused = false;
@@ -6472,6 +6483,7 @@ socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq,
     equippedCosmetic = newEquipped !== undefined ? newEquipped : equippedCosmetic;
     equippedFont     = newFont     !== undefined ? newFont     : equippedFont;
     equippedBubble   = newBubble   !== undefined ? newBubble   : equippedBubble;
+    _refreshLibeBubbles();
     if (newBg !== undefined) { equippedBackground = newBg; localStorage.setItem('libero_equipped_bg', newBg || ''); BGManager.start(newBg); }
     if (newNameEffect  !== undefined) equippedNameEffect  = newNameEffect;
     if (newTitle       !== undefined) equippedTitle       = newTitle;
@@ -6559,7 +6571,7 @@ socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippe
   if (ok) {
     if (newCosmetic !== undefined) equippedCosmetic = newCosmetic;
     if (newFont     !== undefined) equippedFont     = newFont;
-    if (newBubble   !== undefined) equippedBubble   = newBubble;
+    if (newBubble   !== undefined) { equippedBubble   = newBubble; _refreshLibeBubbles(); }
     if (newBg !== undefined) { equippedBackground = newBg; localStorage.setItem('libero_equipped_bg', newBg || ''); BGManager.start(newBg); }
     if (newNameEffect  !== undefined) equippedNameEffect  = newNameEffect;
     if (newTitle       !== undefined) equippedTitle       = newTitle;
@@ -8010,6 +8022,14 @@ function _updateShopPending(pendingBoostHint) {
   el.textContent = pendingBoostHint > 0 ? d.shopPending(pendingBoostHint) : '';
 }
 
+function _refreshLibeBubbles() {
+  document.querySelectorAll('.chatbot-msg-user').forEach(el => {
+    [...el.classList].filter(c => c.startsWith('bubble-')).forEach(c => el.classList.remove(c));
+    const bc = _bubbleClass(equippedBubble);
+    el.classList.toggle('msg-bubble', !!bc);
+    if (bc) el.classList.add(bc);
+  });
+}
 function _bubbleClass(bubble) {
   const valid = ['bubble-ardoise','bubble-ocean','bubble-menthe','bubble-corail','bubble-ambre',
     'bubble-lavande','bubble-rubis','bubble-emeraude','bubble-indigo','bubble-magenta','bubble-cyan',
