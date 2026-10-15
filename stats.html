@@ -665,7 +665,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
           <div class="mp-preview-wrap"><div class="mp-pv-head">Aperçu <button type="button" id="mp-pv-lang">FR</button></div><div id="mp-preview" class="mp-preview"></div></div>
         </div>
       </section>
-<section data-sec="maint">
+<section data-sec="live">
         <h2><span class="adm-ic" data-ic="trophy">🏆</span> Quiz en direct (tournoi)</h2>
         <p class="sub" style="margin-top:-4px;">Trois sessions : quart, demi, finale. Les heures sont à l'heure du Bénin. Une session non commencée peut être déplacée ou annulée ; une fois lancée, seuls le prix et les récompenses se changent.</p>
         <div id="live-adm"><p class="sub">Chargement...</p></div>
@@ -2126,6 +2126,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
     botlogs:  { t: 'Assistant',           z: 'green',  secs: ['botlogs'] },
     bugs:     { t: 'Bugs signalés',       z: 'green',  secs: ['bugs'] },
     dmrep:    { t: 'Chat signalé',        z: 'green',  secs: ['dmrep'] },
+    live:     { t: 'Quiz en direct',      z: 'green',  secs: ['live'] },
     catalog:  { t: 'Catalogue',           z: 'yellow', secs: ['catalog'] },
     rotation: { t: 'Rotation',            z: 'yellow', secs: ['rotation'] },
     flash:    { t: 'Offre flash',         z: 'yellow', secs: ['flash'] },
@@ -2139,7 +2140,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
   };
   var ZONES = [
     { z: 'red',    pos: 'tl', arm: 't', name: 'Joueurs',    tiles: ['players', 'inactive', 'fraud', 'resets', 'acct'] },
-    { z: 'green',  pos: 'tr', arm: 'r', name: 'Communauté', tiles: ['comments', 'sugg', 'ann', 'push', 'videos', 'chal', 'botlogs', 'bugs', 'dmrep'] },
+    { z: 'green',  pos: 'tr', arm: 'r', name: 'Communauté', tiles: ['comments', 'sugg', 'ann', 'push', 'videos', 'chal', 'botlogs', 'bugs', 'dmrep', 'live'] },
     { z: 'yellow', pos: 'br', arm: 'b', name: 'Boutique',   tiles: ['tpl', 'catalog', 'rotation', 'flash', 'books', 'purchases'] },
     { z: 'blue',   pos: 'bl', arm: 'l', name: 'Système',    tiles: ['maint', 'banned', 'backup', 'audit', 'errors'] }
   ];
