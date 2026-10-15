@@ -233,7 +233,7 @@
     if (v.status !== 'playing' || !v.turnEnd) return;
     const left = v.turnEnd - Date.now(); if (left <= 0) return;
     const pill = root.querySelector(`.un-pl[data-seat="${v.turn}"] .tm i`);
-    if (pill && !reduce()) pill.animate([{ transform: `scaleX(${Math.min(1, left / 40000)})` }, { transform: 'scaleX(0)' }], { duration: left, fill: 'forwards', easing: 'linear' });
+    if (pill && !reduce()) pill.animate([{ transform: `scaleX(${Math.min(1, left / (v.turnTotal || 40000))})` }, { transform: 'scaleX(0)' }], { duration: left, fill: 'forwards', easing: 'linear' });
     if (v.turn === v.mySeat) {
       let lastTick = -1;
       S.tmr = setInterval(() => { const s = Math.ceil((v.turnEnd - Date.now()) / 1000); if (s <= 5 && s > 0 && s !== lastTick) { lastTick = s; snd(s === 1 ? 'tick-final' : 'tick'); } if (s <= 0) clearInterval(S.tmr); }, 250);

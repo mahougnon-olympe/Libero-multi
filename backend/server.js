@@ -2864,7 +2864,7 @@ function unoEmit(room, ev) {
     // Les cartes piochees ne vont qu'a celui qui a pioche.
     if (e && e.mine) { e = Object.assign({}, e); if (seat === e.seat) e.mine = ev.mine.map(c => c.id); else delete e.mine; }
     const base = { code: room.code, status: room.status, players: _unoPublic(room), youHost: p.pid === room.host, seq: room.seq, ev: e };
-    if (room.state) Object.assign(base, unoGame.view(room.state, p.pid), { mySeat: seat, turnEnd: room.turnEnd || 0 });
+    if (room.state) Object.assign(base, unoGame.view(room.state, p.pid), { mySeat: seat, turnEnd: room.turnEnd || 0, turnTotal: room.turnTotal || UNO_TURN_MS });
     io.to(p.sid).emit(room.state ? 'uno-state' : 'uno-lobby', base);
   }
 }
@@ -2874,11 +2874,17 @@ function unoSchedule(room) {
   if (room.status !== 'playing' || !room.state || room.state.winner) { room.turnEnd = 0; return; }
   const p = _unoPlayer(room, unoGame.current(room.state));
   if (!p) return;
-  if (p.bot || !p.connected || p.afk) {
+  if (p.bot) {
+    // Un robot "reflechit" comme une personne : 3 a 7 s, un peu plus avec une grosse main ; la barre se vide pendant ce temps.
+    const n = (room.state.hands[p.pid] || []).length;
+    const think = Math.min(9000, 3000 + Math.random() * 4000 + Math.max(0, n - 5) * 250);
+    room.turnTotal = think; room.turnEnd = Date.now() + think;
+    room.botTimer = setTimeout(() => unoAuto(room, p.pid), think);
+  } else if (!p.connected || p.afk) {
     room.turnEnd = 0;
     room.botTimer = setTimeout(() => unoAuto(room, p.pid), 1100 + Math.random() * 900);
   } else {
-    room.turnEnd = Date.now() + UNO_TURN_MS;
+    room.turnTotal = UNO_TURN_MS; room.turnEnd = Date.now() + UNO_TURN_MS;
     room.timer = setTimeout(() => { p.afkN = (p.afkN || 0) + 1; if (p.afkN >= 2) p.afk = true; unoAuto(room, p.pid); }, UNO_TURN_MS);
   }
 }
