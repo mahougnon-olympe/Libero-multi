@@ -3383,7 +3383,7 @@ function _liveLoad() {
   if (window.LiberoLive) return Promise.resolve(window.LiberoLive);
   if (_liveP) return _liveP;
   _liveP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'live.js?v=6';
+    const sc = document.createElement('script'); sc.src = 'live.js?v=7';
     sc.onload = () => res(window.LiberoLive); sc.onerror = () => { _liveP = null; res(null); };
     document.head.appendChild(sc);
   });

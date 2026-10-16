@@ -5,7 +5,7 @@ const liveBank = require('./trivia-live');
 const flagsGame = require('./game-flags');
 
 const DEFAULT_CFG = {
-  lobbyMin: 5,                         // la salle ouvre N minutes avant
+  lobbyMin: 10,                        // la salle ouvre N minutes avant
   prize: { fr: '', en: '' },           // texte du prix du champion (vide = a annoncer)
   rewards: { 1: 0, 2: 0, 3: 0 },       // Libs verses aux trois premiers de la finale
   sessions: [
@@ -14,7 +14,7 @@ const DEFAULT_CFG = {
     { id: 'f', start: '2026-10-18T19:00:00+01:00', level: 'extreme', themeQ: 12, flagQ: 8, flagLevel: 'hard',   timeMs: 10000, qualify: 1 },
   ],
 };
-const REVEAL_MS = 7000;                // correction + classement entre deux questions
+const REVEAL_MS = 5500;                // la correction reste a l'ecran (comme le quiz de culture generale)
 const LATE_Q = 3;
 const DRAW_LEAD_MS = 40000;            // le tirage des themes se fait 40 s avant le depart, devant tout le monde                      // on peut entrer au quart jusqu'a la question 3
 
@@ -36,6 +36,7 @@ module.exports = function createLive(ctx) {
   const sess = id => cfg.sessions.find(s => s.id === id);
 
   function load(c, s) {
+    if (c && c.lobbyMin === 5) c.lobbyMin = 10;
     if (c && typeof c === 'object') cfg = Object.assign({}, DEFAULT_CFG, c, { rewards: Object.assign({}, DEFAULT_CFG.rewards, c.rewards || {}), prize: Object.assign({}, DEFAULT_CFG.prize, c.prize || {}), sessions: Array.isArray(c.sessions) && c.sessions.length ? c.sessions : DEFAULT_CFG.sessions });
     if (s && typeof s === 'object') state = Object.assign({ done: {}, used: [], champion: null }, s);
   }
@@ -138,7 +139,7 @@ module.exports = function createLive(ctx) {
   }
   function qPayload(r) {
     const q = r.questions[r.cur];
-    return { sid: r.sid, num: r.cur + 1, total: r.questions.length, kind: q.kind, theme: q.theme, q: q.q || null, flag: q.flag || null, c: q.c, endAt: r.qEnd, now: Date.now(), timeMs: r.s.timeMs, newManche: q.kind === 'flag' && (r.cur === 0 || r.questions[r.cur - 1].kind !== 'flag') };
+    return { sid: r.sid, num: r.cur + 1, total: r.questions.length, kind: q.kind, theme: q.theme, q: q.q || null, flag: q.flag || null, c: q.c, endAt: r.qEnd, now: Date.now(), timeMs: r.s.timeMs, newManche: q.kind === 'flag' && (r.cur === 0 || r.questions[r.cur - 1].kind !== 'flag'), top: ranking(r).slice(0, 3).map(p => ({ name: p.name, score: p.score })) };
   }
   function nextQ(r) {
     if (!alive(r)) return;
@@ -173,9 +174,9 @@ module.exports = function createLive(ctx) {
     const counts = q.c.map(() => 0); let n = 0;
     for (const [pid, a] of r.ans) {
       const p = r.players.get(pid); if (!p) continue;
-      counts[a.idx]++; n++;
+      if (a.idx >= 0) { counts[a.idx]++; n++; }
       p.lastDelta = 0; p.lastOk = false; p.lastPick = a.idx;
-      if (a.idx === q.a) {
+      if (a.idx >= 0 && a.idx === q.a) {
         const el = Math.min(total, Math.max(0, a.at - r.qStart));
         const pts = Math.round(1000 - 500 * (el / total));
         p.score += pts; p.correct++; p.time += el; p.lastDelta = pts; p.lastOk = true;
@@ -216,7 +217,7 @@ module.exports = function createLive(ctx) {
       saveState();
       for (const p of rank) { if (!p.bot) { try { ctx.xp(p.pid, 20 + 3 * p.correct); } catch {} } }
     }
-    const top = rank.slice(0, 3).map(p => ({ name: p.name, score: p.score, portrait: p.portrait || null }));
+    const top = rank.slice(0, 8).map(p => ({ name: p.name, score: p.score, portrait: p.portrait || null }));
     emit(r, 'live-end', { sid: s.id, top, players: rank.length, qualified: qualified.length, final, champion: final ? (r.test ? { name: rank[0] && rank[0].name, portrait: null } : state.champion) : null, next, test: r.test });
     for (const [sid, pid] of sockPid) {
       if (sockRun.get(sid) !== r) continue;
@@ -245,10 +246,11 @@ module.exports = function createLive(ctx) {
   }
   function tickRun(r) {
     if (r.status !== 'lobby') return;
-    emit(r, 'live-lobby', { sid: r.sid, n: r.players.size, specs: countSpecs(r), startAt: r.startAt, now: Date.now(), test: r.test });
+    emit(r, 'live-lobby', { sid: r.sid, n: r.players.size, specs: countSpecs(r), startAt: r.startAt, now: Date.now(), test: r.test, wall: wall(r) });
     if (!r.drawn && Date.now() >= r.startAt - DRAW_LEAD_MS) doDraw(r);
     if (Date.now() >= r.startAt) begin(r);
   }
+  function wall(r) { const out = []; for (const p of r.players.values()) { out.push({ name: p.name, portrait: p.portrait || null }); if (out.length >= 24) break; } return out; }
   function countSpecs(r) { let n = 0; for (const sid of specs) if (sockRun.get(sid) === r) n++; return n; }
   function tick() {
     try {
@@ -271,7 +273,7 @@ module.exports = function createLive(ctx) {
   // ── Sockets ──
   function snapshot(socket, pid, r) {
     if (!r) return;
-    if (r.status === 'lobby') socket.emit('live-lobby', { sid: r.sid, n: r.players.size, specs: countSpecs(r), startAt: r.startAt, now: Date.now(), test: r.test });
+    if (r.status === 'lobby') socket.emit('live-lobby', { sid: r.sid, n: r.players.size, specs: countSpecs(r), startAt: r.startAt, now: Date.now(), test: r.test, wall: wall(r) });
     if (r.drawn) socket.emit('live-draw', { sid: r.sid, themes: r.themes, flagQ: r.s.flagQ, now: Date.now(), replay: false });
     if (r.status === 'question' && r.cur >= 0) socket.emit('live-q', qPayload(r));
     else if (r.status === 'reveal') socket.emit('live-q', Object.assign(qPayload(r), { revealing: true }));
@@ -324,6 +326,13 @@ module.exports = function createLive(ctx) {
       r.ans.set(pid, { idx: k, at: now });
       if (first) { r.feed.push(r.players.get(pid).name); socket.emit('live-ack', { num: Number(num), idx: k }); }
       if (r.ans.size >= r.players.size && r.qEnd - now > 3000) shorten(r);
+    });
+    socket.on('live-skip', ({ num } = {}) => {
+      const r = sockRun.get(socket.id);
+      if (!r || r.status !== 'question' || specs.has(socket.id)) return;
+      const pid = sockPid.get(socket.id); if (!pid || !r.players.has(pid) || Number(num) !== r.cur + 1) return;
+      if (!r.ans.has(pid)) { r.ans.set(pid, { idx: -1, at: Date.now() }); r.feed.push(r.players.get(pid).name); }
+      if (r.ans.size >= r.players.size && r.qEnd - Date.now() > 3000) shorten(r);
     });
     socket.on('disconnect', () => leaveRoom(socket, true));
   }
