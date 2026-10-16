@@ -694,7 +694,11 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
           <label>Temps/question (s) <input id="live-t-time" type="number" min="3" max="60" value="" placeholder="auto" style="width:70px"></label>
         </div>
         <div class="field">
-          <button id="btn-live-test" class="green">Lancer un test</button>
+          <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="live-t-manual" checked> Lancement manuel (j'attends les joueurs, puis je lance le quiz)</label>
+        </div>
+        <div class="field">
+          <button id="btn-live-test" class="green">Créer la salle de test</button>
+          <button id="btn-live-launch" class="green" title="Lance le tirage des thèmes puis le quiz">Lancer le quiz</button>
           <button id="btn-live-test-stop" class="red">Arrêter les tests</button>
         </div>
         <p id="live-test-out" class="sub"></p>
@@ -1866,15 +1870,22 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
       if ($('btn-live-reset')) $('btn-live-reset').addEventListener('click', function () { if (confirm('Remettre tout le tournoi à zéro (résultats effacés) ?')) liveSend({ action: 'reset' }); });
       if ($('btn-live-reset-used')) $('btn-live-reset-used').addEventListener('click', function () { if (confirm('Les questions déjà tirées pourront revenir. Continuer ?')) liveSend({ action: 'reset-used' }); });
       if ($('btn-live-test')) $('btn-live-test').addEventListener('click', async function () {
-        var body = { action: 'test', sid: $('live-t-sid').value, bots: +$('live-t-bots').value || 0, lobbySec: +$('live-t-lobby').value || 60 };
+        var body = { action: 'test', sid: $('live-t-sid').value, bots: +$('live-t-bots').value || 0, lobbySec: +$('live-t-lobby').value || 60, manual: !$('live-t-manual') || $('live-t-manual').checked };
         if ($('live-t-time').value) body.timeMs = (+$('live-t-time').value) * 1000;
         try {
           var r = await api('/admin/live', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
           var d = await r.json();
-          if (d.test) $('live-test-out').innerHTML = 'Test lancé. Code : <b style="font-size:1.4em;letter-spacing:.2em">' + d.test.code + '</b> (' + d.test.bots + ' robots, départ dans ' + (body.lobbySec) + ' s)';
+          if (d.test) { $('live-test-out').innerHTML = 'Salle de test créée. Code : <b style="font-size:1.4em;letter-spacing:.2em">' + d.test.code + '</b>. ' + d.test.bots + ' robots arrivent quand tu entres dans la salle. ' + (d.test.manual ? 'Quand tu es prêt, clique sur « Lancer le quiz » : le tirage des thèmes se fait alors devant les joueurs.' : 'Départ dans ' + body.lobbySec + ' s.'); window._liveTestCode = d.test.code; }
           else $('live-test-out').textContent = 'Échec du lancement.';
         } catch (e) { $('live-test-out').textContent = 'Échec du lancement.'; }
       });
+      if ($('btn-live-launch')) $('btn-live-launch').addEventListener('click', async function () {
+        try { var r = await api('/admin/live', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'launch' }) }); var d = await r.json(); $('live-test-out').textContent = d.launched ? 'Quiz lancé : le tirage des thèmes commence.' : 'Rien à lancer (aucune salle en attente).'; } catch (e) { $('live-test-out').textContent = 'Échec du lancement.'; }
+      });
+      setInterval(async function () {
+        if (!$('live-status') || document.hidden) return;
+        try { var r = await api('/admin/live'); if (!r.ok) return; var d = await r.json(); var t = (d.tests || []).map(function (x) { return 'Test ' + x.code + ' : ' + x.players + ' joueurs, ' + (x.status === 'lobby' ? (x.manual && !x.launched ? 'en attente de ton lancement' : 'salle d\'attente') : x.status); }).join(' · '); $('live-status').textContent = (d.active ? 'Session en cours : ' + d.active.sid + ' (' + d.active.status + ', ' + d.active.players + ' joueurs). ' : 'Aucune session réelle en cours. ') + (t ? t : 'Aucun test.') + ' Questions déjà tirées : ' + d.usedCount + '.'; } catch (e) {}
+      }, 3000);
       if ($('btn-live-test-stop')) $('btn-live-test-stop').addEventListener('click', function () { liveSend({ action: 'test-stop' }); $('live-test-out').textContent = 'Tests arrêtés.'; });
       setTimeout(liveLoad, 1500);
     })();

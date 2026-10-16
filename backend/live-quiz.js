@@ -252,8 +252,14 @@ module.exports = function createLive(ctx) {
       r.players.set('bot' + k, { pid: 'bot' + k, bot: true, name: nm, score: 0, correct: 0, time: 0, rank: 0, lastDelta: 0, skill: 0.3 + Math.random() * 0.6, portrait: randPortrait() });
     }
   }
+  function launchRun(r) { if (!r || r.status !== 'lobby' || r.launched) return false; r.launched = true; r.startAt = Date.now() + DRAW_LEAD_MS; return true; }
   function tickRun(r) {
     if (r.status !== 'lobby') return;
+    if (r.manual && !r.launched) { // attend que l'organisateur lance le quiz depuis le tableau de bord
+      if (r.test && r.botAdded < r.botTotal && r.botFrom) addBots(r, Math.max(0, Math.floor((r.botTotal - 2) * Math.min(1, (Date.now() - r.botFrom) / 45000)) + 2 - r.botAdded));
+      emit(r, 'live-lobby', { sid: r.sid, n: r.players.size, specs: countSpecs(r), startAt: 0, waiting: true, now: Date.now(), test: r.test, wall: wall(r) });
+      return;
+    }
     if (r.test && r.botAdded < r.botTotal && r.botFrom) addBots(r, Math.max(0, Math.floor((r.botTotal - 2) * Math.min(1, (Date.now() - r.botFrom) / Math.max(5000, r.startAt - 5000 - r.botFrom))) + 2 - r.botAdded));
     emit(r, 'live-lobby', { sid: r.sid, n: r.players.size, specs: countSpecs(r), startAt: r.startAt, now: Date.now(), test: r.test, wall: wall(r) });
     if (!r.drawn && Date.now() >= r.startAt - DRAW_LEAD_MS) doDraw(r);
@@ -282,7 +288,7 @@ module.exports = function createLive(ctx) {
   // ── Sockets ──
   function snapshot(socket, pid, r) {
     if (!r) return;
-    if (r.status === 'lobby') socket.emit('live-lobby', { sid: r.sid, n: r.players.size, specs: countSpecs(r), startAt: r.startAt, now: Date.now(), test: r.test, wall: wall(r) });
+    if (r.status === 'lobby') socket.emit('live-lobby', { sid: r.sid, n: r.players.size, specs: countSpecs(r), startAt: r.manual && !r.launched ? 0 : r.startAt, waiting: !!(r.manual && !r.launched), now: Date.now(), test: r.test, wall: wall(r) });
     if (r.drawn) socket.emit('live-draw', { sid: r.sid, themes: r.themes, flagQ: r.s.flagQ, now: Date.now(), replay: false });
     if (r.status === 'question' && r.cur >= 0) socket.emit('live-q', qPayload(r));
     else if (r.status === 'reveal') socket.emit('live-q', Object.assign(qPayload(r), { revealing: true }));
@@ -380,18 +386,25 @@ module.exports = function createLive(ctx) {
       if (body.flagQ != null) o.flagQ = Math.max(0, Math.min(20, Math.floor(+body.flagQ)));
       let code; do { code = Array.from({ length: 4 }, () => 'ABCDEFGHJKMNPQRSTUVWXYZ'[Math.floor(Math.random() * 23)]).join(''); } while (tests.has(code));
       const lobbySec = Math.max(20, Math.min(600, Math.floor(+body.lobbySec) || 60));
-      const r = newRun(o, { test: true, code, room: 'live-t-' + code, startAt: Date.now() + lobbySec * 1000 });
+      const manual = body.manual !== false;
+      const r = newRun(o, { test: true, code, room: 'live-t-' + code, startAt: manual ? 0 : Date.now() + lobbySec * 1000, manual });
       const nb = Math.max(0, Math.min(300, Math.floor(+body.bots) || 0));
       // les robots arrivent un par un pendant l'attente, comme de vrais joueurs (photo de profil comprise)
       r.botTotal = nb; r.botAdded = 0; r.botFrom = 0; // les robots arrivent des qu'un humain est dans la salle, jusqu'a 5 s avant le depart
       addBots(r, Math.min(nb, 2));
       tests.set(code, r);
-      return { test: { code, sid: r.sid, bots: nb, startAt: r.startAt } };
+      return { test: { code, sid: r.sid, bots: nb, startAt: r.startAt, manual } };
+    }
+    if (body.action === 'launch') {
+      let n = 0;
+      if (body.code) { if (launchRun(tests.get(String(body.code).toUpperCase()))) n++; }
+      else { for (const r of tests.values()) if (launchRun(r)) n++; if (run && run.status === 'lobby' && !run.launched) { run.launched = true; run.startAt = Math.min(run.startAt, Date.now() + DRAW_LEAD_MS); n++; } }
+      return { launched: n };
     }
     if (body.action === 'test-stop') { for (const r of tests.values()) { clearTimeout(r.timer); clearInterval(r.prog); io.to(r.room).emit('live-error', { code: 'aborted' }); } tests.clear(); }
     if (body.action === 'abort' && run) { clearTimeout(run.timer); clearInterval(run.prog); io.to('live').emit('live-error', { code: 'aborted' }); run = null; }
     phase();
-    return { cfg, done: Object.fromEntries(Object.entries(state.done).map(([k, v]) => [k, { players: v.players, qualified: v.qualified.length, top: v.ranking.slice(0, 3) }])), champion: state.champion, active: run ? { sid: run.sid, status: run.status, players: run.players.size } : null, usedCount: state.used.length, tests: [...tests.values()].map(r => ({ code: r.code, sid: r.sid, status: r.status, players: r.players.size, startAt: r.startAt })) };
+    return { cfg, done: Object.fromEntries(Object.entries(state.done).map(([k, v]) => [k, { players: v.players, qualified: v.qualified.length, top: v.ranking.slice(0, 3) }])), champion: state.champion, active: run ? { sid: run.sid, status: run.status, players: run.players.size } : null, usedCount: state.used.length, tests: [...tests.values()].map(r => ({ code: r.code, sid: r.sid, status: r.status, players: r.players.size, startAt: r.startAt, manual: !!r.manual, launched: !!r.launched })) };
   }
   return { load, start, attach, admin, info };
 };
