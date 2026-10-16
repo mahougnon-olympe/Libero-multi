@@ -244,13 +244,22 @@ module.exports = function createLive(ctx) {
       }
     }
   }
+  const rnd = n => Math.floor(Math.random() * n);
+  function randPortrait() { return { face: rnd(5), skin: [2, 4, 6, 8, 10, 12][rnd(6)], brows: rnd(4), eyes: rnd(4), mouth: rnd(4), marks: rnd(3), beard: rnd(5) < 3 ? 0 : rnd(4), hair: rnd(8), hairCol: rnd(8), acc: 0, top: rnd(4), topCol: rnd(8), bg: rnd(6), frame: 0 }; }
+  function addBots(r, n) {
+    for (let i = 0; i < n && r.botAdded < r.botTotal; i++, r.botAdded++) {
+      const k = r.botAdded, base2 = BOT_NAMES[k % BOT_NAMES.length], nm = k < BOT_NAMES.length ? base2 : base2 + ' ' + (Math.floor(k / BOT_NAMES.length) + 1);
+      r.players.set('bot' + k, { pid: 'bot' + k, bot: true, name: nm, score: 0, correct: 0, time: 0, rank: 0, lastDelta: 0, skill: 0.3 + Math.random() * 0.6, portrait: randPortrait() });
+    }
+  }
   function tickRun(r) {
     if (r.status !== 'lobby') return;
+    if (r.test && r.botAdded < r.botTotal) addBots(r, Math.max(0, Math.floor(r.botTotal * Math.min(1, (Date.now() - r.createdAt) / (r.lobbyMs * 0.85))) - r.botAdded));
     emit(r, 'live-lobby', { sid: r.sid, n: r.players.size, specs: countSpecs(r), startAt: r.startAt, now: Date.now(), test: r.test, wall: wall(r) });
     if (!r.drawn && Date.now() >= r.startAt - DRAW_LEAD_MS) doDraw(r);
     if (Date.now() >= r.startAt) begin(r);
   }
-  function wall(r) { const out = []; for (const p of r.players.values()) { out.push({ name: p.name, portrait: p.portrait || null }); if (out.length >= 24) break; } return out; }
+  function wall(r) { const out = []; for (const p of r.players.values()) out.push({ name: p.name, portrait: p.portrait || null }); return out.slice(-24); } // les 24 derniers arrives : on voit les entrees
   function countSpecs(r) { let n = 0; for (const sid of specs) if (sockRun.get(sid) === r) n++; return n; }
   function tick() {
     try {
@@ -372,10 +381,9 @@ module.exports = function createLive(ctx) {
       const lobbySec = Math.max(20, Math.min(600, Math.floor(+body.lobbySec) || 60));
       const r = newRun(o, { test: true, code, room: 'live-t-' + code, startAt: Date.now() + lobbySec * 1000 });
       const nb = Math.max(0, Math.min(300, Math.floor(+body.bots) || 0));
-      for (let i = 0; i < nb; i++) {
-        const base2 = BOT_NAMES[i % BOT_NAMES.length], nm = i < BOT_NAMES.length ? base2 : base2 + ' ' + (Math.floor(i / BOT_NAMES.length) + 1);
-        r.players.set('bot' + i, { pid: 'bot' + i, bot: true, name: nm, score: 0, correct: 0, time: 0, rank: 0, lastDelta: 0, skill: 0.3 + Math.random() * 0.6, portrait: null });
-      }
+      // les robots arrivent un par un pendant l'attente, comme de vrais joueurs (photo de profil comprise)
+      r.botTotal = nb; r.botAdded = 0; r.createdAt = Date.now(); r.lobbyMs = lobbySec * 1000;
+      addBots(r, Math.min(nb, 2));
       tests.set(code, r);
       return { test: { code, sid: r.sid, bots: nb, startAt: r.startAt } };
     }

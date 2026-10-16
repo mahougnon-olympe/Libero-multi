@@ -222,7 +222,7 @@
     const me = pname(), d = U(), list = (wall || []).slice();
     const mi = list.findIndex(w => w.name === me); let mine = null;
     if (V.role === 'player') { if (mi >= 0) mine = list.splice(mi, 1)[0]; else mine = { name: me || d.you2, portrait: typeof myPortrait !== 'undefined' ? myPortrait : null }; }
-    const all = (mine ? [mine] : []).concat(list).slice(0, 14);
+    const all = (mine ? [mine] : []).concat(list.slice(-(mine ? 13 : 14)));
     let h = all.map((w, i) => `<div class="lv-pf${mine && i === 0 ? ' me' : ''}" data-n="${esc(w.name)}"><div class="im">${av(w.name, w.portrait)}</div><span>${mine && i === 0 ? d.you2 : esc(w.name)}</span></div>`).join('');
     const more = Math.max(0, n - all.length); if (more > 0) h += `<div class="lv-pf more"><div class="im">+${more}</div><span>${L() === 'en' ? 'others' : 'autres'}</span></div>`;
     return h;
