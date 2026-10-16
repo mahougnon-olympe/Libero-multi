@@ -83,7 +83,7 @@
     return `<span style="font-weight:800">${esc((name || '?')[0].toUpperCase())}</span>`;
   };
 
-  function loadCss() { if (document.getElementById('live-css')) return; const l = document.createElement('link'); l.id = 'live-css'; l.rel = 'stylesheet'; l.href = 'live.css?v=7'; document.head.appendChild(l); }
+  function loadCss() { if (document.getElementById('live-css')) return; const l = document.createElement('link'); l.id = 'live-css'; l.rel = 'stylesheet'; l.href = 'live.css?v=8'; document.head.appendChild(l); }
   function ensure() {
     loadCss();
     if (root) return;
@@ -91,8 +91,6 @@
     root = el(`<div id="screen-live" class="screen"><div class="lv-ann" id="lv-ann"><span class="ic" id="lv-annic"></span><div><b id="lv-annb"></b><span id="lv-anns"></span></div></div><div class="lv" id="lv"><div class="lv-top" id="lv-top"></div><div id="lv-body"></div></div><canvas id="lv-fx"></canvas></div>`);
     host.appendChild(root);
     body = $('#lv-body', root);
-    // filtre de « vent » : ondule le drapeau de la manche 2 (le motif de turbulence glisse doucement)
-    root.insertAdjacentHTML('beforeend', '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="lv-wave" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.025" numOctaves="2" seed="3" result="n"><animate attributeName="baseFrequency" dur="5s" values="0.006 0.025;0.009 0.035;0.006 0.025" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/></filter></svg>');
   }
   function top(extra) {
     const d = U(), t = $('#lv-top', root);

@@ -164,11 +164,6 @@ html.light .lv-ri b { color: var(--board, #173a8a); }
 
 .lv-wall.mini { grid-template-columns: repeat(7, 1fr); gap: 6px 2px; margin-top: 4px; } .lv-wall.mini .im { width: 34px; height: 34px; } .lv-wall.mini .lv-pf span { display: none; } .lv-wall.mini .lv-pf.me span { display: block; }
 
-/* drapeau de la manche 2 : centre, et qui ondule sous le vent */
+/* drapeau de la manche 2 : centre */
 .lv-tg .tg-question .flag-frame { display: block; margin: 4px auto; }
 .lv-tg .tg-question { display: flex; justify-content: center; }
-.lv-tg .flag-frame:not([data-frame="cloth"]) .flag-img { filter: url(#lv-wave); transform-origin: left center; animation: lvWind 3.4s ease-in-out infinite; }
-.lv-tg .flag-frame:not([data-frame]):after, .lv-tg .flag-frame[data-frame="cloth"]:after { content: ''; position: absolute; inset: 2px; border-radius: 4px; pointer-events: none; background: linear-gradient(90deg, rgba(0,0,0,.18), rgba(255,255,255,.22) 22%, rgba(0,0,0,.16) 48%, rgba(255,255,255,.2) 74%, rgba(0,0,0,.16)); background-size: 220% 100%; mix-blend-mode: soft-light; animation: lvShade 3.2s linear infinite; }
-@keyframes lvWind { 0%, 100% { transform: perspective(700px) rotateY(0deg) skewY(0deg); } 35% { transform: perspective(700px) rotateY(-5deg) skewY(1.2deg); } 70% { transform: perspective(700px) rotateY(3deg) skewY(-1deg); } }
-@keyframes lvShade { from { background-position: 0 0; } to { background-position: -220% 0; } }
-@media (prefers-reduced-motion: reduce) { .lv-tg .flag-frame .flag-img { filter: none; animation: none; } .lv-tg .flag-frame:after { animation: none; } }
