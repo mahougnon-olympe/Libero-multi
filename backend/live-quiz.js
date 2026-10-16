@@ -7,7 +7,7 @@ const flagsGame = require('./game-flags');
 const DEFAULT_CFG = {
   lobbyMin: 10,                        // la salle ouvre N minutes avant
   prize: { fr: '', en: '' },           // texte du prix du champion (vide = a annoncer)
-  rewards: { 1: 0, 2: 0, 3: 0 },       // Libs verses aux trois premiers de la finale
+  rewards: { 1: 5000, 2: 3000, 3: 1500 },       // Libs verses aux trois premiers de la finale
   sessions: [
     { id: 'q', start: '2026-10-17T18:00:00+01:00', level: 'medium',  themeQ: 10, flagQ: 5, flagLevel: 'easy',   timeMs: 15000, qualify: 50 },
     { id: 's', start: '2026-10-18T15:00:00+01:00', level: 'hard',    themeQ: 10, flagQ: 5, flagLevel: 'medium', timeMs: 15000, qualify: 10 },
