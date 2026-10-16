@@ -3397,7 +3397,7 @@ function _liveCtaHtml() {
   const nxt = inf.sessions.find(s => s.status === 'scheduled');
   if (!act && !nxt) return '';
   const d = t();
-  return `<button type="button" class="live-cta" data-live="1"><span class="lv-live"><i></i>${act && act.status === 'live' ? d.livePill : d.liveOpenPill}</span><span>${d.liveCtaT}<small>${act ? d.liveCtaOpen : d.liveCtaNext}</small></span></button>`;
+  return `<button type="button" class="live-cta" data-live="1">${act ? `<span class="lv-live"><i></i>${act.status === 'live' ? d.livePill : d.liveOpenPill}</span>` : ''}<span>${d.liveCtaT}<small>${act ? d.liveCtaOpen : d.liveCtaNext}</small></span></button>`;
 }
 function _livePaint() {
   const inf = window._liveInfo;
