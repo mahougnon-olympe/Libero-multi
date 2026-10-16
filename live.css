@@ -167,3 +167,7 @@ html.light .lv-ri b { color: var(--board, #173a8a); }
 /* drapeau de la manche 2 : centre */
 .lv-tg .tg-question .flag-frame { display: block; margin: 4px auto; }
 .lv-tg .tg-question { display: flex; justify-content: center; }
+
+/* classement anime apres la correction */
+.lv-rkp { overflow: hidden; max-height: 0; opacity: 0; transition: max-height .7s ease, opacity .5s; margin-top: 4px; } .lv-rkp.on { max-height: 460px; opacity: 1; }
+.lv-rkp .lv-r { transition: none; } .lv-mine-row { margin-top: 4px; border-style: dashed; }

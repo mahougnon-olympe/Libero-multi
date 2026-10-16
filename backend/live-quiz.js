@@ -15,6 +15,7 @@ const DEFAULT_CFG = {
   ],
 };
 const REVEAL_MS = 5500;                // la correction reste a l'ecran (comme le quiz de culture generale)
+const RANK_MS = 3800;                  // puis le classement s'anime (sauf apres la derniere question)
 const LATE_Q = 3;
 const DRAW_LEAD_MS = 40000;            // le tirage des themes se fait 40 s avant le depart, devant tout le monde                      // on peut entrer au quart jusqu'a la question 3
 
@@ -192,7 +193,7 @@ module.exports = function createLive(ctx) {
       const p = r.players.get(pid); if (!p || specs.has(sid)) continue;
       io.to(sid).emit('live-me', { rank: p.rank, score: p.score, delta: p.lastDelta, ok: p.lastOk, pick: p.lastPick, streak: p.streak || 0, total: r.players.size });
     }
-    r.timer = setTimeout(() => nextQ(r), REVEAL_MS);
+    r.timer = setTimeout(() => nextQ(r), r.cur + 1 >= r.questions.length ? REVEAL_MS : REVEAL_MS + RANK_MS);
   }
   function ranking(r) {
     const arr = [...r.players.values()].sort((a, b) => b.score - a.score || a.time - b.time || a.name.localeCompare(b.name));

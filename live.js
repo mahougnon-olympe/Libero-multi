@@ -83,7 +83,7 @@
     return `<span style="font-weight:800">${esc((name || '?')[0].toUpperCase())}</span>`;
   };
 
-  function loadCss() { if (document.getElementById('live-css')) return; const l = document.createElement('link'); l.id = 'live-css'; l.rel = 'stylesheet'; l.href = 'live.css?v=8'; document.head.appendChild(l); }
+  function loadCss() { if (document.getElementById('live-css')) return; const l = document.createElement('link'); l.id = 'live-css'; l.rel = 'stylesheet'; l.href = 'live.css?v=9'; document.head.appendChild(l); }
   function ensure() {
     loadCss();
     if (root) return;
@@ -361,6 +361,27 @@
       if (got) burst(ch.querySelector('.correct'));
     } else $('#lv-rev', root).classList.add('hidden');
     const sc = $('#lv-sc', root); if (sc) sc.innerHTML = chipsHtml(false);
+    r.__q = q; if (!r.last) setTimeout(() => showRanking(r), 4300);
+  }
+  // Classement entre deux questions : les lignes glissent vers leur nouvelle place, les scores comptent, ceux qui montent brillent.
+  async function showRanking(r) {
+    if (V.view !== 'q' || V.q !== r.__q) return;
+    const d = U(), me = pname(), rows = r.board;
+    const prior = rows.map((x, i) => ({ n: x.name, p: x.score - (x.delta || 0), i })).sort((a, b) => b.p - a.p || a.i - b.i).map(x => x.n);
+    const wrap = $('.lv-tg', root); if (!wrap) return;
+    wrap.insertAdjacentHTML('beforeend', `<div class="lv-rkp" id="lv-rkp"><p class="lv-hand">${d.lbH(r.num)}</p><div class="lv-lb" id="lv-lb2">${rows.map((x, i) => `<div class="lv-r${V.role === 'player' && x.name === me ? ' me' : ''}" data-n="${esc(x.name)}"><span class="rk">${i + 1}</span><span class="av">${av(x.name, x.portrait)}</span>${V.role === 'player' && x.name === me ? d.you : esc(x.name)}<span class="d">${x.delta > 0 ? '+' + x.delta : ''}</span><span class="sc">${x.score - (x.delta || 0)}</span></div>`).join('')}${V.role === 'player' && V.my && !rows.some(x => x.name === me) ? `<div class="lv-r me lv-mine-row"><span class="rk">${V.my.rank}</span><span class="av">${av(me, typeof myPortrait !== 'undefined' ? myPortrait : null)}</span>${d.you}<span class="d">${V.my.delta > 0 ? '+' + V.my.delta : ''}</span><span class="sc">${V.my.score}</span></div>` : ''}</div></div>`);
+    const p = $('#lv-rkp', root); requestAnimationFrame(() => p.classList.add('on'));
+    await wait(500);
+    const list = [...p.querySelectorAll('.lv-r[data-n]')], h = (list[1] ? list[1].getBoundingClientRect().top - list[0].getBoundingClientRect().top : 44);
+    list.forEach((row, i) => {
+      const n = row.dataset.n, x = rows[i], was = prior.indexOf(n), sc = row.querySelector('.sc'), from = x.score - (x.delta || 0), t0 = performance.now();
+      if (!reduce()) {
+        if (was !== i) row.animate([{ transform: `translateY(${(was - i) * h}px)` }, { transform: 'none' }], { duration: 900, easing: 'cubic-bezier(.5,0,.2,1)' });
+        (function tick(t) { const f = Math.min(1, (t - t0) / 900); sc.textContent = Math.round(from + (x.score - from) * f); if (f < 1) requestAnimationFrame(tick); })(t0);
+      } else sc.textContent = x.score;
+      if (was > i) row.classList.add('up');
+    });
+    try { p.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch {}
   }
   function onMe(m) {
     const q = V.q; m.num = q ? q.num : 0; V.my = m; if (m.quiet) return;
