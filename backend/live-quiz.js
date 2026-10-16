@@ -403,7 +403,7 @@ module.exports = function createLive(ctx) {
     }
     if (body.action === 'test-stop') { for (const r of tests.values()) { clearTimeout(r.timer); clearInterval(r.prog); io.to(r.room).emit('live-error', { code: 'aborted' }); } tests.clear(); }
     if (body.action === 'abort' && run) { clearTimeout(run.timer); clearInterval(run.prog); io.to('live').emit('live-error', { code: 'aborted' }); run = null; }
-    phase();
+    if (body && Object.keys(body).length) phase(); // une simple lecture (tableau de bord) ne previent pas tous les joueurs
     return { cfg, done: Object.fromEntries(Object.entries(state.done).map(([k, v]) => [k, { players: v.players, qualified: v.qualified.length, top: v.ranking.slice(0, 3) }])), champion: state.champion, active: run ? { sid: run.sid, status: run.status, players: run.players.size } : null, usedCount: state.used.length, tests: [...tests.values()].map(r => ({ code: r.code, sid: r.sid, status: r.status, players: r.players.size, startAt: r.startAt, manual: !!r.manual, launched: !!r.launched })) };
   }
   return { load, start, attach, admin, info };

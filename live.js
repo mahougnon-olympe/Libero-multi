@@ -443,9 +443,11 @@
     switch (ev) {
       case 'live-info': {
         const wasOpen = info && info.sessions.some(s => s.status === 'lobby' || s.status === 'live');
-        info = d; off = d.now - Date.now();
+        const sig = JSON.stringify(d.sessions.map(s => [s.id, s.status, s.players, s.qualified, s.me, s.start]).concat([d.prize, d.test, d.code]));
+        const same = info && info._sig === sig; info = d; info._sig = sig; off = d.now - Date.now();
+        if (same) break;
         const isOpen = d.sessions.some(s => s.status === 'lobby' || s.status === 'live');
-        if (root && root.classList.contains('active') && V.view === 'prog') { prog(); if (!wasOpen && isOpen && !V.role) announce(U().annOpen, '', 'OK'); }
+        if (root && root.classList.contains('active') && V.view === 'prog') { if (!($('#lv-codein', root) && document.activeElement === $('#lv-codein', root))) prog(); if (!wasOpen && isOpen && !V.role) announce(U().annOpen, '', 'OK'); }
         else if (V.view === 'bk') bracket();
         break;
       }
