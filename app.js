@@ -1176,7 +1176,7 @@ const DICT = {
     helpBoostTitle:'Boost Indice (quiz)',
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     eventsTitle:'Évents', eventsDesc:'Calendrier des week-ends',
-    livePill:'EN DIRECT', liveCtaT:'Quiz en direct', liveCtaOpen:'La salle est ouverte, rejoins-nous', liveCtaNext:'Le tournoi du week-end, en trois sessions', 
+    livePill:'EN DIRECT', liveOpenPill:'SALLE OUVERTE', liveCtaT:'Quiz en direct', liveCtaOpen:'La salle est ouverte, rejoins-nous', liveCtaNext:'Le tournoi du week-end, en trois sessions', 
     evMonths:['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'], evThisWeekend:x=>`Ce week-end : ${x}`, evNext:x=>`Prochain : ${x}`, evNews:x=>`<strong>Ce week-end</strong> : ${x}`, evNewsNext:(x,n)=>`<strong>Prochain évent</strong> : ${x}, dans ${n} jour${n>1?'s':''}`, evCalendarSub:'Le calendrier des week-ends', evTournament:'Tous les samedis : <b>tournoi</b>, 2000 Libs au champion.', evEmpty:'Les prochains évents arrivent bientôt.', evLive:'En cours', evReward:'Récompense', evNote:'Touche un évent pour voir ses règles. Les dates peuvent encore bouger.',
     arcadeTitle:'Arcade', arcadeSub:'Des jeux rapides, tous les jours', arcadeRunDesc:'Aide Libero à courir le plus loin possible ! Saute les obstacles, baisse-toi sous ceux qui volent.', arcadeSnakeDesc:'Mange des pommes pour faire grandir ton serpent, sans mordre ta queue.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Classements', snakeUnit:'pommes', shareCard:{ quiz:'Quiz', pts:'pts', solo:'Quiz solo', brand:'Joue avec moi sur', rankOf:(r,n)=>`${r}${r===1?'er':'e'} sur ${n}` }, podium:{ title:'Résultats', sub:'Quiz à plusieurs', banner:'CHAMPION DU QUIZ', skip:'Passer', done:'Voir les résultats', you:'toi', msgWin:'Tu es le meilleur de la partie !', msgClose:n=>`Plus que ${n} point${n>1?'s':''} pour la couronne. Revanche ?`, msgOut:r=>`Tu finis ${r}e. Le podium t'attend la prochaine fois !` }, soundpackRefund:n=>`Les packs de sons ont quitté la boutique : ${n} Libs te sont rendus.`, inArcade:'Dans l\'Arcade',
     eventsDescLocked:'Week-end prochain',
@@ -1975,7 +1975,7 @@ const DICT = {
     helpBoostTitle:'Quiz Hint Boost',
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     eventsTitle:'Events', eventsDesc:'Weekend calendar',
-    livePill:'LIVE', liveCtaT:'Live quiz', liveCtaOpen:'The room is open, join us', liveCtaNext:'The weekend tournament, in three sessions', 
+    livePill:'LIVE', liveOpenPill:'ROOM OPEN', liveCtaT:'Live quiz', liveCtaOpen:'The room is open, join us', liveCtaNext:'The weekend tournament, in three sessions', 
     evMonths:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], evThisWeekend:x=>`This weekend: ${x}`, evNext:x=>`Next: ${x}`, evNews:x=>`<strong>This weekend</strong>: ${x}`, evNewsNext:(x,n)=>`<strong>Next event</strong>: ${x}, in ${n} day${n>1?'s':''}`, evCalendarSub:'The weekend calendar', evTournament:'Every Saturday: <b>tournament</b>, 2000 Libs for the champion.', evEmpty:'The next events are coming soon.', evLive:'Live', evReward:'Reward', evNote:'Tap an event to see its rules. Dates may still change.',
     arcadeTitle:'Arcade', arcadeSub:'Quick games, every day', arcadeRunDesc:'Help Libero run as far as possible! Jump over obstacles, duck under the flying ones.', arcadeSnakeDesc:'Eat apples to make your snake grow, without biting your own tail.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Leaderboards', snakeUnit:'apples', shareCard:{ quiz:'Quiz', pts:'pts', solo:'Solo quiz', brand:'Play with me on', rankOf:(r,n)=>`${r}${r===1?'st':r===2?'nd':r===3?'rd':'th'} of ${n}` }, podium:{ title:'Results', sub:'Multiplayer quiz', banner:'QUIZ CHAMPION', skip:'Skip', done:'See the results', you:'you', msgWin:'You are the best of the game!', msgClose:n=>`Only ${n} point${n>1?'s':''} away from the crown. Rematch?`, msgOut:r=>`You finished ${r}th. The podium awaits you next time!` }, soundpackRefund:n=>`Sound packs have left the shop: ${n} Libs have been refunded to you.`, inArcade:'In the Arcade',
     eventsDescLocked:'Next weekend',
@@ -3383,7 +3383,7 @@ function _liveLoad() {
   if (window.LiberoLive) return Promise.resolve(window.LiberoLive);
   if (_liveP) return _liveP;
   _liveP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'live.js?v=7';
+    const sc = document.createElement('script'); sc.src = 'live.js?v=8';
     sc.onload = () => res(window.LiberoLive); sc.onerror = () => { _liveP = null; res(null); };
     document.head.appendChild(sc);
   });
@@ -3397,14 +3397,14 @@ function _liveCtaHtml() {
   const nxt = inf.sessions.find(s => s.status === 'scheduled');
   if (!act && !nxt) return '';
   const d = t();
-  return `<button type="button" class="live-cta" data-live="1"><span class="lv-live"><i></i>${d.livePill}</span><span>${d.liveCtaT}<small>${act ? d.liveCtaOpen : d.liveCtaNext}</small></span></button>`;
+  return `<button type="button" class="live-cta" data-live="1"><span class="lv-live"><i></i>${act && act.status === 'live' ? d.livePill : d.liveOpenPill}</span><span>${d.liveCtaT}<small>${act ? d.liveCtaOpen : d.liveCtaNext}</small></span></button>`;
 }
 function _livePaint() {
   const inf = window._liveInfo;
   const act = inf && inf.sessions.find(s => s.status === 'lobby' || s.status === 'live');
   let p = document.getElementById('live-pill');
   if (!p) { p = document.createElement('button'); p.id = 'live-pill'; p.className = 'live-pill'; p.type = 'button'; p.onclick = () => _liveLoad().then(m => m && m.open()); document.body.appendChild(p); }
-  p.innerHTML = `<span class="lv-live" style="background:#fff;color:#e2485d"><i style="background:#e2485d"></i>${t().livePill}</span>${t().liveCtaT}`;
+  p.innerHTML = `<span class="lv-live" style="background:#fff;color:#e2485d"><i style="background:#e2485d"></i>${act && act.status === 'live' ? t().livePill : t().liveOpenPill}</span>${t().liveCtaT}`;
   p.classList.toggle('on', !!act && !document.getElementById('screen-live')?.classList.contains('active'));
   window._evCal?.render?.();
 }

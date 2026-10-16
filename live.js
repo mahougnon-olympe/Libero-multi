@@ -96,7 +96,7 @@
     const d = U(), t = $('#lv-top', root);
     if (V.view === 'q') { t.innerHTML = ''; t.style.display = 'none'; return; }
     t.style.display = '';
-    t.innerHTML = `<button class="lv-back" id="lv-back">${d.back}</button><span class="lv-live" id="lv-live" ${['lobby', 'draw', 'board'].includes(V.view) ? '' : 'style="display:none"'}><i></i>${d.pill}</span>${V.role === 'spec' ? `<span class="lv-eye">${d.spec}</span>` : ''}<span class="lv-n" id="lv-n">${extra || ''}</span>`;
+    t.innerHTML = `<button class="lv-back" id="lv-back">${d.back}</button><span class="lv-live" id="lv-live" ${V.started ? '' : 'style="display:none"'}><i></i>${d.pill}</span>${V.role === 'spec' ? `<span class="lv-eye">${d.spec}</span>` : ''}<span class="lv-n" id="lv-n">${extra || ''}</span>`;
     $('#lv-back', root).onclick = () => { if (V.role) leave(); else showScreen('events'); };
   }
   function scene(html, view) { V.view = view; clearInterval(V.cdt); body.innerHTML = `<div class="lv-scene lv-sc-${view}">${html}</div>`; top(); window.scrollTo?.(0, 0); }
@@ -377,7 +377,7 @@
     if (q) V.role = 'player'; else V.role = null; save();
   }
   async function onEnd(e) {
-    clearInterval(V.tq); V.endTop = e.top; V.lastBoard = null;
+    clearInterval(V.tq); V.endTop = e.top; V.lastBoard = null; V.started = false;
     if (!e.final) { if (V.role === 'spec') { announce(U().annEnd, '', 'OK'); await wait(1500); bracket(); } return; }
     const d = U();
     announce(d.annFinal, 'mark', '1'); await wait(1500);
@@ -409,7 +409,7 @@
   // ── Sortie et reprise ──
   function leave(toProg) {
     try { socket.emit('live-leave'); } catch {}
-    V.role = null; V.q = null; V.lastBoard = null; clearInterval(V.tq); clearInterval(V.cdt); save();
+    V.role = null; V.q = null; V.started = false; V.lastBoard = null; clearInterval(V.tq); clearInterval(V.cdt); save();
     try { sessionStorage.removeItem(KEY); } catch {}
     if (toProg) prog(); else showScreen('events');
   }
@@ -446,7 +446,7 @@
       case 'live-watching': V.mode = d.mode; break;
       case 'live-lobby': if (V.role) lobby(d); break;
       case 'live-draw': if (V.role) drawScene(d); break;
-      case 'live-start': if (V.role) { V.lastBoard = null; V.top = null; V.my = null; announce(U().annStart(d.total), '', '1'); curtain(U().sess[d.sid], '', false); } break;
+      case 'live-start': if (V.role) { V.started = true; V.lastBoard = null; V.top = null; V.my = null; announce(U().annStart(d.total), '', '1'); curtain(U().sess[d.sid], '', false); } break;
       case 'live-q': if (V.role) { clearInterval(V.cdt); showQ(d); } break;
       case 'live-answered': if (V.view === 'q') onAnswered(d); break;
       case 'live-countdown': if (V.view === 'q' && V.q) { V.q.endAt = d.endAt; startTimer(V.q); } break;
