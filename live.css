@@ -161,3 +161,5 @@ html.light .lv-ri b { color: var(--board, #173a8a); }
 .tg-score-chip.lv-me { box-shadow: 0 0 0 3px var(--mark); }
 .lv-bst { position: fixed; width: 9px; height: 9px; border-radius: 2px; pointer-events: none; z-index: 80; animation: lvBst 1.1s ease-out forwards; }
 @keyframes lvBst { to { transform: translate(var(--bx), var(--by)) rotate(300deg); opacity: 0; } }
+
+.lv-wall.mini { grid-template-columns: repeat(7, 1fr); gap: 6px 2px; margin-top: 4px; } .lv-wall.mini .im { width: 34px; height: 34px; } .lv-wall.mini .lv-pf span { display: none; } .lv-wall.mini .lv-pf.me span { display: block; }

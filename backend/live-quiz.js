@@ -254,7 +254,7 @@ module.exports = function createLive(ctx) {
   }
   function tickRun(r) {
     if (r.status !== 'lobby') return;
-    if (r.test && r.botAdded < r.botTotal) addBots(r, Math.max(0, Math.floor(r.botTotal * Math.min(1, (Date.now() - r.createdAt) / (r.lobbyMs * 0.85))) - r.botAdded));
+    if (r.test && r.botAdded < r.botTotal && r.botFrom) addBots(r, Math.max(0, Math.floor((r.botTotal - 2) * Math.min(1, (Date.now() - r.botFrom) / Math.max(5000, r.startAt - 5000 - r.botFrom))) + 2 - r.botAdded));
     emit(r, 'live-lobby', { sid: r.sid, n: r.players.size, specs: countSpecs(r), startAt: r.startAt, now: Date.now(), test: r.test, wall: wall(r) });
     if (!r.drawn && Date.now() >= r.startAt - DRAW_LEAD_MS) doDraw(r);
     if (Date.now() >= r.startAt) begin(r);
@@ -304,6 +304,7 @@ module.exports = function createLive(ctx) {
       let p = r.players.get(pid);
       if (!p) { p = { pid, name: ctx.sanitizeName(name, 'Anonyme'), score: 0, correct: 0, time: 0, rank: 0, lastDelta: 0, portrait: ctx.portraitOf(pid, name) }; r.players.set(pid, p); }
       leaveRoom(socket);
+      if (r.test && !r.botFrom) r.botFrom = Date.now();
       sockPid.set(socket.id, pid); sockRun.set(socket.id, r); specs.delete(socket.id); socket.join(r.room);
       socket.emit('live-joined', { sid: r.sid, name: p.name, test: r.test });
       snapshot(socket, pid, r);
@@ -314,7 +315,7 @@ module.exports = function createLive(ctx) {
       if (code && !r) return socket.emit('live-error', { code: 'badcode' });
       leaveRoom(socket);
       sockPid.set(socket.id, pid || ('g' + socket.id)); specs.add(socket.id);
-      if (r) { sockRun.set(socket.id, r); socket.join(r.room); }
+      if (r) { if (r.test && !r.botFrom) r.botFrom = Date.now(); sockRun.set(socket.id, r); socket.join(r.room); }
       socket.emit('live-watching', { mode: mode === 'all' ? 'all' : 'remaining', sid: r ? r.sid : null });
       socket.emit('live-info', info(pid, code ? r : null));
       snapshot(socket, null, r);
@@ -382,7 +383,7 @@ module.exports = function createLive(ctx) {
       const r = newRun(o, { test: true, code, room: 'live-t-' + code, startAt: Date.now() + lobbySec * 1000 });
       const nb = Math.max(0, Math.min(300, Math.floor(+body.bots) || 0));
       // les robots arrivent un par un pendant l'attente, comme de vrais joueurs (photo de profil comprise)
-      r.botTotal = nb; r.botAdded = 0; r.createdAt = Date.now(); r.lobbyMs = lobbySec * 1000;
+      r.botTotal = nb; r.botAdded = 0; r.botFrom = 0; // les robots arrivent des qu'un humain est dans la salle, jusqu'a 5 s avant le depart
       addBots(r, Math.min(nb, 2));
       tests.set(code, r);
       return { test: { code, sid: r.sid, bots: nb, startAt: r.startAt } };

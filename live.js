@@ -83,7 +83,7 @@
     return `<span style="font-weight:800">${esc((name || '?')[0].toUpperCase())}</span>`;
   };
 
-  function loadCss() { if (document.getElementById('live-css')) return; const l = document.createElement('link'); l.id = 'live-css'; l.rel = 'stylesheet'; l.href = 'live.css?v=5'; document.head.appendChild(l); }
+  function loadCss() { if (document.getElementById('live-css')) return; const l = document.createElement('link'); l.id = 'live-css'; l.rel = 'stylesheet'; l.href = 'live.css?v=6'; document.head.appendChild(l); }
   function ensure() {
     loadCss();
     if (root) return;
@@ -229,7 +229,8 @@
   }
   function lobby(d0) {
     const d = U(); V.sid = d0.sid; off = d0.now - Date.now(); V.startAt = d0.startAt;
-    if (V.view === 'draw') { top(d0.specs ? d.watching(d0.specs) : ''); return; }
+    V.lastLobby = d0;
+    if (V.view === 'draw') { paintMini(d0); top(d0.specs ? d.watching(d0.specs) : ''); return; }
     if (V.view !== 'lobby') {
       V.ann10 = false;
       scene(`<h1 class="lv-h1">${d.sess[d0.sid]}</h1><p class="lv-hand">${d.lobbyH}</p><div class="lv-cd" id="lv-cd">0:00</div><div class="lv-box"><div class="lv-ans" id="lv-in"></div><div class="lv-wall" id="lv-wall"></div></div><p class="lv-ghost">${V.role === 'spec' ? '' : d.stay}</p><p class="lv-ghost" style="opacity:.8">${d.drawSoon}</p>`, 'lobby');
@@ -239,6 +240,11 @@
     const w = $('#lv-wall', root);
     if (w) { w.innerHTML = wallHtml(d0.wall, d0.n); w.querySelectorAll('.lv-pf').forEach(p => { const k = p.dataset.n || 'more'; if (V.wallSeen.has(k)) p.style.animation = 'none'; V.wallSeen.add(k); }); }
     top(d0.specs ? d.watching(d0.specs) : ''); tickLobby();
+  }
+  function paintMini(d0) {
+    const d = U(), a = $('#lv-in2', root), w = $('#lv-wall2', root); if (!a || !w) return;
+    a.innerHTML = `<b>${d0.n}</b> ${d.inRoom(d0.n).replace(/^\d+ /, '')}`;
+    w.innerHTML = wallHtml(d0.wall, d0.n); w.querySelectorAll('.lv-pf').forEach(p => { const k = p.dataset.n || 'more'; if (V.wallSeen && V.wallSeen.has(k)) p.style.animation = 'none'; V.wallSeen && V.wallSeen.add(k); });
   }
   function tickLobby() {
     const c = $('#lv-cd', root); if (!c || !V.startAt) return;
@@ -254,7 +260,8 @@
     const d = U(), themes = d0.themes, replay = d0.replay !== false && !reduce();
     V.themes = themes;
     const tile = (t, i) => `<div class="lv-dw${t === 'benin' ? ' bj' : ''}" data-t="${t}"><i style="background:${COL[i]}">${d.themes[t][0]}</i>${d.themes[t]}${t === 'benin' ? '<span class="lock">FIXE</span>' : ''}</div>`;
-    scene(`<span class="lv-eye" style="align-self:flex-start">${d.drawH}</span><p class="lv-hand" id="lv-dh">${d.drawH}</p><div class="lv-draw" id="lv-dg">${THEME_LIST.map(tile).join('')}<div class="lv-dw flag" style="grid-column:span 2">${d.themes.flag}<br><small>${L() === 'en' ? 'always last' : 'toujours en dernier'}</small></div></div><div class="lv-slot" id="lv-slot"></div><div class="lv-ans" id="lv-ds"></div><div class="lv-sum" id="lv-sum" style="opacity:0"></div><div class="lv-cd" id="lv-cd" style="font-size:40px">0:00</div>`, 'draw');
+    scene(`<span class="lv-eye" style="align-self:flex-start">${d.drawH}</span><p class="lv-hand" id="lv-dh">${d.drawH}</p><div class="lv-draw" id="lv-dg">${THEME_LIST.map(tile).join('')}<div class="lv-dw flag" style="grid-column:span 2">${d.themes.flag}<br><small>${L() === 'en' ? 'always last' : 'toujours en dernier'}</small></div></div><div class="lv-slot" id="lv-slot"></div><div class="lv-ans" id="lv-ds"></div><div class="lv-sum" id="lv-sum" style="opacity:0"></div><div class="lv-cd" id="lv-cd" style="font-size:40px">0:00</div><div class="lv-box"><div class="lv-ans" id="lv-in2"></div><div class="lv-wall mini" id="lv-wall2"></div></div>`, 'draw');
+    if (V.lastLobby) paintMini(V.lastLobby);
     const tiles = [...$('#lv-dg', root).querySelectorAll('.lv-dw[data-t]')], by = t => tiles.find(x => x.dataset.t === t);
     const sum = () => { $('#lv-sum', root).textContent = d.drawSum(themes.map(t => d.themes[t]).join(', ') + ' + ' + d.themes.flag.toLowerCase()); $('#lv-sum', root).style.opacity = 1; };
     V.cdt = setInterval(tickLobby, 250); tickLobby();
