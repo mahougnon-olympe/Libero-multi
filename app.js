@@ -121,6 +121,7 @@ let equippedVictoryBan   = null;
 let equippedSoundPack    = null;
 let equippedUnoSkin      = null;
 let equippedFlagFrame    = null;
+let equippedPFrame       = null;
 let equippedEmotes       = [];
 let honorTitle           = null;
 let _shopDetailItem         = null;
@@ -665,7 +666,7 @@ const DICT = {
     peLockedHint:'Les éléments marqués d\'un prix sont à débloquer (40 Libs chacun).', peNeedName:'Choisis d\'abord un pseudo.',
     peNoMoney:'Pas assez de Libs pour ces éléments.', peErr:'Impossible d\'enregistrer, réessaie.',
     lockerEquip:'Équiper', lockerUnequip:'Déséquiper',
-    lockerCats:{ colors:'Couleurs de pseudo', nameeffects:'Effets de pseudo', titles:'Titres', bgs:"Fonds d'écran", bubbles:'Bulles de chat', fonts:'Polices', cursorsnakes:'Curseur', snakeskins:'Skins Snake', avatars:'Avatars', p4tokens:'Jetons Puissance 4', ttt:'Symboles Morpion', chess:"Thèmes d'échiquier", clickfx:'Particules de clic', emojipacks:"Packs d'émojis", victorybans:'Bannières de victoire', unoskins:'Skins Uno', flagframes:'Cadres de drapeau', soundpacks:'Packs de sons', emotes:'Emotes', honorary:'Titre honorifique' },
+    lockerCats:{ colors:'Couleurs de pseudo', nameeffects:'Effets de pseudo', titles:'Titres', bgs:"Fonds d'écran", bubbles:'Bulles de chat', fonts:'Polices', cursorsnakes:'Curseur', snakeskins:'Skins Snake', avatars:'Avatars', p4tokens:'Jetons Puissance 4', ttt:'Symboles Morpion', chess:"Thèmes d'échiquier", clickfx:'Particules de clic', emojipacks:"Packs d'émojis", victorybans:'Bannières de victoire', unoskins:'Skins Uno', flagframes:'Cadres de drapeau', pframes:'Cadres de portrait', soundpacks:'Packs de sons', emotes:'Emotes', honorary:'Titre honorifique' },
     lockerCardSub:'Tes cosmétiques et leurs aperçus',
     historyCardSub:'Ton historique de jeu',
     recovery:{
@@ -1038,13 +1039,13 @@ const DICT = {
     tplPubOk:'Envoyé ! L\'admin doit valider ton modèle avant qu\'il soit en vente.', tplPubRules:'Il faut le niveau 5. 3 modèles maximum. Tu touches 70 % de chaque vente.',
     tplErr:{level:'Il faut le niveau 5 pour publier.', max:'Tu as déjà 3 modèles.', name:'Choisis un autre nom.', anonymous:'Choisis d\'abord un pseudo.', no_portrait:'Enregistre d\'abord ton portrait.', insufficient:'Pas assez de Libs.', own:'C\'est ton modèle !', rate:'Doucement, réessaie dans un instant.', invalid:'Ce modèle n\'est plus disponible.', free_locked:'Un modèle gratuit ne peut pas contenir de pièce payante.'}, tplFree:'Gratuit', tplTake:'Prendre',
     tplSold:(n, b, g) => `${b} a acheté ton modèle « ${n} » : +${g} Libs`, tplLive:n => `Ton modèle « ${n} » est en vente !`, tplRefused:n => `Ton modèle « ${n} » a été refusé.`,
-    shopBubbleNames:{ 'bubble-ardoise':'Ardoise', 'bubble-ocean':'Océan', 'bubble-menthe':'Menthe', 'bubble-corail':'Corail', 'bubble-ambre':'Ambre', 'bubble-lavande':'Lavande', 'bubble-rubis':'Rubis', 'bubble-emeraude':'Émeraude', 'bubble-indigo':'Indigo', 'bubble-magenta':'Papier buvard', 'bubble-cyan':'Papier millimétré', 'bubble-crepuscule':'Crépuscule', 'bubble-aurore':'Aurore', 'bubble-sunset':'Coucher de soleil', 'bubble-tropical':'Tropical', 'bubble-arcade':'Papier kraft', 'bubble-galaxie':'Galaxie', 'bubble-verre':'Papier calque', 'bubble-or':'Or liquide', 'bubble-holographique':'Encre violette', 'bubble-cameleon':'Carte à jouer' },
+    shopBubbleNames:{ 'bubble-ardoise':'Ardoise', 'bubble-ocean':'Océan', 'bubble-menthe':'Menthe', 'bubble-corail':'Corail', 'bubble-ambre':'Ambre', 'bubble-lavande':'Lavande', 'bubble-rubis':'Rubis', 'bubble-emeraude':'Émeraude', 'bubble-indigo':'Indigo', 'bubble-magenta':'Papier buvard', 'bubble-cyan':'Papier millimétré', 'bubble-crepuscule':'Crépuscule', 'bubble-aurore':'Aurore', 'bubble-sunset':'Coucher de soleil', 'bubble-tropical':'Tropical', 'bubble-arcade':'Papier kraft', 'bubble-galaxie':'Galaxie', 'bubble-verre':'Papier calque', 'bubble-or':'Or liquide', 'bubble-holographique':'Encre violette', 'bubble-cameleon':'Carte à jouer', 'bubble-live-gold':'Or Royal', 'bubble-live-silver':'Argent Poli', 'bubble-live-bronze':'Bronze Forgé' },
     shopBgTitle:'🖼 Fonds d\'écran',
     shopBgNames:{'bg-nuit':'Nuit Calme','bg-ardoise':'Ardoise Profonde','bg-brume':'Brume Violette','bg-aurore-deg':'Dégradé Aurore','bg-crepuscule':'Crépuscule au pastel','bg-cyber':'Papier millimétré','bg-circuit':'Plan de circuit au crayon','bg-hexagones':'Hexagones','bg-etoile':'Ciel Étoilé','bg-particules':'Particules Flottantes','bg-pluie':'Pluie à l\'encre','bg-vagues':'Vagues Lumineuses','bg-synthwave':'Coucher de soleil aux craies grasses','bg-nebuleuse':'Nébuleuse','bg-aurores':'Aurores Mouvantes','bg-galaxie':'Galaxie Vivante','bg-tempete':'Orage au fusain','bg-hologramme':'Papier calque','bg-wax':'Motifs Pagne','bg-marche-nuit':'Marché de Nuit','bg-terrain':'Terrain de Foot','bg-matrice':'Carnet de code','bg-harmattan':'Harmattan à l\'aquarelle','bg-orage':'Ciel d\'Orage','bg-lagune':'Coucher sur la Lagune'},
     shopNameEffectsTitle:'✨ Effets de pseudo',
     shopNameEffectNames:{'nameeffect-blink':'Craie qui scintille','nameeffect-pulse':'Coup de surligneur','nameeffect-gradient':'Feutres qui défilent','nameeffect-sparks':'Étoiles de craie','nameeffect-glitch':'Coup de gomme','nameeffect-rainbow':'Crayons de couleur','nameeffect-flammes':'Encre rouge','nameeffect-glace':'Craie bleue','nameeffect-or':'Feuille d\'or'},
     shopTitlesTitle:'🏷️ Titres',
-    shopTitleNames:{'title-tactician':'Tacticien','title-strategist':'Le Stratège','title-quizmaster':'Quiz Master','title-snakeking':'Roi du Snake','title-unbeaten':'Invaincu','title-champion':'Champion','title-legend':'Légende Vivante','title-sage':'Le Sage','title-wordking':'Roi du Mot','title-unstoppable':'L\'Increvable','title-generous':'Le Généreux','title-brain':'Cerveau','title-globetrotter':'Vagabond'},
+    shopTitleNames:{'title-tactician':'Tacticien','title-strategist':'Le Stratège','title-quizmaster':'Quiz Master','title-snakeking':'Roi du Snake','title-unbeaten':'Invaincu','title-champion':'Champion','title-legend':'Légende Vivante','title-sage':'Le Sage','title-wordking':'Roi du Mot','title-unstoppable':'L\'Increvable','title-generous':'Le Généreux','title-brain':'Cerveau','title-globetrotter':'Vagabond','title-live-champion':'Champion Libero','title-live-vice':'Vice-champion','title-live-podium':'Podium','title-live-finalist':'Finaliste','title-live-semi':'Demi-finaliste'},
     honorTitleNames:{'honor-rank1-global':'N°1 Global','honor-weekly-champ':'Champion de la semaine','honor-creator':'Créateur'},
     honorModalTitle:'Titre honorifique !',
     honorModalMsg:(titleName) => `Felicitations ! Tu es N°1 au classement global. En recompense, tu recois le titre <strong>${titleName}</strong>. Il s'affichera a cote de ton pseudo tant que tu restes premier.`,
@@ -1072,6 +1073,7 @@ const DICT = {
     shopVictoryBanNames:{'victoryban-neon':'Tampon « Bravo ! »','victoryban-confetti':'Guirlande de fanions','victoryban-flames':'20/20 au stylo rouge','victoryban-lightning':'Médaille d\'or','victoryban-crown':'Couronne de laurier dorée'},
     shopFlagFramesTitle:'Cadres de drapeau',
     shopFlagFrameNames:{'flagframe-wood':'Cadre en bois','flagframe-gold':'Cadre doré','flagframe-neon':'Néon','flagframe-cloth':'Drapeau flottant'},
+    shopPFrameNames:{'pframe-live-gold':"Couronne d'Or",'pframe-live-silver':'Argent Royal','pframe-live-bronze':'Bronze Impérial','pframe-live-finalist':'Étoile du Finaliste','pframe-live-semi':'Glace du Demi-finaliste'},
     shopUnoSkinsTitle:'Skins de cartes Uno',
     shopUnoSkinNames:{'unoskin-felt':'Papier cartonné','unoskin-metal':'Métal brossé','unoskin-gold':'Noir et or','unoskin-neon':'Néon'},
     shopSoundPacksTitle:'🔊 Packs de sons',
@@ -1176,6 +1178,7 @@ const DICT = {
     helpBoostTitle:'Boost Indice (quiz)',
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     eventsTitle:'Évents', eventsDesc:'Calendrier des week-ends',
+    giftNotif:"Tes cadeaux du tournoi t'attendent", giftNotifEnv:"Ton enveloppe du tournoi t'attend encore", giftNotifHint:'Touche pour ouvrir ton coffre-fort',
     livePill:'EN DIRECT', liveOpenPill:'SALLE OUVERTE', liveCtaT:'Quiz en direct', liveCtaOpen:'La salle est ouverte, rejoins-nous', liveCtaNext:'Le tournoi du week-end, en trois sessions', 
     evMonths:['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'], evThisWeekend:x=>`Ce week-end : ${x}`, evNext:x=>`Prochain : ${x}`, evNews:x=>`<strong>Ce week-end</strong> : ${x}`, evNewsNext:(x,n)=>`<strong>Prochain évent</strong> : ${x}, dans ${n} jour${n>1?'s':''}`, evCalendarSub:'Le calendrier des week-ends', evTournament:'Tous les samedis : <b>tournoi</b>, 2000 Libs au champion.', evEmpty:'Les prochains évents arrivent bientôt.', evLive:'En cours', evReward:'Récompense', evNote:'Touche un évent pour voir ses règles. Les dates peuvent encore bouger.',
     arcadeTitle:'Arcade', arcadeSub:'Des jeux rapides, tous les jours', arcadeRunDesc:'Aide Libero à courir le plus loin possible ! Saute les obstacles, baisse-toi sous ceux qui volent.', arcadeSnakeDesc:'Mange des pommes pour faire grandir ton serpent, sans mordre ta queue.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Classements', snakeUnit:'pommes', shareCard:{ quiz:'Quiz', pts:'pts', solo:'Quiz solo', brand:'Joue avec moi sur', rankOf:(r,n)=>`${r}${r===1?'er':'e'} sur ${n}` }, podium:{ title:'Résultats', sub:'Quiz à plusieurs', banner:'CHAMPION DU QUIZ', skip:'Passer', done:'Voir les résultats', you:'toi', msgWin:'Tu es le meilleur de la partie !', msgClose:n=>`Plus que ${n} point${n>1?'s':''} pour la couronne. Revanche ?`, msgOut:r=>`Tu finis ${r}e. Le podium t'attend la prochaine fois !` }, soundpackRefund:n=>`Les packs de sons ont quitté la boutique : ${n} Libs te sont rendus.`, inArcade:'Dans l\'Arcade',
@@ -1464,7 +1467,7 @@ const DICT = {
     peLockedHint:'Items with a price must be unlocked (40 Libs each).', peNeedName:'Pick a username first.',
     peNoMoney:'Not enough Libs for these items.', peErr:'Could not save, try again.',
     lockerEquip:'Equip', lockerUnequip:'Unequip',
-    lockerCats:{ colors:'Name colors', nameeffects:'Name effects', titles:'Titles', bgs:'Backgrounds', bubbles:'Chat bubbles', fonts:'Fonts', cursorsnakes:'Cursor', snakeskins:'Snake skins', avatars:'Avatars', p4tokens:'Connect 4 tokens', ttt:'Tic-Tac-Toe symbols', chess:'Chessboard themes', clickfx:'Click particles', emojipacks:'Emoji packs', victorybans:'Victory banners', unoskins:'Uno skins', flagframes:'Flag frames', soundpacks:'Sound packs', emotes:'Emotes', honorary:'Honorary title' },
+    lockerCats:{ colors:'Name colors', nameeffects:'Name effects', titles:'Titles', bgs:'Backgrounds', bubbles:'Chat bubbles', fonts:'Fonts', cursorsnakes:'Cursor', snakeskins:'Snake skins', avatars:'Avatars', p4tokens:'Connect 4 tokens', ttt:'Tic-Tac-Toe symbols', chess:'Chessboard themes', clickfx:'Click particles', emojipacks:'Emoji packs', victorybans:'Victory banners', unoskins:'Uno skins', flagframes:'Flag frames', pframes:'Portrait frames', soundpacks:'Sound packs', emotes:'Emotes', honorary:'Honorary title' },
     lockerCardSub:'Your cosmetics and their previews',
     historyCardSub:'Your game history',
     recovery:{
@@ -1837,13 +1840,13 @@ const DICT = {
     tplPubOk:'Sent! The admin must approve your template before it goes on sale.', tplPubRules:'Level 5 required. 3 templates max. You earn 70% of each sale.',
     tplErr:{level:'You need level 5 to publish.', max:'You already have 3 templates.', name:'Pick another name.', anonymous:'Pick a username first.', no_portrait:'Save your portrait first.', insufficient:'Not enough Libs.', own:'That is your template!', rate:'Slow down, try again in a moment.', invalid:'This template is no longer available.', free_locked:'A free template cannot contain paid pieces.'}, tplFree:'Free', tplTake:'Take',
     tplSold:(n, b, g) => `${b} bought your template "${n}": +${g} Libs`, tplLive:n => `Your template "${n}" is on sale!`, tplRefused:n => `Your template "${n}" was refused.`,
-    shopBubbleNames:{ 'bubble-ardoise':'Slate', 'bubble-ocean':'Ocean', 'bubble-menthe':'Mint', 'bubble-corail':'Coral', 'bubble-ambre':'Amber', 'bubble-lavande':'Lavender', 'bubble-rubis':'Ruby', 'bubble-emeraude':'Emerald', 'bubble-indigo':'Indigo', 'bubble-magenta':'Blotting paper', 'bubble-cyan':'Graph paper', 'bubble-crepuscule':'Dusk', 'bubble-aurore':'Aurora', 'bubble-sunset':'Sunset', 'bubble-tropical':'Tropical', 'bubble-arcade':'Kraft paper', 'bubble-galaxie':'Galaxy', 'bubble-verre':'Tracing paper', 'bubble-or':'Liquid gold', 'bubble-holographique':'Violet ink', 'bubble-cameleon':'Playing card' },
+    shopBubbleNames:{ 'bubble-ardoise':'Slate', 'bubble-ocean':'Ocean', 'bubble-menthe':'Mint', 'bubble-corail':'Coral', 'bubble-ambre':'Amber', 'bubble-lavande':'Lavender', 'bubble-rubis':'Ruby', 'bubble-emeraude':'Emerald', 'bubble-indigo':'Indigo', 'bubble-magenta':'Blotting paper', 'bubble-cyan':'Graph paper', 'bubble-crepuscule':'Dusk', 'bubble-aurore':'Aurora', 'bubble-sunset':'Sunset', 'bubble-tropical':'Tropical', 'bubble-arcade':'Kraft paper', 'bubble-galaxie':'Galaxy', 'bubble-verre':'Tracing paper', 'bubble-or':'Liquid gold', 'bubble-holographique':'Violet ink', 'bubble-cameleon':'Playing card', 'bubble-live-gold':'Royal Gold', 'bubble-live-silver':'Polished Silver', 'bubble-live-bronze':'Forged Bronze' },
     shopBgTitle:'🖼 Wallpapers',
     shopBgNames:{'bg-nuit':'Calm Night','bg-ardoise':'Deep Slate','bg-brume':'Violet Mist','bg-aurore-deg':'Aurora Gradient','bg-crepuscule':'Pastel dusk','bg-cyber':'Graph paper','bg-circuit':'Pencil circuit plan','bg-hexagones':'Hexagons','bg-etoile':'Starry Sky','bg-particules':'Floating Particles','bg-pluie':'Ink rain','bg-vagues':'Light Waves','bg-synthwave':'Oil pastel sunset','bg-nebuleuse':'Nebula','bg-aurores':'Moving Auroras','bg-galaxie':'Living Galaxy','bg-tempete':'Charcoal storm','bg-hologramme':'Tracing paper','bg-wax':'Wax Patterns','bg-marche-nuit':'Night Market','bg-terrain':'Football Pitch','bg-matrice':'Code notebook','bg-harmattan':'Watercolour harmattan','bg-orage':'Thunder Sky','bg-lagune':'Lagoon Sunset'},
     shopNameEffectsTitle:'✨ Name Effects',
     shopNameEffectNames:{'nameeffect-blink':'Twinkling chalk','nameeffect-pulse':'Highlighter stroke','nameeffect-gradient':'Scrolling felt pens','nameeffect-sparks':'Chalk stars','nameeffect-glitch':'Eraser swipe','nameeffect-rainbow':'Coloured pencils','nameeffect-flammes':'Red ink','nameeffect-glace':'Blue chalk','nameeffect-or':'Gold leaf'},
     shopTitlesTitle:'🏷️ Titles',
-    shopTitleNames:{'title-tactician':'Tactician','title-strategist':'The Strategist','title-quizmaster':'Quiz Master','title-snakeking':'Snake King','title-unbeaten':'Undefeated','title-champion':'Champion','title-legend':'Living Legend','title-sage':'The Wise','title-wordking':'Word King','title-unstoppable':'Unstoppable','title-generous':'The Generous','title-brain':'Big Brain','title-globetrotter':'Globetrotter'},
+    shopTitleNames:{'title-tactician':'Tactician','title-strategist':'The Strategist','title-quizmaster':'Quiz Master','title-snakeking':'Snake King','title-unbeaten':'Undefeated','title-champion':'Champion','title-legend':'Living Legend','title-sage':'The Wise','title-wordking':'Word King','title-unstoppable':'Unstoppable','title-generous':'The Generous','title-brain':'Big Brain','title-globetrotter':'Globetrotter','title-live-champion':'Libero Champion','title-live-vice':'Runner-up','title-live-podium':'Podium','title-live-finalist':'Finalist','title-live-semi':'Semifinalist'},
     honorTitleNames:{'honor-rank1-global':'#1 Global','honor-creator':'Creator'},
     shopHonoraryBadge:'🏆 Honorary',
     shopHonoraryOwned:'Earned',
@@ -1871,6 +1874,7 @@ const DICT = {
     shopVictoryBanNames:{'victoryban-neon':'"Bravo!" stamp','victoryban-confetti':'Bunting','victoryban-flames':'20/20 in red pen','victoryban-lightning':'Gold medal','victoryban-crown':'Golden laurel wreath'},
     shopFlagFramesTitle:'Flag frames',
     shopFlagFrameNames:{'flagframe-wood':'Wooden frame','flagframe-gold':'Golden frame','flagframe-neon':'Neon','flagframe-cloth':'Waving flag'},
+    shopPFrameNames:{'pframe-live-gold':'Golden Crown','pframe-live-silver':'Royal Silver','pframe-live-bronze':'Imperial Bronze','pframe-live-finalist':'Finalist Star','pframe-live-semi':'Semifinalist Ice'},
     shopUnoSkinsTitle:'Uno card skins',
     shopUnoSkinNames:{'unoskin-felt':'Cardstock','unoskin-metal':'Brushed metal','unoskin-gold':'Black and gold','unoskin-neon':'Neon'},
     shopSoundPacksTitle:'🔊 Sound Packs',
@@ -1975,6 +1979,7 @@ const DICT = {
     helpBoostTitle:'Quiz Hint Boost',
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     eventsTitle:'Events', eventsDesc:'Weekend calendar',
+    giftNotif:'Your tournament gifts are waiting', giftNotifEnv:'Your tournament envelope is still waiting', giftNotifHint:'Tap to open your vault',
     livePill:'LIVE', liveOpenPill:'ROOM OPEN', liveCtaT:'Live quiz', liveCtaOpen:'The room is open, join us', liveCtaNext:'The weekend tournament, in three sessions', 
     evMonths:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], evThisWeekend:x=>`This weekend: ${x}`, evNext:x=>`Next: ${x}`, evNews:x=>`<strong>This weekend</strong>: ${x}`, evNewsNext:(x,n)=>`<strong>Next event</strong>: ${x}, in ${n} day${n>1?'s':''}`, evCalendarSub:'The weekend calendar', evTournament:'Every Saturday: <b>tournament</b>, 2000 Libs for the champion.', evEmpty:'The next events are coming soon.', evLive:'Live', evReward:'Reward', evNote:'Tap an event to see its rules. Dates may still change.',
     arcadeTitle:'Arcade', arcadeSub:'Quick games, every day', arcadeRunDesc:'Help Libero run as far as possible! Jump over obstacles, duck under the flying ones.', arcadeSnakeDesc:'Eat apples to make your snake grow, without biting your own tail.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Leaderboards', snakeUnit:'apples', shareCard:{ quiz:'Quiz', pts:'pts', solo:'Solo quiz', brand:'Play with me on', rankOf:(r,n)=>`${r}${r===1?'st':r===2?'nd':r===3?'rd':'th'} of ${n}` }, podium:{ title:'Results', sub:'Multiplayer quiz', banner:'QUIZ CHAMPION', skip:'Skip', done:'See the results', you:'you', msgWin:'You are the best of the game!', msgClose:n=>`Only ${n} point${n>1?'s':''} away from the crown. Rematch?`, msgOut:r=>`You finished ${r}th. The podium awaits you next time!` }, soundpackRefund:n=>`Sound packs have left the shop: ${n} Libs have been refunded to you.`, inArcade:'In the Arcade',
@@ -2608,6 +2613,7 @@ function applyLang() {
   setTxt('wordle-card-title', d.wordleCardTitle); setTxt('wordle-card-desc', d.wordleCardDesc);
   setTxt('wordle-hint-label', d.wordleHint);
   setTxt('profile-badges-title', d.profileBadgesTitle);
+  window._liveGiftSync?.();
   setTxt('onboard-quest-title', d.onboardQuestTitle);
   { const op = document.getElementById('ob-play');  if (op) op.innerHTML = d.obPlay  + ' <b>+50 <i class="bolt" aria-label="Libs"></i></b>'; }
   { const ow = document.getElementById('ob-win');   if (ow) ow.innerHTML = d.obWin   + ' <b>+100 <i class="bolt" aria-label="Libs"></i></b>'; }
@@ -3257,6 +3263,7 @@ window._renderProfilePseudo = function () {
     if (ic) av.innerHTML = ic; else av.textContent = nom.charAt(0).toUpperCase();
     av.classList.toggle('initial', !ic);
     av.classList.toggle('has-portrait', !!ic && !!window.LiberoPortrait);
+    ['gold','silver','bronze','finalist','semi'].forEach(k => av.classList.toggle('pf-' + k, equippedPFrame === 'pframe-live-' + k));
   }
 };
 function triggerRename(name) {
@@ -3383,12 +3390,53 @@ function _liveLoad() {
   if (window.LiberoLive) return Promise.resolve(window.LiberoLive);
   if (_liveP) return _liveP;
   _liveP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'live.js?v=17';
+    const sc = document.createElement('script'); sc.src = 'live.js?v=18';
     sc.onload = () => res(window.LiberoLive); sc.onerror = () => { _liveP = null; res(null); };
     document.head.appendChild(sc);
   });
   return _liveP;
 }
+// ── Cadeaux du tournoi (coffre-fort) : live-gift.js + live-gift.css a la demande ──
+let _giftP = null;
+function _giftLoad() {
+  if (window.LiberoGift) return Promise.resolve(window.LiberoGift);
+  if (_giftP) return _giftP;
+  _giftP = new Promise(res => {
+    const sc = document.createElement('script'); sc.src = 'live-gift.js?v=1';
+    sc.onload = () => res(window.LiberoGift); sc.onerror = () => { _giftP = null; res(null); };
+    document.head.appendChild(sc);
+  });
+  return _giftP;
+}
+window._liveGiftData = null;
+const _GIFT_KEY = 'libero_livegift';
+// La notification reste dans la cloche tant que le coffre ou l'enveloppe n'est pas ouvert(e)
+window._liveGiftSync = function () {
+  const g = window._liveGiftData, pend = !!(g && !g.test && g.stage < 2), d = t();
+  window._notify?.setSticky('live-gift', pend ? { svg: 'gift', text: g.stage >= 1 ? d.giftNotifEnv : d.giftNotif, hint: d.giftNotifHint, act: () => window._liveGiftOpen() } : null);
+  window.LiberoLive?.giftReady?.();
+};
+window._liveGiftOpen = function () { const g = window._liveGiftData; if (g) _giftLoad().then(m => m && m.open(g)); };
+// Essai du coffre par l'organisateur (rien n'est verse) : ?giftpreview=RANG sur le site, avec la cle admin du navigateur
+window._giftWantPreview = false;
+window._liveGiftPreview = function (rank) {
+  let key = ''; try { key = localStorage.getItem('libero_admin_key') || ''; } catch {}
+  if (!key) return;
+  window._giftWantPreview = true;
+  try { sessionStorage.setItem(_GIFT_KEY, 'p:' + rank); } catch {}
+  socket.emit('live-gift-preview', { key, rank: Number(rank) || 1 });
+};
+socket.on('live-gift', g => {
+  if (g && g.test) { if (window.LiberoGift?.isOpen()) { window._giftWantPreview = false; window.LiberoGift.on(g); } else if (window._giftWantPreview) { window._giftWantPreview = false; _giftLoad().then(m => m && m.open(g)); } return; }
+  window._liveGiftData = g || null;
+  if (window.LiberoGift?.isOpen()) window.LiberoGift.on(g);
+  else { let f = null; try { f = sessionStorage.getItem(_GIFT_KEY); } catch {} if (f === '1' && g) window._liveGiftOpen(); }
+  window._liveGiftSync();
+});
+try {
+  const _gp = new URLSearchParams(location.search).get('giftpreview');
+  if (_gp) { history.replaceState(null, '', location.pathname); sessionStorage.setItem(_GIFT_KEY, 'p:' + (parseInt(_gp, 10) || 1)); if (socket.connected) window._liveGiftPreview(parseInt(_gp, 10) || 1); }
+} catch {}
 window._liveInfo = null;
 // Bandeau « en direct » en haut des Évents et pastille sur l'accueil, tant qu'une salle est ouverte.
 function _liveCtaHtml() {
@@ -3425,7 +3473,7 @@ function _renderFlagsLb(list, data, lblW, lblD) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row lb-row-clickable${_lbMe(entry.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${_lbRank(i)}</span>
-      <span class="lb-name">${_lbPt(entry.portrait)}<span class="lb-nm ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${_escHtml(entry.name)}${_titleHtml(entry.title, entry.honorTitle)}</span></span>
+      <span class="lb-name">${_lbPt(entry.portrait, entry.pframe)}<span class="lb-nm ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${_escHtml(entry.name)}${_titleHtml(entry.title, entry.honorTitle)}</span></span>
       <div class="lb-stats">
         <span class="lb-w">${entry.points} ${lblW}</span>
         <span class="lb-d">${entry.games} ${lblD}</span>
@@ -3557,7 +3605,7 @@ function _ptSvg(p) {
 // Sans portrait compose : la silhouette « a dessiner » (portrait de base).
 let _ptBlankSvg = '';
 function _ptBlank() { if (!_ptBlankSvg && window.LiberoPortrait?.blank) _ptBlankSvg = window.LiberoPortrait.blank(); return _ptBlankSvg; }
-function _lbPt(p) { const s = p ? _ptSvg(p) : _ptBlank(); return s ? `<span class="lb-pt" aria-hidden="true">${s}</span>` : ''; }
+function _lbPt(p, frame) { const s = p ? _ptSvg(p) : _ptBlank(); const pf = frame && /^pframe-live-(gold|silver|bronze|finalist|semi)$/.test(frame) ? ' pf-' + frame.slice(12) : ''; return s ? `<span class="lb-pt${pf}" aria-hidden="true">${s}</span>` : ''; }
 try { myPortrait = JSON.parse(localStorage.getItem('libero_portrait') || 'null'); } catch { myPortrait = null; }
 
 function setPlayerBadges(gameType, yourPlayer) {
@@ -4798,7 +4846,7 @@ function _paintGlobalLb() {
   const row = (entry, i, extra = '') => `
     <div class="global-lb-row lb-row-clickable${_lbMe(entry.name)}${i === 0 ? ' lb-top1' : ''}${extra}" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${classes[i] || ''}">${_lbRank(i)}</span>
-      <span class="lb-name">${_lbPt(entry.portrait)}<span class="lb-nm ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span></span>
+      <span class="lb-name">${_lbPt(entry.portrait, entry.pframe)}<span class="lb-nm ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span></span>
       <span class="global-lb-score">${entry.globalScore} ${t().globalLbPts}</span>
     </div>`;
   let html;
@@ -4835,7 +4883,7 @@ function renderLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row lb-row-clickable${_lbMe(entry.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${classes[i] || ''}">${_lbRank(i)}</span>
-      <span class="lb-name">${_lbPt(entry.portrait)}<span class="lb-nm ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span></span>
+      <span class="lb-name">${_lbPt(entry.portrait, entry.pframe)}<span class="lb-nm ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span></span>
       <div class="lb-stats">
         <span class="lb-w">${entry.wins}${t().lbW}</span>
         <span class="lb-l">${entry.losses}${t().lbL}</span>
@@ -4862,7 +4910,7 @@ function renderSnakeLeaderboard(data) {
   el.innerHTML = data.map((e, i) => `
     <div class="lb-row lb-row-clickable${_lbMe(e.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(e.name)}" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
       <span class="lb-rank">${_lbRank(i)}</span>
-      <span class="lb-name">${_lbPt(e.portrait)}<span class="lb-nm ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span></span>
+      <span class="lb-name">${_lbPt(e.portrait, e.pframe)}<span class="lb-nm ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span></span>
       <span class="lb-score-snake">${e.hs} <span class="lb-unit">${t().snakeUnit}</span></span>
     </div>
   `).join('');
@@ -4885,7 +4933,7 @@ function renderLuffyLeaderboard(data) {
   el.innerHTML = data.map((e, i) => `
     <div class="lb-row lb-row-clickable${_lbMe(e.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(e.name)}" data-cosmetic="${e.cosmetic||''}" data-avatar="${e.avatar||''}" data-cursor="${e.cursorSnake||''}" data-font="${e.font||''}" data-nameeffect="${e.nameEffect||''}">
       <span class="lb-rank">${_lbRank(i)}</span>
-      <span class="lb-name">${_lbPt(e.portrait)}<span class="lb-nm ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span></span>
+      <span class="lb-name">${_lbPt(e.portrait, e.pframe)}<span class="lb-nm ${_cosmeticClass(e.cosmetic)} ${_fontClass(e.font)} ${_nameEffectClass(e.nameEffect)}">${e.name}${_titleHtml(e.title, e.honorTitle)}</span></span>
       <span class="lb-score-snake">${e.hs} pts</span>
     </div>
   `).join('');
@@ -5525,7 +5573,7 @@ function renderTriviaLeaderboard(data) {
   list.innerHTML = data.map((entry, i) => `
     <div class="lb-row lb-row-clickable${_lbMe(entry.name)}${i === 0 ? ' lb-top1' : ''}" data-pname="${_escHtml(entry.name)}" data-cosmetic="${entry.cosmetic||''}" data-avatar="${entry.avatar||''}" data-cursor="${entry.cursorSnake||''}" data-font="${entry.font||''}" data-nameeffect="${entry.nameEffect||''}">
       <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${_lbRank(i)}</span>
-      <span class="lb-name">${_lbPt(entry.portrait)}<span class="lb-nm ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span></span>
+      <span class="lb-name">${_lbPt(entry.portrait, entry.pframe)}<span class="lb-nm ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${entry.name}${_titleHtml(entry.title, entry.honorTitle)}</span></span>
       <div class="lb-stats">
         <span class="lb-w">${entry.points} ${t().triviaLbPts}</span>
         <span class="lb-d">${entry.games} ${t().triviaLbGames}</span>
@@ -6104,6 +6152,11 @@ socket.on('connect', () => {
   triviaMySocketId = socket.id;
   window._unoResume?.();
   try { socket.emit('live-get', { playerId: getPlayerId() }); window.LiberoLive?.resume?.(); } catch {}
+  try {
+    socket.emit('live-gift-get', { playerId: getPlayerId() });
+    const _gf = sessionStorage.getItem(_GIFT_KEY);
+    if (_gf && _gf.startsWith('p:')) window._liveGiftPreview(_gf.slice(2));
+  } catch {}
   _sendVisible();
   // 1) Reprendre la partie en cours EN PREMIER : c'est ce que le joueur attend devant l'ecran de demarrage.
   const _p4 = sessionStorage.getItem('p4session');
@@ -6483,7 +6536,7 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, wheelDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedUnoSkin: newUnoSkin, equippedFlagFrame: newFlagFrame, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount, portrait: newPortrait, pushOn, pushPaused } = {}) => {
+socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, wheelDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedUnoSkin: newUnoSkin, equippedFlagFrame: newFlagFrame, equippedPFrame: newPFrame, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount, portrait: newPortrait, pushOn, pushPaused } = {}) => {
   if (pushOn !== undefined) { window._pushOn = !!pushOn; window._pushPaused = !!pushPaused; window._refreshPushBtn?.(); }
   if (newOwned !== undefined) setTimeout(() => window._pupitre?.paint(), 0);
   if (newPortrait !== undefined) { myPortrait = newPortrait; try { localStorage.setItem('libero_portrait', JSON.stringify(newPortrait)); } catch {} window._renderProfilePseudo?.(); }
@@ -6538,6 +6591,7 @@ socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq,
     if (newVictoryBan  !== undefined) equippedVictoryBan  = newVictoryBan;
     if (newSoundPack   !== undefined) equippedSoundPack   = newSoundPack;
     if (newFlagFrame   !== undefined) { equippedFlagFrame = newFlagFrame; window._myFlagFrame = newFlagFrame ? String(newFlagFrame).replace('flagframe-', '') : null; }
+    if (newPFrame      !== undefined) { equippedPFrame = newPFrame; window._myPFrame = newPFrame || null; window._renderProfilePseudo?.(); }
     if (newUnoSkin     !== undefined) { equippedUnoSkin = newUnoSkin; window._myUnoSkin = newUnoSkin ? String(newUnoSkin).replace('unoskin-', '') : null; }
     if (newEmotes !== undefined) equippedEmotes = newEmotes || [];
     _renderEmoteBar();
@@ -6607,7 +6661,7 @@ socket.on('buy-cosmetic-result', ({ ok, cosmeticId, error } = {}) => {
   }
 });
 
-socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedUnoSkin: newUnoSkin, equippedFlagFrame: newFlagFrame, equippedEmotes: newEmotes } = {}) => {
+socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedUnoSkin: newUnoSkin, equippedFlagFrame: newFlagFrame, equippedPFrame: newPFrame, equippedEmotes: newEmotes } = {}) => {
   if (ok) {
     if (newCosmetic !== undefined) equippedCosmetic = newCosmetic;
     if (newFont     !== undefined) equippedFont     = newFont;
@@ -6630,6 +6684,7 @@ socket.on('equip-cosmetic-result', ({ ok, equippedCosmetic: newCosmetic, equippe
     if (newVictoryBan  !== undefined) equippedVictoryBan  = newVictoryBan;
     if (newSoundPack   !== undefined) equippedSoundPack   = newSoundPack;
     if (newFlagFrame   !== undefined) { equippedFlagFrame = newFlagFrame; window._myFlagFrame = newFlagFrame ? String(newFlagFrame).replace('flagframe-', '') : null; }
+    if (newPFrame      !== undefined) { equippedPFrame = newPFrame; window._myPFrame = newPFrame || null; window._renderProfilePseudo?.(); }
     if (newUnoSkin     !== undefined) { equippedUnoSkin = newUnoSkin; window._myUnoSkin = newUnoSkin ? String(newUnoSkin).replace('unoskin-', '') : null; }
     if (newEmotes !== undefined) { equippedEmotes = newEmotes || []; _renderEmoteBar(); }
     if (_isShopOpen()) _renderShopItems();
@@ -8074,7 +8129,8 @@ function _bubbleClass(bubble) {
   const valid = ['bubble-ardoise','bubble-ocean','bubble-menthe','bubble-corail','bubble-ambre',
     'bubble-lavande','bubble-rubis','bubble-emeraude','bubble-indigo','bubble-magenta','bubble-cyan',
     'bubble-crepuscule','bubble-aurore','bubble-sunset','bubble-tropical','bubble-arcade',
-    'bubble-galaxie','bubble-verre','bubble-or','bubble-holographique','bubble-cameleon'];
+    'bubble-galaxie','bubble-verre','bubble-or','bubble-holographique','bubble-cameleon',
+    'bubble-live-gold','bubble-live-silver','bubble-live-bronze'];
   return bubble && valid.includes(bubble) ? bubble : '';
 }
 
@@ -8452,6 +8508,7 @@ function _cosmeticPreviewHtmlBase(type, id, itemName) {
     case 'soundpack':   return `<div class="shop-emoji-preview">🎵</div>`;
     case 'unoskin':     return `<div class="shop-emoji-preview">🃏</div>`;
     case 'flagframe':   return `<div class="shop-emoji-preview">🚩</div>`;
+    case 'pframe':      return `<div class="shop-emoji-preview"><span class="lb-pt pf-big pf-${String(id).slice(12)}">${_ptSvg(myPortrait) || _ptBlank() || ''}</span></div>`;
     case 'emote':       return `<div class="shop-emoji-preview">${_emoteSvg(id) || _LOCKER_EMOJI.emote[id] || ''}</div>`;
     default: return '';
   }
@@ -8465,7 +8522,7 @@ function _cosmeticNameById(id) {
   const maps = ['shopBgNames', 'shopEmoteNames', 'shopCosmeticNames', 'shopNameEffectNames',
     'shopTitleNames', 'shopCursorSnakeNames', 'shopSnakeSkinNames', 'shopAvatarNames',
     'shopBubbleNames', 'shopChessNames', 'shopClickFxNames', 'shopEmojiPackNames',
-    'shopSoundPackNames', 'shopUnoSkinNames', 'shopFlagFrameNames', 'shopTttNames', 'shopVictoryBanNames', 'shopBundleNames'];
+    'shopSoundPackNames', 'shopUnoSkinNames', 'shopFlagFrameNames', 'shopPFrameNames', 'shopTttNames', 'shopVictoryBanNames', 'shopBundleNames'];
   for (const m of maps) { const mp = d[m]; if (mp && mp[id]) return mp[id]; }
   return id;
 }
@@ -12823,6 +12880,7 @@ const ProfileHub = (() => {
       { type:'victoryban',  icon:'<span data-ic="flag"></span>', label:d.lockerCats.victorybans,  names:d.shopVictoryBanNames,  equipped:[equippedVictoryBan] },
       { type:'unoskin',     icon:'<span data-ic="cards"></span>', label:d.lockerCats.unoskins,     names:d.shopUnoSkinNames,     equipped:[equippedUnoSkin] },
       { type:'flagframe',   icon:'<span data-ic="flag"></span>', label:d.lockerCats.flagframes,   names:d.shopFlagFrameNames,   equipped:[equippedFlagFrame] },
+      { type:'pframe',      icon:'<span data-ic="avatar"></span>', label:d.lockerCats.pframes,      names:d.shopPFrameNames,      equipped:[equippedPFrame] },
       { type:'emote',       icon:'<span data-ic="smile"></span>', label:d.lockerCats.emotes,       names:d.shopEmoteNames,       equipped:Array.isArray(equippedEmotes) ? equippedEmotes : [] },
     ];
   }
@@ -13893,7 +13951,8 @@ const NotificationCenter = (() => {
   const listEl= () => document.getElementById('notif-list');
   const countEl=() => document.getElementById('notif-count');
   function save() { try { localStorage.setItem(KEY, JSON.stringify(items.slice(0, 30))); } catch {} }
-  function unread() { return items.filter(n => !n.read).length; }
+  const sticky = {}; // notifications qui restent tant que l'action n'est pas faite (ex. cadeaux du tournoi)
+  function unread() { return items.filter(n => !n.read).length + Object.keys(sticky).length; }
   function renderCount() {
     const c = countEl(); if (!c) return;
     const n = unread();
@@ -13910,8 +13969,9 @@ const NotificationCenter = (() => {
   }
   function render() {
     const l = listEl(); if (!l) return;
-    if (!items.length) { l.innerHTML = `<p class="notif-empty">${currentLang === 'en' ? 'Nothing new.' : 'Rien de nouveau.'}</p>`; return; }
-    l.innerHTML = items.map(n => `<div class="notif-item${n.read ? '' : ' unread'}"><span class="notif-ic">${n.icon || '🔔'}</span><span class="notif-tx">${_escHtml(n.text || '')}<small>${fmtAgo(n.at)}</small></span></div>`).join('');
+    const stk = Object.keys(sticky).map(id => { const n = sticky[id]; return `<div class="notif-item unread notif-sticky" data-sticky="${id}" role="button" tabindex="0"><span class="notif-ic">${n.svg === 'gift' ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8M12 8v13M12 8c-2-4-6-3-5 0 .6 1.700 3 1.200 5 0zm0 0c2-4 6-3 5 0-.6 1.700-3 1.200-5 0z"/></svg>' : (n.icon || '')}</span><span class="notif-tx">${_escHtml(n.text || '')}<small>${_escHtml(n.hint || '')}</small></span></div>`; }).join('');
+    if (!items.length && !stk) { l.innerHTML = `<p class="notif-empty">${currentLang === 'en' ? 'Nothing new.' : 'Rien de nouveau.'}</p>`; return; }
+    l.innerHTML = stk + items.map(n => `<div class="notif-item${n.read ? '' : ' unread'}"><span class="notif-ic">${n.icon || '🔔'}</span><span class="notif-tx">${_escHtml(n.text || '')}<small>${fmtAgo(n.at)}</small></span></div>`).join('');
   }
   function add({ type, icon, text }) {
     if (!text) return;
@@ -13919,6 +13979,7 @@ const NotificationCenter = (() => {
     items = items.slice(0, 30);
     save(); renderCount(); render();
   }
+  function setSticky(id, n) { if (n) sticky[id] = n; else delete sticky[id]; renderCount(); render(); }
   function markAllRead() { items.forEach(n => n.read = true); save(); renderCount(); render(); }
   function clearAll() { items = []; save(); renderCount(); render(); }
   function toggle() {
@@ -13930,13 +13991,14 @@ const NotificationCenter = (() => {
   document.addEventListener('DOMContentLoaded', () => {
     bell()?.addEventListener('click', e => { e.stopPropagation(); toggle(); });
     document.getElementById('notif-clear')?.addEventListener('click', e => { e.stopPropagation(); clearAll(); });
+    listEl()?.addEventListener('click', e => { const r = e.target.closest?.('[data-sticky]'); if (!r) return; const n = sticky[r.dataset.sticky]; if (!n) return; panel()?.classList.add('hidden'); try { n.act && n.act(); } catch {} });
     document.addEventListener('click', e => {
       const p = panel(); if (!p || p.classList.contains('hidden')) return;
       if (!p.contains(e.target) && e.target !== bell()) p.classList.add('hidden');
     });
     renderCount(); render();
   });
-  return { add, retexte() { const tt = document.getElementById('notif-panel-title'); if (tt) tt.textContent = t().notifTitle; const cb = document.getElementById('notif-clear'); if (cb) cb.textContent = t().notifClear; render(); } };
+  return { add, setSticky, retexte() { const tt = document.getElementById('notif-panel-title'); if (tt) tt.textContent = t().notifTitle; const cb = document.getElementById('notif-clear'); if (cb) cb.textContent = t().notifClear; render(); } };
 })();
 window._notify = NotificationCenter;
 

@@ -7,7 +7,7 @@ const flagsGame = require('./game-flags');
 const DEFAULT_CFG = {
   lobbyMin: 10,                        // la salle ouvre N minutes avant
   prize: { fr: '', en: '' },           // texte du prix du champion (vide = a annoncer)
-  rewards: { 1: 5000, 2: 3000, 3: 1500 },       // Libs verses aux trois premiers de la finale
+  rewards: { 1: 5000, 2: 3000, 3: 1500, f: 800, s: 400, o: 150 }, // Libs du coffre : podium, finalistes (4 a 10), rangs 11 a 15, tous les autres
   sessions: [
     { id: 'q', start: '2026-10-17T18:00:00+01:00', level: 'medium',  themeQ: 10, flagQ: 5, flagLevel: 'easy',   timeMs: 15000, qualify: 50 },
     { id: 's', start: '2026-10-18T15:00:00+01:00', level: 'hard',    themeQ: 10, flagQ: 5, flagLevel: 'medium', timeMs: 15000, qualify: 10 },
@@ -17,6 +17,17 @@ const DEFAULT_CFG = {
 const REVEAL_MS = 5500;                // la correction reste a l'ecran (comme le quiz de culture generale)
 const RANK_MS = 3800;                  // puis le classement s'anime (sauf apres la derniere question)
 const LATE_Q = 3;
+const GIFT_DELAY_MS = 30000;           // les coffres sont offerts 30 s apres la fin de la finale, une fois le classement final montre
+// Rang general du tournoi -> palette du coffre et objets inedits (jamais en boutique)
+const GIFT_TIER = rank => rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : rank <= 10 ? 'violet' : rank <= 15 ? 'ice' : 'wood';
+const GIFT_ITEMS = {
+  gold: ['pframe-live-gold', 'bubble-live-gold', 'title-live-champion'],
+  silver: ['pframe-live-silver', 'bubble-live-silver', 'title-live-vice'],
+  bronze: ['pframe-live-bronze', 'bubble-live-bronze', 'title-live-podium'],
+  violet: ['pframe-live-finalist', 'title-live-finalist'],
+  ice: ['pframe-live-semi', 'title-live-semi'],
+  wood: [],
+};
 const DRAW_LEAD_MS = 40000;            // le tirage des themes se fait 40 s avant le depart, devant tout le monde                      // on peut entrer au quart jusqu'a la question 3
 
 function shuffle(a) { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
@@ -24,7 +35,8 @@ function shuffle(a) { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const
 module.exports = function createLive(ctx) {
   const { io } = ctx;
   let cfg = JSON.parse(JSON.stringify(DEFAULT_CFG));
-  let state = { done: {}, used: [], champion: null };
+  let state = { done: {}, used: [], champion: null, gifts: {} };
+  const previews = new Map();          // socket.id -> coffre d'essai de l'organisateur (rien n'est verse)
   let run = null;
   const sockPid = new Map();           // socket.id -> playerId
   const sockRun = new Map();           // socket.id -> session (reelle ou test) suivie par ce socket
@@ -38,8 +50,9 @@ module.exports = function createLive(ctx) {
 
   function load(c, s) {
     if (c && c.lobbyMin === 5) c.lobbyMin = 10;
+    if (c && c.rewards && !(+c.rewards[1] || +c.rewards[2] || +c.rewards[3])) delete c.rewards; // anciens reglages a 0 : on reprend les montants par defaut
     if (c && typeof c === 'object') cfg = Object.assign({}, DEFAULT_CFG, c, { rewards: Object.assign({}, DEFAULT_CFG.rewards, c.rewards || {}), prize: Object.assign({}, DEFAULT_CFG.prize, c.prize || {}), sessions: Array.isArray(c.sessions) && c.sessions.length ? c.sessions : DEFAULT_CFG.sessions });
-    if (s && typeof s === 'object') state = Object.assign({ done: {}, used: [], champion: null }, s);
+    if (s && typeof s === 'object') state = Object.assign({ done: {}, used: [], champion: null, gifts: {} }, s);
   }
   const saveCfg = () => ctx.saveConfig('live_cfg', cfg);
   const saveState = () => ctx.saveConfig('live_state', state);
@@ -210,11 +223,12 @@ module.exports = function createLive(ctx) {
       state.done[s.id] = {
         at: Date.now(), players: rank.length, qualified,
         ranking: rank.slice(0, 200).map(p => ({ pid: p.pid, name: p.name, score: p.score, rank: p.rank, time: p.time, portrait: p.portrait || null })),
+        order: rank.filter(p => !p.bot && (final || p.score > 0)).map(p => p.pid), // tous les classes (le top 200 ci-dessus ne suffit pas pour les coffres)
       };
       if (final && rank[0]) {
         state.champion = { pid: rank[0].pid, name: rank[0].name, portrait: rank[0].portrait || null, at: Date.now() };
-        [1, 2, 3].forEach(k => { const w = rank[k - 1], amt = Math.floor(+cfg.rewards[k] || 0); if (w && amt > 0) ctx.credit(w.pid, amt, 'live'); });
       }
+      if (final) buildGifts();
       saveState();
       for (const p of rank) { if (!p.bot) { try { ctx.xp(p.pid, 20 + 3 * p.correct); } catch {} } }
     }
@@ -223,13 +237,50 @@ module.exports = function createLive(ctx) {
     for (const [sid, pid] of sockPid) {
       if (sockRun.get(sid) !== r) continue;
       const p = r.players.get(pid); if (!p || specs.has(sid)) continue;
-      io.to(sid).emit('live-result', { sid: s.id, rank: p.rank, score: p.score, correct: p.correct, total: rank.length, qualified: qualified.includes(pid), final, reward: !r.test && final && p.rank <= 3 ? Math.floor(+cfg.rewards[p.rank] || 0) : 0, next, test: r.test });
+      io.to(sid).emit('live-result', { sid: s.id, rank: p.rank, score: p.score, correct: p.correct, total: rank.length, qualified: qualified.includes(pid), final, reward: 0, next, test: r.test });
     }
     if (r.test) setTimeout(() => { tests.delete(r.code); }, 120000);
     else { run = null; phase(); }
     r.status = 'done';
   }
   function nextSession(sid) { const n = cfg.sessions[idx(sid) + 1]; return n ? { id: n.id, start: startMs(n) } : null; }
+
+  // ── Coffres de fin de tournoi ──
+  // Rang general : on classe d'abord les finalistes (ordre de la finale), puis ceux qui ont joue la demi, puis le quart.
+  function libsFor(rank) { const w = cfg.rewards || {}; return Math.max(0, Math.floor(+(rank <= 3 ? w[rank] : rank <= 10 ? w.f : rank <= 15 ? w.s : w.o) || 0)); }
+  function buildGifts() {
+    const seen = new Set(), order = [], add = pid => { if (pid && !seen.has(pid)) { seen.add(pid); order.push(pid); } };
+    for (let i = cfg.sessions.length - 1; i >= 0; i--) {
+      const d = state.done[cfg.sessions[i].id]; if (!d) continue;
+      (d.order || d.ranking.filter(r => r.score > 0).map(r => r.pid)).forEach(add);
+    }
+    state.gifts = {};
+    order.forEach((pid, i) => { const rank = i + 1, tier = GIFT_TIER(rank); state.gifts[pid] = { rank, tier, libs: libsFor(rank), items: GIFT_ITEMS[tier].slice(), shop: null, bonus: 0, stage: 0 }; });
+    state.giftsAt = Date.now() + GIFT_DELAY_MS; state.giftsNotified = false;
+  }
+  const giftView = (g, test) => ({ rank: g.rank, tier: g.tier, libs: g.libs, stage: g.stage, items: g.items, shop: g.shop || null, shopType: g.shopType || null, bonus: g.bonus || 0, test: !!test });
+  function giftOf(pid) { return state.giftsAt && Date.now() >= state.giftsAt && state.gifts && state.gifts[pid] ? state.gifts[pid] : null; }
+  function giftTick() {
+    if (!state.giftsAt || state.giftsNotified || Date.now() < state.giftsAt) return;
+    state.giftsNotified = true; saveState();
+    for (const pid of Object.keys(state.gifts || {})) {
+      try { ctx.emitTo(pid, 'live-gift', giftView(state.gifts[pid])); } catch {}
+      try { ctx.pushOne(pid, ["Tes cadeaux du tournoi t'attendent", 'Le Quiz en direct est terminé. Ouvre ton coffre-fort !'], ['Your tournament gifts are waiting', 'The Live Quiz is over. Open your vault!']); } catch {}
+    }
+  }
+  function advanceGift(pid, g, stage, test) {
+    if (stage === 1 && g.stage < 1) { g.stage = 1; if (!test && g.libs > 0) ctx.credit(pid, g.libs, 'live'); }
+    else if (stage === 2 && g.stage === 1) {
+      g.stage = 2;
+      if (g.tier === 'wood') {
+        const it = ctx.pickShop(test ? null : pid, g.rank <= 30);
+        if (it) { g.shop = it.id; g.shopType = it.type; if (!test) ctx.grant(pid, [it.id]); }
+        else { g.bonus = 100; if (!test) ctx.credit(pid, 100, 'live'); }
+      } else if (!test) ctx.grant(pid, g.items);
+    } else return false;
+    if (!test) saveState();
+    return true;
+  }
 
   // ── Horloge ──
   const NAMES = { q: ['Quart de finale', 'Quarterfinal'], s: ['Demi-finale', 'Semifinal'], f: ['Finale', 'Final'] };
@@ -270,7 +321,7 @@ module.exports = function createLive(ctx) {
   function countSpecs(r) { let n = 0; for (const sid of specs) if (sockRun.get(sid) === r) n++; return n; }
   function tick() {
     try {
-      remind();
+      remind(); giftTick();
       for (const r of tests.values()) tickRun(r);
       if (run && run.status === 'lobby') tickRun(run);
       else if (!run) {
@@ -351,7 +402,21 @@ module.exports = function createLive(ctx) {
       if (!r.ans.has(pid)) { r.ans.set(pid, { idx: -1, at: Date.now() }); r.feed.push(r.players.get(pid).name); }
       if (r.ans.size >= r.players.size && r.qEnd - Date.now() > 3000) shorten(r);
     });
-    socket.on('disconnect', () => leaveRoom(socket, true));
+    socket.on('live-gift-get', ({ playerId } = {}) => { const pid = ctx.safePlayerId(playerId); const g = pid && giftOf(pid); socket.emit('live-gift', g ? giftView(g) : null); });
+    socket.on('live-gift-open', ({ playerId, stage, preview } = {}) => {
+      const st = Math.floor(Number(stage));
+      if (preview) { const g = previews.get(socket.id); if (g && advanceGift('preview', g, st, true)) socket.emit('live-gift', giftView(g, true)); return; }
+      const pid = ctx.safePlayerId(playerId); const g = pid && giftOf(pid); if (!g) return;
+      if (advanceGift(pid, g, st, false)) socket.emit('live-gift', giftView(g));
+      else socket.emit('live-gift', giftView(g));
+    });
+    socket.on('live-gift-preview', ({ key, rank } = {}) => {
+      if (!ctx.isAdminKey(key)) return;
+      const r = Math.max(1, Math.min(500, Math.floor(+rank) || 1)), tier = GIFT_TIER(r);
+      const g = { rank: r, tier, libs: libsFor(r), items: GIFT_ITEMS[tier].slice(), shop: null, bonus: 0, stage: 0 };
+      previews.set(socket.id, g); socket.emit('live-gift', giftView(g, true));
+    });
+    socket.on('disconnect', () => { previews.delete(socket.id); leaveRoom(socket, true); });
   }
   function leaveRoom(socket, dropped) {
     const r = sockRun.get(socket.id);
@@ -365,7 +430,7 @@ module.exports = function createLive(ctx) {
       const c = body.cfg;
       if (c.lobbyMin != null) cfg.lobbyMin = Math.max(1, Math.min(60, +c.lobbyMin || 5));
       if (c.prize) cfg.prize = { fr: String(c.prize.fr || '').slice(0, 200), en: String(c.prize.en || '').slice(0, 200) };
-      if (c.rewards) [1, 2, 3].forEach(k => { if (c.rewards[k] != null) cfg.rewards[k] = Math.max(0, Math.min(100000, Math.floor(+c.rewards[k] || 0))); });
+      if (c.rewards) [1, 2, 3, 'f', 's', 'o'].forEach(k => { if (c.rewards[k] != null) cfg.rewards[k] = Math.max(0, Math.min(100000, Math.floor(+c.rewards[k] || 0))); });
       if (Array.isArray(c.sessions)) c.sessions.forEach(u => {
         const s = sess(u.id); if (!s || state.done[s.id] || (run && run.sid === s.id && run.status !== 'lobby')) return;
         if (u.start && !isNaN(Date.parse(u.start))) s.start = u.start;
@@ -377,7 +442,7 @@ module.exports = function createLive(ctx) {
       });
       saveCfg();
     }
-    if (body.action === 'reset') { if (run) { clearTimeout(run.timer); clearInterval(run.prog); run = null; } state = { done: {}, used: [], champion: null, reminded: {} }; saveState(); }
+    if (body.action === 'reset') { if (run) { clearTimeout(run.timer); clearInterval(run.prog); run = null; } state = { done: {}, used: [], champion: null, reminded: {}, gifts: {} }; saveState(); }
     if (body.action === 'reset-used') { state.used = []; saveState(); }
     if (body.action === 'test') {
       const base = sess(body.sid) || cfg.sessions[0];
@@ -405,7 +470,7 @@ module.exports = function createLive(ctx) {
     if (body.action === 'test-stop') { for (const r of tests.values()) { clearTimeout(r.timer); clearInterval(r.prog); io.to(r.room).emit('live-error', { code: 'aborted' }); } tests.clear(); }
     if (body.action === 'abort' && run) { clearTimeout(run.timer); clearInterval(run.prog); io.to('live').emit('live-error', { code: 'aborted' }); run = null; }
     if (body && Object.keys(body).length) phase(); // une simple lecture (tableau de bord) ne previent pas tous les joueurs
-    return { cfg, done: Object.fromEntries(Object.entries(state.done).map(([k, v]) => [k, { players: v.players, qualified: v.qualified.length, top: v.ranking.slice(0, 3) }])), champion: state.champion, active: run ? { sid: run.sid, status: run.status, players: run.players.size } : null, usedCount: state.used.length, tests: [...tests.values()].map(r => ({ code: r.code, sid: r.sid, status: r.status, players: r.players.size, startAt: r.startAt, manual: !!r.manual, launched: !!r.launched })) };
+    return { cfg, done: Object.fromEntries(Object.entries(state.done).map(([k, v]) => [k, { players: v.players, qualified: v.qualified.length, top: v.ranking.slice(0, 3) }])), champion: state.champion, active: run ? { sid: run.sid, status: run.status, players: run.players.size } : null, usedCount: state.used.length, gifts: { total: Object.keys(state.gifts || {}).length, opened: Object.values(state.gifts || {}).filter(g => g.stage >= 2).length, at: state.giftsAt || 0 }, tests: [...tests.values()].map(r => ({ code: r.code, sid: r.sid, status: r.status, players: r.players.size, startAt: r.startAt, manual: !!r.manual, launched: !!r.launched })) };
   }
-  return { load, start, attach, admin, info };
+  return { load, start, attach, admin, info, _t: { buildGifts, giftOf, advanceGift, state: () => state } };
 };

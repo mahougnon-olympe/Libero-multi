@@ -5,6 +5,7 @@
   const L = () => (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en' : 'fr';
   const D = {
     fr: {
+      giftBtn: 'Ouvrir mes cadeaux', annGift: ['Tes cadeaux sont prêts', 'Ouvre ton coffre-fort'],
       title: 'Quiz en direct', back: 'Retour', sub: 'Le tournoi du week-end',
       sess: { q: 'Quart de finale', s: 'Demi-finale', f: 'Finale' },
       st: { scheduled: 'À VENIR', lobby: 'OUVERT', live: 'EN COURS', done: 'TERMINÉ', cancelled: 'ANNULÉ' },
@@ -33,6 +34,7 @@
       day: ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'], bk: ['Quart', 'Demi', 'Finale'], cta: 'Quiz en direct', ctaLive: 'En direct maintenant', ctaSoon: 'Salle ouverte, rejoins-nous', ctaNext: 'Tournoi du week-end', pill: 'EN DIRECT',
     },
     en: {
+      giftBtn: 'Open my gifts', annGift: ['Your gifts are ready', 'Open your vault'],
       title: 'Live quiz', back: 'Back', sub: 'The weekend tournament',
       sess: { q: 'Quarterfinal', s: 'Semifinal', f: 'Final' },
       st: { scheduled: 'UPCOMING', lobby: 'OPEN', live: 'LIVE', done: 'FINISHED', cancelled: 'CANCELLED' },
@@ -83,6 +85,19 @@
     return `<span style="font-weight:800">${esc((name || '?')[0].toUpperCase())}</span>`;
   };
 
+  // Cadeaux du tournoi : bouton visible tant que le coffre ou l'enveloppe n'est pas ouvert(e)
+  const giftPending = () => { const g = window._liveGiftData; return !!(g && !g.test && g.stage < 2); };
+  const giftBtnHtml = () => giftPending() ? `<button class="lv-btn" id="lv-gift-btn">${U().giftBtn}</button>` : '';
+  function giftReady() {
+    if (!root || !body) return;
+    const old = $('#lv-gift-btn', root), need = giftPending();
+    if (old && !need) { old.remove(); return; }
+    if (old || !need || !['prize', 'prog'].includes(V.view)) return;
+    const b = el(giftBtnHtml()), anchor = V.view === 'prize' ? $('#lv-prog3', root) : $('.lv-hand', root);
+    if (!anchor) return;
+    if (V.view === 'prize') anchor.parentNode.insertBefore(b, anchor); else anchor.parentNode.insertBefore(b, anchor.nextSibling);
+    announce(U().annGift, 'mark', 'OK');
+  }
   function loadCss() { if (document.getElementById('live-css')) return; const l = document.createElement('link'); l.id = 'live-css'; l.rel = 'stylesheet'; l.href = 'live.css?v=9'; document.head.appendChild(l); }
   function ensure() {
     loadCss();
@@ -91,6 +106,7 @@
     root = el(`<div id="screen-live" class="screen"><div class="lv-ann" id="lv-ann"><span class="ic" id="lv-annic"></span><div><b id="lv-annb"></b><span id="lv-anns"></span></div></div><div class="lv" id="lv"><div class="lv-top" id="lv-top"></div><div id="lv-body"></div></div><canvas id="lv-fx"></canvas></div>`);
     host.appendChild(root);
     body = $('#lv-body', root);
+    root.addEventListener('click', e => { if (e.target.closest && e.target.closest('#lv-gift-btn')) window._liveGiftOpen?.(); });
   }
   function top(extra) {
     const d = U(), t = $('#lv-top', root);
@@ -146,7 +162,7 @@
     ensure(); showScreen('live');
     const d = U(); if (!info) { scene(`<p class="lv-hand">${d.sub}</p>`, 'prog'); socket.emit('live-get', { playerId: getPlayerId(), code: V.code }); return; }
     const act = info.sessions.find(s => (s.status === 'lobby' || s.status === 'live') && s.me.eligible && !s.me.joined) || info.sessions.find(s => s.status === 'lobby' || s.status === 'live');
-    let h = `<h1 class="lv-h1">${d.title}${info.test ? ` <span class="lv-chip gray">${d.testChip}</span>` : ''}</h1><p class="lv-hand">${d.sub}</p>`;
+    let h = `<h1 class="lv-h1">${d.title}${info.test ? ` <span class="lv-chip gray">${d.testChip}</span>` : ''}</h1><p class="lv-hand">${d.sub}</p>${giftBtnHtml()}`;
     h += info.sessions.map(s => {
       const chipC = s.status === 'done' ? 'ok' : (s.status === 'live' || s.status === 'lobby') ? 'red' : 'gray';
       const lines = [`${when(s.start)} · ${d.detail(s)} · ${d.qual(s.qualify)}`];
@@ -420,7 +436,7 @@
   }
   async function champion(e) {
     const d = U(), c = e.champion || (e.top && e.top[0]) || { name: '' }, prize = L() === 'en' ? info?.prize?.en : info?.prize?.fr, r = V.res;
-    scene(`<div class="lv-champ"><span class="lv-hand">${d.champ}</span><div class="av">${av(c.name, c.portrait)}</div><b>${esc(c.name)}</b></div><div class="lv-gift" id="lv-gift"><div class="lid"></div><div class="bx"></div><div class="rb"></div></div><div class="lv-prize"><span class="lv-hand">${d.yourPrize}</span><br>${prize ? esc(prize) : d.prizeSoon}</div>${r && r.final && V.role === 'player' ? `<p class="lv-mine">${d.finalRes(r.rank, r.total, r.score)}${r.reward ? ' · ' + d.libsWon(r.reward) : ''}</p>` : ''}<button class="lv-btn alt" id="lv-prog3">${d.toProg}</button>`, 'prize');
+    scene(`<div class="lv-champ"><span class="lv-hand">${d.champ}</span><div class="av">${av(c.name, c.portrait)}</div><b>${esc(c.name)}</b></div><div class="lv-gift" id="lv-gift"><div class="lid"></div><div class="bx"></div><div class="rb"></div></div><div class="lv-prize"><span class="lv-hand">${d.yourPrize}</span><br>${prize ? esc(prize) : d.prizeSoon}</div>${r && r.final && V.role === 'player' ? `<p class="lv-mine">${d.finalRes(r.rank, r.total, r.score)}${r.reward ? ' · ' + d.libsWon(r.reward) : ''}</p>` : ''}${giftBtnHtml()}<button class="lv-btn alt" id="lv-prog3">${d.toProg}</button>`, 'prize');
     announce(d.annChamp, 'mark', '1');
     await wait(900); $('#lv-gift', root)?.classList.add('go'); confetti();
     $('#lv-prog3', root).onclick = () => leave(true);
@@ -490,5 +506,5 @@
   }
   function open() { ensure(); try { sessionStorage.removeItem(KEY); } catch {} V = Object.assign(V, { role: null, view: 'prog', code: '' }); prog(); socket.emit('live-get', { playerId: getPlayerId(), code: V.code }); }
   function resume() { if (V.role === 'player') socket.emit('live-join', { playerId: getPlayerId(), name: pname() || 'Anonyme', code: V.code }); else if (V.role === 'spec') socket.emit('live-watch', { playerId: getPlayerId(), mode: V.mode, code: V.code }); }
-  window.LiberoLive = { open, restore, resume, on, info: () => info };
+  window.LiberoLive = { open, restore, resume, on, giftReady, info: () => info };
 })();

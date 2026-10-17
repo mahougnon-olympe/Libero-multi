@@ -3177,3 +3177,21 @@ html.light .xp-pill { color: #173a8a; }
 /* Chat entre amis : la bulle de la boutique enveloppe le mot (plus de simple ruban) */
 :root:root .dm-m .dm-txt.dm-bub { display: inline-block; max-width: 100%; padding: 7px 13px 8px; border-radius: 16px 16px 16px 4px; font-family: inherit; text-align: left; box-shadow: 0 2px 0 rgba(0,0,0,.18); }
 :root:root .dm-m.me .dm-txt.dm-bub { border-radius: 16px 16px 4px 16px; }
+
+/* ══ COFFRE DU TOURNOI : notification collante, cadres de portrait, bulles exclusives ══ */
+.notif-sticky { cursor: pointer; }
+.notif-sticky .notif-ic { color: var(--accent); display: inline-flex; align-items: center; }
+:root:root .msg-bubble.bubble-live-gold, :root:root .shop-bubble-preview.bubble-live-gold { background: linear-gradient(135deg, #fff0a8, #e0a82e) !important; color: #2b1a00 !important; border: 1.5px solid #8a5d00; }
+:root:root .msg-bubble.bubble-live-silver, :root:root .shop-bubble-preview.bubble-live-silver { background: linear-gradient(135deg, #f4f8fc, #9aa7b7) !important; color: #1d2530 !important; border: 1.5px solid #5d6b7c; }
+:root:root .msg-bubble.bubble-live-bronze, :root:root .shop-bubble-preview.bubble-live-bronze { background: linear-gradient(135deg, #f0c08e, #b9743a) !important; color: #2a1506 !important; border: 1.5px solid #6e3f1e; }
+.lb-pt.pf-gold { box-shadow: 0 0 0 2px #e0a82e, 0 0 0 3px rgba(0,0,0,.45), 0 0 7px 1px rgba(224,168,46,.75); }
+.lb-pt.pf-silver { box-shadow: 0 0 0 2px #cfd8e3, 0 0 0 3px rgba(0,0,0,.45); }
+.lb-pt.pf-bronze { box-shadow: 0 0 0 2px #c8803f, 0 0 0 3px rgba(0,0,0,.45); }
+.lb-pt.pf-finalist { box-shadow: 0 0 0 2px #b69af0, 0 0 0 3px rgba(0,0,0,.45), 0 0 6px 1px rgba(182,154,240,.7); }
+.lb-pt.pf-semi { box-shadow: 0 0 0 2px #8fd3f2, 0 0 0 3px rgba(0,0,0,.45); }
+.lb-pt.pf-big { width: 54px; height: 54px; }
+:root:root .pid-avatar.pf-gold { box-shadow: 0 0 0 4px #e0a82e, 0 0 0 6px rgba(0,0,0,.4), 0 0 14px 3px rgba(224,168,46,.75); }
+:root:root .pid-avatar.pf-silver { box-shadow: 0 0 0 4px #cfd8e3, 0 0 0 6px rgba(0,0,0,.4); }
+:root:root .pid-avatar.pf-bronze { box-shadow: 0 0 0 4px #c8803f, 0 0 0 6px rgba(0,0,0,.4); }
+:root:root .pid-avatar.pf-finalist { box-shadow: 0 0 0 4px #b69af0, 0 0 0 6px rgba(0,0,0,.4), 0 0 12px 2px rgba(182,154,240,.7); }
+:root:root .pid-avatar.pf-semi { box-shadow: 0 0 0 4px #8fd3f2, 0 0 0 6px rgba(0,0,0,.4); }
