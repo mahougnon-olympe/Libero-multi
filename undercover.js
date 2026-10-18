@@ -72,7 +72,7 @@
     host = document.createElement('div'); host.id = 'screen-undercover'; host.className = 'screen';
     host.style.cssText = 'padding:0;gap:0;justify-content:flex-start;align-items:stretch';
     root = host.attachShadow({ mode: 'open' });
-    const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'undercover.css?v=6'; root.appendChild(link);
+    const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'undercover.css?v=7'; root.appendChild(link);
     const wrap = document.createElement('div'); wrap.className = 'root'; wrap.innerHTML = '<div class="ph" id="ph"></div><canvas id="fx"></canvas>';
     root.appendChild(wrap);
     (document.getElementById('screen-home')?.parentNode || document.body).appendChild(host);
