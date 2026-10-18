@@ -3203,3 +3203,7 @@ html.light .xp-pill { color: #173a8a; }
 .lh-title { font: 800 .95rem var(--font-body); }
 .lh-cd { flex: 1 1 140px; font: 700 1.35rem var(--font-hand); font-variant-numeric: tabular-nums; }
 .lh-go { border: 2px solid #22252b; border-radius: 99px; background: var(--margin); color: #fff; padding: 8px 18px; font: 800 .95rem var(--font-body); cursor: pointer; }
+
+/* Undercover : pas de robot, de mise ni de defi a deux ; les boutons flottants s'effacent pendant la partie */
+#home-who.is-uc .stake-row, #home-who.is-uc #step-stake, #home-who.is-uc #btn-challenge-friend, #home-who.is-uc #who-bot { display: none; }
+body.screen-undercover-active .btn-help-float, body.screen-undercover-active .btn-comment-float, body.screen-undercover-active .btn-chatbot-float, body.screen-undercover-active .chatbot-panel, body.screen-undercover-active #live-pill { display: none !important; }

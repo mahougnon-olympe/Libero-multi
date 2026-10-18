@@ -1665,6 +1665,18 @@ function awardXp(id, entry, amount) {
   _emitToPlayer(id, 'xp-update', { xp: entry.xp, level: after, gained: Math.floor(amount), levelUp: after > before ? after : null, reward: reward || undefined });
 }
 
+// ── Undercover : salons de 4 a 10 joueurs, moteur dans undercover.js ──
+const ucGame = require('./undercover')({
+  io, safePlayerId, sanitizeName,
+  portraitOf: (pid, name) => (pid && libs.get(pid)?.portrait) || getPortraitByName(name) || null,
+  generateCode: () => generateCode(),
+  bumpDaily: f => bumpDaily(f), updateLeaderboard: (...a) => updateLeaderboard(...a), pushHistory: (...a) => pushHistory(...a),
+  updateLastActive: (...a) => updateLastActive(...a), bumpChallenge: (...a) => bumpChallenge(...a),
+  xp: (pid, amount) => { const e = libs.get(pid); if (e) awardXp(pid, e, amount); },
+  containsBanned: w => containsBanned(w),
+  refreshBoards: () => { io.emit('leaderboard-update', getLeaderboardData()); io.emit('global-leaderboard-update', getGlobalLeaderboardData()); },
+});
+
 // ── Quiz en direct (tournoi) : moteur dans live-quiz.js ──
 const liveQuiz = require('./live-quiz')({
   io, saveConfig, safePlayerId, sanitizeName,
@@ -2416,7 +2428,7 @@ function generateCode() {
     code = Array.from({ length: 4 }, () =>
       CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]
     ).join('');
-  } while (rooms.has(code) || triviaRooms.has(code) || unoRooms.has(code)); // unique aux trois sections
+  } while (rooms.has(code) || triviaRooms.has(code) || unoRooms.has(code) || ucGame.hasCode(code)); // unique aux quatre sections
   return code;
 }
 
@@ -3031,6 +3043,7 @@ function unoRemove(room, pid) {
 
 io.on('connection', (socket) => {
   liveQuiz.attach(socket);
+  ucGame.attach(socket);
   let roomCode      = null;
   let myPlayer      = null;
   let triviaRoomCode = null;
@@ -3335,6 +3348,7 @@ io.on('connection', (socket) => {
     if (tryJoinClassic(code, name, playerId)) return;
     if (tryJoinTrivia(code, name, playerId))  return;
     if (tryJoinUno(code, name, playerId))     return;
+    if (ucGame.tryJoin(socket, code, name, playerId, libs.get(safePlayerId(playerId))?.lang)) return;
     socket.emit('error', { message: 'Room introuvable. Vérifie le code.' });
   });
 
@@ -3344,6 +3358,7 @@ io.on('connection', (socket) => {
     if (tryJoinClassic(code, name, playerId)) return;
     if (tryJoinTrivia(code, name, playerId))  return;
     if (tryJoinUno(code, name, playerId))     return;
+    if (ucGame.tryJoin(socket, code, name, playerId, libs.get(safePlayerId(playerId))?.lang)) return;
     socket.emit('join-code-failed', { message: 'Partie introuvable. Vérifie le lien ou le code.' });
   });
 
@@ -3837,6 +3852,7 @@ io.on('connection', (socket) => {
     if (tryJoinTrivia(code, name, playerId))  return;
     if (tryJoinClassic(code, name, playerId)) return;
     if (tryJoinUno(code, name, playerId))     return;
+    if (ucGame.tryJoin(socket, code, name, playerId, libs.get(safePlayerId(playerId))?.lang)) return;
     socket.emit('trivia-error', { message: 'Salon introuvable. Vérifie le code.' });
   });
 
