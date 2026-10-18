@@ -10,7 +10,7 @@
       maxLbl: 'Joueurs maximum', rolesTxt: (c, u, w) => `${c} civils, ${u} Undercover${w ? ', 1 Mr. White' : ''}`, host: 'Hôte', away: 'Reconnexion',
       shuffle: 'On mélange les rôles...', dealt: 'Les cartes sont distribuées', yourWord: 'Ton mot secret', hold: 'Maintiens la carte\npour voir ton mot', yourWordIs: 'Ton mot', same: 'Tu ne sais pas si les autres ont le même mot.',
       whiteTitle: 'Tu es Mr. White', whiteTxt: "Tu n'as aucun mot. Écoute les indices et bluffe !", ready: 'Je suis prêt', readyDone: 'Prêt, on attend les autres', hush: 'Chut : les autres regardent aussi leur carte',
-      center: 'Un indice,\nun seul mot', yourTurn: 'À toi : un seul mot', send: 'Envoyer', said: 'Mots déjà dits', skipped: '(passé)', writes: n => `${n} écrit son indice...`, phold: 'Ton indice',
+      center: 'Un indice,\nun seul mot', seeWord: 'Clique pour voir ton mot', yourTurn: 'À toi : un seul mot', send: 'Envoyer', said: 'Mots déjà dits', skipped: '(passé)', writes: n => `${n} écrit son indice...`, phold: 'Ton indice',
       debate: 'On en discute', toVote: 'Passer au vote', waitVote: 'Prêt pour le vote', debateSub: 'Débat libre avant le vote', say: 'Écris un message', whoIs: "Qui est l'intrus ?", voteBtn: 'Voter', voted: 'Vote envoyé. On attend les autres...', pick: 'Touche un joueur, puis vote',
       tie: 'Égalité ! Second vote entre les ex aequo', voteCount: (a, b) => `${a} / ${b} ont voté`, verdict: 'Le verdict est tombé...', wasX: n => `${n} était`, hisWord: 'Son mot', civHad: w => `Les civils avaient « ${w} »`, hisWordNone: 'Aucun mot',
       roles: { civil: 'Civil', undercover: 'Undercover', white: 'Mr. White' }, byLot: 'Égalité : le sort a désigné ce joueur.', left: 'a quitté la partie',
@@ -24,7 +24,7 @@
       maxLbl: 'Max players', rolesTxt: (c, u, w) => `${c} civilians, ${u} Undercover${w ? ', 1 Mr. White' : ''}`, host: 'Host', away: 'Reconnecting',
       shuffle: 'Shuffling the roles...', dealt: 'The cards are dealt', yourWord: 'Your secret word', hold: 'Hold the card\nto see your word', yourWordIs: 'Your word', same: "You don't know if the others have the same word.",
       whiteTitle: 'You are Mr. White', whiteTxt: 'You have no word. Listen to the clues and bluff!', ready: "I'm ready", readyDone: 'Ready, waiting for the others', hush: 'Shh: the others are looking at their card too',
-      center: 'One clue,\none word', yourTurn: 'Your turn: one word', send: 'Send', said: 'Words so far', skipped: '(passed)', writes: n => `${n} is writing a clue...`, phold: 'Your clue',
+      center: 'One clue,\none word', seeWord: 'Click to see your word', yourTurn: 'Your turn: one word', send: 'Send', said: 'Words so far', skipped: '(passed)', writes: n => `${n} is writing a clue...`, phold: 'Your clue',
       debate: "Let's talk", toVote: 'Go to the vote', waitVote: 'Ready to vote', debateSub: 'Open debate before the vote', say: 'Write a message', whoIs: 'Who is the impostor?', voteBtn: 'Vote', voted: 'Vote sent. Waiting for the others...', pick: 'Tap a player, then vote',
       tie: 'Tie! Second vote between the tied players', voteCount: (a, b) => `${a} / ${b} voted`, verdict: 'The verdict is in...', wasX: n => `${n} was`, hisWord: 'Their word', civHad: w => `The civilians had "${w}"`, hisWordNone: 'No word',
       roles: { civil: 'Civilian', undercover: 'Undercover', white: 'Mr. White' }, byLot: 'Tie: luck picked this player.', left: 'left the game',
@@ -41,10 +41,10 @@
   const toast = m => { try { showCursorSnakeToast(m); } catch {} };
   const nl = s => esc(s).replace(/\n/g, '<br>');
 
-  const S = { code: null, v: null, cur: null, key: '', dealt: false, said: 0, sel: null, voteSent: false, tm: [], pa: [], raf: 0, chatN: 0, typedN: 0, shownVerdict: '' };
+  const S = { peek: false, code: null, v: null, cur: null, key: '', dealt: false, said: 0, sel: null, voteSent: false, tm: [], pa: [], raf: 0, chatN: 0, typedN: 0, shownVerdict: '' };
   const SESS = 'libero_uc';
   const saveSess = code => { try { sessionStorage.setItem(SESS, code); localStorage.setItem(SESS, JSON.stringify({ code, at: Date.now() })); } catch {} };
-  const clearSess = () => { try { sessionStorage.removeItem(SESS); localStorage.removeItem(SESS); } catch {} S.code = null; S.v = null; S.cur = null; S.key = ''; S.dealt = false; };
+  const clearSess = () => { try { sessionStorage.removeItem(SESS); localStorage.removeItem(SESS); } catch {} S.code = null; S.v = null; S.cur = null; S.key = ''; S.dealt = false; S.peek = false; };
   function savedCode() {
     try { const a = sessionStorage.getItem(SESS); if (a) return a; const b = JSON.parse(localStorage.getItem(SESS) || 'null'); if (b && Date.now() - b.at < 2 * 3600e3) return b.code; } catch {}
     return null;
@@ -72,7 +72,7 @@
     host = document.createElement('div'); host.id = 'screen-undercover'; host.className = 'screen';
     host.style.cssText = 'padding:0;gap:0;justify-content:flex-start;align-items:stretch';
     root = host.attachShadow({ mode: 'open' });
-    const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'undercover.css?v=3'; root.appendChild(link);
+    const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'undercover.css?v=4'; root.appendChild(link);
     const wrap = document.createElement('div'); wrap.className = 'root'; wrap.innerHTML = '<div class="ph" id="ph"></div><canvas id="fx"></canvas>';
     root.appendChild(wrap);
     (document.getElementById('screen-home')?.parentNode || document.body).appendChild(host);
@@ -105,6 +105,10 @@
     return h + '</div>';
   }
   const seat = i => $(`.av[data-i="${i}"]`);
+  function myCard(v) {
+    const white = v.myWord == null || v.myWord === '';
+    return `<div class="scard${S.peek ? ' open' : ''}" data-act="peek"><div class="in"><div class="sa"><span class="q">?</span>${esc(U().seeWord)}</div><div class="sb">${white ? `<b>MR. WHITE</b>` : `<span class="sm">${esc(U().yourWordIs)}</span><b>${esc(v.myWord)}</b>`}</div></div></div>`;
+  }
   function typeInto(el, txt, ms, done) {
     if (reduce()) { el.textContent = txt; done && done(); return; }
     let k = 0; el.textContent = ''; const id = setInterval(() => { el.textContent = txt.slice(0, ++k); if (k >= txt.length) { clearInterval(id); done && done(); } }, ms || 90); S.tm.push(id);
@@ -139,6 +143,7 @@
     if (a === 'guess') { const i = $('#gi'); if (i && i.value.trim()) { socket.emit('uc-guess', { text: i.value.trim() }); el.disabled = true; } return; }
     if (a === 'again') return socket.emit('uc-restart');
     if (a === 'quit') return leave(false, true);
+    if (a === 'peek') { S.peek = !S.peek; return $$('.scard').forEach(x => x.classList.toggle('open', S.peek)); }
     if (a === 'pick') { if (S.voteSent) return; S.sel = +el.dataset.i; $$('.vc').forEach(x => x.classList.toggle('sel', x === el)); SX.pop(); const b = $('#vb'); if (b) b.disabled = false; }
   }
   async function leave(ask, fromEnd) {
@@ -208,9 +213,9 @@
 
   // ── Indices ──
   function cluesHtml(v) {
-    return hdr(U().title, U().round(v.round)) + `<div class="body">${table(v, `<span>${nl(U().center)}</span>`)}
-      <div class="box" style="padding:4px 8px"><div class="sm" style="text-align:left">${U().said}</div><div class="said" id="said"></div></div>
-      <div id="mine" style="width:100%"></div></div>`;
+    return hdr(U().title, U().round(v.round)) + `<div class="body"><div class="colL">${myCard(v)}</div><div class="colA">${table(v, `<span>${nl(U().center)}</span>`)}</div>
+      <div class="colB"><div class="box" style="padding:4px 8px"><div class="sm" style="text-align:left">${U().said}</div><div class="said" id="said"></div></div>
+      <div id="mine" style="width:100%"></div></div></div>`;
   }
   function renderClues(v) { setScene(cluesHtml(v), 'clues:' + v.round); S.said = 0; S.typedN = v.clues.length; refreshClues(v, true); }
   function chipHtml(v, c, fresh) { const t = c.t || U().skipped; return `<span class="ck${c.t ? '' : ' sk'}">${pfI(v, c.p, 22)}${esc(t)}</span>`; }
@@ -242,8 +247,8 @@
   function sendSay() { const i = $('#si'); if (!i || !i.value.trim()) return; socket.emit('uc-say', { text: i.value.trim() }); i.value = ''; i.focus(); }
   function bindSay() { const i = $('#si'); if (i) i.onkeydown = e => { if (e.key === 'Enter') sendSay(); }; }
   function renderDebate(v) {
-    setScene(hdr(U().title, U().round(v.round)) + `<div class="body"><div class="cap">${U().debate}</div><div class="sm">${U().debateSub}</div>
-      <div id="dbp" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center"></div>${chatBox(v, 250)}<div id="dbt" style="width:100%">${timerBar(v)}</div></div>
+    setScene(hdr(U().title, U().round(v.round)) + `<div class="body"><div class="colL">${myCard(v)}</div><div class="colA"><div class="cap">${U().debate}</div><div class="sm">${U().debateSub}</div>
+      <div id="dbp" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center"></div><div id="dbt" style="width:100%">${timerBar(v)}</div></div><div class="colB">${chatBox(v, 250)}</div></div>
       <div class="foot">${v.alive !== false ? `<button class="btn" data-act="tovote" id="tvb">${U().toVote}</button>` : ''}</div>`, 'debate:' + v.round);
     S.chatN = v.chat.length; bindSay(); refreshDebate(v, true);
   }
@@ -262,9 +267,9 @@
       if (v.cands && v.cands.length && !v.cands.includes(i)) return '';
       return `<div class="vc${S.sel === i ? ' sel' : ''}" data-act="pick" data-i="${i}">${pf(p, 50)}${esc(p.name)}<svg class="circ" viewBox="0 0 80 66"><ellipse cx="40" cy="31" rx="34" ry="28"/></svg><span class="tally" id="ty${i}"></span></div>`;
     }).join('');
-    return hdr(U().title, U().round(v.round)) + `<div class="body"><div class="cap">${U().whoIs}</div>${tie}<div class="vg" id="vg">${cards}</div>
-      <div style="display:flex;align-items:center;gap:12px;width:100%;justify-content:center"><div class="urn" id="urn"><div class="slot"></div><div class="jar"></div></div><div class="sm" style="text-align:left" id="vs">${v.__static ? '' : U().pick}</div></div>
-      ${v.__static ? '' : chatBox(v, 110)}</div><div class="foot">${v.alive !== false ? `<button class="btn" data-act="vote" id="vb" disabled>${U().voteBtn}</button>` : ''}</div>`;
+    return hdr(U().title, U().round(v.round)) + `<div class="body"><div class="colL">${myCard(v)}</div><div class="colA"><div class="cap">${U().whoIs}</div>${tie}<div class="vg" id="vg">${cards}</div>
+      <div style="display:flex;align-items:center;gap:12px;width:100%;justify-content:center"><div class="urn" id="urn"><div class="slot"></div><div class="jar"></div></div><div class="sm" style="text-align:left" id="vs">${v.__static ? '' : U().pick}</div></div></div>
+      <div class="colB">${v.__static ? '' : chatBox(v, 110)}</div></div><div class="foot">${v.alive !== false ? `<button class="btn" data-act="vote" id="vb" disabled>${U().voteBtn}</button>` : ''}</div>`;
   }
   function renderVote(v) { S.sel = null; S.voteSent = false; S.chatN = v.chat.length; setScene(voteHtml(v), v.phase + ':' + v.round); bindSay(); refreshVote(v); }
   function refreshVote(v) {
