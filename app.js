@@ -3564,7 +3564,7 @@ function _ucLoad() {
   if (window.LiberoUC) return Promise.resolve(window.LiberoUC);
   if (_ucP) return _ucP;
   _ucP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'undercover.js?v=6';
+    const sc = document.createElement('script'); sc.src = 'undercover.js?v=7';
     sc.onload = () => res(window.LiberoUC); sc.onerror = () => { _ucP = null; res(null); };
     document.head.appendChild(sc);
   });

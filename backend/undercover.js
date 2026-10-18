@@ -11,6 +11,9 @@ if (process.env.UC_TIME_SCALE) for (const k of Object.keys(T)) T[k] = Math.max(2
 const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
 // Roles selon le nombre de joueurs : 4 = 1 Undercover ; 5 a 7 = 1 Undercover + Mr. White ; 8 a 10 = 2 Undercover + Mr. White
+// Reglage des roles par l'hote : cfg = null (auto) ou { und, white }. Les civils doivent rester majoritaires.
+const maxUnd = (n, w) => Math.max(0, Math.ceil((n - 2 * w) / 2) - 1);
+const okRoles = (n, c) => !!c && c.und >= 1 && (c.white === 0 || c.white === 1) && n - c.und - c.white > c.und + c.white && n - c.und - c.white >= 2;
 const rolesFor = n => (n <= 4 ? { und: 1, white: 0 } : n <= 7 ? { und: 1, white: 1 } : { und: 2, white: 1 });
 
 module.exports = function createUndercover(ctx) {
@@ -32,9 +35,12 @@ module.exports = function createUndercover(ctx) {
   };
 
   // ── Etats envoyes aux joueurs ──
+  const effN = room => Math.min(MAX, Math.max(MIN, room.players.filter(p => p.connected).length));
+  const resolveRoles = (room, n) => (okRoles(n, room.cfg) ? room.cfg : rolesFor(n));
   function view(room, pid) {
     const g = room.g, me = idxOf(room, pid), p = player(room, pid), l = lang(p);
     const base = { code: room.code, status: room.status, host: room.host === pid, max: room.max, min: MIN, seq: room.seq, me };
+    if (!room.g) { const n = effN(room), r = resolveRoles(room, n); base.rl = { n, und: r.und, white: r.white, auto: !room.cfg, undMax0: maxUnd(n, 0), undMax1: maxUnd(n, 1), whiteOk: n >= 5, reset: !!room.rolesReset }; }
     base.players = room.players.map(q => {
       const i = idxOf(room, q.pid), o = { name: q.name, connected: q.connected, host: q.pid === room.host, portrait: ctx.portraitOf(q.pid, q.name) || null };
       if (g) {
@@ -64,6 +70,7 @@ module.exports = function createUndercover(ctx) {
   }
   function emit(room, ev) {
     room.seq = (room.seq || 0) + 1;
+    if (!room.g && room.cfg && !okRoles(effN(room), room.cfg)) { room.cfg = null; room.rolesReset = true; }
     for (const p of room.players) {
       if (!p.sid) continue;
       const v = view(room, p.pid); v.ev = ev || null;
@@ -82,12 +89,12 @@ module.exports = function createUndercover(ctx) {
     const humans = room.players.filter(p => p.connected);
     if (humans.length < MIN) return false;
     room.players = humans;                                    // les joueurs partis ne participent pas
-    const n = room.players.length, r = rolesFor(n), pids = shuffle(room.players.map(p => p.pid)), roles = {};
+    const n = room.players.length, r = resolveRoles(room, n), pids = shuffle(room.players.map(p => p.pid)), roles = {};
     pids.forEach((pid, i) => { roles[pid] = i < r.und ? 'undercover' : i < r.und + r.white ? 'white' : 'civil'; });
     const pr = WORDS[Math.floor(Math.random() * WORDS.length)], swap = Math.random() < .5;
     const w = (a, b) => ({ fr: a, en: b });
     const civ = swap ? w(pr[1], pr[3]) : w(pr[0], pr[2]), und = swap ? w(pr[0], pr[2]) : w(pr[1], pr[3]);
-    room.status = 'playing'; room.played = room.players.map(p => p.pid);
+    room.rolesReset = false; room.status = 'playing'; room.played = room.players.map(p => p.pid);
     room.g = { pair: { civ, und }, roles, alive: room.players.map(p => p.pid), out: [], round: 0, phase: 'reveal', phaseEnd: 0, phaseTotal: 0, order: [], cur: null, clues: [], ready: new Set(), votes: {}, cands: [], tally: null, last: null, guess: null, winner: null, chat: [], starter: Math.floor(Math.random() * n) };
     room.players.forEach(p => { p.afk = 0; });
     setPhase(room, 'reveal', T.reveal, () => beginClues(room));
@@ -287,6 +294,16 @@ module.exports = function createUndercover(ctx) {
       m.room.max = Math.max(Math.max(MIN, m.room.players.length), Math.min(MAX, Math.floor(+max) || DEF_MAX));
       emit(m.room, null);
     });
+    socket.on('uc-set-roles', ({ auto, und, white } = {}) => {
+      const m = mine(socket); if (!m || m.room.status !== 'waiting' || m.room.host !== m.pid) return;
+      const room = m.room, n = effN(room); room.rolesReset = false;
+      if (auto) room.cfg = null;
+      else {
+        const w = n >= 5 && white ? 1 : 0, u = Math.min(maxUnd(n, w), Math.max(1, Math.floor(+und) || 1));
+        room.cfg = okRoles(n, { und: u, white: w }) ? { und: u, white: w } : null;
+      }
+      emit(room, null);
+    });
     socket.on('uc-start', () => {
       const m = mine(socket); if (!m || m.room.status !== 'waiting' || m.room.host !== m.pid) return;
       if (m.room.players.filter(p => p.connected).length < MIN) { socket.emit('uc-error', { message: 'need4' }); return; }
@@ -366,5 +383,5 @@ module.exports = function createUndercover(ctx) {
       emit(room, null);
     });
   }
-  return { attach, tryJoin, hasCode: c => rooms.has(c), _rooms: rooms, _t: { rolesFor, norm, start, view } };
+  return { attach, tryJoin, hasCode: c => rooms.has(c), _rooms: rooms, _t: { rolesFor, okRoles, maxUnd, resolveRoles, norm, start, view } };
 };

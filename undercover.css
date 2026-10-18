@@ -218,7 +218,7 @@
 .lc2{align-items:stretch;gap:14px}
 .lc2 .mx{justify-content:space-between}.mxn{display:flex;align-items:center;gap:10px}.mxn b{font-family:'Archivo Black',sans-serif;font-size:1.3rem;min-width:28px;text-align:center}
 .tags{display:flex;gap:6px;flex-wrap:wrap}.tag{border:1.5px solid var(--line);border-radius:99px;padding:1px 10px;font-weight:800;font-size:.8rem;background:var(--card)}
-.big{width:100%;padding:12px;font-size:1rem}
+.btn.wide{width:100%;padding:12px;font-size:1rem}
 .reg{background:var(--card);color:var(--text)}
 .reg .rw.free{opacity:.45;font-weight:600;animation:none}
 .reg .rw .phd{width:32px;height:32px;border-radius:50%;border:2px dashed var(--line);flex:none}
@@ -229,3 +229,10 @@
   .lobby{flex-direction:row;align-items:flex-start;gap:22px;padding:8px 0 18px}
   .lcol{flex:1}
 }
+
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card);align-self:flex-start}
+.seg button{border:0;background:transparent;color:var(--text);font:800 .85rem var(--font-body,'Archivo',sans-serif);padding:6px 14px;cursor:pointer}
+.seg button+button{border-left:1.5px solid var(--line)}
+.seg button.on{background:var(--board);color:#fff}
+.seg button[disabled]{opacity:.4;cursor:default}
+.lc2 .mx{display:flex;align-items:center}

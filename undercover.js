@@ -10,7 +10,7 @@
       maxLbl: 'Joueurs maximum', rolesTxt: (c, u, w) => `${c} civils, ${u} Undercover${w ? ', 1 Mr. White' : ''}`, host: 'Hôte', away: 'Reconnexion',
       shuffle: 'On mélange les rôles...', dealt: 'Les cartes sont distribuées', yourWord: 'Ton mot secret', hold: 'Maintiens la carte\npour voir ton mot', yourWordIs: 'Ton mot', same: 'Tu ne sais pas si les autres ont le même mot.',
       whiteTitle: 'Tu es Mr. White', whiteTxt: "Tu n'as aucun mot. Écoute les indices et bluffe !", ready: 'Je suis prêt', readyDone: 'Prêt, on attend les autres', hush: 'Chut : les autres regardent aussi leur carte',
-      center: 'Un indice,\nun seul mot', seeWord: 'Clique pour voir ton mot', back: 'Retour', step1: 'Invite tes amis', step2: 'Règle la partie', waitP: "En attente d'un joueur...", roleSplit: 'Répartition des rôles', sub1: n => `${n} joueur${n > 1 ? 's' : ''} • Temps réel`, tagC: n => `${n} civil${n > 1 ? 's' : ''}`, tagU: n => `${n} Undercover`, tagW: '1 Mr. White', yourTurn: 'À toi : un seul mot', send: 'Envoyer', said: 'Mots déjà dits', skipped: '(passé)', writes: n => `${n} écrit son indice...`, phold: 'Ton indice',
+      center: 'Un indice,\nun seul mot', seeWord: 'Clique pour voir ton mot', back: 'Retour', step1: 'Invite tes amis', step2: 'Règle la partie', waitP: "En attente d'un joueur...", roleSplit: 'Répartition des rôles', sub1: n => `${n} joueur${n > 1 ? 's' : ''} • Temps réel`, tagC: n => `${n} civil${n > 1 ? 's' : ''}`, tagU: n => `${n} Undercover`, tagW: '1 Mr. White', rolesAuto: 'Auto', rolesManual: 'Manuel', undLbl: 'Undercover', whiteLbl: 'Mr. White', rolesFor: n => `pour ${n} joueurs`, rolesRule: 'Mr. White arrive à partir de 5 joueurs. En auto : 2 Undercover à partir de 8 joueurs.', rolesReset: 'Réglage des rôles remis en automatique : le nombre de joueurs a changé.', rolesHost: "Choisi par l'hôte", on: 'Oui', off: 'Non', yourTurn: 'À toi : un seul mot', send: 'Envoyer', said: 'Mots déjà dits', skipped: '(passé)', writes: n => `${n} écrit son indice...`, phold: 'Ton indice',
       debate: 'On en discute', toVote: 'Passer au vote', waitVote: 'Prêt pour le vote', debateSub: 'Débat libre avant le vote', say: 'Écris un message', whoIs: "Qui est l'intrus ?", voteBtn: 'Voter', voted: 'Vote envoyé. On attend les autres...', pick: 'Touche un joueur, puis vote',
       tie: 'Égalité ! Second vote entre les ex aequo', voteCount: (a, b) => `${a} / ${b} ont voté`, verdict: 'Le verdict est tombé...', wasX: n => `${n} était`, hisWord: 'Son mot', civHad: w => `Les civils avaient « ${w} »`, hisWordNone: 'Aucun mot',
       roles: { civil: 'Civil', undercover: 'Undercover', white: 'Mr. White' }, byLot: 'Égalité : le sort a désigné ce joueur.', left: 'a quitté la partie',
@@ -24,7 +24,7 @@
       maxLbl: 'Max players', rolesTxt: (c, u, w) => `${c} civilians, ${u} Undercover${w ? ', 1 Mr. White' : ''}`, host: 'Host', away: 'Reconnecting',
       shuffle: 'Shuffling the roles...', dealt: 'The cards are dealt', yourWord: 'Your secret word', hold: 'Hold the card\nto see your word', yourWordIs: 'Your word', same: "You don't know if the others have the same word.",
       whiteTitle: 'You are Mr. White', whiteTxt: 'You have no word. Listen to the clues and bluff!', ready: "I'm ready", readyDone: 'Ready, waiting for the others', hush: 'Shh: the others are looking at their card too',
-      center: 'One clue,\none word', seeWord: 'Click to see your word', back: 'Back', step1: 'Invite your friends', step2: 'Set up the game', waitP: 'Waiting for a player...', roleSplit: 'Role split', sub1: n => `${n} player${n > 1 ? 's' : ''} • Real time`, tagC: n => `${n} civilian${n > 1 ? 's' : ''}`, tagU: n => `${n} Undercover`, tagW: '1 Mr. White', yourTurn: 'Your turn: one word', send: 'Send', said: 'Words so far', skipped: '(passed)', writes: n => `${n} is writing a clue...`, phold: 'Your clue',
+      center: 'One clue,\none word', seeWord: 'Click to see your word', back: 'Back', step1: 'Invite your friends', step2: 'Set up the game', waitP: 'Waiting for a player...', roleSplit: 'Role split', sub1: n => `${n} player${n > 1 ? 's' : ''} • Real time`, tagC: n => `${n} civilian${n > 1 ? 's' : ''}`, tagU: n => `${n} Undercover`, tagW: '1 Mr. White', rolesAuto: 'Auto', rolesManual: 'Manual', undLbl: 'Undercover', whiteLbl: 'Mr. White', rolesFor: n => `for ${n} players`, rolesRule: 'Mr. White joins from 5 players. In auto: 2 Undercover from 8 players.', rolesReset: 'Roles set back to automatic: the number of players changed.', rolesHost: 'Chosen by the host', on: 'Yes', off: 'No', yourTurn: 'Your turn: one word', send: 'Send', said: 'Words so far', skipped: '(passed)', writes: n => `${n} is writing a clue...`, phold: 'Your clue',
       debate: "Let's talk", toVote: 'Go to the vote', waitVote: 'Ready to vote', debateSub: 'Open debate before the vote', say: 'Write a message', whoIs: 'Who is the impostor?', voteBtn: 'Vote', voted: 'Vote sent. Waiting for the others...', pick: 'Tap a player, then vote',
       tie: 'Tie! Second vote between the tied players', voteCount: (a, b) => `${a} / ${b} voted`, verdict: 'The verdict is in...', wasX: n => `${n} was`, hisWord: 'Their word', civHad: w => `The civilians had "${w}"`, hisWordNone: 'No word',
       roles: { civil: 'Civilian', undercover: 'Undercover', white: 'Mr. White' }, byLot: 'Tie: luck picked this player.', left: 'left the game',
@@ -72,7 +72,7 @@
     host = document.createElement('div'); host.id = 'screen-undercover'; host.className = 'screen';
     host.style.cssText = 'padding:0;gap:0;justify-content:flex-start;align-items:stretch';
     root = host.attachShadow({ mode: 'open' });
-    const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'undercover.css?v=7'; root.appendChild(link);
+    const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'undercover.css?v=9'; root.appendChild(link);
     const wrap = document.createElement('div'); wrap.className = 'root'; wrap.innerHTML = '<div class="ph" id="ph"></div><canvas id="fx"></canvas>';
     root.appendChild(wrap);
     (document.getElementById('screen-home')?.parentNode || document.body).appendChild(host);
@@ -135,6 +135,11 @@
     if (a === 'start') return socket.emit('uc-start');
     if (a === 'max-') return socket.emit('uc-set-max', { max: (v.max || 8) - 1 });
     if (a === 'max+') return socket.emit('uc-set-max', { max: (v.max || 8) + 1 });
+    if (a === 'roles-auto') return socket.emit('uc-set-roles', { auto: true });
+    if (a === 'roles-manual' || a === 'und-' || a === 'und+' || a === 'white-on' || a === 'white-off') {
+      const r = (v && v.rl) || { und: 1, white: 0 };
+      return socket.emit('uc-set-roles', { und: a === 'und-' ? r.und - 1 : a === 'und+' ? r.und + 1 : r.und, white: a === 'white-on' ? 1 : a === 'white-off' ? 0 : r.white });
+    }
     if (a === 'ready') { el.disabled = true; el.textContent = U().readyDone; return socket.emit('uc-ready'); }
     if (a === 'tovote') { el.disabled = true; el.textContent = U().waitVote; return socket.emit('uc-ready'); }
     if (a === 'send') return sendClue();
@@ -158,6 +163,20 @@
   }
 
   // ── Salon ──
+  function rolesBlock(v) {
+    const r = v.rl || { n: 4, und: 1, white: 0, auto: true, undMax0: 1, undMax1: 0, whiteOk: false }, civ = r.n - r.und - r.white, d = U();
+    const tags = `<div class="tags"><span class="tag">${d.tagC(civ)}</span><span class="tag">${d.tagU(r.und)}</span>${r.white ? `<span class="tag">${d.tagW}</span>` : ''}</div>`;
+    let h = `<div><div class="sm" style="margin-bottom:4px;text-align:left">${d.roleSplit} · ${d.rolesFor(r.n)}</div>${tags}</div>`;
+    if (r.reset && v.host) h += `<div class="sm" style="text-align:left;color:var(--red)">${d.rolesReset}</div>`;
+    if (v.host) {
+      const undMax = r.white ? r.undMax1 : r.undMax0;
+      h += `<div class="seg"><button class="${r.auto ? 'on' : ''}" data-act="roles-auto">${d.rolesAuto}</button><button class="${r.auto ? '' : 'on'}" data-act="roles-manual">${d.rolesManual}</button></div>`;
+      if (!r.auto) h += `<div class="mx"><span>${d.undLbl}</span><span class="mxn"><button class="sq" data-act="und-" ${r.und <= 1 ? 'disabled' : ''}>-</button><b>${r.und}</b><button class="sq" data-act="und+" ${r.und >= undMax ? 'disabled' : ''}>+</button></span></div>
+        <div class="mx"><span>${d.whiteLbl}</span><span class="seg sm2"><button class="${r.white ? 'on' : ''}" data-act="white-on" ${r.whiteOk ? '' : 'disabled'}>${d.on}</button><button class="${r.white ? '' : 'on'}" data-act="white-off">${d.off}</button></span></div>`;
+      h += `<div class="sm" style="text-align:left">${d.rolesRule}</div>`;
+    } else h += `<div class="sm" style="text-align:left">${d.rolesHost}</div>`;
+    return h;
+  }
   function lobbyHtml(v) {
     const n = v.players.length, c = rolesCounts(Math.max(4, n)), ok = n >= v.min;
     const free = Math.min(2, Math.max(0, v.max - n));
@@ -167,9 +186,9 @@
       <div class="reg"><span class="tape"></span><div class="sm" style="text-align:left;margin-bottom:2px">${U().register} (${n}/${v.max})</div><div id="rows">${v.players.map(p => `<div class="rw${p.connected ? '' : ' off'}">${pf(p, 32)}<span>${esc(p.name)}${p.host ? ' <small class="sm">' + U().host + '</small>' : ''}</span><svg class="tk" viewBox="0 0 22 22"><path d="M3 12l5 5 11-12"/></svg></div>`).join('')}${('<div class="rw free"><span class="phd"></span><span>' + U().waitP + '</span></div>').repeat(free)}</div></div></div>
       <div class="lcol"><div class="step">2) <b>${U().step2}</b></div><div class="card lc lc2">
       ${v.host ? `<div class="mx"><span>${U().maxLbl}</span><span class="mxn"><button class="sq" data-act="max-" ${v.max <= Math.max(v.min, n) ? 'disabled' : ''}>-</button><b>${v.max}</b><button class="sq" data-act="max+" ${v.max >= 10 ? 'disabled' : ''}>+</button></span></div>` : ''}
-      <div><div class="sm" style="margin-bottom:4px;text-align:left">${U().roleSplit}</div><div class="tags"><span class="tag">${U().tagC(c[0])}</span><span class="tag">${U().tagU(c[1])}</span>${c[2] ? `<span class="tag">${U().tagW}</span>` : ''}</div></div>
+      ${rolesBlock(v)}
       <div class="sm" style="text-align:left">${v.host ? U().hint : U().waitHost}</div>
-      ${v.host ? `<button class="btn big${ok ? ' pulse' : ''}" data-act="start" ${ok ? '' : 'disabled'}>${ok ? U().start : U().need4}</button>` : ''}</div></div></div>`;
+      ${v.host ? `<button class="btn wide${ok ? ' pulse' : ''}" data-act="start" ${ok ? '' : 'disabled'}>${ok ? U().start : U().need4}</button>` : ''}</div></div></div>`;
   }
   function renderLobby(v) { S.v = v; S.cur = 'lobby'; setScene(lobbyHtml(v), 'lobby'); }
 
