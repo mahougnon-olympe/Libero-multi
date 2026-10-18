@@ -687,6 +687,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
         <div class="field">
           <label>Essayer le coffre pour le rang <input id="live-gift-rank" type="number" min="1" value="1" style="width:70px"></label>
           <button id="btn-live-gift" class="green" title="Ouvre le site avec un coffre d'essai : rien n'est versé">Voir le coffre (essai)</button>
+          <button id="btn-live-podium" class="green" title="Ouvre le site avec le podium de la finale : rien n'est enregistré">Voir le podium (essai)</button>
           <span id="live-gift-status" class="sub"></span>
         </div>
         <div class="field">
@@ -1880,6 +1881,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
         liveSend({ cfg: { openAll: $('live-openall').checked, sessions: sessions, prize: { fr: $('live-prize-fr').value, en: $('live-prize-en').value }, rewards: { 1: +$('live-r1').value, 2: +$('live-r2').value, 3: +$('live-r3').value, f: +$('live-rf').value, s: +$('live-rs').value, o: +$('live-ro').value } } });
       });
       if ($('btn-live-gift')) $('btn-live-gift').addEventListener('click', function () { window.open('./?giftpreview=' + encodeURIComponent($('live-gift-rank').value || '1'), '_blank'); });
+      if ($('btn-live-podium')) $('btn-live-podium').addEventListener('click', function () { window.open('./?podiumpreview=1', '_blank'); });
       if ($('btn-live-abort')) $('btn-live-abort').addEventListener('click', function () { if (confirm('Arrêter la session en cours ?')) liveSend({ action: 'abort' }); });
       if ($('btn-live-reset')) $('btn-live-reset').addEventListener('click', function () { if (confirm('Remettre tout le tournoi à zéro (résultats effacés) ?')) liveSend({ action: 'reset' }); });
       if ($('btn-live-reset-used')) $('btn-live-reset-used').addEventListener('click', function () { if (confirm('Les questions déjà tirées pourront revenir. Continuer ?')) liveSend({ action: 'reset-used' }); });
