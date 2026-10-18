@@ -3448,9 +3448,10 @@ try {
 // Essai du podium de la finale du tournoi (rien n'est enregistre) : /?podiumpreview=1
 try {
   if (new URLSearchParams(location.search).get('podiumpreview')) {
+    const _rep = new URLSearchParams(location.search).get('podiumpreview') === 'replay'; let _real = null; if (_rep) { try { _real = JSON.parse(localStorage.getItem('libero_podium_replay') || 'null'); localStorage.removeItem('libero_podium_replay'); } catch {} }
     history.replaceState(null, '', location.pathname);
     window.addEventListener('load', () => setTimeout(async () => {
-      const en = currentLang === 'en', top = [['Awa', 4820], ['Koffi', 4310], ['Yao', 3950], ['Maya', 3600], ['Sika', 3120]].map(x => ({ name: x[0], score: x[1] }));
+      const en = currentLang === 'en', top = (_real && _real.length ? _real : [['Awa', 4820], ['Koffi', 4310], ['Yao', 3950], ['Maya', 3600], ['Sika', 3120]].map(x => ({ name: x[0], score: x[1] })));
       try { if (await _loadPodiumJs() && window.LiberoPodium) await window.LiberoPodium.play(top, 0, Object.assign({}, t().podium, { sub: en ? 'Live quiz' : 'Quiz en direct', banner: en ? 'LIVE QUIZ CHAMPION' : 'CHAMPION DU QUIZ EN DIRECT' })); } catch {}
     }, 1200));
   }
