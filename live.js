@@ -5,7 +5,7 @@
   const L = () => (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en' : 'fr';
   const D = {
     fr: {
-      giftBtn: 'Ouvrir mes cadeaux', annGift: ['Tes cadeaux sont prêts', 'Ouvre ton coffre-fort'],
+      openMsg: (n, t) => `Tout le monde peut jouer la suite : ${n}, ${t}. Tu peux tenter ta chance.`, giftBtn: 'Ouvrir mes cadeaux', annGift: ['Tes cadeaux sont prêts', 'Ouvre ton coffre-fort'],
       title: 'Quiz en direct', back: 'Retour', sub: 'Le tournoi du week-end',
       sess: { q: 'Quart de finale', s: 'Demi-finale', f: 'Finale' },
       st: { scheduled: 'À VENIR', lobby: 'OUVERT', live: 'EN COURS', done: 'TERMINÉ', cancelled: 'ANNULÉ' },
@@ -28,13 +28,13 @@
       q: (a, b) => `Question ${a} sur ${b}`, answered: (a, b) => `${a} / ${b} ont répondu`, manche: 'MANCHE DRAPEAUX', manche2: 'Devine le drapeau', whichFlag: 'À quel pays appartient ce drapeau ?',
       readonly: 'Lecture seule : tu ne peux pas répondre', spec: 'SPECTATEUR', rest: 'Joueurs restants', all: 'Tout le tournoi', mode: 'Choisis comment regarder',
       serie: n => `Série de ${n}`, lbH: n => `Classement après la question ${n}`, you: 'Toi', yourRank: (r, n) => `Tu es ${r}${r === 1 ? 'er' : 'e'} sur ${n}`,
-      endH: s => `${s} terminé`, qualifiedS: 'QUALIFIÉ', outS: 'ÉLIMINÉ', rankOf: n => `sur ${n} joueurs`, nextStep: (n, t) => `Prochaine étape : ${n}, ${t}`, outMsg: 'Bien joué ! Tu peux encore suivre la suite en spectateur.',
+      endH: s => `${s} terminé`, qualifiedS: 'QUALIFIÉ', notTopS: 'HORS DU TOP', outS: 'ÉLIMINÉ', rankOf: n => `sur ${n} joueurs`, nextStep: (n, t) => `Prochaine étape : ${n}, ${t}`, outMsg: 'Bien joué ! Tu peux encore suivre la suite en spectateur.',
       follow: 'Suivre les joueurs restants', seeAll: 'Voir tout le tournoi', champ: 'Champion du Quiz en direct', yourPrize: 'Ton prix', prizeSoon: "Annoncé bientôt. Il apparaîtra ici.", libsWon: n => `+${n} Libs`,
       over: 'Tournoi terminé', thanks: 'Merci à tous les joueurs', toProg: 'Voir le programme', leave: 'Quitter la salle', errNotQ: "Tu n'es pas qualifié(e) pour cette session.", errLate: 'Trop tard pour rejoindre cette session.', errClosed: "Cette session n'est pas ouverte.", errAbort: "L'organisateur a arrêté la session.",
       day: ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'], bk: ['Quart', 'Demi', 'Finale'], cta: 'Quiz en direct', ctaLive: 'En direct maintenant', ctaSoon: 'Salle ouverte, rejoins-nous', ctaNext: 'Tournoi du week-end', pill: 'EN DIRECT',
     },
     en: {
-      giftBtn: 'Open my gifts', annGift: ['Your gifts are ready', 'Open your vault'],
+      openMsg: (n, t) => `Everyone can play the next step: ${n}, ${t}. You can still try your luck.`, giftBtn: 'Open my gifts', annGift: ['Your gifts are ready', 'Open your vault'],
       title: 'Live quiz', back: 'Back', sub: 'The weekend tournament',
       sess: { q: 'Quarterfinal', s: 'Semifinal', f: 'Final' },
       st: { scheduled: 'UPCOMING', lobby: 'OPEN', live: 'LIVE', done: 'FINISHED', cancelled: 'CANCELLED' },
@@ -57,7 +57,7 @@
       q: (a, b) => `Question ${a} of ${b}`, answered: (a, b) => `${a} / ${b} answered`, manche: 'FLAG ROUND', manche2: 'Guess the flag', whichFlag: 'Which country does this flag belong to?',
       readonly: "Read only: you can't answer", spec: 'SPECTATOR', rest: 'Remaining players', all: 'Whole tournament', mode: 'Choose how to watch',
       serie: n => `Streak of ${n}`, lbH: n => `Ranking after question ${n}`, you: 'You', yourRank: (r, n) => `You are ${r}${r === 1 ? 'st' : r === 2 ? 'nd' : r === 3 ? 'rd' : 'th'} of ${n}`,
-      endH: s => `${s} finished`, qualifiedS: 'QUALIFIED', outS: 'OUT', rankOf: n => `out of ${n} players`, nextStep: (n, t) => `Next step: ${n}, ${t}`, outMsg: 'Well played! You can still follow the rest as a spectator.',
+      endH: s => `${s} finished`, qualifiedS: 'QUALIFIED', notTopS: 'OUTSIDE THE TOP', outS: 'OUT', rankOf: n => `out of ${n} players`, nextStep: (n, t) => `Next step: ${n}, ${t}`, outMsg: 'Well played! You can still follow the rest as a spectator.',
       follow: 'Follow the remaining players', seeAll: 'See the whole tournament', champ: 'Live Quiz champion', yourPrize: 'Your prize', prizeSoon: 'Announced soon. It will appear here.', libsWon: n => `+${n} Libs`,
       over: 'Tournament over', thanks: 'Thanks to all the players', toProg: 'See the schedule', leave: 'Leave the room', errNotQ: "You're not qualified for this session.", errLate: 'Too late to join this session.', errClosed: 'This session is not open.', errAbort: 'The organiser stopped the session.',
       day: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], bk: ['Quarter', 'Semi', 'Final'], cta: 'Live quiz', ctaLive: 'Live right now', ctaSoon: 'Room open, join us', ctaNext: 'Weekend tournament', pill: 'LIVE',
@@ -167,7 +167,7 @@
       const chipC = s.status === 'done' ? 'ok' : (s.status === 'live' || s.status === 'lobby') ? 'red' : 'gray';
       const lines = [`${when(s.start)} · ${d.detail(s)} · ${d.qual(s.qualify)}`];
       if (s.status === 'done') lines.push(`<b>${s.players}</b> ${d.players(s.players).replace(/^\d+ /, '')}, ${d.qualified(s.qualified)}` + (s.top.length ? ` · ${s.top.map(t => esc(t.name)).join(', ')}` : ''));
-      else if (s.me.eligible && s.id !== 'q') lines.push(d.youIn);
+      else if (s.me.joined) lines.push(d.youIn);
       return `<div class="lv-sess${act && act.id === s.id ? ' now' : ''}"><div class="lv-row"><h3>${d.sess[s.id]}</h3><span class="lv-chip ${chipC}">${d.st[s.status]}</span></div>${lines.map(l => `<div class="lv-m">${l}</div>`).join('')}</div>`;
     }).join('');
     const prize = L() === 'en' ? info.prize.en : info.prize.fr;
@@ -409,17 +409,17 @@
 
   // ── Fin de session ──
   async function onResult(r) {
-    const d = U(), q = r.qualified, next = r.next;
+    const d = U(), q = r.qualified, next = r.next, go = q || (r.open && next);
     V.res = r;
     if (r.final) return;
     clearInterval(V.tq);
-    scene(`<p class="lv-hand" style="text-align:center">${d.endH(d.sess[r.sid])}</p><div class="lv-rank">${r.rank}<small>${d.rankOf(r.total)}</small></div><div class="lv-stamp ${q ? '' : 'out'}" id="lv-stamp">${q ? d.qualifiedS : d.outS}</div><div class="lv-box" style="text-align:center;font-size:13px">${q && next ? esc(d.nextStep(d.sess[next.id], when(next.start))) : esc(d.outMsg)}</div>` +
-      (q ? `<button class="lv-btn alt" id="lv-prog">${d.toProg}</button>` : `<button class="lv-btn" data-m="remaining">${d.follow}</button><button class="lv-btn alt" data-m="all">${d.seeAll}</button>`), 'result');
+    scene(`<p class="lv-hand" style="text-align:center">${d.endH(d.sess[r.sid])}</p><div class="lv-rank">${r.rank}<small>${d.rankOf(r.total)}</small></div><div class="lv-stamp ${q ? '' : 'out'}" id="lv-stamp">${q ? d.qualifiedS : (go ? d.notTopS : d.outS)}</div><div class="lv-box" style="text-align:center;font-size:13px">${q && next ? esc(d.nextStep(d.sess[next.id], when(next.start))) : (go ? esc(d.openMsg(d.sess[next.id], when(next.start))) : esc(d.outMsg))}</div>` +
+      (go ? `<button class="lv-btn alt" id="lv-prog">${d.toProg}</button>` : `<button class="lv-btn" data-m="remaining">${d.follow}</button><button class="lv-btn alt" data-m="all">${d.seeAll}</button>`), 'result');
     announce(d.annEnd, '', 'OK');
     await wait(700); $('#lv-stamp', root)?.classList.add('go'); if (q) { await wait(800); confetti(); announce(d.annQual(next ? d.sess[next.id] + ', ' + when(next.start) : ''), 'mark', 'OK'); }
     const pgb = $('#lv-prog', root); if (pgb) pgb.onclick = () => { leave(true); };
     body.querySelectorAll('[data-m]').forEach(b => b.onclick = () => watch(b.dataset.m));
-    if (q) V.role = 'player'; else V.role = null; save();
+    if (go) V.role = 'player'; else V.role = null; save();
   }
   async function onEnd(e) {
     clearInterval(V.tq); V.endTop = e.top; V.lastBoard = null; V.started = false;

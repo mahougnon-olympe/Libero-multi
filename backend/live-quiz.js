@@ -6,6 +6,7 @@ const flagsGame = require('./game-flags');
 
 const DEFAULT_CFG = {
   lobbyMin: 10,                        // la salle ouvre N minutes avant
+  openAll: true,                       // tout le monde peut jouer la demi et la finale (sinon : seulement les qualifies)
   prize: { fr: '', en: '' },           // texte du prix du champion (vide = a annoncer)
   rewards: { 1: 5000, 2: 3000, 3: 1500, f: 800, s: 400, o: 150 }, // Libs du coffre : podium, finalistes (4 a 10), rangs 11 a 15, tous les autres
   sessions: [
@@ -60,7 +61,7 @@ module.exports = function createLive(ctx) {
   function eligible(sid, pid) {
     if (!pid) return false;
     const i = idx(sid); if (i < 0) return false;
-    if (i === 0) return true;
+    if (i === 0 || cfg.openAll) return true;
     const prev = state.done[cfg.sessions[i - 1].id];
     return !!(prev && prev.qualified.includes(pid));
   }
@@ -237,7 +238,7 @@ module.exports = function createLive(ctx) {
     for (const [sid, pid] of sockPid) {
       if (sockRun.get(sid) !== r) continue;
       const p = r.players.get(pid); if (!p || specs.has(sid)) continue;
-      io.to(sid).emit('live-result', { sid: s.id, rank: p.rank, score: p.score, correct: p.correct, total: rank.length, qualified: qualified.includes(pid), final, reward: 0, next, test: r.test });
+      io.to(sid).emit('live-result', { sid: s.id, rank: p.rank, score: p.score, correct: p.correct, total: rank.length, qualified: qualified.includes(pid), open: !!cfg.openAll, final, reward: 0, next, test: r.test });
     }
     if (r.test) setTimeout(() => { tests.delete(r.code); }, 120000);
     else { run = null; phase(); }
@@ -358,7 +359,7 @@ module.exports = function createLive(ctx) {
       if (!r) return socket.emit('live-error', { code: 'closed' });
       if (!r.test && !eligible(r.sid, pid)) return socket.emit('live-error', { code: 'notqualified' });
       const late = r.status !== 'lobby';
-      if (late && !r.players.has(pid) && !(r.test || (r.sid === 'q' && r.cur < LATE_Q))) return socket.emit('live-error', { code: 'late' });
+      if (late && !r.players.has(pid) && !(r.test || r.cur < LATE_Q)) return socket.emit('live-error', { code: 'late' });
       let p = r.players.get(pid);
       if (!p) { p = { pid, name: ctx.sanitizeName(name, 'Anonyme'), score: 0, correct: 0, time: 0, rank: 0, lastDelta: 0, portrait: ctx.portraitOf(pid, name) }; r.players.set(pid, p); }
       leaveRoom(socket);
@@ -429,6 +430,7 @@ module.exports = function createLive(ctx) {
     if (body.cfg) {
       const c = body.cfg;
       if (c.lobbyMin != null) cfg.lobbyMin = Math.max(1, Math.min(60, +c.lobbyMin || 5));
+      if (c.openAll != null) cfg.openAll = !!c.openAll;
       if (c.prize) cfg.prize = { fr: String(c.prize.fr || '').slice(0, 200), en: String(c.prize.en || '').slice(0, 200) };
       if (c.rewards) [1, 2, 3, 'f', 's', 'o'].forEach(k => { if (c.rewards[k] != null) cfg.rewards[k] = Math.max(0, Math.min(100000, Math.floor(+c.rewards[k] || 0))); });
       if (Array.isArray(c.sessions)) c.sessions.forEach(u => {

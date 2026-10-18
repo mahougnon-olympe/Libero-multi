@@ -677,6 +677,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
           <label>Libs 1er <input id="live-r1" type="number" min="0" value="0" style="width:80px"></label>
           <label>2e <input id="live-r2" type="number" min="0" value="0" style="width:80px"></label>
           <label>3e <input id="live-r3" type="number" min="0" value="0" style="width:80px"></label>
+          <label style="white-space:nowrap"><input type="checkbox" id="live-openall" checked> Demi et finale ouvertes à tous</label>
           <label>4e à 10e <input id="live-rf" type="number" min="0" value="0" style="width:80px"></label>
           <label>11e à 15e <input id="live-rs" type="number" min="0" value="0" style="width:80px"></label>
           <label>16e et plus <input id="live-ro" type="number" min="0" value="0" style="width:80px"></label>
@@ -1864,6 +1865,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
           if (!$('live-prize-fr').value) $('live-prize-fr').value = d.cfg.prize.fr || '';
           if (!$('live-prize-en').value) $('live-prize-en').value = d.cfg.prize.en || '';
           [1, 2, 3].forEach(function (k) { $('live-r' + k).value = d.cfg.rewards[k] || 0; });
+          if ($('live-openall')) $('live-openall').checked = d.cfg.openAll !== false;
           $('live-rf').value = d.cfg.rewards.f || 0; $('live-rs').value = d.cfg.rewards.s || 0; $('live-ro').value = d.cfg.rewards.o || 0;
           if ($('live-gift-status')) $('live-gift-status').textContent = d.gifts && d.gifts.total ? d.gifts.total + ' coffres créés, ' + d.gifts.opened + ' entièrement ouverts.' : 'Aucun coffre créé pour l\'instant.';
           $('live-status').textContent = (d.active ? 'Session en cours : ' + d.active.sid + ' (' + d.active.status + ', ' + d.active.players + ' joueurs). ' : 'Aucune session en cours. ') + 'Questions déjà tirées : ' + d.usedCount + '.' + (d.champion ? ' Champion : ' + d.champion.name + '.' : '');
@@ -1875,7 +1877,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
           var v = row.querySelector('.lv-start').value;
           return { id: row.dataset.sid, start: v ? v + ':00+01:00' : undefined, qualify: +row.querySelector('.lv-q').value, themeQ: +row.querySelector('.lv-tq').value, flagQ: +row.querySelector('.lv-fq').value, cancelled: row.querySelector('.lv-can').checked };
         });
-        liveSend({ cfg: { sessions: sessions, prize: { fr: $('live-prize-fr').value, en: $('live-prize-en').value }, rewards: { 1: +$('live-r1').value, 2: +$('live-r2').value, 3: +$('live-r3').value, f: +$('live-rf').value, s: +$('live-rs').value, o: +$('live-ro').value } } });
+        liveSend({ cfg: { openAll: $('live-openall').checked, sessions: sessions, prize: { fr: $('live-prize-fr').value, en: $('live-prize-en').value }, rewards: { 1: +$('live-r1').value, 2: +$('live-r2').value, 3: +$('live-r3').value, f: +$('live-rf').value, s: +$('live-rs').value, o: +$('live-ro').value } } });
       });
       if ($('btn-live-gift')) $('btn-live-gift').addEventListener('click', function () { window.open('./?giftpreview=' + encodeURIComponent($('live-gift-rank').value || '1'), '_blank'); });
       if ($('btn-live-abort')) $('btn-live-abort').addEventListener('click', function () { if (confirm('Arrêter la session en cours ?')) liveSend({ action: 'abort' }); });
