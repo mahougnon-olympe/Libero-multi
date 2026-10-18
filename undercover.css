@@ -1,7 +1,7 @@
 /* Undercover : le jeu de bluff a mots secrets (rendu dans un shadow DOM par undercover.js). Style cahier (jour) et ardoise (nuit). */
 :host{display:block}
 *{box-sizing:border-box}
-.root{--soft:rgba(238,241,234,.12);--rule:rgba(238,241,234,.08);--ok:#7fe0a8;--slate:#1f2a26;--chalk:#eef1ea;position:relative;width:100%;max-width:520px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;color:var(--text);font-family:var(--font-body,'Archivo','Segoe UI',system-ui,sans-serif);font-size:16px;line-height:1.4;background:var(--bg);overflow:hidden}
+.root{--soft:rgba(238,241,234,.12);--rule:rgba(238,241,234,.08);--ok:#7fe0a8;--slate:#1f2a26;--chalk:#eef1ea;position:relative;width:100%;max-width:520px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;color:var(--text);font-family:var(--font-body,'Archivo','Segoe UI',system-ui,sans-serif);font-size:16px;line-height:1.4;background:transparent;overflow:hidden}
 .root.lt{--soft:rgba(34,37,43,.14);--rule:rgba(80,130,205,.42);--ok:#1f8a54}
 .root::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 31px,var(--rule) 31px 32px),linear-gradient(90deg,transparent 33px,var(--margin,var(--red)) 33px 34.5px,transparent 34.5px);pointer-events:none}
 .ph{position:relative;flex:1;display:flex;flex-direction:column;min-height:100dvh}
@@ -189,17 +189,43 @@
 .scard .sb b{font-family:'Caveat',cursive;font-size:1.9rem;line-height:1}
 /* ordinateur : trois zones (carte a gauche, table au centre, indices et chat a droite) */
 @media (min-width:1000px){
-  .root{max-width:1240px;border-inline:1.5px solid var(--soft)}
   .body{flex-direction:row;align-items:flex-start;justify-content:center;gap:22px;padding:10px 26px 12px}
-  .colL{display:flex;flex-direction:column;gap:10px;width:230px;flex:none}
+  .colL{display:flex;flex-direction:column;gap:10px;width:220px;flex:none}
   .colA{display:flex;flex-direction:column;align-items:center;gap:10px;flex:1;min-width:0}
-  .colB{display:flex;flex-direction:column;gap:8px;width:340px;flex:none}
+  .colB{display:flex;flex-direction:column;gap:8px;width:300px;flex:none}
   .scard{height:130px}
   .scard .sa,.scard .sb{flex-direction:column;gap:2px}
   .scard .sb b{font-size:2.4rem}
-  .table{transform:scale(1.4);transform-origin:50% 0;margin:36px 0 125px}
+  .table{transform:scale(1.3);transform-origin:50% 0;margin:36px 0 95px}
   .chat{max-height:430px!important}
   .vg{grid-template-columns:repeat(4,1fr)}
   .ph .foot .btn{max-width:300px}
 }
-@media (min-width:1000px) and (min-height:820px){.table{transform:scale(1.75);margin:40px 0 230px}}
+@media (min-width:1000px) and (min-height:820px){.table{transform:scale(1.5);margin:40px 0 160px}}
+
+/* coherence avec les autres pages : le cahier du site, titre, retour a la main, cartes */
+.root::before{display:none}
+.top{flex-direction:column;align-items:flex-start;gap:2px;padding:14px 16px 4px}
+.top .back{width:auto;height:auto;border:0;background:none;box-shadow:none;display:block;padding:0;font-family:'Caveat',cursive;font-size:1.5rem;font-weight:700;color:var(--accent,#173a8a);cursor:pointer}
+.root:not(.lt) .top .back{color:#8fb0ff}
+.top .ttl{font-weight:400;font-family:'Archivo Black',sans-serif;font-size:1.5rem;line-height:1.1;margin:0;flex:none}
+.top .sub{color:var(--muted);font-size:.9rem;min-height:1.2em}
+.step{font-family:'Caveat',cursive;font-size:1.5rem;color:var(--margin,var(--red));display:flex;align-items:baseline;gap:8px;line-height:1.1}
+.step b{font-weight:400;font-family:'Archivo Black',sans-serif;font-size:.82rem;color:var(--text)}
+.lobby{align-items:stretch;flex-direction:column;gap:12px}
+.lcol{display:flex;flex-direction:column;gap:10px;min-width:0}
+.lc{background:var(--card);border:1.5px solid var(--line);border-radius:10px;box-shadow:0 3px 0 var(--hard);padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.lc2{align-items:stretch;gap:14px}
+.lc2 .mx{justify-content:space-between}.mxn{display:flex;align-items:center;gap:10px}.mxn b{font-family:'Archivo Black',sans-serif;font-size:1.3rem;min-width:28px;text-align:center}
+.tags{display:flex;gap:6px;flex-wrap:wrap}.tag{border:1.5px solid var(--line);border-radius:99px;padding:1px 10px;font-weight:800;font-size:.8rem;background:var(--card)}
+.big{width:100%;padding:12px;font-size:1rem}
+.reg{background:var(--card);color:var(--text)}
+.reg .rw.free{opacity:.45;font-weight:600;animation:none}
+.reg .rw .phd{width:32px;height:32px;border-radius:50%;border:2px dashed var(--line);flex:none}
+@media (min-width:1000px){
+  .root{max-width:1240px;padding:0 28px 0 80px;border-inline:0}
+  .lobby{max-width:1000px}
+  .top{padding:22px 0 6px}
+  .lobby{flex-direction:row;align-items:flex-start;gap:22px;padding:8px 0 18px}
+  .lcol{flex:1}
+}
