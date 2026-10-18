@@ -192,6 +192,8 @@
       $('#lv-codego', root).onclick = go; $('#lv-codein', root).onkeydown = e => { if (e.key === 'Enter') go(); }; $('#lv-codein', root).focus();
     };
     const j = $('#lv-join', root); if (j) j.onclick = () => rules(act.id);
+    if (V.autoEnter && act && act.me.eligible && !act.me.joined) { V.autoEnter = false; rules(act.id); return; }
+    V.autoEnter = false;
     const w = $('#lv-watch', root); if (w) w.onclick = chooseWatch;
   }
   function chooseWatch() {
@@ -506,5 +508,6 @@
   }
   function open() { ensure(); try { sessionStorage.removeItem(KEY); } catch {} V = Object.assign(V, { role: null, view: 'prog', code: '' }); prog(); socket.emit('live-get', { playerId: getPlayerId(), code: V.code }); }
   function resume() { if (V.role === 'player') socket.emit('live-join', { playerId: getPlayerId(), name: pname() || 'Anonyme', code: V.code }); else if (V.role === 'spec') socket.emit('live-watch', { playerId: getPlayerId(), mode: V.mode, code: V.code }); }
-  window.LiberoLive = { open, restore, resume, on, giftReady, info: () => info };
+  function enter() { V.autoEnter = true; open(); }
+  window.LiberoLive = { open, enter, restore, resume, on, giftReady, info: () => info };
 })();

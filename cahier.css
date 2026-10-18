@@ -3195,3 +3195,11 @@ html.light .xp-pill { color: #173a8a; }
 :root:root .pid-avatar.pf-bronze { box-shadow: 0 0 0 4px #c8803f, 0 0 0 6px rgba(0,0,0,.4); }
 :root:root .pid-avatar.pf-finalist { box-shadow: 0 0 0 4px #b69af0, 0 0 0 6px rgba(0,0,0,.4), 0 0 12px 2px rgba(182,154,240,.7); }
 :root:root .pid-avatar.pf-semi { box-shadow: 0 0 0 4px #8fd3f2, 0 0 0 6px rgba(0,0,0,.4); }
+
+/* Accueil : compte a rebours du Quiz en direct, bouton d'entree une fois la salle ouverte */
+.live-home { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; border: 2px solid var(--line); border-radius: 12px; background: var(--mark); color: #22252b; padding: 10px 12px; margin: 6px 0 10px; }
+.live-home[hidden], .live-home .lh-go[hidden] { display: none; }
+.lh-top { display: flex; align-items: center; gap: 8px; flex: 1 1 100%; }
+.lh-title { font: 800 .95rem var(--font-body); }
+.lh-cd { flex: 1 1 140px; font: 700 1.35rem var(--font-hand); font-variant-numeric: tabular-nums; }
+.lh-go { border: 2px solid #22252b; border-radius: 99px; background: var(--margin); color: #fff; padding: 8px 18px; font: 800 .95rem var(--font-body); cursor: pointer; }

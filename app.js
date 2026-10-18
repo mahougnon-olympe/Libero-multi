@@ -1178,6 +1178,7 @@ const DICT = {
     helpBoostTitle:'Boost Indice (quiz)',
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     eventsTitle:'Évents', eventsDesc:'Calendrier des week-ends',
+    liveHome:{ q:'Quart de finale', s:'Demi-finale', f:'Finale', title:'Quiz en direct', opensIn:'La salle ouvre dans', startsIn:'Début dans', live:'La session est en cours', soon:'Prochaine étape bientôt', enter:'Entrer dans le salon', watch:'Voir le tournoi', day:'j' },
     giftNotif:"Tes cadeaux du tournoi t'attendent", giftNotifEnv:"Ton enveloppe du tournoi t'attend encore", giftNotifHint:'Touche pour ouvrir ton coffre-fort',
     livePill:'EN DIRECT', liveOpenPill:'SALLE OUVERTE', liveCtaT:'Quiz en direct', liveCtaOpen:'La salle est ouverte, rejoins-nous', liveCtaNext:'Le tournoi du week-end, en trois sessions', 
     evMonths:['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'], evThisWeekend:x=>`Ce week-end : ${x}`, evNext:x=>`Prochain : ${x}`, evNews:x=>`<strong>Ce week-end</strong> : ${x}`, evNewsNext:(x,n)=>`<strong>Prochain évent</strong> : ${x}, dans ${n} jour${n>1?'s':''}`, evCalendarSub:'Le calendrier des week-ends', evTournament:'Tous les samedis : <b>tournoi</b>, 2000 Libs au champion.', evEmpty:'Les prochains évents arrivent bientôt.', evLive:'En cours', evReward:'Récompense', evNote:'Touche un évent pour voir ses règles. Les dates peuvent encore bouger.',
@@ -1979,6 +1980,7 @@ const DICT = {
     helpBoostTitle:'Quiz Hint Boost',
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     eventsTitle:'Events', eventsDesc:'Weekend calendar',
+    liveHome:{ q:'Quarterfinal', s:'Semifinal', f:'Final', title:'Live quiz', opensIn:'The room opens in', startsIn:'Starts in', live:'The session is under way', soon:'Next step soon', enter:'Enter the room', watch:'See the tournament', day:'d' },
     giftNotif:'Your tournament gifts are waiting', giftNotifEnv:'Your tournament envelope is still waiting', giftNotifHint:'Tap to open your vault',
     livePill:'LIVE', liveOpenPill:'ROOM OPEN', liveCtaT:'Live quiz', liveCtaOpen:'The room is open, join us', liveCtaNext:'The weekend tournament, in three sessions', 
     evMonths:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], evThisWeekend:x=>`This weekend: ${x}`, evNext:x=>`Next: ${x}`, evNews:x=>`<strong>This weekend</strong>: ${x}`, evNewsNext:(x,n)=>`<strong>Next event</strong>: ${x}, in ${n} day${n>1?'s':''}`, evCalendarSub:'The weekend calendar', evTournament:'Every Saturday: <b>tournament</b>, 2000 Libs for the champion.', evEmpty:'The next events are coming soon.', evLive:'Live', evReward:'Reward', evNote:'Tap an event to see its rules. Dates may still change.',
@@ -3390,7 +3392,7 @@ function _liveLoad() {
   if (window.LiberoLive) return Promise.resolve(window.LiberoLive);
   if (_liveP) return _liveP;
   _liveP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'live.js?v=19';
+    const sc = document.createElement('script'); sc.src = 'live.js?v=20';
     sc.onload = () => res(window.LiberoLive); sc.onerror = () => { _liveP = null; res(null); };
     document.head.appendChild(sc);
   });
@@ -3447,7 +3449,39 @@ function _liveCtaHtml() {
   const d = t();
   return `<button type="button" class="live-cta" data-live="1">${act ? `<span class="lv-live"><i></i>${act.status === 'live' ? d.livePill : d.liveOpenPill}</span>` : ''}<span>${d.liveCtaT}<small>${act ? d.liveCtaOpen : d.liveCtaNext}</small></span></button>`;
 }
+// Accueil : compte a rebours jusqu'a l'ouverture de la salle, puis bouton pour y entrer (rien de cliquable avant l'heure)
+function _liveHomePaint() {
+  const box = document.getElementById('live-home'); if (!box) return;
+  const inf = window._liveInfo, d = t().liveHome;
+  if (!inf || !inf.sessions) { box.hidden = true; return; }
+  const ss = inf.sessions;
+  const act = ss.find(s => s.status === 'lobby' || s.status === 'live');
+  const nxt = act || ss.find(s => s.status === 'scheduled');
+  if (!nxt) { box.hidden = true; return; }
+  box.hidden = false;
+  box.dataset.sid = nxt.id; box.dataset.st = nxt.status;
+  document.getElementById('lh-title').textContent = d.title + ' : ' + d[nxt.id];
+  const b = document.getElementById('lh-badge'); b.textContent = nxt.status === 'live' ? t().livePill : nxt.status === 'lobby' ? t().liveOpenPill : (currentLang === 'en' ? 'UPCOMING' : 'À VENIR');
+  box.querySelector('.lv-live').style.display = act ? '' : 'none';
+  const go = document.getElementById('lh-go');
+  go.hidden = !act; go.textContent = act ? (act.me && act.me.eligible === false ? d.watch : d.enter) : '';
+  _liveHomeTick();
+}
+function _liveHomeTick() {
+  const box = document.getElementById('live-home'); if (!box || box.hidden) return;
+  const inf = window._liveInfo; if (!inf) return;
+  const d = t().liveHome, sid = box.dataset.sid, st = box.dataset.st, s = (inf.sessions || []).find(x => x.id === sid); if (!s) return;
+  const off = (inf.now || Date.now()) - (window._liveInfoAt || Date.now()), now = Date.now() + off;
+  const fmt = ms => { ms = Math.max(0, Math.floor(ms / 1000)); const dd = Math.floor(ms / 86400), hh = Math.floor(ms % 86400 / 3600), mm = Math.floor(ms % 3600 / 60), sc = ms % 60, p = n => String(n).padStart(2, '0'); return (dd ? dd + ' ' + d.day + ' ' : '') + p(hh) + ':' + p(mm) + ':' + p(sc); };
+  const cd = document.getElementById('lh-cd');
+  if (st === 'live') cd.textContent = d.live;
+  else if (st === 'lobby') cd.textContent = d.startsIn + ' ' + fmt(s.start - now);
+  else { const left = s.start - (inf.lobbyMin || 10) * 60000 - now; cd.textContent = left > 0 ? d.opensIn + ' ' + fmt(left) : d.soon; }
+}
+setInterval(_liveHomeTick, 1000);
+document.addEventListener('click', e => { if (e.target.closest?.('#lh-go')) _liveLoad().then(m => m && (m.enter ? m.enter() : m.open())); });
 function _livePaint() {
+  _liveHomePaint();
   const inf = window._liveInfo;
   const act = inf && inf.sessions.find(s => s.status === 'lobby' || s.status === 'live');
   let p = document.getElementById('live-pill');
@@ -3458,7 +3492,7 @@ function _livePaint() {
 }
 document.addEventListener('click', e => { const b = e.target.closest?.('.live-cta'); if (b) _liveLoad().then(m => m && m.open()); });
 ['live-info', 'live-phase', 'live-joined', 'live-watching', 'live-lobby', 'live-draw', 'live-start', 'live-q', 'live-answered', 'live-countdown', 'live-reveal', 'live-me', 'live-end', 'live-result', 'live-error', 'live-ack'].forEach(ev => socket.on(ev, d => {
-  if (ev === 'live-info') { const sg = JSON.stringify((d.sessions || []).map(s => [s.id, s.status])); const ch = window._liveSig !== sg; window._liveInfo = d; window._liveSig = sg; if (ch) _livePaint(); }
+  if (ev === 'live-info') { const sg = JSON.stringify((d.sessions || []).map(s => [s.id, s.status])); const ch = window._liveSig !== sg; window._liveInfo = d; window._liveInfoAt = Date.now(); window._liveSig = sg; if (ch) _livePaint(); else _liveHomeTick(); }
   if (ev === 'live-phase') socket.emit('live-get', { playerId: getPlayerId() });
   if (window.LiberoLive) window.LiberoLive.on(ev, d || {});
 }));
