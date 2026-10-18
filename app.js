@@ -3313,6 +3313,7 @@ document.querySelectorAll('.game-btn').forEach(btn => {
     document.querySelectorAll('.game-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     selectedGameType = btn.dataset.game;
+    try { const sel = btn.parentElement; if (sel && sel.scrollWidth > sel.clientWidth + 2) sel.scrollTo({ left: btn.offsetLeft - (sel.clientWidth - btn.offsetWidth) / 2, behavior: 'smooth' }); } catch {}
     window._ckRulesSync?.();
     window._unoWhoSync?.();
     window._ucWhoSync?.();

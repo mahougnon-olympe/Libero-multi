@@ -3207,3 +3207,11 @@ html.light .xp-pill { color: #173a8a; }
 /* Undercover : pas de robot, de mise ni de defi a deux ; les boutons flottants s'effacent pendant la partie */
 #home-who.is-uc .stake-row, #home-who.is-uc #step-stake, #home-who.is-uc #btn-challenge-friend, #home-who.is-uc #who-bot { display: none; }
 body.screen-undercover-active .btn-help-float, body.screen-undercover-active .btn-comment-float, body.screen-undercover-active .btn-chatbot-float, body.screen-undercover-active .chatbot-panel, body.screen-undercover-active #live-pill { display: none !important; }
+
+/* Choix du jeu sur telephone : une ligne qui defile, environ 4 jeux visibles, noms lisibles */
+@media (max-width: 640px) {
+  .game-selector { overflow-x: auto; scroll-snap-type: x proximity; gap: 8px; padding: 4px 2px 12px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .game-selector::-webkit-scrollbar { display: none; }
+  :root:root .game-selector .game-btn { flex: 0 0 calc((100% - 24px) / 4.3); min-width: 0; scroll-snap-align: start; padding: 6px 3px 8px; }
+  .game-selector .game-btn-name { font-size: .66rem; line-height: 1.15; text-align: center; }
+}
