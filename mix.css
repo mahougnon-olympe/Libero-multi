@@ -1,0 +1,31 @@
+/* Quiz mixte : reglages (themes, drapeaux, manches). Les themes reprennent le style de Culture Generale. */
+#screen-mix-home .mx-card { display: flex; flex-direction: column; gap: 8px; }
+.mx-seg { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--text); border-radius: 10px; overflow: hidden; }
+.mx-seg button { border: 0; background: var(--card); color: var(--text); padding: 8px; font: inherit; font-weight: 800; cursor: pointer; }
+.mx-seg button + button { border-left: 2px solid var(--text); }
+.mx-seg button[aria-selected="true"] { background: var(--accent); color: #fff; }
+html:not(.light) .mx-seg button[aria-selected="true"] { color: #1f2a26; }
+.mx-box { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--card); box-shadow: 0 2px 0 var(--hard); }
+.mx-lab, .mx-sub { font-size: .82rem; color: var(--muted); font-weight: 700; margin: 0; }
+.mx-rng { width: 100%; accent-color: var(--accent); }
+.mx-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.mx-chip { border: 1.5px solid var(--line); background: var(--card); color: var(--text); border-radius: 99px; padding: 3px 12px; font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; }
+.mx-chip[aria-pressed="true"] { background: var(--mark); color: #22252b; border-color: #22252b; }
+.mx-strip { display: flex; flex-wrap: wrap; gap: 3px; }
+.mx-sq { width: 24px; height: 24px; border-radius: 5px; border: 1.5px solid var(--line); display: grid; place-items: center; font-size: .66rem; font-weight: 800; background: var(--card); overflow: hidden; }
+.mx-sq img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mx-sq.t { background: var(--accent); color: #fff; }
+html:not(.light) .mx-sq.t { color: #1f2a26; }
+.mx-rd { display: flex; flex-direction: column; gap: 6px; border: 1.5px solid var(--line); border-radius: 9px; padding: 7px 8px; background: var(--card); box-shadow: 0 2px 0 var(--hard); }
+.mx-rt { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: .85rem; flex-wrap: wrap; }
+.mx-n { width: 22px; height: 22px; border-radius: 50%; background: var(--margin); color: #fff; display: grid; place-items: center; font-size: .72rem; flex: none; }
+.mx-sel { font: inherit; font-size: .8rem; font-weight: 700; color: var(--text); background: var(--card); border: 1.5px solid var(--line); border-radius: 8px; padding: 3px 6px; max-width: 100%; }
+.mx-mv { margin-left: auto; display: flex; gap: 4px; }
+.mx-mini { border: 1.5px solid var(--line); background: var(--card); color: var(--text); border-radius: 6px; width: 28px; height: 28px; font: 800 .9rem inherit; cursor: pointer; padding: 0; }
+.mx-tl { display: flex; height: 16px; border: 1.5px solid var(--line); border-radius: 99px; overflow: hidden; }
+.mx-tl i { display: block; height: 100%; }
+.mx-tl .a { background: var(--accent); } .mx-tl .b { background: var(--margin); } .mx-tl .c { background: #e8a900; }
+.mx-act { display: flex; justify-content: center; }
+.mx-act .btn { min-width: 200px; }
+.mx-act .join-group { width: 100%; }
+#mx-name { width: 100%; box-sizing: border-box; border: 1.5px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); padding: 10px 12px; font: inherit; }

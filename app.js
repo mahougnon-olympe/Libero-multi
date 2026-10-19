@@ -105,6 +105,7 @@ let equippedCosmetic   = null;
 let equippedFont       = null;
 let equippedBubble     = null;
 let triviaIsFlags      = false;
+let triviaIsMix        = false;
 let equippedBackground   = localStorage.getItem('libero_equipped_bg') || null;
 let equippedNameEffect   = null;
 let equippedTitle        = null;
@@ -953,7 +954,7 @@ const DICT = {
     btnCancel:'Annuler', btnAccept:'Accepter', btnRefuse:'Refuser',
     diffLabels:{ easy:'Facile', medium:'Moyen', hard:'Difficile', extreme:'Extrême' },
     diffHints:{ '':'🎲 Mixte : moyen, difficile et extrême mélangés (sans les questions faciles).', easy:'😊 Facile : les grands classiques, parfait pour débuter.', medium:'🎯 Moyen : culture générale de bon niveau.', hard:'💀 Difficile : questions pointues pour connaisseurs.', extreme:'🔥 Extrême : questions très pointues ET 15 secondes chrono par question !' },
-    quizHubTitle:'Quiz', quizHubSub:'À quoi veux-tu jouer ?', qhQuizTitle:'Culture Générale', qhQuizSub:'15 thèmes, de 10 à 40 questions', qhFlagsTitle:'Devine le drapeau', qhFlagsSub:'Série, contre la montre, salon, drapeau du jour', qhNew:'Nouveau', flagsTitle:'Drapeaux',
+    quizHubTitle:'Quiz', quizHubSub:'À quoi veux-tu jouer ?', qhMixTitle:'Quiz mixte', qhMixSub:'Thèmes et drapeaux dans la même partie', mixTitle:'Quiz mixte', mixRound:(i,n)=>`Manche ${i}/${n}`, mixKinds:{ t:'Thèmes', f:'Drapeaux' }, mixFlagsOf:c=>`Drapeaux : ${c}`, mixConts:{ AF:'Afrique', EU:'Europe', AS:'Asie', AM:'Amériques', OC:'Océanie' }, mixBannerRound:(label,n)=>`${label} (${n} questions)`, qhQuizTitle:'Culture Générale', qhQuizSub:'15 thèmes, de 10 à 40 questions', qhFlagsTitle:'Devine le drapeau', qhFlagsSub:'Série, contre la montre, salon, drapeau du jour', qhNew:'Nouveau', flagsTitle:'Drapeaux',
     triviaHomeTitle:'🧠 Culture Générale',
     triviaHomeSubtitle:'Choisis un ou plusieurs thèmes et joue !',
     triviaNamePh:'Ton pseudo (obligatoire)',
@@ -1247,7 +1248,7 @@ const DICT = {
     streakSub:(l, b) => `Record : ${l} jour${l > 1 ? 's' : ''}${b > 0 ? ` · +${b} ⚡ aujourd'hui` : ''}`,
     streakBonusToast:(n, b) => `Jour ${n} de connexion · +${b} ⚡ !`,
     historyEmpty:'Aucune partie pour l\'instant. Lance une partie !',
-    historyGameNames:{ connect4:'Puissance 4', tictactoe:'Morpion', chess:'Échecs', checkers:'Dames', ludo:'Ludo', uno:'Uno', undercover:'Undercover', trivia:'Quiz', snake:'Snake', luffy:'Libero Run' },
+    historyGameNames:{ mix:'Quiz mixte', connect4:'Puissance 4', tictactoe:'Morpion', chess:'Échecs', checkers:'Dames', ludo:'Ludo', uno:'Uno', undercover:'Undercover', trivia:'Quiz', snake:'Snake', luffy:'Libero Run' },
     historyResults:{ win:'Victoire', loss:'Défaite', draw:'Match nul' },
     historyScore:n => `${n} pts`,
     bookReaders:n => `${n} lecteur${n > 1 ? 's' : ''}`,
@@ -1762,7 +1763,7 @@ const DICT = {
     btnCancel:'Cancel', btnAccept:'Accept', btnRefuse:'Decline',
     diffLabels:{ easy:'Easy', medium:'Medium', hard:'Hard', extreme:'Extreme' },
     diffHints:{ '':'🎲 Mixed: medium, hard and extreme shuffled (no easy questions).', easy:'😊 Easy: the great classics, perfect to start.', medium:'🎯 Medium: solid general knowledge.', hard:'💀 Hard: sharp questions for connoisseurs.', extreme:'🔥 Extreme: very sharp questions AND a 15-second timer per question!' },
-    quizHubTitle:'Quiz', quizHubSub:'What do you want to play?', qhQuizTitle:'General Knowledge', qhQuizSub:'15 themes, 10 to 40 questions', qhFlagsTitle:'Guess the flag', qhFlagsSub:'Streak, time attack, room, flag of the day', qhNew:'New', flagsTitle:'Flags',
+    quizHubTitle:'Quiz', quizHubSub:'What do you want to play?', qhMixTitle:'Mixed quiz', qhMixSub:'Themes and flags in the same game', mixTitle:'Mixed quiz', mixRound:(i,n)=>`Round ${i}/${n}`, mixKinds:{ t:'Themes', f:'Flags' }, mixFlagsOf:c=>`Flags: ${c}`, mixConts:{ AF:'Africa', EU:'Europe', AS:'Asia', AM:'Americas', OC:'Oceania' }, mixBannerRound:(label,n)=>`${label} (${n} questions)`, qhQuizTitle:'General Knowledge', qhQuizSub:'15 themes, 10 to 40 questions', qhFlagsTitle:'Guess the flag', qhFlagsSub:'Streak, time attack, room, flag of the day', qhNew:'New', flagsTitle:'Flags',
     triviaHomeTitle:'🧠 General Knowledge',
     triviaHomeSubtitle:'Choose one or more themes and play!',
     triviaNamePh:'Your username (required)',
@@ -2056,7 +2057,7 @@ const DICT = {
     streakSub:(l, b) => `Best: ${l} day${l > 1 ? 's' : ''}${b > 0 ? ` · +${b} ⚡ today` : ''}`,
     streakBonusToast:(n, b) => `Day ${n} streak · +${b} ⚡!`,
     historyEmpty:'No games yet. Start one!',
-    historyGameNames:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', checkers:'Checkers', ludo:'Ludo', uno:'Uno', undercover:'Undercover', trivia:'Quiz', snake:'Snake', luffy:'Libero Run' },
+    historyGameNames:{ mix:'Mixed quiz', connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', checkers:'Checkers', ludo:'Ludo', uno:'Uno', undercover:'Undercover', trivia:'Quiz', snake:'Snake', luffy:'Libero Run' },
     historyResults:{ win:'Win', loss:'Loss', draw:'Draw' },
     historyScore:n => `${n} pts`,
     bookReaders:n => `${n} reader${n > 1 ? 's' : ''}`,
@@ -2731,7 +2732,7 @@ function applyLang() {
   const pt  = $('promo-title');   if (pt) pt.textContent = d.promoTitle;
 
   // Trivia home
-  [['qh-title','quizHubTitle'],['qh-sub','quizHubSub'],['qh-quiz-t','qhQuizTitle'],['qh-quiz-s','qhQuizSub'],['qh-flags-t','qhFlagsTitle'],['qh-flags-s','qhFlagsSub'],['qh-new','qhNew']].forEach(([id,k]) => { const e = $(id); if (e) e.textContent = d[k]; });
+  [['qh-title','quizHubTitle'],['qh-sub','quizHubSub'],['qh-quiz-t','qhQuizTitle'],['qh-quiz-s','qhQuizSub'],['qh-flags-t','qhFlagsTitle'],['qh-flags-s','qhFlagsSub'],['qh-new','qhNew'],['qh-mix-t','qhMixTitle'],['qh-mix-s','qhMixSub'],['qh-mix-new','qhNew']].forEach(([id,k]) => { const e = $(id); if (e) e.textContent = d[k]; });
   const qhb = $('btn-back-quiz-hub'); if (qhb) qhb.textContent = d.backLabel;
   const tht  = $('trivia-home-title');    if (tht)  tht.textContent  = d.triviaHomeTitle;
   const thsu = $('trivia-home-subtitle'); if (thsu) thsu.textContent = d.triviaHomeSubtitle;
@@ -3217,6 +3218,7 @@ $('btn-go-trivia').addEventListener('click',  () => { showScreen('quiz-hub'); })
 $('btn-back-quiz-hub').addEventListener('click', () => showScreen('landing'));
 $('qh-quiz').addEventListener('click', () => { buildTriviaThemes(); showScreen('trivia-home'); socket.emit('get-trivia-leaderboard'); });
 $('qh-flags').addEventListener('click', () => { _flagsLoad().then(f => f && f.showHome()); });
+$('qh-mix').addEventListener('click', () => { _mixLoad().then(m => m && m.open()); });
 $('btn-go-wordle')?.addEventListener('click', () => showScreen('wordle'));
 $('btn-back-classic').addEventListener('click', () => showScreen('landing'));
 
@@ -3407,6 +3409,23 @@ function _flagsLoad() {
   });
   return _flagsP;
 }
+// ── Quiz mixte (themes + drapeaux) : mix.js + mix.css a la demande ──
+let _mixP = null;
+function _mixLoad() {
+  if (window.LiberoMix) return Promise.resolve(window.LiberoMix);
+  if (_mixP) return _mixP;
+  _mixP = new Promise(res => {
+    const sc = document.createElement('script'); sc.src = 'mix.js?v=2';
+    sc.onload = () => res(window.LiberoMix); sc.onerror = () => { _mixP = null; res(null); };
+    document.head.appendChild(sc);
+  });
+  return _mixP;
+}
+// Libelle d'une manche (parcours) : « Manche 2/3 · Drapeaux d'Afrique ».
+function _mixRoundLabel(r) {
+  const d = t(), name = r.k === 'fc' ? d.mixFlagsOf(d.mixConts[r.c] || r.c) : d.mixKinds[r.k] || '';
+  return `${d.mixRound(r.i + 1, r.n)} · ${name}`;
+}
 // ── Quiz en direct (tournoi) : live.js + live.css a la demande ──────────────────────────────
 let _liveP = null;
 function _liveLoad() {
@@ -3528,6 +3547,7 @@ document.addEventListener('click', e => { const b = e.target.closest?.('.live-ct
   if (ev === 'live-phase') socket.emit('live-get', { playerId: getPlayerId() });
   if (window.LiberoLive) window.LiberoLive.on(ev, d || {});
 }));
+['mix-leaderboard', 'mix-leaderboard-update'].forEach(ev => socket.on(ev, d => { if (window.LiberoMix) window.LiberoMix.on(ev, d || {}); }));
 ['flags-leaderboard', 'flags-leaderboard-update'].forEach(ev => socket.on(ev, d => { _flagsLoad().then(f => f && f.on(ev, d || {})); }));
 // Drapeau + cadre equipe (quiz a plusieurs et partie solo). Pas d'alt : il donnerait la reponse.
 function _flagImgHtml(code) {
@@ -5241,7 +5261,7 @@ function goToTriviaHome() {
   if (triviaRoomCode) socket.emit('leave-trivia-room');
   stopTriviaTimer();
   clearTriviaSession();
-  triviaRoomCode = null; triviaIsHost = false; triviaIsSolo = false; triviaIsFlags = false;
+  triviaRoomCode = null; triviaIsHost = false; triviaIsSolo = false; triviaIsFlags = false; triviaIsMix = false;
   triviaAnsweredThis = false; triviaChoiceSelected = null;
   pendingHintCharges = 0; hintsUsedThisQ = 0;
   _updateBoostHintBtn();
@@ -5430,13 +5450,15 @@ function stopTriviaTimer() {
 // ── Trivia : affichage question ───────────────────────────────────────────────
 const LETTERS = ['A','B','C','D'];
 
-function showTriviaQuestion({ questionNum, totalQuestions, question, choices, timeLimit, scores, flag }) {
+function showTriviaQuestion({ questionNum, totalQuestions, question, choices, timeLimit, scores, flag, round }) {
   triviaAnsweredThis = false; triviaChoiceSelected = null;
   window._triviaQStartAt = Date.now();
   window._triviaQLimitMs = (timeLimit || 30) * 1000;
   hintsUsedThisQ = 0;
   _updateBoostHintBtn();
   $('tg-q-num').textContent = `Q ${questionNum} / ${totalQuestions}`;
+  // Quiz mixte (parcours) : la manche en cours, annoncee au premier tour de chaque manche.
+  if (round) { const lab = _mixRoundLabel(round); $('tg-theme-label').textContent = lab; if (round.first) showCursorSnakeToast(t().mixBannerRound(lab, round.count)); }
   if (flag) { window._tvFlag = true; $('tg-question').innerHTML = _flagImgHtml(flag); } else { window._tvFlag = false; $('tg-question').textContent = question; }
   $('tg-reveal').classList.add('hidden');
   $('tg-finished').classList.add('hidden');
@@ -5725,7 +5747,7 @@ function showTriviaFinished(scores) {
     const text = triviaIsSolo ? t().triviaShareSolo(me.score) : (triviaIsFlags ? t().triviaShareRankF : t().triviaShareRank)(myIdx + 1, me.score);
     // Priorite : partager une image du score (ideal pour WhatsApp).
     try {
-      const blob = await _makeQuizShareBlob({ solo: triviaIsSolo, scores: triviaIsSolo ? [me] : scores, myIdx: triviaIsSolo ? 0 : myIdx, category: triviaIsFlags ? t().flagsTitle : getCategoryLabel(selectedTriviaCategories) });
+      const blob = await _makeQuizShareBlob({ solo: triviaIsSolo, scores: triviaIsSolo ? [me] : scores, myIdx: triviaIsSolo ? 0 : myIdx, category: triviaIsFlags ? t().flagsTitle : triviaIsMix ? t().mixTitle : getCategoryLabel(selectedTriviaCategories) });
       if (blob && navigator.canShare) {
         const file = new File([blob], triviaIsFlags ? 'libero-drapeaux.png' : 'libero-quiz.png', { type: 'image/png' });
         if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text }); return; }
@@ -6291,18 +6313,22 @@ $('btn-quit').addEventListener('click', () => {
 // ── Socket Trivia ─────────────────────────────────────────────────────────────
 socket.on('trivia-room-created', ({ code, categoryName, roomState, kind }) => {
   if (kind === 'flags') categoryName = t().flagsTitle;
-  triviaIsFlags = kind === 'flags';
+  if (kind === 'mix') categoryName = t().mixTitle;
+  triviaIsFlags = kind === 'flags'; triviaIsMix = kind === 'mix';
   triviaRoomCode = code; triviaIsHost = true;
   saveTriviaSession({ isSolo: false, code, mySocketId: socket.id });
   $('trivia-room-code').textContent = code;
   $('trivia-wait-theme').textContent = categoryName;
   renderTriviaWaitPlayers(roomState.players, roomState.hostId);
+  // Quiz mixte « Seul » : on lance tout de suite, sans attendre d'autres joueurs.
+  if (window._mixAutoStart) { window._mixAutoStart = false; socket.emit('start-trivia'); return; }
   showScreen('trivia-waiting');
 });
 
 socket.on('trivia-room-joined', ({ code, categoryName, kind }) => {
-  triviaIsFlags = kind === 'flags';
+  triviaIsFlags = kind === 'flags'; triviaIsMix = kind === 'mix';
   if (kind === 'flags') categoryName = t().flagsTitle;
+  if (kind === 'mix') categoryName = t().mixTitle;
   triviaRoomCode = code; triviaIsHost = false;
   saveTriviaSession({ isSolo: false, code, mySocketId: socket.id });
   $('trivia-room-code').textContent = code;
@@ -6316,9 +6342,10 @@ socket.on('trivia-room-updated', (roomState) => {
 
 socket.on('trivia-start', ({ totalQuestions, categoryName, kind }) => {
   if (kind === 'flags') categoryName = t().flagsTitle;
+  if (kind === 'mix') categoryName = t().mixTitle;
   window._sound?.play('quiz-start');
   _loadPodiumJs();
-  triviaIsSolo = false; triviaIsFlags = kind === 'flags';
+  triviaIsSolo = false; triviaIsFlags = kind === 'flags'; triviaIsMix = kind === 'mix';
   triviaQuestions = { length: totalQuestions };
   $('tg-theme-label').textContent = categoryName;
   $('tg-scores').innerHTML = '';
@@ -6358,7 +6385,7 @@ socket.on('trivia-solo-questions', (questions) => {
   $('btn-solo-trivia').textContent = t().btnSolo;
   triviaQuestions = shuffle(questions);
   if (!triviaQuestions.length) { showTriviaError(t().errLoadQ); return; }
-  triviaIsSolo = true; triviaIsFlags = false; triviaCurrentQ = 0; triviaScore = 0; triviaRoomCode = null;
+  triviaIsSolo = true; triviaIsFlags = false; triviaIsMix = false; triviaCurrentQ = 0; triviaScore = 0; triviaRoomCode = null;
   hintsUsedThisQ = 0;
   socket.emit('activate-quiz-boost', { playerId: getPlayerId() });
   triviaPaused = false;
@@ -6380,7 +6407,7 @@ socket.on('trivia-solo-error', () => {
 });
 
 socket.on('trivia-leaderboard-update', (data) => { _triviaLbData = data || []; renderTriviaLeaderboard(data); });
-socket.on('trivia-error', ({ message }) => { if (document.getElementById('screen-flag-home')?.classList.contains('active') && window._flagsErr) { window._flagsErr(message); return; } showTriviaError(message); buildTriviaThemes(); showScreen('trivia-home'); });
+socket.on('trivia-error', ({ message }) => { if (document.getElementById('screen-mix-home')?.classList.contains('active') && window.LiberoMix) { window.LiberoMix.err(message); return; } if (document.getElementById('screen-flag-home')?.classList.contains('active') && window._flagsErr) { window._flagsErr(message); return; } showTriviaError(message); buildTriviaThemes(); showScreen('trivia-home'); });
 
 // ── Reconnexion automatique après reload + chargement du classement ───────────
 // Quiz solo : tout est dans la session du navigateur, aucun serveur n'est necessaire.
@@ -12432,6 +12459,7 @@ document.body.classList.add('nav-bottom-visible');
     return;
   }
   if (saved === 'live') { _liveLoad().then(m => { if (m) m.restore(); else showScreen('landing'); }); return; }
+  if (saved === 'mix-home') { _mixLoad().then(m => { if (m) m.restore(); else { showScreen('landing'); } }); return; }
   if (saved === 'flag-home' || saved === 'flag-game') { _flagsLoad().then(f => { if (f) f.restore(); else { showScreen('landing'); } }); return; }
   // Restauration directe (home, trivia-home, events)
   if (saved === 'trivia-home') buildTriviaThemes();
