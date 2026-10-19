@@ -4065,131 +4065,11 @@ html.light .level-bar { background: rgba(0,0,0,.12); }
 .iq-choice:active { transform: scale(.97); }
 .iq-result-value { font-size: 1.4rem; font-weight: 900; text-align: center; color: var(--accent); margin: 10px 0; }
 
-/* ── Ludo ── */
-.ludo-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.ludo-board {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(15, 1fr);
-  grid-template-rows: repeat(15, 1fr);
-  width: min(92vw, 440px); aspect-ratio: 1;
-  background: var(--board);
-  border-radius: 14px; padding: 4px; gap: 1px;
-  box-shadow: 0 8px 30px rgba(0,0,0,.35);
-}
-.ludo-cell {
-  background: rgba(255,255,255,.92); border-radius: 3px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: .55rem; color: #94a3b8;
-}
-html.light .ludo-cell { background: #fff; border: 1px solid #e2e8f0; }
-.ludo-cell.safe    { background: #e2e8f0; }
-.ludo-cell.start-r { background: #fecaca; }
-.ludo-cell.start-g { background: #bbf7d0; }
-.ludo-cell.start-y { background: #fef08a; }
-.ludo-cell.start-b { background: #bfdbfe; }
-.ludo-cell.home-r  { background: #f87171; }
-.ludo-cell.home-g  { background: #4ade80; }
-.ludo-cell.home-y  { background: #facc15; }
-.ludo-cell.home-b  { background: #60a5fa; }
-.ludo-basezone { border-radius: 10px; opacity: .9; }
-.ludo-basezone.ludo-r { background: linear-gradient(135deg,#dc2626,#991b1b); }
-.ludo-basezone.ludo-g { background: linear-gradient(135deg,#16a34a,#166534); }
-.ludo-basezone.ludo-y { background: linear-gradient(135deg,#eab308,#a16207); }
-.ludo-basezone.ludo-b { background: linear-gradient(135deg,#2563eb,#1e3a8a); }
-/* Un camp sans joueur reste visible mais s'efface : on voit tout de suite qui joue. */
-.ludo-basezone.ludo-empty { opacity: .22; filter: grayscale(.7); }
-.ludo-baseslot {
-  background: rgba(255,255,255,.85); border-radius: 50%;
-  margin: 12%; z-index: 1;
-}
-.ludo-center {
-  /* haut = jaune, droite = bleu, bas = rouge, gauche = vert : chacun face a sa colonne d'arrivee */
-  background: conic-gradient(from -45deg, #eab308 0 90deg, #2563eb 90deg 180deg, #dc2626 180deg 270deg, #16a34a 270deg 360deg);
-  border-radius: 8px; display: flex; align-items: center; justify-content: center;
-  font-size: 1.4rem; z-index: 0;
-}
-.ludo-pawns { position: absolute; inset: 4px; pointer-events: none; }
-.ludo-pawn {
-  position: absolute; pointer-events: auto;
-  /* 15 colonnes/lignes : position en % depuis --lr/--lc */
-  left: calc(var(--lc) * (100% / 15) + (100% / 15) * .12 + var(--stack) * 4px);
-  top:  calc(var(--lr) * (100% / 15) + (100% / 15) * .12 - var(--stack) * 4px);
-  width: calc((100% / 15) * .76); height: calc((100% / 15) * .76);
-  border-radius: 50%; border: 2px solid rgba(0,0,0,.35);
-  cursor: default; padding: 0;
-  transition: left .35s, top .35s;
-  z-index: 2;
-}
-.ludo-pawn.p-r { background: radial-gradient(circle at 35% 30%, #fca5a5, #dc2626 70%); }
-.ludo-pawn.p-y { background: radial-gradient(circle at 35% 30%, #fde68a, #eab308 70%); }
-.ludo-pawn.p-g { background: radial-gradient(circle at 35% 30%, #86efac, #16a34a 70%); }
-.ludo-pawn.p-b { background: radial-gradient(circle at 35% 30%, #93c5fd, #2563eb 70%); }
-.ludo-pawn.can-play {
-  cursor: pointer;
-  box-shadow: 0 0 0 3px rgba(255,255,255,.8), 0 0 14px rgba(99,102,241,.9);
-  animation: ludoPulse 1s ease-in-out infinite;
-  z-index: 3;
-}
-.ludo-pawn.just-moved { z-index: 4; }
-@keyframes ludoPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
-.ludo-bar { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; min-height: 44px; }
-.ludo-msg { font-size: .9rem; color: var(--muted); font-weight: 600; }
-.ludo-msg.mine { color: var(--gold, #fcd34d); }
-
-/* ── Ludo : un de par joueur ──
-   Chaque joueur a son propre de, de la couleur de son camp, qui GARDE son dernier
-   lancer : on voit d'un coup d'oeil qui a lance quoi. Seul le de de celui qui
-   joue est anime et mis en avant. */
-.ludo-seats { display: grid; grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr)); gap: 8px; width: min(96vw, 440px); margin: 0 auto; }
-.ludo-seat {
-  --sc: #94a3b8;
-  min-width: 0;
-  display: flex; flex-direction: column; align-items: center; gap: 5px;
-  padding: 8px 6px 7px; border-radius: 14px;
-  background: rgba(255,255,255,.05); border: 2px solid transparent;
-  position: relative; transition: border-color .2s, background .2s, opacity .2s, transform .2s;
-}
-.ludo-seat.s-r { --sc: #ef4444; } .ludo-seat.s-g { --sc: #22c55e; }
-.ludo-seat.s-y { --sc: #eab308; } .ludo-seat.s-b { --sc: #3b82f6; }
-.ludo-seat::before { content: ''; position: absolute; top: 0; left: 14%; right: 14%; height: 4px; border-radius: 0 0 4px 4px; background: var(--sc); }
-.ludo-seat.turn { border-color: var(--sc); background: color-mix(in oklab, var(--sc) 16%, transparent); transform: translateY(-2px);
-  box-shadow: 0 6px 20px -8px var(--sc); }
-.ludo-seat.out { opacity: .35; filter: grayscale(1); }
-.ludo-seat.away { opacity: .6; }
-.ludo-sname { font-size: .74rem; font-weight: 800; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 3px; }
-.ludo-sstate { font-size: .66rem; color: var(--muted); min-height: 1em; }
-.ludo-sdie {
-  width: clamp(38px, 11.5vw, 50px); height: clamp(38px, 11.5vw, 50px); padding: 0; border-radius: 12px; cursor: default;
-  background: #fff; border: 3px solid var(--sc); box-shadow: inset 0 -3px 0 rgba(0,0,0,.14), 0 2px 6px rgba(0,0,0,.3);
-  display: grid; place-items: center; color: #0f172a;
-}
-.ludo-dieface { width: 100%; height: 100%; padding: 7px; display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); gap: 1px; }
-.ludo-dieface i { border-radius: 50%; background: transparent; display: block; }
-.ludo-dieface i.p { background: #0f172a; }
-.ludo-die-empty { grid-area: 2 / 2; font-weight: 900; color: #cbd5e1; font-size: 1.1rem; }
-.ludo-sdie.can-roll { cursor: pointer; animation: ludoPulse 1s ease-in-out infinite; box-shadow: 0 0 0 3px #fff, 0 0 16px var(--sc); }
-.ludo-sdie.rolling { animation: ludoDieRoll .65s cubic-bezier(.3,1.4,.5,1); }
-@keyframes ludoDieRoll { 0% { transform: rotate(0) scale(.7); } 55% { transform: rotate(420deg) scale(1.22); } 100% { transform: rotate(720deg) scale(1); } }
-/* Ludo a plusieurs : les deux pastilles « Rouge / Jaune » de l'en-tete n'ont plus de sens. */
-.game-screen.ludo-multi .player-badge { display: none; }
-
 /* ── Salon Ludo (ecran d'attente) ── */
 .waiting-seats { list-style: none; padding: 0; margin: 12px auto 4px; width: min(100%, 360px); display: flex; flex-direction: column; gap: 7px; }
-.lb-seat { --sc: #94a3b8; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px;
   background: rgba(255,255,255,.06); border: 1px solid var(--border); text-align: left; }
-.lb-seat.s-r { --sc: #ef4444; } .lb-seat.s-g { --sc: #22c55e; } .lb-seat.s-y { --sc: #eab308; } .lb-seat.s-b { --sc: #3b82f6; }
-.lb-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--sc); flex: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--sc) 30%, transparent); }
-.lb-seat b { flex: 1; font-size: .92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.lb-seat em { font-style: normal; font-size: .7rem; color: var(--muted); white-space: nowrap; }
-.lb-seat.away { opacity: .55; }
-.lb-seat.free { border-style: dashed; background: transparent; }
-.lb-seat.free .lb-dot { background: transparent; box-shadow: none; border: 2px dashed #64748b; }
-.lb-seat.free b { color: var(--muted); font-weight: 600; }
 #btn-ludo-start { margin: 8px auto 4px; min-width: 220px; }
 #btn-ludo-start:disabled { opacity: .5; }
-#ludo-roll.pulse { animation: ludoPulse 1.2s ease-in-out infinite; }
-#ludo-roll:disabled { opacity: .45; }
 
 /* ── Offre flash (boutique) ── */
 .shop-flash {
@@ -5049,17 +4929,6 @@ html.ic3d-wait [data-ic]:not(.has-ic3d):not(.ic3d-skip) { opacity: 0; }
 .ck-piece.ck-img img { width:100%; height:100%; object-fit:contain; pointer-events:none; user-select:none; -webkit-user-drag:none; transform:translateY(-12%) scale(1.12); filter:drop-shadow(0 3px 2px rgba(0,0,0,.35)); }
 .ck-piece.ck-img.ck-king img { transform:translateY(-6%) scale(1.14); }
 .ck-sq.selected .ck-piece.ck-img img { transform:translateY(-16%) scale(1.18); transition:transform .12s var(--ease,ease); }
-
-/* Pions de Ludo : silhouette dessinee (reflet, ombre, socle), une par couleur. Posee en fond pour garder le HTML tel quel. */
-.ludo-pawn.p-r { background:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2052'%3E%3Cdefs%3E%3CradialGradient%20id='g'%20cx='.35'%20cy='.28'%20r='.85'%3E%3Cstop%20offset='0'%20stop-color='%23fecaca'/%3E%3Cstop%20offset='.5'%20stop-color='%23ef4444'/%3E%3Cstop%20offset='1'%20stop-color='%23991b1b'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cellipse%20cx='20'%20cy='48.5'%20rx='16'%20ry='3.2'%20fill='rgba%280%2C0%2C0%2C.38%29'/%3E%3Cpath%20d='M5%2047%20Q5%2041.5%2013%2040%20Q17.5%2036%2017.8%2028%20H22.2%20Q22.5%2036%2027%2040%20Q35%2041.5%2035%2047%20Z'%20fill='url%28%23g%29'%20stroke='%23991b1b'%20stroke-width='1.4'%20stroke-linejoin='round'/%3E%3Cellipse%20cx='20'%20cy='28'%20rx='8.5'%20ry='2.6'%20fill='url%28%23g%29'%20stroke='%23991b1b'%20stroke-width='1.4'/%3E%3Ccircle%20cx='20'%20cy='16.5'%20r='10.5'%20fill='url%28%23g%29'%20stroke='%23991b1b'%20stroke-width='1.4'/%3E%3Cellipse%20cx='15.5'%20cy='12.5'%20rx='3.4'%20ry='4.6'%20fill='white'%20opacity='.5'%20transform='rotate%28-25%2015.5%2012.5%29'/%3E%3Cellipse%20cx='13'%20cy='43'%20rx='4'%20ry='1.4'%20fill='white'%20opacity='.28'/%3E%3C/svg%3E") center bottom/contain no-repeat; }
-.ludo-pawn.p-y { background:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2052'%3E%3Cdefs%3E%3CradialGradient%20id='g'%20cx='.35'%20cy='.28'%20r='.85'%3E%3Cstop%20offset='0'%20stop-color='%23fef9c3'/%3E%3Cstop%20offset='.5'%20stop-color='%23facc15'/%3E%3Cstop%20offset='1'%20stop-color='%23a16207'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cellipse%20cx='20'%20cy='48.5'%20rx='16'%20ry='3.2'%20fill='rgba%280%2C0%2C0%2C.38%29'/%3E%3Cpath%20d='M5%2047%20Q5%2041.5%2013%2040%20Q17.5%2036%2017.8%2028%20H22.2%20Q22.5%2036%2027%2040%20Q35%2041.5%2035%2047%20Z'%20fill='url%28%23g%29'%20stroke='%23a16207'%20stroke-width='1.4'%20stroke-linejoin='round'/%3E%3Cellipse%20cx='20'%20cy='28'%20rx='8.5'%20ry='2.6'%20fill='url%28%23g%29'%20stroke='%23a16207'%20stroke-width='1.4'/%3E%3Ccircle%20cx='20'%20cy='16.5'%20r='10.5'%20fill='url%28%23g%29'%20stroke='%23a16207'%20stroke-width='1.4'/%3E%3Cellipse%20cx='15.5'%20cy='12.5'%20rx='3.4'%20ry='4.6'%20fill='white'%20opacity='.5'%20transform='rotate%28-25%2015.5%2012.5%29'/%3E%3Cellipse%20cx='13'%20cy='43'%20rx='4'%20ry='1.4'%20fill='white'%20opacity='.28'/%3E%3C/svg%3E") center bottom/contain no-repeat; }
-.ludo-pawn.p-g { background:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2052'%3E%3Cdefs%3E%3CradialGradient%20id='g'%20cx='.35'%20cy='.28'%20r='.85'%3E%3Cstop%20offset='0'%20stop-color='%23bbf7d0'/%3E%3Cstop%20offset='.5'%20stop-color='%2322c55e'/%3E%3Cstop%20offset='1'%20stop-color='%23166534'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cellipse%20cx='20'%20cy='48.5'%20rx='16'%20ry='3.2'%20fill='rgba%280%2C0%2C0%2C.38%29'/%3E%3Cpath%20d='M5%2047%20Q5%2041.5%2013%2040%20Q17.5%2036%2017.8%2028%20H22.2%20Q22.5%2036%2027%2040%20Q35%2041.5%2035%2047%20Z'%20fill='url%28%23g%29'%20stroke='%23166534'%20stroke-width='1.4'%20stroke-linejoin='round'/%3E%3Cellipse%20cx='20'%20cy='28'%20rx='8.5'%20ry='2.6'%20fill='url%28%23g%29'%20stroke='%23166534'%20stroke-width='1.4'/%3E%3Ccircle%20cx='20'%20cy='16.5'%20r='10.5'%20fill='url%28%23g%29'%20stroke='%23166534'%20stroke-width='1.4'/%3E%3Cellipse%20cx='15.5'%20cy='12.5'%20rx='3.4'%20ry='4.6'%20fill='white'%20opacity='.5'%20transform='rotate%28-25%2015.5%2012.5%29'/%3E%3Cellipse%20cx='13'%20cy='43'%20rx='4'%20ry='1.4'%20fill='white'%20opacity='.28'/%3E%3C/svg%3E") center bottom/contain no-repeat; }
-.ludo-pawn.p-b { background:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2052'%3E%3Cdefs%3E%3CradialGradient%20id='g'%20cx='.35'%20cy='.28'%20r='.85'%3E%3Cstop%20offset='0'%20stop-color='%23bfdbfe'/%3E%3Cstop%20offset='.5'%20stop-color='%233b82f6'/%3E%3Cstop%20offset='1'%20stop-color='%231e3a8a'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cellipse%20cx='20'%20cy='48.5'%20rx='16'%20ry='3.2'%20fill='rgba%280%2C0%2C0%2C.38%29'/%3E%3Cpath%20d='M5%2047%20Q5%2041.5%2013%2040%20Q17.5%2036%2017.8%2028%20H22.2%20Q22.5%2036%2027%2040%20Q35%2041.5%2035%2047%20Z'%20fill='url%28%23g%29'%20stroke='%231e3a8a'%20stroke-width='1.4'%20stroke-linejoin='round'/%3E%3Cellipse%20cx='20'%20cy='28'%20rx='8.5'%20ry='2.6'%20fill='url%28%23g%29'%20stroke='%231e3a8a'%20stroke-width='1.4'/%3E%3Ccircle%20cx='20'%20cy='16.5'%20r='10.5'%20fill='url%28%23g%29'%20stroke='%231e3a8a'%20stroke-width='1.4'/%3E%3Cellipse%20cx='15.5'%20cy='12.5'%20rx='3.4'%20ry='4.6'%20fill='white'%20opacity='.5'%20transform='rotate%28-25%2015.5%2012.5%29'/%3E%3Cellipse%20cx='13'%20cy='43'%20rx='4'%20ry='1.4'%20fill='white'%20opacity='.28'/%3E%3C/svg%3E") center bottom/contain no-repeat; }
-.ludo-pawn { border:none; border-radius:0; width:calc((100% / 15) * .82); height:calc((100% / 15) * 1.06);
-  top:calc(var(--lr) * (100% / 15) - (100% / 15) * .2 - var(--stack) * 4px); left:calc(var(--lc) * (100% / 15) + (100% / 15) * .09 + var(--stack) * 4px); background-color:transparent; }
-.ludo-pawn.can-play { box-shadow:none; filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 8px rgba(99,102,241,.95)); }
-.ludo-pawn { width:calc((100% / 15) * 1.02); height:calc((100% / 15) * 1.3);
-  left:calc(var(--lc) * (100% / 15) - (100% / 15) * .01 + var(--stack) * 4px); top:calc(var(--lr) * (100% / 15) - (100% / 15) * .36 - var(--stack) * 4px); }
 
 /* Mur de maintenance (site ferme) : premier apercu du nouveau design. Theme sombre = l'ardoise, theme clair = le cahier. */
 html.site-closed body > *:not(#maintenance-wall):not(script):not(style) { display: none !important; }

@@ -924,12 +924,19 @@ const DICT = {
     btnBackHome:'Retour à l\'accueil', backLabel:'Retour',
     promoTitle:'Promouvoir le pion',
     games:{ connect4:'Puissance 4', tictactoe:'Tic Tac Toe', chess:'Échecs', checkers:'Dames', ludo:'Ludo', uno:'Uno', undercover:'Undercover' },
-    ludoRoll:'🎲 Lancer le dé', ludoDice:d=>`🎲 Dé : ${d}`, ludoNoMove:'Aucun coup possible, le tour passe.',
+    ludoRoll:'Lancer le dé', ludoDice:d=>`Dé : ${d}`, ludoNoMove:'Aucun coup possible, le tour passe.', ludoNoMoveOf:n=>`${n} : aucun coup, le tour passe`,
+    ludoBot:'Robot', ludoAwayShort:'Reconnexion', ludoPick:'Touche un pion pour voir son trajet', ludoConfirm:'Touche encore le pion pour valider',
+    ludoCapture:'Capture !', ludoCaptureOf:n=>`${n} capture un pion !`, ludoHome:'Un pion rentré !', ludoHomeOf:n=>`${n} rentre un pion !`,
+    ludoBarrage:'Barrage : la paire ne peut pas être prise', ludoThree6:n=>`${n} : trois 6 de suite, le tour est perdu`, ludoRetry:(n,l)=>`${n} : pas de 6, encore ${l} essai${l>1?'s':''}`,
+    ludoAutoLbl:"Jouer seul quand il n'y a qu'un coup possible", ludoAutoPlayed:'Un seul coup : joué pour toi',
+    ludoStampYou:'TU GAGNES', ludoStamp:n=>`${n} GAGNE`, ludoStatCap:'captures', ludoStatSix:'six lancés', ludoStatRolls:'lancers', ludoRankNote:'Classement : pions rentrés, puis distance parcourue.',
+    ludoStep1:'Invite tes amis', ludoStep2:'Règle la partie', ludoRulesHost:"Choisi par l'hôte",
+    ludoRules:{ barrage:['Barrage','Deux pions de même couleur ne peuvent pas être pris'], three6:['Trois 6 de suite','Le troisième 6 fait perdre le tour'], replayHome:['Rejouer après une arrivée','Un pion rentré donne un nouveau lancer'], threeTries:['Trois essais pour sortir',"Tous les pions en base : jusqu'à 3 lancers"], exact:['Arrivée exacte','Il faut le nombre exact pour rentrer'] },
     ludoLobbyTitle:'Salon Ludo', ludoLobbyHint:'Dès 2 joueurs, le créateur peut lancer la partie. 4 joueurs maximum.',
     ludoStartBtn:'Lancer la partie', ludoWaitHost:'En attente du lancement par le créateur…', ludoNeedTwo:'Il faut au moins 2 joueurs pour lancer.',
     ludoYou:'toi', ludoHost:'créateur', ludoAway:'déconnecté', ludoFree:'place libre', ludoClosed:'Le créateur a fermé le salon.',
     ludoSeatTaken:'Cette partie a été ouverte sur un autre onglet ou appareil.', ludoOut:'a quitté',
-    ludoTurnOf:n=>`Tour de ${n}`, ludoWinnerIs:n=>`🏆 ${n} remporte la partie !`,
+    ludoTurnOf:n=>`Tour de ${n}`, ludoWinnerIs:n=>`${n} remporte la partie !`,
     ludoSeatBack:n=>`${n} est de retour`, ludoSeatAway:n=>`${n} se reconnecte…`, ludoForfeit:n=>`${n} a quitté la partie`,
     ludoYourRoll:'À toi : lance ton dé', ludoYourMove:'Choisis un pion à avancer', ludoWaitFor:n=>`${n} joue…`,
     ludoDieOf:n=>`Dé de ${n}`, moveLost:'Connexion perdue avec la partie, reconnexion…', ludoLeftBefore:'Tu as quitté le salon.', gameGone:'Ta partie n\'est plus disponible : elle a été fermée, ou le serveur a redémarré.',
@@ -1726,12 +1733,19 @@ const DICT = {
     btnBackHome:'Back to home', backLabel:'Back',
     promoTitle:'Promote pawn',
     games:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', checkers:'Checkers', ludo:'Ludo', uno:'Uno', undercover:'Undercover' },
-    ludoRoll:'🎲 Roll the dice', ludoDice:d=>`🎲 Dice: ${d}`, ludoNoMove:'No possible move, turn passes.',
+    ludoRoll:'Roll the dice', ludoDice:d=>`Dice: ${d}`, ludoNoMove:'No possible move, turn passes.', ludoNoMoveOf:n=>`${n}: no move, the turn passes`,
+    ludoBot:'Robot', ludoAwayShort:'Reconnecting', ludoPick:'Tap a pawn to see its path', ludoConfirm:'Tap the pawn again to confirm',
+    ludoCapture:'Capture!', ludoCaptureOf:n=>`${n} captures a pawn!`, ludoHome:'A pawn is home!', ludoHomeOf:n=>`${n} brings a pawn home!`,
+    ludoBarrage:'Block: a pair cannot be captured', ludoThree6:n=>`${n}: three 6s in a row, the turn is lost`, ludoRetry:(n,l)=>`${n}: no 6, ${l} more ${l>1?'tries':'try'}`,
+    ludoAutoLbl:'Play automatically when there is only one move', ludoAutoPlayed:'Only one move: played for you',
+    ludoStampYou:'YOU WIN', ludoStamp:n=>`${n} WINS`, ludoStatCap:'captures', ludoStatSix:'sixes rolled', ludoStatRolls:'rolls', ludoRankNote:'Ranking: pawns home, then distance travelled.',
+    ludoStep1:'Invite your friends', ludoStep2:'Set up the game', ludoRulesHost:'Chosen by the host',
+    ludoRules:{ barrage:['Block','Two pawns of the same colour cannot be captured'], three6:['Three 6s in a row','The third 6 loses the turn'], replayHome:['Roll again after a pawn gets home','A pawn reaching home gives another roll'], threeTries:['Three tries to get out','All pawns in base: up to 3 rolls'], exact:['Exact finish','You need the exact number to get home'] },
     ludoLobbyTitle:'Ludo lobby', ludoLobbyHint:'From 2 players on, the host can start the game. 4 players maximum.',
     ludoStartBtn:'Start the game', ludoWaitHost:'Waiting for the host to start…', ludoNeedTwo:'You need at least 2 players to start.',
     ludoYou:'you', ludoHost:'host', ludoAway:'disconnected', ludoFree:'free seat', ludoClosed:'The host closed the lobby.',
     ludoSeatTaken:'This game was opened in another tab or device.', ludoOut:'left',
-    ludoTurnOf:n=>`${n}'s turn`, ludoWinnerIs:n=>`🏆 ${n} wins the game!`,
+    ludoTurnOf:n=>`${n}'s turn`, ludoWinnerIs:n=>`${n} wins the game!`,
     ludoSeatBack:n=>`${n} is back`, ludoSeatAway:n=>`${n} is reconnecting…`, ludoForfeit:n=>`${n} left the game`,
     ludoYourRoll:'Your turn: roll your die', ludoYourMove:'Pick a pawn to move', ludoWaitFor:n=>`${n} is playing…`,
     ludoDieOf:n=>`${n}'s die`, moveLost:'Lost connection to the game, reconnecting…', ludoLeftBefore:'You left the lobby.', gameGone:'Your game is no longer available: it was closed, or the server restarted.',
@@ -2705,7 +2719,7 @@ function applyLang() {
   const ws = $('waiting-share');  if (ws) ws.textContent = d.shareCode;
   const wh = $('waiting-hint');   if (wh) wh.textContent = d.waitingHint;
   if (currentGame === 'ludo' && ludoLobby && !$('screen-waiting').classList.contains('hidden')) renderLudoLobby();
-  if (currentGame === 'ludo' && ludoState && document.getElementById('ludo-seats')) updateLudo(ludoState);
+  if (currentGame === 'ludo' && ludoState && document.getElementById('ldo-board')) ludoRefreshTexts();
 
   // Game screen
   const brs = $('btn-restart');   if (brs) brs.textContent = d.btnRestart;
@@ -3940,6 +3954,7 @@ function applyGameState({ gameType, state, yourPlayer, status, winner }) {
 function buildGameBoard(gameType, state, yourPlayer) {
   const area = $('board-area');
   area.innerHTML = '';
+  $('screen-game').classList.remove('ludo-game', 'ludo-multi'); // sinon l'en-tete des autres jeux reste cache apres un Ludo
   selectedSquare = null;
   availableMoves = [];
 
@@ -4415,11 +4430,12 @@ function onCheckersClick(i) {
   socket.emit('get-moves', { square: i });
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════════
 // LUDO (2 a 4 joueurs : rouge en bas a gauche, vert en haut a gauche, jaune en haut a droite, bleu en bas a droite)
-// ══════════════════════════════════════════════════════════════════════════════
+// Plateau « mobile d'abord » : dessin SVG, pions animes, apercu du trajet, dés au plus pres des camps.
+// ═════════════════════════════════════════════════════════════════════
 // Piste absolue de 52 cases : memes conventions que le serveur (R entre en 0,
-// Y en 26, cases etoilees sans capture). Coordonnees (ligne, colonne) sur 15x15.
+// G en 13, Y en 26, B en 39, cases etoilees sans capture). Coordonnees (ligne, colonne) sur 15x15.
 const LUDO_TRACK = (() => {
   const t = [];
   for (let r = 13; r >= 9; r--) t.push([r, 6]);   // 0-4
@@ -4446,24 +4462,38 @@ const LUDO_HOME = {
   Y: [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7]],
   B: [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9]],
 };
-// Emplacements des 4 pions en base (centres dans leur zone 5x5).
-const LUDO_BASE = {
-  R: [[11, 2], [11, 4], [13, 2], [13, 4]],
-  G: [[2, 2], [2, 4], [4, 2], [4, 4]],
-  Y: [[2, 11], [2, 13], [4, 11], [4, 13]],
-  B: [[11, 11], [11, 13], [13, 11], [13, 13]],
-};
-const LUDO_ZONE = { R: [10, 1], G: [1, 1], Y: [1, 10], B: [10, 10] };
+const LUDO_ZONE = { R: [9, 0], G: [0, 0], Y: [0, 9], B: [9, 9] };   // coin haut-gauche (ligne, colonne) des bases 6x6
+const LUDO_DIR = { R: [0, 1], G: [-1, 0], Y: [0, -1], B: [1, 0] };  // sens du triangle d'arrivee de chaque couleur
 const LUDO_ALL = ['R', 'G', 'Y', 'B'];
+const LUDO_COL = { R: '#e2485d', G: '#1f9d5c', Y: '#e8a900', B: '#2f6fe0' };
 const LUDO_PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
-let ludoState = null;
-let ludoSeatInfo = null;      // [{role, name, connected}] : noms des joueurs du salon
+const LU_U = 24; // taille d'une case dans le dessin (viewBox 360x360)
+const LU_STEP_MS = 135;
+
+let ludoState = null;         // dernier etat recu du serveur
+let ludoSeatInfo = null;      // [{role, name, connected, portrait}] : les joueurs du salon
 let ludoSeatAway = {};        // role -> true quand un joueur se reconnecte
 let ludoPrevRollNo = 0;
+const LU = { sent: false, shown: null, queue: [], busy: false, sel: null, pawns: {}, idle: [], msgTimer: 0, autoTimer: 0, seq: 0 };
+
+const luXY = (r, c) => [(c + .5) * LU_U, (r + .5) * LU_U];
+function luZoneCenter(pl) { const z = LUDO_ZONE[pl]; return [(z[1] + 3) * LU_U, (z[0] + 3) * LU_U]; }
+function luBaseSpot(pl, i) { const c = luZoneCenter(pl); return [c[0] + (i % 2 ? 1 : -1) * 1.15 * LU_U, c[1] + (i < 2 ? -1 : 1) * 1.15 * LU_U]; }
+function luDoneSpot(pl, i) {
+  const d = LUDO_DIR[pl], cx = 7.5 * LU_U, cy = 7.5 * LU_U;
+  return [cx + d[0] * .95 * LU_U + (-d[1]) * (i - 1.5) * .42 * LU_U, cy + d[1] * .95 * LU_U + d[0] * (i - 1.5) * .42 * LU_U];
+}
+// Position (en unites du dessin) d'un pion : rel = -1 base, 0-51 piste, 52-56 couloir, 57 arrive.
+function luPos(pl, rel, i) {
+  if (rel === -1) return luBaseSpot(pl, i);
+  if (rel === 57) return luDoneSpot(pl, i);
+  if (rel >= 52) { const h = LUDO_HOME[pl][rel - 52]; return luXY(h[0], h[1]); }
+  const t = LUDO_TRACK[(LUDO_START[pl] + rel) % 52];
+  return luXY(t[0], t[1]);
+}
 
 function ludoSeatRoles() {
-  // Toujours dans l'ordre du plateau (R, G, Y, B) : c'est aussi l'ordre des tours,
-  // donc les dés se lisent de gauche a droite dans l'ordre ou l'on joue.
+  // Toujours dans l'ordre du plateau (R, G, Y, B) : c'est aussi l'ordre des tours.
   const roles = (ludoSeatInfo && ludoSeatInfo.length) ? ludoSeatInfo.map(x => x.role)
     : (ludoState && ludoState.order ? ludoState.order.slice() : ['R', 'Y']);
   return LUDO_ALL.filter(r => roles.includes(r));
@@ -4472,192 +4502,348 @@ function ludoSeatCount() { return ludoSeatRoles().length; }
 function ludoNameOf(role) {
   const si = ludoSeatInfo && ludoSeatInfo.find(x => x.role === role);
   if (si && si.name) return si.name;
-  if (isBotGame && role === 'Y') return 'Robot';
+  if (isBotGame && role !== myPlayer) return t().ludoBot;
   if (role === myPlayer) return getPlayerName() || t().ludoYou;
   return t().playerNames.ludo[role] || role;
 }
-function ludoAbs(player, rel) {
-  return (rel >= 0 && rel < 52) ? (LUDO_START[player] + rel) % 52 : null;
+// Portrait (objet) d'un camp : le mien, celui du salon, ou rien (robot).
+function ludoPortraitOf(role) {
+  if (role === myPlayer) return myPortrait || null;
+  const si = ludoSeatInfo && ludoSeatInfo.find(x => x.role === role);
+  return (si && si.portrait) || null;
 }
-function ludoPlayable(state, player) {
-  if (!state.dice || !state.pawns[player]) return [];
-  const out = [];
-  state.pawns[player].forEach((pos, i) => {
-    if (pos === 57) return;
-    if (pos === -1) { if (state.dice === 6) out.push(i); return; }
-    if (pos + state.dice <= 57) out.push(i);
+function luStar(x, y, r, fill) {
+  const p = [];
+  for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5, rr = k % 2 ? r * .45 : r; p.push((x + Math.cos(a) * rr).toFixed(1) + ',' + (y + Math.sin(a) * rr).toFixed(1)); }
+  return `<polygon points="${p.join(' ')}" fill="${fill}"/>`;
+}
+function luTriangle(pl) {
+  const a = { R: '7.5,7.5 6,9 9,9', G: '7.5,7.5 6,6 6,9', Y: '7.5,7.5 6,6 9,6', B: '7.5,7.5 9,6 9,9' };
+  const pts = a[pl].split(' ').map(q => { const z = q.split(','); return (z[0] * LU_U).toFixed(1) + ',' + (z[1] * LU_U).toFixed(1); }).join(' ');
+  return `<polygon points="${pts}" fill="${LUDO_COL[pl]}" stroke="#22252b" stroke-width="1.4"/>`;
+}
+// Decor fixe du plateau (les couleurs absentes sont estompees).
+function luBoardStatic(roles) {
+  let s = '';
+  LUDO_ALL.forEach(p => {
+    const z = LUDO_ZONE[p], on = roles.includes(p);
+    s += `<g opacity="${on ? 1 : .28}"><rect x="${z[1] * LU_U + 2}" y="${z[0] * LU_U + 2}" width="${6 * LU_U - 4}" height="${6 * LU_U - 4}" rx="12" fill="${LUDO_COL[p]}" fill-opacity=".2" stroke="${LUDO_COL[p]}" stroke-width="3"/>`;
+    for (let i = 0; i < 4; i++) { const b = luBaseSpot(p, i); s += `<circle cx="${b[0]}" cy="${b[1]}" r="11" fill="${LUDO_COL[p]}" fill-opacity=".25"/>`; }
+    s += '</g>';
   });
-  return out;
+  const cell = (r, c, kind, pl, safe) => {
+    const x = c * LU_U, y = r * LU_U, fill = kind === 'track' ? '#fff' : LUDO_COL[pl];
+    let extra = '';
+    if (kind === 'start') {
+      const cx = (c + .5) * LU_U, cy = (r + .5) * LU_U, rot = { R: 0, G: 90, Y: 180, B: 270 }[pl];
+      extra = `<path d="M${cx - 5} ${cy + 4} l5 -9 l5 9 z" fill="#fff" transform="rotate(${rot} ${cx} ${cy})"/>`;
+    }
+    return `<rect x="${x + 1}" y="${y + 1}" width="${LU_U - 2}" height="${LU_U - 2}" rx="6" fill="${fill}" fill-opacity="${kind === 'home' ? .85 : 1}" stroke="#22252b" stroke-opacity=".55" stroke-width="1.2"/>${extra}${safe && kind !== 'start' ? luStar((c + .5) * LU_U, (r + .5) * LU_U, 7, '#22252b') : ''}`;
+  };
+  LUDO_TRACK.forEach((t, abs) => {
+    const pl = LUDO_ALL.find(p => LUDO_START[p] === abs);
+    s += cell(t[0], t[1], pl ? 'start' : 'track', pl, LUDO_SAFE.has(abs));
+  });
+  LUDO_ALL.forEach(p => LUDO_HOME[p].forEach(h => { s += cell(h[0], h[1], 'home', p, false); }));
+  LUDO_ALL.forEach(p => { s += luTriangle(p); });
+  return s;
 }
-function ludoCellCoord(player, pos, pawnIdx) {
-  if (pos === -1) return LUDO_BASE[player][pawnIdx];
-  if (pos >= 57) return [7, 7];
-  if (pos >= 52) return LUDO_HOME[player][pos - 52];
-  return LUDO_TRACK[ludoAbs(player, pos)];
+// Un pion : disque de la couleur du camp, portrait du joueur (ou point blanc pour le robot).
+function luPawnSvg(pl, k) {
+  const col = LUDO_COL[pl], pt = ludoPortraitOf(pl);
+  let inner = '<circle r="5.5" fill="#fff" fill-opacity=".92"/>';
+  if (pt && window.LiberoPortrait) {
+    const raw = _ptSvg(pt).replace(/<svg([^>]*)>/, (m, a) => '<svg' + a.replace(/\s(width|height)="[^"]*"/g, '') + ' x="-8.6" y="-8.6" width="17.2" height="17.2">');
+    inner = `<clipPath id="lucp-${k}"><circle r="8.6"/></clipPath><g clip-path="url(#lucp-${k})">${raw}</g><circle r="8.6" fill="none" stroke="#fff" stroke-width="1.2"/>`;
+  }
+  return `<circle r="12.5" fill="#000" opacity=".25" cy="2.5"/><circle r="12" fill="${col}" stroke="#fff" stroke-width="2.6"/><circle r="12" fill="none" stroke="#22252b" stroke-width="1.2"/>${inner}<circle class="ldo-ring" r="16.5"/>`;
 }
-// Un de a pions : chaque joueur a SON de, qui garde SON dernier lancer.
 function ludoDieFace(n) {
-  if (!n) return '<span class="ludo-die-empty">?</span>';
+  if (!n) return '<span class="ldo-q">?</span>';
   return Array.from({ length: 9 }, (_, i) => `<i${LUDO_PIPS[n].includes(i) ? ' class="p"' : ''}></i>`).join('');
 }
-function ludoRollNow() {
-  if (!gameActive || !ludoState || ludoState.currentPlayer !== myPlayer || ludoState.dice) return;
-  socket.emit('make-move', { roll: true });
+const LUDO_ROBOT_SVG = '<svg viewBox="0 0 40 40"><rect width="40" height="40" fill="#e8edf5"/><rect x="9" y="12" width="22" height="18" rx="5" fill="#9aa4b2" stroke="#1d2433" stroke-width="2"/><circle cx="16" cy="21" r="2.6" fill="#1d2433"/><circle cx="24" cy="21" r="2.6" fill="#1d2433"/><path d="M20 12V7" stroke="#1d2433" stroke-width="2"/><circle cx="20" cy="6" r="2" fill="#e2485d"/></svg>';
+// Photo de profil d'un camp : portrait du joueur, icone de robot, ou portrait vide.
+function luPfHtml(role) {
+  if (isBotGame && role !== myPlayer) return LUDO_ROBOT_SVG;
+  const pt = ludoPortraitOf(role);
+  return pt && window.LiberoPortrait ? _ptSvg(pt) : (window.LiberoPortrait ? _ptBlank() : '');
 }
+function luSeatHtml(role) {
+  return `<div class="ldo-seat" data-role="${role}" style="--c:${LUDO_COL[role]}"><span class="ldo-pf">${luPfHtml(role)}</span><span class="ldo-id"><span class="ldo-nm"></span><span class="ldo-st"></span></span><button type="button" class="ldo-die" aria-label=""><span class="ldo-face"></span></button></div>`;
+}
+function ludoAutoOn() { try { return localStorage.getItem('libero_ludo_auto') === '1'; } catch { return false; } }
 
 function buildLudo(container, state) {
+  clearTimeout(LU.msgTimer); clearTimeout(LU.autoTimer);
+  LU.seq++; LU.queue = []; LU.busy = false; LU.sel = null; LU.pawns = {}; LU.idle = []; LU.shown = null;
   ludoState = state;
   ludoPrevRollNo = state.rollNo || 0;
-  const roles = ludoSeatRoles();
+  const roles = ludoSeatRoles(), top = roles.filter(r => r === 'G' || r === 'Y'), bottom = roles.filter(r => r === 'R' || r === 'B');
+  const scr = document.getElementById('screen-game');
+  scr.classList.add('ludo-game'); scr.classList.toggle('ludo-multi', roles.length > 2);
   const wrap = document.createElement('div');
-  wrap.className = 'ludo-wrap';
-
-  // Les dés : un par joueur, avec son nom, de la couleur de son camp.
-  const tray = document.createElement('div');
-  tray.id = 'ludo-seats';
-  tray.className = 'ludo-seats';
-  tray.style.setProperty('--n', roles.length);
-  roles.forEach(r => {
-    const seat = document.createElement('div');
-    seat.className = `ludo-seat s-${r.toLowerCase()}`;
-    seat.dataset.role = r;
-    seat.innerHTML = `<span class="ludo-sname"></span><button type="button" class="ludo-sdie" aria-label=""><span class="ludo-dieface"></span></button><span class="ludo-sstate"></span>`;
-    tray.appendChild(seat);
-  });
-  wrap.appendChild(tray);
-
-  const boardEl = document.createElement('div');
-  boardEl.id = 'ludo-board';
-  boardEl.className = 'ludo-board';
-  // Zones de base (les couleurs libres restent affichees, estompees) et centre
-  LUDO_ALL.forEach(r => {
-    const [zr, zc] = LUDO_ZONE[r];
-    const el = document.createElement('div');
-    el.className = `ludo-basezone ludo-${r.toLowerCase()}${roles.includes(r) ? '' : ' ludo-empty'}`;
-    el.style.gridArea = `${zr} / ${zc} / span 5 / span 5`;
-    boardEl.appendChild(el);
-  });
-  const center = document.createElement('div');
-  center.className = 'ludo-center'; center.id = 'ludo-center'; center.textContent = '🏁';
-  center.style.gridArea = '7 / 7 / span 3 / span 3';
-  boardEl.appendChild(center);
-  // Piste
-  LUDO_TRACK.forEach(([r, c], abs) => {
-    const cell = document.createElement('div');
-    cell.className = 'ludo-cell';
-    if (LUDO_SAFE.has(abs)) cell.classList.add('safe');
-    LUDO_ALL.forEach(pl => { if (abs === LUDO_START[pl]) cell.classList.add(`start-${pl.toLowerCase()}`); });
-    cell.dataset.abs = abs;
-    cell.style.gridArea = `${r + 1} / ${c + 1}`;
-    if (LUDO_SAFE.has(abs)) cell.textContent = '★';
-    boardEl.appendChild(cell);
-  });
-  // Colonnes d'arrivee
-  LUDO_ALL.forEach(pl => {
-    LUDO_HOME[pl].forEach(([r, c], i) => {
-      const cell = document.createElement('div');
-      cell.className = `ludo-cell home home-${pl.toLowerCase()}`;
-      cell.dataset.home = `${pl}${i}`;
-      cell.style.gridArea = `${r + 1} / ${c + 1}`;
-      boardEl.appendChild(cell);
-    });
-  });
-  // Emplacements de base
-  LUDO_ALL.forEach(pl => {
-    LUDO_BASE[pl].forEach(([r, c], i) => {
-      const slot = document.createElement('div');
-      slot.className = 'ludo-baseslot';
-      slot.dataset.base = `${pl}${i}`;
-      slot.style.gridArea = `${r + 1} / ${c + 1}`;
-      boardEl.appendChild(slot);
-    });
-  });
-  // Couche des pions (au-dessus des cases)
-  const pawnLayer = document.createElement('div');
-  pawnLayer.id = 'ludo-pawns';
-  pawnLayer.className = 'ludo-pawns';
-  boardEl.appendChild(pawnLayer);
-  wrap.appendChild(boardEl);
-
-  // Barre d'action : mon bouton, et une phrase qui dit quoi faire
-  const bar = document.createElement('div');
-  bar.className = 'ludo-bar';
-  bar.innerHTML = `<button id="ludo-roll" class="btn btn-primary">${t().ludoRoll}</button><span id="ludo-msg" class="ludo-msg"></span>`;
-  wrap.appendChild(bar);
+  wrap.className = 'ldo-wrap';
+  wrap.innerHTML =
+    (top.length ? `<div class="ldo-tray" data-n="${top.length}">${top.map(luSeatHtml).join('')}</div>` : '') +
+    `<svg id="ldo-board" class="ldo-board" viewBox="0 0 360 360" role="img"><g id="ldo-st">${luBoardStatic(roles)}</g><g id="ldo-pv"></g><g id="ldo-pw"></g><g id="ldo-fx"></g></svg>` +
+    (bottom.length ? `<div class="ldo-tray" data-n="${bottom.length}">${bottom.map(luSeatHtml).join('')}</div>` : '') +
+    `<div class="ldo-bar"><button id="ludo-roll" class="btn btn-primary"></button><span id="ludo-msg" class="ldo-msg"></span></div>` +
+    `<label class="ldo-auto"><input type="checkbox" id="ldo-auto"><span id="ldo-auto-t"></span></label><div id="ldo-end" class="ldo-end hidden"></div>`;
   container.appendChild(wrap);
+  const layer = document.getElementById('ldo-pw');
+  order_for_pawns(state).forEach(pl => {
+    for (let i = 0; i < 4; i++) {
+      const k = pl + i, g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('class', 'ldo-pawn'); g.dataset.k = k; g.innerHTML = luPawnSvg(pl, k);
+      g.addEventListener('click', () => onLudoPawnClick(i, pl));
+      layer.appendChild(g); LU.pawns[k] = g;
+    }
+  });
   document.getElementById('ludo-roll').addEventListener('click', ludoRollNow);
-  tray.addEventListener('click', e => { if (e.target.closest('.ludo-seat.s-' + String(myPlayer).toLowerCase() + ' .ludo-sdie')) ludoRollNow(); });
-  document.getElementById('screen-game').classList.toggle('ludo-multi', roles.length > 2);
-  updateLudo(state);
+  wrap.querySelectorAll('.ldo-seat').forEach(seat => seat.querySelector('.ldo-die').addEventListener('click', () => { if (seat.dataset.role === myPlayer) ludoRollNow(); }));
+  const au = document.getElementById('ldo-auto'); au.checked = ludoAutoOn();
+  au.addEventListener('change', () => { try { localStorage.setItem('libero_ludo_auto', au.checked ? '1' : '0'); } catch {} luMark(); });
+  luSyncAll(state);
+  LU.shown = state;
+  luChrome(state, null);
+  luMark();
+  if (state.winner) luShowEnd(state);
+}
+function order_for_pawns(state) { return (state.order && state.order.length ? state.order : ['R', 'Y']).filter(c => state.pawns[c]); }
+
+// Un coup envoye : on n'en envoie pas un second avant la reponse du serveur.
+function luSend(move) {
+  if (LU.sent) return;
+  LU.sent = true; setTimeout(() => { LU.sent = false; }, 1500);
+  socket.emit('make-move', move);
+}
+function ludoRollNow() {
+  if (!gameActive || !ludoState || ludoState.currentPlayer !== myPlayer || ludoState.dice || LU.busy || LU.queue.length) return;
+  luSend({ roll: true });
 }
 
-function updateLudo(state) {
-  const prevRollNo = ludoPrevRollNo;
-  ludoState = state;
-  const layer = document.getElementById('ludo-pawns');
-  if (!layer) return;
-  layer.innerHTML = '';
-  const order = state.order || ['R', 'Y'];
-  // Note : updateLudo est appele AVANT updateTurnUI sur game-update, donc on
-  // lit le tour dans l'etat (currentTurnPlayer serait en retard d'un coup).
-  const myTurn = state.currentPlayer === myPlayer;
-  const playable = (myTurn && state.dice) ? ludoPlayable(state, myPlayer) : [];
-  for (const pl of order) {
-    if (!state.pawns[pl]) continue;
-    state.pawns[pl].forEach((pos, i) => {
-      const [r, c] = ludoCellCoord(pl, pos, i);
-      const pawn = document.createElement('button');
-      pawn.className = `ludo-pawn p-${pl.toLowerCase()}`;
-      if (pl === myPlayer && playable.includes(i)) pawn.classList.add('can-play');
-      if (state.lastMove && state.lastMove.player === pl && state.lastMove.pawn === i) pawn.classList.add('just-moved');
-      pawn.style.setProperty('--lr', r);
-      pawn.style.setProperty('--lc', c);
-      // Decalage leger quand plusieurs pions partagent une case
-      const stackIdx = state.pawns[pl].slice(0, i).filter(p => p === pos && pos !== -1).length;
-      pawn.style.setProperty('--stack', stackIdx);
-      if (pl === myPlayer) pawn.addEventListener('click', () => onLudoPawnClick(i));
-      layer.appendChild(pawn);
+// Place tous les pions selon l'etat (sans animation) ; les pions d'une meme case sont ecartes.
+function luSyncAll(state) {
+  const groups = {};
+  LUDO_ALL.forEach(pl => {
+    if (!state.pawns[pl]) return;
+    state.pawns[pl].forEach((rel, i) => {
+      const xy = luPos(pl, rel, i), key = rel === -1 || rel === 57 ? pl + i : xy[0].toFixed(0) + ',' + xy[1].toFixed(0);
+      (groups[key] = groups[key] || []).push([pl, i, xy]);
     });
+  });
+  Object.keys(groups).forEach(k => {
+    const g = groups[k], n = g.length;
+    g.forEach((e, j) => { const off = n > 1 ? (j - (n - 1) / 2) * 7 : 0; luPlace(e[0] + e[1], e[2], off, n > 1 ? -off * .35 : 0); });
+  });
+  Object.keys(LU.pawns).forEach(k => { LU.pawns[k].style.display = state.pawns[k[0]] ? '' : 'none'; });
+}
+function luPlace(k, xy, dx, dy) {
+  const el = LU.pawns[k]; if (!el) return;
+  el.style.transform = `translate(${(xy[0] + (dx || 0)).toFixed(1)}px,${(xy[1] + (dy || 0)).toFixed(1)}px)`;
+}
+const luWait = ms => new Promise(r => setTimeout(r, ms));
+
+function updateLudo(state) {
+  ludoState = state;
+  LU.sent = false;
+  if (!document.getElementById('ldo-board')) return;
+  LU.queue.push(state);
+  if (!LU.busy) luPump();
+}
+async function luPump() {
+  const seq = LU.seq;
+  LU.busy = true;
+  while (LU.queue.length) {
+    const s = LU.queue.shift();
+    try { await luShow(s); } catch (e) { luSyncAll(s); LU.shown = s; }
+    if (seq !== LU.seq) return;
   }
-  // Les dés : un par joueur, avec le DERNIER lancer de chacun
-  document.querySelectorAll('#ludo-seats .ludo-seat').forEach(seat => {
-    const role = seat.dataset.role;
-    const out = !order.includes(role);
+  LU.busy = false;
+  const st = LU.shown;
+  luChrome(st, null);
+  luMark();
+  if (st && st.winner) luShowEnd(st);
+  const cbs = LU.idle.splice(0); cbs.forEach(f => { try { f(); } catch {} });
+}
+// Appelle f quand toutes les animations en cours sont finies (fin de partie : on attend le dernier pas).
+function ludoWhenIdle(f) { if (!LU.busy && !LU.queue.length) f(); else LU.idle.push(f); }
+
+// Affiche un etat recu : anime le de, puis le pion qui bouge, les captures, les messages.
+async function luShow(s) {
+  const prev = LU.shown, seq = LU.seq;
+  LU.sel = null; document.getElementById('ldo-pv').innerHTML = '';
+  document.querySelectorAll('.ldo-pawn').forEach(e => e.classList.remove('can'));
+  if (!prev) { luSyncAll(s); LU.shown = s; luChrome(s, null); return; }
+  const rolled = (s.rollNo || 0) > (prev.rollNo || 0);
+  const moved = JSON.stringify(s.pawns) !== JSON.stringify(prev.pawns);
+  if (rolled && s.lastRoller) {
+    luDieAnim(s.lastRoller, s.lastRolls && s.lastRolls[s.lastRoller] ? s.lastRolls[s.lastRoller] : s.lastDice);
+    luChrome(prev, null, { rolling: true });
+    await luWait(680);
+    if (seq !== LU.seq) return;
+  }
+  const d = t();
+  if (rolled && s.ev) {
+    const n = ludoNameOf(s.ev.player);
+    if (s.ev.t === 'three6') luFlash(d.ludoThree6(n), 1700);
+    else if (s.ev.t === 'retry') luFlash(d.ludoRetry(n, s.ev.left), 1500);
+    else if (s.ev.t === 'nomove') luFlash(n === ludoNameOf(myPlayer) ? d.ludoNoMove : d.ludoNoMoveOf(n), 1500);
+  }
+  if (moved && s.lastMove) {
+    const lm = s.lastMove, pl = lm.player, steps = [];
+    if (lm.from === -1) steps.push(0); else for (let r = lm.from + 1; r <= lm.to; r++) steps.push(r);
+    const el = LU.pawns[pl + lm.pawn];
+    if (el) el.classList.add('moving');
+    for (let j = 0; j < steps.length; j++) { luPlace(pl + lm.pawn, luPos(pl, steps[j], lm.pawn)); await luWait(steps.length > 1 ? LU_STEP_MS : 240); if (seq !== LU.seq) return; }
+    if (el) el.classList.remove('moving');
+    const n = ludoNameOf(pl);
+    if (lm.captured) { luBurst(luPos(pl, lm.to, lm.pawn), LUDO_COL[pl]); luFlash(pl === myPlayer ? d.ludoCapture : d.ludoCaptureOf(n), 1500); }
+    else if (lm.home) { luBurst(luPos(pl, lm.to, lm.pawn), LUDO_COL[pl]); luFlash(pl === myPlayer ? d.ludoHome : d.ludoHomeOf(n), 1500); }
+    else if (s.ev && s.ev.t === 'barrage') luFlash(d.ludoBarrage, 1500);
+    luSyncAll(s);
+    await luWait(lm.captured ? 520 : 200);
+  } else luSyncAll(s);
+  LU.shown = s;
+  luChrome(s, null);
+  if (!LU.queue.length) luMark();
+}
+
+function luDieAnim(role, val) {
+  const el = document.querySelector(`.ldo-seat[data-role="${role}"] .ldo-die`); if (!el) return;
+  el.classList.remove('rolling'); void el.offsetWidth; el.classList.add('rolling');
+  const f = el.querySelector('.ldo-face'); let n = 0;
+  const iv = setInterval(() => { f.innerHTML = ludoDieFace(1 + Math.floor(Math.random() * 6)); if (++n > 6) { clearInterval(iv); f.innerHTML = ludoDieFace(val); el.classList.remove('rolling'); } }, 90);
+}
+function luFlash(text, ms) {
+  const m = document.getElementById('ludo-msg'); if (!m) return;
+  m.textContent = text; m.classList.add('flash');
+  clearTimeout(LU.msgTimer);
+  LU.msgTimer = setTimeout(() => { m.classList.remove('flash'); luChrome(LU.shown, null); }, ms || 1400);
+}
+function luBurst(xy, col) {
+  const f = document.getElementById('ldo-fx'); if (!f || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); let h = '';
+  for (let k = 0; k < 12; k++) {
+    const a = k * Math.PI / 6, dd = 22 + Math.random() * 10;
+    h += `<circle cx="${xy[0]}" cy="${xy[1]}" r="3.4" fill="${col}"><animate attributeName="cx" from="${xy[0]}" to="${xy[0] + Math.cos(a) * dd}" dur=".5s" fill="freeze"/><animate attributeName="cy" from="${xy[1]}" to="${xy[1] + Math.sin(a) * dd}" dur=".5s" fill="freeze"/><animate attributeName="opacity" from="1" to="0" dur=".5s" fill="freeze"/></circle>`;
+  }
+  h += `<circle cx="${xy[0]}" cy="${xy[1]}" r="6" fill="none" stroke="${col}" stroke-width="3"><animate attributeName="r" from="6" to="30" dur=".45s" fill="freeze"/><animate attributeName="opacity" from="1" to="0" dur=".45s" fill="freeze"/></circle>`;
+  g.innerHTML = h; f.appendChild(g); setTimeout(() => g.remove(), 700);
+}
+
+// Sieges (nom, de, tour), bouton, message : tout ce qui depend de l'etat affiche.
+function luChrome(state, _x, opt) {
+  if (!state || !document.getElementById('ldo-board')) return;
+  const d = t(), order = state.order || ['R', 'Y'], myTurn = state.currentPlayer === myPlayer && !state.winner;
+  document.querySelectorAll('.ldo-seat').forEach(seat => {
+    const role = seat.dataset.role, out = !order.includes(role);
     seat.classList.toggle('turn', !out && state.currentPlayer === role && !state.winner);
     seat.classList.toggle('out', out);
     seat.classList.toggle('mine', role === myPlayer);
     seat.classList.toggle('away', !!ludoSeatAway[role]);
-    seat.querySelector('.ludo-sname').textContent = ludoNameOf(role) + (role === myPlayer && ludoSeatCount() > 1 && !isBotGame ? ` (${t().ludoYou})` : '');
-    const die = seat.querySelector('.ludo-sdie');
-    die.setAttribute('aria-label', t().ludoDieOf(ludoNameOf(role)));
-    die.classList.toggle('can-roll', role === myPlayer && myTurn && !state.dice);
-    seat.querySelector('.ludo-dieface').innerHTML = ludoDieFace(out ? 0 : (state.lastRolls || {})[role] || (role === state.lastRoller ? state.lastDice : 0));
-    seat.querySelector('.ludo-sstate').textContent = out ? t().ludoOut : (ludoSeatAway[role] ? '⏳' : '');
-    // Animation du dé de CELUI QUI VIENT DE LANCER (et de personne d'autre)
-    if ((state.rollNo || 0) > prevRollNo && state.lastRoller === role) {
-      die.classList.remove('rolling'); void die.offsetWidth; die.classList.add('rolling');
-      setTimeout(() => die.classList.remove('rolling'), 700);
+    seat.querySelector('.ldo-nm').textContent = ludoNameOf(role) + (role === myPlayer && !isBotGame ? ` (${d.ludoYou})` : '');
+    seat.querySelector('.ldo-st').textContent = out ? d.ludoOut : (ludoSeatAway[role] ? d.ludoAwayShort : '');
+    const die = seat.querySelector('.ldo-die');
+    die.setAttribute('aria-label', d.ludoDieOf(ludoNameOf(role)));
+    die.classList.toggle('can-roll', role === myPlayer && myTurn && !state.dice && !LU.busy && !LU.queue.length);
+    if (!(opt && opt.rolling && role === state.lastRoller)) {
+      const v = out ? 0 : ((state.lastRolls || {})[role] || (role === state.lastRoller ? state.lastDice : 0));
+      seat.querySelector('.ldo-face').innerHTML = ludoDieFace(v);
     }
   });
-  ludoPrevRollNo = state.rollNo || 0;
-  const rollBtn = document.getElementById('ludo-roll');
-  if (rollBtn) {
-    rollBtn.textContent = t().ludoRoll;
-    rollBtn.disabled = !(myTurn && !state.dice && gameActive);
-    rollBtn.classList.toggle('pulse', myTurn && !state.dice);
+  const rb = document.getElementById('ludo-roll');
+  if (rb) {
+    rb.textContent = d.ludoRoll;
+    rb.disabled = !(myTurn && !state.dice && gameActive && !LU.busy && !LU.queue.length);
+    rb.classList.toggle('pulse', !rb.disabled);
   }
-  const msg = document.getElementById('ludo-msg');
-  if (msg) {
-    msg.textContent = state.winner ? '' : (myTurn ? (state.dice ? t().ludoYourMove : t().ludoYourRoll) : t().ludoWaitFor(ludoNameOf(state.currentPlayer)));
-    msg.classList.toggle('mine', myTurn && !state.winner);
+  const at = document.getElementById('ldo-auto-t'); if (at) at.textContent = d.ludoAutoLbl;
+  const m = document.getElementById('ludo-msg');
+  if (m && !m.classList.contains('flash')) {
+    let txt = '';
+    if (!state.winner) {
+      if (myTurn) txt = state.dice ? (LU.sel != null ? d.ludoConfirm : d.ludoPick) : d.ludoYourRoll;
+      else txt = d.ludoWaitFor(ludoNameOf(state.currentPlayer));
+    }
+    m.textContent = txt; m.classList.toggle('mine', myTurn);
   }
 }
 
-function onLudoPawnClick(i) {
-  if (!gameActive || !ludoState || ludoState.currentPlayer !== myPlayer || !ludoState.dice) return;
-  if (!ludoPlayable(ludoState, myPlayer).includes(i)) return;
-  socket.emit('make-move', { pawn: i });
+// Pions jouables de MON camp : halo, et jeu automatique s'il n'y a qu'un coup et que c'est demande.
+function luMark() {
+  const state = LU.shown;
+  document.querySelectorAll('.ldo-pawn').forEach(e => e.classList.remove('can'));
+  document.getElementById('ldo-pv') && (document.getElementById('ldo-pv').innerHTML = '');
+  clearTimeout(LU.autoTimer);
+  if (!state || LU.busy || LU.queue.length || !gameActive || state.winner || state.currentPlayer !== myPlayer || !state.dice) { luChrome(state, null); return; }
+  const pl = ludoPlayable(state, myPlayer);
+  pl.forEach(i => LU.pawns[myPlayer + i]?.classList.add('can'));
+  LU.sel = null;
+  luChrome(state, null);
+  if (pl.length === 1 && ludoAutoOn()) {
+    const seq = LU.seq;
+    luFlash(t().ludoAutoPlayed, 800);
+    LU.autoTimer = setTimeout(() => { if (seq === LU.seq && LU.shown === state && !LU.busy && !LU.queue.length && !LU.sent) luSend({ pawn: pl[0] }); }, 650);
+  }
 }
+function ludoPlayable(state, player) {
+  const dice = state.dice, o = state.opts || { exact: true };
+  if (!dice || !state.pawns[player]) return [];
+  const out = [];
+  state.pawns[player].forEach((pos, i) => {
+    if (pos === 57) return;
+    if (pos === -1) { if (dice === 6) out.push(i); return; }
+    if (pos + dice <= 57 || o.exact === false) out.push(i);
+  });
+  return out;
+}
+function luPreview(i) {
+  const st = LU.shown, from = st.pawns[myPlayer][i];
+  let to = from === -1 ? 0 : Math.min(57, from + st.dice);
+  const pts = []; for (let r = from === -1 ? 0 : from + 1; r <= to; r++) pts.push(luPos(myPlayer, r, i));
+  const s0 = luPos(myPlayer, from, i), e = luPos(myPlayer, to, i), col = LUDO_COL[myPlayer];
+  const d = `M${s0[0]} ${s0[1]}` + pts.map(p => ` L${p[0]} ${p[1]}`).join('');
+  document.getElementById('ldo-pv').innerHTML =
+    `<path d="${d}" fill="none" stroke="${col}" stroke-width="4" stroke-dasharray="2 6" stroke-linecap="round" opacity=".9"/>` +
+    `<circle class="ldo-dest" data-i="${i}" cx="${e[0]}" cy="${e[1]}" r="14" fill="${col}" fill-opacity=".12" stroke="${col}" stroke-width="2.5" stroke-dasharray="4 3"/>`;
+  document.querySelector('#ldo-pv .ldo-dest')?.addEventListener('click', () => luConfirm(i));
+}
+function luConfirm(i) {
+  if (LU.busy || LU.queue.length) return;
+  document.getElementById('ldo-pv').innerHTML = ''; LU.sel = null;
+  luSend({ pawn: i });
+}
+function onLudoPawnClick(i, pl) {
+  if (pl && pl !== myPlayer) return;
+  const st = LU.shown;
+  if (!gameActive || !st || st.currentPlayer !== myPlayer || !st.dice || LU.busy || LU.queue.length || LU.sent) return;
+  if (!ludoPlayable(st, myPlayer).includes(i)) return;
+  if (LU.sel === i) { luConfirm(i); return; }
+  LU.sel = i;
+  document.querySelectorAll('.ldo-pawn').forEach(e => e.classList.remove('can'));
+  LU.pawns[myPlayer + i]?.classList.add('can');
+  luPreview(i); luChrome(st, null);
+}
+
+// Fin de partie : tampon, classement (pions rentres), chiffres de la partie.
+function luShowEnd(state) {
+  const box = document.getElementById('ldo-end'); if (!box || !state.winner) return;
+  const d = t(), rank = state.ranking && state.ranking.length ? state.ranking : [state.winner];
+  const me = (state.stats || {})[myPlayer] || { captures: 0, sixes: 0, homes: 0 };
+  const rows = rank.map((c, n) => {
+    const pf = luPfHtml(c);
+    const pw = state.pawns[c] || [], homes = pw.filter(x => x === 57).length, gone = !pw.length;
+    return `<div class="ldo-rk" style="--c:${LUDO_COL[c]}"><span class="ldo-n">${n + 1}</span><span class="ldo-pf">${pf}</span><span class="ldo-rn">${_escHtml(ludoNameOf(c))}${c === myPlayer ? ` <small>${d.ludoYou}</small>` : ''}${gone ? ` <small>${d.ludoOut}</small>` : ''}</span><span class="ldo-pips">${[0, 1, 2, 3].map(k => `<i class="${k < homes ? '' : 'o'}"></i>`).join('')}</span></div>`;
+  }).join('');
+  const w = state.winner, iWon = w === myPlayer;
+  box.innerHTML = `<div class="ldo-stamp ${iWon ? 'win' : ''}">${_escHtml(iWon ? d.ludoStampYou : d.ludoStamp(ludoNameOf(w)))}</div>${rows}` +
+    `<div class="ldo-stt"><div><b>${me.captures}</b>${d.ludoStatCap}</div><div><b>${me.sixes}</b>${d.ludoStatSix}</div><div><b>${state.rollNo || 0}</b>${d.ludoStatRolls}</div></div><p class="ldo-note">${d.ludoRankNote}</p>`;
+  box.classList.remove('hidden');
+}
+// Texte (langue) : on remet a jour les textes du plateau sans rien animer.
+function ludoRefreshTexts() { luChrome(LU.shown || ludoState, null); if (LU.shown && LU.shown.winner) luShowEnd(LU.shown); }
 
 // ── Promotion du pion ─────────────────────────────────────────────────────────
 function showPromoModal(player) {
@@ -6344,6 +6530,8 @@ function showWaiting({ code, gameType, stake, role, variant }) {
   $('waiting-game-name').textContent = t().games[gameType] + (gameType === 'checkers' && variant ? ` · ${t().ckRules.short[variant]}` : '') + (stake ? ` · ${stake} Libs` : '');
   const isLudo = gameType === 'ludo';
   $('waiting-seats').classList.toggle('hidden', !isLudo);
+  $('ldo-rules').classList.toggle('hidden', !isLudo);
+  if (!isLudo) $('waiting-seats').classList.remove('ldo-seatgrid');
   $('btn-ludo-start').classList.toggle('hidden', !isLudo);
   if (!isLudo) {
     $('waiting-title').textContent = t().waitingFor;
@@ -6351,25 +6539,44 @@ function showWaiting({ code, gameType, stake, role, variant }) {
   }
   showScreen('waiting');
 }
+const LUDO_OPT_KEYS = ['barrage', 'three6', 'replayHome', 'threeTries', 'exact'];
 function renderLudoLobby(lb) {
   if (lb) ludoLobby = lb;
   if (!ludoLobby || currentGame !== 'ludo') return;
   const d = t(), seats = ludoLobby.seats || [];
   const iAmHost = ludoLobby.host === myPlayer;
   $('waiting-title').textContent = d.ludoLobbyTitle;
-  $('waiting-hint').textContent  = d.ludoLobbyHint;
-  const slots = seats.map(sx => `<li class="lb-seat s-${sx.role.toLowerCase()}${sx.connected ? '' : ' away'}">`
-    + `<span class="lb-dot"></span><b>${_escHtml(sx.name || '?')}</b>`
-    + `<em>${[sx.role === myPlayer ? d.ludoYou : '', sx.host ? d.ludoHost : '', sx.connected ? '' : d.ludoAway].filter(Boolean).join(' · ')}</em></li>`);
-  for (let i = seats.length; i < 4; i++) slots.push(`<li class="lb-seat free"><span class="lb-dot"></span><b>${d.ludoFree}</b></li>`);
-  $('waiting-seats').innerHTML = slots.join('');
+  $('waiting-hint').textContent  = iAmHost ? d.ludoLobbyHint : d.ludoWaitHost;
+  // Les places : une carte par couleur, avec le portrait du joueur ; les places libres prennent les couleurs suivantes.
+  const ul = $('waiting-seats'); ul.classList.add('ldo-seatgrid');
+  const used = seats.map(x => x.role), nextFree = ['R', 'Y', 'G', 'B'].filter(r => !used.includes(r));
+  const cards = seats.map(sx => {
+    const pf = window.LiberoPortrait ? (sx.portrait ? _ptSvg(sx.portrait) : _ptBlank()) : '';
+    const tags = [sx.role === myPlayer ? d.ludoYou : '', sx.host ? d.ludoHost : '', sx.connected ? '' : d.ludoAway].filter(Boolean).join(' · ');
+    return `<li class="ldo-sc${sx.connected ? '' : ' away'}" style="--c:${LUDO_COL[sx.role]}"><span class="ldo-dot"></span><span class="ldo-pf">${pf}</span><b>${_escHtml(sx.name || '?')}</b><small>${tags}</small></li>`;
+  });
+  for (let i = seats.length; i < 4; i++) cards.push(`<li class="ldo-sc free" style="--c:${LUDO_COL[nextFree[i - seats.length]] || '#888'}"><span class="ldo-dot"></span><b>${d.ludoFree}</b></li>`);
+  ul.innerHTML = cards.join('');
+  // Les regles de la partie : l'hote les regle, les autres les voient.
+  const rb = $('ldo-rules'), o = ludoLobby.opts || {};
+  rb.classList.remove('hidden');
+  rb.innerHTML = `<div class="ldo-step">2) <b>${d.ludoStep2}</b></div>` + LUDO_OPT_KEYS.map(k => {
+    const on = o[k] !== false, lab = d.ludoRules[k];
+    return `<div class="ldo-rl"><span>${lab[0]}<small>${lab[1]}</small></span><button type="button" class="ldo-tg${on ? ' on' : ''}" data-opt="${k}" role="switch" aria-checked="${on}" aria-label="${lab[0]}"${iAmHost ? '' : ' disabled'}></button></div>`;
+  }).join('') + (iAmHost ? '' : `<p class="ldo-note">${d.ludoRulesHost}</p>`);
   const btn = $('btn-ludo-start');
   const here = seats.filter(x => x.connected).length;
   btn.classList.toggle('hidden', !iAmHost);
   btn.textContent = d.ludoStartBtn + ` (${here}/4)`;
   btn.disabled = here < 2;
-  if (!iAmHost) $('waiting-hint').textContent = d.ludoWaitHost;
 }
+document.addEventListener('click', e => {
+  const b = e.target.closest?.('#ldo-rules [data-opt]'); if (!b || b.disabled || !ludoLobby) return;
+  const k = b.dataset.opt, cur = (ludoLobby.opts || {})[k] !== false;
+  ludoLobby.opts = { ...(ludoLobby.opts || {}), [k]: !cur };
+  renderLudoLobby();
+  socket.emit('ludo-set-opts', { [k]: !cur });
+});
 socket.on('room-created', ({ code, gameType, stake, variant }) => {
   showWaiting({ code, gameType, stake, role: 'R', variant });
 });
@@ -6438,7 +6645,7 @@ socket.on('game-start', ({ gameType, state, yourPlayer, vsBot, botDifficulty, co
   showScreen('game');
 });
 
-socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, roomCode, vsBot, botDifficulty, stake, seats, host }) => {
+socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, roomCode, vsBot, botDifficulty, stake, seats, host, ludoOpts }) => {
   _sfxPrev = { type: gameType, state };
   currentRoomCode = roomCode;
   isBotGame = !!vsBot;
@@ -6448,7 +6655,7 @@ socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, r
   if (status === 'waiting') {
     myPlayer = yourPlayer;
     showWaiting({ code: roomCode, gameType, stake, role: yourPlayer });
-    if (gameType === 'ludo' && seats) renderLudoLobby({ code: roomCode, stake, host, seats });
+    if (gameType === 'ludo' && seats) renderLudoLobby({ code: roomCode, stake, host, seats, opts: ludoOpts });
     if (window.__relacherBoot) window.__relacherBoot();
     return;
   }
@@ -6523,7 +6730,8 @@ socket.on('game-update', ({ gameType, state, status, winner, resync }) => {
     $('turn-indicator').textContent = '';
     if (gameType === 'connect4' && winner) highlightConnect4Win(state.board, winner);
     if (gameType === 'tictactoe' && state.winLine) updateTTT(state.board, state.winLine);
-    showGameOver(status, winner);
+    if (gameType === 'ludo' && typeof ludoWhenIdle === 'function') ludoWhenIdle(() => showGameOver(status, winner)); // apres le dernier pas du pion
+    else showGameOver(status, winner);
   }
 });
 

@@ -3105,7 +3105,7 @@ io.on('connection', (socket) => {
     // Ludo entre joueurs : un SALON de 2 a 4 sieges, lance par le createur.
     if (gameType === 'ludo' && !vsBot) {
       const lr = rooms.get(code);
-      lr.seats = ['R']; lr.host = 'R';
+      lr.seats = ['R']; lr.host = 'R'; lr.ludoOpts = ludo.normOpts();
       delete lr.players.Y; delete lr.playerNames.Y; delete lr.playerIds.Y;
       lr.reconnectTimers = { R: null };
     }
@@ -3132,11 +3132,12 @@ io.on('connection', (socket) => {
   const roomRoles = room => isLudoLobby(room) ? room.seats.slice() : ['R', 'Y'].filter(r => room.players[r]);
   const seatList = room => room.seats.map(r => ({
     role: r, name: room.playerNames[r], connected: !!room.players[r], host: r === room.host,
+    portrait: (room.playerIds[r] && libs.get(room.playerIds[r])?.portrait) || getPortraitByName(room.playerNames[r]) || null,
   }));
   function emitLudoLobby(room) {
     if (!isLudoLobby(room)) return;
     io.to(room.code).emit('ludo-lobby', { code: room.code, stake: room.stake || 0, host: room.host, max: 4,
-      status: room.status, seats: seatList(room) });
+      status: room.status, seats: seatList(room), opts: room.ludoOpts || ludo.normOpts() });
   }
   // Un siege quitte le salon d'attente (ou la partie terminee) : on libere sa place.
   function removeLudoSeat(room, role) {
@@ -3186,7 +3187,7 @@ io.on('connection', (socket) => {
     if (r.status !== 'playing') { bumpDaily('games'); _finishLudoLobby(room, r.status, r.winner); }
   }
   function startLudoGame(room) {
-    room.state = ludo.createState(room.seats);
+    room.state = ludo.createState(room.seats, room.ludoOpts);
     room.status = 'playing'; room.winner = null; room.restartVotes.clear(); room.left = [];
     for (const p of room.seats) {
       if (!room.players[p]) continue;
@@ -3411,6 +3412,7 @@ io.on('connection', (socket) => {
       stake:        room.stake || 0,
       seats:        isLudoLobby(room) ? seatList(room) : undefined,
       host:         isLudoLobby(room) ? room.host : undefined,
+      ludoOpts:     isLudoLobby(room) ? (room.ludoOpts || ludo.normOpts()) : undefined,
     });
 
     if (room.vsBot && room.status === 'playing' && room.state.currentPlayer === 'Y') {
@@ -3424,6 +3426,14 @@ io.on('connection', (socket) => {
       const other = player === 'R' ? 'Y' : 'R';
       if (room.players[other] && room.players[other] !== 'bot') io.to(room.players[other]).emit('opponent-reconnected');
     }
+  });
+
+  // ── Ludo : l'hote regle les regles de la partie dans le salon ──────────────
+  socket.on('ludo-set-opts', (o) => {
+    const room = rooms.get(roomCode);
+    if (!isLudoLobby(room) || room.status !== 'waiting' || room.host !== myPlayer) return;
+    room.ludoOpts = ludo.normOpts({ ...(room.ludoOpts || {}), ...(o && typeof o === 'object' ? o : {}) });
+    emitLudoLobby(room);
   });
 
   // ── Ludo : le createur lance la partie (des 2 joueurs dans le salon) ──────

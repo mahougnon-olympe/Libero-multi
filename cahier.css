@@ -584,22 +584,6 @@ html.light .ic3d-face { filter: none; }
 :root:root .chess-board, :root:root .ck-board { box-shadow: var(--elev-3); }
 .chess-coord { color: var(--muted); font-family: var(--font-hand); font-size: .9rem; }
 
-/* Ludo : le plateau sur la feuille, trait d'encre, couleurs franches sans degrade */
-:root:root .ludo-board {
-  background: var(--line); border: 2px solid var(--line); box-shadow: var(--elev-3); border-radius: var(--r-md);
-}
-:root:root .ludo-cell { background: var(--card); border: none; border-radius: 2px; color: var(--muted); }
-:root:root .ludo-cell.safe { background: var(--card2); }
-.ludo-basezone.ludo-r { background: #d23a4f; }
-.ludo-basezone.ludo-g { background: #2f8a55; }
-.ludo-basezone.ludo-y { background: #e0a800; }
-.ludo-basezone.ludo-b { background: #2f5fb8; }
-.ludo-basezone { border-radius: 6px; opacity: 1; }
-:root:root .ludo-baseslot { background: var(--card); box-shadow: inset 0 0 0 1.5px rgba(0,0,0,.25); }
-.ludo-center { font-size: 0; border-radius: 4px; }
-:root:root .ludo-seat { background: var(--card); border: 1.5px solid var(--line); border-radius: var(--r-md); box-shadow: var(--elev-1); }
-.ludo-msg { font-family: var(--font-hand); font-weight: 700; font-size: 1.2rem; color: var(--text); }
-
 /* Salle d'attente : le code ecrit en grand */
 :root:root .code-display {
   font-family: var(--font-display); color: var(--accent);
@@ -617,7 +601,6 @@ html.light .ic3d-face { filter: none; }
 @media (min-width: 700px) {
   :root { --cell: 60px; --chess-cell: 62px; --ttt-cell: 130px; }
   .game-header { max-width: 560px; }
-  :root:root .ludo-board { width: min(70vh, 560px); }
 }
 @media (min-width: 1024px) {
   :root { --cell: min(9vh, 72px); --chess-cell: min(9vh, 72px); --ttt-cell: min(20vh, 160px); }
@@ -625,7 +608,6 @@ html.light .ic3d-face { filter: none; }
 @media (min-width: 700px) { .ck-board { --ck-cell: 60px; } }
 @media (min-width: 1024px) {
   .ck-board { --ck-cell: min(9vh, 72px); }
-  :root:root .ludo-board { width: min(60vh, 540px); }
 }
 
 
@@ -3215,3 +3197,82 @@ body.screen-undercover-active .btn-help-float, body.screen-undercover-active .bt
   :root:root .game-selector .game-btn { flex: 0 0 calc((100% - 24px) / 4.3); min-width: 0; scroll-snap-align: start; padding: 6px 3px 8px; }
   .game-selector .game-btn-name { font-size: .66rem; line-height: 1.15; text-align: center; }
 }
+
+/* ══ Ludo : plateau mobile d'abord (dessin SVG), salon et fin de partie ══ */
+.game-screen.ludo-game .player-badge { display: none; }
+.ldo-wrap { display: flex; flex-direction: column; gap: 8px; width: min(100%, 520px); margin: 0 auto; padding: 2px 6px 12px; }
+.ldo-tray { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ldo-tray[data-n="1"] { display: flex; }
+.ldo-tray[data-n="1"] .ldo-seat { flex: 0 1 62%; }
+.ldo-tray[data-n="1"]:has(.ldo-seat[data-role="Y"]) { justify-content: flex-end; }
+.ldo-seat { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 6px 8px; border: 2px solid var(--c); border-radius: 12px; background: var(--card); box-shadow: 0 3px 0 var(--hard); transition: box-shadow .25s, opacity .25s, transform .25s; }
+.ldo-seat.turn { box-shadow: 0 0 0 3px var(--mark), 0 3px 0 var(--hard); transform: translateY(-1px); }
+.ldo-seat.out { opacity: .4; filter: grayscale(1); }
+.ldo-seat.away { opacity: .65; }
+.ldo-pf { position: relative; display: block; width: 38px; height: 38px; border-radius: 50%; border: 2.5px solid var(--c); overflow: hidden; background: #fff; flex: none; }
+.ldo-pf svg { display: block; width: 100%; height: 100%; }
+.ldo-id { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.ldo-nm { font-weight: 800; font-size: .8rem; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+.ldo-st { font-size: .66rem; color: var(--muted); font-weight: 700; min-height: .9em; }
+.ldo-die { width: 40px; height: 40px; flex: none; padding: 5px; border-radius: 9px; border: 2px solid #22252b; background: #fff; color: #22252b; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 1px; cursor: default; position: relative; }
+.ldo-face { display: contents; }
+.ldo-die i { border-radius: 50%; display: block; }
+.ldo-die i.p { background: currentColor; }
+.ldo-q { grid-column: 1 / -1; grid-row: 1 / -1; display: grid; place-items: center; font-weight: 800; opacity: .4; }
+.ldo-die.can-roll { cursor: pointer; animation: ldoCan 1s ease-in-out infinite; }
+.ldo-die.rolling { animation: ldoRoll .65s ease-in-out; }
+@keyframes ldoCan { 50% { transform: scale(1.14); } }
+@keyframes ldoRoll { 0% { transform: rotate(0) scale(1); } 35% { transform: rotate(200deg) scale(1.35); } 70% { transform: rotate(340deg) scale(.9); } 100% { transform: rotate(360deg) scale(1); } }
+.ldo-board { width: 100%; aspect-ratio: 1; display: block; touch-action: manipulation; }
+.ldo-pawn { transition: transform .13s linear; cursor: default; }
+.ldo-pawn .ldo-ring { fill: none; stroke: var(--text); stroke-width: 2.4; opacity: 0; transform-box: fill-box; }
+.ldo-pawn.can { cursor: pointer; }
+.ldo-pawn.can .ldo-ring { opacity: 1; animation: ldoRing .9s ease-in-out infinite; }
+@keyframes ldoRing { 50% { opacity: .35; stroke-width: 4; } }
+.ldo-dest { cursor: pointer; }
+.ldo-bar { display: flex; flex-direction: column; align-items: stretch; gap: 6px; min-height: 44px; }
+.ldo-bar .btn { width: 100%; }
+.ldo-bar .btn:disabled { opacity: .45; }
+.ldo-bar .btn.pulse { animation: ldoCan 1.2s ease-in-out infinite; }
+.ldo-msg { min-height: 1.4em; text-align: center; font-family: var(--font-hand); font-size: 1.35rem; line-height: 1.05; color: var(--text); }
+.ldo-msg.mine { color: var(--accent); }
+.ldo-msg.flash { color: var(--margin); }
+.ldo-auto { display: flex; align-items: center; gap: 6px; font-size: .78rem; color: var(--muted); }
+.ldo-end { display: flex; flex-direction: column; gap: 8px; }
+.ldo-end.hidden { display: none; }
+.ldo-stamp { align-self: center; border: 3px solid var(--margin); color: var(--margin); font-family: var(--font-display, 'Archivo Black', sans-serif); padding: 3px 16px; transform: rotate(-4deg); border-radius: 6px; font-size: 1.1rem; }
+.ldo-stamp.win { border-color: #1f8a54; color: #1f8a54; }
+.ldo-rk { display: flex; align-items: center; gap: 8px; border: 2px solid var(--c); border-radius: 10px; background: var(--card); padding: 6px 8px; box-shadow: 0 2px 0 var(--hard); }
+.ldo-rk .ldo-n { font-family: var(--font-display, 'Archivo Black', sans-serif); font-size: 1.1rem; width: 22px; text-align: center; }
+.ldo-rk .ldo-pf { width: 34px; height: 34px; }
+.ldo-rn { flex: 1; font-weight: 800; font-size: .85rem; }
+.ldo-rn small { color: var(--muted); font-weight: 700; }
+.ldo-pips { display: flex; gap: 3px; }
+.ldo-pips i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--text); background: var(--c); display: block; }
+.ldo-pips i.o { background: transparent; opacity: .45; }
+.ldo-stt { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.ldo-stt div { border: 1.5px solid var(--line); border-radius: 8px; background: var(--card); text-align: center; padding: 5px 2px; font-size: .7rem; color: var(--muted); font-weight: 700; }
+.ldo-stt b { display: block; font: 700 1.4rem var(--font-hand); color: var(--text); line-height: 1; }
+.ldo-note { text-align: center; font-size: .8rem; color: var(--muted); margin: 0; }
+/* Salon : places colorees et regles de la partie */
+.ldo-seatgrid { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px; width: min(100%, 420px) !important; }
+.ldo-sc { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 100px; padding: 8px; text-align: center; border: 2.5px solid var(--c); border-radius: 12px; background: var(--card); box-shadow: 0 3px 0 var(--hard); }
+.ldo-sc .ldo-pf { width: 44px; height: 44px; }
+.ldo-sc b { font-size: .84rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ldo-sc small { color: var(--muted); font-size: .7rem; font-weight: 700; }
+.ldo-sc .ldo-dot { position: absolute; top: 7px; left: 9px; width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.ldo-sc.free { border-style: dashed; opacity: .7; }
+.ldo-sc.free b { color: var(--muted); font-weight: 600; }
+.ldo-sc.away { opacity: .6; }
+.ldo-rules { width: min(100%, 420px); margin: 10px auto 4px; text-align: left; }
+.ldo-rules.hidden { display: none; }
+.ldo-step { font-family: var(--font-hand); font-size: 1.4rem; color: var(--margin); line-height: 1; margin-bottom: 4px; }
+.ldo-step b { font-family: var(--font-display, 'Archivo Black', sans-serif); font-weight: 400; font-size: .8rem; color: var(--text); }
+.ldo-rl { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 2px; border-bottom: 1.5px dashed var(--line); font-size: .86rem; font-weight: 700; }
+.ldo-rl small { display: block; color: var(--muted); font-weight: 600; font-size: .72rem; }
+.ldo-tg { position: relative; flex: none; width: 44px; height: 24px; border-radius: 99px; border: 1.5px solid var(--line); background: var(--card); cursor: pointer; padding: 0; }
+.ldo-tg::after { content: ""; position: absolute; top: 2px; left: 2px; width: 17px; height: 17px; border-radius: 50%; background: var(--text); transition: transform .2s; }
+.ldo-tg.on { background: var(--accent); }
+.ldo-tg.on::after { transform: translateX(20px); background: #fff; }
+.ldo-tg:disabled { opacity: .6; cursor: default; }
+@media (min-width: 1024px) { .ldo-wrap { width: min(100%, 560px); } }
