@@ -29,7 +29,7 @@
       types: { t: 'Thèmes', f: 'Drapeaux', fc: "Drapeaux d'un continent" }, q: 'questions', add: '+ Ajouter une manche', max: '6 manches au maximum',
       sum: (q, r, m) => `${q} questions en ${r} manche${r > 1 ? 's' : ''}, environ ${m} min`, banner: 'Entre deux manches, une bannière annonce la suite.',
       themesUsed: 'Thèmes choisis', who: 'Avec qui ?', whoOpts: { solo: 'Seul', friend: 'Avec des amis', code: "J'ai un code" },
-      play: 'Jouer', create: 'Créer une partie', codePh: 'Code à 4 lettres', join: 'Rejoindre', lb: 'Classement Quiz mixte', lbEmpty: "Aucun score pour l'instant.", pts: 'pts', games: 'parties',
+      play: 'Jouer', create: 'Créer une partie', codePh: 'Code à 4 lettres', join: 'Rejoindre',
       errName: 'Choisis un pseudo pour jouer.', errTheme: 'Choisis au moins un thème.', errDiff: 'Choisis une difficulté.', err4: 'Entre le code à 4 lettres.', remove: 'Retirer', up: 'Monter', down: 'Descendre',
     },
     en: {
@@ -43,15 +43,15 @@
       types: { t: 'Themes', f: 'Flags', fc: 'Flags of a continent' }, q: 'questions', add: '+ Add a round', max: '6 rounds maximum',
       sum: (q, r, m) => `${q} questions in ${r} round${r > 1 ? 's' : ''}, about ${m} min`, banner: 'Between two rounds, a banner announces what comes next.',
       themesUsed: 'Chosen themes', who: 'Who with?', whoOpts: { solo: 'Alone', friend: 'With friends', code: 'I have a code' },
-      play: 'Play', create: 'Create a game', codePh: '4-letter code', join: 'Join', lb: 'Mixed quiz ranking', lbEmpty: 'No score yet.', pts: 'pts', games: 'games',
+      play: 'Play', create: 'Create a game', codePh: '4-letter code', join: 'Join',
       errName: 'Pick a nickname to play.', errTheme: 'Pick at least one theme.', errDiff: 'Pick a difficulty.', err4: 'Enter the 4-letter code.', remove: 'Remove', up: 'Move up', down: 'Move down',
     },
   };
   const U = () => D[L()];
 
-  let home = null, rows = [];
+  let home = null;
   function el(html) { const d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstElementChild; }
-  function loadCss() { if (document.getElementById('mix-css')) return; const l = document.createElement('link'); l.id = 'mix-css'; l.rel = 'stylesheet'; l.href = 'mix.css?v=2'; document.head.appendChild(l); }
+  function loadCss() { if (document.getElementById('mix-css')) return; const l = document.createElement('link'); l.id = 'mix-css'; l.rel = 'stylesheet'; l.href = 'mix.css?v=3'; document.head.appendChild(l); }
 
   function ensure() {
     loadCss();
@@ -70,7 +70,6 @@
         <div class="mx-act" id="mx-act"></div>
         <p class="error-msg hidden" id="mx-err"></p>
       </div>
-      <div class="lb-card mx-lb-card"><div class="lb-header"><span></span><span class="lb-title" id="mx-lb-t"></span></div><div class="lb-list" id="mx-lb"></div></div>
     </div>`);
     host.appendChild(home);
     $('#mx-back', home).onclick = () => showScreen('quiz-hub');
@@ -135,9 +134,6 @@
     act.innerHTML = P.who === 'code'
       ? `<div class="join-group"><input id="mx-code" type="text" maxlength="4" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="${d.codePh}" /><button class="btn btn-primary" id="mx-join">${d.join}</button></div>`
       : (P.who ? `<button class="btn btn-primary" id="mx-start">${P.who === 'friend' ? d.create : d.play}</button>` : '');
-    $('#mx-lb-t', home).textContent = d.lb;
-    const lb = $('#mx-lb', home);
-    if (rows.length && typeof _renderFlagsLb === 'function') _renderFlagsLb(lb, rows, d.pts, d.games); else lb.innerHTML = `<p class="lb-empty">${d.lbEmpty}</p>`;
     bind();
   }
 
@@ -188,12 +184,7 @@
     socket.emit('join-trivia-room', { code, name, playerId: getPlayerId() });
   }
 
-  function open() { ensure(); render(); showScreen('mix-home'); try { socket.emit('get-mix-leaderboard'); } catch {} }
+  function open() { ensure(); render(); showScreen('mix-home'); }
   function restore() { open(); }
-  function on(ev, data) {
-    if (ev === 'mix-leaderboard') { rows = (data && data.rows) || []; if (home && home.classList.contains('active')) render(); }
-    else if (ev === 'mix-leaderboard-update') { if (home && home.classList.contains('active')) { try { socket.emit('get-mix-leaderboard'); } catch {} } }
-    else if (ev === 'error') { if (home && home.classList.contains('active')) err(data); }
-  }
-  window.LiberoMix = { open, restore, on, err: m => { if (home && home.classList.contains('active')) err(m); }, render: () => { if (home && home.classList.contains('active')) render(); } };
+  window.LiberoMix = { open, restore, err: m => { if (home && home.classList.contains('active')) err(m); }, render: () => { if (home && home.classList.contains('active')) render(); } };
 })();

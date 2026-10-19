@@ -3415,7 +3415,7 @@ function _mixLoad() {
   if (window.LiberoMix) return Promise.resolve(window.LiberoMix);
   if (_mixP) return _mixP;
   _mixP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'mix.js?v=2';
+    const sc = document.createElement('script'); sc.src = 'mix.js?v=3';
     sc.onload = () => res(window.LiberoMix); sc.onerror = () => { _mixP = null; res(null); };
     document.head.appendChild(sc);
   });
@@ -3547,7 +3547,6 @@ document.addEventListener('click', e => { const b = e.target.closest?.('.live-ct
   if (ev === 'live-phase') socket.emit('live-get', { playerId: getPlayerId() });
   if (window.LiberoLive) window.LiberoLive.on(ev, d || {});
 }));
-['mix-leaderboard', 'mix-leaderboard-update'].forEach(ev => socket.on(ev, d => { if (window.LiberoMix) window.LiberoMix.on(ev, d || {}); }));
 ['flags-leaderboard', 'flags-leaderboard-update'].forEach(ev => socket.on(ev, d => { _flagsLoad().then(f => f && f.on(ev, d || {})); }));
 // Drapeau + cadre equipe (quiz a plusieurs et partie solo). Pas d'alt : il donnerait la reponse.
 function _flagImgHtml(code) {
@@ -4569,14 +4568,9 @@ function luBoardStatic(roles) {
   return s;
 }
 // Un pion : disque de la couleur du camp, portrait du joueur (ou point blanc pour le robot).
-function luPawnSvg(pl, k) {
-  const col = LUDO_COL[pl], pt = ludoPortraitOf(pl);
-  let inner = '<circle r="5.5" fill="#fff" fill-opacity=".92"/>';
-  if (pt && window.LiberoPortrait) {
-    const raw = _ptSvg(pt).replace(/<svg([^>]*)>/, (m, a) => '<svg' + a.replace(/\s(width|height)="[^"]*"/g, '') + ' x="-8.6" y="-8.6" width="17.2" height="17.2">');
-    inner = `<clipPath id="lucp-${k}"><circle r="8.6"/></clipPath><g clip-path="url(#lucp-${k})">${raw}</g><circle r="8.6" fill="none" stroke="#fff" stroke-width="1.2"/>`;
-  }
-  return `<circle r="12.5" fill="#000" opacity=".25" cy="2.5"/><circle r="12" fill="${col}" stroke="#fff" stroke-width="2.6"/><circle r="12" fill="none" stroke="#22252b" stroke-width="1.2"/>${inner}<circle class="ldo-ring" r="16.5"/>`;
+function luPawnSvg(pl) {
+  const col = LUDO_COL[pl];
+  return `<circle r="12.5" fill="#000" opacity=".25" cy="2.5"/><circle r="12" fill="${col}" stroke="#fff" stroke-width="2.6"/><circle r="12" fill="none" stroke="#22252b" stroke-width="1.2"/><circle r="5.5" fill="#fff" fill-opacity=".92"/><circle class="ldo-ring" r="16.5"/>`;
 }
 function ludoDieFace(n) {
   if (!n) return '<span class="ldo-q">?</span>';
@@ -4615,7 +4609,7 @@ function buildLudo(container, state) {
   order_for_pawns(state).forEach(pl => {
     for (let i = 0; i < 4; i++) {
       const k = pl + i, g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      g.setAttribute('class', 'ldo-pawn'); g.dataset.k = k; g.innerHTML = luPawnSvg(pl, k);
+      g.setAttribute('class', 'ldo-pawn'); g.dataset.k = k; g.innerHTML = luPawnSvg(pl);
       g.addEventListener('click', () => onLudoPawnClick(i, pl));
       layer.appendChild(g); LU.pawns[k] = g;
     }
