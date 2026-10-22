@@ -13936,8 +13936,8 @@ window._renderLevel = function () {
   const sub   = document.getElementById('level-sub');
   const fill  = document.getElementById('level-bar-fill');
   if (!badge) return;
-  const cur  = 100 * (lv - 1) * (lv - 1);
-  const next = 100 * lv * lv;
+  const cur  = 35 * (lv - 1) * (lv - 1);
+  const next = 35 * lv * lv;
   badge.textContent = lv;
   if (main) main.textContent = t().levelMain(lv);
   if (sub)  sub.textContent  = t().levelSub(xp, next);

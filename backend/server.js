@@ -1643,7 +1643,7 @@ function friendsPayload(entry) {
   }).filter(Boolean);
   return { friends, requests };
 }
-function levelFromXp(xp) { return 1 + Math.floor(Math.sqrt(Math.max(0, xp) / 100)); }
+function levelFromXp(xp) { return 1 + Math.floor(Math.sqrt(Math.max(0, xp) / 35)); }
 // Week-ends « Double XP » du calendrier des Évents (samedi 00:00 -> lundi 00:00, heure du Benin).
 const DOUBLE_XP_WEEKENDS = ['2026-10-17'];
 function _xpMult() {
