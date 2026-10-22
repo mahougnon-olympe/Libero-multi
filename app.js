@@ -604,7 +604,7 @@ const TRIVIA_API_CAT_MAP = {
 
 const DICT = {
   fr: {
-    readShelfExcl:'Romans exclusifs', readShelfSoon:'À venir', readShelfSoonTxt:'Bientôt d\'autres livres…', onb:{ tabNew:'Nouveau', tabOld:'J\'ai déjà un carnet', phrase:'Ici, tout commence par un nom.', askName:'Comment veux-tu t\'appeler ?', pseudoPh:'Ton pseudo', next:'Page suivante', prev:'Page précédente', have:'Déjà un carnet ? Ouvre-le ici', page:n => `page ${n}/3`,
+    readShelfExcl:'Romans exclusifs', readShelfSoon:'À venir', readShelfSoonTxt:'Bientôt d\'autres livres…', onb:{ pfTitle:'Dessine ton visage', pfNote:'C\'est ce que verront les autres joueurs dans les classements et les parties.', pfDraw:'Dessiner mon portrait', pfRedo:'Modifier mon portrait', pfNeed:'Dessine ton portrait pour continuer.', tabNew:'Nouveau', tabOld:'J\'ai déjà un carnet', phrase:'Ici, tout commence par un nom.', askName:'Comment veux-tu t\'appeler ?', pseudoPh:'Ton pseudo', next:'Page suivante', prev:'Page précédente', have:'Déjà un carnet ? Ouvre-le ici', page:n => `page ${n}/4`,
       p2Title:'Cahier ou ardoise ?', p2Note:'Tu pourras changer quand tu veux dans les Réglages.', themeDay:'Cahier', themeNight:'Ardoise',
       p3Title:'Protège ton carnet', p3Note:'Un mot de passe te permet de retrouver ta progression sur un autre téléphone.', pwPh:'Choisis un mot de passe', protect:'Protéger et commencer', later:'Plus tard, je veux jouer',
       loginTitle:'Content de te revoir !', loginPw:'Ton mot de passe', loginBtn:'Ouvrir mon carnet', useCode:'J\'ai plutôt un code de récupération', forgot:'Mot de passe oublié ? Écris au créateur depuis « Donner mon avis ».',
@@ -1187,7 +1187,7 @@ const DICT = {
     helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     eventsTitle:'Évents', eventsDesc:'Calendrier des week-ends',
     liveHome:{ q:'Quart de finale', s:'Demi-finale', f:'Finale', title:'Quiz en direct', opensIn:'La salle ouvre dans', startsIn:'Début dans', live:'La session est en cours', soon:'Prochaine étape bientôt', enter:'Entrer dans le salon', watch:'Voir le tournoi', day:'j' },
-    giftNotif:"Tes cadeaux du tournoi t'attendent", giftNotifEnv:"Ton enveloppe du tournoi t'attend encore", giftNotifHint:'Touche pour ouvrir ton coffre-fort',
+    pfpNotif:'Crée ton portrait', pfpNotifHint:'Les autres joueurs te voient encore comme une silhouette. Touche pour le dessiner.', pfpRemTitle:'Ton portrait t\'attend', pfpRemText:'Les autres joueurs te voient encore comme une silhouette. Dessine ton visage en une minute.', pfpRemGo:'Créer mon portrait', pfpRemLater:'Plus tard', giftNotif:"Tes cadeaux du tournoi t'attendent", giftNotifEnv:"Ton enveloppe du tournoi t'attend encore", giftNotifHint:'Touche pour ouvrir ton coffre-fort',
     livePill:'EN DIRECT', liveOpenPill:'SALLE OUVERTE', liveCtaT:'Quiz en direct', liveCtaOpen:'La salle est ouverte, rejoins-nous', liveCtaNext:'Le tournoi du week-end, en trois sessions', 
     evMonths:['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'], evThisWeekend:x=>`Ce week-end : ${x}`, evNext:x=>`Prochain : ${x}`, evNews:x=>`<strong>Ce week-end</strong> : ${x}`, evNewsNext:(x,n)=>`<strong>Prochain évent</strong> : ${x}, dans ${n} jour${n>1?'s':''}`, evCalendarSub:'Le calendrier des week-ends', evTournament:'Tous les samedis : <b>tournoi</b>, 2000 Libs au champion.', evEmpty:'Les prochains évents arrivent bientôt.', evLive:'En cours', evReward:'Récompense', evNote:'Touche un évent pour voir ses règles. Les dates peuvent encore bouger.',
     arcadeTitle:'Arcade', arcadeSub:'Des jeux rapides, tous les jours', arcadeRunDesc:'Aide Libero à courir le plus loin possible ! Saute les obstacles, baisse-toi sous ceux qui volent.', arcadeSnakeDesc:'Mange des pommes pour faire grandir ton serpent, sans mordre ta queue.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Classements', snakeUnit:'pommes', shareCard:{ quiz:'Quiz', pts:'pts', solo:'Quiz solo', brand:'Joue avec moi sur', rankOf:(r,n)=>`${r}${r===1?'er':'e'} sur ${n}` }, podium:{ title:'Résultats', sub:'Quiz à plusieurs', banner:'CHAMPION DU QUIZ', skip:'Passer', done:'Voir les résultats', you:'toi', msgWin:'Tu es le meilleur de la partie !', msgClose:n=>`Plus que ${n} point${n>1?'s':''} pour la couronne. Revanche ?`, msgOut:r=>`Tu finis ${r}e. Le podium t'attend la prochaine fois !` }, soundpackRefund:n=>`Les packs de sons ont quitté la boutique : ${n} Libs te sont rendus.`, inArcade:'Dans l\'Arcade',
@@ -1413,7 +1413,7 @@ const DICT = {
     },
   },
   en: {
-    readShelfExcl:'Exclusive novels', readShelfSoon:'Coming soon', readShelfSoonTxt:'More books soon…', onb:{ tabNew:'New', tabOld:'I already have a notebook', phrase:'Here, everything starts with a name.', askName:'What should we call you?', pseudoPh:'Your nickname', next:'Next page', prev:'Previous page', have:'Already have a notebook? Open it here', page:n => `page ${n}/3`,
+    readShelfExcl:'Exclusive novels', readShelfSoon:'Coming soon', readShelfSoonTxt:'More books soon…', onb:{ pfTitle:'Draw your face', pfNote:'This is what other players will see in rankings and games.', pfDraw:'Draw my portrait', pfRedo:'Edit my portrait', pfNeed:'Draw your portrait to continue.', tabNew:'New', tabOld:'I already have a notebook', phrase:'Here, everything starts with a name.', askName:'What should we call you?', pseudoPh:'Your nickname', next:'Next page', prev:'Previous page', have:'Already have a notebook? Open it here', page:n => `page ${n}/4`,
       p2Title:'Notebook or slate?', p2Note:'You can change it any time in Settings.', themeDay:'Notebook', themeNight:'Slate',
       p3Title:'Protect your notebook', p3Note:'A password lets you get your progress back on another phone.', pwPh:'Choose a password', protect:'Protect and start', later:'Later, I want to play',
       loginTitle:'Good to see you again!', loginPw:'Your password', loginBtn:'Open my notebook', useCode:'I have a recovery code instead', forgot:'Forgot your password? Write to the creator via « Give feedback ».',
@@ -1996,7 +1996,7 @@ const DICT = {
     helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     eventsTitle:'Events', eventsDesc:'Weekend calendar',
     liveHome:{ q:'Quarterfinal', s:'Semifinal', f:'Final', title:'Live quiz', opensIn:'The room opens in', startsIn:'Starts in', live:'The session is under way', soon:'Next step soon', enter:'Enter the room', watch:'See the tournament', day:'d' },
-    giftNotif:'Your tournament gifts are waiting', giftNotifEnv:'Your tournament envelope is still waiting', giftNotifHint:'Tap to open your vault',
+    pfpNotif:'Create your portrait', pfpNotifHint:'Other players still see you as a silhouette. Tap to draw it.', pfpRemTitle:'Your portrait is waiting', pfpRemText:'Other players still see you as a silhouette. Draw your face in a minute.', pfpRemGo:'Create my portrait', pfpRemLater:'Later', giftNotif:'Your tournament gifts are waiting', giftNotifEnv:'Your tournament envelope is still waiting', giftNotifHint:'Tap to open your vault',
     livePill:'LIVE', liveOpenPill:'ROOM OPEN', liveCtaT:'Live quiz', liveCtaOpen:'The room is open, join us', liveCtaNext:'The weekend tournament, in three sessions', 
     evMonths:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], evThisWeekend:x=>`This weekend: ${x}`, evNext:x=>`Next: ${x}`, evNews:x=>`<strong>This weekend</strong>: ${x}`, evNewsNext:(x,n)=>`<strong>Next event</strong>: ${x}, in ${n} day${n>1?'s':''}`, evCalendarSub:'The weekend calendar', evTournament:'Every Saturday: <b>tournament</b>, 2000 Libs for the champion.', evEmpty:'The next events are coming soon.', evLive:'Live', evReward:'Reward', evNote:'Tap an event to see its rules. Dates may still change.',
     arcadeTitle:'Arcade', arcadeSub:'Quick games, every day', arcadeRunDesc:'Help Libero run as far as possible! Jump over obstacles, duck under the flying ones.', arcadeSnakeDesc:'Eat apples to make your snake grow, without biting your own tail.', arcadeTabRun:'Libero Run', arcadeTabSnake:'Snake', arcadeLbTitle:'Leaderboards', snakeUnit:'apples', shareCard:{ quiz:'Quiz', pts:'pts', solo:'Solo quiz', brand:'Play with me on', rankOf:(r,n)=>`${r}${r===1?'st':r===2?'nd':r===3?'rd':'th'} of ${n}` }, podium:{ title:'Results', sub:'Multiplayer quiz', banner:'QUIZ CHAMPION', skip:'Skip', done:'See the results', you:'you', msgWin:'You are the best of the game!', msgClose:n=>`Only ${n} point${n>1?'s':''} away from the crown. Rematch?`, msgOut:r=>`You finished ${r}th. The podium awaits you next time!` }, soundpackRefund:n=>`Sound packs have left the shop: ${n} Libs have been refunded to you.`, inArcade:'In the Arcade',
@@ -2556,7 +2556,7 @@ function applyLang() {
   const qshb = $('btn-iq-share');      if (qshb) qshb.textContent = d.iqShareBtn;
   const vct = $('vip-card-title');     if (vct) vct.textContent = d.vipCardTitle;
   const vcs = $('vip-card-sub');       if (vcs) vcs.textContent = d.vipCardSub;
-  window._portraitRetexte?.();
+  window._portraitRetexte?.(); window._pfpRetexte?.();
   window._renderVip?.();  // repose la reserve de pass par-dessus le libelle par defaut
   const vtt = $('vip-title');          if (vtt) vtt.textContent = d.vipTitle;
   const cfb = $('btn-challenge-friend');      if (cfb) cfb.textContent = d.challengeFriendBtn;
@@ -2618,7 +2618,8 @@ function applyLang() {
   // Carnet de premiere visite (pose apres les anciens libelles, qui visaient les memes ids).
   { const o = d.onb;
     setTxt('onb-tab-new', o.tabNew); setTxt('onb-tab-old', o.tabOld); setTxt('onb-phrase', o.phrase); setTxt('onboard-pseudo-label', o.askName);
-    [1, 2, 3].forEach(n => setTxt('onb-pg' + n, o.page(n)));
+    setTxt('onb-pg1', o.page(1)); setTxt('onb-pgf', o.page(2)); setTxt('onb-pg2', o.page(3)); setTxt('onb-pg3', o.page(4));
+    setTxt('onb-pf-title', o.pfTitle); setTxt('onb-pf-note', o.pfNote); setTxt('onb-nextf', o.next); setTxt('onb-backf', o.prev); window._pfRefresh?.();
     setTxt('onb-next1', o.next); setTxt('onb-next2', o.next); setTxt('onb-back2', o.prev); setTxt('onb-have-txt', o.have);
     setTxt('onb-p2-title', o.p2Title); setTxt('onb-p2-note', o.p2Note); setTxt('onboard-theme-day', o.themeDay); setTxt('onboard-theme-night', o.themeNight);
     setTxt('onb-p3-title', o.p3Title); setTxt('onb-p3-note', o.p3Note); setTxt('onb-protect', o.protect); setTxt('btn-onboard-new', o.later);
@@ -6848,7 +6849,7 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, wheelDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedUnoSkin: newUnoSkin, equippedFlagFrame: newFlagFrame, equippedPFrame: newPFrame, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount, portrait: newPortrait, pushOn, pushPaused } = {}) => {
   if (pushOn !== undefined) { window._pushOn = !!pushOn; window._pushPaused = !!pushPaused; window._refreshPushBtn?.(); }
   if (newOwned !== undefined) setTimeout(() => window._pupitre?.paint(), 0);
-  if (newPortrait !== undefined) { myPortrait = newPortrait; try { localStorage.setItem('libero_portrait', JSON.stringify(newPortrait)); } catch {} window._renderProfilePseudo?.(); }
+  if (newPortrait !== undefined) { myPortrait = newPortrait; try { localStorage.setItem('libero_portrait', JSON.stringify(newPortrait)); } catch {} window._renderProfilePseudo?.(); window._pfpCheck?.(); }
   if (newBadges !== undefined) { if (Array.isArray(window._myBadges) && Array.isArray(newBadges) && newBadges.length > window._myBadges.length) setTimeout(() => window._sound?.play('stamp'), 300); window._myBadges = newBadges; window._renderBadges?.('profile-badges', newBadges, newHonorTitle); }
   if (newOnboard !== undefined) { window._myOnboard = newOnboard; window._renderOnboard?.(); }
   if (newHasAccount !== undefined) { window._hasAccount = newHasAccount; if (newHasAccount) { try { localStorage.setItem('libero_has_account', '1'); } catch {} } window._refreshAccountTabs?.(); }
@@ -14287,7 +14288,7 @@ const NotificationCenter = (() => {
   }
   function render() {
     const l = listEl(); if (!l) return;
-    const stk = Object.keys(sticky).map(id => { const n = sticky[id]; return `<div class="notif-item unread notif-sticky" data-sticky="${id}" role="button" tabindex="0"><span class="notif-ic">${n.svg === 'gift' ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8M12 8v13M12 8c-2-4-6-3-5 0 .6 1.700 3 1.200 5 0zm0 0c2-4 6-3 5 0-.6 1.700-3 1.200-5 0z"/></svg>' : (n.icon || '')}</span><span class="notif-tx">${_escHtml(n.text || '')}<small>${_escHtml(n.hint || '')}</small></span></div>`; }).join('');
+    const stk = Object.keys(sticky).map(id => { const n = sticky[id]; return `<div class="notif-item unread notif-sticky" data-sticky="${id}" role="button" tabindex="0"><span class="notif-ic">${n.svg === 'gift' ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8M12 8v13M12 8c-2-4-6-3-5 0 .6 1.700 3 1.200 5 0zm0 0c2-4 6-3 5 0-.6 1.700-3 1.200-5 0z"/></svg>' : (n.svg === 'user' ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5.500 15-5.500 16 0"/></svg>' : (n.icon || ''))}</span><span class="notif-tx">${_escHtml(n.text || '')}<small>${_escHtml(n.hint || '')}</small></span></div>`; }).join('');
     if (!items.length && !stk) { l.innerHTML = `<p class="notif-empty">${currentLang === 'en' ? 'Nothing new.' : 'Rien de nouveau.'}</p>`; return; }
     l.innerHTML = stk + items.map(n => `<div class="notif-item${n.read ? '' : ' unread'}"><span class="notif-ic">${n.icon || '🔔'}</span><span class="notif-tx">${_escHtml(n.text || '')}<small>${fmtAgo(n.at)}</small></span></div>`).join('');
   }
@@ -15429,6 +15430,7 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
   const pages = [...onboard.querySelectorAll('.onb-p')];
   const tabNew = document.getElementById('onb-tab-new'), tabOld = document.getElementById('onb-tab-old');
   function go(p) {
+    if (String(p) === '2' || String(p) === '3') { if (!myPortrait) { go('pf'); return; } }
     pages.forEach(el => el.classList.toggle('hidden', el.dataset.p !== String(p)));
     const old = p === 'login' || p === 'code';
     tabNew?.classList.toggle('on', !old); tabOld?.classList.toggle('on', old);
@@ -15437,6 +15439,7 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
     const pg = document.getElementById('onb-page'); if (pg) { pg.classList.remove('turn'); void pg.offsetWidth; pg.classList.add('turn'); }
     // Page 1 : l'onglet « J'ai deja un carnet » remue pour se faire remarquer.
     if (String(p) === '1' && tabOld) { tabOld.classList.remove('nudge'); void tabOld.offsetWidth; tabOld.classList.add('nudge'); }
+    window._pfRefresh?.();
     pages.find(el => el.dataset.p === String(p))?.querySelector('input')?.focus({ preventScroll: true });
   }
   const err = msg => { obHint.textContent = msg; obHint.classList.add('recovery-err'); };
@@ -15446,12 +15449,23 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
   document.getElementById('onb-have')?.addEventListener('click', () => go('login'));
   document.getElementById('onb-use-code')?.addEventListener('click', () => go('code'));
   document.getElementById('onb-use-pw')?.addEventListener('click', () => go('login'));
-  document.getElementById('onb-back2')?.addEventListener('click', () => go('1'));
+  document.getElementById('onb-back2')?.addEventListener('click', () => go('pf'));
+  document.getElementById('onb-backf')?.addEventListener('click', () => go('1'));
+  // Page portrait : obligatoire, on ne continue qu'une fois le portrait enregistre.
+  window._pfRefresh = () => {
+    const o = t().onb, has = !!myPortrait, P = window.LiberoPortrait;
+    const av = document.getElementById('onb-pf-av'); if (av && P) av.innerHTML = has ? P.svg(myPortrait) : P.blank();
+    const dr = document.getElementById('onb-pf-draw'); if (dr) dr.textContent = has ? o.pfRedo : o.pfDraw;
+    const nx = document.getElementById('onb-nextf'); if (nx) nx.disabled = !has;
+  };
+  document.getElementById('onb-pf-draw')?.addEventListener('click', () => window._openPortraitEditor?.());
+  document.getElementById('onb-nextf')?.addEventListener('click', () => { if (!myPortrait) { err(t().onb.pfNeed); return; } go('2'); });
+
   // Le pseudo tape survit lui aussi au F5.
   const _pIn = document.getElementById('onboard-pseudo');
   if (_pIn) { try { _pIn.value = sessionStorage.getItem('libero_onboard_pseudo') || ''; } catch {} _pIn.addEventListener('input', () => { try { sessionStorage.setItem('libero_onboard_pseudo', _pIn.value); } catch {} }); }
   const pseudoVal = () => (document.getElementById('onboard-pseudo')?.value || '').replace(/[<>]/g, '').trim().slice(0, 20);
-  document.getElementById('onb-next1')?.addEventListener('click', () => { const p = pseudoVal(); if (!p || p === 'Anonyme') { err(t().onb.needPseudo); return; } go('2'); });
+  document.getElementById('onb-next1')?.addEventListener('click', () => { const p = pseudoVal(); if (!p || p === 'Anonyme') { err(t().onb.needPseudo); return; } go('pf'); });
   document.getElementById('onboard-pseudo')?.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('onb-next1')?.click(); });
   document.getElementById('onb-next2')?.addEventListener('click', () => go('3'));
   // Page 3 : creer le compte (pseudo + mot de passe) puis entrer.
@@ -15899,7 +15913,7 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     buying.shift(); next();
   });
   socket.on('set-portrait-result', ({ ok, portrait } = {}) => {
-    if (ok) { myPortrait = portrait; window._renderProfilePseudo?.(); msg(t().peSaved, true); paint(); setTimeout(() => { if (!buying) close(); }, 700); }
+    if (ok) { myPortrait = portrait; window._renderProfilePseudo?.(); window._pfRefresh?.(); window._pfpCheck?.(); msg(t().peSaved, true); paint(); setTimeout(() => { if (!buying) close(); }, 700); }
     else msg(t().peErr);
   });
   // Publier son portrait enregistre comme modele (atelier)
@@ -15919,6 +15933,38 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     if (st && st.open) { draft = P.normalize(st.draft); tab = st.tab || 'face'; open(); }
   } catch {}
   window._portraitRetexte();
+})();
+
+// ── Portrait manquant : notification collante + rappel a la connexion ─────────
+(function initPortraitNudge() {
+  const ov = document.getElementById('overlay-pfp');
+  let known = false;
+  const eligible = () => { try { return !!localStorage.getItem('libero_onboarded') && !!(localStorage.getItem('playerName') || '').trim() && document.getElementById('overlay-onboard')?.classList.contains('hidden') !== false; } catch { return false; } };
+  function paint() {
+    if (!ov) return; const d = t();
+    const s = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    s('pfp-title', d.pfpRemTitle); s('pfp-text', d.pfpRemText); s('pfp-go', d.pfpRemGo); s('pfp-later', d.pfpRemLater);
+  }
+  window._pfpCheck = () => {
+    known = true;
+    const need = !myPortrait && eligible();
+    const d = t();
+    window._notify?.setSticky('pfp', need ? { svg: 'user', text: d.pfpNotif, hint: d.pfpNotifHint, act: () => window._openPortraitEditor?.() } : null);
+    if (!need) { ov?.classList.add('hidden'); return; }
+    let shown = false; try { shown = sessionStorage.getItem('libero_pfp_rem') === '1'; } catch {}
+    if (shown || !ov) return;
+    try { sessionStorage.setItem('libero_pfp_rem', '1'); } catch {}
+    setTimeout(() => {
+      if (myPortrait || !document.getElementById('overlay-portrait')?.classList.contains('hidden')) return;
+      paint();
+      const av = document.getElementById('pfp-av'); if (av && window.LiberoPortrait) av.innerHTML = window.LiberoPortrait.blank();
+      ov.classList.remove('hidden');
+    }, 4000);
+  };
+  document.getElementById('pfp-go')?.addEventListener('click', () => { ov.classList.add('hidden'); window._openPortraitEditor?.(); });
+  document.getElementById('pfp-later')?.addEventListener('click', () => ov.classList.add('hidden'));
+  ov?.addEventListener('click', e => { if (e.target === ov) ov.classList.add('hidden'); });
+  window._pfpRetexte = () => { paint(); if (known) window._pfpCheck?.(); };
 })();
 
 // ── Atelier : modeles de portrait (rayon boutique + publication) ──────────────
