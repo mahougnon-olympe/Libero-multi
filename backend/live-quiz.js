@@ -5,19 +5,20 @@ const liveBank = require('./trivia-live');
 const flagsGame = require('./game-flags');
 
 const DEFAULT_CFG = {
+  edition: '2026-10-24',               // change a chaque nouveau tournoi : au demarrage, programme et resultats repartent a zero (questions deja tirees et coffres conserves)
   lobbyMin: 10,                        // la salle ouvre N minutes avant
   openAll: true,                       // tout le monde peut jouer la demi et la finale (sinon : seulement les qualifies)
   prize: { fr: '', en: '' },           // texte du prix du champion (vide = a annoncer)
   rewards: { 1: 5000, 2: 3000, 3: 1500, f: 800, s: 400, o: 150 }, // Libs du coffre : podium, finalistes (4 a 10), rangs 11 a 15, tous les autres
   sessions: [
-    { id: 'q', start: '2026-10-17T18:00:00+01:00', level: 'medium',  themeQ: 10, flagQ: 5, flagLevel: 'easy',   timeMs: 15000, qualify: 50 },
-    { id: 's', start: '2026-10-18T15:00:00+01:00', level: 'hard',    themeQ: 10, flagQ: 5, flagLevel: 'medium', timeMs: 15000, qualify: 10 },
-    { id: 'f', start: '2026-10-18T19:00:00+01:00', level: 'extreme', themeQ: 12, flagQ: 8, flagLevel: 'hard',   timeMs: 10000, qualify: 1 },
+    { id: 'q', start: '2026-10-24T18:00:00+01:00', level: 'medium',  themeQ: 10, flagQ: 5, flagLevel: 'easy',   timeMs: 15000, qualify: 50 },
+    { id: 's', start: '2026-10-25T15:00:00+01:00', level: 'hard',    themeQ: 10, flagQ: 5, flagLevel: 'medium', timeMs: 15000, qualify: 10 },
+    { id: 'f', start: '2026-10-25T19:00:00+01:00', level: 'extreme', themeQ: 12, flagQ: 8, flagLevel: 'hard',   timeMs: 10000, qualify: 1 },
   ],
 };
 const REVEAL_MS = 5500;                // la correction reste a l'ecran (comme le quiz de culture generale)
 const RANK_MS = 3800;                  // puis le classement s'anime (sauf apres la derniere question)
-const LATE_Q = 3;
+const LATE_Q = 999;                    // on peut entrer en retard jusqu'a la fin de la session
 const GIFT_DELAY_MS = 30000;           // les coffres sont offerts 30 s apres la fin de la finale, une fois le classement final montre
 // Rang general du tournoi -> palette du coffre et objets inedits (jamais en boutique)
 const GIFT_TIER = rank => rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : rank <= 10 ? 'violet' : rank <= 15 ? 'ice' : 'wood';
@@ -50,10 +51,16 @@ module.exports = function createLive(ctx) {
   const sess = id => cfg.sessions.find(s => s.id === id);
 
   function load(c, s) {
+    const oldEdition = c && typeof c === 'object' ? c.edition : DEFAULT_CFG.edition;
     if (c && c.lobbyMin === 5) c.lobbyMin = 10;
     if (c && c.rewards && !(+c.rewards[1] || +c.rewards[2] || +c.rewards[3])) delete c.rewards; // anciens reglages a 0 : on reprend les montants par defaut
     if (c && typeof c === 'object') cfg = Object.assign({}, DEFAULT_CFG, c, { rewards: Object.assign({}, DEFAULT_CFG.rewards, c.rewards || {}), prize: Object.assign({}, DEFAULT_CFG.prize, c.prize || {}), sessions: Array.isArray(c.sessions) && c.sessions.length ? c.sessions : DEFAULT_CFG.sessions });
     if (s && typeof s === 'object') state = Object.assign({ done: {}, used: [], champion: null, gifts: {} }, s);
+    if (oldEdition !== DEFAULT_CFG.edition) {
+      cfg.edition = DEFAULT_CFG.edition; cfg.sessions = JSON.parse(JSON.stringify(DEFAULT_CFG.sessions)); cfg.openAll = true;
+      state = Object.assign({}, state, { done: {}, reminded: {} });
+      ctx.saveConfig('live_cfg', cfg); ctx.saveConfig('live_state', state);
+    }
   }
   const saveCfg = () => ctx.saveConfig('live_cfg', cfg);
   const saveState = () => ctx.saveConfig('live_state', state);
