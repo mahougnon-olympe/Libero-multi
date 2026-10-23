@@ -493,6 +493,7 @@ async function loadData() {
   const shopOvDoc = configDocs.find(d => d._id === 'shop_overrides');
   if (Array.isArray(shopOvDoc?.value)) shopOvDoc.value.forEach(([id, o]) => { if (o && (!o.until || o.until > Date.now())) shopOverrides.set(id, o); });
   const bannedDoc = configDocs.find(d => d._id === 'banned_words');
+  { const urDoc = configDocs.find(d => d._id === 'uno_rules'); if (Array.isArray(urDoc?.value)) unoRules = urDoc.value.filter(r => r && r.id && typeof r.text === 'string'); }
   if (Array.isArray(bannedDoc?.value)) bannedWords = bannedDoc.value.filter(w => typeof w === 'string');
   const bpoDoc = configDocs.find(d => d._id === 'book_price_overrides');
   if (bpoDoc?.value && typeof bpoDoc.value === 'object') bookPriceOverrides = bpoDoc.value;
@@ -1373,6 +1374,7 @@ function saveConfig(id, value) {
   if (db) db.collection('server_config').updateOne({ _id: id }, { $set: { value } }, { upsert: true }).catch(() => {});
 }
 let scheduledTasks   = [];              // { id, kind:'announce'|'push', at, fireAt, done, ... }
+let unoRules         = [];              // regles Uno proposees par les joueurs {id,pid,author,text,status:'pending'|'ok'|'no',at}
 let bannedWords      = [];              // mots interdits (minuscules)
 let bookPriceOverrides = {};            // 'bookId:packId' -> prix
 let adminAlertSubs   = [];              // playerIds recevant les alertes admin
@@ -3002,6 +3004,31 @@ function scheduleBotMove(code) {
 const UNO_TURN_MS = 40_000, UNO_RECONNECT_MS = 60_000, UNO_WAIT_MS = 5 * 60_000, UNO_BOTS = ['Robo Léa', 'Robo Max', 'Robo Zoé', 'Robo Tom', 'Robo Eva', 'Robo Sam', 'Robo Mia', 'Robo Leo', 'Robo Ana'];
 const _unoSeatOf = (room, pid) => room.state ? room.state.seats.indexOf(pid) : -1;
 const _unoPlayer = (room, pid) => room.players.find(p => p.pid === pid);
+const UNO_STAKES = [0, 50, 100, 250, 500];
+const unoApproved = () => unoRules.filter(r => r.status === 'ok').map(r => ({ id: r.id, text: r.text, author: r.author }));
+const saveUnoRules = () => saveConfig('uno_rules', unoRules);
+function _unoHumans(room) { return room.players.filter(p => !p.bot); }
+// Mise du Uno : chaque humain paie au depart, le gagnant (humain) prend le pot, sinon tout le monde est rembourse.
+function unoCollectStake(room) {
+  if (!room.stake) return { ok: true };
+  const hs = _unoHumans(room);
+  if (hs.length < 2) { room.stake = 0; return { ok: true }; }
+  const ids = hs.map(p => safePlayerId(p.pid));
+  if (ids.some(id => !id)) return { ok: false, error: 'stake_short' };
+  const es = ids.map(getLibsEntry);
+  if (es.some(e => !e || !e.name || e.name === 'Anonyme' || e.balance < room.stake)) return { ok: false, error: 'stake_short' };
+  es.forEach((e, i) => { e.balance -= room.stake; libs.set(ids[i], e); dbUpsertLibs(ids[i], e); _emitToPlayer(ids[i], 'libs-update', { balance: e.balance, delta: -room.stake, nextAt: nextDistributionAt }); });
+  room.unoPaid = ids; room.potPaid = true;
+  return { ok: true };
+}
+function unoSettleStake(room, winnerPid) {
+  if (!room.stake || !room.potPaid) return;
+  room.potPaid = false;
+  const paid = room.unoPaid || [], pot = room.stake * paid.length;
+  const credit = (pid, amt) => { const e = getLibsEntry(pid); e.balance = Math.min(MAX_BALANCE, e.balance + amt); libs.set(pid, e); dbUpsertLibs(pid, e); _emitToPlayer(pid, 'libs-update', { balance: e.balance, delta: amt, nextAt: nextDistributionAt }); };
+  if (winnerPid && paid.includes(winnerPid)) { credit(winnerPid, pot); io.to(room.code).emit('uno-stake', { outcome: 'won', winner: winnerPid === undefined ? null : (_unoPlayer(room, winnerPid)?.name || ''), pot }); }
+  else { const left = new Set((room.left || []).map(x => x.pid)); paid.filter(pid => !left.has(pid)).forEach(pid => credit(pid, room.stake)); io.to(room.code).emit('uno-stake', { outcome: 'refund', pot: room.stake }); }
+}
 function _unoPublic(room) {
   const list = room.state ? room.state.seats.map(pid => _unoPlayer(room, pid)).filter(Boolean) : room.players;
   return list.map(p => ({ name: p.name, bot: !!p.bot, connected: p.bot || p.connected, ci: p.ci, afk: !!p.afk,
@@ -3015,7 +3042,9 @@ function unoEmit(room, ev) {
     let e = ev || null;
     // Les cartes piochees ne vont qu'a celui qui a pioche.
     if (e && e.mine) { e = Object.assign({}, e); if (seat === e.seat) e.mine = ev.mine.map(c => c.id); else delete e.mine; }
-    const base = { code: room.code, status: room.status, players: _unoPublic(room), youHost: p.pid === room.host, seq: room.seq, ev: e };
+    const base = { code: room.code, status: room.status, players: _unoPublic(room), youHost: p.pid === room.host, seq: room.seq, ev: e, stake: room.stake || 0, cust: room.cust || [] };
+    if (!room.state) { base.opts = room.opts; base.rules = unoApproved(); }
+    else base.custText = unoApproved().filter(r => (room.cust || []).includes(r.id)).map(r => r.text);
     if (room.state) Object.assign(base, unoGame.view(room.state, p.pid), { mySeat: seat, turnEnd: room.turnEnd || 0, turnTotal: room.turnTotal || UNO_TURN_MS });
     io.to(p.sid).emit(room.state ? 'uno-state' : 'uno-lobby', base);
   }
@@ -3050,8 +3079,9 @@ function unoAct(room, pid, act, a = {}) {
   const st = room.state;
   if (!st || room.status !== 'playing') return false;
   let r;
-  if (act === 'play') r = unoGame.play(st, pid, a.cardId, a.color, !!a.uno);
+  if (act === 'play') r = unoGame.play(st, pid, a.cardId, a.color, !!a.uno, Math.random, Number.isInteger(a.target) ? a.target : undefined);
   else if (act === 'draw') r = unoGame.draw(st, pid);
+  else if (act === 'challenge') r = unoGame.challenge(st, pid);
   else if (act === 'pass') r = unoGame.pass(st, pid);
   else if (act === 'call') r = unoGame.call(st, pid);
   else return false;
@@ -3074,6 +3104,7 @@ function unoFinish(room) {
   _unoClear(room);
   room.status = 'finished'; room.turnEnd = 0;
   const st = room.state, winner = st.winner;
+  unoSettleStake(room, winner);
   bumpDaily('games');
   const all = room.played || [];
   all.forEach(pid => {
@@ -5188,7 +5219,7 @@ io.on('connection', (socket) => {
     const pid = safePlayerId(playerId) || ('g' + socket.id);
     const code = generateCode();
     const p = { pid, name: sanitizeName(name, 'Anonyme'), sid: socket.id, bot: false, ci: 0, connected: true, afk: false };
-    const room = { code, host: pid, players: [p], status: 'waiting', state: null, seq: 0, timer: null, botTimer: null, turnEnd: 0, played: [], left: [] };
+    const room = { code, host: pid, players: [p], status: 'waiting', state: null, seq: 0, timer: null, botTimer: null, turnEnd: 0, played: [], left: [], opts: unoGame.normOpts(null), cust: [], stake: 0 };
     unoRooms.set(code, room);
     _unoAttach(room, p);
     socket.emit('uno-created', { code });
@@ -5218,7 +5249,7 @@ io.on('connection', (socket) => {
     if (i >= 0) { room.players.splice(i, 1); unoEmit(room, null); }
   });
   function unoStart(room) {
-    room.state = unoGame.createState(room.players.map(p => p.pid));
+    room.state = unoGame.createState(room.players.map(p => p.pid), Math.random, room.opts);
     room.status = 'playing'; room.left = []; room.played = room.players.map(p => p.pid);
     room.players.forEach(p => { p.afk = false; p.afkN = 0; });
     unoSchedule(room);
@@ -5227,22 +5258,53 @@ io.on('connection', (socket) => {
   socket.on('start-uno', () => {
     const room = unoMine(); if (!room || room.status !== 'waiting' || room.host !== unoPid) return;
     if (room.players.length < 2) { socket.emit('uno-error', { message: 'need2' }); return; }
+    const st = unoCollectStake(room);
+    if (!st.ok) { socket.emit('uno-error', { message: st.error }); return; }
     unoStart(room);
+  });
+  socket.on('uno-set-opts', ({ opts, cust, stake } = {}) => {
+    const room = unoMine(); if (!room || room.status !== 'waiting' || room.host !== unoPid) return;
+    if (opts && typeof opts === 'object') room.opts = unoGame.normOpts(opts, 2);
+    if (Array.isArray(cust)) { const ok = new Set(unoApproved().map(r => r.id)); room.cust = cust.map(String).filter(id => ok.has(id)).slice(0, 12); }
+    if (stake != null) room.stake = UNO_STAKES.includes(+stake) ? +stake : 0;
+    unoEmit(room, null);
+  });
+  socket.on('uno-propose-rule', ({ playerId, text } = {}) => {
+    const reply = r => socket.emit('uno-propose-result', r);
+    if (!allowAction('unorule', 3, 60_000)) return reply({ ok: false, error: 'rate' });
+    const id = safePlayerId(playerId); if (!id) return reply({ ok: false, error: 'invalid' });
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') return reply({ ok: false, error: 'name' });
+    const t = String(text || '').replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 140);
+    if (t.length < 8) return reply({ ok: false, error: 'short' });
+    if (containsBanned(t)) return reply({ ok: false, error: 'banned' });
+    const day = _tournamentTodayKey();
+    if (unoRules.filter(r => r.pid === id && r.day === day).length >= 2) return reply({ ok: false, error: 'limit' });
+    if (unoRules.filter(r => r.status === 'pending').length >= 200) return reply({ ok: false, error: 'rate' });
+    unoRules.push({ id: 'ur' + Date.now().toString(36) + crypto.randomUUID().slice(0, 4), pid: id, author: entry.name, text: t, status: 'pending', at: Date.now(), day });
+    saveUnoRules(); reply({ ok: true });
+  });
+  socket.on('uno-my-rules', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId); if (!id) return;
+    socket.emit('uno-my-rules', unoRules.filter(r => r.pid === id).slice(-20).map(r => ({ id: r.id, text: r.text, status: r.status })));
   });
   socket.on('uno-restart', () => {
     const room = unoMine(); if (!room || room.status !== 'finished' || room.host !== unoPid) return;
     room.players = room.players.filter(p => p.bot || p.connected);
     if (room.players.length < 2) { room.status = 'waiting'; room.state = null; unoEmit(room, null); return; }
+    const st = unoCollectStake(room);
+    if (!st.ok) { room.status = 'waiting'; room.state = null; socket.emit('uno-error', { message: st.error }); unoEmit(room, null); return; }
     unoStart(room);
   });
   function unoDo(act, a) {
     const room = unoMine(); if (!room || !allowAction('unoact', 14, 5000)) return;
     unoAct(room, unoPid, act, a || {});
   }
-  socket.on('uno-play', ({ cardId, color, uno } = {}) => unoDo('play', { cardId: Number(cardId), color: String(color || ''), uno: !!uno }));
+  socket.on('uno-play', ({ cardId, color, uno, target } = {}) => unoDo('play', { cardId: Number(cardId), color: String(color || ''), uno: !!uno, target: Number.isInteger(target) ? target : null }));
   socket.on('uno-draw', () => unoDo('draw'));
   socket.on('uno-pass', () => unoDo('pass'));
   socket.on('uno-call', () => unoDo('call'));
+  socket.on('uno-challenge', () => unoDo('challenge'));
   socket.on('leave-uno-room', () => {
     const room = unoMine(); if (!room) { unoCode = unoPid = null; return; }
     socket.leave(room.code);
@@ -6042,6 +6104,7 @@ app.get('/admin/stats', async (req, res) => {
         title: t.title, body: t.body, text: t.text,
       })),
       bannedWords,
+      unoRules: unoRules.slice(-150),
       maintenance,
       alertRecipients: adminAlertSubs.length,
       bookPrices: Object.values(LIBERO_BOOKS).map(b => ({
@@ -6607,6 +6670,25 @@ app.delete('/admin/schedule/:id', (req, res) => {
   scheduledTasks = scheduledTasks.filter(t => t.id !== id);
   if (db) db.collection('scheduled_tasks').deleteOne({ id }).catch(() => {});
   res.json({ ok: true });
+});
+
+// ── Regles Uno proposees par les joueurs ──
+app.get('/admin/uno-rules', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  res.json({ ok: true, rules: unoRules.slice().sort((a, b) => (a.status === 'pending' ? 0 : 1) - (b.status === 'pending' ? 0 : 1) || b.at - a.at).slice(0, 200) });
+});
+app.post('/admin/uno-rules', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const r = unoRules.find(x => x.id === String(req.body?.id || '')); if (!r) return res.status(404).json({ error: 'Règle introuvable.' });
+  const action = String(req.body?.action || '');
+  if (action === 'delete') unoRules = unoRules.filter(x => x !== r);
+  else if (action === 'approve' || action === 'refuse') {
+    const t = String(req.body?.text || '').replace(/[<>]/g, '').trim().slice(0, 140); if (t.length >= 8) r.text = t;
+    r.status = action === 'approve' ? 'ok' : 'no';
+    _emitToPlayer(r.pid, 'uno-rule-result', { id: r.id, text: r.text, status: r.status });
+  } else return res.status(400).json({ error: 'Action inconnue.' });
+  saveUnoRules(); adminAudit('uno-rule-' + action, { id: r.id });
+  res.json({ ok: true, rules: unoRules.length });
 });
 
 // ── Mots interdits (auto-moderation) ──

@@ -726,6 +726,11 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
         <p id="acct-reset-status" class="sub"></p>
         <div id="acct-list" style="margin-top:8px;"></div>
       </section>
+<section data-sec="unorules">
+        <h2><span class="adm-ic" data-ic="mail">📝</span> Règles Uno <span id="unorules-pill" class="pill"></span></h2>
+        <p class="sub" style="margin-top:-4px;">Règles proposées par les joueurs. Valide-les (elles deviennent une case à cocher dans le salon Uno, signée par leur auteur), refuse-les ou reformule le texte avant de valider.</p>
+        <div id="unorules-list"></div>
+      </section>
 <section data-sec="banned">
         <h2><span class="adm-ic" data-ic="ban">🚫</span> Mots interdits <span id="banned-pill" class="pill"></span></h2>
         <p class="sub" style="margin-top:-4px;">Auto-modération : tout pseudo, commentaire, suggestion ou commentaire vidéo contenant un de ces mots est refusé automatiquement.</p>
@@ -1334,6 +1339,21 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
       }).join('');
     }
 
+    function renderUnoRules(list) {
+      var pend = list.filter(function (r) { return r.status === 'pending'; }).length;
+      var pl = $('unorules-pill'); if (pl) pl.textContent = pend ? pend + ' en attente' : '';
+      var box = $('unorules-list'); if (!box) return;
+      var lab = { pending: 'En attente', ok: 'Validée', no: 'Refusée' };
+      box.innerHTML = list.length ? list.slice().reverse().map(function (r) {
+        return '<div class="uno-rule" data-id="' + esc(r.id) + '" style="border:1px solid #3a3f4b;border-radius:8px;padding:8px;margin:6px 0">'
+          + '<div class="sub" style="margin:0"><b>' + esc(r.author || '') + '</b> · ' + lab[r.status] + '</div>'
+          + '<input class="ur-text" value="' + esc(r.text) + '" maxlength="140" style="width:100%;margin:4px 0" />'
+          + '<div class="field" style="gap:6px">'
+          + (r.status !== 'ok' ? '<button class="green ur-act" data-a="approve">Valider</button>' : '')
+          + (r.status !== 'no' ? '<button class="ur-act" data-a="refuse">Refuser</button>' : '')
+          + '<button class="ur-act" data-a="delete" style="color:#f87171">Supprimer</button></div></div>';
+      }).join('') : '<p class="sub">Aucune proposition pour le moment.</p>';
+    }
     function renderBanned(list) {
       list = list || [];
       var bp = $('banned-pill'); if (bp) bp.textContent = list.length;
@@ -1363,6 +1383,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
       renderFunnel(d.funnel);
       renderScheduled(d.scheduled);
       renderBanned(d.bannedWords);
+      renderUnoRules(d.unoRules || []);
       renderBookPrices(d.bookPrices);
       if ($('maint-status')) $('maint-status').textContent = d.maintenance && d.maintenance.on ? ('🛠️ Maintenance ACTIVE' + (d.maintenance.block ? ' (site BLOQUÉ)' : ' (bandeau seul)') + ' : ' + (d.maintenance.message || '(sans message)')) : 'Maintenance désactivée.';
       if ($('maint-msg') && d.maintenance && d.maintenance.message && !$('maint-msg').value) $('maint-msg').value = d.maintenance.message;
@@ -1991,6 +2012,11 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
     loadRotation();
 
     // Mots interdits.
+    if ($('unorules-list')) $('unorules-list').addEventListener('click', async function (e) {
+      var b = e.target.closest('.ur-act'); if (!b) return;
+      var row = b.closest('.uno-rule');
+      try { await api('/admin/uno-rules', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id: row.dataset.id, action: b.dataset.a, text: row.querySelector('.ur-text').value }) }); await refresh(); } catch (e2) {}
+    });
     if ($('btn-banned-add')) $('btn-banned-add').addEventListener('click', async function () {
       var w = $('banned-input').value.trim(); if (!w) return;
       try { await api('/admin/banned-words', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ word:w }) }); $('banned-input').value=''; await refresh(); } catch (e) {}
@@ -2169,6 +2195,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
     books:    { t: 'Prix des livres',     z: 'yellow', secs: ['books'] },
     purchases:{ t: 'Achats',              z: 'yellow', secs: ['purchases'] },
     maint:    { t: 'Maintenance',         z: 'blue',   secs: ['maint'] },
+    unorules: { t: 'Règles Uno',          z: 'green',  secs: ['unorules'] },
     banned:   { t: 'Mots interdits',      z: 'blue',   secs: ['banned'] },
     backup:   { t: 'Sauvegarde',          z: 'blue',   secs: ['backup'] },
     audit:    { t: 'Journal',             z: 'blue',   secs: ['audit'] },
@@ -2176,7 +2203,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
   };
   var ZONES = [
     { z: 'red',    pos: 'tl', arm: 't', name: 'Joueurs',    tiles: ['players', 'inactive', 'fraud', 'resets', 'acct'] },
-    { z: 'green',  pos: 'tr', arm: 'r', name: 'Communauté', tiles: ['comments', 'sugg', 'ann', 'push', 'videos', 'chal', 'botlogs', 'bugs', 'dmrep', 'live'] },
+    { z: 'green',  pos: 'tr', arm: 'r', name: 'Communauté', tiles: ['comments', 'sugg', 'ann', 'push', 'videos', 'chal', 'botlogs', 'bugs', 'dmrep', 'live', 'unorules'] },
     { z: 'yellow', pos: 'br', arm: 'b', name: 'Boutique',   tiles: ['tpl', 'catalog', 'rotation', 'flash', 'books', 'purchases'] },
     { z: 'blue',   pos: 'bl', arm: 'l', name: 'Système',    tiles: ['maint', 'banned', 'backup', 'audit', 'errors'] }
   ];
@@ -2221,6 +2248,7 @@ tr.clickable:hover td, .player-chip:hover { background:var(--card2); border-colo
       books:    { em: '' },
       purchases:{ em: String((d.purchases || []).length) },
       maint:    { bd: maintOn ? 'ON' : 0, em: 'inactive' },
+      unorules: { bd: (d.unoRules || []).filter(function (r) { return r.status === 'pending'; }).length, em: String((d.unoRules || []).filter(function (r) { return r.status === 'ok'; }).length) + ' validée(s)' },
       banned:   { em: String((d.bannedWords || []).length) },
       backup:   { em: '' },
       audit:    { em: String((d.audit || []).length) },

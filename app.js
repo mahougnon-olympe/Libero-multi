@@ -3575,13 +3575,13 @@ function _unoLoad() {
   if (window.LiberoUno) return Promise.resolve(window.LiberoUno);
   if (_unoP) return _unoP;
   _unoP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'uno.js?v=3';
+    const sc = document.createElement('script'); sc.src = 'uno.js?v=4';
     sc.onload = () => res(window.LiberoUno); sc.onerror = () => { _unoP = null; res(null); };
     document.head.appendChild(sc);
   });
   return _unoP;
 }
-['uno-joined', 'uno-created', 'uno-lobby', 'uno-state', 'uno-error', 'uno-reconnect-failed'].forEach(ev => socket.on(ev, d => { _unoLoad().then(u => u && u.on(ev, d || {})); }));
+['uno-joined', 'uno-created', 'uno-lobby', 'uno-state', 'uno-error', 'uno-reconnect-failed', 'uno-propose-result', 'uno-stake', 'uno-rule-result', 'uno-my-rules'].forEach(ev => socket.on(ev, d => { _unoLoad().then(u => u && u.on(ev, d || {})); }));
 window._unoStart = function (opts) {
   _unoLoad().then(u => { if (u) { u.loadCss(); u.create(opts || {}); } });
 };
@@ -15953,6 +15953,7 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     if (!need) { ov?.classList.add('hidden'); return; }
     let shown = false; try { shown = sessionStorage.getItem('libero_pfp_rem') === '1'; } catch {}
     if (shown || !ov) return;
+    { let sc = 'home'; try { sc = sessionStorage.getItem('libero_screen') || 'home'; } catch {} if (!['home', 'landing'].includes(sc)) return; }
     try { sessionStorage.setItem('libero_pfp_rem', '1'); } catch {}
     setTimeout(() => {
       if (myPortrait || !document.getElementById('overlay-portrait')?.classList.contains('hidden')) return;
