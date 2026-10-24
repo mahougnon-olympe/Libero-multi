@@ -24,11 +24,11 @@ const GIFT_DELAY_MS = 30000;           // les coffres sont offerts 30 s apres la
 // Rang general du tournoi -> palette du coffre et objets inedits (jamais en boutique)
 const GIFT_TIER = rank => rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : rank <= 10 ? 'violet' : rank <= 15 ? 'ice' : 'wood';
 const GIFT_ITEMS = {
-  gold: ['pframe-live-gold', 'bubble-live-gold', 'title-live-champion'],
-  silver: ['pframe-live-silver', 'bubble-live-silver', 'title-live-vice'],
-  bronze: ['pframe-live-bronze', 'bubble-live-bronze', 'title-live-podium'],
-  violet: ['pframe-live-finalist', 'title-live-finalist'],
-  ice: ['pframe-live-semi', 'title-live-semi'],
+  gold: ['pframe-live-2gold', 'bubble-live-gold', 'title-live-champion2'],
+  silver: ['pframe-live-2silver', 'bubble-live-silver', 'title-live-vice2'],
+  bronze: ['pframe-live-2bronze', 'bubble-live-bronze', 'title-live-podium2'],
+  violet: ['pframe-live-2finalist', 'title-live-finalist'],
+  ice: ['pframe-live-2semi', 'title-live-semi'],
   wood: [],
 };
 const DRAW_LEAD_MS = 40000;            // le tirage des themes se fait 40 s avant le depart, devant tout le monde                      // on peut entrer au quart jusqu'a la question 3
@@ -246,6 +246,16 @@ module.exports = function createLive(ctx) {
         (state.played[p.pid] = state.played[p.pid] || []).push(s.id);
         try { ctx.credit(p.pid, PRESENCE_LIBS, 'live'); } catch {}
         if (final && cfg.sessions.every(x => state.played[p.pid].includes(x.id))) { try { ctx.credit(p.pid, COMPLETE_LIBS, 'live'); ctx.grant(p.pid, ['title-live-complet']); } catch {} }
+      }
+      if (final) {
+        const q0 = state.done[cfg.sessions[0].id], fin = state.done[s.id];
+        if (q0 && fin) {
+          const qr = new Map(q0.ranking.map(x => [x.pid, x.rank])); let best = null, bg = 0;
+          fin.ranking.forEach(x => { const g = qr.has(x.pid) && !String(x.pid).startsWith('bot') ? qr.get(x.pid) - x.rank : 0; if (g > bg) { bg = g; best = x.pid; } });
+          if (best) { try { ctx.grant(best, ['title-live-remontada']); } catch {} }
+        }
+        const fast = rank.filter(p => !p.bot && p.score > 0 && p.time > 0).sort((a, b) => a.time - b.time)[0];
+        if (fast) { try { ctx.grant(fast.pid, ['title-live-eclair']); } catch {} }
       }
       saveState();
     }

@@ -3316,3 +3316,17 @@ body.screen-undercover-active .btn-help-float, body.screen-undercover-active .bt
 .lu-coin { position: absolute; top: -20px; width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff6b0, #e0a800); border: 2px solid #8a6a00; opacity: 0; animation: luCoin 1.3s ease-in both; }
 @keyframes luCoin { 0% { opacity: 1; transform: translateY(0) rotate(0); } 100% { opacity: 1; transform: translateY(330px) rotate(540deg); } }
 .lu-combo.calm * { animation-duration: .01s !important; animation-delay: 0s !important; }
+
+/* Cadres du tournoi, edition 2 */
+.lb-pt.pf-2gold { box-shadow: 0 0 0 2px #ffd34d, 0 0 0 4px #22252b, 0 0 0 5px #ffd34d, 0 0 9px 2px rgba(255,211,77,.75); }
+:root:root .pid-avatar.pf-2gold { box-shadow: 0 0 0 4px #ffd34d, 0 0 0 6px #22252b, 0 0 0 8px #ffd34d, 0 0 9px 4px rgba(255,211,77,.75); }
+.lb-pt.pf-2silver { box-shadow: 0 0 0 2px #dfe6ee, 0 0 0 3px #22252b, 0 0 0 5px #aab6c4; }
+:root:root .pid-avatar.pf-2silver { box-shadow: 0 0 0 4px #dfe6ee, 0 0 0 6px #22252b, 0 0 0 8px #aab6c4; }
+.lb-pt.pf-2bronze { box-shadow: 0 0 0 2px #d58a4a, 0 0 0 3px #22252b, 0 0 0 5px #d58a4a; }
+:root:root .pid-avatar.pf-2bronze { box-shadow: 0 0 0 4px #d58a4a, 0 0 0 6px #22252b, 0 0 0 8px #d58a4a; }
+.lb-pt.pf-2finalist { box-shadow: 0 0 0 2px #b69af0, 0 0 0 3px #22252b, 0 0 8px 2px rgba(182,154,240,.7); }
+:root:root .pid-avatar.pf-2finalist { box-shadow: 0 0 0 4px #b69af0, 0 0 0 6px #22252b, 0 0 8px 4px rgba(182,154,240,.7); }
+.lb-pt.pf-2semi { box-shadow: 0 0 0 2px #8fd3f2, 0 0 0 3px #22252b, 0 0 0 5px #8fd3f2; }
+:root:root .pid-avatar.pf-2semi { box-shadow: 0 0 0 4px #8fd3f2, 0 0 0 6px #22252b, 0 0 0 8px #8fd3f2; }
+@keyframes pf2pulse { 50% { filter: brightness(1.25); } }
+.lb-pt.pf-2gold, :root:root .pid-avatar.pf-2gold { animation: pf2pulse 2s ease-in-out infinite; }

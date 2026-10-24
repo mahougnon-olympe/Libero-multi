@@ -190,6 +190,7 @@ function canReadChapter(book, entry, num) {
 }
 const libs            = new Map();
 const MAX_BALANCE              = 19999;
+const PORTRAIT_BONUS           = 50;     // = ONBOARD_STEPS.perso (affiche dans le rappel push)
 const REFUND_CARD_MAX          = 2;
 const REFUND_CARD_COOLDOWN_MS  = 30 * 24 * 3600 * 1000;
 
@@ -493,6 +494,7 @@ async function loadData() {
   const shopOvDoc = configDocs.find(d => d._id === 'shop_overrides');
   if (Array.isArray(shopOvDoc?.value)) shopOvDoc.value.forEach(([id, o]) => { if (o && (!o.until || o.until > Date.now())) shopOverrides.set(id, o); });
   const bannedDoc = configDocs.find(d => d._id === 'banned_words');
+  if (configDocs.find(d => d._id === 'pfp_push')?.value) _pfpPushDone = true;
   { const urDoc = configDocs.find(d => d._id === 'uno_rules'); if (Array.isArray(urDoc?.value)) unoRules = urDoc.value.filter(r => r && r.id && typeof r.text === 'string'); }
   if (Array.isArray(bannedDoc?.value)) bannedWords = bannedDoc.value.filter(w => typeof w === 'string');
   const bpoDoc = configDocs.find(d => d._id === 'book_price_overrides');
@@ -1204,6 +1206,23 @@ function pruneShopOverrides() {
   if (changed) { dbSaveShopOverrides(); io.emit('shop-overrides', shopOverridesPayload()); }
 }
 setInterval(pruneShopOverrides, 60_000);
+// Rappel push unique aux joueurs sans portrait (une fois, en journee au Benin).
+let _pfpPushDone = false;
+setInterval(() => {
+  if (_pfpPushDone || !db) return;
+  const h = _beninDate().getUTCHours(); if (h < 9 || h >= 20) return;
+  _pfpPushDone = true; saveConfig('pfp_push', true);
+  const since = Date.now() - 30 * 86400_000;
+  for (const [pid, e] of libs.entries()) {
+    if (e.portrait || !e.name || e.name === 'Anonyme' || (e.lastActive || 0) < since) continue;
+    try { liveCtxPush(pid); } catch {}
+  }
+}, 10 * 60_000);
+function liveCtxPush(pid) {
+  if (!webpush || _playerActive(pid)) return;
+  const e = libs.get(pid); const en = e && e.lang === 'en';
+  sendPush(pid, { title: en ? 'Create your portrait' : 'Crée ton portrait', body: en ? `Draw your face and get ${PORTRAIT_BONUS} Libs.` : `Dessine ton visage et gagne ${PORTRAIT_BONUS} Libs.`, url: 'https://libero-multi.vercel.app', tag: 'libero-pfp' });
+}
 function shopHas(cosm) {
   // Les emotes ne sont JAMAIS vendues dans la boutique d'objets : elles ont
   // leur propre rayon dans la section Emotes du profil (voir emoteAvailable).
@@ -2069,6 +2088,16 @@ const COSMETICS = [
   { id: 'title-live-podium',    type: 'title',  price: 0, honorary: true },
   { id: 'title-live-finalist',  type: 'title',  price: 0, honorary: true },
   { id: 'title-live-semi',      type: 'title',  price: 0, honorary: true },
+  { id: 'pframe-live-2gold', type: 'pframe', price: 0, honorary: true },
+  { id: 'pframe-live-2silver', type: 'pframe', price: 0, honorary: true },
+  { id: 'pframe-live-2bronze', type: 'pframe', price: 0, honorary: true },
+  { id: 'pframe-live-2finalist', type: 'pframe', price: 0, honorary: true },
+  { id: 'pframe-live-2semi', type: 'pframe', price: 0, honorary: true },
+  { id: 'title-live-champion2', type: 'title', price: 0, honorary: true },
+  { id: 'title-live-vice2', type: 'title', price: 0, honorary: true },
+  { id: 'title-live-podium2', type: 'title', price: 0, honorary: true },
+  { id: 'title-live-remontada', type: 'title', price: 0, honorary: true },
+  { id: 'title-live-eclair', type: 'title', price: 0, honorary: true },
   { id: 'title-live-complet',   type: 'title',  price: 0, honorary: true },
   // Packs de sons
   // Emotes
