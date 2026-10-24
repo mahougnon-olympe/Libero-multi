@@ -2069,6 +2069,7 @@ const COSMETICS = [
   { id: 'title-live-podium',    type: 'title',  price: 0, honorary: true },
   { id: 'title-live-finalist',  type: 'title',  price: 0, honorary: true },
   { id: 'title-live-semi',      type: 'title',  price: 0, honorary: true },
+  { id: 'title-live-complet',   type: 'title',  price: 0, honorary: true },
   // Packs de sons
   // Emotes
   { id: 'emote-hello',        type: 'emote',       price: 0  },

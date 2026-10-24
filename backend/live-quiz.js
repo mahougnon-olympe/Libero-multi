@@ -5,11 +5,11 @@ const liveBank = require('./trivia-live');
 const flagsGame = require('./game-flags');
 
 const DEFAULT_CFG = {
-  edition: '2026-10-24',               // change a chaque nouveau tournoi : au demarrage, programme et resultats repartent a zero (questions deja tirees et coffres conserves)
+  edition: '2026-10-24b',               // change a chaque nouveau tournoi : au demarrage, programme et resultats repartent a zero (questions deja tirees et coffres conserves)
   lobbyMin: 10,                        // la salle ouvre N minutes avant
   openAll: true,                       // tout le monde peut jouer la demi et la finale (sinon : seulement les qualifies)
   prize: { fr: '', en: '' },           // texte du prix du champion (vide = a annoncer)
-  rewards: { 1: 5000, 2: 3000, 3: 1500, f: 800, s: 400, o: 150 }, // Libs du coffre : podium, finalistes (4 a 10), rangs 11 a 15, tous les autres
+  rewards: { 1: 3000, 2: 1500, 3: 500, f: 150, s: 80, o: 40 }, // Libs du coffre : podium, finalistes (4 a 10), rangs 11 a 15, tous les autres
   sessions: [
     { id: 'q', start: '2026-10-24T18:00:00+01:00', level: 'medium',  themeQ: 10, flagQ: 5, flagLevel: 'easy',   timeMs: 15000, qualify: 50 },
     { id: 's', start: '2026-10-25T15:00:00+01:00', level: 'hard',    themeQ: 10, flagQ: 5, flagLevel: 'medium', timeMs: 15000, qualify: 10 },
@@ -19,6 +19,7 @@ const DEFAULT_CFG = {
 const REVEAL_MS = 5500;                // la correction reste a l'ecran (comme le quiz de culture generale)
 const RANK_MS = 3800;                  // puis le classement s'anime (sauf apres la derniere question)
 const LATE_Q = 999;                    // on peut entrer en retard jusqu'a la fin de la session
+const PRESENCE_LIBS = 10, COMPLETE_LIBS = 50; // presence par manche jouee, bonus des trois manches
 const GIFT_DELAY_MS = 30000;           // les coffres sont offerts 30 s apres la fin de la finale, une fois le classement final montre
 // Rang general du tournoi -> palette du coffre et objets inedits (jamais en boutique)
 const GIFT_TIER = rank => rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : rank <= 10 ? 'violet' : rank <= 15 ? 'ice' : 'wood';
@@ -57,8 +58,8 @@ module.exports = function createLive(ctx) {
     if (c && typeof c === 'object') cfg = Object.assign({}, DEFAULT_CFG, c, { rewards: Object.assign({}, DEFAULT_CFG.rewards, c.rewards || {}), prize: Object.assign({}, DEFAULT_CFG.prize, c.prize || {}), sessions: Array.isArray(c.sessions) && c.sessions.length ? c.sessions : DEFAULT_CFG.sessions });
     if (s && typeof s === 'object') state = Object.assign({ done: {}, used: [], champion: null, gifts: {} }, s);
     if (oldEdition !== DEFAULT_CFG.edition) {
-      cfg.edition = DEFAULT_CFG.edition; cfg.sessions = JSON.parse(JSON.stringify(DEFAULT_CFG.sessions)); cfg.openAll = true;
-      state = Object.assign({}, state, { done: {}, reminded: {} });
+      cfg.edition = DEFAULT_CFG.edition; cfg.sessions = JSON.parse(JSON.stringify(DEFAULT_CFG.sessions)); cfg.openAll = true; cfg.rewards = Object.assign({}, DEFAULT_CFG.rewards);
+      state = Object.assign({}, state, { done: {}, reminded: {}, played: {} });
       ctx.saveConfig('live_cfg', cfg); ctx.saveConfig('live_state', state);
     }
   }
@@ -239,6 +240,14 @@ module.exports = function createLive(ctx) {
       if (final) buildGifts();
       saveState();
       for (const p of rank) { if (!p.bot) { try { ctx.xp(p.pid, 20 + 3 * p.correct); } catch {} } }
+      state.played = state.played || {};
+      for (const p of rank) {
+        if (p.bot) continue;
+        (state.played[p.pid] = state.played[p.pid] || []).push(s.id);
+        try { ctx.credit(p.pid, PRESENCE_LIBS, 'live'); } catch {}
+        if (final && cfg.sessions.every(x => state.played[p.pid].includes(x.id))) { try { ctx.credit(p.pid, COMPLETE_LIBS, 'live'); ctx.grant(p.pid, ['title-live-complet']); } catch {} }
+      }
+      saveState();
     }
     const top = rank.slice(0, 8).map(p => ({ name: p.name, score: p.score, portrait: p.portrait || null }));
     emit(r, 'live-end', { sid: s.id, top, players: rank.length, qualified: qualified.length, final, champion: final ? (r.test ? { name: rank[0] && rank[0].name, portrait: null } : state.champion) : null, next, test: r.test });
