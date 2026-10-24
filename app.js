@@ -14016,8 +14016,15 @@ window._showLevelUp = function (lv, reward) {
   document.getElementById('lu-show')?.remove();
   const ov = document.createElement('div');
   ov.id = 'lu-show'; ov.className = 'lu-show lu-t' + tier;
-  ov.innerHTML = `<div class="lu-stage">${H}${rw}<span class="lu-close">${d.luTap}</span></div>`;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Combo : la barre d'XP claque (flash, secousse, eclairs, ondes), le compteur defile, les pieces tombent.
+  // Les paliers 3 a 5 (niveau 10, 25, 50) finissent sur leur tampon du cahier.
+  const coins = Array.from({ length: 16 }, (_, i) => `<i class="lu-coin" style="left:${6 + i * 5.8}%;animation-delay:${(1.7 + (i % 6) * .09).toFixed(2)}s"></i>`).join('');
+  ov.innerHTML = `<div class="lu-stage"><div class="lu-combo${reduced ? ' calm' : ''}"><i class="lu-bolt b1"></i><i class="lu-bolt b2"></i><i class="lu-ring"></i><i class="lu-ring r2"></i>
+      <div class="lu-odo"><div><span>${lv - 1}</span><span>${lv}</span></div></div><div class="lu-tx">${d.luNewLevel}</div>
+      <div class="lu-bar"><i></i></div>${rw}<i class="lu-flash"></i>${coins}</div><div class="lu-art">${H}</div><span class="lu-close">${d.luTap}</span></div>`;
   document.body.appendChild(ov);
+  if (tier >= 3) setTimeout(() => ov.classList.add('art'), reduced ? 300 : 3000);
   if (tier === 5) {
     const box = ov.querySelector('.lu-hon');
     for (let i = 0; i < 46; i++) { const c = document.createElement('i'); c.className = 'lu-conf'; c.style.left = Math.random() * 100 + '%';
@@ -14026,12 +14033,12 @@ window._showLevelUp = function (lv, reward) {
   } else if (typeof celebrate === 'function' && tier >= 3) celebrate({ count: 60 });
   // Les Libs gagnes « s'ecrivent » jusqu'au total.
   const cnt = ov.querySelector('.lu-count');
-  if (cnt) { const to = +cnt.dataset.to, t0 = performance.now() + 900;
+  if (cnt) { const to = +cnt.dataset.to, t0 = performance.now() + 1700;
     const tick = now => { const k = Math.max(0, Math.min(1, (now - t0) / 900)); cnt.textContent = Math.round(to * k); if (k < 1 && ov.isConnected) requestAnimationFrame(tick); };
     requestAnimationFrame(tick); }
   const close = () => { ov.classList.add('out'); setTimeout(() => ov.remove(), 300); };
   ov.addEventListener('click', close);
-  setTimeout(() => { if (ov.isConnected) close(); }, 5200);
+  setTimeout(() => { if (ov.isConnected) close(); }, tier >= 3 ? 8200 : 5200);
 };
 
 // ── Roue de la fortune (1 tour par jour) ─────────────────────────────────────
