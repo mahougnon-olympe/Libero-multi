@@ -1041,7 +1041,7 @@ const DICT = {
     shopBubbleTitle:'💬 Bulles de chat',
     tplTitle:'Portraits de la classe', tplDesc:'Des portraits composés par les joueurs. « Essayer » le pose sur ton portrait sans rien acheter ; l\'auteur touche 70 % du prix.',
     tplNav:'Portraits', tplSortTop:'Les plus achetés', tplSortNew:'Nouveautés', tplSortMine:'Mes modèles', tplBy:'par', tplSales:n => `${n} vente${n > 1 ? 's' : ''}`,
-    tplTry:'Essayer', tplBuy:'Acheter', tplOwned:'Déjà acheté', tplRemove:'Retirer', tplPending:'En attente de validation', tplEmpty:'Aucun modèle pour l\'instant. Publie le tien depuis Profil, Mon portrait.',
+    goldAria:'Lib doré : touche pour le ramasser', goldGot:(n,l)=>`+${n} Libs dorés${l>0?` (encore ${l} aujourd'hui)`:' (c\'était le dernier du jour)'}`, tplTry:'Essayer', tplBuy:'Acheter', tplOwned:'Déjà acheté', tplRemove:'Retirer', tplPending:'En attente de validation', tplEmpty:'Aucun modèle pour l\'instant. Publie le tien depuis Profil, Mon portrait.',
     tplTags:{sport:'Sport', school:'École', party:'Fête', style:'Style', funny:'Drôle'}, tplBought:'Portrait acheté, il est sur ton profil !',
     tplPublish:'Publier comme modèle', tplPubName:'Nom du modèle', tplPubPrice:'Prix', tplPubTag:'Rayon', tplPubSend:'Envoyer à la validation',
     tplPubOk:'Envoyé ! L\'admin doit valider ton modèle avant qu\'il soit en vente.', tplPubRules:'Il faut le niveau 5. 3 modèles maximum. Tu touches 70 % de chaque vente.',
@@ -1850,7 +1850,7 @@ const DICT = {
     shopBubbleTitle:'💬 Chat bubbles',
     tplTitle:'Class portraits', tplDesc:'Portraits made by players. "Try" puts it on your portrait without buying; the author earns 70% of the price.',
     tplNav:'Portraits', tplSortTop:'Best sellers', tplSortNew:'New', tplSortMine:'My templates', tplBy:'by', tplSales:n => `${n} sale${n > 1 ? 's' : ''}`,
-    tplTry:'Try', tplBuy:'Buy', tplOwned:'Already bought', tplRemove:'Remove', tplPending:'Awaiting approval', tplEmpty:'No template yet. Publish yours from Profile, My portrait.',
+    goldAria:'Golden Lib: tap to collect it', goldGot:(n,l)=>`+${n} golden Libs${l>0?` (${l} left today)`:' (that was the last one today)'}`, tplTry:'Try', tplBuy:'Buy', tplOwned:'Already bought', tplRemove:'Remove', tplPending:'Awaiting approval', tplEmpty:'No template yet. Publish yours from Profile, My portrait.',
     tplTags:{sport:'Sport', school:'School', party:'Party', style:'Style', funny:'Funny'}, tplBought:'Portrait bought, it is on your profile!',
     tplPublish:'Publish as a template', tplPubName:'Template name', tplPubPrice:'Price', tplPubTag:'Shelf', tplPubSend:'Send for approval',
     tplPubOk:'Sent! The admin must approve your template before it goes on sale.', tplPubRules:'Level 5 required. 3 templates max. You earn 70% of each sale.',
@@ -16040,4 +16040,43 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     const m = status === 'live' ? t().tplLive(name) : status === 'refused' ? t().tplRefused(name) : '';
     if (m) { toast(m); window._notify?.add?.({ type: 'info', text: m }); }
   });
+})();
+
+
+// ── Chasse aux Libs dorés (event du week-end du 31 octobre) ─────────────────────
+// Le serveur decide de tout (jour, plafond de 20, delai, montant) ; le client affiche le Lib dore
+// sur les pages du site (jamais pendant une partie) et le joueur le touche pour le ramasser.
+(function goldenHunt() {
+  const OK_SCREENS = ['screen-landing', 'screen-home', 'screen-shop', 'screen-ideas', 'screen-read', 'screen-profile'];
+  let timer = null, stopped = false, el = null, rm = null;
+  const pid = () => { try { return getPlayerId(); } catch { return null; } };
+  const eligible = () => {
+    if (document.hidden || el) return false;
+    const a = document.querySelector('.screen.active');
+    if (!a || !OK_SCREENS.includes(a.id)) return false;
+    return !document.querySelector('.overlay:not(.hidden)');
+  };
+  function plan(ms) { clearTimeout(timer); if (!stopped) timer = setTimeout(tick, ms); }
+  function tick() {
+    if (stopped) return;
+    if (!pid() || !(typeof getPlayerName === 'function' && getPlayerName()) || !eligible()) return plan(15000);
+    socket.emit('golden-spawn', { playerId: pid() });
+  }
+  function drop() { clearTimeout(rm); if (el) { el.remove(); el = null; } }
+  socket.on('golden-spawn-result', r => {
+    if (!r || !r.ok) {
+      if (r && (r.reason === 'wait')) return plan(45000);
+      stopped = true; return;   // hors event, plafond du jour atteint ou pas de pseudo : on s'arrete jusqu'au prochain chargement
+    }
+    if (!eligible()) { plan(20000); return; }
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'gold-lib'; b.setAttribute('aria-label', t().goldAria);
+    b.style.left = (8 + Math.random() * 74) + '%'; b.style.top = (16 + Math.random() * 52) + '%';
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2 5 13.5h6L10 22l9-12.5h-6.2z"/></svg>';
+    b.addEventListener('click', () => { socket.emit('golden-collect', { playerId: pid(), token: r.token }); drop(); plan(60000 + Math.random() * 60000); });
+    document.body.appendChild(b); el = b;
+    rm = setTimeout(() => { drop(); plan(40000 + Math.random() * 40000); }, r.ttl || 25000);
+  });
+  socket.on('golden-collected', r => { try { showCursorSnakeToast(t().goldGot(r.amount, r.left)); } catch {} if (r.left <= 0) stopped = true; });
+  plan(25000 + Math.random() * 30000);
 })();

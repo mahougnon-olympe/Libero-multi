@@ -3352,3 +3352,16 @@ body.screen-undercover-active .btn-help-float, body.screen-undercover-active .bt
 @media (min-width: 1024px) {
   :root:root body.nav-bottom-visible #screen-shop .shop-fn-detail { left: 96px; padding-bottom: 40px; }
 }
+
+/* Chasse aux Libs dores : un Lib qui flotte sur les pages du site, a toucher pour le ramasser */
+.gold-lib {
+  position: fixed; z-index: 80; width: 56px; height: 56px; padding: 0; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff3b0, #f5c431 55%, #b8860b);
+  border: 2.5px solid #22252b; box-shadow: 0 3px 0 rgba(0,0,0,.25), 0 0 18px 4px rgba(245,196,49,.65);
+  cursor: pointer; display: grid; place-items: center; animation: goldFloat 2.2s ease-in-out infinite, goldIn .35s ease-out;
+}
+.gold-lib svg { width: 28px; height: 28px; fill: #22252b; }
+.gold-lib:focus-visible { outline: 3px solid #173a8a; outline-offset: 3px; }
+@keyframes goldFloat { 50% { transform: translateY(-10px) rotate(6deg); } }
+@keyframes goldIn { from { transform: scale(.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .gold-lib { animation: none; } }

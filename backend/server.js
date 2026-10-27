@@ -495,6 +495,7 @@ async function loadData() {
   if (Array.isArray(shopOvDoc?.value)) shopOvDoc.value.forEach(([id, o]) => { if (o && (!o.until || o.until > Date.now())) shopOverrides.set(id, o); });
   const bannedDoc = configDocs.find(d => d._id === 'banned_words');
   if (configDocs.find(d => d._id === 'pfp_push')?.value) _pfpPushDone = true;
+  { const gdDoc = configDocs.find(d => d._id === 'golden_daily'); if (gdDoc?.value && typeof gdDoc.value === 'object') goldenDaily = gdDoc.value; }
   { const urDoc = configDocs.find(d => d._id === 'uno_rules'); if (Array.isArray(urDoc?.value)) unoRules = urDoc.value.filter(r => r && r.id && typeof r.text === 'string'); }
   if (Array.isArray(bannedDoc?.value)) bannedWords = bannedDoc.value.filter(w => typeof w === 'string');
   const bpoDoc = configDocs.find(d => d._id === 'book_price_overrides');
@@ -1066,21 +1067,31 @@ function touchStreak(entry) {
 
 // Ajoute une partie en tête de l'historique (limité aux 20 dernières).
 const REFERRAL_REWARD = 100;
+// ── Events du week-end du 31 octobre (calendrier des Events, heure du Benin) ──
+const _inWin = (a, b) => { const n = Date.now(); return n >= Date.parse(a) && n < Date.parse(b); };
+const GOLD_WIN = ['2026-10-31T00:00:00+01:00', '2026-11-02T00:00:00+01:00'];          // Chasse aux Libs dores : samedi et dimanche
+const REFERRAL_BOOST_WIN = ['2026-11-01T00:00:00+01:00', '2026-11-02T00:00:00+01:00']; // Parrainage boosté : dimanche
+const _referralReward = () => (_inWin(REFERRAL_BOOST_WIN[0], REFERRAL_BOOST_WIN[1]) ? 300 : REFERRAL_REWARD);
+const GOLD_PER_DAY = 20, GOLD_GAP_MS = 40_000, GOLD_TTL_MS = 25_000;
+const GOLD_AMOUNTS = [5, 5, 5, 5, 5, 10, 10, 10, 20, 20, 35, 50]; // tirage uniforme : surtout des petits, rarement 50
+let goldenDaily = {};              // pid -> { day, n, last } ; garde dans la config 'golden_daily'
+const goldenPending = new Map();   // jeton -> { pid, amount, at } : un Lib dore propose par le serveur, ramassable une fois
 function maybeRewardReferral(id, entry) {
   if (!entry.referredBy || entry.referralRewarded) return;
+  const reward = _referralReward();
   const refId = entry.referredBy;
   const refEntry = libs.get(refId);
   entry.referralRewarded = true;
-  entry.balance = Math.min(MAX_BALANCE, entry.balance + REFERRAL_REWARD);
-  _emitToPlayer(id, 'libs-update', { balance: entry.balance, delta: REFERRAL_REWARD, nextAt: nextDistributionAt });
-  _emitToPlayer(id, 'referral-reward', { role: 'filleul', amount: REFERRAL_REWARD, name: refEntry?.name || '' });
+  entry.balance = Math.min(MAX_BALANCE, entry.balance + reward);
+  _emitToPlayer(id, 'libs-update', { balance: entry.balance, delta: reward, nextAt: nextDistributionAt });
+  _emitToPlayer(id, 'referral-reward', { role: 'filleul', amount: reward, name: refEntry?.name || '' });
   if (refEntry) {
-    refEntry.balance = Math.min(MAX_BALANCE, refEntry.balance + REFERRAL_REWARD);
+    refEntry.balance = Math.min(MAX_BALANCE, refEntry.balance + reward);
     refEntry.referrals = (refEntry.referrals || 0) + 1;
     libs.set(refId, refEntry);
     dbUpsertLibs(refId, refEntry);
-    _emitToPlayer(refId, 'libs-update', { balance: refEntry.balance, delta: REFERRAL_REWARD, nextAt: nextDistributionAt });
-    _emitToPlayer(refId, 'referral-reward', { role: 'parrain', amount: REFERRAL_REWARD, name: entry.name });
+    _emitToPlayer(refId, 'libs-update', { balance: refEntry.balance, delta: reward, nextAt: nextDistributionAt });
+    _emitToPlayer(refId, 'referral-reward', { role: 'parrain', amount: reward, name: entry.name });
     // Parrain et filleul deviennent automatiquement amis : ils peuvent se defier.
     makeFriends(refId, id);
   }
@@ -4342,6 +4353,44 @@ io.on('connection', (socket) => {
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
     socket.emit('wheel-result', { index: idx, prize, balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, nextAt: nextDistributionAt });
+  });
+
+  // ── Chasse aux Libs dores (week-end du 31 octobre) ─────────────────────────
+  // Le serveur propose (jeton, montant cache), le client l'affiche, le joueur le touche : 20 par jour au plus,
+  // un toutes les 40 s au plus, et un ramassage trop rapide est refuse.
+  const _goldDay = id => { const day = _tournamentTodayKey(); const g = goldenDaily[id]; return g && g.day === day ? g : (goldenDaily[id] = { day, n: 0, last: 0 }); };
+  socket.on('golden-spawn', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId); if (!id) return;
+    const no = reason => socket.emit('golden-spawn-result', { ok: false, reason });
+    if (!_inWin(GOLD_WIN[0], GOLD_WIN[1])) return no('off');
+    const entry = getLibsEntry(id);
+    if (!entry.name || entry.name === 'Anonyme') return no('noname');
+    const g = _goldDay(id), now = Date.now();
+    if (g.n >= GOLD_PER_DAY) return no('limit');
+    if (now - (g.last || 0) < GOLD_GAP_MS) return no('wait');
+    g.last = now;
+    for (const [k, v] of goldenPending) if (now - v.at > 120_000) goldenPending.delete(k);
+    const token = crypto.randomBytes(8).toString('hex');
+    goldenPending.set(token, { pid: id, amount: GOLD_AMOUNTS[Math.floor(Math.random() * GOLD_AMOUNTS.length)], at: now });
+    socket.emit('golden-spawn-result', { ok: true, token, ttl: GOLD_TTL_MS, left: GOLD_PER_DAY - g.n });
+  });
+  socket.on('golden-collect', ({ playerId, token } = {}) => {
+    const id = safePlayerId(playerId), key = String(token || '');
+    const p = goldenPending.get(key);
+    if (!id || !p || p.pid !== id) return;
+    goldenPending.delete(key);
+    const age = Date.now() - p.at;
+    if (age < 700 || age > GOLD_TTL_MS + 5000 || !_inWin(GOLD_WIN[0], GOLD_WIN[1])) return;
+    const g = _goldDay(id); if (g.n >= GOLD_PER_DAY) return;
+    const entry = getLibsEntry(id); if (!entry.name || entry.name === 'Anonyme') return;
+    g.n++;
+    entry.balance = Math.min(MAX_BALANCE, entry.balance + p.amount);
+    libs.set(id, entry); dbUpsertLibs(id, entry);
+    const today = _tournamentTodayKey();
+    for (const k of Object.keys(goldenDaily)) if (goldenDaily[k].day !== today) delete goldenDaily[k];
+    saveConfig('golden_daily', goldenDaily);
+    socket.emit('libs-update', { balance: entry.balance, delta: p.amount, nextAt: nextDistributionAt });
+    socket.emit('golden-collected', { amount: p.amount, left: GOLD_PER_DAY - g.n });
   });
 
   // ── Amis : DEMANDE d'ami (l'autre accepte ou refuse), amitie mutuelle ────
