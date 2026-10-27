@@ -256,9 +256,11 @@ module.exports = function createUndercover(ctx) {
       // Contre des robots : historique et XP reduite, mais ni classement ni defi de victoires.
       try {
         if (!room.solo) ctx.updateLeaderboard(pid, p.name, res);
-        ctx.pushHistory(pid, { game: 'undercover', result: res }); ctx.updateLastActive(pid, p.name);
-        if (res === 'win' && !room.solo) ctx.bumpChallenge(pid, 'gamesWon');
-        ctx.xp(pid, room.solo ? (res === 'win' ? 12 : 5) : (res === 'win' ? 25 : 10));
+        // Parti en cours de partie : defaite notee, mais ni XP ni partie comptee.
+        const gone = (room.left || []).some(x => x.pid === pid);
+        ctx.pushHistory(pid, { game: 'undercover', result: res }, { noXp: gone }); ctx.updateLastActive(pid, p.name);
+        if (res === 'win' && !room.solo && !gone) ctx.bumpChallenge(pid, 'gamesWon');
+        if (!gone) ctx.xp(pid, room.solo ? (res === 'win' ? 12 : 5) : (res === 'win' ? 25 : 10));
       } catch {}
     });
     try { ctx.refreshBoards(); } catch {}

@@ -1766,15 +1766,20 @@ function completeOnboardStep(id, entry, step) {
   }
 }
 
-function pushHistory(id, item) {
+// opts.noXp : le joueur a quitte la partie avant la fin. On garde la defaite dans l'historique, mais sans XP,
+// sans etape d'accueil, sans parrainage et sans compter la partie pour les defis.
+function pushHistory(id, item, opts) {
   if (!id) return;
   const entry = getLibsEntry(id);
   if (!entry || !entry.name || entry.name === 'Anonyme') return;
-  maybeRewardReferral(id, entry); // 1re partie d'un filleul -> +100 ⚡ chacun
-  completeOnboardStep(id, entry, 'play');
-  if (item.result === 'win') completeOnboardStep(id, entry, 'win');
-  // XP : chaque partie en rapporte, gagner ou briller au quiz en rapporte plus.
-  awardXp(id, entry, 25 + (item.result === 'win' ? 25 : 0) + ((item.game === 'trivia' || item.game === 'flags' || item.game === 'mix') ? Math.min(60, (item.score || 0) * 2) : 0));
+  const gone = !!(opts && opts.noXp);
+  if (!gone) {
+    maybeRewardReferral(id, entry); // 1re partie d'un filleul -> +100 ⚡ chacun
+    completeOnboardStep(id, entry, 'play');
+    if (item.result === 'win') completeOnboardStep(id, entry, 'win');
+    // XP : chaque partie en rapporte, gagner ou briller au quiz en rapporte plus.
+  }
+  if (!gone) awardXp(id, entry, 25 + (item.result === 'win' ? 25 : 0) + ((item.game === 'trivia' || item.game === 'flags' || item.game === 'mix') ? Math.min(60, (item.score || 0) * 2) : 0));
   if (!Array.isArray(entry.history)) entry.history = [];
   entry.history.unshift({ game: item.game, result: item.result || null, score: item.score ?? null, at: Date.now() });
   entry.history = entry.history.slice(0, 20);
@@ -1782,7 +1787,7 @@ function pushHistory(id, item) {
   dbUpsertLibs(id, entry);
   _emitToPlayer(id, 'history-update', { history: entry.history });
   // Toute partie inscrite à l'historique compte pour le défi « jouer N parties ».
-  bumpChallenge(id, 'gamesPlayed');
+  if (!gone) bumpChallenge(id, 'gamesPlayed');
 }
 
 function getCosmeticByName(name) {
@@ -3144,7 +3149,7 @@ function unoFinish(room) {
     if (!p || p.bot) return;
     const res = pid === winner ? 'win' : 'loss';
     updateLeaderboard(pid, p.name, res);
-    pushHistory(pid, { game: 'uno', result: res });
+    pushHistory(pid, { game: 'uno', result: res }, { noXp: (room.left || []).some(x => x.pid === pid) });
     updateLastActive(pid, p.name);
     if (res === 'win') bumpChallenge(pid, 'gamesWon');
   });
@@ -3301,14 +3306,14 @@ io.on('connection', (socket) => {
   function _finishLudoLobby(room, status, winner) {
     _settleStake(room, status, winner);
     // Les joueurs encore assis ET ceux qui ont quitte en cours de partie.
-    const players = roomRoles(room).filter(r => !room.botSeats?.includes(r)).map(r => ({ role: r, id: room.playerIds?.[r], name: room.playerNames[r] })).concat(room.left || []);
+    const players = roomRoles(room).filter(r => !room.botSeats?.includes(r)).map(r => ({ role: r, id: room.playerIds?.[r], name: room.playerNames[r], gone: (room.state?.out || []).includes(r) })).concat((room.left || []).map(x => ({ ...x, gone: true })));
     room.left = [];
     players.forEach(pl => {
       const pid = pl.id, nm = pl.name;
       if (status === 'won') {
         const res = pl.role === winner ? 'win' : 'loss';
         updateLeaderboard(pid || nm, nm, res);
-        pushHistory(pid, { game: 'ludo', result: res });
+        pushHistory(pid, { game: 'ludo', result: res }, { noXp: !!pl.gone });
       }
       updateLastActive(pid, nm);
     });
