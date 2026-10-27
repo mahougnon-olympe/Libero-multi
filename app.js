@@ -16053,9 +16053,9 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
 // la piece sur une couche fixe (jamais pendant une partie, un quiz ou avec une fenetre ouverte) et le joueur
 // la touche pour la ramasser. Un Lib sur 6 est sauvage : il fuit le pointeur, selon sa rarete (DF), et on le
 // prend en le coincant ou en l'apprivoisant (aller doucement pres de lui). Il ne gene jamais l'ecran : un seul
-// Lib, 25 s de vie, ecarte des barres, masquable dans les reglages (libero_gold_off).
+// Lib, 25 s de vie, ecarte des barres, jamais sur un bouton ou un plateau de jeu (meme en fuyant), masquable dans les reglages (libero_gold_off).
 (function goldenHunt() {
-  const OK_SCREENS = ['screen-landing', 'screen-home', 'screen-shop', 'screen-ideas', 'screen-read', 'screen-profile'];
+  const OK_SCREENS = ['screen-landing', 'screen-home', 'screen-shop', 'screen-ideas', 'screen-read', 'screen-profile', 'screen-game', 'screen-trivia-game'];
   const FROM = Date.parse('2026-10-31T00:00:00+01:00'), TO = Date.parse('2026-11-02T00:00:00+01:00');
   // [couleur de surligneur, nombre d'etoiles]
   const RAR = [['#e9b27a', 0], ['#8fdc9c', 0], ['#7fc1f5', 1], ['#c39bf5', 2], ['#ffd23f', 4], ['#ff7fa8', 6]];
@@ -16098,16 +16098,19 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     const x0 = side + 60, x1 = Math.max(x0 + 40, w - 60), y0 = 92, y1 = Math.max(y0 + 40, h - (w < 1024 ? 130 : 70));
     return { x0, x1, y0, y1 };
   }
+  // Nombre de points de la piece (centre et deux cotes) qui tomberaient sur un bouton, un lien ou un champ
+  const CTRL = 'button, a, input, textarea, select, label, [role="button"], [onclick], canvas, .c4-cell, .ldo-pawn, svg [data-k]';
+  function blocked(x, y) {
+    let n = 0;
+    for (const dx of [-34, 0, 34]) { const e = document.elementFromPoint(x + dx, y); if (e && e.closest(CTRL) && !e.closest('.gl-layer')) n++; }
+    return n;
+  }
   // Emplacement de depart qui ne recouvre ni bouton, ni lien, ni champ de saisie (on teste 9 points de la piece)
   function freeSpot(b) {
     let best = null, bn = 99;
     for (let k = 0; k < 40 && bn > 0; k++) {
       const x = b.x0 + Math.random() * (b.x1 - b.x0), y = b.y0 + Math.random() * (b.y1 - b.y0);
-      let n = 0;
-      for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
-        const e = document.elementFromPoint(x + dx * 34, y + dy * 42);
-        if (e && e.closest('button, a, input, textarea, select, label, [role="button"], [onclick]')) n++;
-      }
+      let n = blocked(x, y) + blocked(x, y - 42) + blocked(x, y + 42);
       if (n < bn) { bn = n; best = [x, y]; }
     }
     return best;
@@ -16188,14 +16191,14 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
       const dp = Math.hypot(ex - P.x, ey - P.y); if (dp < d0 * .92) continue;
       const wall = Math.min(ex - b.x0, b.x1 - ex, ey - b.y0, b.y1 - ey);
       const cor = Math.min(Math.hypot(ex - b.x0, ey - b.y0), Math.hypot(b.x1 - ex, ey - b.y0), Math.hypot(ex - b.x0, b.y1 - ey), Math.hypot(b.x1 - ex, b.y1 - ey));
-      const sc = dp + Math.min(wall, 90) * .7 - (cor < 150 ? (150 - cor) * 1.6 : 0) + Math.random() * 70;
+      const sc = dp + Math.min(wall, 90) * .7 - (cor < 150 ? (150 - cor) * 1.6 : 0) - blocked(ex, ey) * 140 + Math.random() * 70;
       if (sc > bs) { bs = sc; best = a; }
     }
     return best;
   }
   function far(b, min) {
     let bx = (b.x0 + b.x1) / 2, by = (b.y0 + b.y1) / 2, bd = -1;
-    for (let k = 0; k < 14; k++) { const qx = b.x0 + Math.random() * (b.x1 - b.x0), qy = b.y0 + Math.random() * (b.y1 - b.y0), qd = Math.hypot(qx - P.x, qy - P.y); if (qd > bd && qd > min) { bd = qd; bx = qx; by = qy; } }
+    for (let k = 0; k < 14; k++) { const qx = b.x0 + Math.random() * (b.x1 - b.x0), qy = b.y0 + Math.random() * (b.y1 - b.y0), qd = Math.hypot(qx - P.x, qy - P.y); const sc = qd - blocked(qx, qy) * 250; if (qd > min && sc > bd) { bd = sc; bx = qx; by = qy; } }
     return [bx, by];
   }
   function look(o, x, y) {
