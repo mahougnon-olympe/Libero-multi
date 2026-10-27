@@ -3342,3 +3342,13 @@ body.screen-undercover-active .btn-help-float, body.screen-undercover-active .bt
 /* Choix du nombre de robots (Ludo, Undercover) */
 #ludo-bots .bot-row .btn, #uc-bots .bot-row .btn { flex: 1; min-height: 48px; padding: .65rem .2rem; font-size: .9rem; }
 #uc-bots .ub-btn { min-width: 0; }
+
+/* Fiche d'un article : un panneau fixe qui defile tout seul. Avant, il prenait la hauteur de toute la
+   boutique (plus d'un metre) et le bas de la fiche (Offrir, base du comptoir) finissait sous la barre. */
+:root:root #screen-shop .shop-fn-detail {
+  position: fixed; inset: 0; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain;
+  padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 1024px) {
+  :root:root body.nav-bottom-visible #screen-shop .shop-fn-detail { left: 96px; padding-bottom: 40px; }
+}
