@@ -1073,7 +1073,11 @@ const GOLD_WIN = ['2026-10-31T00:00:00+01:00', '2026-11-02T00:00:00+01:00'];    
 const REFERRAL_BOOST_WIN = ['2026-11-01T00:00:00+01:00', '2026-11-02T00:00:00+01:00']; // Parrainage boosté : dimanche
 const _referralReward = () => (_inWin(REFERRAL_BOOST_WIN[0], REFERRAL_BOOST_WIN[1]) ? 300 : REFERRAL_REWARD);
 const GOLD_PER_DAY = 20, GOLD_GAP_MS = 40_000, GOLD_TTL_MS = 25_000;
-const GOLD_AMOUNTS = [5, 5, 5, 5, 5, 10, 10, 10, 20, 20, 35, 50]; // tirage uniforme : surtout des petits, rarement 50
+// Six raretes (gain, chance en %) : commun, atypique, rare, epique, legendaire, mythique. Moyenne ~12,5 Libs, soit ~250 par jour au plafond.
+const GOLD_RARITY = [[5, 40], [10, 25], [15, 17], [25, 11], [35, 5], [50, 2]];
+const GOLD_WILD_P = 1 / 6;         // un Lib sur 6 est sauvage (il fuit le pointeur), quelle que soit sa rarete
+const GOLD_WILD_EXTRA_MS = 40_000; // un sauvage peut sortir de l'ecran ou s'apprivoiser : son delai de ramassage est rallonge
+const _goldRoll = () => { let r = Math.random() * 100; for (let i = 0; i < GOLD_RARITY.length; i++) { if ((r -= GOLD_RARITY[i][1]) < 0) return i; } return 0; };
 let goldenDaily = {};              // pid -> { day, n, last } ; garde dans la config 'golden_daily'
 const goldenPending = new Map();   // jeton -> { pid, amount, at } : un Lib dore propose par le serveur, ramassable une fois
 function maybeRewardReferral(id, entry) {
@@ -4371,8 +4375,9 @@ io.on('connection', (socket) => {
     g.last = now;
     for (const [k, v] of goldenPending) if (now - v.at > 120_000) goldenPending.delete(k);
     const token = crypto.randomBytes(8).toString('hex');
-    goldenPending.set(token, { pid: id, amount: GOLD_AMOUNTS[Math.floor(Math.random() * GOLD_AMOUNTS.length)], at: now });
-    socket.emit('golden-spawn-result', { ok: true, token, ttl: GOLD_TTL_MS, left: GOLD_PER_DAY - g.n });
+    const rarity = _goldRoll(), wild = Math.random() < GOLD_WILD_P;
+    goldenPending.set(token, { pid: id, amount: GOLD_RARITY[rarity][0], rarity, wild, at: now });
+    socket.emit('golden-spawn-result', { ok: true, token, ttl: GOLD_TTL_MS, left: GOLD_PER_DAY - g.n, rarity, wild });
   });
   socket.on('golden-collect', ({ playerId, token } = {}) => {
     const id = safePlayerId(playerId), key = String(token || '');
@@ -4380,7 +4385,7 @@ io.on('connection', (socket) => {
     if (!id || !p || p.pid !== id) return;
     goldenPending.delete(key);
     const age = Date.now() - p.at;
-    if (age < 700 || age > GOLD_TTL_MS + 5000 || !_inWin(GOLD_WIN[0], GOLD_WIN[1])) return;
+    if (age < 700 || age > GOLD_TTL_MS + (p.wild ? GOLD_WILD_EXTRA_MS : 5000) || !_inWin(GOLD_WIN[0], GOLD_WIN[1])) return;
     const g = _goldDay(id); if (g.n >= GOLD_PER_DAY) return;
     const entry = getLibsEntry(id); if (!entry.name || entry.name === 'Anonyme') return;
     g.n++;
@@ -4390,7 +4395,7 @@ io.on('connection', (socket) => {
     for (const k of Object.keys(goldenDaily)) if (goldenDaily[k].day !== today) delete goldenDaily[k];
     saveConfig('golden_daily', goldenDaily);
     socket.emit('libs-update', { balance: entry.balance, delta: p.amount, nextAt: nextDistributionAt });
-    socket.emit('golden-collected', { amount: p.amount, left: GOLD_PER_DAY - g.n });
+    socket.emit('golden-collected', { amount: p.amount, rarity: p.rarity, left: GOLD_PER_DAY - g.n });
   });
 
   // ── Amis : DEMANDE d'ami (l'autre accepte ou refuse), amitie mutuelle ────

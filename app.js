@@ -1041,7 +1041,7 @@ const DICT = {
     shopBubbleTitle:'💬 Bulles de chat',
     tplTitle:'Portraits de la classe', tplDesc:'Des portraits composés par les joueurs. « Essayer » le pose sur ton portrait sans rien acheter ; l\'auteur touche 70 % du prix.',
     tplNav:'Portraits', tplSortTop:'Les plus achetés', tplSortNew:'Nouveautés', tplSortMine:'Mes modèles', tplBy:'par', tplSales:n => `${n} vente${n > 1 ? 's' : ''}`,
-    goldAria:'Lib doré : touche pour le ramasser', goldGot:(n,l)=>`+${n} Libs dorés${l>0?` (encore ${l} aujourd'hui)`:' (c\'était le dernier du jour)'}`, tplTry:'Essayer', tplBuy:'Acheter', tplOwned:'Déjà acheté', tplRemove:'Retirer', tplPending:'En attente de validation', tplEmpty:'Aucun modèle pour l\'instant. Publie le tien depuis Profil, Mon portrait.',
+    goldAria:n=>`Lib doré ${n} : touche pour le ramasser`, goldRarN:['Commun','Atypique','Rare','Épique','Légendaire','Mythique'], goldCaught:'Attrapé de justesse !', spCkGold:'Masquer les Libs dorés', goldGot:(n,l)=>`+${n} Libs dorés${l>0?` (encore ${l} aujourd'hui)`:' (c\'était le dernier du jour)'}`, tplTry:'Essayer', tplBuy:'Acheter', tplOwned:'Déjà acheté', tplRemove:'Retirer', tplPending:'En attente de validation', tplEmpty:'Aucun modèle pour l\'instant. Publie le tien depuis Profil, Mon portrait.',
     tplTags:{sport:'Sport', school:'École', party:'Fête', style:'Style', funny:'Drôle'}, tplBought:'Portrait acheté, il est sur ton profil !',
     tplPublish:'Publier comme modèle', tplPubName:'Nom du modèle', tplPubPrice:'Prix', tplPubTag:'Rayon', tplPubSend:'Envoyer à la validation',
     tplPubOk:'Envoyé ! L\'admin doit valider ton modèle avant qu\'il soit en vente.', tplPubRules:'Il faut le niveau 5. 3 modèles maximum. Tu touches 70 % de chaque vente.',
@@ -1850,7 +1850,7 @@ const DICT = {
     shopBubbleTitle:'💬 Chat bubbles',
     tplTitle:'Class portraits', tplDesc:'Portraits made by players. "Try" puts it on your portrait without buying; the author earns 70% of the price.',
     tplNav:'Portraits', tplSortTop:'Best sellers', tplSortNew:'New', tplSortMine:'My templates', tplBy:'by', tplSales:n => `${n} sale${n > 1 ? 's' : ''}`,
-    goldAria:'Golden Lib: tap to collect it', goldGot:(n,l)=>`+${n} golden Libs${l>0?` (${l} left today)`:' (that was the last one today)'}`, tplTry:'Try', tplBuy:'Buy', tplOwned:'Already bought', tplRemove:'Remove', tplPending:'Awaiting approval', tplEmpty:'No template yet. Publish yours from Profile, My portrait.',
+    goldAria:n=>`${n} golden Lib: tap to collect it`, goldRarN:['Common','Uncommon','Rare','Epic','Legendary','Mythic'], goldCaught:'Caught just in time!', spCkGold:'Hide golden Libs', goldGot:(n,l)=>`+${n} golden Libs${l>0?` (${l} left today)`:' (that was the last one today)'}`, tplTry:'Try', tplBuy:'Buy', tplOwned:'Already bought', tplRemove:'Remove', tplPending:'Awaiting approval', tplEmpty:'No template yet. Publish yours from Profile, My portrait.',
     tplTags:{sport:'Sport', school:'School', party:'Party', style:'Style', funny:'Funny'}, tplBought:'Portrait bought, it is on your profile!',
     tplPublish:'Publish as a template', tplPubName:'Template name', tplPubPrice:'Price', tplPubTag:'Shelf', tplPubSend:'Send for approval',
     tplPubOk:'Sent! The admin must approve your template before it goes on sale.', tplPubRules:'Level 5 required. 3 templates max. You earn 70% of each sale.',
@@ -8502,6 +8502,7 @@ function _updateSettingsPanel() {
   _spCk('sp-dmanim-btn', window._dmPrefs?.().anim !== false, d.dm.spAnim);
   _spCk('sp-dmpush-btn', window._dmPrefs?.().push !== false, d.dm.spPush);
   _spCk('sp-libeai-btn', !!window._libeAiOn?.(), d.libeAi.sp);
+  { const gb = document.getElementById('sp-gold-btn'); if (gb) { gb.classList.toggle('hidden', !window._goldenOn?.()); _spCk(gb, !!window._goldenHidden?.(), d.spCkGold); } }
   { const n = document.getElementById('sp-libeai-note'); if (n) { n.textContent = d.libeAi.spNote; n.classList.toggle('hidden', !window._libeAiOn?.()); } }
   document.getElementById('sp-vol-slider')?.closest('.sp-vol-row')?.classList.toggle('hidden', !sfxEnabled);
   const volSlider = document.getElementById('sp-vol-slider');
@@ -8673,6 +8674,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('sp-theme-btn')?.addEventListener('click', () => {
     document.getElementById('btn-theme-toggle')?.click();
     setTimeout(_updateSettingsPanel, 50);
+  });
+  document.getElementById('sp-gold-btn')?.addEventListener('click', () => {
+    window._goldenSetHidden?.(!window._goldenHidden?.());
+    _updateSettingsPanel();
   });
   document.getElementById('sp-snake-btn')?.addEventListener('click', () => {
     document.getElementById('btn-snake-toggle')?.click();
@@ -16044,38 +16049,249 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
 
 
 // ── Chasse aux Libs dorés (event du week-end du 31 octobre) ─────────────────────
-// Le serveur decide de tout (jour, plafond de 20, delai, montant) ; le client affiche le Lib dore
-// sur les pages du site (jamais pendant une partie) et le joueur le touche pour le ramasser.
+// Le serveur decide de tout (jour, plafond de 20, delai, rarete, sauvage ou non, montant) ; le client dessine
+// la piece sur une couche fixe (jamais pendant une partie, un quiz ou avec une fenetre ouverte) et le joueur
+// la touche pour la ramasser. Un Lib sur 6 est sauvage : il fuit le pointeur, selon sa rarete (DF), et on le
+// prend en le coincant ou en l'apprivoisant (aller doucement pres de lui). Il ne gene jamais l'ecran : un seul
+// Lib, 25 s de vie, ecarte des barres, masquable dans les reglages (libero_gold_off).
 (function goldenHunt() {
   const OK_SCREENS = ['screen-landing', 'screen-home', 'screen-shop', 'screen-ideas', 'screen-read', 'screen-profile'];
-  let timer = null, stopped = false, el = null, rm = null;
+  const FROM = Date.parse('2026-10-31T00:00:00+01:00'), TO = Date.parse('2026-11-02T00:00:00+01:00');
+  // [couleur de surligneur, nombre d'etoiles]
+  const RAR = [['#e9b27a', 0], ['#8fdc9c', 0], ['#7fc1f5', 1], ['#c39bf5', 2], ['#ffd23f', 4], ['#ff7fa8', 6]];
+  const RCLS = ['commun', 'atypique', 'rare', 'epique', 'legendaire', 'mythique'];
+  // Difficulte d'un sauvage selon la rarete : rayon de fuite, vitesse et recharge des bonds, disparition eclair
+  // (blink*), sortie de l'ecran (exitP), fatigue, vitesse du pointeur toleree pour l'apprivoiser (calm, px/s) et
+  // temps de confiance necessaire (tame, s).
+  const DF = [
+    { fleeR: 130, dashSp: 800,  dashCd: 240, blinkR: 0,   blinkCd: 1e9,  blinkDelay: 120, exitP: 0,   tire: 10, calm: 260, tame: .8 },
+    { fleeR: 160, dashSp: 1050, dashCd: 190, blinkR: 0,   blinkCd: 1e9,  blinkDelay: 110, exitP: 0,   tire: 12, calm: 220, tame: 1.1 },
+    { fleeR: 190, dashSp: 1350, dashCd: 150, blinkR: 130, blinkCd: 3000, blinkDelay: 90,  exitP: 0,   tire: 14, calm: 180, tame: 1.5 },
+    { fleeR: 220, dashSp: 1650, dashCd: 120, blinkR: 160, blinkCd: 2200, blinkDelay: 70,  exitP: .5,  tire: 18, calm: 140, tame: 2 },
+    { fleeR: 260, dashSp: 2000, dashCd: 100, blinkR: 190, blinkCd: 1500, blinkDelay: 50,  exitP: .6,  tire: 24, calm: 110, tame: 2.6 },
+    { fleeR: 300, dashSp: 2300, dashCd: 80,  blinkR: 220, blinkCd: 1000, blinkDelay: 35,  exitP: .75, tire: 32, calm: 80,  tame: 3.2 }];
+  const STAR = '<svg viewBox="0 0 16 16"><path d="M8 1v14M1 8h14"/></svg>';
+  const HEART = '<svg viewBox="0 0 16 15"><path d="M8 14C-3 6 3 -2 8 4c5-6 11 2 0 10z"/></svg>';
+  const SPLAT = '<svg viewBox="0 0 100 100"><path d="M50 4l10 22 22-12-6 24 24 2-18 16 18 16-24 2 6 24-22-12-10 22-10-22-22 12 6-24-24-2 18-16-18-16 24-2-6-24 22 12z"/></svg>';
+  const coin = c => '<svg viewBox="0 0 72 72"><path class="out" d="M36 5c17-1 31 12 31 30S53 67 36 67 5 53 5 36 19 6 36 5z" fill="' + c + '" stroke-width="3.2" stroke-linejoin="round"/><circle cx="36" cy="36" r="24" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="3 4" opacity=".45"/><path d="M50 55l10-10M42 62l20-20" stroke="var(--ink)" stroke-width="2" opacity=".18"/><path d="M15 25c2-6 7-11 13-13" stroke="#fff" stroke-width="3.4" stroke-linecap="round" fill="none" opacity=".9"/><g class="gl-eyes"><circle class="gl-eye" cx="27" cy="29" r="6"/><circle class="gl-eye" cx="45" cy="29" r="6"/><circle class="gl-pupil pl" cx="27" cy="29" r="2.6"/><circle class="gl-pupil pr" cx="45" cy="29" r="2.6"/></g><g class="gl-mouth-g" transform="translate(0,2)"><path class="gl-mouth flat" d="M30 46h12"/><ellipse class="gl-mouth o" cx="36" cy="47" rx="3.4" ry="4"/><path class="gl-mouth smile" d="M28 44c4 7 12 7 16 0"/></g></svg>';
+
+  let timer = null, stopped = false, cur = null, layer = null, raf = 0, T0 = 0;
+  const P = { x: -999, y: -999, on: false };
+  let PS = 0, PL = { x: 0, y: 0, t: 0 };
   const pid = () => { try { return getPlayerId(); } catch { return null; } };
-  const eligible = () => {
-    if (document.hidden || el) return false;
-    const a = document.querySelector('.screen.active');
-    if (!a || !OK_SCREENS.includes(a.id)) return false;
-    return !document.querySelector('.overlay:not(.hidden)');
+  const isOff = () => { try { return localStorage.getItem('libero_gold_off') === '1'; } catch { return false; } };
+  window._goldenOn = () => { const n = Date.now(); return n >= FROM && n < TO; };
+  window._goldenHidden = isOff;
+  window._goldenSetHidden = hide => {
+    try { localStorage.setItem('libero_gold_off', hide ? '1' : '0'); } catch {}
+    if (hide) { drop(); clearTimeout(timer); } else if (!cur) plan(8000);
   };
-  function plan(ms) { clearTimeout(timer); if (!stopped) timer = setTimeout(tick, ms); }
+  const typing = () => { const e = document.activeElement; return !!e && (/^(INPUT|TEXTAREA|SELECT)$/.test(e.tagName) || e.isContentEditable); };
+  const screenOk = () => {
+    const a = document.querySelector('.screen.active');
+    return !!a && OK_SCREENS.includes(a.id) && !document.querySelector('.overlay:not(.hidden)') && !typing();
+  };
+  const eligible = () => !document.hidden && !cur && !isOff() && screenOk();
+  // Zone ou la piece peut etre : loin des barres du haut et du bas (et du menu lateral sur grand ecran)
+  function box() {
+    const w = innerWidth, h = innerHeight, side = w >= 1024 && document.body.classList.contains('nav-bottom-visible') ? 96 : 0;
+    const x0 = side + 60, x1 = Math.max(x0 + 40, w - 60), y0 = 92, y1 = Math.max(y0 + 40, h - (w < 1024 ? 130 : 70));
+    return { x0, x1, y0, y1 };
+  }
+  // Emplacement de depart qui ne recouvre ni bouton, ni lien, ni champ de saisie (on teste 9 points de la piece)
+  function freeSpot(b) {
+    let best = null, bn = 99;
+    for (let k = 0; k < 40 && bn > 0; k++) {
+      const x = b.x0 + Math.random() * (b.x1 - b.x0), y = b.y0 + Math.random() * (b.y1 - b.y0);
+      let n = 0;
+      for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+        const e = document.elementFromPoint(x + dx * 34, y + dy * 42);
+        if (e && e.closest('button, a, input, textarea, select, label, [role="button"], [onclick]')) n++;
+      }
+      if (n < bn) { bn = n; best = [x, y]; }
+    }
+    return best;
+  }
+  function plan(ms) { clearTimeout(timer); if (!stopped && !isOff()) timer = setTimeout(tick, ms); }
   function tick() {
     if (stopped) return;
     if (!pid() || !(typeof getPlayerName === 'function' && getPlayerName()) || !eligible()) return plan(15000);
     socket.emit('golden-spawn', { playerId: pid() });
   }
-  function drop() { clearTimeout(rm); if (el) { el.remove(); el = null; } }
+
+  // ── Couche, effets ─────────────────────────────────────────────────────────
+  function getLayer() {
+    if (layer && layer.isConnected) return layer;
+    layer = document.createElement('div'); layer.className = 'gl-layer'; layer.setAttribute('aria-live', 'off');
+    layer.innerHTML = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="glrb"><stop offset="0" stop-color="#ff5a7a"/><stop offset=".25" stop-color="#ffb347"/><stop offset=".5" stop-color="#6fcf6f"/><stop offset=".75" stop-color="#5ab0ff"/><stop offset="1" stop-color="#c45aff"/></linearGradient></defs></svg>';
+    document.body.appendChild(layer); return layer;
+  }
+  function fx(cls, x, y, html, css) {
+    const e = document.createElement('div'); e.className = 'gl-fx ' + cls;
+    e.style.cssText = 'left:' + x + 'px;top:' + y + 'px;' + (css || ''); if (html) e.innerHTML = html;
+    getLayer().appendChild(e); return e;
+  }
+  const life = (e, ms) => setTimeout(() => e.remove(), ms);
+  function poof(x, y) {
+    for (let k = 0; k < 6; k++) { const a = Math.random() * 6.28, d = 22 + Math.random() * 30; life(fx('gl-puff', x, y, '', '--px:' + Math.cos(a) * d + 'px;--py:' + Math.sin(a) * d + 'px;animation-delay:' + k * 30 + 'ms'), 700); }
+  }
+
+  // ── Le Lib ─────────────────────────────────────────────────────────────────
+  function drop() {
+    if (raf) cancelAnimationFrame(raf); raf = 0;
+    if (cur) { cur.n.remove(); cur = null; }
+  }
+  function spawn(r) {
+    const i = Math.max(0, Math.min(5, r.rarity | 0)), wild = !!r.wild, c = RAR[i], b = box();
+    const s = document.createElement('div');
+    s.className = 'gl-spot in gl-r-' + RCLS[i]; s.tabIndex = 0; s.setAttribute('role', 'button');
+    s.setAttribute('aria-label', t().goldAria(t().goldRarN[i]));
+    const sp = freeSpot(b); s.style.left = sp[0] + 'px'; s.style.top = sp[1] + 'px';
+    let stars = '';
+    for (let k = 0; k < c[1]; k++) { const a = k / c[1] * 6.28 + .4; stars += '<i class="gl-star" style="left:' + (42 + Math.cos(a) * (52 + k % 2 * 8)) + 'px;top:' + (40 + Math.sin(a) * (46 + k % 2 * 6)) + 'px;animation-delay:-' + (k * .37) + 's">' + STAR + '</i>'; }
+    const ttl = (r.ttl || 25000) / 1000;
+    s.innerHTML = '<div class="gl-bob"><div class="gl-shadow"></div><svg class="gl-halo" viewBox="0 0 112 112"><circle cx="56" cy="56" r="52"/></svg>' + stars +
+      '<svg class="gl-trust" viewBox="0 0 84 84"><circle cx="42" cy="42" r="38"/></svg><div class="gl-flip">' + coin(c[0]) + '</div><i class="gl-sweat"></i>' +
+      '<span class="gl-lab">' + _escHtml(t().goldRarN[i]) + '</span><i class="gl-ttl" style="animation-duration:' + ttl + 's"></i></div>';
+    const o = { n: s, i, wild, token: r.token, life: ttl, born: performance.now(), trust: 0, tamed: false, tamedUntil: 0, vx: 0, vy: 0, dashes: 0, last: 0, tired: false, blinkAt: 0, awayUntil: 0, hearts: 0, chk: 0 };
+    s.addEventListener('click', () => take(o));
+    s.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); take(o); } });
+    getLayer().appendChild(s); cur = o;
+    setTimeout(() => s.classList.remove('in'), 720);
+    setTimeout(() => { if (cur === o) poof(parseFloat(s.style.left), parseFloat(s.style.top) + 30); }, 260);
+    T0 = performance.now(); PS = 0; raf = requestAnimationFrame(loop);
+  }
+
+  function take(o) {
+    if (cur !== o) return;
+    const s = o.n, i = o.i, c = RAR[i], x = parseFloat(s.style.left), y = parseFloat(s.style.top) - 12;
+    socket.emit('golden-collect', { playerId: pid(), token: o.token });
+    drop(); plan(60000 + Math.random() * 60000);
+    life(fx('gl-splat', x, y, SPLAT, '--rc:' + c[0]), 700);
+    const n = 10 + i * 4;
+    for (let k = 0; k < n; k++) { const a = k / n * 6.28 + Math.random() * .3, l = 34 + Math.random() * (30 + i * 10); life(fx('gl-ray', x, y, '', '--rc:' + c[0] + ';--rl:' + l + 'px;transform:rotate(' + (a * 57.3) + 'deg);animation-delay:' + Math.random() * 60 + 'ms'), 700); }
+    poof(x, y + 20);
+    const bal = document.getElementById('libs-balance'), br = bal && bal.getBoundingClientRect();
+    const tx = br && br.width ? br.left + br.width / 2 : innerWidth - 60, ty = br && br.width ? br.top + br.height / 2 : 30;
+    if (o.wild) life(fx('gl-note', x, y - 62, _escHtml(t().goldCaught)), 1400);
+    life(fx('gl-fly', x, y, '+' + [5, 10, 15, 25, 35, 50][i], '--dx:' + (tx - x) + 'px;--dy:' + (ty - y) + 'px'), 1050);
+    setTimeout(() => { if (bal) { bal.classList.remove('gl-pop'); void bal.offsetWidth; bal.classList.add('gl-pop'); } }, 820);
+    if (i === 5) { const L = getLayer(); L.classList.remove('flash'); void L.offsetWidth; L.classList.add('flash'); }
+  }
+
+  // ── Fuite des sauvages ─────────────────────────────────────────────────────
+  // Direction de fuite : jamais vers le pointeur, loin des murs et des coins.
+  function escapeDir(cx, cy, b, L) {
+    let best = null, bs = -1e9; const d0 = Math.hypot(cx - P.x, cy - P.y);
+    for (let k = 0; k < 24; k++) {
+      const a = k / 24 * 6.2832, ex = Math.max(b.x0, Math.min(b.x1, cx + Math.cos(a) * L)), ey = Math.max(b.y0, Math.min(b.y1, cy + Math.sin(a) * L));
+      const dp = Math.hypot(ex - P.x, ey - P.y); if (dp < d0 * .92) continue;
+      const wall = Math.min(ex - b.x0, b.x1 - ex, ey - b.y0, b.y1 - ey);
+      const cor = Math.min(Math.hypot(ex - b.x0, ey - b.y0), Math.hypot(b.x1 - ex, ey - b.y0), Math.hypot(ex - b.x0, b.y1 - ey), Math.hypot(b.x1 - ex, b.y1 - ey));
+      const sc = dp + Math.min(wall, 90) * .7 - (cor < 150 ? (150 - cor) * 1.6 : 0) + Math.random() * 70;
+      if (sc > bs) { bs = sc; best = a; }
+    }
+    return best;
+  }
+  function far(b, min) {
+    let bx = (b.x0 + b.x1) / 2, by = (b.y0 + b.y1) / 2, bd = -1;
+    for (let k = 0; k < 14; k++) { const qx = b.x0 + Math.random() * (b.x1 - b.x0), qy = b.y0 + Math.random() * (b.y1 - b.y0), qd = Math.hypot(qx - P.x, qy - P.y); if (qd > bd && qd > min) { bd = qd; bx = qx; by = qy; } }
+    return [bx, by];
+  }
+  function look(o, x, y) {
+    const dx = P.x - x, dy = P.y - y, l = Math.max(Math.hypot(dx, dy), 1), k = Math.min(2.6, l / 40), tr = 'translate(' + (dx / l * k) + ' ' + (dy / l * k) + ')';
+    const a = o.n.querySelector('.pl'), b = o.n.querySelector('.pr'); if (a && b) { a.setAttribute('transform', tr); b.setAttribute('transform', tr); }
+  }
+  function heartTick(o, dt) {
+    o.hearts += dt; if (o.hearts <= .5) return; o.hearts = 0;
+    const h = document.createElement('i'); h.className = 'gl-heart';
+    h.style.cssText = 'left:' + (34 + Math.random() * 24) + 'px;top:8px;--hx:' + ((Math.random() - .5) * 34) + 'px'; h.innerHTML = HEART;
+    o.n.querySelector('.gl-bob').appendChild(h); setTimeout(() => h.remove(), 1400);
+  }
+  function expire(o) { if (cur !== o) return; poof(parseFloat(o.n.style.left), parseFloat(o.n.style.top) + 20); drop(); plan(40000 + Math.random() * 40000); }
+
+  function loop(tm) {
+    const o = cur; if (!o) return;
+    if (!o.n.isConnected) { drop(); plan(40000); return; }
+    const dt = Math.min(.05, (tm - T0) / 1000); T0 = tm; PS *= Math.pow(.12, dt);
+    const now = performance.now(), b = box(), n = o.n, D = DF[o.i];
+    // Ne jamais gener : on s'efface si l'ecran change, si une fenetre s'ouvre ou si le joueur ecrit
+    o.chk += dt;
+    if (o.chk > .25) { o.chk = 0; if (document.hidden || !screenOk() || isOff()) { drop(); plan(30000); return; } }
+    if (now - o.born > 60000) return expire(o);
+    if (!(o.tamed || o.awayUntil)) { o.life -= dt; if (o.life <= 0) return expire(o); }
+    const x = parseFloat(n.style.left), y = parseFloat(n.style.top);
+    if (!o.wild) { look(o, x, y - 10); raf = requestAnimationFrame(loop); return; }
+    raf = requestAnimationFrame(loop);
+    if (o.awayUntil) {
+      if (now < o.awayUntil) return;
+      o.awayUntil = 0; const q = far(b, 260);
+      n.style.left = q[0] + 'px'; n.style.top = q[1] + 'px'; n.classList.remove('away'); n.classList.add('back');
+      setTimeout(() => n.classList.remove('back'), 650); poof(q[0], q[1] + 30); o.blinkAt = now + D.blinkCd; return;
+    }
+    const d = Math.hypot(x - P.x, y - P.y); look(o, x, y - 10);
+    const near = P.on && d < D.fleeR, gentle = PS <= D.calm;
+    if (o.tamed) {
+      if (now > o.tamedUntil) { o.tamed = false; o.trust = 0; n.classList.remove('tame', 'calming'); }
+      else { n.style.setProperty('--t', 1); heartTick(o, dt); return; }
+    }
+    if (near && gentle) o.trust = Math.min(1, o.trust + dt / D.tame); else o.trust = Math.max(0, o.trust - dt * (near ? 1.6 : .5));
+    n.style.setProperty('--t', o.trust.toFixed(3)); n.classList.toggle('calming', o.trust > .04);
+    if (o.trust >= 1) { o.tamed = true; o.tamedUntil = now + 4500; o.vx = o.vy = 0; n.classList.add('tame'); n.classList.remove('scared'); return; }
+    n.classList.toggle('scared', near && !gentle && (o.vx * o.vx + o.vy * o.vy > 2500 || now - o.last < 500));
+    o.dashes = Math.max(0, o.dashes - dt / 1.1); if (o.tired && o.dashes < D.tire * .65) o.tired = false;
+    // Disparition eclair (rare et au-dela) : se volatilise puis reapparait ailleurs, ou sort de l'ecran quelques secondes
+    if (D.blinkR && P.on && !gentle && (d < D.blinkR || (PS > 900 && d < D.fleeR + 30)) && now > o.blinkAt && !o.bpend) {
+      o.bpend = true;
+      setTimeout(() => {
+        o.bpend = false; if (cur !== o) return;
+        const px = parseFloat(n.style.left), py = parseFloat(n.style.top); poof(px, py + 10);
+        if (Math.random() < D.exitP) { n.classList.add('away'); o.awayUntil = performance.now() + 3000 + Math.random() * 3000; o.vx = o.vy = 0; return; }
+        const q = far(box(), 240); o.blinkAt = performance.now() + D.blinkCd; n.classList.add('blink');
+        setTimeout(() => { n.classList.remove('blink'); poof(q[0], q[1] + 10); }, 260);
+        n.style.left = q[0] + 'px'; n.style.top = q[1] + 'px'; o.vx = o.vy = 0; o.last = performance.now();
+      }, D.blinkDelay);
+      return;
+    }
+    if (near && !gentle && !o.pend && tm - o.last > (o.tired ? 650 : D.dashCd)) {
+      o.pend = true;
+      setTimeout(() => {
+        o.pend = false; if (cur !== o) return;
+        const cx = parseFloat(n.style.left), cy = parseFloat(n.style.top), a = escapeDir(cx, cy, box(), D.dashSp * .28), sp = o.tired ? 240 : D.dashSp;
+        if (a === null) return;
+        o.vx = Math.cos(a) * sp; o.vy = Math.sin(a) * sp; o.last = performance.now(); o.dashes++; if (o.dashes >= D.tire) o.tired = true;
+        n.style.setProperty('--a', (a * 57.3) + 'deg'); n.classList.add('dash'); setTimeout(() => n.classList.remove('dash'), 170);
+        const L = 60 + Math.min(90, sp / 20);
+        life(fx('gl-streak', cx - Math.cos(a) * 30, cy - Math.sin(a) * 30, '', 'width:' + L + 'px;transform:rotate(' + ((a * 57.3) + 180) + 'deg)'), 480);
+        life(fx('gl-streak', cx - Math.cos(a) * 30 + Math.sin(a) * 14, cy - Math.sin(a) * 30 - Math.cos(a) * 14, '', 'width:' + (L * .7) + 'px;transform:rotate(' + ((a * 57.3) + 180) + 'deg)'), 480);
+        poof(cx, cy + 34);
+      }, 25);
+    }
+    let nx = x + o.vx * dt, ny = y + o.vy * dt; o.vx *= Math.pow(.04, dt); o.vy *= Math.pow(.04, dt);
+    const cx2 = Math.max(b.x0, Math.min(b.x1, nx)), cy2 = Math.max(b.y0, Math.min(b.y1, ny));
+    if (cx2 !== nx) o.vx = 0; if (cy2 !== ny) o.vy = 0;
+    n.style.left = cx2 + 'px'; n.style.top = cy2 + 'px';
+  }
+
+  // ── Pointeur (souris ou doigt) ─────────────────────────────────────────────
+  const relX = e => { P.x = e.clientX; P.y = e.clientY; P.on = true; };
+  addEventListener('pointermove', e => {
+    if (!cur) return;
+    const nt = performance.now(), dtp = Math.max(.004, (nt - PL.t) / 1000);
+    PS = PS * .5 + Math.hypot(e.clientX - PL.x, e.clientY - PL.y) / dtp * .5; PL = { x: e.clientX, y: e.clientY, t: nt }; relX(e);
+  }, { passive: true });
+  addEventListener('pointerdown', e => { if (cur) { PL = { x: e.clientX, y: e.clientY, t: performance.now() }; relX(e); } }, { passive: true });
+  addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') { P.on = false; P.x = P.y = -999; } }, { passive: true });
+  addEventListener('pointercancel', () => { P.on = false; P.x = P.y = -999; }, { passive: true });
+  document.documentElement.addEventListener('mouseleave', () => { P.on = false; P.x = P.y = -999; });
+
   socket.on('golden-spawn-result', r => {
     if (!r || !r.ok) {
       if (r && (r.reason === 'wait')) return plan(45000);
       stopped = true; return;   // hors event, plafond du jour atteint ou pas de pseudo : on s'arrete jusqu'au prochain chargement
     }
     if (!eligible()) { plan(20000); return; }
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'gold-lib'; b.setAttribute('aria-label', t().goldAria);
-    b.style.left = (8 + Math.random() * 74) + '%'; b.style.top = (16 + Math.random() * 52) + '%';
-    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2 5 13.5h6L10 22l9-12.5h-6.2z"/></svg>';
-    b.addEventListener('click', () => { socket.emit('golden-collect', { playerId: pid(), token: r.token }); drop(); plan(60000 + Math.random() * 60000); });
-    document.body.appendChild(b); el = b;
-    rm = setTimeout(() => { drop(); plan(40000 + Math.random() * 40000); }, r.ttl || 25000);
+    spawn(r);
   });
   socket.on('golden-collected', r => { try { showCursorSnakeToast(t().goldGot(r.amount, r.left)); } catch {} if (r.left <= 0) stopped = true; });
   plan(25000 + Math.random() * 30000);

@@ -3353,15 +3353,93 @@ body.screen-undercover-active .btn-help-float, body.screen-undercover-active .bt
   :root:root body.nav-bottom-visible #screen-shop .shop-fn-detail { left: 96px; padding-bottom: 40px; }
 }
 
-/* Chasse aux Libs dores : un Lib qui flotte sur les pages du site, a toucher pour le ramasser */
-.gold-lib {
-  position: fixed; z-index: 80; width: 56px; height: 56px; padding: 0; border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff3b0, #f5c431 55%, #b8860b);
-  border: 2.5px solid #22252b; box-shadow: 0 3px 0 rgba(0,0,0,.25), 0 0 18px 4px rgba(245,196,49,.65);
-  cursor: pointer; display: grid; place-items: center; animation: goldFloat 2.2s ease-in-out infinite, goldIn .35s ease-out;
+/* Chasse aux Libs dores : pieces dessinees au stylo (meme univers que le cahier), posees sur une couche fixe
+   qui ne capte aucun clic sauf sur la piece elle-meme. Six raretes = six couleurs de surligneur. */
+:root { --gl-ring: #9db8ff; }
+html.light { --gl-ring: #173a8a; }
+.gl-layer { position: fixed; inset: 0; z-index: 80; pointer-events: none; overflow: hidden; }
+.gl-layer.flash::after { content: ""; position: absolute; inset: 0; background: var(--mark); opacity: 0; animation: gl-fl .5s ease-out; }
+@keyframes gl-fl { 20% { opacity: .4; } 100% { opacity: 0; } }
+.gl-spot { pointer-events: auto; }
+.gl-spot:focus-visible { outline: 3px solid var(--gl-ring); outline-offset: 2px; border-radius: 18px; }
+#libs-balance.gl-pop { display: inline-block; animation: gl-balpop .5s cubic-bezier(.2,1.8,.4,1); }
+@keyframes gl-balpop { 40% { transform: scale(1.35) rotate(-3deg); } }
+.gl-spot .gl-flip .out { stroke: var(--ink); }
+.gl-spot{position:absolute;width:84px;height:104px;transform:translate(-50%,-50%);cursor:pointer;-webkit-tap-highlight-color:transparent;--c:#ffd23f}
+.gl-spot .gl-bob{position:absolute;inset:0;animation:gl-bob 2.6s ease-in-out infinite}
+@keyframes gl-bob{50%{transform:translateY(-9px) rotate(2deg)}}
+.gl-spot.in{animation:gl-drop .7s cubic-bezier(.3,1.3,.5,1) both}
+@keyframes gl-drop{0%{transform:translate(-50%,-420%) scale(.8,1.25);opacity:0}55%{transform:translate(-50%,-44%) scale(1.22,.74);opacity:1}72%{transform:translate(-50%,-54%) scale(.92,1.1)}100%{transform:translate(-50%,-50%) scale(1)}}
+.gl-shadow{position:absolute;left:50%;bottom:4px;width:52px;height:11px;margin-left:-26px;border-radius:50%;background:var(--hard);animation:gl-sh 2.6s ease-in-out infinite}
+@keyframes gl-sh{50%{transform:scale(.72);opacity:.6}}
+.gl-flip{position:absolute;left:50%;top:6px;width:72px;height:72px;margin-left:-36px;animation:gl-flip 2.8s ease-in-out infinite;transform-origin:50% 60%}
+@keyframes gl-flip{0%,100%{transform:scaleX(1)}18%{transform:scaleX(.08) rotate(-4deg)}22%{transform:scaleX(-.1)}40%{transform:scaleX(-1)}60%{transform:scaleX(-1)}78%{transform:scaleX(.08)}82%{transform:scaleX(.1)}}
+.gl-spot:hover .gl-flip,.gl-spot:focus-visible .gl-flip{animation:gl-wig .5s ease-in-out infinite}
+@keyframes gl-wig{25%{transform:rotate(-9deg) scale(1.08)}75%{transform:rotate(9deg) scale(1.08)}}
+.gl-spot:active .gl-bob{transform:scale(.88)}
+.gl-flip svg{width:100%;height:100%;overflow:visible;display:block}
+.gl-flip .out{stroke:var(--ink)}
+.gl-spot.calming .gl-flip{animation-duration:5.5s}
+.gl-spot.tame .gl-flip{animation:gl-happy .9s ease-in-out infinite}
+@keyframes gl-happy{50%{transform:translateY(-6px) rotate(5deg)}}
+.gl-spot.dash .gl-flip{animation:none;transform:rotate(var(--a,0deg)) scale(1.5,.62)}
+.gl-spot.dash .gl-eyes,.gl-spot.dash .gl-mouth-g{display:none}
+.gl-eye{fill:#fff;stroke:var(--ink);stroke-width:1.6}
+.gl-pupil{fill:var(--ink)}
+.gl-mouth{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round}
+.gl-mouth.o,.gl-mouth.smile{display:none}
+.gl-spot.scared .gl-mouth.flat,.gl-spot.tame .gl-mouth.flat{display:none}
+.gl-spot.scared .gl-mouth.o{display:block;fill:var(--ink)}
+.gl-spot.tame .gl-mouth.smile{display:block}
+.gl-sweat{position:absolute;right:8px;top:10px;width:9px;height:13px;background:#7fc1f5;border:1.5px solid var(--ink);border-radius:50% 50% 50% 50%/65% 65% 35% 35%;opacity:0}
+.gl-spot.scared .gl-sweat{animation:gl-sw .5s ease-in infinite}
+@keyframes gl-sw{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(16px)}}
+.gl-star{position:absolute;width:15px;height:15px;margin:-7px;animation:gl-tw 1.6s ease-in-out infinite;pointer-events:none}
+.gl-star svg{width:100%;height:100%;fill:none;stroke:var(--ink);stroke-width:2.6;stroke-linecap:round;overflow:visible}
+@keyframes gl-tw{0%,100%{transform:scale(.3) rotate(0);opacity:.2}50%{transform:scale(1.1) rotate(45deg);opacity:1}}
+.gl-trust{position:absolute;left:50%;top:-4px;width:84px;height:84px;margin-left:-42px;pointer-events:none;opacity:0;transition:opacity .25s;transform:rotate(-90deg)}
+.gl-trust circle{fill:none;stroke:var(--gl-ring);stroke-width:3.4;stroke-linecap:round;stroke-dasharray:238;stroke-dashoffset:calc(238 - 238*var(--t,0))}
+.gl-spot.calming .gl-trust{opacity:1}
+.gl-spot.tame .gl-trust circle{stroke:#2f9e4f;animation:gl-tmr .8s ease-in-out infinite}
+@keyframes gl-tmr{50%{stroke-width:5}}
+.gl-heart{position:absolute;width:16px;height:15px;pointer-events:none;animation:gl-hrt 1.4s ease-out infinite;opacity:0}
+.gl-heart svg{width:100%;height:100%;fill:var(--margin);stroke:var(--ink);stroke-width:1.5}
+@keyframes gl-hrt{0%{transform:translate(0,0) scale(.4);opacity:0}20%{opacity:1}100%{transform:translate(var(--hx,10px),-46px) scale(1.1) rotate(10deg);opacity:0}}
+.gl-ttl{position:absolute;left:12px;right:12px;bottom:-4px;height:4px;border-radius:4px;background:var(--margin);transform-origin:left;animation:gl-ttl 25s linear forwards;opacity:.8}
+@keyframes gl-ttl{to{transform:scaleX(0)}}
+.gl-spot.tame .gl-ttl,.gl-spot.away .gl-ttl{animation-play-state:paused}
+.gl-lab{position:absolute;left:50%;bottom:-20px;transform:translateX(-50%) rotate(-3deg);font:700 1rem 'Caveat',cursive;background:var(--mark);color:#22252b;border:1.5px solid var(--ink);border-radius:5px;padding:0 8px;white-space:nowrap;opacity:0;transition:opacity .15s;box-shadow:1px 2px 0 var(--hard)}
+.gl-spot:hover .gl-lab,.gl-spot:focus-visible .gl-lab{opacity:1}
+.gl-r-commun{--c:#e9b27a}.gl-r-atypique{--c:#8fdc9c}.gl-r-rare{--c:#7fc1f5}.gl-r-epique{--c:#c39bf5}.gl-r-legendaire{--c:#ffd23f}.gl-r-mythique{--c:#ff7fa8}
+.gl-halo{position:absolute;left:50%;top:-14px;width:112px;height:112px;margin-left:-56px;pointer-events:none;opacity:0}
+.gl-r-legendaire .gl-halo,.gl-r-mythique .gl-halo,.gl-r-epique .gl-halo{opacity:1;animation:gl-spin 6s linear infinite}
+.gl-halo circle{fill:none;stroke:var(--c);stroke-width:5;stroke-linecap:round;stroke-dasharray:22 14;opacity:.85}
+.gl-r-mythique .gl-halo circle{stroke:url(#glrb)}
+@keyframes gl-spin{to{transform:rotate(360deg)}}
+.gl-fx{position:absolute;pointer-events:none}
+.gl-streak{height:0;border-top:3px dashed var(--ink);border-radius:3px;transform-origin:0 50%;opacity:.55;animation:gl-stk .45s ease-out forwards}
+@keyframes gl-stk{from{opacity:.7}to{opacity:0}}
+.gl-puff{width:26px;height:26px;margin:-13px;border:2.5px solid var(--ink);border-radius:50% 46% 54% 48%;opacity:.7;animation:gl-puff .55s ease-out forwards}
+@keyframes gl-puff{to{transform:translate(var(--px),var(--py)) scale(2.3);opacity:0}}
+.gl-ray{height:0;border-top:3.5px solid var(--rc);border-radius:3px;width:0;transform-origin:0 50%;animation:gl-ray .55s ease-out forwards}
+@keyframes gl-ray{0%{width:0;opacity:1}60%{width:var(--rl);opacity:1}100%{width:var(--rl);opacity:0}}
+.gl-splat{width:90px;height:90px;margin:-45px;animation:gl-splat .6s cubic-bezier(.2,1.6,.4,1) forwards;opacity:0}
+.gl-splat svg{width:100%;height:100%;fill:var(--rc);stroke:var(--ink);stroke-width:2.5;stroke-linejoin:round}
+@keyframes gl-splat{0%{transform:scale(.2) rotate(-20deg);opacity:1}45%{transform:scale(1.15) rotate(6deg);opacity:1}100%{transform:scale(1.35) rotate(10deg);opacity:0}}
+.gl-fly{font:700 2rem 'Caveat',cursive;background:var(--mark);color:#22252b;border:2px solid var(--ink);border-radius:8px;padding:0 10px;white-space:nowrap;box-shadow:2px 3px 0 var(--hard);transform:translate(-50%,-50%);animation:gl-fly 1s cubic-bezier(.5,0,.8,.6) forwards}
+@keyframes gl-fly{0%{transform:translate(-50%,-50%) scale(.4) rotate(-12deg);opacity:0}18%{transform:translate(-50%,-130%) scale(1.25) rotate(-5deg);opacity:1}45%{transform:translate(-50%,-130%) scale(1.1) rotate(-3deg);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(.45) rotate(8deg);opacity:.2}}
+.gl-note{font:700 1.15rem 'Caveat',cursive;color:var(--text,var(--ink));white-space:nowrap;transform:translate(-50%,-50%);animation:gl-nt 1.3s ease-out forwards}
+@keyframes gl-nt{0%{opacity:0;transform:translate(-50%,-30%) rotate(-6deg) scale(.6)}25%{opacity:1;transform:translate(-50%,-60%) rotate(-3deg) scale(1)}100%{opacity:0;transform:translate(-50%,-150%) rotate(2deg)}}
+.stage.shake{animation:shk .45s}
+@keyframes gl-shk{15%{transform:translate(-5px,3px) rotate(-.4deg)}35%{transform:translate(5px,-3px) rotate(.4deg)}55%{transform:translate(-4px,2px)}75%{transform:translate(3px,0)}}
+.stage.flash::after{content:"";position:absolute;inset:0;background:var(--mark);opacity:0;animation:fl .5s ease-out;pointer-events:none}
+@keyframes gl-fl{20%{opacity:.5}100%{opacity:0}}
+.gl-spot.blink .gl-bob{animation:none;opacity:0;transform:scale(.3)}
+.gl-spot.away{opacity:0;pointer-events:none}
+.gl-spot.back{animation:gl-back .6s cubic-bezier(.2,1.5,.4,1)}
+@keyframes gl-back{from{transform:translate(-50%,-50%) scale(.2) rotate(-40deg);opacity:0}}
+
+@media (prefers-reduced-motion: reduce) {
+  .gl-flip, .gl-bob, .gl-shadow, .gl-star, .gl-halo { animation: none !important; }
+  .gl-spot.in, .gl-spot.back, .gl-layer.flash::after { animation: none !important; }
 }
-.gold-lib svg { width: 28px; height: 28px; fill: #22252b; }
-.gold-lib:focus-visible { outline: 3px solid #173a8a; outline-offset: 3px; }
-@keyframes goldFloat { 50% { transform: translateY(-10px) rotate(6deg); } }
-@keyframes goldIn { from { transform: scale(.2); opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .gold-lib { animation: none; } }
