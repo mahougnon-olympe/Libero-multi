@@ -1041,11 +1041,11 @@ const DICT = {
     shopBubbleTitle:'💬 Bulles de chat',
     tplTitle:'Portraits de la classe', tplDesc:'Des portraits composés par les joueurs. « Essayer » le pose sur ton portrait sans rien acheter ; l\'auteur touche 70 % du prix.',
     tplNav:'Portraits', tplSortTop:'Les plus achetés', tplSortNew:'Nouveautés', tplSortMine:'Mes modèles', tplBy:'par', tplSales:n => `${n} vente${n > 1 ? 's' : ''}`,
-    tplTry:'Essayer', tplBuy:'Acheter', tplRemove:'Retirer', tplPending:'En attente de validation', tplEmpty:'Aucun modèle pour l\'instant. Publie le tien depuis Profil, Mon portrait.',
+    tplTry:'Essayer', tplBuy:'Acheter', tplOwned:'Déjà acheté', tplRemove:'Retirer', tplPending:'En attente de validation', tplEmpty:'Aucun modèle pour l\'instant. Publie le tien depuis Profil, Mon portrait.',
     tplTags:{sport:'Sport', school:'École', party:'Fête', style:'Style', funny:'Drôle'}, tplBought:'Portrait acheté, il est sur ton profil !',
     tplPublish:'Publier comme modèle', tplPubName:'Nom du modèle', tplPubPrice:'Prix', tplPubTag:'Rayon', tplPubSend:'Envoyer à la validation',
     tplPubOk:'Envoyé ! L\'admin doit valider ton modèle avant qu\'il soit en vente.', tplPubRules:'Il faut le niveau 5. 3 modèles maximum. Tu touches 70 % de chaque vente.',
-    tplErr:{level:'Il faut le niveau 5 pour publier.', max:'Tu as déjà 3 modèles.', name:'Choisis un autre nom.', anonymous:'Choisis d\'abord un pseudo.', no_portrait:'Enregistre d\'abord ton portrait.', insufficient:'Pas assez de Libs.', own:'C\'est ton modèle !', rate:'Doucement, réessaie dans un instant.', invalid:'Ce modèle n\'est plus disponible.', free_locked:'Un modèle gratuit ne peut pas contenir de pièce payante.'}, tplFree:'Gratuit', tplTake:'Prendre',
+    tplErr:{level:'Il faut le niveau 5 pour publier.', max:'Tu as déjà 3 modèles.', name:'Choisis un autre nom.', anonymous:'Choisis d\'abord un pseudo.', no_portrait:'Enregistre d\'abord ton portrait.', insufficient:'Pas assez de Libs.', own:'C\'est ton modèle !', owned:'Tu as déjà ce modèle.', rate:'Doucement, réessaie dans un instant.', invalid:'Ce modèle n\'est plus disponible.', free_locked:'Un modèle gratuit ne peut pas contenir de pièce payante.'}, tplFree:'Gratuit', tplTake:'Prendre',
     tplSold:(n, b, g) => `${b} a acheté ton modèle « ${n} » : +${g} Libs`, tplLive:n => `Ton modèle « ${n} » est en vente !`, tplRefused:n => `Ton modèle « ${n} » a été refusé.`,
     shopBubbleNames:{ 'bubble-ardoise':'Ardoise', 'bubble-ocean':'Océan', 'bubble-menthe':'Menthe', 'bubble-corail':'Corail', 'bubble-ambre':'Ambre', 'bubble-lavande':'Lavande', 'bubble-rubis':'Rubis', 'bubble-emeraude':'Émeraude', 'bubble-indigo':'Indigo', 'bubble-magenta':'Papier buvard', 'bubble-cyan':'Papier millimétré', 'bubble-crepuscule':'Crépuscule', 'bubble-aurore':'Aurore', 'bubble-sunset':'Coucher de soleil', 'bubble-tropical':'Tropical', 'bubble-arcade':'Papier kraft', 'bubble-galaxie':'Galaxie', 'bubble-verre':'Papier calque', 'bubble-or':'Or liquide', 'bubble-holographique':'Encre violette', 'bubble-cameleon':'Carte à jouer', 'bubble-live-gold':'Or Royal', 'bubble-live-silver':'Argent Poli', 'bubble-live-bronze':'Bronze Forgé' },
     shopBgTitle:'🖼 Fonds d\'écran',
@@ -1850,11 +1850,11 @@ const DICT = {
     shopBubbleTitle:'💬 Chat bubbles',
     tplTitle:'Class portraits', tplDesc:'Portraits made by players. "Try" puts it on your portrait without buying; the author earns 70% of the price.',
     tplNav:'Portraits', tplSortTop:'Best sellers', tplSortNew:'New', tplSortMine:'My templates', tplBy:'by', tplSales:n => `${n} sale${n > 1 ? 's' : ''}`,
-    tplTry:'Try', tplBuy:'Buy', tplRemove:'Remove', tplPending:'Awaiting approval', tplEmpty:'No template yet. Publish yours from Profile, My portrait.',
+    tplTry:'Try', tplBuy:'Buy', tplOwned:'Already bought', tplRemove:'Remove', tplPending:'Awaiting approval', tplEmpty:'No template yet. Publish yours from Profile, My portrait.',
     tplTags:{sport:'Sport', school:'School', party:'Party', style:'Style', funny:'Funny'}, tplBought:'Portrait bought, it is on your profile!',
     tplPublish:'Publish as a template', tplPubName:'Template name', tplPubPrice:'Price', tplPubTag:'Shelf', tplPubSend:'Send for approval',
     tplPubOk:'Sent! The admin must approve your template before it goes on sale.', tplPubRules:'Level 5 required. 3 templates max. You earn 70% of each sale.',
-    tplErr:{level:'You need level 5 to publish.', max:'You already have 3 templates.', name:'Pick another name.', anonymous:'Pick a username first.', no_portrait:'Save your portrait first.', insufficient:'Not enough Libs.', own:'That is your template!', rate:'Slow down, try again in a moment.', invalid:'This template is no longer available.', free_locked:'A free template cannot contain paid pieces.'}, tplFree:'Free', tplTake:'Take',
+    tplErr:{level:'You need level 5 to publish.', max:'You already have 3 templates.', name:'Pick another name.', anonymous:'Pick a username first.', no_portrait:'Save your portrait first.', insufficient:'Not enough Libs.', own:'That is your template!', owned:'You already have this template.', rate:'Slow down, try again in a moment.', invalid:'This template is no longer available.', free_locked:'A free template cannot contain paid pieces.'}, tplFree:'Free', tplTake:'Take',
     tplSold:(n, b, g) => `${b} bought your template "${n}": +${g} Libs`, tplLive:n => `Your template "${n}" is on sale!`, tplRefused:n => `Your template "${n}" was refused.`,
     shopBubbleNames:{ 'bubble-ardoise':'Slate', 'bubble-ocean':'Ocean', 'bubble-menthe':'Mint', 'bubble-corail':'Coral', 'bubble-ambre':'Amber', 'bubble-lavande':'Lavender', 'bubble-rubis':'Ruby', 'bubble-emeraude':'Emerald', 'bubble-indigo':'Indigo', 'bubble-magenta':'Blotting paper', 'bubble-cyan':'Graph paper', 'bubble-crepuscule':'Dusk', 'bubble-aurore':'Aurora', 'bubble-sunset':'Sunset', 'bubble-tropical':'Tropical', 'bubble-arcade':'Kraft paper', 'bubble-galaxie':'Galaxy', 'bubble-verre':'Tracing paper', 'bubble-or':'Liquid gold', 'bubble-holographique':'Violet ink', 'bubble-cameleon':'Playing card', 'bubble-live-gold':'Royal Gold', 'bubble-live-silver':'Polished Silver', 'bubble-live-bronze':'Forged Bronze' },
     shopBgTitle:'🖼 Wallpapers',
@@ -16004,6 +16004,7 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
         <div class="tm"><span>${d.tplSales(tp.sold || 0)}<br>${(d.tplTags || {})[tp.tag] || tp.tag}</span><span class="pr">${tp.price ? tp.price + ' Libs' : d.tplFree}</span></div>
         <div class="tb"><button type="button" data-act="try">${d.tplTry}</button>${tp.mine
           ? `<button type="button" class="alt" data-act="del">${d.tplRemove}</button>`
+          : tp.bought ? `<button type="button" class="buy" disabled>${d.tplOwned}</button>`
           : `<button type="button" class="buy" data-act="buy">${tp.price ? d.tplBuy : d.tplTake}</button>`}</div></div></div>`;
   }
   window._paintTemplates = function () {

@@ -517,7 +517,7 @@ async function loadData() {
   db.collection('portrait_templates').find().toArray()
     .then(docs => docs.forEach(d => portraitTemplates.set(d._id, {
       id: d._id, authorId: d.authorId, authorName: d.authorName || '', name: d.name || '', price: d.price || 60,
-      tag: d.tag || 'style', portrait: cleanPortrait(d.portrait), status: d.status || 'pending', sold: d.sold || 0, at: d.at || Date.now(),
+      tag: d.tag || 'style', portrait: cleanPortrait(d.portrait), status: d.status || 'pending', sold: d.sold || 0, at: d.at || Date.now(), buyers: Array.isArray(d.buyers) ? d.buyers : [],
     })))
     .catch(() => {});
   db.collection('suggestions').find().toArray()
@@ -2148,7 +2148,7 @@ const TEMPLATE_TAGS = ['sport', 'school', 'party', 'style', 'funny'];
 const TEMPLATE_SHARE = 0.7, TEMPLATE_MIN_LEVEL = 5, TEMPLATE_MAX_PER_AUTHOR = 3;
 function templatePublic(tp, viewerId) {
   return { id: tp.id, name: tp.name, authorName: tp.authorName, price: tp.price, tag: tp.tag, portrait: tp.portrait,
-    status: tp.status, sold: tp.sold, at: tp.at, mine: !!viewerId && tp.authorId === viewerId };
+    status: tp.status, sold: tp.sold, at: tp.at, mine: !!viewerId && tp.authorId === viewerId, bought: !!viewerId && (tp.buyers || []).includes(viewerId) };
 }
 function templatesFor(viewerId) {
   return [...portraitTemplates.values()]
@@ -5041,6 +5041,8 @@ io.on('connection', (socket) => {
     const tp = portraitTemplates.get(tid);
     if (!id || !tp || tp.status !== 'live') { socket.emit('buy-template-result', { ok: false, error: 'invalid' }); return; }
     if (tp.authorId === id) { socket.emit('buy-template-result', { ok: false, error: 'own' }); return; }
+    // Un modele ne s'achete qu'une fois par joueur.
+    if ((tp.buyers || []).includes(id)) { socket.emit('buy-template-result', { ok: false, error: 'owned' }); socket.emit('portrait-templates', templatesFor(id)); return; }
     const entry = getLibsEntry(id);
     if (!entry.name || entry.name === 'Anonyme') { socket.emit('buy-template-result', { ok: false, error: 'anonymous' }); return; }
     if (entry.balance < tp.price) { socket.emit('buy-template-result', { ok: false, error: 'insufficient' }); return; }
@@ -5048,7 +5050,7 @@ io.on('connection', (socket) => {
     if (tp.price > 0) portraitLockedIds(tp.portrait).forEach(c => { if (!entry.ownedCosmetics.includes(c)) entry.ownedCosmetics.push(c); });
     entry.portrait = { ...tp.portrait };
     libs.set(id, entry); dbUpsertLibs(id, entry);
-    tp.sold = (tp.sold || 0) + 1; dbSaveTemplate(tp);
+    tp.sold = (tp.sold || 0) + 1; (tp.buyers = tp.buyers || []).push(id); dbSaveTemplate(tp);
     const author = libs.get(tp.authorId);
     // Defense : un modele gratuit ne donne jamais de piece payante.
     if (author && tp.price > 0) {
