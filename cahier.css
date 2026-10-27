@@ -3330,3 +3330,9 @@ body.screen-undercover-active .btn-help-float, body.screen-undercover-active .bt
 :root:root .pid-avatar.pf-2semi { box-shadow: 0 0 0 4px #8fd3f2, 0 0 0 6px #22252b, 0 0 0 8px #8fd3f2; }
 @keyframes pf2pulse { 50% { filter: brightness(1.25); } }
 .lb-pt.pf-2gold, :root:root .pid-avatar.pf-2gold { animation: pf2pulse 2s ease-in-out infinite; }
+
+/* Ludo : nombre de robots (accueil des jeux) */
+#ludo-bots .lb-btn.active { border-color: #ffce3a; box-shadow: inset 0 0 0 1px #ffce3a; font-weight: 800; }
+
+/* Puissance 4 : on peut aussi jouer en touchant un rond de la colonne */
+.c4-board .c4-cell { cursor: pointer; }

@@ -2927,11 +2927,13 @@ function _chessGameOver(room, status, winner) {
 
 // ── Bot : calcule et joue le coup du robot ─────────────────────────────────
 
+// Tour d'un robot : 'Y' contre un seul robot, ou l'un des sieges robots d'un Ludo a plusieurs robots.
+const _isBotTurn = room => room.botSeats ? room.botSeats.includes(room.state.currentPlayer) : room.state.currentPlayer === 'Y';
 function scheduleBotMove(code) {
   setTimeout(() => {
     const room = rooms.get(code);
-    if (!room || !room.vsBot || room.status !== 'playing') return;
-    if (room.state.currentPlayer !== 'Y') return;
+    if (!room || !(room.vsBot || room.botSeats) || room.status !== 'playing') return;
+    if (!_isBotTurn(room)) return;
 
     let newState, status, winner;
 
@@ -3018,7 +3020,7 @@ function scheduleBotMove(code) {
         io.emit('leaderboard-update', getLeaderboardData());
         io.emit('global-leaderboard-update', getGlobalLeaderboardData());
       }
-    } else if (room.state.currentPlayer === 'Y') {
+    } else if (_isBotTurn(room)) {
       // Dames : rafle multiple, le bot rejoue avec la même pièce.
       scheduleBotMove(code);
     }
@@ -3194,7 +3196,7 @@ io.on('connection', (socket) => {
   socket.on('announcement-dismissed', () => {});
 
   // ── Créer une room ──────────────────────────────────────────────────────
-  socket.on('create-room', ({ gameType = 'connect4', name = '', vsBot = false, botDifficulty = 'medium', playerId, stake = 0, variant } = {}) => {
+  socket.on('create-room', ({ gameType = 'connect4', name = '', vsBot = false, botDifficulty = 'medium', playerId, stake = 0, variant, ludoBots } = {}) => {
     // Dames : regles internationales (10x10) par defaut, anglaises (8x8) au choix.
     const ckVariant = gameType === 'checkers' ? (variant === 'en' ? 'en' : 'intl') : null;
     if (!VALID_GAMES.has(gameType)) return;
@@ -3238,11 +3240,24 @@ io.on('connection', (socket) => {
       lr.reconnectTimers = { R: null };
     }
 
+    // Ludo seul contre 2 ou 3 robots : salon deja plein, la partie demarre tout de suite.
+    const nBots = gameType === 'ludo' && vsBot ? Math.min(3, Math.max(1, parseInt(ludoBots, 10) || 1)) : 1;
+    if (nBots > 1) {
+      const lr = rooms.get(code), roles = ['R', 'Y', 'G', 'B'].slice(0, nBots + 1);
+      lr.vsBot = false; lr.seats = roles; lr.host = 'R'; lr.ludoOpts = ludo.normOpts(); lr.botSeats = roles.slice(1);
+      lr.reconnectTimers = { R: null };
+      lr.players = { R: socket.id }; lr.playerNames = { R: playerName }; lr.playerIds = { R: safePlayerId(playerId) || playerName };
+      lr.botSeats.forEach((r, i) => { lr.players[r] = 'bot'; lr.playerNames[r] = 'Robot ' + (i + 1); lr.playerIds[r] = null; });
+      lr.stake = 0;
+    }
+
     roomCode = code;
     myPlayer = 'R';
     socket.join(code);
 
-    if (vsBot) {
+    if (nBots > 1) {
+      startLudoGame(rooms.get(code));
+    } else if (vsBot) {
       socket.emit('game-start', { gameType, state: rooms.get(code).state, yourPlayer: 'R', vsBot: true, botDifficulty: diff, code });
     } else {
       socket.emit('room-created', { code, gameType, stake: duelStake, variant: ckVariant });
@@ -3278,7 +3293,7 @@ io.on('connection', (socket) => {
     delete room.players[role]; delete room.playerNames[role]; delete room.playerIds[role];
     room.seats = room.seats.filter(r => r !== role);
     room.restartVotes.clear();
-    if (!room.seats.length) { rooms.delete(room.code); return; }
+    if (!room.seats.length || (room.botSeats && room.seats.every(r => room.botSeats.includes(r)))) { rooms.delete(room.code); return; }
     if (room.host === role) room.host = room.seats.find(r => room.players[r]) || room.seats[0];
     emitLudoLobby(room);
   }
@@ -3286,7 +3301,7 @@ io.on('connection', (socket) => {
   function _finishLudoLobby(room, status, winner) {
     _settleStake(room, status, winner);
     // Les joueurs encore assis ET ceux qui ont quitte en cours de partie.
-    const players = roomRoles(room).map(r => ({ role: r, id: room.playerIds?.[r], name: room.playerNames[r] })).concat(room.left || []);
+    const players = roomRoles(room).filter(r => !room.botSeats?.includes(r)).map(r => ({ role: r, id: room.playerIds?.[r], name: room.playerNames[r] })).concat(room.left || []);
     room.left = [];
     players.forEach(pl => {
       const pid = pl.id, nm = pl.name;
@@ -3318,7 +3333,7 @@ io.on('connection', (socket) => {
     room.state = ludo.createState(room.seats, room.ludoOpts);
     room.status = 'playing'; room.winner = null; room.restartVotes.clear(); room.left = [];
     for (const p of room.seats) {
-      if (!room.players[p]) continue;
+      if (!room.players[p] || room.players[p] === 'bot') continue;
       io.to(room.players[p]).emit('game-start', {
         gameType: 'ludo', state: room.state, yourPlayer: p, code: room.code,
         stake: room.stake || 0, pot: (room.stake || 0) * room.seats.length, seats: seatList(room),
@@ -3543,7 +3558,7 @@ io.on('connection', (socket) => {
       ludoOpts:     isLudoLobby(room) ? (room.ludoOpts || ludo.normOpts()) : undefined,
     });
 
-    if (room.vsBot && room.status === 'playing' && room.state.currentPlayer === 'Y') {
+    if ((room.vsBot || room.botSeats) && room.status === 'playing' && _isBotTurn(room)) {
       scheduleBotMove(roomCode);
     }
 
@@ -3706,7 +3721,7 @@ io.on('connection', (socket) => {
           io.emit('global-leaderboard-update', getGlobalLeaderboardData());
         }
       }
-    } else if (room.vsBot) {
+    } else if (room.vsBot || room.botSeats) {
       scheduleBotMove(roomCode);
     }
   });
@@ -3735,6 +3750,7 @@ io.on('connection', (socket) => {
     if (isLudoLobby(room)) {
       // Revanche a plusieurs : tous les joueurs encore connectes doivent accepter.
       room.restartVotes.add(myPlayer);
+      (room.botSeats || []).forEach(b => room.restartVotes.add(b));
       const here = room.seats.filter(r => room.players[r]);
       if (here.length >= 2 && here.every(r => room.restartVotes.has(r))) {
         room.seats.filter(r => !room.players[r]).forEach(r => removeLudoSeat(room, r));
@@ -5370,7 +5386,7 @@ io.on('connection', (socket) => {
           emitLudoLobby(room);
           room.reconnectTimers[role] = setTimeout(() => {
             if (room.players[role] !== null || !rooms.has(code)) return;
-            const anyoneLeft = room.seats.some(r => r !== role && room.players[r]);
+            const anyoneLeft = room.seats.some(r => r !== role && room.players[r] && room.players[r] !== 'bot');
             if (!anyoneLeft) { _settleStake(room, 'cancel'); rooms.delete(code); return; }
             if (room.status === 'playing') ludoForfeitSeat(room, role);
             removeLudoSeat(room, role);

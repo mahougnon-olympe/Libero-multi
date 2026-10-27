@@ -898,7 +898,7 @@ const DICT = {
     triviaTitle:'Culture Générale', triviaDesc:'Quiz par thèmes · Solo & Multi',
     homeSubtitle:'2 joueurs • Temps réel',
     botLabel:'🤖 Jouer seul contre le robot :',
-    botEasy:'😊 Facile', botMedium:'🎯 Moyen', botHard:'💀 Difficile', unoBotsStep:'Nombre de robots', unoBots:n=>`${n} robot${n>1?'s':''}`,
+    botEasy:'😊 Facile', botMedium:'🎯 Moyen', botHard:'💀 Difficile', unoBotsStep:'Nombre de robots', unoBots:n=>`${n} robot${n>1?'s':''}`, ludoBotsStep:'Nombre de robots',
     btnCreate:'Créer une partie',
     namePh:'Ton pseudo (obligatoire)', codePh:'Code à 4 lettres', errNoName:'Entre un pseudo pour continuer.',
     errNameTaken:'🚫 Ce pseudo est déjà pris. Choisis-en un autre.',
@@ -926,7 +926,7 @@ const DICT = {
     promoTitle:'Promouvoir le pion',
     games:{ connect4:'Puissance 4', tictactoe:'Tic Tac Toe', chess:'Échecs', checkers:'Dames', ludo:'Ludo', uno:'Uno', undercover:'Undercover' },
     ludoRoll:'Lancer le dé', ludoDice:d=>`Dé : ${d}`, ludoNoMove:'Aucun coup possible, le tour passe.', ludoNoMoveOf:n=>`${n} : aucun coup, le tour passe`,
-    ludoBot:'Robot', ludoAwayShort:'Reconnexion', ludoPick:'Touche un pion pour voir son trajet', ludoConfirm:'Touche encore le pion pour valider',
+    ludoBot:'Robot', ludoAwayShort:'Reconnexion', ludoPick:'Touche le pion a avancer', ludoConfirm:'Touche le pion a avancer',
     ludoCapture:'Capture !', ludoCaptureOf:n=>`${n} capture un pion !`, ludoHome:'Un pion rentré !', ludoHomeOf:n=>`${n} rentre un pion !`,
     ludoBarrage:'Barrage : la paire ne peut pas être prise', ludoThree6:n=>`${n} : trois 6 de suite, le tour est perdu`, ludoRetry:(n,l)=>`${n} : pas de 6, encore ${l} essai${l>1?'s':''}`,
     ludoAutoLbl:"Jouer seul quand il n'y a qu'un coup possible", ludoAutoPlayed:'Un seul coup : joué pour toi',
@@ -1707,7 +1707,7 @@ const DICT = {
     triviaTitle:'General Knowledge', triviaDesc:'Themed quizzes · Solo & Multi',
     homeSubtitle:'2 players • Real time',
     botLabel:'🤖 Play solo against the bot:',
-    botEasy:'😊 Easy', botMedium:'🎯 Medium', botHard:'💀 Hard', unoBotsStep:'Number of robots', unoBots:n=>`${n} robot${n>1?'s':''}`,
+    botEasy:'😊 Easy', botMedium:'🎯 Medium', botHard:'💀 Hard', unoBotsStep:'Number of robots', unoBots:n=>`${n} robot${n>1?'s':''}`, ludoBotsStep:'Number of robots',
     btnCreate:'Create a game',
     namePh:'Your username (required)', codePh:'4-letter code', errNoName:'Enter a username to continue.',
     errNameTaken:'🚫 This username is already taken. Choose another one.',
@@ -1735,7 +1735,7 @@ const DICT = {
     promoTitle:'Promote pawn',
     games:{ connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', checkers:'Checkers', ludo:'Ludo', uno:'Uno', undercover:'Undercover' },
     ludoRoll:'Roll the dice', ludoDice:d=>`Dice: ${d}`, ludoNoMove:'No possible move, turn passes.', ludoNoMoveOf:n=>`${n}: no move, the turn passes`,
-    ludoBot:'Robot', ludoAwayShort:'Reconnecting', ludoPick:'Tap a pawn to see its path', ludoConfirm:'Tap the pawn again to confirm',
+    ludoBot:'Robot', ludoAwayShort:'Reconnecting', ludoPick:'Tap the pawn to move', ludoConfirm:'Tap the pawn to move',
     ludoCapture:'Capture!', ludoCaptureOf:n=>`${n} captures a pawn!`, ludoHome:'A pawn is home!', ludoHomeOf:n=>`${n} brings a pawn home!`,
     ludoBarrage:'Block: a pair cannot be captured', ludoThree6:n=>`${n}: three 6s in a row, the turn is lost`, ludoRetry:(n,l)=>`${n}: no 6, ${l} more ${l>1?'tries':'try'}`,
     ludoAutoLbl:'Play automatically when there is only one move', ludoAutoPlayed:'Only one move: played for you',
@@ -2754,6 +2754,7 @@ function applyLang() {
       .forEach(([id,v]) => { const el = $(id); if (el) el.textContent = v; });
   }
   window._unoWhoSync?.();
+  window._ludoWhoSync?.();
   const bct2 = $('btn-create-trivia');    if (bct2) bct2.textContent = d.btnCreateTrivia;
   const itc  = $('input-trivia-code');    if (itc)  itc.placeholder  = d.triviaCodePh;
   const bjt2 = $('btn-join-trivia');      if (bjt2) bjt2.textContent = d.btnJoinTrivia;
@@ -3334,6 +3335,7 @@ document.querySelectorAll('.game-btn').forEach(btn => {
     window._ckRulesSync?.();
     window._unoWhoSync?.();
     window._ucWhoSync?.();
+    window._ludoWhoSync?.();
   });
 });
 
@@ -3366,7 +3368,7 @@ document.querySelectorAll('.bot-btn').forEach(btn => {
     clearError();
     if (selectedGameType === 'undercover') return;
     if (selectedGameType === 'uno') { window._unoStart({ bots: +btn.dataset.unobots || 1 }); return; }
-    socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), vsBot: true, botDifficulty: btn.dataset.diff, playerId: getPlayerId(), variant: _ckVariant() });
+    socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), vsBot: true, botDifficulty: btn.dataset.diff, playerId: getPlayerId(), variant: _ckVariant(), ludoBots: selectedGameType === 'ludo' ? _ludoBotsN() : undefined });
   });
 });
 
@@ -3617,6 +3619,19 @@ window._ucWhoSync = function () {
   const on = selectedGameType === 'undercover', card = document.getElementById('home-who'); if (!card) return;
   card.classList.toggle('is-uc', on);
   if (on && card.dataset.who === 'bot') { card.querySelector('.who-btn[data-who="friend"]')?.click(); }
+};
+
+// « Avec qui ? » : pour Ludo, un choix de 1 a 3 robots (garde apres F5).
+function _ludoBotsN() { try { return Math.min(3, Math.max(1, +localStorage.getItem('libero_ludo_bots') || 1)); } catch { return 1; } }
+window._ludoWhoSync = function () {
+  const box = document.getElementById('ludo-bots'); if (!box) return;
+  box.classList.toggle('hidden', selectedGameType !== 'ludo');
+  const st = document.getElementById('step-ludobots'); if (st) st.textContent = t().ludoBotsStep;
+  const n = _ludoBotsN();
+  box.querySelectorAll('.lb-btn').forEach(b => {
+    b.classList.toggle('active', +b.dataset.n === n);
+    if (!b._ok) { b._ok = 1; b.addEventListener('click', () => { try { localStorage.setItem('libero_ludo_bots', b.dataset.n); } catch {} window._ludoWhoSync(); }); }
+  });
 };
 
 // « Avec qui ? » : pour Uno, le choix du robot devient un nombre de robots et la mise disparait.
@@ -4025,6 +4040,8 @@ function buildConnect4(container, board) {
       cell.className = 'c4-cell';
       cell.dataset.row = row;
       cell.dataset.col = col;
+      // Un clic dans n'importe quel rond de la colonne joue cette colonne, comme la fleche.
+      cell.addEventListener('click', () => { if (gameActive) { socket.emit('make-move', { col }); } });
       boardEl.appendChild(cell);
     }
   }
@@ -4519,6 +4536,8 @@ function ludoSeatRoles() {
   return LUDO_ALL.filter(r => roles.includes(r));
 }
 function ludoSeatCount() { return ludoSeatRoles().length; }
+// Siege robot d'un Ludo a plusieurs robots (le serveur les nomme « Robot 1 » a « Robot 3 »).
+function ludoIsRobot(role) { const si = ludoSeatInfo && ludoSeatInfo.find(x => x.role === role); return !!(si && /^Robot \d$/.test(si.name || '')); }
 function ludoNameOf(role) {
   const si = ludoSeatInfo && ludoSeatInfo.find(x => x.role === role);
   if (si && si.name) return si.name;
@@ -4580,7 +4599,7 @@ function ludoDieFace(n) {
 const LUDO_ROBOT_SVG = '<svg viewBox="0 0 40 40"><rect width="40" height="40" fill="#e8edf5"/><rect x="9" y="12" width="22" height="18" rx="5" fill="#9aa4b2" stroke="#1d2433" stroke-width="2"/><circle cx="16" cy="21" r="2.6" fill="#1d2433"/><circle cx="24" cy="21" r="2.6" fill="#1d2433"/><path d="M20 12V7" stroke="#1d2433" stroke-width="2"/><circle cx="20" cy="6" r="2" fill="#e2485d"/></svg>';
 // Photo de profil d'un camp : portrait du joueur, icone de robot, ou portrait vide.
 function luPfHtml(role) {
-  if (isBotGame && role !== myPlayer) return LUDO_ROBOT_SVG;
+  if ((isBotGame && role !== myPlayer) || ludoIsRobot(role)) return LUDO_ROBOT_SVG;
   const pt = ludoPortraitOf(role);
   return pt && window.LiberoPortrait ? _ptSvg(pt) : (window.LiberoPortrait ? _ptBlank() : '');
 }
@@ -4814,17 +4833,6 @@ function ludoPlayable(state, player) {
   });
   return out;
 }
-function luPreview(i) {
-  const st = LU.shown, from = st.pawns[myPlayer][i];
-  let to = from === -1 ? 0 : Math.min(57, from + st.dice);
-  const pts = []; for (let r = from === -1 ? 0 : from + 1; r <= to; r++) pts.push(luPos(myPlayer, r, i));
-  const s0 = luPos(myPlayer, from, i), e = luPos(myPlayer, to, i), col = LUDO_COL[myPlayer];
-  const d = `M${s0[0]} ${s0[1]}` + pts.map(p => ` L${p[0]} ${p[1]}`).join('');
-  document.getElementById('ldo-pv').innerHTML =
-    `<path d="${d}" fill="none" stroke="${col}" stroke-width="4" stroke-dasharray="2 6" stroke-linecap="round" opacity=".9"/>` +
-    `<circle class="ldo-dest" data-i="${i}" cx="${e[0]}" cy="${e[1]}" r="14" fill="${col}" fill-opacity=".12" stroke="${col}" stroke-width="2.5" stroke-dasharray="4 3"/>`;
-  document.querySelector('#ldo-pv .ldo-dest')?.addEventListener('click', () => luConfirm(i));
-}
 function luConfirm(i) {
   if (LU.busy || LU.queue.length) return;
   document.getElementById('ldo-pv').innerHTML = ''; LU.sel = null;
@@ -4835,11 +4843,7 @@ function onLudoPawnClick(i, pl) {
   const st = LU.shown;
   if (!gameActive || !st || st.currentPlayer !== myPlayer || !st.dice || LU.busy || LU.queue.length || LU.sent) return;
   if (!ludoPlayable(st, myPlayer).includes(i)) return;
-  if (LU.sel === i) { luConfirm(i); return; }
-  LU.sel = i;
-  document.querySelectorAll('.ldo-pawn').forEach(e => e.classList.remove('can'));
-  LU.pawns[myPlayer + i]?.classList.add('can');
-  luPreview(i); luChrome(st, null);
+  luConfirm(i);
 }
 
 // Fin de partie : tampon, classement (pions rentres), chiffres de la partie.
@@ -6659,7 +6663,7 @@ socket.on('game-start', ({ gameType, state, yourPlayer, vsBot, botDifficulty, co
   if (stake > 0) setTimeout(() => showCursorSnakeToast(t().stakeStart(stake, pot || stake * 2)), 600);
   saveSession(currentRoomCode, yourPlayer);
   applyGameState({ gameType, state, yourPlayer, status: 'playing', winner: null });
-  $('chat').classList.toggle('hidden', isBotGame);
+  $('chat').classList.toggle('hidden', isBotGame || (gameType === 'ludo' && ludoSeatInfo && ludoSeatInfo.some(x => ludoIsRobot(x.role))));
   if (isBotGame) {
     const diffLabel = t().diffLabels[botDifficulty] || '';
     $('label-y').textContent = diffLabel ? `Robot (${diffLabel})` : 'Robot';
@@ -6684,7 +6688,7 @@ socket.on('reconnect-success', ({ gameType, state, yourPlayer, status, winner, r
   if (gameType === 'ludo') { ludoSeatInfo = seats || ludoSeatInfo; ludoSeatAway = {}; }
   applyGameState({ gameType, state, yourPlayer, status, winner });
   if (window.__relacherBoot) window.__relacherBoot();
-  $('chat').classList.toggle('hidden', isBotGame);
+  $('chat').classList.toggle('hidden', isBotGame || (gameType === 'ludo' && ludoSeatInfo && ludoSeatInfo.some(x => ludoIsRobot(x.role))));
   if (isBotGame) {
     const diffLabel = t().diffLabels[botDifficulty] || '';
     $('label-y').textContent = diffLabel ? `Robot (${diffLabel})` : 'Robot';
