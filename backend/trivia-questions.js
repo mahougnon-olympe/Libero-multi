@@ -826,4 +826,34 @@ module.exports = {
       { f: "Quels trésors royaux ont été restitués au Bénin par la France en 2021 ?", fc: ["Les trésors d'Abomey", "Les masques de Nikki", "Les bronzes d'Ifé", "Les statues de Djenné"], e: "Which royal treasures were returned to Benin by France in 2021?", ec: ["The Abomey treasures", "The Nikki masks", "The Ife bronzes", "The Djenné statues"], a: 0 },
     ],
   },
+  // ── 33 · Frissons (Halloween, proposé le 31 octobre seulement) ──────────────
+  33: {
+    easy: [
+      { f: "Quel personnage de Bram Stoker vit en Transylvanie ?", fc: ["Dracula", "Frankenstein", "Le loup-garou", "La momie"], e: "Which character created by Bram Stoker lives in Transylvania?", ec: ["Dracula", "Frankenstein", "The werewolf", "The mummy"], a: 0 },
+      { f: "Que creuse-t-on traditionnellement à Halloween pour y mettre une bougie ?", fc: ["Une citrouille", "Une pastèque", "Un melon", "Une courgette"], e: "What do people traditionally carve at Halloween to put a candle inside?", ec: ["A pumpkin", "A watermelon", "A melon", "A zucchini"], a: 0 },
+      { f: "Que dit-on en frappant aux portes à Halloween ?", fc: ["Des bonbons ou un sort !", "Joyeux Noël !", "Bonne année !", "À table !"], e: "What do children say when knocking on doors at Halloween?", ec: ["Trick or treat!", "Merry Christmas!", "Happy New Year!", "Dinner is ready!"], a: 0 },
+      { f: "Quelle couleur est associée à Halloween avec l'orange ?", fc: ["Le noir", "Le rose", "Le bleu", "Le vert clair"], e: "Which colour is associated with Halloween along with orange?", ec: ["Black", "Pink", "Blue", "Light green"], a: 0 },
+      { f: "Dans le roman de Mary Shelley, quel savant donne vie à une créature ?", fc: ["Victor Frankenstein", "Henry Jekyll", "Van Helsing", "Abraham Stoker"], e: "In Mary Shelley's novel, which scientist brings a creature to life?", ec: ["Victor Frankenstein", "Henry Jekyll", "Van Helsing", "Abraham Stoker"], a: 0 },
+      { f: "Quelle créature se transforme les nuits de pleine lune ?", fc: ["Le loup-garou", "Le vampire", "La momie", "Le fantôme"], e: "Which creature transforms on full moon nights?", ec: ["The werewolf", "The vampire", "The mummy", "The ghost"], a: 0 },
+      { f: "Quel animal est souvent associé aux vampires ?", fc: ["La chauve-souris", "Le hibou", "Le corbeau", "Le chat"], e: "Which animal is often associated with vampires?", ec: ["The bat", "The owl", "The raven", "The cat"], a: 0 },
+    ],
+    medium: [
+      { f: "Quel film d'horreur de 1980, réalisé par Stanley Kubrick, se déroule dans l'hôtel Overlook ?", fc: ["Shining", "Psychose", "Poltergeist", "Carrie"], e: "Which 1980 horror film directed by Stanley Kubrick takes place in the Overlook Hotel?", ec: ["The Shining", "Psycho", "Poltergeist", "Carrie"], a: 0 },
+      { f: "Qui a réalisé le film « Psychose » (1960) ?", fc: ["Alfred Hitchcock", "Stanley Kubrick", "Steven Spielberg", "John Carpenter"], e: "Who directed the film Psycho (1960)?", ec: ["Alfred Hitchcock", "Stanley Kubrick", "Steven Spielberg", "John Carpenter"], a: 0 },
+      { f: "Quel auteur a écrit « Ça » et « Shining » ?", fc: ["Stephen King", "Edgar Allan Poe", "H. P. Lovecraft", "Anne Rice"], e: "Which author wrote It and The Shining?", ec: ["Stephen King", "Edgar Allan Poe", "H. P. Lovecraft", "Anne Rice"], a: 0 },
+      { f: "Dans la mythologie grecque, quelle créature aux cheveux de serpents pétrifie ceux qui la regardent ?", fc: ["Méduse", "Circé", "Une harpie", "Le Sphinx"], e: "In Greek mythology, which creature with snakes for hair turns those who look at her to stone?", ec: ["Medusa", "Circe", "A harpy", "The Sphinx"], a: 0 },
+      { f: "Au Bénin, quel est le nom des gardiens de la nuit du culte vodun, cachés sous une botte de paille ?", fc: ["Les Zangbeto", "Les Egungun", "Les Kaléta", "Les Oro"], e: "In Benin, what are the night guardians of the Vodun tradition, hidden under a bundle of straw, called?", ec: ["The Zangbeto", "The Egungun", "The Kaleta", "The Oro"], a: 0 },
+      { f: "Quelle fête mexicaine des 1er et 2 novembre honore les défunts ?", fc: ["Le Jour des morts", "Le Carnaval", "Le Cinco de Mayo", "Les Posadas"], e: "Which Mexican celebration on 1 and 2 November honours the dead?", ec: ["The Day of the Dead", "Carnival", "Cinco de Mayo", "Las Posadas"], a: 0 },
+      { f: "Quel film de Steven Spielberg (1975) met en scène un requin géant ?", fc: ["Les Dents de la mer", "Alien", "Piranha", "Orca"], e: "Which 1975 Steven Spielberg film features a giant shark?", ec: ["Jaws", "Alien", "Piranha", "Orca"], a: 0 },
+      { f: "Dans quel pays se trouve la région de Transylvanie ?", fc: ["La Roumanie", "La Hongrie", "La Bulgarie", "La Serbie"], e: "In which country is the region of Transylvania?", ec: ["Romania", "Hungary", "Bulgaria", "Serbia"], a: 0 },
+    ],
+    hard: [
+      { f: "En quelle année Bram Stoker a-t-il publié « Dracula » ?", fc: ["1897", "1847", "1922", "1931"], e: "In which year did Bram Stoker publish Dracula?", ec: ["1897", "1847", "1922", "1931"], a: 0 },
+      { f: "Quel film muet de 1922, réalisé par F. W. Murnau, est une adaptation non officielle de « Dracula » ?", fc: ["Nosferatu", "Metropolis", "Le Cabinet du docteur Caligari", "Faust"], e: "Which 1922 silent film by F. W. Murnau is an unofficial adaptation of Dracula?", ec: ["Nosferatu", "Metropolis", "The Cabinet of Dr. Caligari", "Faust"], a: 0 },
+      { f: "Quelle fête celte, du 31 octobre au 1er novembre, est à l'origine d'Halloween ?", fc: ["Samain", "Beltaine", "Imbolc", "Lughnasadh"], e: "Which Celtic festival, from 31 October to 1 November, is the origin of Halloween?", ec: ["Samhain", "Beltane", "Imbolc", "Lughnasadh"], a: 0 },
+      { f: "Qui a écrit le poème « Le Corbeau » en 1845 ?", fc: ["Edgar Allan Poe", "Mary Shelley", "H. P. Lovecraft", "Bram Stoker"], e: "Who wrote the poem The Raven in 1845?", ec: ["Edgar Allan Poe", "Mary Shelley", "H. P. Lovecraft", "Bram Stoker"], a: 0 },
+      { f: "Qui a réalisé « Halloween » (1978), avec le tueur Michael Myers ?", fc: ["John Carpenter", "Wes Craven", "Tobe Hooper", "George A. Romero"], e: "Who directed Halloween (1978), featuring the killer Michael Myers?", ec: ["John Carpenter", "Wes Craven", "Tobe Hooper", "George A. Romero"], a: 0 },
+      { f: "Qui a réalisé « La Nuit des morts-vivants » (1968) ?", fc: ["George A. Romero", "Sam Raimi", "Danny Boyle", "Zack Snyder"], e: "Who directed Night of the Living Dead (1968)?", ec: ["George A. Romero", "Sam Raimi", "Danny Boyle", "Zack Snyder"], a: 0 },
+    ],
+  },
 };
