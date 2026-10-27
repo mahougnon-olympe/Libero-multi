@@ -147,7 +147,8 @@ const EN = {
   'Dream': 'sleep,imaginary,night,rest', 'Nightmare': 'fear,night,wake,sweat',
 };
 const split = o => { const r = {}; for (const k of Object.keys(o)) r[k] = o[k].split(','); return r; };
-const BANK = { fr: split(FR), en: split(EN) };
+const HW = require('./undercover-words-halloween');
+const BANK = { fr: split({ ...HW.fr, ...FR }), en: split({ ...HW.en, ...EN }) };
 // Mots vagues pour Mr. White quand il n'a rien d'utile a imiter.
 const VAGUE = {
   fr: ['commun', 'utile', 'quotidien', 'connu', 'simple', 'classique', 'populaire', 'courant', 'agréable', 'habituel', 'pratique', 'naturel'],

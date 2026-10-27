@@ -3439,7 +3439,37 @@ html.light { --gl-ring: #173a8a; }
 .gl-spot.back{animation:gl-back .6s cubic-bezier(.2,1.5,.4,1)}
 @keyframes gl-back{from{transform:translate(-50%,-50%) scale(.2) rotate(-40deg);opacity:0}}
 
+.gl-wink,.gl-cheek,.gl-tongue { display: none; }
+.gl-cheek { fill: #fff; fill-opacity: .35; stroke: var(--ink); stroke-width: 1.6; }
+.gl-tongue { fill: #ff6f91; stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; }
+.gl-spot.g .gl-flip { animation: gl-taunt .32s ease-in-out infinite; }
+@keyframes gl-taunt { 25% { transform: rotate(-10deg) skewX(-6deg) scale(1.06); } 75% { transform: rotate(10deg) skewX(6deg) scale(1.06); } }
+.gl-spot.g-tongue .gl-mouth.flat, .gl-spot.g-puff .gl-mouth.flat, .gl-spot.g-cross .gl-mouth.flat, .gl-spot.g-wink .gl-mouth.flat { display: none; }
+.gl-spot.g-tongue .gl-tongue { display: block; transform-origin: 36px 45px; animation: gl-tng .22s ease-in-out infinite alternate; }
+@keyframes gl-tng { from { transform: scaleY(.8); } to { transform: scaleY(1.18) translateY(1px); } }
+.gl-spot.g-tongue .gl-mouth.smile, .gl-spot.g-wink .gl-mouth.smile { display: block; }
+.gl-spot.g-wink .gl-eye.e2, .gl-spot.g-wink .gl-pupil.pr { display: none; }
+.gl-spot.g-wink .gl-wink { display: block; }
+.gl-spot.g-cross .gl-pupil.pl { transform: translate(4px,3px) !important; }
+.gl-spot.g-cross .gl-pupil.pr { transform: translate(-4px,3px) !important; }
+.gl-spot.g-cross .gl-mouth.o { display: block; fill: none; stroke: var(--ink); stroke-width: 2; rx: 7; ry: 2; }
+.gl-spot.g-puff .gl-cheek { display: block; animation: gl-chk .3s ease-in-out infinite alternate; }
+@keyframes gl-chk { to { transform: scale(1.18); } }
+.gl-spot.g-puff .gl-mouth.o { display: block; fill: var(--ink); rx: 1.6; ry: 1.6; }
+.gl-say { position: absolute; left: 50%; top: -20px; transform: translateX(-50%) rotate(-5deg); font: 700 1.25rem 'Caveat', cursive; background: var(--card); color: var(--ink); border: 2px solid var(--ink); border-radius: 12px; padding: 0 10px; white-space: nowrap; box-shadow: 2px 3px 0 var(--hard); opacity: 0; pointer-events: none; }
+.gl-spot.g .gl-say { animation: gl-say 1.5s ease-out forwards; }
+@keyframes gl-say { 0% { opacity: 0; transform: translateX(-50%) translateY(8px) scale(.5) rotate(-5deg); } 18% { opacity: 1; transform: translateX(-50%) scale(1.1) rotate(-5deg); } 85% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-8px) rotate(-3deg); } }
+.gl-spot.spy .gl-say { margin-left: -62px; }
+.gl-spot.spy .gl-bob { animation: none; }
+.gl-spot.spy .gl-flip { animation: none; transform: rotate(var(--sr,0deg)); }
+.gl-spot.spy .gl-shadow, .gl-spot.spy .gl-ttl { display: none; }
+.gl-spot.spy .gl-eye { r: 7.5; }
+.gl-spot.spy .gl-pupil { r: 3.4; }
+
+.gl-cos { display: none; }
+.gl-layer.hw .gl-cos { display: block; }
+.gl-layer.hw .gl-r-commun .out { fill: #ff9a3c; }
 @media (prefers-reduced-motion: reduce) {
   .gl-flip, .gl-bob, .gl-shadow, .gl-star, .gl-halo { animation: none !important; }
-  .gl-spot.in, .gl-spot.back, .gl-layer.flash::after { animation: none !important; }
+  .gl-spot.in, .gl-spot.back, .gl-layer.flash::after, .gl-spot.g .gl-flip { animation: none !important; }
 }

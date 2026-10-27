@@ -4,6 +4,9 @@
 // Identite = playerId (jamais diffuse). Chaque joueur recoit un etat personnalise : son mot, jamais
 // celui des autres, et les roles ne sont reveles qu'a l'elimination ou a la fin de la partie.
 const WORDS = require('./undercover-words');
+const HW_WORDS = require('./undercover-words-halloween').pairs;
+// Le 31 octobre (heure du Benin), une partie sur deux tire ses mots dans le paquet « Monstres »
+const _halloween = () => process.env.UC_HALLOWEEN === '1' || new Date(Date.now() + 3600e3).toISOString().slice(0, 10) === '2026-10-31';
 const BOT = require('./undercover-bots');
 
 const MIN = 4, MAX = 10, DEF_MAX = 8;
@@ -103,7 +106,7 @@ module.exports = function createUndercover(ctx) {
     room.players = humans;                                    // les joueurs partis ne participent pas
     const n = room.players.length, r = resolveRoles(room, n), pids = shuffle(room.players.map(p => p.pid)), roles = {};
     pids.forEach((pid, i) => { roles[pid] = i < r.und ? 'undercover' : i < r.und + r.white ? 'white' : 'civil'; });
-    const pr = WORDS[Math.floor(Math.random() * WORDS.length)], swap = Math.random() < .5;
+    const bank = _halloween() && Math.random() < .5 ? HW_WORDS : WORDS, pr = bank[Math.floor(Math.random() * bank.length)], swap = Math.random() < .5;
     const w = (a, b) => ({ fr: a, en: b });
     const civ = swap ? w(pr[1], pr[3]) : w(pr[0], pr[2]), und = swap ? w(pr[0], pr[2]) : w(pr[1], pr[3]);
     room.rolesReset = false; room.status = 'playing'; room.played = room.players.map(p => p.pid);

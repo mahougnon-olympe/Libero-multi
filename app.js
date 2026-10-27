@@ -1041,7 +1041,7 @@ const DICT = {
     shopBubbleTitle:'💬 Bulles de chat',
     tplTitle:'Portraits de la classe', tplDesc:'Des portraits composés par les joueurs. « Essayer » le pose sur ton portrait sans rien acheter ; l\'auteur touche 70 % du prix.',
     tplNav:'Portraits', tplSortTop:'Les plus achetés', tplSortNew:'Nouveautés', tplSortMine:'Mes modèles', tplBy:'par', tplSales:n => `${n} vente${n > 1 ? 's' : ''}`,
-    goldAria:n=>`Lib doré ${n} : touche pour le ramasser`, goldRarN:['Commun','Atypique','Rare','Épique','Légendaire','Mythique'], goldCaught:'Attrapé de justesse !', spCkGold:'Masquer les Libs dorés', goldGot:(n,l)=>`+${n} Libs dorés${l>0?` (encore ${l} aujourd'hui)`:' (c\'était le dernier du jour)'}`, tplTry:'Essayer', tplBuy:'Acheter', tplOwned:'Déjà acheté', tplRemove:'Retirer', tplPending:'En attente de validation', tplEmpty:'Aucun modèle pour l\'instant. Publie le tien depuis Profil, Mon portrait.',
+    goldAria:n=>`Lib doré ${n} : touche pour le ramasser`, goldRarN:['Commun','Atypique','Rare','Épique','Légendaire','Mythique'], goldCaught:'Attrapé de justesse !', goldSay:['Raté !','Nananère !','Même pas mal !','Trop lent !','Viens me chercher !'], goldSpy:['Je te vois...','Continue, je regarde.','Je note tout.'], spCkGold:'Masquer les Libs dorés', goldGot:(n,l)=>`+${n} Libs dorés${l>0?` (encore ${l} aujourd'hui)`:' (c\'était le dernier du jour)'}`, tplTry:'Essayer', tplBuy:'Acheter', tplOwned:'Déjà acheté', tplRemove:'Retirer', tplPending:'En attente de validation', tplEmpty:'Aucun modèle pour l\'instant. Publie le tien depuis Profil, Mon portrait.',
     tplTags:{sport:'Sport', school:'École', party:'Fête', style:'Style', funny:'Drôle'}, tplBought:'Portrait acheté, il est sur ton profil !',
     tplPublish:'Publier comme modèle', tplPubName:'Nom du modèle', tplPubPrice:'Prix', tplPubTag:'Rayon', tplPubSend:'Envoyer à la validation',
     tplPubOk:'Envoyé ! L\'admin doit valider ton modèle avant qu\'il soit en vente.', tplPubRules:'Il faut le niveau 5. 3 modèles maximum. Tu touches 70 % de chaque vente.',
@@ -1850,7 +1850,7 @@ const DICT = {
     shopBubbleTitle:'💬 Chat bubbles',
     tplTitle:'Class portraits', tplDesc:'Portraits made by players. "Try" puts it on your portrait without buying; the author earns 70% of the price.',
     tplNav:'Portraits', tplSortTop:'Best sellers', tplSortNew:'New', tplSortMine:'My templates', tplBy:'by', tplSales:n => `${n} sale${n > 1 ? 's' : ''}`,
-    goldAria:n=>`${n} golden Lib: tap to collect it`, goldRarN:['Common','Uncommon','Rare','Epic','Legendary','Mythic'], goldCaught:'Caught just in time!', spCkGold:'Hide golden Libs', goldGot:(n,l)=>`+${n} golden Libs${l>0?` (${l} left today)`:' (that was the last one today)'}`, tplTry:'Try', tplBuy:'Buy', tplOwned:'Already bought', tplRemove:'Remove', tplPending:'Awaiting approval', tplEmpty:'No template yet. Publish yours from Profile, My portrait.',
+    goldAria:n=>`${n} golden Lib: tap to collect it`, goldRarN:['Common','Uncommon','Rare','Epic','Legendary','Mythic'], goldCaught:'Caught just in time!', goldSay:['Missed!','Nyah nyah!','Did not hurt!','Too slow!','Come and get me!'], goldSpy:['I see you...','Keep going, I am watching.','I am taking notes.'], spCkGold:'Hide golden Libs', goldGot:(n,l)=>`+${n} golden Libs${l>0?` (${l} left today)`:' (that was the last one today)'}`, tplTry:'Try', tplBuy:'Buy', tplOwned:'Already bought', tplRemove:'Remove', tplPending:'Awaiting approval', tplEmpty:'No template yet. Publish yours from Profile, My portrait.',
     tplTags:{sport:'Sport', school:'School', party:'Party', style:'Style', funny:'Funny'}, tplBought:'Portrait bought, it is on your profile!',
     tplPublish:'Publish as a template', tplPubName:'Template name', tplPubPrice:'Price', tplPubTag:'Shelf', tplPubSend:'Send for approval',
     tplPubOk:'Sent! The admin must approve your template before it goes on sale.', tplPubRules:'Level 5 required. 3 templates max. You earn 70% of each sale.',
@@ -16073,7 +16073,17 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
   const STAR = '<svg viewBox="0 0 16 16"><path d="M8 1v14M1 8h14"/></svg>';
   const HEART = '<svg viewBox="0 0 16 15"><path d="M8 14C-3 6 3 -2 8 4c5-6 11 2 0 10z"/></svg>';
   const SPLAT = '<svg viewBox="0 0 100 100"><path d="M50 4l10 22 22-12-6 24 24 2-18 16 18 16-24 2 6 24-22-12-10 22-10-22-22 12 6-24-24-2 18-16-18-16 24-2-6-24 22 12z"/></svg>';
-  const coin = c => '<svg viewBox="0 0 72 72"><path class="out" d="M36 5c17-1 31 12 31 30S53 67 36 67 5 53 5 36 19 6 36 5z" fill="' + c + '" stroke-width="3.2" stroke-linejoin="round"/><circle cx="36" cy="36" r="24" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="3 4" opacity=".45"/><path d="M50 55l10-10M42 62l20-20" stroke="var(--ink)" stroke-width="2" opacity=".18"/><path d="M15 25c2-6 7-11 13-13" stroke="#fff" stroke-width="3.4" stroke-linecap="round" fill="none" opacity=".9"/><g class="gl-eyes"><circle class="gl-eye" cx="27" cy="29" r="6"/><circle class="gl-eye" cx="45" cy="29" r="6"/><circle class="gl-pupil pl" cx="27" cy="29" r="2.6"/><circle class="gl-pupil pr" cx="45" cy="29" r="2.6"/></g><g class="gl-mouth-g" transform="translate(0,2)"><path class="gl-mouth flat" d="M30 46h12"/><ellipse class="gl-mouth o" cx="36" cy="47" rx="3.4" ry="4"/><path class="gl-mouth smile" d="M28 44c4 7 12 7 16 0"/></g></svg>';
+  // Costumes d'Halloween (31 octobre) : un par rarete, dessines sur la piece ; caches hors de ce jour
+  const _K = 'stroke="var(--ink)" stroke-width="2.4" stroke-linejoin="round"';
+  const COS = [
+    '<path d="M33 7c0-5 4-8 7-8v4c-1 0-2 1-2 4z" fill="#4a9a5b" ' + _K + '/><path d="M36 6c-10 9-10 51 0 60M36 6c10 9 10 51 0 60" fill="none" stroke="var(--ink)" stroke-width="1.6" opacity=".4"/>',
+    '<path d="M4 40C4 12 20 2 36 2s32 10 32 38v24l-6-5-6 5-6-5-6 5-6-5-6 5-6-5-6 5z" fill="#fff" fill-opacity=".85" ' + _K + '/>',
+    '<ellipse cx="34" cy="19" rx="27" ry="5.5" fill="#5b3a8a" ' + _K + '/><path d="M18 18L40 -26 48 18z" fill="#5b3a8a" ' + _K + '/><path d="M20 12h25" stroke="#ffe169" stroke-width="4"/>',
+    '<path d="M10 50l-12 16 26-6zM62 50l12 16-26-6z" fill="#7a1530" ' + _K + '/><path d="M30 46l2.5 8 2.5-8zM37 46l2.5 8 2.5-8z" fill="#fff" ' + _K + '/>',
+    '<path d="M6 32C-16 16-22 40-12 54c5-7 9-5 12-1 3-6 7-6 10-2z" fill="#2b2233" ' + _K + '/><path d="M66 32c22-16 28 8 18 22-5-7-9-5-12-1-3-6-7-6-10-2z" fill="#2b2233" ' + _K + '/>',
+    '<path d="M14 16C4 6 6 -8 17 -12 13 -2 18 5 26 9zM58 16C68 6 66 -8 55 -12 59 -2 54 5 46 9z" fill="#d9503f" ' + _K + '/>'];
+  const isHwDay = () => new Date(Date.now() + 3600e3).toISOString().slice(0, 10) === '2026-10-31';
+  const coin = (c, i) => '<svg viewBox="0 0 72 72"><path class="out" d="M36 5c17-1 31 12 31 30S53 67 36 67 5 53 5 36 19 6 36 5z" fill="' + c + '" stroke-width="3.2" stroke-linejoin="round"/><circle cx="36" cy="36" r="24" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="3 4" opacity=".45"/><path d="M50 55l10-10M42 62l20-20" stroke="var(--ink)" stroke-width="2" opacity=".18"/><path d="M15 25c2-6 7-11 13-13" stroke="#fff" stroke-width="3.4" stroke-linecap="round" fill="none" opacity=".9"/><g class="gl-cos">' + COS[i || 0] + '</g><g class="gl-eyes"><circle class="gl-eye" cx="27" cy="29" r="6"/><circle class="gl-eye e2" cx="45" cy="29" r="6"/><circle class="gl-pupil pl" cx="27" cy="29" r="2.6"/><circle class="gl-pupil pr" cx="45" cy="29" r="2.6"/></g><path class="gl-wink" d="M39 29c3 -3 9 -3 12 0" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/><circle class="gl-cheek" cx="19" cy="44" r="7"/><circle class="gl-cheek" cx="53" cy="44" r="7"/><g class="gl-mouth-g" transform="translate(0,2)"><path class="gl-mouth flat" d="M30 46h12"/><ellipse class="gl-mouth o" cx="36" cy="47" rx="3.4" ry="4"/><path class="gl-mouth smile" d="M28 44c4 7 12 7 16 0"/><path class="gl-tongue" d="M30 45h12c1 9 -2 14 -6 14s-7 -5 -6 -14z"/></g></svg>';
 
   let timer = null, stopped = false, cur = null, layer = null, raf = 0, T0 = 0;
   const P = { x: -999, y: -999, on: false };
@@ -16125,7 +16135,7 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
   // ── Couche, effets ─────────────────────────────────────────────────────────
   function getLayer() {
     if (layer && layer.isConnected) return layer;
-    layer = document.createElement('div'); layer.className = 'gl-layer'; layer.setAttribute('aria-live', 'off');
+    layer = document.createElement('div'); layer.className = 'gl-layer' + (isHwDay() ? ' hw' : ''); layer.setAttribute('aria-live', 'off');
     layer.innerHTML = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="glrb"><stop offset="0" stop-color="#ff5a7a"/><stop offset=".25" stop-color="#ffb347"/><stop offset=".5" stop-color="#6fcf6f"/><stop offset=".75" stop-color="#5ab0ff"/><stop offset="1" stop-color="#c45aff"/></linearGradient></defs></svg>';
     document.body.appendChild(layer); return layer;
   }
@@ -16154,7 +16164,7 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     for (let k = 0; k < c[1]; k++) { const a = k / c[1] * 6.28 + .4; stars += '<i class="gl-star" style="left:' + (42 + Math.cos(a) * (52 + k % 2 * 8)) + 'px;top:' + (40 + Math.sin(a) * (46 + k % 2 * 6)) + 'px;animation-delay:-' + (k * .37) + 's">' + STAR + '</i>'; }
     const ttl = (r.ttl || 25000) / 1000;
     s.innerHTML = '<div class="gl-bob"><div class="gl-shadow"></div><svg class="gl-halo" viewBox="0 0 112 112"><circle cx="56" cy="56" r="52"/></svg>' + stars +
-      '<svg class="gl-trust" viewBox="0 0 84 84"><circle cx="42" cy="42" r="38"/></svg><div class="gl-flip">' + coin(c[0]) + '</div><i class="gl-sweat"></i>' +
+      '<svg class="gl-trust" viewBox="0 0 84 84"><circle cx="42" cy="42" r="38"/></svg><div class="gl-flip">' + coin(c[0], i) + '</div><i class="gl-sweat"></i><span class="gl-say"></span>' +
       '<span class="gl-lab">' + _escHtml(t().goldRarN[i]) + '</span><i class="gl-ttl" style="animation-duration:' + ttl + 's"></i></div>';
     const o = { n: s, i, wild, token: r.token, life: ttl, born: performance.now(), trust: 0, tamed: false, tamedUntil: 0, vx: 0, vy: 0, dashes: 0, last: 0, tired: false, blinkAt: 0, awayUntil: 0, hearts: 0, chk: 0 };
     s.addEventListener('click', () => take(o));
@@ -16211,6 +16221,19 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     h.style.cssText = 'left:' + (34 + Math.random() * 24) + 'px;top:8px;--hx:' + ((Math.random() - .5) * 34) + 'px'; h.innerHTML = HEART;
     o.n.querySelector('.gl-bob').appendChild(h); setTimeout(() => h.remove(), 1400);
   }
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  function taunt(o, kind, say) {
+    const n = o.n; n.querySelector('.gl-say').textContent = say; n.classList.add('g', 'g-' + kind);
+    setTimeout(() => n.classList.remove('g', 'g-' + kind), 1500);
+  }
+  // Bord de l'ecran ou se cacher a moitie : jamais sur un bouton (droite, et gauche sur telephone)
+  function peekSpot(b) {
+    for (let k = 0; k < 8; k++) {
+      const left = innerWidth < 1024 && Math.random() < .5, x = left ? 8 : innerWidth - 8, y = Math.min(b.y1, Math.max(b.y0, P.y + (Math.random() - .5) * 300));
+      if (!blocked(left ? x + 20 : x - 20, y) && !blocked(left ? x + 20 : x - 20, y - 40)) return [x, y, left];
+    }
+    return null;
+  }
   function expire(o) { if (cur !== o) return; poof(parseFloat(o.n.style.left), parseFloat(o.n.style.top) + 20); drop(); plan(40000 + Math.random() * 40000); }
 
   function loop(tm) {
@@ -16234,6 +16257,28 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     }
     const d = Math.hypot(x - P.x, y - P.y); look(o, x, y - 10);
     const near = P.on && d < D.fleeR, gentle = PS <= D.calm;
+    // Il t'epie : a moitie cache derriere le bord de l'ecran, les yeux sur ton pointeur ; si tu approches, il plonge
+    if (o.spy) {
+      const sp = o.spy; look(o, x, y - 10);
+      if (now > sp.until || (P.on && d < D.fleeR * 1.25)) {
+        o.spy = null; n.classList.remove('spy'); const q = far(b, 260);
+        poof(x, y); n.style.left = q[0] + 'px'; n.style.top = q[1] + 'px'; poof(q[0], q[1] + 30);
+        n.classList.add('back'); setTimeout(() => n.classList.remove('back'), 650); o.last = now; o.spyAt = now + 7000 + Math.random() * 5000; return;
+      }
+      if (!sp.said && now > sp.t0 + 900) { sp.said = 1; taunt(o, 'wink', pick(t().goldSpy)); }
+      return;
+    }
+    if (!o.spyAt) o.spyAt = now + 4000 + Math.random() * 4000;
+    if (!o.tamed && P.on && now > o.spyAt && now - o.last > 2500 && d > D.fleeR * 1.6 && !n.classList.contains('g')) {
+      const e = peekSpot(b);
+      if (e) { poof(x, y); n.style.left = e[0] + 'px'; n.style.top = e[1] + 'px'; n.style.setProperty('--sr', (e[2] ? 14 : -14) + 'deg'); o.vx = o.vy = 0; n.classList.add('spy'); o.spy = { until: now + 6000 + Math.random() * 3000, t0: now, said: 0 }; return; }
+      o.spyAt = now + 3000;
+    }
+    // Grimace pour narguer apres une esquive, si le joueur est encore autour
+    if (!o.tamed && P.on && !(P.on && d < D.fleeR) && now - o.last > 500 && now - o.last < 6000 && now > (o.tauntAt || 0) && d < D.fleeR * 2.6 && !n.classList.contains('g')) {
+      o.tauntAt = now + 2600 + Math.random() * 2400; taunt(o, pick(['tongue', 'wink', 'cross', 'puff']), pick(t().goldSay));
+    }
+    if (P.on && d < D.fleeR && PS > D.calm && n.classList.contains('g')) n.classList.remove('g', 'g-tongue', 'g-wink', 'g-cross', 'g-puff');
     if (o.tamed) {
       if (now > o.tamedUntil) { o.tamed = false; o.trust = 0; n.classList.remove('tame', 'calming'); }
       else { n.style.setProperty('--t', 1); heartTick(o, dt); return; }
