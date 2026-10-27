@@ -1081,7 +1081,7 @@ const DICT = {
     shopVictoryBanNames:{'victoryban-neon':'Tampon « Bravo ! »','victoryban-confetti':'Guirlande de fanions','victoryban-flames':'20/20 au stylo rouge','victoryban-lightning':'Médaille d\'or','victoryban-crown':'Couronne de laurier dorée'},
     shopFlagFramesTitle:'Cadres de drapeau',
     shopFlagFrameNames:{'flagframe-wood':'Cadre en bois','flagframe-gold':'Cadre doré','flagframe-neon':'Néon','flagframe-cloth':'Drapeau flottant'},
-    shopPFrameNames:{'pframe-live-gold':"Couronne d'Or",'pframe-live-silver':'Argent Royal','pframe-live-bronze':'Bronze Impérial','pframe-live-finalist':'Étoile du Finaliste','pframe-live-semi':'Glace du Demi-finaliste','pframe-live-2gold':'Couronne','pframe-live-2silver':'Argent double','pframe-live-2bronze':'Bronze','pframe-live-2finalist':'Finaliste','pframe-live-2semi':'Demi'},
+    shopPFrameNames:{'pframe-live-gold':"Couronne d'Or",'pframe-live-silver':'Argent Royal','pframe-live-bronze':'Bronze Impérial','pframe-live-finalist':'Étoile du Finaliste','pframe-live-semi':'Glace du Demi-finaliste','pframe-live-2gold':'Couronne','pframe-live-2silver':'Argent double','pframe-live-2bronze':'Bronze','pframe-live-2finalist':'Finaliste','pframe-live-2semi':'Demi','pframe-toile':'Cadre Toile'},
     shopUnoSkinsTitle:'Skins de cartes Uno',
     shopUnoSkinNames:{'unoskin-felt':'Papier cartonné','unoskin-metal':'Métal brossé','unoskin-gold':'Noir et or','unoskin-neon':'Néon'},
     shopSoundPacksTitle:'🔊 Packs de sons',
@@ -1890,7 +1890,7 @@ const DICT = {
     shopVictoryBanNames:{'victoryban-neon':'"Bravo!" stamp','victoryban-confetti':'Bunting','victoryban-flames':'20/20 in red pen','victoryban-lightning':'Gold medal','victoryban-crown':'Golden laurel wreath'},
     shopFlagFramesTitle:'Flag frames',
     shopFlagFrameNames:{'flagframe-wood':'Wooden frame','flagframe-gold':'Golden frame','flagframe-neon':'Neon','flagframe-cloth':'Waving flag'},
-    shopPFrameNames:{'pframe-live-gold':'Golden Crown','pframe-live-silver':'Royal Silver','pframe-live-bronze':'Imperial Bronze','pframe-live-finalist':'Finalist Star','pframe-live-semi':'Semifinalist Ice','pframe-live-2gold':'Crown','pframe-live-2silver':'Double silver','pframe-live-2bronze':'Bronze','pframe-live-2finalist':'Finalist','pframe-live-2semi':'Semi'},
+    shopPFrameNames:{'pframe-live-gold':'Golden Crown','pframe-live-silver':'Royal Silver','pframe-live-bronze':'Imperial Bronze','pframe-live-finalist':'Finalist Star','pframe-live-semi':'Semifinalist Ice','pframe-live-2gold':'Crown','pframe-live-2silver':'Double silver','pframe-live-2bronze':'Bronze','pframe-live-2finalist':'Finalist','pframe-live-2semi':'Semi','pframe-toile':'Web frame'},
     shopUnoSkinsTitle:'Uno card skins',
     shopUnoSkinNames:{'unoskin-felt':'Cardstock','unoskin-metal':'Brushed metal','unoskin-gold':'Black and gold','unoskin-neon':'Neon'},
     shopSoundPacksTitle:'🔊 Sound Packs',
@@ -3287,6 +3287,7 @@ window._renderProfilePseudo = function () {
     av.classList.toggle('initial', !ic);
     av.classList.toggle('has-portrait', !!ic && !!window.LiberoPortrait);
     ['gold','silver','bronze','finalist','semi','2gold','2silver','2bronze','2finalist','2semi'].forEach(k => av.classList.toggle('pf-' + k, equippedPFrame === 'pframe-live-' + k));
+    av.classList.toggle('pf-toile', equippedPFrame === 'pframe-toile');
   }
 };
 function triggerRename(name) {
@@ -3743,7 +3744,9 @@ function _ptSvg(p) {
 // Sans portrait compose : la silhouette « a dessiner » (portrait de base).
 let _ptBlankSvg = '';
 function _ptBlank() { if (!_ptBlankSvg && window.LiberoPortrait?.blank) _ptBlankSvg = window.LiberoPortrait.blank(); return _ptBlankSvg; }
-function _lbPt(p, frame) { const s = p ? _ptSvg(p) : _ptBlank(); const pf = frame && /^pframe-live-(2?gold|2?silver|2?bronze|2?finalist|2?semi)$/.test(frame) ? ' pf-' + frame.slice(12) : ''; return s ? `<span class="lb-pt${pf}" aria-hidden="true">${s}</span>` : ''; }
+// Classe CSS d'un cadre de portrait : pframe-live-gold -> gold, pframe-toile -> toile
+function _pfCls(id) { return String(id).replace(/^pframe-(live-)?/, ''); }
+function _lbPt(p, frame) { const s = p ? _ptSvg(p) : _ptBlank(); const pf = frame && /^pframe-(live-(2?gold|2?silver|2?bronze|2?finalist|2?semi)|toile)$/.test(frame) ? ' pf-' + _pfCls(frame) : ''; return s ? `<span class="lb-pt${pf}" aria-hidden="true">${s}</span>` : ''; }
 try { myPortrait = JSON.parse(localStorage.getItem('libero_portrait') || 'null'); } catch { myPortrait = null; }
 
 function setPlayerBadges(gameType, yourPlayer) {
@@ -7702,6 +7705,7 @@ function _renderShopItems() {
   const emojiPackItems   = ALL_EMOJIPACKS.map(x   => ({ ...x, type:'emojipack',   name: d.shopEmojiPackNames[x.id] }));
   const victoryBanItems  = ALL_VICTORYBANS.map(x  => ({ ...x, type:'victoryban',  name: d.shopVictoryBanNames[x.id] }));
   const flagFrameItems   = ALL_FLAGFRAMES.map(x   => ({ ...x, type:'flagframe',   name: d.shopFlagFrameNames[x.id] }));
+  const pframeItems      = [{ id:'pframe-toile', price:120, type:'pframe', name: d.shopPFrameNames['pframe-toile'] }];
   const unoSkinItems     = ALL_UNOSKINS.map(x     => ({ ...x, type:'unoskin',     name: d.shopUnoSkinNames[x.id] }));
   const soundPackItems   = ALL_SOUNDPACKS.map(x   => ({ ...x, type:'soundpack',   name: d.shopSoundPackNames[x.id] }));
   const emoteItems       = ALL_EMOTES.map(x       => ({ ...x, type:'emote',       name: d.shopEmoteNames[x.id] }));
@@ -7710,7 +7714,7 @@ function _renderShopItems() {
   [...colorItems, ...fontItems, ...bubbleItems, ...bgItems,
    ...nameEffectItems, ...titleItems, ...cursorSnakeItems, ...snakeSkinItems, ...avatarItems,
    ...p4TokenItems, ...tttItems, ...chessItems,
-   ...clickFxItems, ...emojiPackItems, ...victoryBanItems, ...unoSkinItems, ...flagFrameItems, ...soundPackItems, ...emoteItems,
+   ...clickFxItems, ...emojiPackItems, ...victoryBanItems, ...unoSkinItems, ...flagFrameItems, ...pframeItems, ...soundPackItems, ...emoteItems,
   ].forEach(it => { allItemsById[it.id] = it; });
   allItemsById['boost_hint_10'] = { id:'boost_hint_10', type:'boost', price:3, name:d.shopBoostHintName };
   allItemsById['boost_hint_20'] = { id:'boost_hint_20', type:'boost', price:5, name:d.shopBoostHintName };
@@ -7756,7 +7760,7 @@ function _renderShopItems() {
     const isEquipped = !honorary && [equippedCosmetic, equippedFont, equippedBubble, equippedBackground,
       equippedNameEffect, equippedTitle, equippedCursorSnake, equippedAvatar,
       equippedP4Token, equippedTtt, equippedChess, equippedSnakeSkin,
-      equippedClickFx, equippedEmojiPack, equippedVictoryBan, equippedSoundPack, equippedUnoSkin, equippedFlagFrame, ...equippedEmotes,
+      equippedClickFx, equippedEmojiPack, equippedVictoryBan, equippedSoundPack, equippedUnoSkin, equippedFlagFrame, equippedPFrame, ...equippedEmotes,
     ].includes(id);
     const safeName = (name || id).replace(/"/g, '&quot;');
     const _AV = {'avatar-gamepad':'🎮','avatar-cat':'🐱','avatar-lightning':'⚡','avatar-rocket':'🚀','avatar-robot':'🤖','avatar-skull':'💀','avatar-crown':'👑','avatar-ball':'⚽','avatar-lion':'🦁','avatar-ghost':'👻','avatar-unicorn':'🦄','avatar-dragon':'🐉'};
@@ -7784,6 +7788,7 @@ function _renderShopItems() {
     else if (type === 'soundpack')  previewHtml = `<div class="shop-emoji-preview">🎵</div>`;
     else if (type === 'unoskin')    previewHtml = `<div class="shop-emoji-preview">🃏</div>`;
     else if (type === 'flagframe')  previewHtml = `<div class="shop-emoji-preview">🚩</div>`;
+    else if (type === 'pframe')     previewHtml = `<div class="shop-emoji-preview"><span class="lb-pt pf-big pf-${_pfCls(id)}">${_ptSvg(myPortrait) || _ptBlank() || ''}</span></div>`;
     else if (type === 'emote')      previewHtml = `<div class="shop-emoji-preview">${_EM[id]||'😊'}</div>`;
     previewHtml = _realPrev(type, id, previewHtml);
     const badgeHtml = honorary
@@ -8787,7 +8792,7 @@ const _LOCKER_EMOJI = {
 };
 // Apercus reels (captures du vrai rendu, assets/preview/<id>.webp, generes par scripts/gen-previews.js).
 // Chaque article garde son ancien rendu en repli : si le fichier manque, rien ne casse.
-const REAL_PREVIEW_TYPES = new Set(['background','cursorsnake','snakeskin','p4token','ttt','chess','clickfx','victoryban','unoskin','flagframe']);
+const REAL_PREVIEW_TYPES = new Set(['background','cursorsnake','snakeskin','p4token','ttt','chess','clickfx','victoryban','unoskin','flagframe','pframe']);
 // Forme d'onde de chaque pack sonore (celle que le synthe joue vraiment, voir wt()/fs()) : on la dessine.
 const _WAVE_PATHS = {
   square:   'M2 30 V10 H22 V30 H42 V10 H62 V30 H82 V10 H102 V30 H118',
@@ -8837,7 +8842,7 @@ function _cosmeticPreviewHtmlBase(type, id, itemName) {
     case 'soundpack':   return `<div class="shop-emoji-preview">🎵</div>`;
     case 'unoskin':     return `<div class="shop-emoji-preview">🃏</div>`;
     case 'flagframe':   return `<div class="shop-emoji-preview">🚩</div>`;
-    case 'pframe':      return `<div class="shop-emoji-preview"><span class="lb-pt pf-big pf-${String(id).slice(12)}">${_ptSvg(myPortrait) || _ptBlank() || ''}</span></div>`;
+    case 'pframe':      return `<div class="shop-emoji-preview"><span class="lb-pt pf-big pf-${_pfCls(id)}">${_ptSvg(myPortrait) || _ptBlank() || ''}</span></div>`;
     case 'emote':       return `<div class="shop-emoji-preview">${_emoteSvg(id) || _LOCKER_EMOJI.emote[id] || ''}</div>`;
     default: return '';
   }

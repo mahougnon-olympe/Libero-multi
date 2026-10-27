@@ -1072,6 +1072,8 @@ const _inWin = (a, b) => { const n = Date.now(); return n >= Date.parse(a) && n 
 const GOLD_WIN = ['2026-10-31T00:00:00+01:00', '2026-11-02T00:00:00+01:00'];          // Chasse aux Libs dores : samedi et dimanche
 const REFERRAL_BOOST_WIN = ['2026-11-01T00:00:00+01:00', '2026-11-02T00:00:00+01:00']; // Parrainage boosté : dimanche
 const _referralReward = () => (_inWin(REFERRAL_BOOST_WIN[0], REFERRAL_BOOST_WIN[1]) ? 300 : REFERRAL_REWARD);
+// Cadre de portrait « Toile » : en boutique le 31 octobre seulement (heure du Benin), reste dans le casier ensuite
+const HW_SHOP_WIN = ['2026-10-31T00:00:00+01:00', '2026-11-01T00:00:00+01:00'], HW_FRAME = 'pframe-toile';
 const GOLD_PER_DAY = 20, GOLD_GAP_MS = 40_000, GOLD_TTL_MS = 25_000;
 // Six raretes (gain, chance en %) : commun, atypique, rare, epique, legendaire, mythique. Moyenne ~12,5 Libs, soit ~250 par jour au plafond.
 const GOLD_RARITY = [[5, 40], [10, 25], [15, 17], [25, 11], [35, 5], [50, 2]];
@@ -1242,6 +1244,7 @@ function shopHas(cosm) {
   // Les emotes ne sont JAMAIS vendues dans la boutique d'objets : elles ont
   // leur propre rayon dans la section Emotes du profil (voir emoteAvailable).
   if (cosm.type === 'emote') return false;
+  if (cosm.id === HW_FRAME) return _inWin(HW_SHOP_WIN[0], HW_SHOP_WIN[1]);
   const o = shopOverrides.get(cosm.id);
   if (o) return o.inShop && (!o.until || o.until > Date.now());
   return DEFAULT_SHOP_TYPES.has(cosm.type);
@@ -1254,7 +1257,12 @@ function emoteAvailable(id) {
   if (o) return o.inShop && (!o.until || o.until > Date.now());
   return true;
 }
+function _hwFrameShelf() {
+  if (_inWin(HW_SHOP_WIN[0], HW_SHOP_WIN[1])) { const o = shopOverrides.get(HW_FRAME); if (!o || !o.inShop) shopOverrides.set(HW_FRAME, { inShop: true, until: Date.parse(HW_SHOP_WIN[1]) }); }
+}
+setInterval(_hwFrameShelf, 60_000); _hwFrameShelf();
 function shopOverridesPayload() {
+  _hwFrameShelf();
   const out = {};
   for (const [id, o] of shopOverrides.entries()) {
     if (o.until && o.until <= Date.now()) continue;
@@ -2095,6 +2103,7 @@ const COSMETICS = [
   { id: 'flagframe-neon',  type: 'flagframe', price: 240 },
   { id: 'flagframe-cloth', type: 'flagframe', price: 280 },
   // Recompenses du Quiz en direct : jamais en boutique, ni offertes, ni remboursables (honorary)
+  { id: 'pframe-toile', type: 'pframe', price: 120 },
   { id: 'pframe-live-gold',     type: 'pframe', price: 0, honorary: true },
   { id: 'pframe-live-silver',   type: 'pframe', price: 0, honorary: true },
   { id: 'pframe-live-bronze',   type: 'pframe', price: 0, honorary: true },
@@ -5030,6 +5039,7 @@ io.on('connection', (socket) => {
     if (cosmetic.honorary) { socket.emit('buy-cosmetic-result', { ok: false, error: 'honorary' }); return; }
     if (entry.ownedCosmetics.includes(cosmeticId)) { socket.emit('buy-cosmetic-result', { ok: false, error: 'already_owned' }); return; }
     // Une emote retiree par l'admin de la section Emotes ne peut plus etre achetee.
+    if (cosmeticId === HW_FRAME && !_inWin(HW_SHOP_WIN[0], HW_SHOP_WIN[1])) { socket.emit('buy-cosmetic-result', { ok: false, error: 'unavailable' }); return; }
     if (cosmetic.type === 'emote' && !emoteAvailable(cosmeticId)) { socket.emit('buy-cosmetic-result', { ok: false, error: 'unavailable' }); return; }
     const price = flashPriceFor(cosmeticId, cosmetic.price);
     if (entry.balance < price) { socket.emit('buy-cosmetic-result', { ok: false, error: 'insufficient' }); return; }

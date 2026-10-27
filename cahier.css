@@ -3473,3 +3473,11 @@ html.light { --gl-ring: #173a8a; }
   .gl-flip, .gl-bob, .gl-shadow, .gl-star, .gl-halo { animation: none !important; }
   .gl-spot.in, .gl-spot.back, .gl-layer.flash::after, .gl-spot.g .gl-flip { animation: none !important; }
 }
+
+/* Cadre de portrait « Toile » (Halloween) : rond a l'encre, toile d'araignee dans le coin, petite araignee au bout de son fil */
+.lb-pt.pf-toile { position: relative; box-shadow: 0 0 0 2px var(--ink), 0 0 0 3px #9a8fb5; }
+.lb-pt.pf-toile::after, :root:root .pid-avatar.pf-toile::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%239a8fb5' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M100 0L40 36M100 0L62 66M100 0L84 90M100 0L22 14'/%3E%3Cpath d='M82 14c-6 6-12 8-20 6M92 40c-10 8-20 10-30 6M96 66c-8 8-16 10-26 6M68 8c-5 7-8 13-8 22'/%3E%3C/svg%3E") no-repeat center / 100% 100%; }
+.lb-pt.pf-big.pf-toile::before, :root:root .pid-avatar.pf-toile::before { content: ""; position: absolute; left: 16%; top: 0; width: 22%; height: 66%; pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 90'%3E%3Cpath d='M15 0V60' stroke='%239a8fb5' stroke-width='3'/%3E%3Cellipse cx='15' cy='68' rx='9' ry='8' fill='%2322252b' stroke='%239a8fb5' stroke-width='2'/%3E%3Cpath d='M7 65l-8-7M7 70l-9 2M23 65l8-7M23 70l9 2' stroke='%2322252b' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat top center / contain; transform-origin: 50% 0; animation: pfSpider 3.2s ease-in-out infinite; z-index: 1; }
+:root:root .pid-avatar.pf-toile { position: relative; box-shadow: 0 0 0 4px var(--ink), 0 0 0 6px #9a8fb5; }
+@keyframes pfSpider { 50% { transform: rotate(7deg); } }
+@media (prefers-reduced-motion: reduce) { .lb-pt.pf-big.pf-toile::before, :root:root .pid-avatar.pf-toile::before { animation: none; } }
