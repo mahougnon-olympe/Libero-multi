@@ -3187,7 +3187,9 @@ html.light .xp-pill { color: #173a8a; }
 .lh-go { border: 2px solid #22252b; border-radius: 99px; background: var(--margin); color: #fff; padding: 8px 18px; font: 800 .95rem var(--font-body); cursor: pointer; }
 
 /* Undercover : pas de robot, de mise ni de defi a deux ; les boutons flottants s'effacent pendant la partie */
-#home-who.is-uc .stake-row, #home-who.is-uc #step-stake, #home-who.is-uc #btn-challenge-friend, #home-who.is-uc #who-bot { display: none; }
+#home-who.is-uc .stake-row, #home-who.is-uc #step-stake, #home-who.is-uc #btn-challenge-friend { display: none; }
+/* Undercover seul : on choisit un nombre de robots, pas un niveau */
+#home-who.is-uc #step-bot, #home-who.is-uc .who-pane[data-for="bot"] > .bot-row { display: none; }
 body.screen-undercover-active .btn-help-float, body.screen-undercover-active .btn-comment-float, body.screen-undercover-active .btn-chatbot-float, body.screen-undercover-active .chatbot-panel, body.screen-undercover-active #live-pill { display: none !important; }
 
 /* Choix du jeu sur telephone : une ligne qui defile, environ 4 jeux visibles, noms lisibles */
@@ -3336,3 +3338,7 @@ body.screen-undercover-active .btn-help-float, body.screen-undercover-active .bt
 
 /* Puissance 4 : on peut aussi jouer en touchant un rond de la colonne */
 .c4-board .c4-cell { cursor: pointer; }
+
+/* Choix du nombre de robots (Ludo, Undercover) */
+#ludo-bots .bot-row .btn, #uc-bots .bot-row .btn { flex: 1; min-height: 48px; padding: .65rem .2rem; font-size: .9rem; }
+#uc-bots .ub-btn { min-width: 0; }

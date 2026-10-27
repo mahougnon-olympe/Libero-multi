@@ -90,7 +90,8 @@
 
   // ── Briques ──
   function portrait(p) { try { if (window.LiberoPortrait) return p ? LiberoPortrait.svg(p) : LiberoPortrait.blank(); } catch {} return ''; }
-  function pf(p, s) { return `<span class="pf" style="--s:${s || 52}px">${portrait(p && p.portrait)}</span>`; }
+  const ROBOT = '<svg viewBox="0 0 40 40"><rect width="40" height="40" fill="#e8edf5"/><rect x="9" y="12" width="22" height="18" rx="5" fill="#9aa4b2" stroke="#1d2433" stroke-width="2"/><circle cx="16" cy="21" r="2.6" fill="#1d2433"/><circle cx="24" cy="21" r="2.6" fill="#1d2433"/><path d="M20 12V7" stroke="#1d2433" stroke-width="2"/><circle cx="20" cy="6" r="2" fill="#e2485d"/></svg>';
+  function pf(p, s) { return `<span class="pf" style="--s:${s || 52}px">${p && p.bot ? ROBOT : portrait(p && p.portrait)}</span>`; }
   const pfI = (v, i, s) => pf(v.players[i], s);
   function hdr(t, rd) { return `<div class="top"><button class="back" data-act="back" aria-label="${esc(U().leave)}">&#8592; ${esc(U().back)}</button><h2 class="ttl">${esc(t)}</h2><div class="sub">${esc(rd || '')}</div></div>`; }
   function rolesCounts(n) { const u = n <= 7 ? 1 : 2, w = n <= 4 ? 0 : 1; return [n - u - w, u, w]; }
@@ -416,9 +417,9 @@
     if (ev === 'uc-error') { toast(U().err[d.message] || U().err.notfound); if (!S.v && d.message !== 'oneword' && d.message !== 'sameword' && d.message !== 'banned') { clearSess(); try { showScreen('home'); } catch {} } return; }
     if (ev === 'uc-reconnect-failed') { clearSess(); try { if (sessionStorage.getItem('libero_screen') === 'undercover') { sessionStorage.removeItem('libero_screen'); showScreen('home'); } } catch {} }
   }
-  function create() {
+  function create(bots) {
     const name = (typeof getPlayerName === 'function' ? getPlayerName() : '') || (localStorage.getItem('playerName') || '').trim();
-    socket.emit('create-uc-room', { name, playerId: getPlayerId(), lang: L() });
+    socket.emit('create-uc-room', { name, playerId: getPlayerId(), lang: L(), bots: bots || undefined });
   }
   function reconnect() { const c = savedCode(); if (c) socket.emit('reconnect-uc-room', { code: c, playerId: getPlayerId(), lang: L() }); return !!c; }
   function back() { if (!host || !host.classList.contains('active')) return false; leave(true); return true; }

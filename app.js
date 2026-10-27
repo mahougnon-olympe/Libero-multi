@@ -3600,25 +3600,35 @@ function _ucLoad() {
   if (window.LiberoUC) return Promise.resolve(window.LiberoUC);
   if (_ucP) return _ucP;
   _ucP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'undercover.js?v=7';
+    const sc = document.createElement('script'); sc.src = 'undercover.js?v=8';
     sc.onload = () => res(window.LiberoUC); sc.onerror = () => { _ucP = null; res(null); };
     document.head.appendChild(sc);
   });
   return _ucP;
 }
 ['uc-joined', 'uc-created', 'uc-lobby', 'uc-state', 'uc-error', 'uc-reconnect-failed'].forEach(ev => socket.on(ev, d => { _ucLoad().then(u => u && u.on(ev, d || {})); }));
-window._ucStart = function () { _ucLoad().then(u => u && u.create()); };
+window._ucStart = function (bots) { _ucLoad().then(u => u && u.create(bots)); };
 window._ucResume = function () {
   try {
     const raw = sessionStorage.getItem('libero_uc') || (JSON.parse(localStorage.getItem('libero_uc') || 'null') || {}).code;
     if (raw) _ucLoad().then(u => u && u.reconnect());
   } catch {}
 };
-// « Avec qui ? » : Undercover se joue entre amis (pas de robot, pas de mise, pas de defi a deux).
+// « Avec qui ? » : Undercover seul = choisir 3 a 9 robots (le bouton lance la partie) ; pas de mise ni de defi a deux.
 window._ucWhoSync = function () {
   const on = selectedGameType === 'undercover', card = document.getElementById('home-who'); if (!card) return;
   card.classList.toggle('is-uc', on);
-  if (on && card.dataset.who === 'bot') { card.querySelector('.who-btn[data-who="friend"]')?.click(); }
+  const box = document.getElementById('uc-bots'); if (!box) return;
+  box.classList.toggle('hidden', !on);
+  const st = document.getElementById('step-ucbots'); if (st) st.textContent = t().unoBotsStep;
+  box.querySelectorAll('.ub-btn').forEach(b => {
+    if (b._ok) return; b._ok = 1;
+    b.addEventListener('click', () => {
+      if (!getPlayerName()) { showError(t().errNoName); return; }
+      if (_nameTaken) { showError(t().errNameTaken); return; }
+      clearError(); window._ucStart(+b.dataset.n);
+    });
+  });
 };
 
 // « Avec qui ? » : pour Ludo, un choix de 1 a 3 robots (garde apres F5).

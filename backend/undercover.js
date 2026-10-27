@@ -4,6 +4,7 @@
 // Identite = playerId (jamais diffuse). Chaque joueur recoit un etat personnalise : son mot, jamais
 // celui des autres, et les roles ne sont reveles qu'a l'elimination ou a la fin de la partie.
 const WORDS = require('./undercover-words');
+const BOT = require('./undercover-bots');
 
 const MIN = 4, MAX = 10, DEF_MAX = 8;
 const T = { reveal: 25000, revealMin: 5000, clue: 30000, debate: 25000, vote: 30000, revote: 20000, verdict: 8500, guess: 25000, guessRes: 5000, grace: 60000, wait: 5 * 60000 };
@@ -27,7 +28,17 @@ module.exports = function createUndercover(ctx) {
   const word = (g, role, l) => (role === 'civil' ? g.pair.civ[l] : role === 'undercover' ? g.pair.und[l] : null);
   const roleOf = (g, pid) => g.roles[pid];
   const idxOf = (room, pid) => room.players.findIndex(p => p.pid === pid);
-  const aliveHumans = room => room.g.alive.filter(pid => { const p = player(room, pid); return p && p.connected; });
+  const aliveHumans = room => room.g.alive.filter(pid => { const p = player(room, pid); return p && p.connected && !p.bot; });
+  const aliveVoters = room => room.g.alive.filter(pid => { const p = player(room, pid); return p && p.connected; });
+  const isBot = (room, pid) => { const p = player(room, pid); return !!(p && p.bot); };
+  const hasHuman = room => room.players.some(p => !p.bot && p.connected);
+  // Le robot joue apres un petit delai, seulement si la partie en est toujours a la meme etape.
+  const later = (room, ms, fn) => {
+    const g = room.g, ph = g.phase, rd = g.round, sc = Math.max(30, Math.round(ms * (T.clue / 30000)));
+    setTimeout(() => { if (rooms.get(room.code) === room && room.g === g && g.phase === ph && g.round === rd && room.status === 'playing') fn(); }, sc);
+  };
+  const allClues = g => g.clues.filter(c => c.text).map(c => c.text);
+  const botWord = (room, pid) => word(room.g, roleOf(room.g, pid), room.blang || 'fr');
   const limited = (sid, max = 24, win = 5000) => {
     const now = Date.now(), a = (hits.get(sid) || []).filter(t => now - t < win);
     if (a.length >= max) { hits.set(sid, a); return true; }
@@ -42,7 +53,8 @@ module.exports = function createUndercover(ctx) {
     const base = { code: room.code, status: room.status, host: room.host === pid, max: room.max, min: MIN, seq: room.seq, me };
     if (!room.g) { const n = effN(room), r = resolveRoles(room, n); base.rl = { n, und: r.und, white: r.white, auto: !room.cfg, undMax0: maxUnd(n, 0), undMax1: maxUnd(n, 1), whiteOk: n >= 5, reset: !!room.rolesReset }; }
     base.players = room.players.map(q => {
-      const i = idxOf(room, q.pid), o = { name: q.name, connected: q.connected, host: q.pid === room.host, portrait: ctx.portraitOf(q.pid, q.name) || null };
+      const i = idxOf(room, q.pid), o = { name: q.name, connected: q.connected, host: q.pid === room.host, portrait: q.bot ? null : (ctx.portraitOf(q.pid, q.name) || null) };
+      if (q.bot) o.bot = true;
       if (g) {
         o.alive = g.alive.includes(q.pid);
         const out = g.out.find(x => x.pid === q.pid);
@@ -95,6 +107,7 @@ module.exports = function createUndercover(ctx) {
     const w = (a, b) => ({ fr: a, en: b });
     const civ = swap ? w(pr[1], pr[3]) : w(pr[0], pr[2]), und = swap ? w(pr[0], pr[2]) : w(pr[1], pr[3]);
     room.rolesReset = false; room.status = 'playing'; room.played = room.players.map(p => p.pid);
+    room.blang = lang(room.players.find(p => !p.bot && p.pid === room.host) || room.players.find(p => !p.bot));
     room.g = { pair: { civ, und }, roles, alive: room.players.map(p => p.pid), out: [], round: 0, phase: 'reveal', phaseEnd: 0, phaseTotal: 0, order: [], cur: null, clues: [], ready: new Set(), votes: {}, cands: [], tally: null, last: null, guess: null, winner: null, chat: [], starter: Math.floor(Math.random() * n) };
     room.players.forEach(p => { p.afk = 0; });
     setPhase(room, 'reveal', T.reveal, () => beginClues(room));
@@ -120,6 +133,13 @@ module.exports = function createUndercover(ctx) {
     const p = player(room, g.cur), gone = !p || !p.connected;
     setPhase(room, 'clues', gone ? 1500 : T.clue, () => { pushClue(room, g.cur, ''); });
     emit(room, { t: 'turn', p: idxOf(room, g.cur) });
+    if (isBot(room, g.cur)) botClue(room, g.cur);
+  }
+  function botClue(room, pid) {
+    later(room, 1200 + Math.random() * 2600, () => {
+      const g = room.g; if (g.cur !== pid) return;
+      pushClue(room, pid, BOT.clueFor(room.blang || 'fr', botWord(room, pid), allClues(g)));
+    });
   }
   function pushClue(room, pid, text) {
     const g = room.g; if (!g || g.phase !== 'clues' || g.cur !== pid) return false;
@@ -133,12 +153,40 @@ module.exports = function createUndercover(ctx) {
     const g = room.g; g.cur = null; g.ready = new Set();
     setPhase(room, 'debate', T.debate, () => beginVote(room, false));
     emit(room, { t: 'debate' });
+    g.accuse = {};
+    g.alive.filter(pid => isBot(room, pid)).forEach(pid => botTalk(room, pid));
+  }
+  // Clues par joueur (tous tours confondus), pour les choix des robots.
+  function cluesByPid(g) { const m = {}; g.alive.forEach(pid => { m[pid] = []; }); g.clues.forEach(c => { if (m[c.pid]) m[c.pid].push(c.text); }); return m; }
+  function botPick(room, pid, targets) {
+    const g = room.g, l = room.blang || 'fr', b = botOf(room, pid);
+    return BOT.chooseVote(l, b, botWord(room, pid), targets, cluesByPid(g), g.accuse || {});
+  }
+  const botOf = (room, pid) => player(room, pid).persona || { name: '', mood: 'careful' };
+  function botTalk(room, pid) {
+    const b = botOf(room, pid), n = b.mood === 'chatty' ? 2 : b.mood === 'sharp' ? 1 : (Math.random() < .5 ? 1 : 0);
+    for (let k = 0; k < n; k++) later(room, 1500 + Math.random() * 16000, () => {
+      const g = room.g, l = room.blang || 'fr', others = g.alive.filter(x => x !== pid), r = Math.random();
+      let text;
+      if (r < .6 && others.length) { const t = botPick(room, pid, others); g.accuse[t] = (g.accuse[t] || 0) + 1; text = BOT.sayLine(l, 'accuse', player(room, t).name); }
+      else text = BOT.sayLine(l, r < .8 ? 'defend' : 'neutral', '');
+      g.chat.push({ pid, text }); if (g.chat.length > 60) g.chat.shift();
+      emit(room, { t: 'say', p: idxOf(room, pid), text });
+    });
   }
   function beginVote(room, again) {
     const g = room.g; if (!g || room.status !== 'playing') return;
     g.votes = {}; g.ready = new Set();
     setPhase(room, again ? 'revote' : 'vote', again ? T.revote : T.vote, () => tally(room));
     emit(room, { t: again ? 'revote' : 'vote' });
+    g.alive.filter(pid => isBot(room, pid)).forEach(pid => later(room, 1500 + Math.random() * 9000, () => {
+      if (g.votes[pid] != null) return;
+      const pool = (again ? g.cands : g.alive).filter(x => x !== pid && g.alive.includes(x));
+      if (!pool.length) return;
+      g.votes[pid] = botPick(room, pid, pool);
+      emit(room, { t: 'voted', p: idxOf(room, pid) });
+      checkAllVoted(room);
+    }));
   }
   function tally(room) {
     const g = room.g; if (!g || (g.phase !== 'vote' && g.phase !== 'revote')) return;
@@ -171,6 +219,10 @@ module.exports = function createUndercover(ctx) {
       g.guess = { pid: g.last.pid, ok: null, text: '' };
       setPhase(room, 'guess', T.guess, () => resolveGuess(room, ''));
       emit(room, { t: 'guess' });
+      if (isBot(room, g.last.pid)) later(room, 2500 + Math.random() * 3000, () => {
+        const l = room.blang || 'fr', w = BOT.bestGuess(l, allClues(g)) || '';
+        resolveGuess(room, w);
+      });
       return;
     }
     checkWin(room);
@@ -190,7 +242,7 @@ module.exports = function createUndercover(ctx) {
     if (inf === 0) g.winner = 'civils';
     else if (civ <= inf) g.winner = 'infiltrators';
     if (g.winner) return finish(room);
-    if (aliveHumans(room).length < 2) return abort(room);
+    if (room.solo ? !hasHuman(room) : aliveHumans(room).length < 2) return abort(room);
     beginClues(room);
   }
   function finish(room) {
@@ -199,9 +251,15 @@ module.exports = function createUndercover(ctx) {
     const win = pid => (g.winner === 'civils' ? g.roles[pid] === 'civil' : g.winner === 'white' ? g.roles[pid] === 'white' : g.roles[pid] !== 'civil');
     try { ctx.bumpDaily('games'); } catch {}
     (room.played || []).forEach(pid => {
-      const p = player(room, pid) || (room.left || []).find(x => x.pid === pid); if (!p) return;
+      const p = player(room, pid) || (room.left || []).find(x => x.pid === pid); if (!p || p.bot) return;
       const res = win(pid) ? 'win' : 'loss';
-      try { ctx.updateLeaderboard(pid, p.name, res); ctx.pushHistory(pid, { game: 'undercover', result: res }); ctx.updateLastActive(pid, p.name); if (res === 'win') ctx.bumpChallenge(pid, 'gamesWon'); ctx.xp(pid, res === 'win' ? 25 : 10); } catch {}
+      // Contre des robots : historique et XP reduite, mais ni classement ni defi de victoires.
+      try {
+        if (!room.solo) ctx.updateLeaderboard(pid, p.name, res);
+        ctx.pushHistory(pid, { game: 'undercover', result: res }); ctx.updateLastActive(pid, p.name);
+        if (res === 'win' && !room.solo) ctx.bumpChallenge(pid, 'gamesWon');
+        ctx.xp(pid, room.solo ? (res === 'win' ? 12 : 5) : (res === 'win' ? 25 : 10));
+      } catch {}
     });
     try { ctx.refreshBoards(); } catch {}
     emit(room, { t: 'end', winner: g.winner });
@@ -226,7 +284,7 @@ module.exports = function createUndercover(ctx) {
   }
   function checkAllVoted(room) {
     const g = room.g; if (!g || (g.phase !== 'vote' && g.phase !== 'revote')) return;
-    const need = aliveHumans(room);
+    const need = aliveVoters(room);
     if (need.every(pid => g.votes[pid] != null)) tally(room);
   }
   function removePlayer(room, pid) {
@@ -242,7 +300,8 @@ module.exports = function createUndercover(ctx) {
     } else {
       room.players = room.players.filter(x => x.pid !== pid);
     }
-    if (room.host === pid) { const nh = room.players.find(x => x.connected) || room.players[0]; room.host = nh ? nh.pid : null; }
+    if (room.solo && !hasHuman(room)) { clearT(room); rooms.delete(room.code); return; }
+    if (room.host === pid) { const nh = room.players.find(x => x.connected && !x.bot) || room.players.find(x => x.connected) || room.players[0]; room.host = nh ? nh.pid : null; }
     if (!room.players.some(x => x.connected) && room.status !== 'playing') { clearT(room); rooms.delete(room.code); return; }
     if (room.status === 'waiting') emit(room, null);
   }
@@ -272,15 +331,22 @@ module.exports = function createUndercover(ctx) {
     return true;
   }
   function attach(socket) {
-    socket.on('create-uc-room', ({ name = '', playerId, lang: lg } = {}) => {
+    socket.on('create-uc-room', ({ name = '', playerId, lang: lg, bots } = {}) => {
       if (limited(socket.id, 5, 30000)) return;
       const old = mine(socket); if (old) { socket.leave(old.room.code); removePlayer(old.room, old.pid); }
       const pid = ctx.safePlayerId(playerId) || ('g' + socket.id), code = ctx.generateCode();
       const p = { pid, name: ctx.sanitizeName(name, 'Anonyme'), sid: socket.id, connected: true, lang: lg === 'en' ? 'en' : 'fr', afk: 0 };
       const room = { code, host: pid, players: [p], status: 'waiting', g: null, seq: 0, timer: null, max: DEF_MAX, played: [], left: [] };
       rooms.set(code, room);
+      // Seul contre des robots (3 a 9) : la partie demarre tout de suite.
+      const nb = Math.floor(+bots) || 0;
+      if (nb >= 3 && nb <= MAX - 1) {
+        room.solo = true; room.max = nb + 1;
+        BOT.shuffle(BOT.BOTS).slice(0, nb).forEach((b, i) => room.players.push({ pid: 'bot' + (i + 1), name: b.name, persona: b, bot: true, sid: null, connected: true, lang: p.lang, afk: 0 }));
+      }
       attachSock(socket, room, p);
       socket.emit('uc-created', { code });
+      if (room.solo) start(room);
     });
     socket.on('join-uc-room', ({ code, name = '', playerId, lang: lg } = {}) => { if (!tryJoin(socket, code, name, playerId, lg)) socket.emit('uc-error', { message: 'notfound' }); });
     socket.on('reconnect-uc-room', ({ code, playerId, lang: lg } = {}) => {
@@ -378,7 +444,7 @@ module.exports = function createUndercover(ctx) {
         if (g.phase === 'clues' && g.cur === pid) { clearT(room); room.timer = setTimeout(() => { room.timer = null; pushClue(room, pid, ''); }, 1500); }
         if (g.phase === 'vote' || g.phase === 'revote') checkAllVoted(room);
         if (g.phase === 'reveal' || g.phase === 'debate') { const all = aliveHumans(room).length && aliveHumans(room).every(x => g.ready.has(x)); if (all && g.phase === 'debate') beginVote(room, false); }
-        if (aliveHumans(room).length < 2 && room.status === 'playing') { abort(room); return; }
+        if (!room.solo && aliveHumans(room).length < 2 && room.status === 'playing') { abort(room); return; }
       }
       emit(room, null);
     });
