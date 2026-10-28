@@ -6174,10 +6174,39 @@ $('overlay-help').addEventListener('click', e => {
     }).catch(() => { ty.remove(); pushLog('bot', esc(d.libeAi.busy)); answer(clean); });
   }
 
+  // « Education » de Libé : libe-faq.js. Mots entiers (w) ou morceaux de phrase (k) ; variante au hasard, jamais deux fois la meme de suite.
+  const _faqLast = {};
+  function faqAnswer(query){
+    const list = window.LIBE_FAQ || [];
+    const q = ' ' + norm(query) + ' ', words = new Set(norm(query).split(' ').filter(Boolean));
+    for (let i = 0; i < list.length; i++) {
+      const e = list[i];
+      const hit = (e.w || []).some(x => words.has(x)) || (e.k || []).some(x => x.length >= 5 && q.indexOf(' ' + x + ' ') >= 0);
+      if (!hit) continue;
+      const arr = (currentLang === 'en' ? e.en : e.fr) || e.fr || [];
+      if (!arr.length) continue;
+      let n = Math.floor(Math.random() * arr.length);
+      if (arr.length > 1 && n === _faqLast[i]) n = (n + 1) % arr.length;
+      _faqLast[i] = n;
+      return arr[n];
+    }
+    return '';
+  }
   function submit(text){
     const clean = (text || '').trim();
     if (!clean) return;
     pushLog('user', esc(clean));
+    // Reponses de Libé a ses questions « maison » (libe-faq.js) : sans IA, donc sans entamer l'encre du jour.
+    const fq = faqAnswer(clean);
+    if (fq) {
+      logBotQuestion(clean);
+      const ty = document.createElement('div');
+      ty.className = 'chatbot-typing';
+      ty.innerHTML = `${LIBE_PENCIL}<span>${esc(t().chatbotWriting)}</span>`;
+      logEl.appendChild(ty); logEl.scrollTop = logEl.scrollHeight;
+      setTimeout(() => { ty.remove(); pushLog('bot', md(fq)); }, 850);
+      return;
+    }
     if (aiOn()) {
       const ty = document.createElement('div');
       ty.className = 'chatbot-typing';
