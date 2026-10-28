@@ -1694,9 +1694,12 @@ function _xpMult() {
   const now = Date.now();
   return DOUBLE_XP_WEEKENDS.some(d => { const a = Date.parse(d + 'T00:00:00+01:00'); return now >= a && now < a + 2 * 86_400_000; }) ? 2 : 1;
 }
-function awardXp(id, entry, amount) {
+// Difficulte -> multiplicateur d'XP (victoire ou quiz seulement). Cumul avec Double XP plafonne a x4.
+const XP_DIFF_MULT = { easy: 1, medium: 1.5, hard: 2, extreme: 2.5 };
+function awardXp(id, entry, amount, diff, dm) {
   if (!id || !entry || !(amount > 0)) return;
-  amount *= _xpMult();
+  dm = dm > 1 ? dm : 1;
+  amount *= Math.min(4, _xpMult() * dm);
   const before = levelFromXp(entry.xp || 0);
   entry.xp = (entry.xp || 0) + Math.floor(amount);
   const after = levelFromXp(entry.xp);
@@ -1706,7 +1709,7 @@ function awardXp(id, entry, amount) {
     entry.balance = Math.min(MAX_BALANCE, entry.balance + reward);
     _emitToPlayer(id, 'libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, delta: reward, nextAt: nextDistributionAt });
   }
-  _emitToPlayer(id, 'xp-update', { xp: entry.xp, level: after, gained: Math.floor(amount), levelUp: after > before ? after : null, reward: reward || undefined });
+  _emitToPlayer(id, 'xp-update', { xp: entry.xp, level: after, gained: Math.floor(amount), levelUp: after > before ? after : null, reward: reward || undefined, diff: dm > 1 ? diff : undefined, mult: dm > 1 ? dm : undefined });
 }
 
 // ── Undercover : salons de 4 a 10 joueurs, moteur dans undercover.js ──
@@ -1802,7 +1805,9 @@ function pushHistory(id, item, opts) {
     if (item.result === 'win') completeOnboardStep(id, entry, 'win');
     // XP : chaque partie en rapporte, gagner ou briller au quiz en rapporte plus.
   }
-  if (!gone) awardXp(id, entry, 25 + (item.result === 'win' ? 25 : 0) + ((item.game === 'trivia' || item.game === 'flags' || item.game === 'mix') ? Math.min(60, (item.score || 0) * 2) : 0));
+  // La difficulte (decidee par le serveur) multiplie l'XP d'une victoire ou d'un quiz ; defaite et nul restent a 25.
+  const dm = (item.result === 'win' || item.result == null) ? (XP_DIFF_MULT[item.diff] || 1) : 1;
+  if (!gone) awardXp(id, entry, 25 + (item.result === 'win' ? 25 : 0) + ((item.game === 'trivia' || item.game === 'flags' || item.game === 'mix') ? Math.min(60, (item.score || 0) * 2) : 0), item.diff, dm);
   if (!Array.isArray(entry.history)) entry.history = [];
   entry.history.unshift({ game: item.game, result: item.result || null, score: item.score ?? null, at: Date.now() });
   entry.history = entry.history.slice(0, 20);
@@ -2890,7 +2895,7 @@ function finishTriviaGame(code) {
   for (const s of scores) {
     if (!isFlags) updateTriviaLeaderboard(s.playerId || s.name, s.name, s.siteScore); // le quiz mixte compte comme un quiz ; les drapeaux seuls n'entrent pas au classement du quiz
     updateLastActive(s.playerId, s.name);
-    pushHistory(s.playerId, { game: isFlags ? 'flags' : isMix ? 'mix' : 'trivia', result: null, score: s.siteScore });
+    pushHistory(s.playerId, { game: isFlags ? 'flags' : isMix ? 'mix' : 'trivia', result: null, score: s.siteScore, diff: room.difficulty || 'medium' });
     bumpChallenge(s.playerId, 'triviaGames'); // défi « termine N quiz »
   }
   io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
@@ -3337,7 +3342,7 @@ io.on('connection', (socket) => {
       if (status === 'won') {
         const res = pl.role === winner ? 'win' : 'loss';
         updateLeaderboard(pid || nm, nm, res);
-        pushHistory(pid, { game: 'ludo', result: res }, { noXp: !!pl.gone });
+        pushHistory(pid, { game: 'ludo', result: res, diff: room.botSeats?.length ? room.botDifficulty : undefined }, { noXp: !!pl.gone });
       }
       updateLastActive(pid, nm);
     });
@@ -3738,7 +3743,7 @@ io.on('connection', (socket) => {
           if (status === 'won') {
             const humanWon = winner === 'R';
             updateLeaderboard(humanId, humanName, humanWon ? 'win' : 'loss');
-            pushHistory(room.playerIds?.R, { game: room.gameType, result: humanWon ? 'win' : 'loss' });
+            pushHistory(room.playerIds?.R, { game: room.gameType, result: humanWon ? 'win' : 'loss', diff: room.botDifficulty });
             if (humanWon) bumpChallenge(room.playerIds?.R, 'gamesWon');
             if (humanWon && room.gameType === 'ludo') bumpChallenge(room.playerIds?.R, 'ludoWins');
           } else {
@@ -4093,6 +4098,7 @@ io.on('connection', (socket) => {
     const rawN = parseInt(amount) || 10;
     const n = Math.round(Math.min(40, Math.max(10, rawN)) / 5) * 5;
     const d = ['easy', 'medium', 'hard', 'extreme'].includes(difficulty) ? difficulty : '';
+    socket._soloTriviaDiff = d || 'medium'; // retenue cote serveur pour l'XP de fin de partie
     const pid = safePlayerId(playerId);
     try {
       const qs = triviaGame.pickQuestions({ cats, amount: n, lang: l, diff: d, seen: triviaSeen.get(pid)?.set });
@@ -4114,7 +4120,7 @@ io.on('connection', (socket) => {
     updateLastActive(id, playerName);
     const pid = safePlayerId(playerId);
     if (pid && typeof score === 'number') {
-      pushHistory(pid, { game: 'trivia', result: null, score: Math.max(0, Math.floor(score)) });
+      pushHistory(pid, { game: 'trivia', result: null, score: Math.max(0, Math.floor(score)), diff: socket._soloTriviaDiff });
       bumpChallenge(pid, 'triviaCorrect', Math.max(0, Math.floor(score)));
       bumpChallenge(pid, 'triviaGames'); // défi « termine N quiz »
     }

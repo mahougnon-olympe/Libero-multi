@@ -1248,6 +1248,7 @@ const DICT = {
     streakSub:(l, b) => `Record : ${l} jour${l > 1 ? 's' : ''}${b > 0 ? ` · +${b} ⚡ aujourd'hui` : ''}`,
     streakBonusToast:(n, b) => `Jour ${n} de connexion · +${b} ⚡ !`,
     historyEmpty:'Aucune partie pour l\'instant. Lance une partie !',
+    xpDiffTag:(d,m)=>({easy:'Facile',medium:'Moyen',hard:'Difficile',extreme:'Extrême'}[d]||'')+' x'+String(m).replace('.',','),
     historyGameNames:{ mix:'Quiz mixte', connect4:'Puissance 4', tictactoe:'Morpion', chess:'Échecs', checkers:'Dames', ludo:'Ludo', uno:'Uno', undercover:'Undercover', trivia:'Quiz', snake:'Snake', luffy:'Libero Run' },
     historyResults:{ win:'Victoire', loss:'Défaite', draw:'Match nul' },
     historyScore:n => `${n} pts`,
@@ -2058,6 +2059,7 @@ const DICT = {
     streakSub:(l, b) => `Best: ${l} day${l > 1 ? 's' : ''}${b > 0 ? ` · +${b} ⚡ today` : ''}`,
     streakBonusToast:(n, b) => `Day ${n} streak · +${b} ⚡!`,
     historyEmpty:'No games yet. Start one!',
+    xpDiffTag:(d,m)=>({easy:'Easy',medium:'Medium',hard:'Hard',extreme:'Extreme'}[d]||'')+' x'+m,
     historyGameNames:{ mix:'Mixed quiz', connect4:'Connect 4', tictactoe:'Tic Tac Toe', chess:'Chess', checkers:'Checkers', ludo:'Ludo', uno:'Uno', undercover:'Undercover', trivia:'Quiz', snake:'Snake', luffy:'Libero Run' },
     historyResults:{ win:'Win', loss:'Loss', draw:'Draw' },
     historyScore:n => `${n} pts`,
@@ -13994,11 +13996,11 @@ window._renderLevel = function () {
 };
 // Gain d'XP : une pastille « +N XP » apparait, monte, puis file vers le badge de niveau (s'il est visible).
 let _xpPillN = 0;
-window._xpPill = function (n) {
+window._xpPill = function (n, tag) {
   try {
     if (!(n > 0)) return 0;
     const el = document.createElement('div');
-    el.className = 'xp-pill'; el.textContent = `+${n} XP`; el.setAttribute('aria-hidden', 'true');
+    el.className = 'xp-pill'; el.textContent = `+${n} XP` + (tag ? ` (${tag})` : ''); if (tag) el.style.fontSize = 'min(26px, 6vw)'; el.setAttribute('aria-hidden', 'true');
     const slot = _xpPillN++ % 3;
     el.style.left = '50%'; el.style.top = `${Math.round(innerHeight * 0.62) + slot * 44}px`;
     document.body.appendChild(el);
@@ -14021,10 +14023,10 @@ window._xpPill = function (n) {
     return 1500;
   } catch { return 0; }
 };
-socket.on('xp-update', ({ xp, level, levelUp, reward, gained } = {}) => {
+socket.on('xp-update', ({ xp, level, levelUp, reward, gained, diff, mult } = {}) => {
   window._myXp = xp; window._myLevel = level;
   window._renderLevel();
-  const wait = window._xpPill(gained) ? 1500 : 0;
+  const wait = window._xpPill(gained, diff && mult ? t().xpDiffTag(diff, mult) : '') ? 1500 : 0;
   if (levelUp) setTimeout(() => { window._showLevelUp?.(levelUp, reward || 0); try { window._sound?.play('level-up'); } catch {} }, wait);
 });
 
