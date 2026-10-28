@@ -1,3 +1,9 @@
+// ── Effets lumineux (eclairs, flashs, tremblements, clignotements) : choix du joueur, DESACTIVES par defaut (photosensibilite) ──
+const fxOn = () => { try { return localStorage.getItem('libero_fx') === '1'; } catch { return false; } };
+window._fxOn = fxOn;
+window._fxSet = on => { try { localStorage.setItem('libero_fx', on ? '1' : '0'); } catch {} document.documentElement.classList.toggle('fx-on', !!on); };
+document.documentElement.classList.toggle('fx-on', fxOn());
+
 // ── Échappement HTML (anti-XSS) ───────────────────────────────────────────────
 // Tout contenu venant d'un autre utilisateur (pseudo, message…) DOIT passer par
 // ici avant d'être injecté en innerHTML.
@@ -1041,6 +1047,7 @@ const DICT = {
     shopBubbleTitle:'💬 Bulles de chat',
     tplTitle:'Portraits de la classe', tplDesc:'Des portraits composés par les joueurs. « Essayer » le pose sur ton portrait sans rien acheter ; l\'auteur touche 70 % du prix.',
     tplNav:'Portraits', tplSortTop:'Les plus achetés', tplSortNew:'Nouveautés', tplSortMine:'Mes modèles', tplBy:'par', tplSales:n => `${n} vente${n > 1 ? 's' : ''}`,
+    fxLabel:'Effets lumineux (éclairs, flashs, clignotements)', fxQ:'Effets lumineux ?', fxNote:'Éclairs, flashs et clignotements. À éviter si tu es sensible aux lumières vives. Tu peux changer dans les Réglages.', fxOnT:'Activés', fxOffT:'Désactivés',
     hwGift:{ chip:'Un cadeau t\'attend !', tap:'Touche le colis', boom:'Ça va sauter !', draw:'Tirage au sort...', tada:'Tadaaa !', stamp:'Dans ton casier', put:'Mettre', later:'Plus tard', dup:'Tu as déjà toutes les décorations : +100 Libs', aria:'Ouvrir le cadeau' },
     hwBanner:'Joyeux Halloween !', spCkHw:'Masquer la déco d\'Halloween',
     goldAria:n=>`Lib doré ${n} : touche pour le ramasser`, goldRarN:['Commun','Atypique','Rare','Épique','Légendaire','Mythique'], goldCaught:'Attrapé de justesse !', goldSay:['Raté !','Nananère !','Même pas mal !','Trop lent !','Viens me chercher !'], goldSpy:['Je te vois...','Continue, je regarde.','Je note tout.'], spCkGold:'Masquer les Libs dorés', goldGot:(n,l)=>`+${n} Libs dorés${l>0?` (encore ${l} aujourd'hui)`:' (c\'était le dernier du jour)'}`, tplTry:'Essayer', tplBuy:'Acheter', tplOwned:'Déjà acheté', tplRemove:'Retirer', tplPending:'En attente de validation', tplEmpty:'Aucun modèle pour l\'instant. Publie le tien depuis Profil, Mon portrait.',
@@ -1854,6 +1861,7 @@ const DICT = {
     shopBubbleTitle:'💬 Chat bubbles',
     tplTitle:'Class portraits', tplDesc:'Portraits made by players. "Try" puts it on your portrait without buying; the author earns 70% of the price.',
     tplNav:'Portraits', tplSortTop:'Best sellers', tplSortNew:'New', tplSortMine:'My templates', tplBy:'by', tplSales:n => `${n} sale${n > 1 ? 's' : ''}`,
+    fxLabel:'Light effects (lightning, flashes, blinking)', fxQ:'Light effects?', fxNote:'Lightning, flashes and blinking. Best avoided if you are sensitive to bright lights. You can change it in Settings.', fxOnT:'On', fxOffT:'Off',
     hwGift:{ chip:'A gift is waiting for you!', tap:'Tap the box', boom:'Here it goes!', draw:'Drawing...', tada:'Ta-da!', stamp:'In your locker', put:'Wear it', later:'Later', dup:'You already have every decoration: +100 Libs', aria:'Open the gift' },
     hwBanner:'Happy Halloween!', spCkHw:'Hide Halloween decorations',
     goldAria:n=>`${n} golden Lib: tap to collect it`, goldRarN:['Common','Uncommon','Rare','Epic','Legendary','Mythic'], goldCaught:'Caught just in time!', goldSay:['Missed!','Nyah nyah!','Did not hurt!','Too slow!','Come and get me!'], goldSpy:['I see you...','Keep going, I am watching.','I am taking notes.'], spCkGold:'Hide golden Libs', goldGot:(n,l)=>`+${n} golden Libs${l>0?` (${l} left today)`:' (that was the last one today)'}`, tplTry:'Try', tplBuy:'Buy', tplOwned:'Already bought', tplRemove:'Remove', tplPending:'Awaiting approval', tplEmpty:'No template yet. Publish yours from Profile, My portrait.',
@@ -2629,7 +2637,7 @@ function applyLang() {
     setTxt('onb-pg1', o.page(1)); setTxt('onb-pgf', o.page(2)); setTxt('onb-pg2', o.page(3)); setTxt('onb-pg3', o.page(4));
     setTxt('onb-pf-title', o.pfTitle); setTxt('onb-pf-note', o.pfNote); setTxt('onb-nextf', o.next); setTxt('onb-backf', o.prev); window._pfRefresh?.();
     setTxt('onb-next1', o.next); setTxt('onb-next2', o.next); setTxt('onb-back2', o.prev); setTxt('onb-have-txt', o.have);
-    setTxt('onb-p2-title', o.p2Title); setTxt('onb-p2-note', o.p2Note); setTxt('onboard-theme-day', o.themeDay); setTxt('onboard-theme-night', o.themeNight);
+    setTxt('onb-fx-q', t().fxQ); setTxt('onb-fx-note', t().fxNote); setTxt('onb-fx-on', t().fxOnT); setTxt('onb-fx-off', t().fxOffT); setTxt('onb-p2-title', o.p2Title); setTxt('onb-p2-note', o.p2Note); setTxt('onboard-theme-day', o.themeDay); setTxt('onboard-theme-night', o.themeNight);
     setTxt('onb-p3-title', o.p3Title); setTxt('onb-p3-note', o.p3Note); setTxt('onb-protect', o.protect); setTxt('btn-onboard-new', o.later);
     setTxt('onb-login-title', o.loginTitle); setTxt('onb-login-btn', o.loginBtn); setTxt('onb-use-code', o.useCode); setTxt('onb-forgot', o.forgot);
     setTxt('onb-code-title', o.codeTitle); setTxt('onboard-intro', o.codeNote); setTxt('btn-onboard-restore', o.codeBtn); setTxt('onb-use-pw', o.usePw);
@@ -8551,6 +8559,7 @@ function _updateSettingsPanel() {
   _spCk('sp-dmpush-btn', window._dmPrefs?.().push !== false, d.dm.spPush);
   _spCk('sp-libeai-btn', !!window._libeAiOn?.(), d.libeAi.sp);
   { const gb = document.getElementById('sp-gold-btn'); if (gb) { gb.classList.toggle('hidden', !window._goldenOn?.()); _spCk(gb, !!window._goldenHidden?.(), d.spCkGold); } }
+  _spCk('sp-fx-btn', fxOn(), d.fxLabel);
   { const hb = document.getElementById('sp-hw-btn'); if (hb) { hb.classList.toggle('hidden', !window._hwOn?.()); _spCk(hb, !!window._hwHidden?.(), d.spCkHw); } }
   { const n = document.getElementById('sp-libeai-note'); if (n) { n.textContent = d.libeAi.spNote; n.classList.toggle('hidden', !window._libeAiOn?.()); } }
   document.getElementById('sp-vol-slider')?.closest('.sp-vol-row')?.classList.toggle('hidden', !sfxEnabled);
@@ -8723,6 +8732,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('sp-theme-btn')?.addEventListener('click', () => {
     document.getElementById('btn-theme-toggle')?.click();
     setTimeout(_updateSettingsPanel, 50);
+  });
+  document.getElementById('sp-fx-btn')?.addEventListener('click', () => {
+    window._fxSet(!fxOn());
+    _updateSettingsPanel();
   });
   document.getElementById('sp-hw-btn')?.addEventListener('click', () => {
     window._hwSetHidden?.(!window._hwHidden?.());
@@ -15607,6 +15620,11 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
     if (tbtn) tbtn.textContent = light ? '☀️' : '🌙';
     _syncThemeBtns();
   }
+  const fxOnB = document.getElementById('onb-fx-on'), fxOffB = document.getElementById('onb-fx-off');
+  function _syncFx() { const on = fxOn(); fxOnB?.classList.toggle('onboard-theme-active', on); fxOffB?.classList.toggle('onboard-theme-active', !on); fxOnB?.setAttribute('aria-pressed', String(on)); fxOffB?.setAttribute('aria-pressed', String(!on)); }
+  fxOnB?.addEventListener('click', () => { window._fxSet(true); _syncFx(); });
+  fxOffB?.addEventListener('click', () => { window._fxSet(false); _syncFx(); });
+  _syncFx();
   thDay?.addEventListener('click', () => _pickTheme(true));
   thNight?.addEventListener('click', () => _pickTheme(false));
 
@@ -16450,6 +16468,7 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     if (!sm) h += '<div class="hw-eyes" style="right:14px;bottom:30%;animation-delay:-4s"><i></i><i></i></div>';
     const nl = sm ? 3 : 7;
     for (let i = 0; i < nl; i++) h += '<span class="hw-leaf" style="left:' + (6 + i * (88 / nl) + r(0, 6)) + '%;animation-delay:-' + (i * 2.1) + 's;animation-duration:' + (9 + i % 3 * 1.7) + 's"></span>';
+    h += '<svg class="hw-bolt" viewBox="0 0 40 70"><path d="M26 2L8 36h12L12 68 34 28H22z" fill="none" stroke="#8a5cd6" stroke-width="2.6" stroke-linejoin="round"/></svg><div class="hw-flash"></div>';
     h += '<div class="hw-fog"></div><div class="hw-pk" role="presentation">' + use('pk', '0 0 90 80') + '</div><div class="hw-stamp"></div></div>';
     el.innerHTML = h;
     document.body.appendChild(el);
@@ -16543,6 +16562,7 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     const cap = ov.querySelector('.hwg-cap'), v = stage(), W = ov.clientWidth, H = ov.clientHeight, sm = small();
     cap.textContent = '';
     v.innerHTML = '<div class="hwg-body">' + BODY + '</div>';
+    if (fxOn()) { sp('hwg-flash'); ov.classList.add('hwg-shake'); setTimeout(() => ov?.classList.remove('hwg-shake'), 1100); }
     if (!reduce()) {
       sp('hwg-lid'); stars(sm ? 8 : 14, W / 2, H / 2, 120);
       const np = sm ? 22 : 40;
@@ -16569,6 +16589,7 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
   function result(dup) {
     const v = stage(), cap = ov.querySelector('.hwg-cap'), nm = t().shopPFrameNames[resId] || '';
     cap.textContent = '';
+    if (fxOn()) { ov.classList.add('hwg-shake'); setTimeout(() => ov?.classList.remove('hwg-shake'), 1100); }
     rain(small() ? 14 : 26);
     v.innerHTML = '<div class="hwg-res"><div class="hwg-tada">' + L().tada + '</div>' + (dup ? '<p class="hwg-dup">' + L().dup + '</p>' : '<div class="hwg-big">' + pt(resId) + '</div><span class="hwg-stamp">' + L().stamp + '</span><b>' + _escHtml(nm) + '</b>') +
       '<div class="hwg-btns">' + (dup ? '' : '<button type="button" class="btn btn-primary" id="hwg-put">' + L().put + '</button>') + '<button type="button" class="btn" id="hwg-later">' + L().later + '</button></div></div>';

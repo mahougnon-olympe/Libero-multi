@@ -3623,6 +3623,15 @@ html:not(.light) .nameeffect-lueur { color: #ffd27a; -webkit-text-fill-color: #f
 .hwg-dup { margin: 10px; font-weight: 700; } .hwg-btns { display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap; justify-content: center; }
 @media (prefers-reduced-motion: reduce) { .hwg *, .hwg-chip { animation: none !important; } }
 
-/* Securite : aucun eclair ni flash plein ecran, aucun clignotement rapide (photosensibilite). Les eclairs et flashs de v179 et v181 sont retires. */
-.hw-flash, .hw-bolt, .hwg-flash { display: none !important; }
-.hwg-shake { animation: none !important; }
+/* Effets lumineux : seulement si le joueur les a actives (html.fx-on). Sinon, fondus lents et rien de plein ecran. */
+.hw-flash, .hw-bolt, .hwg-flash { display: none; }
+html.fx-on .hw-bolt, html.fx-on .hw-flash, html.fx-on .hwg-flash { display: block; }
+html:not(.fx-on) .hwg-shake { animation: none; }
+html.fx-on .hw-eyes { animation: hwBlinkFast 7s infinite; }
+html.fx-on .pf-hw-yeux::after { animation: hwBlkFast 5s infinite; }
+html.fx-on .pf-hw-frank::before { animation: hwSpkFast 1.1s steps(1) infinite; }
+html.fx-on .pf-hw-chandelle::before { animation: hwFlm .3s ease-in-out infinite alternate; }
+@keyframes hwBlinkFast { 0%,8% { opacity: 0; } 10%,14% { opacity: 1; } 16% { opacity: .1; } 18%,24% { opacity: 1; } 26%,100% { opacity: 0; } }
+@keyframes hwBlkFast { 0%,88%,100% { opacity: 1; } 93% { opacity: .1; } }
+@keyframes hwSpkFast { 0%,60% { opacity: 0; } 65%,85% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .hw-flash, .hw-bolt, .hwg-flash { display: none !important; } html.fx-on .hw-eyes, html.fx-on .pf-hw-yeux::after, html.fx-on .pf-hw-frank::before, html.fx-on .pf-hw-chandelle::before { animation: none; } }
