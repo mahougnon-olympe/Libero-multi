@@ -11,7 +11,7 @@
       shuffle: 'On mélange les rôles...', dealt: 'Les cartes sont distribuées', yourWord: 'Ton mot secret', hold: 'Maintiens la carte\npour voir ton mot', yourWordIs: 'Ton mot', same: 'Tu ne sais pas si les autres ont le même mot.',
       whiteTitle: 'Tu es Mr. White', whiteTxt: "Tu n'as aucun mot. Écoute les indices et bluffe !", ready: 'Je suis prêt', readyDone: 'Prêt, on attend les autres', hush: 'Chut : les autres regardent aussi leur carte',
       center: 'Un indice,\nun seul mot', seeWord: 'Clique pour voir ton mot', back: 'Retour', step1: 'Invite tes amis', step2: 'Règle la partie', waitP: "En attente d'un joueur...", roleSplit: 'Répartition des rôles', sub1: n => `${n} joueur${n > 1 ? 's' : ''} • Temps réel`, tagC: n => `${n} civil${n > 1 ? 's' : ''}`, tagU: n => `${n} Undercover`, tagW: '1 Mr. White', rolesAuto: 'Auto', rolesManual: 'Manuel', undLbl: 'Undercover', whiteLbl: 'Mr. White', rolesFor: n => `pour ${n} joueurs`, rolesRule: 'Mr. White arrive à partir de 5 joueurs. En auto : 2 Undercover à partir de 8 joueurs.', rolesReset: 'Réglage des rôles remis en automatique : le nombre de joueurs a changé.', rolesHost: "Choisi par l'hôte", on: 'Oui', off: 'Non', yourTurn: 'À toi : un seul mot', send: 'Envoyer', said: 'Mots déjà dits', skipped: '(passé)', writes: n => `${n} écrit son indice...`, phold: 'Ton indice',
-      debate: 'On en discute', toVote: 'Passer au vote', waitVote: 'Prêt pour le vote', debateSub: 'Débat libre avant le vote', say: 'Écris un message', whoIs: "Qui est l'intrus ?", voteBtn: 'Voter', voted: 'Vote envoyé. On attend les autres...', pick: 'Touche un joueur, puis vote',
+      botTag: 'ROBOT', debate: 'On en discute', toVote: 'Passer au vote', waitVote: 'Prêt pour le vote', debateSub: 'Débat libre avant le vote', say: 'Écris un message', whoIs: "Qui est l'intrus ?", voteBtn: 'Voter', voted: 'Vote envoyé. On attend les autres...', pick: 'Touche un joueur, puis vote',
       tie: 'Égalité ! Second vote entre les ex aequo', voteCount: (a, b) => `${a} / ${b} ont voté`, verdict: 'Le verdict est tombé...', wasX: n => `${n} était`, hisWord: 'Son mot', civHad: w => `Les civils avaient « ${w} »`, hisWordNone: 'Aucun mot',
       roles: { civil: 'Civil', undercover: 'Undercover', white: 'Mr. White' }, byLot: 'Égalité : le sort a désigné ce joueur.', left: 'a quitté la partie',
       guessT: 'Dernière chance : devine le mot des civils', guessing: n => `${n} réfléchit...`, guessPh: 'Ton mot', guessGo: 'Valider', miss: 'RATÉ', hit: 'BIEN VU !', wasWhite: n => `${n} est éliminé : c'était Mr. White !`,
@@ -25,7 +25,7 @@
       shuffle: 'Shuffling the roles...', dealt: 'The cards are dealt', yourWord: 'Your secret word', hold: 'Hold the card\nto see your word', yourWordIs: 'Your word', same: "You don't know if the others have the same word.",
       whiteTitle: 'You are Mr. White', whiteTxt: 'You have no word. Listen to the clues and bluff!', ready: "I'm ready", readyDone: 'Ready, waiting for the others', hush: 'Shh: the others are looking at their card too',
       center: 'One clue,\none word', seeWord: 'Click to see your word', back: 'Back', step1: 'Invite your friends', step2: 'Set up the game', waitP: 'Waiting for a player...', roleSplit: 'Role split', sub1: n => `${n} player${n > 1 ? 's' : ''} • Real time`, tagC: n => `${n} civilian${n > 1 ? 's' : ''}`, tagU: n => `${n} Undercover`, tagW: '1 Mr. White', rolesAuto: 'Auto', rolesManual: 'Manual', undLbl: 'Undercover', whiteLbl: 'Mr. White', rolesFor: n => `for ${n} players`, rolesRule: 'Mr. White joins from 5 players. In auto: 2 Undercover from 8 players.', rolesReset: 'Roles set back to automatic: the number of players changed.', rolesHost: 'Chosen by the host', on: 'Yes', off: 'No', yourTurn: 'Your turn: one word', send: 'Send', said: 'Words so far', skipped: '(passed)', writes: n => `${n} is writing a clue...`, phold: 'Your clue',
-      debate: "Let's talk", toVote: 'Go to the vote', waitVote: 'Ready to vote', debateSub: 'Open debate before the vote', say: 'Write a message', whoIs: 'Who is the impostor?', voteBtn: 'Vote', voted: 'Vote sent. Waiting for the others...', pick: 'Tap a player, then vote',
+      botTag: 'BOT', debate: "Let's talk", toVote: 'Go to the vote', waitVote: 'Ready to vote', debateSub: 'Open debate before the vote', say: 'Write a message', whoIs: 'Who is the impostor?', voteBtn: 'Vote', voted: 'Vote sent. Waiting for the others...', pick: 'Tap a player, then vote',
       tie: 'Tie! Second vote between the tied players', voteCount: (a, b) => `${a} / ${b} voted`, verdict: 'The verdict is in...', wasX: n => `${n} was`, hisWord: 'Their word', civHad: w => `The civilians had "${w}"`, hisWordNone: 'No word',
       roles: { civil: 'Civilian', undercover: 'Undercover', white: 'Mr. White' }, byLot: 'Tie: luck picked this player.', left: 'left the game',
       guessT: "Last chance: guess the civilians' word", guessing: n => `${n} is thinking...`, guessPh: 'Your word', guessGo: 'Confirm', miss: 'MISSED', hit: 'WELL SPOTTED!', wasWhite: n => `${n} is out: it was Mr. White!`,
@@ -91,7 +91,13 @@
   // ── Briques ──
   function portrait(p) { try { if (window.LiberoPortrait) return p ? LiberoPortrait.svg(p) : LiberoPortrait.blank(); } catch {} return ''; }
   const ROBOT = '<svg viewBox="0 0 40 40"><rect width="40" height="40" fill="#e8edf5"/><rect x="9" y="12" width="22" height="18" rx="5" fill="#9aa4b2" stroke="#1d2433" stroke-width="2"/><circle cx="16" cy="21" r="2.6" fill="#1d2433"/><circle cx="24" cy="21" r="2.6" fill="#1d2433"/><path d="M20 12V7" stroke="#1d2433" stroke-width="2"/><circle cx="20" cy="6" r="2" fill="#e2485d"/></svg>';
-  function pf(p, s) { return `<span class="pf" style="--s:${s || 52}px">${p && p.bot && !p.portrait ? ROBOT : portrait(p && p.portrait)}</span>`; }
+  // Pastille d'antenne : repere un robot sur son portrait (hors du rond, qui rogne ce qui depasse).
+  const CHIP = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3v4"/><circle cx="10" cy="3" r="1.4" fill="currentColor"/><rect x="4" y="7" width="12" height="9" rx="2.5"/><circle cx="8" cy="11.5" r=".9" fill="currentColor"/><circle cx="12" cy="11.5" r=".9" fill="currentColor"/></svg>';
+  const botTag = p => p && p.bot ? `<i class="bstamp">${esc(U().botTag)}</i>` : '';
+  function pf(p, s) {
+    const z = s || 52, h = `<span class="pf" style="--s:${z}px">${p && p.bot && !p.portrait ? ROBOT : portrait(p && p.portrait)}</span>`;
+    return p && p.bot ? `<span class="pfw" style="--s:${z}px">${h}<span class="bchip" aria-hidden="true">${CHIP}</span></span>` : h;
+  }
   const pfI = (v, i, s) => pf(v.players[i], s);
   function hdr(t, rd) { return `<div class="top"><button class="back" data-act="back" aria-label="${esc(U().leave)}">&#8592; ${esc(U().back)}</button><h2 class="ttl">${esc(t)}</h2><div class="sub">${esc(rd || '')}</div></div>`; }
   function rolesCounts(n) { const u = n <= 7 ? 1 : 2, w = n <= 4 ? 0 : 1; return [n - u - w, u, w]; }
@@ -184,7 +190,7 @@
     return hdr(U().lobby, U().sub1(n)) + `<div class="lobby"><div class="lcol"><div class="step">1) <b>${U().step1}</b></div>
       <div class="card lc"><div class="sm">${U().code}</div><div class="code">${(S.code || '').split('').map((ch, i) => `<b style="animation-delay:${.1 + i * .3}s">${esc(ch)}</b>`).join('')}</div>
       <div class="row2"><button class="btn alt" data-act="copy">${U().copy}</button><button class="btn alt" data-act="share">${U().share}</button></div></div>
-      <div class="reg"><span class="tape"></span><div class="sm" style="text-align:left;margin-bottom:2px">${U().register} (${n}/${v.max})</div><div id="rows">${v.players.map(p => `<div class="rw${p.connected ? '' : ' off'}">${pf(p, 32)}<span>${esc(p.name)}${p.host ? ' <small class="sm">' + U().host + '</small>' : ''}</span><svg class="tk" viewBox="0 0 22 22"><path d="M3 12l5 5 11-12"/></svg></div>`).join('')}${('<div class="rw free"><span class="phd"></span><span>' + U().waitP + '</span></div>').repeat(free)}</div></div></div>
+      <div class="reg"><span class="tape"></span><div class="sm" style="text-align:left;margin-bottom:2px">${U().register} (${n}/${v.max})</div><div id="rows">${v.players.map(p => `<div class="rw${p.connected ? '' : ' off'}">${pf(p, 32)}<span>${esc(p.name)}${botTag(p)}${p.host ? ' <small class="sm">' + U().host + '</small>' : ''}</span><svg class="tk" viewBox="0 0 22 22"><path d="M3 12l5 5 11-12"/></svg></div>`).join('')}${('<div class="rw free"><span class="phd"></span><span>' + U().waitP + '</span></div>').repeat(free)}</div></div></div>
       <div class="lcol"><div class="step">2) <b>${U().step2}</b></div><div class="card lc lc2">
       ${v.host ? `<div class="mx"><span>${U().maxLbl}</span><span class="mxn"><button class="sq" data-act="max-" ${v.max <= Math.max(v.min, n) ? 'disabled' : ''}>-</button><b>${v.max}</b><button class="sq" data-act="max+" ${v.max >= 10 ? 'disabled' : ''}>+</button></span></div>` : ''}
       ${rolesBlock(v)}
@@ -266,7 +272,7 @@
   function sendClue() { const i = $('#ci'); if (!i) return; const t = i.value.trim(); if (!t) return; socket.emit('uc-clue', { text: t }); i.value = ''; }
 
   // ── Debat et vote ──
-  function chatHtml(v) { return v.chat.map(c => `<div class="msg${c.p === v.me ? ' me' : ''}">${pfI(v, c.p, 30)}<span class="t">${esc(c.t)}</span></div>`).join(''); }
+  function chatHtml(v) { return v.chat.map(c => { const p = v.players[c.p] || {}; return `<div class="msg${c.p === v.me ? ' me' : ''}">${pfI(v, c.p, 30)}<div class="bub">${c.p === v.me ? '' : `<div class="who">${esc(p.name || '')}${botTag(p)}</div>`}<span class="t">${esc(c.t)}</span></div></div>`; }).join(''); }
   function chatBox(v, h) { return `<div class="chat" id="chat" style="max-height:${h}px;overflow-y:auto;width:100%">${chatHtml(v)}</div>${v.alive !== false ? `<div class="chatin"><input id="si" maxlength="100" placeholder="${esc(U().say)}" autocomplete="off"><button class="btn alt" data-act="say">&#10148;</button></div>` : `<div class="spect">${U().spect}</div>`}`; }
   function sendSay() { const i = $('#si'); if (!i || !i.value.trim()) return; socket.emit('uc-say', { text: i.value.trim() }); i.value = ''; i.focus(); }
   function bindSay() { const i = $('#si'); if (i) i.onkeydown = e => { if (e.key === 'Enter') sendSay(); }; }
@@ -289,7 +295,7 @@
     const cards = v.players.map((p, i) => {
       if (i === v.me || p.alive === false) return '';
       if (v.cands && v.cands.length && !v.cands.includes(i)) return '';
-      return `<div class="vc${S.sel === i ? ' sel' : ''}" data-act="pick" data-i="${i}">${pf(p, 50)}${esc(p.name)}<svg class="circ" viewBox="0 0 80 66"><ellipse cx="40" cy="31" rx="34" ry="28"/></svg><span class="tally" id="ty${i}"></span></div>`;
+      return `<div class="vc${S.sel === i ? ' sel' : ''}" data-act="pick" data-i="${i}">${pf(p, 50)}${esc(p.name)}${botTag(p)}<svg class="circ" viewBox="0 0 80 66"><ellipse cx="40" cy="31" rx="34" ry="28"/></svg><span class="tally" id="ty${i}"></span></div>`;
     }).join('');
     return hdr(U().title, U().round(v.round)) + `<div class="body"><div class="colL">${myCard(v)}</div><div class="colA"><div class="cap">${U().whoIs}</div>${tie}<div class="vg" id="vg">${cards}</div>
       <div style="display:flex;align-items:center;gap:12px;width:100%;justify-content:center"><div class="urn" id="urn"><div class="slot"></div><div class="jar"></div></div><div class="sm" style="text-align:left" id="vs">${v.__static ? '' : U().pick}</div></div></div>

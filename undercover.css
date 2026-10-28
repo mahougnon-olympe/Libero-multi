@@ -236,3 +236,14 @@
 .seg button.on{background:var(--board);color:#fff}
 .seg button[disabled]{opacity:.4;cursor:default}
 .lc2 .mx{display:flex;align-items:center}
+
+/* robots : pastille d'antenne sur le portrait, tampon a cote du nom */
+.pfw{position:relative;display:inline-block;vertical-align:middle;flex:none;line-height:0}
+.pfw .bchip{position:absolute;right:-4px;bottom:-4px;width:calc(var(--s,52px)*.42);height:calc(var(--s,52px)*.42);min-width:14px;min-height:14px;border-radius:50%;background:var(--card,#fffdf6);border:2px solid var(--text);color:var(--text);display:grid;place-items:center;box-sizing:border-box}
+.pfw .bchip svg{width:74%;height:74%}
+.bstamp{display:inline-block;font:700 .6rem Archivo,system-ui,sans-serif;font-style:normal;letter-spacing:.14em;line-height:1.5;color:#ff8a80;border:1.6px solid #ff8a80;background:rgba(255,138,128,.1);border-radius:4px;padding:0 5px;margin-left:6px;transform:rotate(-3deg);vertical-align:middle}
+.bstamp{--bs:#ff8a80}
+html.light .bstamp{color:#b3261e;border-color:#b3261e;background:rgba(179,38,30,.07)}
+.msg .bub{min-width:0;display:flex;flex-direction:column;align-items:flex-start}.msg.me .bub{align-items:flex-end}
+.msg .who{font-weight:700;font-size:.72rem;margin-bottom:2px;opacity:.85}
+.vc .bstamp{display:block;margin:2px auto 0;width:max-content}
