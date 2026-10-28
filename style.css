@@ -3019,6 +3019,7 @@ html.light .boost-hint-btn:hover:not(:disabled) { background: rgba(180,83,9,.2);
 .shop-bubble-preview { font-size: .82rem; padding: 5px 10px; border-radius: 12px 12px 4px 12px; font-weight: 500; text-align: center; background: var(--card2); color: var(--text); }
 .msg-bubble.bubble-ardoise,       .shop-bubble-preview.bubble-ardoise       { background: #546e7a !important; color: #eceff1 !important; }
 .msg-bubble.bubble-ocean,         .shop-bubble-preview.bubble-ocean         { background: #1565c0 !important; color: #e3f2fd !important; }
+.msg-bubble.bubble-citrouille, .shop-bubble-preview.bubble-citrouille { background: #ff9a3c !important; color: #2a1400 !important; }
 .msg-bubble.bubble-menthe,        .shop-bubble-preview.bubble-menthe        { background: #26a69a !important; color: #e0f2f1 !important; }
 .msg-bubble.bubble-corail,        .shop-bubble-preview.bubble-corail        { background: #ef5350 !important; color: #fff !important; }
 .msg-bubble.bubble-ambre,         .shop-bubble-preview.bubble-ambre         { background: #f57f17 !important; color: #fff3e0 !important; }
@@ -3076,6 +3077,10 @@ html.light body.bg-theme-sunset    { --board:#e67e22;--board2:#d35400;--border:r
 /* Static CSS backgrounds · version nuit */
 #bg-layer.bg-nuit,     .shop-bg-preview.bg-nuit     { background:#06060e; }
 #bg-layer.bg-ardoise,  .shop-bg-preview.bg-ardoise   { background:linear-gradient(135deg,#0f1923,#1a2a3a); }
+#bg-layer.bg-nuitbrume, .shop-bg-preview.bg-nuitbrume { background: radial-gradient(ellipse at 50% 20%, #4b2a7a 0%, #1a0f2e 55%, #0a0716 100%); background-size: 160% 160%; }
+#bg-layer.bg-nuitbrume { animation: nbDrift 18s ease-in-out infinite alternate; }
+@keyframes nbDrift { from { background-position: 30% 20%; } to { background-position: 70% 60%; } }
+@media (prefers-reduced-motion: reduce) { #bg-layer.bg-nuitbrume { animation: none; } }
 #bg-layer.bg-brume,    .shop-bg-preview.bg-brume     { background:radial-gradient(ellipse at 50% 30%,#2d0060 0%,#0a0015 65%); }
 #bg-layer.bg-aurore-deg,.shop-bg-preview.bg-aurore-deg{ background:linear-gradient(160deg,#0a1628 0%,#0d3320 35%,#0a1a28 65%,#0a0a28 100%); }
 #bg-layer.bg-crepuscule,.shop-bg-preview.bg-crepuscule{ background:linear-gradient(180deg,#0a0018 0%,#2d0050 50%,#3d0040 100%); }
@@ -3105,6 +3110,7 @@ html.light body.bg-theme-sunset    { --board:#e67e22;--board2:#d35400;--border:r
 /* Static CSS backgrounds · version jour (mode clair) */
 html.light #bg-layer.bg-nuit,     html.light .shop-bg-preview.bg-nuit     { background:linear-gradient(135deg,#e3f2fd,#bbdefb); }
 html.light #bg-layer.bg-ardoise,  html.light .shop-bg-preview.bg-ardoise   { background:linear-gradient(135deg,#eceff1,#cfd8dc); }
+html.light #bg-layer.bg-nuitbrume, html.light .shop-bg-preview.bg-nuitbrume { background: radial-gradient(ellipse at 50% 20%, #ffe0b8 0%, #f2d3f5 60%, #e3c9ef 100%); background-size: 160% 160%; }
 html.light #bg-layer.bg-brume,    html.light .shop-bg-preview.bg-brume     { background:radial-gradient(ellipse at 50% 30%,#f3e5f5 0%,#e1bee7 65%); }
 html.light #bg-layer.bg-aurore-deg,html.light .shop-bg-preview.bg-aurore-deg{ background:linear-gradient(160deg,#e0f7fa 0%,#c8e6c9 35%,#e1f5fe 65%,#e8eaf6 100%); }
 html.light #bg-layer.bg-crepuscule,html.light .shop-bg-preview.bg-crepuscule{ background:linear-gradient(180deg,#fde7f3 0%,#f3e5f5 50%,#fce4ec 100%); }

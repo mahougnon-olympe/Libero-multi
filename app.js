@@ -1048,13 +1048,13 @@ const DICT = {
     tplPubOk:'Envoyé ! L\'admin doit valider ton modèle avant qu\'il soit en vente.', tplPubRules:'Il faut le niveau 5. 3 modèles maximum. Tu touches 70 % de chaque vente.',
     tplErr:{level:'Il faut le niveau 5 pour publier.', max:'Tu as déjà 3 modèles.', name:'Choisis un autre nom.', anonymous:'Choisis d\'abord un pseudo.', no_portrait:'Enregistre d\'abord ton portrait.', insufficient:'Pas assez de Libs.', own:'C\'est ton modèle !', owned:'Tu as déjà ce modèle.', rate:'Doucement, réessaie dans un instant.', invalid:'Ce modèle n\'est plus disponible.', free_locked:'Un modèle gratuit ne peut pas contenir de pièce payante.'}, tplFree:'Gratuit', tplTake:'Prendre',
     tplSold:(n, b, g) => `${b} a acheté ton modèle « ${n} » : +${g} Libs`, tplLive:n => `Ton modèle « ${n} » est en vente !`, tplRefused:n => `Ton modèle « ${n} » a été refusé.`,
-    shopBubbleNames:{ 'bubble-ardoise':'Ardoise', 'bubble-ocean':'Océan', 'bubble-menthe':'Menthe', 'bubble-corail':'Corail', 'bubble-ambre':'Ambre', 'bubble-lavande':'Lavande', 'bubble-rubis':'Rubis', 'bubble-emeraude':'Émeraude', 'bubble-indigo':'Indigo', 'bubble-magenta':'Papier buvard', 'bubble-cyan':'Papier millimétré', 'bubble-crepuscule':'Crépuscule', 'bubble-aurore':'Aurore', 'bubble-sunset':'Coucher de soleil', 'bubble-tropical':'Tropical', 'bubble-arcade':'Papier kraft', 'bubble-galaxie':'Galaxie', 'bubble-verre':'Papier calque', 'bubble-or':'Or liquide', 'bubble-holographique':'Encre violette', 'bubble-cameleon':'Carte à jouer', 'bubble-live-gold':'Or Royal', 'bubble-live-silver':'Argent Poli', 'bubble-live-bronze':'Bronze Forgé' },
+    shopBubbleNames:{'bubble-citrouille':'Citrouille', 'bubble-ardoise':'Ardoise', 'bubble-ocean':'Océan', 'bubble-menthe':'Menthe', 'bubble-corail':'Corail', 'bubble-ambre':'Ambre', 'bubble-lavande':'Lavande', 'bubble-rubis':'Rubis', 'bubble-emeraude':'Émeraude', 'bubble-indigo':'Indigo', 'bubble-magenta':'Papier buvard', 'bubble-cyan':'Papier millimétré', 'bubble-crepuscule':'Crépuscule', 'bubble-aurore':'Aurore', 'bubble-sunset':'Coucher de soleil', 'bubble-tropical':'Tropical', 'bubble-arcade':'Papier kraft', 'bubble-galaxie':'Galaxie', 'bubble-verre':'Papier calque', 'bubble-or':'Or liquide', 'bubble-holographique':'Encre violette', 'bubble-cameleon':'Carte à jouer', 'bubble-live-gold':'Or Royal', 'bubble-live-silver':'Argent Poli', 'bubble-live-bronze':'Bronze Forgé' },
     shopBgTitle:'🖼 Fonds d\'écran',
-    shopBgNames:{'bg-nuit':'Nuit Calme','bg-ardoise':'Ardoise Profonde','bg-brume':'Brume Violette','bg-aurore-deg':'Dégradé Aurore','bg-crepuscule':'Crépuscule au pastel','bg-cyber':'Papier millimétré','bg-circuit':'Plan de circuit au crayon','bg-hexagones':'Hexagones','bg-etoile':'Ciel Étoilé','bg-particules':'Particules Flottantes','bg-pluie':'Pluie à l\'encre','bg-vagues':'Vagues Lumineuses','bg-synthwave':'Coucher de soleil aux craies grasses','bg-nebuleuse':'Nébuleuse','bg-aurores':'Aurores Mouvantes','bg-galaxie':'Galaxie Vivante','bg-tempete':'Orage au fusain','bg-hologramme':'Papier calque','bg-wax':'Motifs Pagne','bg-marche-nuit':'Marché de Nuit','bg-terrain':'Terrain de Foot','bg-matrice':'Carnet de code','bg-harmattan':'Harmattan à l\'aquarelle','bg-orage':'Ciel d\'Orage','bg-lagune':'Coucher sur la Lagune'},
+    shopBgNames:{'bg-nuitbrume':'Nuit de brume','bg-nuit':'Nuit Calme','bg-ardoise':'Ardoise Profonde','bg-brume':'Brume Violette','bg-aurore-deg':'Dégradé Aurore','bg-crepuscule':'Crépuscule au pastel','bg-cyber':'Papier millimétré','bg-circuit':'Plan de circuit au crayon','bg-hexagones':'Hexagones','bg-etoile':'Ciel Étoilé','bg-particules':'Particules Flottantes','bg-pluie':'Pluie à l\'encre','bg-vagues':'Vagues Lumineuses','bg-synthwave':'Coucher de soleil aux craies grasses','bg-nebuleuse':'Nébuleuse','bg-aurores':'Aurores Mouvantes','bg-galaxie':'Galaxie Vivante','bg-tempete':'Orage au fusain','bg-hologramme':'Papier calque','bg-wax':'Motifs Pagne','bg-marche-nuit':'Marché de Nuit','bg-terrain':'Terrain de Foot','bg-matrice':'Carnet de code','bg-harmattan':'Harmattan à l\'aquarelle','bg-orage':'Ciel d\'Orage','bg-lagune':'Coucher sur la Lagune'},
     shopNameEffectsTitle:'✨ Effets de pseudo',
-    shopNameEffectNames:{'nameeffect-blink':'Craie qui scintille','nameeffect-pulse':'Coup de surligneur','nameeffect-gradient':'Feutres qui défilent','nameeffect-sparks':'Étoiles de craie','nameeffect-glitch':'Coup de gomme','nameeffect-rainbow':'Crayons de couleur','nameeffect-flammes':'Encre rouge','nameeffect-glace':'Craie bleue','nameeffect-or':'Feuille d\'or'},
+    shopNameEffectNames:{'nameeffect-lueur':'Lueur de lune','nameeffect-blink':'Craie qui scintille','nameeffect-pulse':'Coup de surligneur','nameeffect-gradient':'Feutres qui défilent','nameeffect-sparks':'Étoiles de craie','nameeffect-glitch':'Coup de gomme','nameeffect-rainbow':'Crayons de couleur','nameeffect-flammes':'Encre rouge','nameeffect-glace':'Craie bleue','nameeffect-or':'Feuille d\'or'},
     shopTitlesTitle:'🏷️ Titres',
-    shopTitleNames:{'title-tactician':'Tacticien','title-strategist':'Le Stratège','title-quizmaster':'Quiz Master','title-snakeking':'Roi du Snake','title-unbeaten':'Invaincu','title-champion':'Champion','title-legend':'Légende Vivante','title-sage':'Le Sage','title-wordking':'Roi du Mot','title-unstoppable':'L\'Increvable','title-generous':'Le Généreux','title-brain':'Cerveau','title-globetrotter':'Vagabond','title-live-champion':'Champion Libero','title-live-champion2':'Libéro d\'Or','title-live-vice2':'Libéro d\'Argent','title-live-podium2':'Libéro de Bronze','title-live-remontada':'Le Rebond','title-live-eclair':'Sang-froid','title-live-vice':'Vice-champion','title-live-podium':'Podium','title-live-finalist':'Finaliste','title-live-semi':'Demi-finaliste','title-live-complet':'Inusable'},
+    shopTitleNames:{'title-zangbeto':'Chasseur de Zangbeto','title-tactician':'Tacticien','title-strategist':'Le Stratège','title-quizmaster':'Quiz Master','title-snakeking':'Roi du Snake','title-unbeaten':'Invaincu','title-champion':'Champion','title-legend':'Légende Vivante','title-sage':'Le Sage','title-wordking':'Roi du Mot','title-unstoppable':'L\'Increvable','title-generous':'Le Généreux','title-brain':'Cerveau','title-globetrotter':'Vagabond','title-live-champion':'Champion Libero','title-live-champion2':'Libéro d\'Or','title-live-vice2':'Libéro d\'Argent','title-live-podium2':'Libéro de Bronze','title-live-remontada':'Le Rebond','title-live-eclair':'Sang-froid','title-live-vice':'Vice-champion','title-live-podium':'Podium','title-live-finalist':'Finaliste','title-live-semi':'Demi-finaliste','title-live-complet':'Inusable'},
     honorTitleNames:{'honor-rank1-global':'N°1 Global','honor-weekly-champ':'Champion de la semaine','honor-creator':'Créateur'},
     honorModalTitle:'Titre honorifique !',
     honorModalMsg:(titleName) => `Felicitations ! Tu es N°1 au classement global. En recompense, tu recois le titre <strong>${titleName}</strong>. Il s'affichera a cote de ton pseudo tant que tu restes premier.`,
@@ -1065,7 +1065,7 @@ const DICT = {
     shopCursorSnakesTitle:'🖱️ Skins de curseur',
     shopSnakeSkinsTitle:'🐍 Skins Snake (Évents)',
     shopSnakeSkinNames:{'snakeskin-gems':'Serpent de Gemmes','snakeskin-cyber':'Serpent Cyber','snakeskin-lava':'Serpent de Lave','snakeskin-galaxy':'Serpent Galaxie','snakeskin-rainbow':'Serpent Arc-en-ciel','snakeskin-8bit':'Serpent 8-bit','snakeskin-gold':'Serpent Doré'},
-    shopCursorSnakeNames:{'cursorsnake-pixel':'Pointillés au crayon','cursorsnake-neon':'Trait de feutre','cursorsnake-comet':'Poussière de craie','cursorsnake-electric':'Gribouillis','cursorsnake-stars':'Étoiles à la craie','cursorsnake-fire':'Encre de Chine'},
+    shopCursorSnakeNames:{'cursorsnake-chauve':'Chauves-souris','cursorsnake-pixel':'Pointillés au crayon','cursorsnake-neon':'Trait de feutre','cursorsnake-comet':'Poussière de craie','cursorsnake-electric':'Gribouillis','cursorsnake-stars':'Étoiles à la craie','cursorsnake-fire':'Encre de Chine'},
     shopAvatarsTitle:'🎭 Avatars',
     shopAvatarNames:{'avatar-gamepad':'Manette','avatar-cat':'Chat Pixel','avatar-lightning':'Éclair','avatar-rocket':'Fusée','avatar-robot':'Robot','avatar-skull':'Crâne','avatar-crown':'Couronne','avatar-ball':'Ballon de Foot','avatar-lion':'Lion','avatar-ghost':'Fantôme','avatar-unicorn':'Licorne','avatar-dragon':'Dragon'},
     shopP4TokensTitle:'🔴 Jetons Puissance 4',
@@ -1077,7 +1077,7 @@ const DICT = {
     shopClickFxTitle:'💥 Particules de clic',
     shopClickFxNames:{'clickfx-bubbles':'Bulles au crayon','clickfx-confetti':'Confettis de papier','clickfx-neon':'Coups de surligneur','clickfx-stars':'Étoiles à la craie','clickfx-firework':'Feu d\'artifice aux crayons'},
     shopEmojiPacksTitle:'🌈 Packs d\'émojis',
-    shopEmojiPackNames:{'emojipack-animals':'Carnet Animaux','emojipack-hearts':'Carnet Cœurs','emojipack-party':'Carnet Fête','emojipack-gaming':'Carnet Jeux','emojipack-cosmos':'Carnet Cosmos'},
+    shopEmojiPackNames:{'emojipack-monstres':'Carnet Monstres','emojipack-animals':'Carnet Animaux','emojipack-hearts':'Carnet Cœurs','emojipack-party':'Carnet Fête','emojipack-gaming':'Carnet Jeux','emojipack-cosmos':'Carnet Cosmos'},
     shopVictoryBansTitle:'🏆 Bannières de victoire',
     shopVictoryBanNames:{'victoryban-neon':'Tampon « Bravo ! »','victoryban-confetti':'Guirlande de fanions','victoryban-flames':'20/20 au stylo rouge','victoryban-lightning':'Médaille d\'or','victoryban-crown':'Couronne de laurier dorée'},
     shopFlagFramesTitle:'Cadres de drapeau',
@@ -1860,13 +1860,13 @@ const DICT = {
     tplPubOk:'Sent! The admin must approve your template before it goes on sale.', tplPubRules:'Level 5 required. 3 templates max. You earn 70% of each sale.',
     tplErr:{level:'You need level 5 to publish.', max:'You already have 3 templates.', name:'Pick another name.', anonymous:'Pick a username first.', no_portrait:'Save your portrait first.', insufficient:'Not enough Libs.', own:'That is your template!', owned:'You already have this template.', rate:'Slow down, try again in a moment.', invalid:'This template is no longer available.', free_locked:'A free template cannot contain paid pieces.'}, tplFree:'Free', tplTake:'Take',
     tplSold:(n, b, g) => `${b} bought your template "${n}": +${g} Libs`, tplLive:n => `Your template "${n}" is on sale!`, tplRefused:n => `Your template "${n}" was refused.`,
-    shopBubbleNames:{ 'bubble-ardoise':'Slate', 'bubble-ocean':'Ocean', 'bubble-menthe':'Mint', 'bubble-corail':'Coral', 'bubble-ambre':'Amber', 'bubble-lavande':'Lavender', 'bubble-rubis':'Ruby', 'bubble-emeraude':'Emerald', 'bubble-indigo':'Indigo', 'bubble-magenta':'Blotting paper', 'bubble-cyan':'Graph paper', 'bubble-crepuscule':'Dusk', 'bubble-aurore':'Aurora', 'bubble-sunset':'Sunset', 'bubble-tropical':'Tropical', 'bubble-arcade':'Kraft paper', 'bubble-galaxie':'Galaxy', 'bubble-verre':'Tracing paper', 'bubble-or':'Liquid gold', 'bubble-holographique':'Violet ink', 'bubble-cameleon':'Playing card', 'bubble-live-gold':'Royal Gold', 'bubble-live-silver':'Polished Silver', 'bubble-live-bronze':'Forged Bronze' },
+    shopBubbleNames:{'bubble-citrouille':'Pumpkin', 'bubble-ardoise':'Slate', 'bubble-ocean':'Ocean', 'bubble-menthe':'Mint', 'bubble-corail':'Coral', 'bubble-ambre':'Amber', 'bubble-lavande':'Lavender', 'bubble-rubis':'Ruby', 'bubble-emeraude':'Emerald', 'bubble-indigo':'Indigo', 'bubble-magenta':'Blotting paper', 'bubble-cyan':'Graph paper', 'bubble-crepuscule':'Dusk', 'bubble-aurore':'Aurora', 'bubble-sunset':'Sunset', 'bubble-tropical':'Tropical', 'bubble-arcade':'Kraft paper', 'bubble-galaxie':'Galaxy', 'bubble-verre':'Tracing paper', 'bubble-or':'Liquid gold', 'bubble-holographique':'Violet ink', 'bubble-cameleon':'Playing card', 'bubble-live-gold':'Royal Gold', 'bubble-live-silver':'Polished Silver', 'bubble-live-bronze':'Forged Bronze' },
     shopBgTitle:'🖼 Wallpapers',
-    shopBgNames:{'bg-nuit':'Calm Night','bg-ardoise':'Deep Slate','bg-brume':'Violet Mist','bg-aurore-deg':'Aurora Gradient','bg-crepuscule':'Pastel dusk','bg-cyber':'Graph paper','bg-circuit':'Pencil circuit plan','bg-hexagones':'Hexagons','bg-etoile':'Starry Sky','bg-particules':'Floating Particles','bg-pluie':'Ink rain','bg-vagues':'Light Waves','bg-synthwave':'Oil pastel sunset','bg-nebuleuse':'Nebula','bg-aurores':'Moving Auroras','bg-galaxie':'Living Galaxy','bg-tempete':'Charcoal storm','bg-hologramme':'Tracing paper','bg-wax':'Wax Patterns','bg-marche-nuit':'Night Market','bg-terrain':'Football Pitch','bg-matrice':'Code notebook','bg-harmattan':'Watercolour harmattan','bg-orage':'Thunder Sky','bg-lagune':'Lagoon Sunset'},
+    shopBgNames:{'bg-nuitbrume':'Misty Night','bg-nuit':'Calm Night','bg-ardoise':'Deep Slate','bg-brume':'Violet Mist','bg-aurore-deg':'Aurora Gradient','bg-crepuscule':'Pastel dusk','bg-cyber':'Graph paper','bg-circuit':'Pencil circuit plan','bg-hexagones':'Hexagons','bg-etoile':'Starry Sky','bg-particules':'Floating Particles','bg-pluie':'Ink rain','bg-vagues':'Light Waves','bg-synthwave':'Oil pastel sunset','bg-nebuleuse':'Nebula','bg-aurores':'Moving Auroras','bg-galaxie':'Living Galaxy','bg-tempete':'Charcoal storm','bg-hologramme':'Tracing paper','bg-wax':'Wax Patterns','bg-marche-nuit':'Night Market','bg-terrain':'Football Pitch','bg-matrice':'Code notebook','bg-harmattan':'Watercolour harmattan','bg-orage':'Thunder Sky','bg-lagune':'Lagoon Sunset'},
     shopNameEffectsTitle:'✨ Name Effects',
-    shopNameEffectNames:{'nameeffect-blink':'Twinkling chalk','nameeffect-pulse':'Highlighter stroke','nameeffect-gradient':'Scrolling felt pens','nameeffect-sparks':'Chalk stars','nameeffect-glitch':'Eraser swipe','nameeffect-rainbow':'Coloured pencils','nameeffect-flammes':'Red ink','nameeffect-glace':'Blue chalk','nameeffect-or':'Gold leaf'},
+    shopNameEffectNames:{'nameeffect-lueur':'Moonlight glow','nameeffect-blink':'Twinkling chalk','nameeffect-pulse':'Highlighter stroke','nameeffect-gradient':'Scrolling felt pens','nameeffect-sparks':'Chalk stars','nameeffect-glitch':'Eraser swipe','nameeffect-rainbow':'Coloured pencils','nameeffect-flammes':'Red ink','nameeffect-glace':'Blue chalk','nameeffect-or':'Gold leaf'},
     shopTitlesTitle:'🏷️ Titles',
-    shopTitleNames:{'title-tactician':'Tactician','title-strategist':'The Strategist','title-quizmaster':'Quiz Master','title-snakeking':'Snake King','title-unbeaten':'Undefeated','title-champion':'Champion','title-legend':'Living Legend','title-sage':'The Wise','title-wordking':'Word King','title-unstoppable':'Unstoppable','title-generous':'The Generous','title-brain':'Big Brain','title-globetrotter':'Globetrotter','title-live-champion':'Libero Champion','title-live-champion2':'Golden Libero','title-live-vice2':'Silver Libero','title-live-podium2':'Bronze Libero','title-live-remontada':'The Comeback','title-live-eclair':'Cool Head','title-live-vice':'Runner-up','title-live-podium':'Podium','title-live-finalist':'Finalist','title-live-semi':'Semifinalist','title-live-complet':'Ironman'},
+    shopTitleNames:{'title-zangbeto':'Zangbeto Hunter','title-tactician':'Tactician','title-strategist':'The Strategist','title-quizmaster':'Quiz Master','title-snakeking':'Snake King','title-unbeaten':'Undefeated','title-champion':'Champion','title-legend':'Living Legend','title-sage':'The Wise','title-wordking':'Word King','title-unstoppable':'Unstoppable','title-generous':'The Generous','title-brain':'Big Brain','title-globetrotter':'Globetrotter','title-live-champion':'Libero Champion','title-live-champion2':'Golden Libero','title-live-vice2':'Silver Libero','title-live-podium2':'Bronze Libero','title-live-remontada':'The Comeback','title-live-eclair':'Cool Head','title-live-vice':'Runner-up','title-live-podium':'Podium','title-live-finalist':'Finalist','title-live-semi':'Semifinalist','title-live-complet':'Ironman'},
     honorTitleNames:{'honor-rank1-global':'#1 Global','honor-creator':'Creator'},
     shopHonoraryBadge:'🏆 Honorary',
     shopHonoraryOwned:'Earned',
@@ -1877,7 +1877,7 @@ const DICT = {
     shopCursorSnakesTitle:'🖱️ Cursor Skins',
     shopSnakeSkinsTitle:'🐍 Snake skins (Events)',
     shopSnakeSkinNames:{'snakeskin-gems':'Gem Snake','snakeskin-cyber':'Cyber Snake','snakeskin-lava':'Lava Snake','snakeskin-galaxy':'Galaxy Snake','snakeskin-rainbow':'Rainbow Snake','snakeskin-8bit':'8-bit Snake','snakeskin-gold':'Golden Snake'},
-    shopCursorSnakeNames:{'cursorsnake-pixel':'Pencil dots','cursorsnake-neon':'Felt pen line','cursorsnake-comet':'Chalk dust','cursorsnake-electric':'Scribble','cursorsnake-stars':'Chalk stars','cursorsnake-fire':'Indian ink'},
+    shopCursorSnakeNames:{'cursorsnake-chauve':'Bats','cursorsnake-pixel':'Pencil dots','cursorsnake-neon':'Felt pen line','cursorsnake-comet':'Chalk dust','cursorsnake-electric':'Scribble','cursorsnake-stars':'Chalk stars','cursorsnake-fire':'Indian ink'},
     shopAvatarsTitle:'🎭 Avatars',
     shopAvatarNames:{'avatar-gamepad':'Gamepad','avatar-cat':'Pixel Cat','avatar-lightning':'Lightning','avatar-rocket':'Rocket','avatar-robot':'Robot','avatar-skull':'Skull','avatar-crown':'Crown','avatar-ball':'Football','avatar-lion':'Lion','avatar-ghost':'Ghost','avatar-unicorn':'Unicorn','avatar-dragon':'Dragon'},
     shopP4TokensTitle:'🔴 Connect 4 Tokens',
@@ -1889,7 +1889,7 @@ const DICT = {
     shopClickFxTitle:'💥 Click Particles',
     shopClickFxNames:{'clickfx-bubbles':'Pencil bubbles','clickfx-confetti':'Paper confetti','clickfx-neon':'Highlighter strokes','clickfx-stars':'Chalk stars','clickfx-firework':'Coloured pencil fireworks'},
     shopEmojiPacksTitle:'🌈 Emoji Packs',
-    shopEmojiPackNames:{'emojipack-animals':'Animal notebook','emojipack-hearts':'Hearts notebook','emojipack-party':'Party notebook','emojipack-gaming':'Games notebook','emojipack-cosmos':'Cosmos notebook'},
+    shopEmojiPackNames:{'emojipack-monstres':'Monsters notebook','emojipack-animals':'Animal notebook','emojipack-hearts':'Hearts notebook','emojipack-party':'Party notebook','emojipack-gaming':'Games notebook','emojipack-cosmos':'Cosmos notebook'},
     shopVictoryBansTitle:'🏆 Victory Banners',
     shopVictoryBanNames:{'victoryban-neon':'"Bravo!" stamp','victoryban-confetti':'Bunting','victoryban-flames':'20/20 in red pen','victoryban-lightning':'Gold medal','victoryban-crown':'Golden laurel wreath'},
     shopFlagFramesTitle:'Flag frames',
@@ -7621,7 +7621,7 @@ function _renderShopItems() {
     {id:'font-lobster',price:5},{id:'font-fredoka',price:5},{id:'font-monoton',price:0},
   ];
   const ALL_BUBBLES = [
-    {id:'bubble-ardoise',price:5},{id:'bubble-ocean',price:10},{id:'bubble-menthe',price:10},
+    {id:'bubble-ardoise',price:5},{id:'bubble-citrouille',price:250},{id:'bubble-ocean',price:10},{id:'bubble-menthe',price:10},
     {id:'bubble-corail',price:12},{id:'bubble-ambre',price:15},{id:'bubble-lavande',price:20},
     {id:'bubble-rubis',price:25},{id:'bubble-emeraude',price:30},{id:'bubble-indigo',price:40},
     {id:'bubble-magenta',price:50},{id:'bubble-cyan',price:50},{id:'bubble-crepuscule',price:70},
@@ -7630,7 +7630,7 @@ function _renderShopItems() {
     {id:'bubble-or',price:180},{id:'bubble-holographique',price:190},{id:'bubble-cameleon',price:200},
   ];
   const ALL_BGS = [
-    {id:'bg-nuit',price:10},{id:'bg-ardoise',price:15},{id:'bg-brume',price:25},
+    {id:'bg-nuit',price:10},{id:'bg-nuitbrume',price:300},{id:'bg-ardoise',price:15},{id:'bg-brume',price:25},
     {id:'bg-aurore-deg',price:40},{id:'bg-crepuscule',price:50},{id:'bg-cyber',price:70},
     {id:'bg-circuit',price:80},{id:'bg-hexagones',price:90},{id:'bg-etoile',price:100},
     {id:'bg-particules',price:120},{id:'bg-pluie',price:140},{id:'bg-vagues',price:150},
@@ -7642,19 +7642,19 @@ function _renderShopItems() {
   ];
 
   const ALL_NAMEEFFECTS = [
-    {id:'nameeffect-blink',price:90},{id:'nameeffect-pulse',price:100},{id:'nameeffect-gradient',price:120},
+    {id:'nameeffect-blink',price:90},{id:'nameeffect-lueur',price:280},{id:'nameeffect-pulse',price:100},{id:'nameeffect-gradient',price:120},
     {id:'nameeffect-sparks',price:130},{id:'nameeffect-glitch',price:160},{id:'nameeffect-rainbow',price:180},
     {id:'nameeffect-flammes',price:140},{id:'nameeffect-glace',price:150},{id:'nameeffect-or',price:170},
   ];
   const ALL_TITLES = [
-    {id:'title-tactician',price:15},{id:'title-strategist',price:40},{id:'title-quizmaster',price:60},
+    {id:'title-tactician',price:15},{id:'title-zangbeto',price:230},{id:'title-strategist',price:40},{id:'title-quizmaster',price:60},
     {id:'title-snakeking',price:60},{id:'title-unbeaten',price:90},{id:'title-champion',price:100},{id:'title-legend',price:130},
     {id:'title-sage',price:80},{id:'title-wordking',price:90},
     {id:'title-unstoppable',price:110},{id:'title-generous',price:70},{id:'title-brain',price:90},{id:'title-globetrotter',price:60},
     {id:'honor-rank1-global',price:0,honorary:true},
   ];
   const ALL_CURSORSNAKES = [
-    {id:'cursorsnake-pixel',price:50},{id:'cursorsnake-neon',price:80},{id:'cursorsnake-comet',price:110},
+    {id:'cursorsnake-pixel',price:50},{id:'cursorsnake-chauve',price:290},{id:'cursorsnake-neon',price:80},{id:'cursorsnake-comet',price:110},
     {id:'cursorsnake-electric',price:130},{id:'cursorsnake-stars',price:160},{id:'cursorsnake-fire',price:200},
   ];
   const ALL_SNAKESKINS = [
@@ -7682,7 +7682,7 @@ function _renderShopItems() {
     {id:'clickfx-stars',price:90},{id:'clickfx-firework',price:130},
   ];
   const ALL_EMOJIPACKS = [
-    {id:'emojipack-animals',price:10},{id:'emojipack-hearts',price:15},{id:'emojipack-party',price:25},
+    {id:'emojipack-animals',price:10},{id:'emojipack-monstres',price:260},{id:'emojipack-hearts',price:15},{id:'emojipack-party',price:25},
     {id:'emojipack-gaming',price:40},{id:'emojipack-cosmos',price:70},
   ];
   const ALL_VICTORYBANS = [
@@ -7775,7 +7775,7 @@ function _renderShopItems() {
     const _AV = {'avatar-gamepad':'🎮','avatar-cat':'🐱','avatar-lightning':'⚡','avatar-rocket':'🚀','avatar-robot':'🤖','avatar-skull':'💀','avatar-crown':'👑','avatar-ball':'⚽','avatar-lion':'🦁','avatar-ghost':'👻','avatar-unicorn':'🦄','avatar-dragon':'🐉'};
     const _TTT_E = {'ttt-neon':'✖️⭕','ttt-sunmoon':'☀️🌙','ttt-heartstar':'❤️⭐','ttt-catdog':'🐱🐶','ttt-skulllightning':'💀⚡'};
     const _CFX = {'clickfx-bubbles':'🫧','clickfx-confetti':'🎊','clickfx-neon':'⚡','clickfx-stars':'🌟','clickfx-firework':'🎆'};
-    const _EP = {'emojipack-animals':'🐾','emojipack-hearts':'💜','emojipack-party':'🎉','emojipack-gaming':'🎮','emojipack-cosmos':'🌌'};
+    const _EP = {'emojipack-animals':'🐾','emojipack-hearts':'💜','emojipack-party':'🎉','emojipack-gaming':'🎮','emojipack-cosmos':'🌌','emojipack-monstres':'🎃','emojipack-monstres':'🎃'};
     const _EM = {'emote-hello':'👋','emote-gg':'👍','emote-sad':'😢','emote-wellplayed':'🤝','emote-laugh':'😂','emote-think':'🤔','emote-cool':'🆒','emote-clap':'👏','emote-fire':'🔥','emote-heart':'❤️','emote-cry':'😭','emote-angry':'😤','emote-shock':'🤯','emote-easy':'😎','emote-eyes':'👀','emote-skull':'💀','emote-party':'🥳','emote-rocket':'🚀','emote-omg':'😱','emote-crown':'👑'};
     let previewHtml = '';
     if (type === 'background')     previewHtml = `<div class="shop-bg-preview ${id}"></div>`;
@@ -8352,7 +8352,7 @@ function _openShopDetail(item) {
       'avatar-gamepad':'🎮','avatar-cat':'🐱','avatar-lightning':'⚡','avatar-rocket':'🚀','avatar-robot':'🤖','avatar-skull':'💀','avatar-crown':'👑','avatar-ball':'⚽','avatar-lion':'🦁','avatar-ghost':'👻','avatar-unicorn':'🦄','avatar-dragon':'🐉',
       'ttt-neon':'✖️⭕','ttt-sunmoon':'☀️🌙','ttt-heartstar':'❤️⭐','ttt-catdog':'🐱🐶','ttt-skulllightning':'💀⚡',
       'clickfx-bubbles':'🫧','clickfx-confetti':'🎊','clickfx-neon':'⚡','clickfx-stars':'🌟','clickfx-firework':'🎆',
-      'emojipack-animals':'🐾🐶🐱','emojipack-hearts':'💜💙💚','emojipack-party':'🎉🎊🎈','emojipack-gaming':'🎮🕹️👾','emojipack-cosmos':'🌌🪐✨',
+      'emojipack-animals':'🐾🐶🐱','emojipack-hearts':'💜💙💚','emojipack-party':'🎉🎊🎈','emojipack-gaming':'🎮🕹️👾','emojipack-cosmos':'🌌🪐✨','emojipack-monstres':'🎃👻🦇',
       'emote-hello':'👋','emote-gg':'👍','emote-sad':'😢','emote-wellplayed':'🤝','emote-laugh':'😂','emote-think':'🤔','emote-cool':'🆒','emote-clap':'👏','emote-fire':'🔥','emote-heart':'❤️','emote-cry':'😭','emote-angry':'😤','emote-shock':'🤯','emote-easy':'😎','emote-eyes':'👀','emote-skull':'💀','emote-party':'🥳','emote-rocket':'🚀','emote-omg':'😱','emote-crown':'👑',
     };
     const emoji = _ITEM_EMOJI[id] || _DETAIL_EMOJI[type] || '✨';
@@ -8464,7 +8464,7 @@ function _refreshLibeBubbles() {
   });
 }
 function _bubbleClass(bubble) {
-  const valid = ['bubble-ardoise','bubble-ocean','bubble-menthe','bubble-corail','bubble-ambre',
+  const valid = ['bubble-citrouille','bubble-ardoise','bubble-ocean','bubble-menthe','bubble-corail','bubble-ambre',
     'bubble-lavande','bubble-rubis','bubble-emeraude','bubble-indigo','bubble-magenta','bubble-cyan',
     'bubble-crepuscule','bubble-aurore','bubble-sunset','bubble-tropical','bubble-arcade',
     'bubble-galaxie','bubble-verre','bubble-or','bubble-holographique','bubble-cameleon',
@@ -8876,7 +8876,7 @@ function _cosmeticNameById(id) {
 }
 
 function _nameEffectClass(nameEffect) {
-  const valid = ['nameeffect-blink','nameeffect-pulse','nameeffect-gradient',
+  const valid = ['nameeffect-lueur','nameeffect-blink','nameeffect-pulse','nameeffect-gradient',
     'nameeffect-sparks','nameeffect-glitch','nameeffect-rainbow','nameeffect-flammes','nameeffect-glace','nameeffect-or'];
   return nameEffect && valid.includes(nameEffect) ? nameEffect : '';
 }
@@ -9105,8 +9105,10 @@ const cursorSnake = (() => {
   // Curseurs redessines : craie, crayon, feutre, encre. Plus aucun halo. La couleur
   // suit la matiere du site (encre sur le cahier, craie sur l'ardoise).
   const _ard = () => !document.documentElement.classList.contains('light');
+  const _BAT = 'polygon(50% 28%,58% 8%,66% 32%,100% 18%,86% 62%,70% 50%,50% 84%,30% 50%,14% 62%,0 18%,34% 32%,42% 8%)';
   const _STAR = 'polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)';
   const CURSOR_SNAKE_SKINS = {
+    'cursorsnake-chauve':   (p) => ({ bg: _ard() ? '#b79af0' : '#8a5cd6', clip: _BAT, scale: 1.9 - p * .9 }),
     'cursorsnake-neon':     (p) => ({ bg: _ard() ? '#8fb0ff' : '#173a8a' }),
     'cursorsnake-fire':     (p) => ({ bg: _ard() ? '#eef1ea' : '#111318', scale: 1.35 }),
     'cursorsnake-comet':    (p) => ({ bg: _ard() ? `rgba(238,241,234,${(.9 - p * .5).toFixed(2)})` : `rgba(90,95,105,${(.85 - p * .45).toFixed(2)})`, scale: 1 + p * .6 }),
@@ -10577,6 +10579,13 @@ const DOODLE_SETS = {
     '<circle cx="20" cy="20" r="13"/><circle cx="20" cy="20" r="8"/><circle cx="20" cy="20" r="3"/>',
     '<path d="M10 30 30 10M24 8l8 8M8 24l8 8M12 26l-4 4"/>',
     '<path d="M8 12h10v6a3 3 0 1 1 0 4v6H8zM18 12h10v6a3 3 0 1 0 0 4v6"/>' ],
+  'emojipack-monstres': [
+    '<path d="M8 34V16a12 12 0 0 1 24 0v18l-4-3-4 3-4-3-4 3-4-3z"/><path d="M15 17h.5M25 17h.5M18 24q2 2 4 0"/>',
+    '<path d="M20 10q-14 0-14 12t14 12 14-12-14-12z"/><path d="M20 10V5M14 20l3 3M26 20l-3 3M15 28q5 3 10 0"/>',
+    '<path d="M20 15l2-6 3 7 12-4-4 10-6-3-4 8-3-5-3 5-4-8-6 3-4-10 12 4 3-7z"/>',
+    '<path d="M20 4v10"/><circle cx="20" cy="20" r="6"/><path d="M14 18l-9-6M14 22l-9 6M26 18l9-6M26 22l9 6"/>',
+    '<path d="M10 22a10 10 0 1 1 20 0v4h-4v6H14v-6h-4z"/><path d="M15 21h.5M25 21h.5M18 27v3M22 27v3"/>',
+    '<path d="M11 14h18v12H11z"/><path d="M11 20L5 15v10zM29 20l6-5v10z"/>' ],
   'emojipack-cosmos': [
     '<circle cx="20" cy="20" r="9"/><path d="M4 26q16-14 32-12"/>',
     '<path d="M24 6a14 14 0 1 0 10 22A11 11 0 1 1 24 6z"/>',
@@ -10593,6 +10602,7 @@ const EMOJI_PACK_SETS = {
   'emojipack-hearts':  ['💜','💙','💚','💛','🧡','❤️','🩷','🤍','🩵','💗','💖','💝','💘','💞','💓'],
   'emojipack-party':   ['🎉','🎊','🎈','🎆','🎇','🥳','🎂','🎁','🪅','🎀','🥂','✨','🎠','🎪','🎭'],
   'emojipack-gaming':  ['🎮','🕹️','👾','🎯','🏆','🎲','🃏','🎰','👑','⚔️','🛡️','🗡️','🧩','🕳️','💣'],
+  'emojipack-monstres': ['👻','🎃','🦇','🕷️','🕸️','🧟','🧛','💀','👹','👽','🧙','🦉','🍬','🌕','🪦'],
   'emojipack-cosmos':  ['🌌','🪐','✨','⭐','🌟','💫','☄️','🌙','🌠','🔭','🛸','🚀','🌍','🌌','💥'],
 };
 const EMOJI_STANDARD = ['🔴','🟡','♟','♔','♚','♛','♜','♝','♞','❌','⭕','🧠','❓','💡','🎮','🎯','🏆','🎲'];
@@ -12572,7 +12582,7 @@ const BGManager = (() => {
     'bg-vagues','bg-synthwave','bg-nebuleuse','bg-aurores','bg-galaxie','bg-tempete','bg-hologramme']);
   const THEMES = {
     'bg-nuit':'void','bg-ardoise':'void',
-    'bg-brume':'violet','bg-crepuscule':'violet','bg-nebuleuse':'violet',
+    'bg-brume':'violet','bg-nuitbrume':'violet','bg-crepuscule':'violet','bg-nebuleuse':'violet',
     'bg-aurore-deg':'aurora','bg-particules':'aurora','bg-vagues':'aurora','bg-aurores':'aurora',
     'bg-cyber':'cyber','bg-circuit':'cyber','bg-hexagones':'cyber','bg-pluie':'cyber','bg-tempete':'cyber','bg-hologramme':'cyber',
     'bg-etoile':'space','bg-galaxie':'space','bg-orage':'space',
@@ -15188,7 +15198,7 @@ window._renderVip = function () {
   const customWrap = document.getElementById('emojirain-custom-wrap');
   const customIn   = document.getElementById('emojirain-custom-input');
   const customHint = document.getElementById('emojirain-custom-hint');
-  const PACK_PRICES = { 'emojipack-animals':10, 'emojipack-hearts':15, 'emojipack-party':25, 'emojipack-gaming':40, 'emojipack-cosmos':70 };
+  const PACK_PRICES = { 'emojipack-animals':10, 'emojipack-hearts':15, 'emojipack-party':25, 'emojipack-gaming':40, 'emojipack-cosmos':70, 'emojipack-monstres':260 };
 
   function mode() { return localStorage.getItem('libero_emojirain_mode') || ''; }
 

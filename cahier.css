@@ -3529,3 +3529,9 @@ html:not(.light) #hw-decor { color: #eef1ea; }
 @keyframes hwSwing { 0%,100% { transform: rotate(2.5deg); } 50% { transform: rotate(-1.5deg); } }
 @media (max-width: 520px) { .hw-moon { right: 60px; } .hw-ban { right: 8px; font-size: 1rem; } .hw-web { width: 90px; height: 90px; } }
 @media (prefers-reduced-motion: reduce) { #hw-decor * { animation: none !important; } .hw-bat, .hw-ghost, .hw-leaf, .hw-eyes, .hw-spider { display: none; } }
+
+/* Effet de nom d'Halloween : lueur de lune */
+:root:root .nameeffect-lueur { color: #a04a00; -webkit-text-fill-color: #a04a00; animation: neLueur 3s ease-in-out infinite; }
+html:not(.light) .nameeffect-lueur { color: #ffd27a; -webkit-text-fill-color: #ffd27a; }
+@keyframes neLueur { 0%,100% { text-shadow: 0 0 5px rgba(255,154,60,.6), 0 0 12px rgba(138,92,214,.5); } 50% { text-shadow: 0 0 10px rgba(255,200,120,.95), 0 0 22px rgba(183,154,240,.9); } }
+@media (prefers-reduced-motion: reduce) { .nameeffect-lueur { animation: none; text-shadow: 0 0 6px rgba(255,154,60,.6); } }

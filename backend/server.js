@@ -1074,6 +1074,9 @@ const REFERRAL_BOOST_WIN = ['2026-11-01T00:00:00+01:00', '2026-11-02T00:00:00+01
 const _referralReward = () => (_inWin(REFERRAL_BOOST_WIN[0], REFERRAL_BOOST_WIN[1]) ? 300 : REFERRAL_REWARD);
 // Cadre de portrait « Toile » : en boutique le 31 octobre seulement (heure du Benin), reste dans le casier ensuite
 const HW_SHOP_WIN = ['2026-10-31T00:00:00+01:00', '2026-11-01T00:00:00+01:00'], HW_FRAME = 'pframe-toile';
+// Cosmetiques d'Halloween : vendus du 29 octobre au 1er novembre (heure du Benin), ils restent au casier ensuite.
+const HW_ITEM_WIN = ['2026-10-29T00:00:00+01:00', '2026-11-02T00:00:00+01:00'];
+const HW_ITEMS = ['bg-nuitbrume', 'bubble-citrouille', 'title-zangbeto', 'cursorsnake-chauve', 'emojipack-monstres', 'nameeffect-lueur'];
 const GOLD_PER_DAY = 20, GOLD_GAP_MS = 40_000, GOLD_TTL_MS = 25_000;
 // Six raretes (gain, chance en %) : commun, atypique, rare, epique, legendaire, mythique. Moyenne ~12,5 Libs, soit ~250 par jour au plafond.
 const GOLD_RARITY = [[5, 40], [10, 25], [15, 17], [25, 11], [35, 5], [50, 2]];
@@ -1245,6 +1248,7 @@ function shopHas(cosm) {
   // leur propre rayon dans la section Emotes du profil (voir emoteAvailable).
   if (cosm.type === 'emote') return false;
   if (cosm.id === HW_FRAME) return _inWin(HW_SHOP_WIN[0], HW_SHOP_WIN[1]);
+  if (HW_ITEMS.includes(cosm.id)) return _inWin(HW_ITEM_WIN[0], HW_ITEM_WIN[1]);
   const o = shopOverrides.get(cosm.id);
   if (o) return o.inShop && (!o.until || o.until > Date.now());
   return DEFAULT_SHOP_TYPES.has(cosm.type);
@@ -1259,6 +1263,13 @@ function emoteAvailable(id) {
 }
 function _hwFrameShelf() {
   if (_inWin(HW_SHOP_WIN[0], HW_SHOP_WIN[1])) { const o = shopOverrides.get(HW_FRAME); if (!o || !o.inShop) shopOverrides.set(HW_FRAME, { inShop: true, until: Date.parse(HW_SHOP_WIN[1]) }); }
+  // Les autres articles d'Halloween : en rayon pendant la fenetre (avec compte a rebours), forces hors boutique ensuite.
+  const inW = _inWin(HW_ITEM_WIN[0], HW_ITEM_WIN[1]);
+  for (const id of HW_ITEMS) {
+    const o = shopOverrides.get(id);
+    if (inW) { if (!o || !o.inShop) shopOverrides.set(id, { inShop: true, until: Date.parse(HW_ITEM_WIN[1]) }); }
+    else if (!o || o.inShop) shopOverrides.set(id, { inShop: false });
+  }
 }
 setInterval(_hwFrameShelf, 60_000); _hwFrameShelf();
 function shopOverridesPayload() {
@@ -2109,6 +2120,13 @@ const COSMETICS = [
   { id: 'flagframe-cloth', type: 'flagframe', price: 280 },
   // Recompenses du Quiz en direct : jamais en boutique, ni offertes, ni remboursables (honorary)
   { id: 'pframe-toile', type: 'pframe', price: 270 },
+  // Cosmetiques d'Halloween (HW_ITEMS) : vendus du 29 oct au 1er nov seulement
+  { id: 'bg-nuitbrume',       type: 'background',  price: 300 },
+  { id: 'bubble-citrouille',  type: 'bubble',      price: 250 },
+  { id: 'title-zangbeto',     type: 'title',       price: 230 },
+  { id: 'cursorsnake-chauve', type: 'cursorsnake', price: 290 },
+  { id: 'emojipack-monstres', type: 'emojipack',   price: 260 },
+  { id: 'nameeffect-lueur',   type: 'nameeffect',  price: 280 },
   { id: 'pframe-live-gold',     type: 'pframe', price: 0, honorary: true },
   { id: 'pframe-live-silver',   type: 'pframe', price: 0, honorary: true },
   { id: 'pframe-live-bronze',   type: 'pframe', price: 0, honorary: true },
@@ -5045,6 +5063,7 @@ io.on('connection', (socket) => {
     if (cosmetic.honorary) { socket.emit('buy-cosmetic-result', { ok: false, error: 'honorary' }); return; }
     if (entry.ownedCosmetics.includes(cosmeticId)) { socket.emit('buy-cosmetic-result', { ok: false, error: 'already_owned' }); return; }
     // Une emote retiree par l'admin de la section Emotes ne peut plus etre achetee.
+    if (HW_ITEMS.includes(cosmeticId) && !_inWin(HW_ITEM_WIN[0], HW_ITEM_WIN[1])) { socket.emit('buy-cosmetic-result', { ok: false, error: 'unavailable' }); return; }
     if (cosmeticId === HW_FRAME && !_inWin(HW_SHOP_WIN[0], HW_SHOP_WIN[1])) { socket.emit('buy-cosmetic-result', { ok: false, error: 'unavailable' }); return; }
     if (cosmetic.type === 'emote' && !emoteAvailable(cosmeticId)) { socket.emit('buy-cosmetic-result', { ok: false, error: 'unavailable' }); return; }
     const price = flashPriceFor(cosmeticId, cosmetic.price);
