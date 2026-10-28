@@ -16450,7 +16450,6 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     if (!sm) h += '<div class="hw-eyes" style="right:14px;bottom:30%;animation-delay:-4s"><i></i><i></i></div>';
     const nl = sm ? 3 : 7;
     for (let i = 0; i < nl; i++) h += '<span class="hw-leaf" style="left:' + (6 + i * (88 / nl) + r(0, 6)) + '%;animation-delay:-' + (i * 2.1) + 's;animation-duration:' + (9 + i % 3 * 1.7) + 's"></span>';
-    h += '<svg class="hw-bolt" viewBox="0 0 40 70"><path d="M26 2L8 36h12L12 68 34 28H22z" fill="none" stroke="#8a5cd6" stroke-width="2.6" stroke-linejoin="round"/></svg><div class="hw-flash"></div>';
     h += '<div class="hw-fog"></div><div class="hw-pk" role="presentation">' + use('pk', '0 0 90 80') + '</div><div class="hw-stamp"></div></div>';
     el.innerHTML = h;
     document.body.appendChild(el);
@@ -16543,7 +16542,6 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
   function explode() {
     const cap = ov.querySelector('.hwg-cap'), v = stage(), W = ov.clientWidth, H = ov.clientHeight, sm = small();
     cap.textContent = '';
-    sp('hwg-flash'); ov.classList.add('hwg-shake'); setTimeout(() => ov?.classList.remove('hwg-shake'), 1100);
     v.innerHTML = '<div class="hwg-body">' + BODY + '</div>';
     if (!reduce()) {
       sp('hwg-lid'); stars(sm ? 8 : 14, W / 2, H / 2, 120);
@@ -16571,7 +16569,7 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
   function result(dup) {
     const v = stage(), cap = ov.querySelector('.hwg-cap'), nm = t().shopPFrameNames[resId] || '';
     cap.textContent = '';
-    ov.classList.add('hwg-shake'); setTimeout(() => ov?.classList.remove('hwg-shake'), 1100); rain(small() ? 14 : 26);
+    rain(small() ? 14 : 26);
     v.innerHTML = '<div class="hwg-res"><div class="hwg-tada">' + L().tada + '</div>' + (dup ? '<p class="hwg-dup">' + L().dup + '</p>' : '<div class="hwg-big">' + pt(resId) + '</div><span class="hwg-stamp">' + L().stamp + '</span><b>' + _escHtml(nm) + '</b>') +
       '<div class="hwg-btns">' + (dup ? '' : '<button type="button" class="btn btn-primary" id="hwg-put">' + L().put + '</button>') + '<button type="button" class="btn" id="hwg-later">' + L().later + '</button></div></div>';
     document.getElementById('hwg-put')?.addEventListener('click', () => { try { socket.emit('equip-cosmetic', { playerId: getPlayerId(), cosmeticId: resId, type: 'pframe' }); } catch {} close(); });

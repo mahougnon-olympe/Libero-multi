@@ -6,7 +6,7 @@
      le cache ne servait jamais et la page « ne revenait pas ».
    - Recoit les notifications push (tournoi, defis, annonces). */
 
-const CACHE = 'libero-v183';
+const CACHE = 'libero-v184';
 const SHELL = ['./', './index.html', './style.css', './cahier.css', './app.js', './portrait.js', './config.js', './wordle-words.js', './libe-faq.js', './flags-data.js', './icons3d.js',
   './vendor/socket.io.min.js', './manifest.json', './assets/icon-192.png', './assets/logo-full.svg', './assets/logo-icon.svg'];
 const DELAI_RESEAU_MS = 2500;
