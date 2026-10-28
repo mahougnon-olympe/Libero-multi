@@ -1041,6 +1041,7 @@ const DICT = {
     shopBubbleTitle:'💬 Bulles de chat',
     tplTitle:'Portraits de la classe', tplDesc:'Des portraits composés par les joueurs. « Essayer » le pose sur ton portrait sans rien acheter ; l\'auteur touche 70 % du prix.',
     tplNav:'Portraits', tplSortTop:'Les plus achetés', tplSortNew:'Nouveautés', tplSortMine:'Mes modèles', tplBy:'par', tplSales:n => `${n} vente${n > 1 ? 's' : ''}`,
+    hwGift:{ chip:'Un cadeau t\'attend !', tap:'Touche le colis', boom:'Ça va sauter !', draw:'Tirage au sort...', tada:'Tadaaa !', stamp:'Dans ton casier', put:'Mettre', later:'Plus tard', dup:'Tu as déjà toutes les décorations : +100 Libs', aria:'Ouvrir le cadeau' },
     hwBanner:'Joyeux Halloween !', spCkHw:'Masquer la déco d\'Halloween',
     goldAria:n=>`Lib doré ${n} : touche pour le ramasser`, goldRarN:['Commun','Atypique','Rare','Épique','Légendaire','Mythique'], goldCaught:'Attrapé de justesse !', goldSay:['Raté !','Nananère !','Même pas mal !','Trop lent !','Viens me chercher !'], goldSpy:['Je te vois...','Continue, je regarde.','Je note tout.'], spCkGold:'Masquer les Libs dorés', goldGot:(n,l)=>`+${n} Libs dorés${l>0?` (encore ${l} aujourd'hui)`:' (c\'était le dernier du jour)'}`, tplTry:'Essayer', tplBuy:'Acheter', tplOwned:'Déjà acheté', tplRemove:'Retirer', tplPending:'En attente de validation', tplEmpty:'Aucun modèle pour l\'instant. Publie le tien depuis Profil, Mon portrait.',
     tplTags:{sport:'Sport', school:'École', party:'Fête', style:'Style', funny:'Drôle'}, tplBought:'Portrait acheté, il est sur ton profil !',
@@ -1082,7 +1083,7 @@ const DICT = {
     shopVictoryBanNames:{'victoryban-neon':'Tampon « Bravo ! »','victoryban-confetti':'Guirlande de fanions','victoryban-flames':'20/20 au stylo rouge','victoryban-lightning':'Médaille d\'or','victoryban-crown':'Couronne de laurier dorée'},
     shopFlagFramesTitle:'Cadres de drapeau',
     shopFlagFrameNames:{'flagframe-wood':'Cadre en bois','flagframe-gold':'Cadre doré','flagframe-neon':'Néon','flagframe-cloth':'Drapeau flottant'},
-    shopPFrameNames:{'pframe-live-gold':"Couronne d'Or",'pframe-live-silver':'Argent Royal','pframe-live-bronze':'Bronze Impérial','pframe-live-finalist':'Étoile du Finaliste','pframe-live-semi':'Glace du Demi-finaliste','pframe-live-2gold':'Couronne','pframe-live-2silver':'Argent double','pframe-live-2bronze':'Bronze','pframe-live-2finalist':'Finaliste','pframe-live-2semi':'Demi','pframe-toile':'Cadre Toile'},
+    shopPFrameNames:{'pframe-live-gold':"Couronne d'Or",'pframe-live-silver':'Argent Royal','pframe-live-bronze':'Bronze Impérial','pframe-live-finalist':'Étoile du Finaliste','pframe-live-semi':'Glace du Demi-finaliste','pframe-live-2gold':'Couronne','pframe-live-2silver':'Argent double','pframe-live-2bronze':'Bronze','pframe-live-2finalist':'Finaliste','pframe-live-2semi':'Demi','pframe-toile':'Cadre Toile','pframe-hw-sorciere':'Chapeau de sorcière','pframe-hw-cornes':'Cornes de petit diable','pframe-hw-chat':'Oreilles de chat noir','pframe-hw-momie':'Bandeau de momie','pframe-hw-frank':'Boulons de Frankenstein','pframe-hw-vampire':'Col de vampire','pframe-hw-araignee':'Araignée sur l\'épaule','pframe-hw-chauve':'Chauve-souris perchée','pframe-hw-fantome':'Petit fantôme compagnon','pframe-hw-couronne':'Couronne d\'automne','pframe-hw-gommette':'Gommette citrouille','pframe-hw-toile':'Toile de coin','pframe-hw-bonbon':'Bonbon enveloppé','pframe-hw-yeux':'Yeux dans le noir','pframe-hw-chandelle':'Chandelle'},
     shopUnoSkinsTitle:'Skins de cartes Uno',
     shopUnoSkinNames:{'unoskin-felt':'Papier cartonné','unoskin-metal':'Métal brossé','unoskin-gold':'Noir et or','unoskin-neon':'Néon'},
     shopSoundPacksTitle:'🔊 Packs de sons',
@@ -1853,6 +1854,7 @@ const DICT = {
     shopBubbleTitle:'💬 Chat bubbles',
     tplTitle:'Class portraits', tplDesc:'Portraits made by players. "Try" puts it on your portrait without buying; the author earns 70% of the price.',
     tplNav:'Portraits', tplSortTop:'Best sellers', tplSortNew:'New', tplSortMine:'My templates', tplBy:'by', tplSales:n => `${n} sale${n > 1 ? 's' : ''}`,
+    hwGift:{ chip:'A gift is waiting for you!', tap:'Tap the box', boom:'Here it goes!', draw:'Drawing...', tada:'Ta-da!', stamp:'In your locker', put:'Wear it', later:'Later', dup:'You already have every decoration: +100 Libs', aria:'Open the gift' },
     hwBanner:'Happy Halloween!', spCkHw:'Hide Halloween decorations',
     goldAria:n=>`${n} golden Lib: tap to collect it`, goldRarN:['Common','Uncommon','Rare','Epic','Legendary','Mythic'], goldCaught:'Caught just in time!', goldSay:['Missed!','Nyah nyah!','Did not hurt!','Too slow!','Come and get me!'], goldSpy:['I see you...','Keep going, I am watching.','I am taking notes.'], spCkGold:'Hide golden Libs', goldGot:(n,l)=>`+${n} golden Libs${l>0?` (${l} left today)`:' (that was the last one today)'}`, tplTry:'Try', tplBuy:'Buy', tplOwned:'Already bought', tplRemove:'Remove', tplPending:'Awaiting approval', tplEmpty:'No template yet. Publish yours from Profile, My portrait.',
     tplTags:{sport:'Sport', school:'School', party:'Party', style:'Style', funny:'Funny'}, tplBought:'Portrait bought, it is on your profile!',
@@ -1894,7 +1896,7 @@ const DICT = {
     shopVictoryBanNames:{'victoryban-neon':'"Bravo!" stamp','victoryban-confetti':'Bunting','victoryban-flames':'20/20 in red pen','victoryban-lightning':'Gold medal','victoryban-crown':'Golden laurel wreath'},
     shopFlagFramesTitle:'Flag frames',
     shopFlagFrameNames:{'flagframe-wood':'Wooden frame','flagframe-gold':'Golden frame','flagframe-neon':'Neon','flagframe-cloth':'Waving flag'},
-    shopPFrameNames:{'pframe-live-gold':'Golden Crown','pframe-live-silver':'Royal Silver','pframe-live-bronze':'Imperial Bronze','pframe-live-finalist':'Finalist Star','pframe-live-semi':'Semifinalist Ice','pframe-live-2gold':'Crown','pframe-live-2silver':'Double silver','pframe-live-2bronze':'Bronze','pframe-live-2finalist':'Finalist','pframe-live-2semi':'Semi','pframe-toile':'Web frame'},
+    shopPFrameNames:{'pframe-live-gold':'Golden Crown','pframe-live-silver':'Royal Silver','pframe-live-bronze':'Imperial Bronze','pframe-live-finalist':'Finalist Star','pframe-live-semi':'Semifinalist Ice','pframe-live-2gold':'Crown','pframe-live-2silver':'Double silver','pframe-live-2bronze':'Bronze','pframe-live-2finalist':'Finalist','pframe-live-2semi':'Semi','pframe-toile':'Web frame','pframe-hw-sorciere':'Witch hat','pframe-hw-cornes':'Little devil horns','pframe-hw-chat':'Black cat ears','pframe-hw-momie':'Mummy wrap','pframe-hw-frank':'Frankenstein bolts','pframe-hw-vampire':'Vampire collar','pframe-hw-araignee':'Spider on the shoulder','pframe-hw-chauve':'Perched bat','pframe-hw-fantome':'Little ghost buddy','pframe-hw-couronne':'Autumn crown','pframe-hw-gommette':'Pumpkin sticker','pframe-hw-toile':'Corner web','pframe-hw-bonbon':'Wrapped candy','pframe-hw-yeux':'Eyes in the dark','pframe-hw-chandelle':'Little candle'},
     shopUnoSkinsTitle:'Uno card skins',
     shopUnoSkinNames:{'unoskin-felt':'Cardstock','unoskin-metal':'Brushed metal','unoskin-gold':'Black and gold','unoskin-neon':'Neon'},
     shopSoundPacksTitle:'🔊 Sound Packs',
@@ -3294,6 +3296,8 @@ window._renderProfilePseudo = function () {
     av.classList.toggle('has-portrait', !!ic && !!window.LiberoPortrait);
     ['gold','silver','bronze','finalist','semi','2gold','2silver','2bronze','2finalist','2semi'].forEach(k => av.classList.toggle('pf-' + k, equippedPFrame === 'pframe-live-' + k));
     av.classList.toggle('pf-toile', equippedPFrame === 'pframe-toile');
+    [...av.classList].filter(c => c.startsWith('pf-hw-')).forEach(c => av.classList.remove(c));
+    if (/^pframe-hw-[a-z]+$/.test(equippedPFrame || '')) av.classList.add('pf-' + _pfCls(equippedPFrame));
   }
 };
 function triggerRename(name) {
@@ -3752,7 +3756,7 @@ let _ptBlankSvg = '';
 function _ptBlank() { if (!_ptBlankSvg && window.LiberoPortrait?.blank) _ptBlankSvg = window.LiberoPortrait.blank(); return _ptBlankSvg; }
 // Classe CSS d'un cadre de portrait : pframe-live-gold -> gold, pframe-toile -> toile
 function _pfCls(id) { return String(id).replace(/^pframe-(live-)?/, ''); }
-function _lbPt(p, frame) { const s = p ? _ptSvg(p) : _ptBlank(); const pf = frame && /^pframe-(live-(2?gold|2?silver|2?bronze|2?finalist|2?semi)|toile)$/.test(frame) ? ' pf-' + _pfCls(frame) : ''; return s ? `<span class="lb-pt${pf}" aria-hidden="true">${s}</span>` : ''; }
+function _lbPt(p, frame) { const s = p ? _ptSvg(p) : _ptBlank(); const pf = frame && /^pframe-(live-(2?gold|2?silver|2?bronze|2?finalist|2?semi)|toile|hw-[a-z]+)$/.test(frame) ? ' pf-' + _pfCls(frame) : ''; return s ? `<span class="lb-pt${pf}" aria-hidden="true">${s}</span>` : ''; }
 try { myPortrait = JSON.parse(localStorage.getItem('libero_portrait') || 'null'); } catch { myPortrait = null; }
 
 function setPlayerBadges(gameType, yourPlayer) {
@@ -6872,8 +6876,9 @@ socket.on('server-announcement', ({ id, msgFr, msgEn } = {}) => {
 });
 
 // ── Libs : handlers socket ────────────────────────────────────────────────────
-socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, wheelDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedUnoSkin: newUnoSkin, equippedFlagFrame: newFlagFrame, equippedPFrame: newPFrame, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount, portrait: newPortrait, pushOn, pushPaused } = {}) => {
+socket.on('libs-update', ({ name: serverName, refCode, referrals, xp, level, iq, iqUnlocked, iqQuizDone, wheelDone, vipUntil, balance, pendingBoostHint, delta, nextAt, ownedCosmetics: newOwned, equippedCosmetic: newEquipped, equippedFont: newFont, equippedBubble: newBubble, equippedBackground: newBg, equippedNameEffect: newNameEffect, equippedTitle: newTitle, equippedCursorSnake: newCursorSnake, equippedAvatar: newAvatar, equippedP4Token: newP4Token, equippedTtt: newTtt, equippedChess: newChess, equippedSnakeSkin: newSnakeSkin, equippedClickFx: newClickFx, equippedEmojiPack: newEmojiPack, equippedVictoryBan: newVictoryBan, equippedSoundPack: newSoundPack, equippedUnoSkin: newUnoSkin, equippedFlagFrame: newFlagFrame, equippedPFrame: newPFrame, hwGift: newHwGift, equippedEmotes: newEmotes, refundCards: newRefundCards, refundCardsNextRefill: newRefillAt, honorTitle: newHonorTitle, pendingHonorModal: newHonorModal, badges: newBadges, onboard: newOnboard, hasAccount: newHasAccount, portrait: newPortrait, pushOn, pushPaused } = {}) => {
   if (pushOn !== undefined) { window._pushOn = !!pushOn; window._pushPaused = !!pushPaused; window._refreshPushBtn?.(); }
+  if (newHwGift !== undefined) { window._hwGift = newHwGift; window._hwGiftCheck?.(); }
   if (newOwned !== undefined) setTimeout(() => window._pupitre?.paint(), 0);
   if (newPortrait !== undefined) { myPortrait = newPortrait; try { localStorage.setItem('libero_portrait', JSON.stringify(newPortrait)); } catch {} window._renderProfilePseudo?.(); window._pfpCheck?.(); }
   if (newBadges !== undefined) { if (Array.isArray(window._myBadges) && Array.isArray(newBadges) && newBadges.length > window._myBadges.length) setTimeout(() => window._sound?.play('stamp'), 300); window._myBadges = newBadges; window._renderBadges?.('profile-badges', newBadges, newHonorTitle); }
@@ -7714,7 +7719,7 @@ function _renderShopItems() {
   const emojiPackItems   = ALL_EMOJIPACKS.map(x   => ({ ...x, type:'emojipack',   name: d.shopEmojiPackNames[x.id] }));
   const victoryBanItems  = ALL_VICTORYBANS.map(x  => ({ ...x, type:'victoryban',  name: d.shopVictoryBanNames[x.id] }));
   const flagFrameItems   = ALL_FLAGFRAMES.map(x   => ({ ...x, type:'flagframe',   name: d.shopFlagFrameNames[x.id] }));
-  const pframeItems      = [{ id:'pframe-toile', price:270, type:'pframe', name: d.shopPFrameNames['pframe-toile'] }];
+  const pframeItems      = [{ id:'pframe-toile', price:270, type:'pframe', name: d.shopPFrameNames['pframe-toile'] }, { id:'pframe-hw-sorciere', price:300, type:'pframe', name: d.shopPFrameNames['pframe-hw-sorciere'] }, { id:'pframe-hw-cornes', price:280, type:'pframe', name: d.shopPFrameNames['pframe-hw-cornes'] }, { id:'pframe-hw-chat', price:260, type:'pframe', name: d.shopPFrameNames['pframe-hw-chat'] }, { id:'pframe-hw-momie', price:320, type:'pframe', name: d.shopPFrameNames['pframe-hw-momie'] }, { id:'pframe-hw-frank', price:340, type:'pframe', name: d.shopPFrameNames['pframe-hw-frank'] }, { id:'pframe-hw-vampire', price:360, type:'pframe', name: d.shopPFrameNames['pframe-hw-vampire'] }, { id:'pframe-hw-araignee', price:300, type:'pframe', name: d.shopPFrameNames['pframe-hw-araignee'] }, { id:'pframe-hw-chauve', price:320, type:'pframe', name: d.shopPFrameNames['pframe-hw-chauve'] }, { id:'pframe-hw-fantome', price:380, type:'pframe', name: d.shopPFrameNames['pframe-hw-fantome'] }, { id:'pframe-hw-couronne', price:420, type:'pframe', name: d.shopPFrameNames['pframe-hw-couronne'] }, { id:'pframe-hw-gommette', price:0, type:'pframe', honorary:true, name: d.shopPFrameNames['pframe-hw-gommette'] }, { id:'pframe-hw-toile', price:0, type:'pframe', honorary:true, name: d.shopPFrameNames['pframe-hw-toile'] }, { id:'pframe-hw-bonbon', price:0, type:'pframe', honorary:true, name: d.shopPFrameNames['pframe-hw-bonbon'] }, { id:'pframe-hw-yeux', price:0, type:'pframe', honorary:true, name: d.shopPFrameNames['pframe-hw-yeux'] }, { id:'pframe-hw-chandelle', price:0, type:'pframe', honorary:true, name: d.shopPFrameNames['pframe-hw-chandelle'] }];
   const unoSkinItems     = ALL_UNOSKINS.map(x     => ({ ...x, type:'unoskin',     name: d.shopUnoSkinNames[x.id] }));
   const soundPackItems   = ALL_SOUNDPACKS.map(x   => ({ ...x, type:'soundpack',   name: d.shopSoundPackNames[x.id] }));
   const emoteItems       = ALL_EMOTES.map(x       => ({ ...x, type:'emote',       name: d.shopEmoteNames[x.id] }));
@@ -16459,4 +16464,101 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
   window._hwSync = sync;
   setInterval(sync, 500);
   sync();
+})();
+
+
+// ── Cadeau gratuit d'Halloween : une decoration de portrait tiree au hasard par le serveur (une fois par joueur) ──
+// Declenche par un Lib dore ramasse pendant la fete (entry.hwGift = 'pending'). Le colis reste en attente apres un F5.
+(function () {
+  const IDS = ['pframe-hw-gommette', 'pframe-hw-toile', 'pframe-hw-bonbon', 'pframe-hw-yeux', 'pframe-hw-chandelle'];
+  const small = () => matchMedia('(max-width: 600px)').matches;
+  const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const BOX = '<svg viewBox="0 0 120 110"><rect x="12" y="46" width="96" height="58" rx="4" fill="#ffb347"/><rect x="6" y="32" width="108" height="22" rx="4" fill="#ff9a3c"/><path d="M60 32v72M12 74h96" stroke="#8a5cd6" stroke-width="9" opacity=".55"/><path d="M60 32q-20-22-30-8t30 8q20-22 30-8t-30 8z" fill="#8a5cd6"/></svg>';
+  const BODY = '<svg viewBox="0 0 120 110"><rect x="12" y="46" width="96" height="58" rx="4" fill="#ffb347"/><path d="M60 46v58M12 74h96" stroke="#8a5cd6" stroke-width="9" opacity=".55"/></svg>';
+  const BAT = '<svg viewBox="0 0 60 30"><path d="M30 8c-3 0-4 2-5 4C20 6 10 4 2 10c4 1 6 3 7 7 3-2 6-1 8 2 3-3 7-3 9 1 2-4 6-4 9-1 2-3 5-4 8-2 1-4 3-6 7-7C42 4 32 6 35 12c-1-2-2-4-5-4z" fill="#2b2233"/></svg>';
+  const GH = '<svg viewBox="0 0 34 40"><path d="M3 38V16C3 6 10 1 17 1s14 5 14 15v22l-5-4-4 4-5-4-5 4-4-4z" fill="#f4f4fb"/><circle cx="12" cy="16" r="2.4" fill="#22252b"/><circle cx="22" cy="16" r="2.4" fill="#22252b"/><ellipse cx="17" cy="25" rx="3" ry="3.6" fill="#22252b"/></svg>';
+  const PK = '<svg viewBox="0 0 60 56"><path d="M30 12C12 8 3 20 5 34s14 18 25 18 21-4 25-18S48 8 30 12z" fill="#ff9a3c"/><path d="M17 26l6 6-10 1zM43 26l-6 6 10 1zM19 40c4 5 18 5 22 0" fill="#22252b"/></svg>';
+  let chip = null, ov = null, T = [], busy = false, resId = null, resDup = false, charged = false;
+  const later = (f, ms) => T.push(setTimeout(f, ms));
+  const L = () => t().hwGift;
+  const pt = id => { let p = null; try { p = typeof myPortrait !== 'undefined' ? myPortrait : null; } catch {} return `<span class="lb-pt pf-big pf-${_pfCls(id)}" style="width:100%;height:100%">${(p ? _ptSvg(p) : _ptBlank()) || ''}</span>`; };
+  function sp(cls, html, css) {
+    const d = document.createElement('div'); d.className = cls; d.innerHTML = html || '';
+    Object.keys(css || {}).forEach(k => k.startsWith('--') ? d.style.setProperty(k, css[k]) : (d.style[k] = css[k]));
+    ov.querySelector('.hwg-st').appendChild(d); setTimeout(() => d.remove(), 3400); return d;
+  }
+  function stars(n, cx, cy, r) { if (reduce()) return; for (let i = 0; i < n; i++) { const a = Math.random() * 6.28, d = r * (.5 + Math.random()); sp('hwg-star', '<svg viewBox="0 0 16 16"><path d="M8 1v14M1 8h14M3 3l10 10M13 3L3 13"/></svg>', { left: cx + Math.cos(a) * d + 'px', top: cy + Math.sin(a) * d + 'px', animationDelay: Math.random() * .4 + 's' }); } }
+  function rain(n) { if (reduce()) return; for (let m = 0; m < n; m++) sp('hwg-rain', '', { left: Math.random() * 100 + '%', animationDelay: Math.random() * 1.2 + 's', '--dx': (Math.random() * 60 - 30) + 'px', '--r': (Math.random() * 540 | 0) + 'deg', background: ['#ff9a3c', '#8a5cd6', '#ffb347'][m % 3] }); }
+  function stage() { return ov.querySelector('.hwg-v'); }
+  function close() { T.forEach(clearTimeout); T = []; ov?.remove(); ov = null; busy = false; check(); }
+  function openOverlay() {
+    if (ov || window._hwGift !== 'pending') return;
+    chip?.remove(); chip = null; resId = null; charged = false;
+    ov = document.createElement('div'); ov.className = 'hwg'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+    ov.innerHTML = '<div class="hwg-st"><div class="hwg-v"></div><p class="hwg-cap" aria-live="polite"></p></div>';
+    document.body.appendChild(ov);
+    const v = stage(), cap = ov.querySelector('.hwg-cap');
+    v.innerHTML = '<button type="button" class="hwg-box hwg-drop" aria-label="' + L().aria + '">' + BOX + '</button>';
+    const bx = v.firstChild;
+    later(() => { bx.classList.remove('hwg-drop'); bx.classList.add('hwg-shk'); cap.textContent = L().tap; }, 1100);
+    bx.addEventListener('click', () => {
+      if (busy) return; busy = true; bx.classList.remove('hwg-shk'); bx.classList.add('hwg-charge'); cap.textContent = L().boom;
+      try { socket.emit('hw-gift-open', { playerId: getPlayerId() }); } catch {}
+      const W = ov.clientWidth, H = ov.clientHeight;
+      for (let k = 0; k < 5; k++) later(() => stars(2, W / 2, H / 2, 70), k * 130);
+      later(() => { charged = true; go(); }, 800);
+    });
+    later(() => bx.click(), 9000);
+  }
+  function go() { if (charged && resId !== null) explode(); }
+  function explode() {
+    const cap = ov.querySelector('.hwg-cap'), v = stage(), W = ov.clientWidth, H = ov.clientHeight, sm = small();
+    cap.textContent = '';
+    sp('hwg-flash'); ov.classList.add('hwg-shake'); setTimeout(() => ov?.classList.remove('hwg-shake'), 1100);
+    v.innerHTML = '<div class="hwg-body">' + BODY + '</div>';
+    if (!reduce()) {
+      sp('hwg-lid'); stars(sm ? 8 : 14, W / 2, H / 2, 120);
+      const np = sm ? 22 : 40;
+      for (let k = 0; k < np; k++) { const a = Math.random() * 6.28, d = 80 + Math.random() * 170; sp('hwg-pc', '', { '--dx': Math.cos(a) * d + 'px', '--dy': Math.sin(a) * d - 40 + 'px', '--r': (Math.random() * 720 | 0) + 'deg', background: ['#ff9a3c', '#8a5cd6', '#f4f1e8', '#d23a4f'][k % 4] }); }
+      for (let j = 0; j < (sm ? 3 : 5); j++) sp('hwg-fly', BAT, { '--dx': (j - 2) * 110 + 'px', '--dy': -(60 + Math.random() * 150) + 'px', animationDelay: j * .12 + 's' });
+      sp('hwg-rise', GH, { '--dx': '-60px' }); if (!sm) sp('hwg-rise', GH, { '--dx': '80px', animationDelay: '.3s' });
+      if (!sm) sp('hwg-roll', PK);
+      rain(sm ? 16 : 32);
+    }
+    later(reel, reduce() ? 300 : 1500);
+  }
+  function reel() {
+    const v = stage(), cap = ov.querySelector('.hwg-cap'), fin = Math.max(0, IDS.indexOf(resId)), sm = small(), H = sm ? 140 : 170;
+    let items = ''; for (let r = 0; r < 6; r++) for (const id of IDS) items += '<div class="hwg-it" style="height:' + H + 'px"><div style="width:' + (H - 40) + 'px;height:' + (H - 40) + 'px">' + pt(id) + '</div></div>';
+    v.innerHTML = '<div class="hwg-reel" style="width:' + H + 'px;height:' + H + 'px"><div class="hwg-col" id="hwg-col">' + items + '</div></div>';
+    cap.textContent = L().draw;
+    if (resDup) { later(() => result(true), 400); return; }
+    const col = document.getElementById('hwg-col'), target = (IDS.length * 4 + fin) * H;
+    if (reduce()) { col.style.transform = 'translateY(-' + target + 'px)'; later(() => result(), 500); return; }
+    requestAnimationFrame(() => requestAnimationFrame(() => { col.style.transition = 'transform 4.2s cubic-bezier(.12,.75,.15,1)'; col.style.transform = 'translateY(-' + target + 'px)'; }));
+    for (let k = 1; k <= 12; k++) later(() => stars(1, ov.clientWidth / 2 + H / 2 + 14, ov.clientHeight / 2 + Math.random() * 80 - 40, 30), k * 300);
+    later(() => { stars(sm ? 8 : 16, ov.clientWidth / 2, ov.clientHeight / 2, 110); result(); }, 4600);
+  }
+  function result(dup) {
+    const v = stage(), cap = ov.querySelector('.hwg-cap'), nm = t().shopPFrameNames[resId] || '';
+    cap.textContent = '';
+    ov.classList.add('hwg-shake'); setTimeout(() => ov?.classList.remove('hwg-shake'), 1100); rain(small() ? 14 : 26);
+    v.innerHTML = '<div class="hwg-res"><div class="hwg-tada">' + L().tada + '</div>' + (dup ? '<p class="hwg-dup">' + L().dup + '</p>' : '<div class="hwg-big">' + pt(resId) + '</div><span class="hwg-stamp">' + L().stamp + '</span><b>' + _escHtml(nm) + '</b>') +
+      '<div class="hwg-btns">' + (dup ? '' : '<button type="button" class="btn btn-primary" id="hwg-put">' + L().put + '</button>') + '<button type="button" class="btn" id="hwg-later">' + L().later + '</button></div></div>';
+    document.getElementById('hwg-put')?.addEventListener('click', () => { try { socket.emit('equip-cosmetic', { playerId: getPlayerId(), cosmeticId: resId, type: 'pframe' }); } catch {} close(); });
+    document.getElementById('hwg-later')?.addEventListener('click', close);
+  }
+  socket.on('hw-gift-result', r => { if (!ov) return; if (!r || !r.ok) { close(); return; } resId = r.id; resDup = !!r.dup; go(); });
+  function check() {
+    const land = document.getElementById('screen-landing')?.classList.contains('active');
+    const need = window._hwGift === 'pending' && land && !ov && !document.querySelector('.overlay:not(.hidden)');
+    if (need && !chip) {
+      chip = document.createElement('button'); chip.type = 'button'; chip.className = 'hwg-chip';
+      chip.innerHTML = '<svg viewBox="0 0 120 110" aria-hidden="true">' + BOX.slice(BOX.indexOf('>') + 1, -6) + '</svg><span></span>';
+      chip.lastChild.textContent = L().chip; chip.addEventListener('click', openOverlay); document.body.appendChild(chip);
+    } else if (!need && chip) { chip.remove(); chip = null; }
+    else if (chip) chip.lastChild.textContent = L().chip;
+  }
+  window._hwGiftCheck = check;
+  setInterval(check, 1000);
 })();

@@ -443,7 +443,7 @@ async function loadData() {
   });
   slbDocs.forEach(d => snakeLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
   llbDocs.forEach(d => luffyLeaderboard.set(d._id, { name: d.name || '', hs: d.hs }));
-  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, portrait: d.portrait || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedUnoSkin: d.equippedUnoSkin || null, equippedFlagFrame: d.equippedFlagFrame || null, equippedPFrame: d.equippedPFrame || null, flagsBest: d.flagsBest || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, xp: d.xp || 0, iq: d.iq ?? null, iqAt: d.iqAt || 0, wheelDay: d.wheelDay || null, friends: Array.isArray(d.friends) ? d.friends : [], friendRequests: Array.isArray(d.friendRequests) ? d.friendRequests : [], pendingGifts: Array.isArray(d.pendingGifts) ? d.pendingGifts : [], giftSentDay: d.giftSentDay || null, vipUntil: d.vipUntil || 0, dailyGiftDay: d.dailyGiftDay || null, badges: Array.isArray(d.badges) ? d.badges : [], onboardRewards: Array.isArray(d.onboardRewards) ? d.onboardRewards : [], history: Array.isArray(d.history) ? d.history : [], dmBlocked: Array.isArray(d.dmBlocked) ? d.dmBlocked : [], dmPush: d.dmPush !== false, lang: d.lang || null, tttModel: d.tttModel || null, chessModel: d.chessModel || null, pushUnopened: d.pushUnopened || 0, pushDay: d.pushDay || null, pushCount: d.pushCount || 0, pushSent: d.pushSent || {}, pushLastAt: d.pushLastAt || 0 }));
+  libsDocs.forEach(d => libs.set(d._id, { name: d.name || '', balance: d.balance || 0, lastActive: d.lastActive || Date.now(), pendingBoostHint: d.pendingBoostHint || 0, usedCodes: d.usedCodes || [], ownedCosmetics: d.ownedCosmetics || [], equippedCosmetic: d.equippedCosmetic || null, equippedFont: d.equippedFont || null, equippedBubble: d.equippedBubble || null, equippedBackground: d.equippedBackground || null, equippedNameEffect: d.equippedNameEffect || null, equippedTitle: d.equippedTitle || null, equippedCursorSnake: d.equippedCursorSnake || null, equippedAvatar: d.equippedAvatar || null, portrait: d.portrait || null, equippedP4Token: d.equippedP4Token || null, equippedTtt: d.equippedTtt || null, equippedChess: d.equippedChess || null, equippedSnakeSkin: d.equippedSnakeSkin || null, equippedClickFx: d.equippedClickFx || null, equippedEmojiPack: d.equippedEmojiPack || null, equippedVictoryBan: d.equippedVictoryBan || null, equippedSoundPack: d.equippedSoundPack || null, equippedUnoSkin: d.equippedUnoSkin || null, equippedFlagFrame: d.equippedFlagFrame || null, equippedPFrame: d.equippedPFrame || null, flagsBest: d.flagsBest || null, equippedEmotes: Array.isArray(d.equippedEmotes) ? d.equippedEmotes : (d.equippedEmote ? [d.equippedEmote] : []), refundCardsUsedAt: d.refundCardsUsedAt || [], ownedBooks: d.ownedBooks || [], honorTitle: d.honorTitle || null, pendingHonorModal: d.pendingHonorModal || null, streak: d.streak || null, challenges: d.challenges || null, lifetime: d.lifetime || {}, permClaimed: d.permClaimed || [], referredBy: d.referredBy || null, referralRewarded: !!d.referralRewarded, referrals: d.referrals || 0, xp: d.xp || 0, hwGift: d.hwGift || null, iq: d.iq ?? null, iqAt: d.iqAt || 0, wheelDay: d.wheelDay || null, friends: Array.isArray(d.friends) ? d.friends : [], friendRequests: Array.isArray(d.friendRequests) ? d.friendRequests : [], pendingGifts: Array.isArray(d.pendingGifts) ? d.pendingGifts : [], giftSentDay: d.giftSentDay || null, vipUntil: d.vipUntil || 0, dailyGiftDay: d.dailyGiftDay || null, badges: Array.isArray(d.badges) ? d.badges : [], onboardRewards: Array.isArray(d.onboardRewards) ? d.onboardRewards : [], history: Array.isArray(d.history) ? d.history : [], dmBlocked: Array.isArray(d.dmBlocked) ? d.dmBlocked : [], dmPush: d.dmPush !== false, lang: d.lang || null, tttModel: d.tttModel || null, chessModel: d.chessModel || null, pushUnopened: d.pushUnopened || 0, pushDay: d.pushDay || null, pushCount: d.pushCount || 0, pushSent: d.pushSent || {}, pushLastAt: d.pushLastAt || 0 }));
   aliasDocs.forEach(d => playerIdAliases.set(d._id, d.canonId));
   voteDocs.forEach(d => snakeVotes.set(d._id, d.vote));
   feedDocs.forEach(d => feedVideos.push({
@@ -699,7 +699,7 @@ function dbUpsertLibsPurchase(cartId, purchase) {
 function dbUpsertLibs(id, entry) {
   if (!db) return;
   db.collection('libs')
-    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, portrait: entry.portrait || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedUnoSkin: entry.equippedUnoSkin || null, equippedFlagFrame: entry.equippedFlagFrame || null, equippedPFrame: entry.equippedPFrame || null, flagsBest: entry.flagsBest || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], referredBy: entry.referredBy || null, referralRewarded: !!entry.referralRewarded, referrals: entry.referrals || 0, xp: entry.xp || 0, iq: entry.iq ?? null, iqAt: entry.iqAt || 0, wheelDay: entry.wheelDay || null, friends: entry.friends || [], friendRequests: entry.friendRequests || [], pendingGifts: entry.pendingGifts || [], giftSentDay: entry.giftSentDay || null, vipUntil: entry.vipUntil || 0, dailyGiftDay: entry.dailyGiftDay || null, badges: entry.badges || [], onboardRewards: entry.onboardRewards || [], history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [], dmBlocked: entry.dmBlocked || [], dmPush: entry.dmPush !== false, lang: entry.lang || null, tttModel: entry.tttModel || null, chessModel: entry.chessModel || null, pushUnopened: entry.pushUnopened || 0, pushDay: entry.pushDay || null, pushCount: entry.pushCount || 0, pushSent: entry.pushSent || {}, pushLastAt: entry.pushLastAt || 0 } }, { upsert: true })
+    .updateOne({ _id: id }, { $set: { name: entry.name, balance: entry.balance, lastActive: entry.lastActive, pendingBoostHint: entry.pendingBoostHint, usedCodes: entry.usedCodes || [], ownedCosmetics: entry.ownedCosmetics || [], equippedCosmetic: entry.equippedCosmetic || null, equippedFont: entry.equippedFont || null, equippedBubble: entry.equippedBubble || null, equippedBackground: entry.equippedBackground || null, equippedNameEffect: entry.equippedNameEffect || null, equippedTitle: entry.equippedTitle || null, equippedCursorSnake: entry.equippedCursorSnake || null, equippedAvatar: entry.equippedAvatar || null, portrait: entry.portrait || null, equippedP4Token: entry.equippedP4Token || null, equippedTtt: entry.equippedTtt || null, equippedChess: entry.equippedChess || null, equippedSnakeSkin: entry.equippedSnakeSkin || null, equippedClickFx: entry.equippedClickFx || null, equippedEmojiPack: entry.equippedEmojiPack || null, equippedVictoryBan: entry.equippedVictoryBan || null, equippedSoundPack: entry.equippedSoundPack || null, equippedUnoSkin: entry.equippedUnoSkin || null, equippedFlagFrame: entry.equippedFlagFrame || null, equippedPFrame: entry.equippedPFrame || null, flagsBest: entry.flagsBest || null, equippedEmotes: entry.equippedEmotes || [], refundCardsUsedAt: entry.refundCardsUsedAt || [], ownedBooks: entry.ownedBooks || [], honorTitle: entry.honorTitle || null, pendingHonorModal: entry.pendingHonorModal || null, streak: entry.streak || null, challenges: entry.challenges || null, lifetime: entry.lifetime || {}, permClaimed: entry.permClaimed || [], referredBy: entry.referredBy || null, referralRewarded: !!entry.referralRewarded, referrals: entry.referrals || 0, xp: entry.xp || 0, hwGift: entry.hwGift || null, iq: entry.iq ?? null, iqAt: entry.iqAt || 0, wheelDay: entry.wheelDay || null, friends: entry.friends || [], friendRequests: entry.friendRequests || [], pendingGifts: entry.pendingGifts || [], giftSentDay: entry.giftSentDay || null, vipUntil: entry.vipUntil || 0, dailyGiftDay: entry.dailyGiftDay || null, badges: entry.badges || [], onboardRewards: entry.onboardRewards || [], history: Array.isArray(entry.history) ? entry.history.slice(0, 20) : [], dmBlocked: entry.dmBlocked || [], dmPush: entry.dmPush !== false, lang: entry.lang || null, tttModel: entry.tttModel || null, chessModel: entry.chessModel || null, pushUnopened: entry.pushUnopened || 0, pushDay: entry.pushDay || null, pushCount: entry.pushCount || 0, pushSent: entry.pushSent || {}, pushLastAt: entry.pushLastAt || 0 } }, { upsert: true })
     .catch(e => console.error('Erreur sauvegarde libs:', e));
 }
 
@@ -1076,7 +1076,9 @@ const _referralReward = () => (_inWin(REFERRAL_BOOST_WIN[0], REFERRAL_BOOST_WIN[
 const HW_SHOP_WIN = ['2026-10-31T00:00:00+01:00', '2026-11-01T00:00:00+01:00'], HW_FRAME = 'pframe-toile';
 // Cosmetiques d'Halloween : vendus du 29 octobre au 1er novembre (heure du Benin), ils restent au casier ensuite.
 const HW_ITEM_WIN = ['2026-10-29T00:00:00+01:00', '2026-11-02T00:00:00+01:00'];
-const HW_ITEMS = ['bg-nuitbrume', 'bubble-citrouille', 'title-zangbeto', 'cursorsnake-chauve', 'emojipack-monstres', 'nameeffect-lueur'];
+const HW_DECO = ['pframe-hw-sorciere','pframe-hw-cornes','pframe-hw-chat','pframe-hw-momie','pframe-hw-frank','pframe-hw-vampire','pframe-hw-araignee','pframe-hw-chauve','pframe-hw-fantome','pframe-hw-couronne'];
+const HW_GIFT_IDS = ['pframe-hw-gommette','pframe-hw-toile','pframe-hw-bonbon','pframe-hw-yeux','pframe-hw-chandelle']; // gratuites, donnees au hasard apres l'event
+const HW_ITEMS = [...HW_DECO, 'bg-nuitbrume', 'bubble-citrouille', 'title-zangbeto', 'cursorsnake-chauve', 'emojipack-monstres', 'nameeffect-lueur'];
 const GOLD_PER_DAY = 20, GOLD_GAP_MS = 40_000, GOLD_TTL_MS = 25_000;
 // Six raretes (gain, chance en %) : commun, atypique, rare, epique, legendaire, mythique. Moyenne ~12,5 Libs, soit ~250 par jour au plafond.
 const GOLD_RARITY = [[5, 40], [10, 25], [15, 17], [25, 11], [35, 5], [50, 2]];
@@ -2120,6 +2122,21 @@ const COSMETICS = [
   { id: 'flagframe-cloth', type: 'flagframe', price: 280 },
   // Recompenses du Quiz en direct : jamais en boutique, ni offertes, ni remboursables (honorary)
   { id: 'pframe-toile', type: 'pframe', price: 270 },
+  { id: 'pframe-hw-sorciere', type: 'pframe', price: 300 },
+  { id: 'pframe-hw-cornes', type: 'pframe', price: 280 },
+  { id: 'pframe-hw-chat', type: 'pframe', price: 260 },
+  { id: 'pframe-hw-momie', type: 'pframe', price: 320 },
+  { id: 'pframe-hw-frank', type: 'pframe', price: 340 },
+  { id: 'pframe-hw-vampire', type: 'pframe', price: 360 },
+  { id: 'pframe-hw-araignee', type: 'pframe', price: 300 },
+  { id: 'pframe-hw-chauve', type: 'pframe', price: 320 },
+  { id: 'pframe-hw-fantome', type: 'pframe', price: 380 },
+  { id: 'pframe-hw-couronne', type: 'pframe', price: 420 },
+  { id: 'pframe-hw-gommette', type: 'pframe', price: 0, honorary: true },
+  { id: 'pframe-hw-toile', type: 'pframe', price: 0, honorary: true },
+  { id: 'pframe-hw-bonbon', type: 'pframe', price: 0, honorary: true },
+  { id: 'pframe-hw-yeux', type: 'pframe', price: 0, honorary: true },
+  { id: 'pframe-hw-chandelle', type: 'pframe', price: 0, honorary: true },
   // Cosmetiques d'Halloween (HW_ITEMS) : vendus du 29 oct au 1er nov seulement
   { id: 'bg-nuitbrume',       type: 'background',  price: 300 },
   { id: 'bubble-citrouille',  type: 'bubble',      price: 250 },
@@ -2278,6 +2295,7 @@ function _equippedPayload(entry) {
     equippedUnoSkin:     entry.equippedUnoSkin     || null,
     equippedFlagFrame:   entry.equippedFlagFrame   || null,
     equippedPFrame:      entry.equippedPFrame      || null,
+    hwGift:              entry.hwGift              || null,
     equippedEmotes:      entry.equippedEmotes      || [],
     honorTitle:          entry.honorTitle          || null,
   };
@@ -2346,7 +2364,7 @@ function getLibsEntry(id) {
   if (!id) return null;
   let entry = libs.get(id);
   if (!entry) {
-    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, portrait: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedUnoSkin: null, equippedFlagFrame: null, equippedPFrame: null, flagsBest: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null, streak: null, challenges: null, lifetime: {}, permClaimed: [], referredBy: null, referralRewarded: false, referrals: 0, xp: 0, iq: null, iqAt: 0, wheelDay: null, friends: [], friendRequests: [], pendingGifts: [], giftSentDay: null, vipUntil: 0, dailyGiftDay: null, badges: [], onboardRewards: [], history: [] };
+    entry = { name: '', balance: 0, lastActive: Date.now(), pendingBoostHint: 0, usedCodes: [], ownedCosmetics: [], equippedCosmetic: null, equippedFont: null, equippedBubble: null, equippedBackground: null, equippedNameEffect: null, equippedTitle: null, equippedCursorSnake: null, equippedAvatar: null, portrait: null, equippedP4Token: null, equippedTtt: null, equippedChess: null, equippedSnakeSkin: null, equippedClickFx: null, equippedEmojiPack: null, equippedVictoryBan: null, equippedSoundPack: null, equippedUnoSkin: null, equippedFlagFrame: null, equippedPFrame: null, flagsBest: null, equippedEmotes: [], refundCardsUsedAt: [], ownedBooks: [], honorTitle: null, pendingHonorModal: null, streak: null, challenges: null, lifetime: {}, permClaimed: [], referredBy: null, referralRewarded: false, referrals: 0, xp: 0, hwGift: null, iq: null, iqAt: 0, wheelDay: null, friends: [], friendRequests: [], pendingGifts: [], giftSentDay: null, vipUntil: 0, dailyGiftDay: null, badges: [], onboardRewards: [], history: [] };
     libs.set(id, entry);
   }
   // Packs de sons retires de la boutique (les sons sont devenus des fichiers) : rembourses.
@@ -2396,6 +2414,7 @@ function getLibsEntry(id) {
   if (!('equippedUnoSkin'     in entry)) entry.equippedUnoSkin     = null;
   if (!('equippedFlagFrame'   in entry)) entry.equippedFlagFrame   = null;
   if (!('equippedPFrame'      in entry)) entry.equippedPFrame      = null;
+  if (!('hwGift' in entry)) entry.hwGift = null;
   if (!('flagsBest'           in entry)) entry.flagsBest           = null;
   if (!Array.isArray(entry.equippedEmotes)) entry.equippedEmotes = entry.equippedEmote ? [entry.equippedEmote] : [];
   if (!('honorTitle'          in entry)) entry.honorTitle          = null;
@@ -4428,6 +4447,7 @@ io.on('connection', (socket) => {
     for (const k of Object.keys(goldenDaily)) if (goldenDaily[k].day !== today) delete goldenDaily[k];
     saveConfig('golden_daily', goldenDaily);
     socket.emit('libs-update', { balance: entry.balance, delta: p.amount, nextAt: nextDistributionAt });
+    if (!entry.hwGift && _inWin(HW_ITEM_WIN[0], HW_ITEM_WIN[1])) { entry.hwGift = 'pending'; libs.set(id, entry); dbUpsertLibs(id, entry); socket.emit('libs-update', { hwGift: 'pending' }); }
     socket.emit('golden-collected', { amount: p.amount, rarity: p.rarity, left: GOLD_PER_DAY - g.n });
   });
 
@@ -5189,6 +5209,22 @@ io.on('connection', (socket) => {
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, nextAt: nextDistributionAt });
     socket.emit('buy-book-pack-result', { ok: true, packId });
     console.log(`[📖] ${entry.name} a débloqué ${key} (−${effPrice} Libs)`);
+  });
+
+  // Cadeau gratuit d'Halloween : une decoration tiree au hasard par le serveur, une seule fois par joueur.
+  socket.on('hw-gift-open', ({ playerId } = {}) => {
+    const id = safePlayerId(playerId);
+    if (!id) return;
+    const entry = getLibsEntry(id);
+    if (entry.hwGift !== 'pending') { socket.emit('hw-gift-result', { ok: false }); return; }
+    const left = HW_GIFT_IDS.filter(g => !entry.ownedCosmetics.includes(g));
+    const pick = (left.length ? left : HW_GIFT_IDS)[Math.floor(Math.random() * (left.length ? left.length : HW_GIFT_IDS.length))];
+    const dup = !left.length;
+    entry.hwGift = 'opened';
+    if (dup) entry.balance = Math.min(MAX_BALANCE, entry.balance + 100); else entry.ownedCosmetics.push(pick);
+    libs.set(id, entry); dbUpsertLibs(id, entry);
+    socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
+    socket.emit('hw-gift-result', { ok: true, id: pick, dup });
   });
 
   socket.on('honor-modal-seen', ({ playerId } = {}) => {
