@@ -16378,7 +16378,7 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
 // Une couche fixe `#hw-decor` (pointer-events none) : toiles, araignee, chauves-souris, fantome, lune, yeux, feuilles,
 // brume, citrouille, bandeau. Ecrans de jeu : seulement deux petites toiles fixes. Masquable (libero_hw_off).
 (function () {
-  const FROM = Date.parse('2026-10-29T00:00:00+01:00'), TO = Date.parse('2026-11-02T00:00:00+01:00');
+  const FROM = Date.parse('2026-10-28T00:00:00+01:00'), TO = Date.parse('2026-11-02T00:00:00+01:00');
   const GAME = ['screen-game', 'screen-trivia-game', 'screen-snake', 'screen-luffy', 'screen-wordle', 'screen-trivia-waiting', 'screen-waiting'];
   const isOff = () => { try { return localStorage.getItem('libero_hw_off') === '1'; } catch { return false; } };
   const inWin = () => { const n = Date.now(); return n >= FROM && n < TO; };
