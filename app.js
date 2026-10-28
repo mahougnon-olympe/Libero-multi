@@ -1041,6 +1041,7 @@ const DICT = {
     shopBubbleTitle:'💬 Bulles de chat',
     tplTitle:'Portraits de la classe', tplDesc:'Des portraits composés par les joueurs. « Essayer » le pose sur ton portrait sans rien acheter ; l\'auteur touche 70 % du prix.',
     tplNav:'Portraits', tplSortTop:'Les plus achetés', tplSortNew:'Nouveautés', tplSortMine:'Mes modèles', tplBy:'par', tplSales:n => `${n} vente${n > 1 ? 's' : ''}`,
+    hwBanner:'Joyeux Halloween !', spCkHw:'Masquer la déco d\'Halloween',
     goldAria:n=>`Lib doré ${n} : touche pour le ramasser`, goldRarN:['Commun','Atypique','Rare','Épique','Légendaire','Mythique'], goldCaught:'Attrapé de justesse !', goldSay:['Raté !','Nananère !','Même pas mal !','Trop lent !','Viens me chercher !'], goldSpy:['Je te vois...','Continue, je regarde.','Je note tout.'], spCkGold:'Masquer les Libs dorés', goldGot:(n,l)=>`+${n} Libs dorés${l>0?` (encore ${l} aujourd'hui)`:' (c\'était le dernier du jour)'}`, tplTry:'Essayer', tplBuy:'Acheter', tplOwned:'Déjà acheté', tplRemove:'Retirer', tplPending:'En attente de validation', tplEmpty:'Aucun modèle pour l\'instant. Publie le tien depuis Profil, Mon portrait.',
     tplTags:{sport:'Sport', school:'École', party:'Fête', style:'Style', funny:'Drôle'}, tplBought:'Portrait acheté, il est sur ton profil !',
     tplPublish:'Publier comme modèle', tplPubName:'Nom du modèle', tplPubPrice:'Prix', tplPubTag:'Rayon', tplPubSend:'Envoyer à la validation',
@@ -1852,6 +1853,7 @@ const DICT = {
     shopBubbleTitle:'💬 Chat bubbles',
     tplTitle:'Class portraits', tplDesc:'Portraits made by players. "Try" puts it on your portrait without buying; the author earns 70% of the price.',
     tplNav:'Portraits', tplSortTop:'Best sellers', tplSortNew:'New', tplSortMine:'My templates', tplBy:'by', tplSales:n => `${n} sale${n > 1 ? 's' : ''}`,
+    hwBanner:'Happy Halloween!', spCkHw:'Hide Halloween decorations',
     goldAria:n=>`${n} golden Lib: tap to collect it`, goldRarN:['Common','Uncommon','Rare','Epic','Legendary','Mythic'], goldCaught:'Caught just in time!', goldSay:['Missed!','Nyah nyah!','Did not hurt!','Too slow!','Come and get me!'], goldSpy:['I see you...','Keep going, I am watching.','I am taking notes.'], spCkGold:'Hide golden Libs', goldGot:(n,l)=>`+${n} golden Libs${l>0?` (${l} left today)`:' (that was the last one today)'}`, tplTry:'Try', tplBuy:'Buy', tplOwned:'Already bought', tplRemove:'Remove', tplPending:'Awaiting approval', tplEmpty:'No template yet. Publish yours from Profile, My portrait.',
     tplTags:{sport:'Sport', school:'School', party:'Party', style:'Style', funny:'Funny'}, tplBought:'Portrait bought, it is on your profile!',
     tplPublish:'Publish as a template', tplPubName:'Template name', tplPubPrice:'Price', tplPubTag:'Shelf', tplPubSend:'Send for approval',
@@ -8515,6 +8517,7 @@ function _updateSettingsPanel() {
   _spCk('sp-dmpush-btn', window._dmPrefs?.().push !== false, d.dm.spPush);
   _spCk('sp-libeai-btn', !!window._libeAiOn?.(), d.libeAi.sp);
   { const gb = document.getElementById('sp-gold-btn'); if (gb) { gb.classList.toggle('hidden', !window._goldenOn?.()); _spCk(gb, !!window._goldenHidden?.(), d.spCkGold); } }
+  { const hb = document.getElementById('sp-hw-btn'); if (hb) { hb.classList.toggle('hidden', !window._hwOn?.()); _spCk(hb, !!window._hwHidden?.(), d.spCkHw); } }
   { const n = document.getElementById('sp-libeai-note'); if (n) { n.textContent = d.libeAi.spNote; n.classList.toggle('hidden', !window._libeAiOn?.()); } }
   document.getElementById('sp-vol-slider')?.closest('.sp-vol-row')?.classList.toggle('hidden', !sfxEnabled);
   const volSlider = document.getElementById('sp-vol-slider');
@@ -8686,6 +8689,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('sp-theme-btn')?.addEventListener('click', () => {
     document.getElementById('btn-theme-toggle')?.click();
     setTimeout(_updateSettingsPanel, 50);
+  });
+  document.getElementById('sp-hw-btn')?.addEventListener('click', () => {
+    window._hwSetHidden?.(!window._hwHidden?.());
+    _updateSettingsPanel();
   });
   document.getElementById('sp-gold-btn')?.addEventListener('click', () => {
     window._goldenSetHidden?.(!window._goldenHidden?.());
@@ -16355,4 +16362,58 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
   });
   socket.on('golden-collected', r => { try { showCursorSnakeToast(t().goldGot(r.amount, r.left)); } catch {} if (r.left <= 0) stopped = true; });
   plan(25000 + Math.random() * 30000);
+})();
+
+// ── Decoration d'Halloween (29 oct au 1er nov, heure du Benin) ──────────────
+// Une couche fixe `#hw-decor` (pointer-events none) : toiles, araignee, chauves-souris, fantome, lune, yeux, feuilles,
+// brume, citrouille, bandeau. Ecrans de jeu : seulement deux petites toiles fixes. Masquable (libero_hw_off).
+(function () {
+  const FROM = Date.parse('2026-10-29T00:00:00+01:00'), TO = Date.parse('2026-11-02T00:00:00+01:00');
+  const GAME = ['screen-game', 'screen-trivia-game', 'screen-snake', 'screen-luffy', 'screen-wordle', 'screen-trivia-waiting', 'screen-waiting'];
+  const isOff = () => { try { return localStorage.getItem('libero_hw_off') === '1'; } catch { return false; } };
+  const inWin = () => { const n = Date.now(); return n >= FROM && n < TO; };
+  window._hwOn = inWin;
+  window._hwHidden = isOff;
+  window._hwSetHidden = hide => { try { localStorage.setItem('libero_hw_off', hide ? '1' : '0'); } catch {} sync(); };
+  const SYM = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>' +
+    '<symbol id="hw-web" viewBox="0 0 150 150"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M0 0L150 6M0 0L132 70M0 0L96 120M0 0L40 148M0 0L6 150"/><path d="M52 2c-2 18-12 28-30 34M92 4c-2 28-18 46-44 56M128 6c-2 36-24 62-60 78"/><path d="M14 14c6 2 12 0 16-6M40 40c10 4 20 2 30-6M70 70c12 6 24 2 36-8"/></g></symbol>' +
+    '<symbol id="hw-spider" viewBox="0 0 30 90"><path d="M15 0V60" stroke="currentColor" stroke-width="1.6"/><ellipse cx="15" cy="68" rx="8" ry="7" fill="#22252b" stroke="currentColor" stroke-width="1.6"/><path d="M8 65l-8-7M8 69l-9 2M22 65l8-7M22 69l9 2M9 72l-7 8M21 72l7 8" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="12.5" cy="66" r="1.6" fill="#fff"/><circle cx="17.5" cy="66" r="1.6" fill="#fff"/></symbol>' +
+    '<symbol id="hw-bat" viewBox="0 0 60 30"><path d="M30 8c-3 0-4 2-5 4C20 6 10 4 2 10c4 1 6 3 7 7 3-2 6-1 8 2 3-3 7-3 9 1 2-4 6-4 9-1 2-3 5-4 8-2 1-4 3-6 7-7C42 4 32 6 35 12c-1-2-2-4-5-4z" fill="#2b2233" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="27" cy="12" r="1.3" fill="#ffe169"/><circle cx="33" cy="12" r="1.3" fill="#ffe169"/></symbol>' +
+    '<symbol id="hw-pk" viewBox="0 0 90 80"><path d="M42 12c0-6 4-10 8-10v6c-2 0-3 1-3 5z" fill="#4a9a5b" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M45 14C20 8 4 24 6 46s20 32 39 32 37-10 39-32S70 8 45 14z" fill="#ff9a3c" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M45 14c-14 10-14 54 0 64M45 14c14 10 14 54 0 64" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".4"/><path d="M26 38l8 8-14 2zM64 38l-8 8 14 2z" fill="#22252b"/><path d="M28 58c6 6 28 6 34 0l-5-3-4 4-4-4-4 4-4-4-4 4-4-4z" fill="#22252b"/></symbol>' +
+    '<symbol id="hw-ghost" viewBox="0 0 34 40"><path d="M3 38V16C3 6 10 1 17 1s14 5 14 15v22l-5-4-4 4-5-4-5 4-4-4z" fill="#f4f4fb" stroke="#22252b" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="16" r="2.4" fill="#22252b"/><circle cx="22" cy="16" r="2.4" fill="#22252b"/><ellipse cx="17" cy="25" rx="3" ry="3.6" fill="#22252b"/></symbol>' +
+    '</defs></svg>';
+  const use = (id, vb, cls) => '<svg class="' + (cls || '') + '" viewBox="' + vb + '"><use href="#hw-' + id + '"/></svg>';
+  let el = null, mode = '', scr = '';
+  function build() {
+    el = document.createElement('div');
+    el.id = 'hw-decor'; el.setAttribute('aria-hidden', 'true');
+    const r = (a, b) => Math.round(a + Math.random() * (b - a));
+    let h = SYM + '<div class="hw-web tl">' + use('web', '0 0 150 150') + '</div><div class="hw-web tr">' + use('web', '0 0 150 150') + '</div><div class="hw-calm">';
+    h += '<div class="hw-spider" style="left:' + r(14, 26) + '%">' + use('spider', '0 0 30 90') + '</div>';
+    h += '<div class="hw-bat" style="top:' + r(9, 16) + '%">' + use('bat', '0 0 60 30') + '</div><div class="hw-bat b2" style="top:' + r(24, 34) + '%;animation-delay:-6s">' + use('bat', '0 0 60 30') + '</div>';
+    h += '<div class="hw-ghost" style="top:' + r(38, 58) + '%;animation-delay:-' + r(2, 12) + 's">' + use('ghost', '0 0 34 40') + '</div>';
+    h += '<div class="hw-moon"></div>';
+    h += '<div class="hw-eyes" style="left:12px;bottom:14%"><i></i><i></i></div><div class="hw-eyes" style="right:14px;bottom:30%;animation-delay:-4s"><i></i><i></i></div>';
+    for (let i = 0; i < 4; i++) h += '<span class="hw-leaf" style="left:' + (8 + i * 24 + r(0, 8)) + '%;animation-delay:-' + (i * 2.7) + 's;animation-duration:' + (9 + i * 1.5) + 's"></span>';
+    h += '<div class="hw-fog"></div><div class="hw-pk">' + use('pk', '0 0 90 80') + '</div>';
+    h += '<div class="hw-ban"></div></div>';
+    el.innerHTML = h;
+    document.body.appendChild(el);
+  }
+  function sync() {
+    const on = inWin() && !isOff();
+    document.documentElement.classList.toggle('hw-on', on);
+    if (!on) { if (el) el.hidden = true; return; }
+    if (!el) build();
+    el.hidden = false;
+    const a = document.querySelector('.screen.active'), id = a ? a.id : '';
+    const m = GAME.includes(id) ? 'game' : 'calm';
+    if (m !== mode) { mode = m; el.dataset.mode = m; }
+    if (id !== scr) { scr = id; el.dataset.screen = id.replace('screen-', ''); }
+    const ban = el.querySelector('.hw-ban');
+    if (ban) { const tx = (window.t ? t().hwBanner : '') || ''; if (ban.textContent !== tx) ban.textContent = tx; }
+  }
+  window._hwSync = sync;
+  setInterval(sync, 500);
+  sync();
 })();
