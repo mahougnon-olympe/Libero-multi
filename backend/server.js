@@ -1944,8 +1944,8 @@ const SERVER_ANNOUNCEMENT = {
   msgEn: 'Libero thanks you! Thank you for playing and supporting the project. Your presence brings this community to life. See you soon!',
 };
 const SHOP_ITEMS      = [
-  { id: 'boost_hint_10', price: 3, amount: 10 },
-  { id: 'boost_hint_20', price: 5, amount: 20 },
+  { id: 'boost_hint_10', price: 300, amount: 10 },
+  { id: 'boost_hint_20', price: 500, amount: 20 },
 ];
 const COSMETICS = [
   { id: 'rainbow',         type: 'color', price: 100 },
@@ -2248,7 +2248,7 @@ function portraitLockedIds(p) {
 const ROTATION_INTERVAL_MS = 24 * 3600 * 1000;
 
 const BUNDLES = [
-  { id:'bundle-debutant',    nameFr:'Pack Débutant',          nameEn:'Starter Pack',           items:['silver','bubble-ardoise','bg-nuit','boost_hint_10'], totalPrice:38,  bundlePrice:25,  featured:false },
+  { id:'bundle-debutant',    nameFr:'Pack Débutant',          nameEn:'Starter Pack',           items:['silver','bubble-ardoise','bg-nuit','boost_hint_10'], totalPrice:335, bundlePrice:322,  featured:false },
   { id:'bundle-retro',       nameFr:'Pack Rétro',             nameEn:'Retro Pack',             items:['font-vt323','font-pressstart','bg-cyber','bubble-ocean'], totalPrice:100, bundlePrice:75, featured:false },
   { id:'bundle-neon-arcade', nameFr:'Pack Néon Arcade',       nameEn:'Neon Arcade Pack',       items:['bubble-arcade','bg-pluie','font-audiowide'], totalPrice:360, bundlePrice:270, featured:true },
   { id:'bundle-galaxie',     nameFr:'Pack Galaxie',           nameEn:'Galaxy Pack',            items:['bubble-galaxie','bg-galaxie','galaxy'], totalPrice:480, bundlePrice:360, featured:false },

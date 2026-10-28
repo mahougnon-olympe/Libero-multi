@@ -3545,6 +3545,7 @@ html:not(.light) .hw-stamp { border-color: #b79af0; color: #b79af0; }
 .hw-follow { position: absolute; left: 0; top: 0; width: 32px; color: #6e49b8; will-change: transform; }
 html:not(.light) .hw-follow { color: #b79af0; }
 .hw-follow svg { animation: hwFlap .2s ease-in-out infinite alternate; }
+@media (max-width: 600px) { .hw-pk { left: auto; right: 12px; bottom: calc(150px + env(safe-area-inset-bottom, 0px)); } }
 @media (max-width: 520px) { .hw-moon { right: 60px; } .hw-web { width: 90px; height: 90px; } .hw-stamp { right: 8px; top: 86px; font-size: .7rem; } }
 @media (prefers-reduced-motion: reduce) { #hw-decor * { animation: none !important; } .hw-bat, .hw-ghost, .hw-leaf, .hw-eyes, .hw-spider, .hw-crawl, .hw-bolt, .hw-flash, .hw-follow { display: none; } .hw-stamp { opacity: .9; } }
 

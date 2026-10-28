@@ -1020,7 +1020,7 @@ const DICT = {
     shopTitle:'⚡ Boutique', shopBalanceLabel:'Ton solde :',
     shopBoostHintName:'💡 Indice Quiz',
     shopBoostHintDesc:'Élimine une mauvaise réponse. Utilisable jusqu\'à 2 fois par question.',
-    shopBtnBuy10:'10 indices · 3 ⚡', shopBtnBuy20:'20 indices · 5 ⚡',
+    shopBtnBuy10:'10 indices · 300 ⚡', shopBtnBuy20:'20 indices · 500 ⚡',
     shopPending:n => `${n} indice${n > 1 ? 's' : ''} restant${n > 1 ? 's' : ''}`,
     shopInsufficient:'Champion, tu n\'as pas assez de Libs.', shopBuyError:'Erreur lors de l\'achat.',
     shopBuyOk:'Boost acheté !',
@@ -1185,7 +1185,7 @@ const DICT = {
     helpLibsBuyTitle:'💳 Recharger avec de l\'argent réel (indisponible)',
     helpLibsBuyDesc:'La recharge de Libs avec de l\'argent réel est <strong>temporairement indisponible</strong> : nous la retravaillons. En attendant, tu gagnes des Libs en jouant : parties, quiz, défis, roue de la fortune et tournoi du samedi.',
     helpBoostTitle:'Boost Indice (quiz)',
-    helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (3 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
+    helpBoostDesc:'Dans la boutique, achète un <em>Boost Indice</em> (300 ⚡) : il élimine une mauvaise réponse par question pendant un quiz complet. Le bouton 💡 apparaît dans le quiz dès que le boost est actif et s\'utilise une fois par question.',
     eventsTitle:'Évents', eventsDesc:'Calendrier des week-ends',
     liveHome:{ q:'Quart de finale', s:'Demi-finale', f:'Finale', title:'Quiz en direct', opensIn:'La salle ouvre dans', startsIn:'Début dans', live:'La session est en cours', soon:'Prochaine étape bientôt', enter:'Entrer dans le salon', watch:'Voir le tournoi', day:'j' },
     pfpNotif:'Crée ton portrait', pfpNotifHint:'Les autres te voient encore comme une silhouette. Dessine-le et gagne 50 Libs.', pfpRemTitle:'Ton portrait t\'attend', pfpRemText:'Dessine ton visage en une minute et gagne 50 Libs.', pfpRemGo:'Créer mon portrait', pfpRemLater:'Plus tard', giftNotif:"Tes cadeaux du tournoi t'attendent", giftNotifEnv:"Ton enveloppe du tournoi t'attend encore", giftNotifHint:'Touche pour ouvrir ton coffre-fort',
@@ -1832,7 +1832,7 @@ const DICT = {
     shopTitle:'⚡ Shop', shopBalanceLabel:'Your balance:',
     shopBoostHintName:'💡 Quiz Hint',
     shopBoostHintDesc:'Eliminates a wrong answer. Usable up to 2 times per question.',
-    shopBtnBuy10:'10 hints · 3 ⚡', shopBtnBuy20:'20 hints · 5 ⚡',
+    shopBtnBuy10:'10 hints · 300 ⚡', shopBtnBuy20:'20 hints · 500 ⚡',
     shopPending:n => `${n} hint${n > 1 ? 's' : ''} remaining`,
     shopInsufficient:'Champion, you don\'t have enough Libs.', shopBuyError:'Purchase failed.',
     shopBuyOk:'Boost purchased!',
@@ -1997,7 +1997,7 @@ const DICT = {
     helpLibsBuyTitle:'💳 Top up with real money (unavailable)',
     helpLibsBuyDesc:'Topping up Libs with real money is <strong>temporarily unavailable</strong>: we are reworking it. Meanwhile, you earn Libs by playing: games, quizzes, challenges, the wheel of fortune and the Saturday tournament.',
     helpBoostTitle:'Quiz Hint Boost',
-    helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (3 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
+    helpBoostDesc:'In the shop, buy a <em>Hint Boost</em> (300 ⚡): it eliminates a wrong answer per question for a whole quiz. The 💡 button appears in the quiz as soon as the boost is active and can be used once per question.',
     eventsTitle:'Events', eventsDesc:'Weekend calendar',
     liveHome:{ q:'Quarterfinal', s:'Semifinal', f:'Final', title:'Live quiz', opensIn:'The room opens in', startsIn:'Starts in', live:'The session is under way', soon:'Next step soon', enter:'Enter the room', watch:'See the tournament', day:'d' },
     pfpNotif:'Create your portrait', pfpNotifHint:'Others still see you as a silhouette. Draw it and get 50 Libs.', pfpRemTitle:'Your portrait is waiting', pfpRemText:'Draw your face in a minute and get 50 Libs.', pfpRemGo:'Create my portrait', pfpRemLater:'Later', giftNotif:'Your tournament gifts are waiting', giftNotifEnv:'Your tournament envelope is still waiting', giftNotifHint:'Tap to open your vault',
@@ -7557,7 +7557,7 @@ const _FEATURED_IDS = [
 ];
 
 const ALL_BUNDLES = [
-  { id:'bundle-debutant',    items:['silver','bubble-ardoise','bg-nuit','boost_hint_10'], totalPrice:38,  bundlePrice:25  },
+  { id:'bundle-debutant',    items:['silver','bubble-ardoise','bg-nuit','boost_hint_10'], totalPrice:335, bundlePrice:322 },
   { id:'bundle-retro',       items:['font-vt323','font-pressstart','bg-cyber','bubble-ocean'], totalPrice:100, bundlePrice:75 },
   { id:'bundle-neon-arcade', items:['bubble-arcade','bg-pluie','font-audiowide'],           totalPrice:360, bundlePrice:270 },
   { id:'bundle-galaxie',     items:['bubble-galaxie','bg-galaxie','galaxy'],                totalPrice:480, bundlePrice:360 },
@@ -7725,8 +7725,8 @@ function _renderShopItems() {
    ...p4TokenItems, ...tttItems, ...chessItems,
    ...clickFxItems, ...emojiPackItems, ...victoryBanItems, ...unoSkinItems, ...flagFrameItems, ...pframeItems, ...soundPackItems, ...emoteItems,
   ].forEach(it => { allItemsById[it.id] = it; });
-  allItemsById['boost_hint_10'] = { id:'boost_hint_10', type:'boost', price:3, name:d.shopBoostHintName };
-  allItemsById['boost_hint_20'] = { id:'boost_hint_20', type:'boost', price:5, name:d.shopBoostHintName };
+  allItemsById['boost_hint_10'] = { id:'boost_hint_10', type:'boost', price:300, name:d.shopBoostHintName };
+  allItemsById['boost_hint_20'] = { id:'boost_hint_20', type:'boost', price:500, name:d.shopBoostHintName };
   window._allShopItemsById = allItemsById;
   if (window._renderFlashBanner) window._renderFlashBanner();
 
@@ -11816,7 +11816,9 @@ const Wordle = (() => {
     return [...new Set(all.filter(w => /^[A-Z]{5}$/.test(w)))];
   }
   function dayIndex() { return Math.floor(Date.now() / 86_400_000); }
-  function answer() { const w = words(); return w.length ? w[dayIndex() % w.length] : 'ARBRE'; }
+  // Mot du jour propre a chaque joueur : l'index vient d'un hachage (identifiant du joueur + jour), donc deux joueurs n'ont presque jamais le meme mot.
+  function _mix(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } h ^= h >>> 15; h = Math.imul(h, 2246822507); h ^= h >>> 13; return h >>> 0; }
+  function answer() { const w = words(); let pid = ''; try { pid = getPlayerId() || ''; } catch {} return w.length ? w[_mix(pid + ':' + dayIndex()) % w.length] : 'ARBRE'; }
   const skey = () => `libero_wordle_${currentLang}_${dayIndex()}`;
   const hkey = () => `libero_wordle_hint_${currentLang}_${dayIndex()}`;
   function hintText() { const h = (window.WORDLE_HINTS && window.WORDLE_HINTS[currentLang]) || {}; return h[answer()] || ''; }
