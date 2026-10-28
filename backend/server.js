@@ -2108,7 +2108,7 @@ const COSMETICS = [
   { id: 'flagframe-neon',  type: 'flagframe', price: 240 },
   { id: 'flagframe-cloth', type: 'flagframe', price: 280 },
   // Recompenses du Quiz en direct : jamais en boutique, ni offertes, ni remboursables (honorary)
-  { id: 'pframe-toile', type: 'pframe', price: 120 },
+  { id: 'pframe-toile', type: 'pframe', price: 270 },
   { id: 'pframe-live-gold',     type: 'pframe', price: 0, honorary: true },
   { id: 'pframe-live-silver',   type: 'pframe', price: 0, honorary: true },
   { id: 'pframe-live-bronze',   type: 'pframe', price: 0, honorary: true },

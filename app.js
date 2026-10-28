@@ -7712,7 +7712,7 @@ function _renderShopItems() {
   const emojiPackItems   = ALL_EMOJIPACKS.map(x   => ({ ...x, type:'emojipack',   name: d.shopEmojiPackNames[x.id] }));
   const victoryBanItems  = ALL_VICTORYBANS.map(x  => ({ ...x, type:'victoryban',  name: d.shopVictoryBanNames[x.id] }));
   const flagFrameItems   = ALL_FLAGFRAMES.map(x   => ({ ...x, type:'flagframe',   name: d.shopFlagFrameNames[x.id] }));
-  const pframeItems      = [{ id:'pframe-toile', price:120, type:'pframe', name: d.shopPFrameNames['pframe-toile'] }];
+  const pframeItems      = [{ id:'pframe-toile', price:270, type:'pframe', name: d.shopPFrameNames['pframe-toile'] }];
   const unoSkinItems     = ALL_UNOSKINS.map(x     => ({ ...x, type:'unoskin',     name: d.shopUnoSkinNames[x.id] }));
   const soundPackItems   = ALL_SOUNDPACKS.map(x   => ({ ...x, type:'soundpack',   name: d.shopSoundPackNames[x.id] }));
   const emoteItems       = ALL_EMOTES.map(x       => ({ ...x, type:'emote',       name: d.shopEmoteNames[x.id] }));
