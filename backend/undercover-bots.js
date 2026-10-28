@@ -154,21 +154,35 @@ const VAGUE = {
   fr: ['commun', 'utile', 'quotidien', 'connu', 'simple', 'classique', 'populaire', 'courant', 'agréable', 'habituel', 'pratique', 'naturel'],
   en: ['common', 'useful', 'daily', 'known', 'simple', 'classic', 'popular', 'usual', 'pleasant', 'handy', 'natural', 'normal'],
 };
-// Prenoms et caracteres des robots.
+// Prenoms, caracteres et portraits des robots (options gratuites du portrait, voir portrait.js).
 const BOTS = [
-  { name: 'Awa', mood: 'careful' }, { name: 'Koffi', mood: 'chatty' }, { name: 'Mina', mood: 'sharp' }, { name: 'Théo', mood: 'careful' }, { name: 'Sika', mood: 'chatty' },
-  { name: 'Ben', mood: 'sharp' }, { name: 'Léa', mood: 'careful' }, { name: 'Ali', mood: 'chatty' }, { name: 'Zoé', mood: 'sharp' },
+  { name: 'Awa',   mood: 'careful', portrait: { face: 1, skin: 13, brows: 1, eyes: 1, mouth: 0, marks: 2, beard: 0, hair: 2,  hairCol: 0, acc: 4, top: 0, topCol: 3, bg: 2, frame: 0 } },
+  { name: 'Koffi', mood: 'chatty',  portrait: { face: 0, skin: 14, brows: 2, eyes: 1, mouth: 1, marks: 0, beard: 3, hair: 5,  hairCol: 0, acc: 3, top: 3, topCol: 1, bg: 4, frame: 3 } },
+  { name: 'Mina',  mood: 'sharp',   portrait: { face: 3, skin: 6,  brows: 3, eyes: 4, mouth: 5, marks: 3, beard: 0, hair: 6,  hairCol: 2, acc: 0, top: 5, topCol: 4, bg: 6, frame: 5 } },
+  { name: 'Théo',  mood: 'careful', portrait: { face: 2, skin: 3,  brows: 0, eyes: 5, mouth: 2, marks: 0, beard: 1, hair: 0,  hairCol: 5, acc: 7, top: 1, topCol: 0, bg: 1, frame: 0 } },
+  { name: 'Sika',  mood: 'chatty',  portrait: { face: 1, skin: 12, brows: 1, eyes: 2, mouth: 3, marks: 1, beard: 0, hair: 4,  hairCol: 1, acc: 0, top: 0, topCol: 5, bg: 3, frame: 3 } },
+  { name: 'Ben',   mood: 'sharp',   portrait: { face: 4, skin: 8,  brows: 3, eyes: 6, mouth: 5, marks: 4, beard: 2, hair: 11, hairCol: 1, acc: 0, top: 3, topCol: 6, bg: 5, frame: 5 } },
+  { name: 'Léa',   mood: 'careful', portrait: { face: 3, skin: 2,  brows: 1, eyes: 0, mouth: 0, marks: 2, beard: 0, hair: 7,  hairCol: 8, acc: 4, top: 0, topCol: 2, bg: 7, frame: 0 } },
+  { name: 'Ali',   mood: 'chatty',  portrait: { face: 2, skin: 5,  brows: 2, eyes: 3, mouth: 1, marks: 0, beard: 3, hair: 3,  hairCol: 0, acc: 3, top: 1, topCol: 7, bg: 0, frame: 3 } },
+  { name: 'Zoé',   mood: 'sharp',   portrait: { face: 0, skin: 0,  brows: 0, eyes: 2, mouth: 5, marks: 2, beard: 0, hair: 1,  hairCol: 3, acc: 7, top: 5, topCol: 1, bg: 6, frame: 5 } },
 ];
+// Repliques du debat. `mood` : reserve a un caractere. {n} : nom de la cible.
 const LINES = {
   fr: {
-    accuse: ['Je trouve que {n} est vague.', '{n}, ton indice ne m\'a pas convaincu.', 'Franchement, {n} me semble louche.', 'Pour moi c\'est {n}.', '{n} a dit ça trop vite, non ?'],
-    defend: ['Moi je suis sûr de mon mot.', 'Je ne suis pas l\'infiltré, promis.', 'Mon indice était clair, non ?'],
-    neutral: ['Difficile cette fois...', 'Je ne sais pas trop qui croire.', 'Les indices se ressemblent beaucoup.', 'On y va doucement.'],
+    accuse: ['Je trouve que {n} est vague.', '{n}, ton indice ne m\'a pas convaincu.', 'Franchement, {n} me semble louche.', 'Pour moi c\'est {n}.', '{n} a dit ça trop vite, non ?', 'L\'indice de {n} ne colle à rien.', 'Je garde un oeil sur {n}.', '{n}, tu peux m\'expliquer ton indice ?', 'Moi je vote {n}, ça sent l\'infiltré.', 'Pourquoi {n} reste si calme ?', '{n} répète ce que les autres disent, non ?', 'Je ne sens pas {n} sur ce coup.', 'Quelque chose cloche chez {n}.', 'Si je devais parier, ce serait {n}.', 'Avec {n}, les indices ne s\'emboîtent pas.', 'Et si c\'était {n} depuis le début ?'],
+    defend: ['Moi je suis sûr de mon mot.', 'Je ne suis pas l\'infiltré, promis.', 'Mon indice était clair, non ?', 'Pourquoi tout le monde me regarde ?', 'J\'ai joué franc, je n\'ai rien à cacher.', 'Mon mot est solide, vous pouvez me croire.', 'Doucement, je suis dans le bon camp.', 'Si j\'étais l\'infiltré, je serais plus discret.', 'Vous perdez du temps avec moi.', 'Relisez mon indice, il colle bien.'],
+    neutral: ['Difficile cette fois...', 'Je ne sais pas trop qui croire.', 'Les indices se ressemblent beaucoup.', 'On y va doucement.', 'Je relis tous les indices.', 'Ce tour est serré.', 'Je n\'ai pas encore d\'idée claire.', 'Quelqu\'un a un soupçon ?', 'Il faut comparer les indices un par un.', 'On dirait que tout le monde est proche du mot.', 'Hmm, je réfléchis.', 'Il y a un détail qui m\'échappe.'],
+    chatty: ['Bon, on fait le tour des soupçons ?', 'Je parie qu\'on va se tromper encore !', 'Allez, un peu d\'ambiance, qui parle ?', 'Je sens que ça va être serré, haha.', 'J\'adore ce moment du débat.'],
+    sharp: ['Les faits : un indice ne colle pas.', 'Je compare, et il y a une faille.', 'Un seul indice sort du lot.', 'Ça se joue sur un détail.'],
+    careful: ['Prenons le temps avant de voter.', 'Pas de précipitation, d\'accord ?', 'Je préfère attendre un autre indice.', 'Je ne veux accuser personne à tort.'],
   },
   en: {
-    accuse: ['I find {n} a bit vague.', '{n}, your clue did not convince me.', 'Honestly, {n} looks suspicious.', 'For me it is {n}.', '{n} said that too fast, no?'],
-    defend: ['I am sure about my word.', 'I am not the infiltrator, promise.', 'My clue was clear, right?'],
-    neutral: ['Tough one this time...', 'Not sure who to trust.', 'The clues look a lot alike.', 'Let us go slowly.'],
+    accuse: ['I find {n} a bit vague.', '{n}, your clue did not convince me.', 'Honestly, {n} looks suspicious.', 'For me it is {n}.', '{n} said that too fast, no?', 'The clue from {n} fits nothing.', 'I am keeping an eye on {n}.', '{n}, can you explain your clue?', 'I vote {n}, smells like the infiltrator.', 'Why is {n} so calm?', '{n} is just repeating what the others said.', 'I am not feeling {n} this round.', 'Something is off with {n}.', 'If I had to bet, it would be {n}.', 'With {n}, the clues do not fit together.', 'What if it was {n} all along?'],
+    defend: ['I am sure about my word.', 'I am not the infiltrator, promise.', 'My clue was clear, right?', 'Why is everyone looking at me?', 'I played it straight, nothing to hide.', 'My word is solid, you can trust me.', 'Easy, I am on the right side.', 'If I were the infiltrator I would be quieter.', 'You are wasting time on me.', 'Read my clue again, it fits.'],
+    neutral: ['Tough one this time...', 'Not sure who to trust.', 'The clues look a lot alike.', 'Let us go slowly.', 'I am rereading all the clues.', 'This round is tight.', 'I have no clear idea yet.', 'Does anyone have a suspicion?', 'We should compare the clues one by one.', 'Everyone seems close to the word.', 'Hmm, thinking.', 'There is a detail I am missing.'],
+    chatty: ['So, shall we go around the suspicions?', 'I bet we will get it wrong again!', 'Come on, some life here, who talks?', 'This is going to be tight, haha.', 'I love this part of the debate.'],
+    sharp: ['The facts: one clue does not fit.', 'I compared, and there is a flaw.', 'Only one clue stands out.', 'It comes down to one detail.'],
+    careful: ['Let us take our time before voting.', 'No rush, okay?', 'I would rather wait for another clue.', 'I do not want to accuse anyone wrongly.'],
   },
 };
 const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -211,6 +225,13 @@ function chooseVote(l, bot, ownWord, targets, clues, chat) {
   if (bot.mood === 'sharp') { const hum = targets.filter(t => !String(t).startsWith('bot')); if (hum.length && Math.random() < .3) score[rnd(hum)] += 1.2; }
   return targets.slice().sort((a, b) => score[b] - score[a])[0];
 }
-function sayLine(l, kind, name) { return rnd(LINES[l][kind]).replace('{n}', name || ''); }
+// `used` : ensemble des repliques deja dites dans la partie, pour ne pas se repeter. `mood` ajoute les repliques du caractere.
+function sayLine(l, kind, name, used, mood) {
+  let pool = LINES[l][kind].concat(kind === 'neutral' && mood && LINES[l][mood] ? LINES[l][mood] : []);
+  let fresh = used ? pool.filter(x => !used.has(x)) : pool;
+  if (!fresh.length) { if (used) pool.forEach(x => used.delete(x)); fresh = pool; }
+  const line = rnd(fresh); if (used) used.add(line);
+  return line.replace('{n}', name || '');
+}
 
 module.exports = { BOTS, BANK, VAGUE, clueFor, chooseVote, bestGuess, sayLine, shuffle, norm };

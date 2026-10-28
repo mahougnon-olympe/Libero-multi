@@ -56,7 +56,7 @@ module.exports = function createUndercover(ctx) {
     const base = { code: room.code, status: room.status, host: room.host === pid, max: room.max, min: MIN, seq: room.seq, me };
     if (!room.g) { const n = effN(room), r = resolveRoles(room, n); base.rl = { n, und: r.und, white: r.white, auto: !room.cfg, undMax0: maxUnd(n, 0), undMax1: maxUnd(n, 1), whiteOk: n >= 5, reset: !!room.rolesReset }; }
     base.players = room.players.map(q => {
-      const i = idxOf(room, q.pid), o = { name: q.name, connected: q.connected, host: q.pid === room.host, portrait: q.bot ? null : (ctx.portraitOf(q.pid, q.name) || null) };
+      const i = idxOf(room, q.pid), o = { name: q.name, connected: q.connected, host: q.pid === room.host, portrait: q.bot ? (q.persona && q.persona.portrait) || null : (ctx.portraitOf(q.pid, q.name) || null) };
       if (q.bot) o.bot = true;
       if (g) {
         o.alive = g.alive.includes(q.pid);
@@ -111,7 +111,7 @@ module.exports = function createUndercover(ctx) {
     const civ = swap ? w(pr[1], pr[3]) : w(pr[0], pr[2]), und = swap ? w(pr[0], pr[2]) : w(pr[1], pr[3]);
     room.rolesReset = false; room.status = 'playing'; room.played = room.players.map(p => p.pid);
     room.blang = lang(room.players.find(p => !p.bot && p.pid === room.host) || room.players.find(p => !p.bot));
-    room.g = { pair: { civ, und }, roles, alive: room.players.map(p => p.pid), out: [], round: 0, phase: 'reveal', phaseEnd: 0, phaseTotal: 0, order: [], cur: null, clues: [], ready: new Set(), votes: {}, cands: [], tally: null, last: null, guess: null, winner: null, chat: [], starter: Math.floor(Math.random() * n) };
+    room.g = { pair: { civ, und }, roles, alive: room.players.map(p => p.pid), out: [], round: 0, phase: 'reveal', phaseEnd: 0, phaseTotal: 0, order: [], cur: null, clues: [], usedLines: new Set(), ready: new Set(), votes: {}, cands: [], tally: null, last: null, guess: null, winner: null, chat: [], starter: Math.floor(Math.random() * n) };
     room.players.forEach(p => { p.afk = 0; });
     setPhase(room, 'reveal', T.reveal, () => beginClues(room));
     room.g.revealAt = Date.now();
@@ -171,8 +171,8 @@ module.exports = function createUndercover(ctx) {
     for (let k = 0; k < n; k++) later(room, 1500 + Math.random() * 16000, () => {
       const g = room.g, l = room.blang || 'fr', others = g.alive.filter(x => x !== pid), r = Math.random();
       let text;
-      if (r < .6 && others.length) { const t = botPick(room, pid, others); g.accuse[t] = (g.accuse[t] || 0) + 1; text = BOT.sayLine(l, 'accuse', player(room, t).name); }
-      else text = BOT.sayLine(l, r < .8 ? 'defend' : 'neutral', '');
+      if (r < .6 && others.length) { const t = botPick(room, pid, others); g.accuse[t] = (g.accuse[t] || 0) + 1; text = BOT.sayLine(l, 'accuse', player(room, t).name, g.usedLines); }
+      else text = BOT.sayLine(l, r < .8 ? 'defend' : 'neutral', '', g.usedLines, b.mood);
       g.chat.push({ pid, text }); if (g.chat.length > 60) g.chat.shift();
       emit(room, { t: 'say', p: idxOf(room, pid), text });
     });

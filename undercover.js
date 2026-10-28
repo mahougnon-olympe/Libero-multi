@@ -91,7 +91,7 @@
   // ── Briques ──
   function portrait(p) { try { if (window.LiberoPortrait) return p ? LiberoPortrait.svg(p) : LiberoPortrait.blank(); } catch {} return ''; }
   const ROBOT = '<svg viewBox="0 0 40 40"><rect width="40" height="40" fill="#e8edf5"/><rect x="9" y="12" width="22" height="18" rx="5" fill="#9aa4b2" stroke="#1d2433" stroke-width="2"/><circle cx="16" cy="21" r="2.6" fill="#1d2433"/><circle cx="24" cy="21" r="2.6" fill="#1d2433"/><path d="M20 12V7" stroke="#1d2433" stroke-width="2"/><circle cx="20" cy="6" r="2" fill="#e2485d"/></svg>';
-  function pf(p, s) { return `<span class="pf" style="--s:${s || 52}px">${p && p.bot ? ROBOT : portrait(p && p.portrait)}</span>`; }
+  function pf(p, s) { return `<span class="pf" style="--s:${s || 52}px">${p && p.bot && !p.portrait ? ROBOT : portrait(p && p.portrait)}</span>`; }
   const pfI = (v, i, s) => pf(v.players[i], s);
   function hdr(t, rd) { return `<div class="top"><button class="back" data-act="back" aria-label="${esc(U().leave)}">&#8592; ${esc(U().back)}</button><h2 class="ttl">${esc(t)}</h2><div class="sub">${esc(rd || '')}</div></div>`; }
   function rolesCounts(n) { const u = n <= 7 ? 1 : 2, w = n <= 4 ? 0 : 1; return [n - u - w, u, w]; }
