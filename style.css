@@ -4958,3 +4958,6 @@ html.light #maintenance-wall .mw-sheet { padding-left: 44px; }
 html.light #maintenance-wall .mw-date, html.light #maintenance-wall .mw-sign { color: #173a8a; }
 html.light #maintenance-wall mark { background: linear-gradient(transparent 55%, #fff27a 55%); }
 html.light #maintenance-wall .mw-note { color: #b3263a; border-color: #e2485d; }
+
+/* Carte News masquee pour l'instant (demande du proprietaire) : retirer cette regle pour la remettre. */
+#news-card { display: none !important; }

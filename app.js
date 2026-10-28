@@ -10720,12 +10720,7 @@ window._playEmojiRain = function (emojisOverride) {
   _emojiRainTimer = setTimeout(stop, (endAt + 1) * 1000);
 };
 
-// Au chargement : uniquement sur l'accueil.
-(() => {
-  const _sc = sessionStorage.getItem('libero_screen');
-  if (_sc && _sc !== 'landing') return;
-  window._playEmojiRain();
-})();
+// Plus d'avalanche au chargement (retiree a la demande du proprietaire) : elle ne part que pour un cadeau du jour.
 
 // ── Commentaires joueurs ──────────────────────────────────────────────────────
 (() => {
@@ -11085,6 +11080,8 @@ socket.on('comment-star', ({ pseudo, message, likes }) => {
       target: '.lb-card',
     },
   ];
+  { const _ni = STEPS.findIndex(x => x.id === 'landing_news'); if (_ni > -1) STEPS.splice(_ni, 1); } // carte News masquee pour l'instant
+
 
   // « Libe te guide » : le crayon de l'assistant va se poser a cote de l'element,
   // l'entoure au crayon rouge et dit UNE phrase courte dans une bulle manuscrite.
@@ -16374,9 +16371,10 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
   plan(25000 + Math.random() * 30000);
 })();
 
-// ── Decoration d'Halloween (29 oct au 1er nov, heure du Benin) ──────────────
-// Une couche fixe `#hw-decor` (pointer-events none) : toiles, araignee, chauves-souris, fantome, lune, yeux, feuilles,
-// brume, citrouille, bandeau. Ecrans de jeu : seulement deux petites toiles fixes. Masquable (libero_hw_off).
+// ── Decoration d'Halloween (28 oct au 1er nov, heure du Benin) ──────────────
+// Couche fixe `#hw-decor` (pointer-events none) dessinee a l'encre comme le cahier : guirlande de fanions, toiles, araignees,
+// essaim de chauves-souris, fantome, feuilles, eclair, tampon qui claque, chauve-souris qui suit le curseur (souris seulement).
+// Ecrans de jeu : seulement deux petites toiles. Mobile : moins de particules. Masquable (libero_hw_off).
 (function () {
   const FROM = Date.parse('2026-10-28T00:00:00+01:00'), TO = Date.parse('2026-11-02T00:00:00+01:00');
   const GAME = ['screen-game', 'screen-trivia-game', 'screen-snake', 'screen-luffy', 'screen-wordle', 'screen-trivia-waiting', 'screen-waiting'];
@@ -16387,28 +16385,60 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
   window._hwSetHidden = hide => { try { localStorage.setItem('libero_hw_off', hide ? '1' : '0'); } catch {} sync(); };
   const SYM = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>' +
     '<symbol id="hw-web" viewBox="0 0 150 150"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M0 0L150 6M0 0L132 70M0 0L96 120M0 0L40 148M0 0L6 150"/><path d="M52 2c-2 18-12 28-30 34M92 4c-2 28-18 46-44 56M128 6c-2 36-24 62-60 78"/><path d="M14 14c6 2 12 0 16-6M40 40c10 4 20 2 30-6M70 70c12 6 24 2 36-8"/></g></symbol>' +
-    '<symbol id="hw-spider" viewBox="0 0 30 90"><path d="M15 0V60" stroke="currentColor" stroke-width="1.6"/><ellipse cx="15" cy="68" rx="8" ry="7" fill="#22252b" stroke="currentColor" stroke-width="1.6"/><path d="M8 65l-8-7M8 69l-9 2M22 65l8-7M22 69l9 2M9 72l-7 8M21 72l7 8" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="12.5" cy="66" r="1.6" fill="#fff"/><circle cx="17.5" cy="66" r="1.6" fill="#fff"/></symbol>' +
+    '<symbol id="hw-spider" viewBox="0 0 40 90"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 0V56"/><ellipse cx="20" cy="64" rx="8" ry="7" fill="#22252b"/><path d="M12 61l-9-7M12 65l-10 3M28 61l9-7M28 65l10 3M13 69l-8 8M27 69l8 8"/></g><circle cx="17.5" cy="62" r="1.6" fill="#fff"/><circle cx="22.5" cy="62" r="1.6" fill="#fff"/></symbol>' +
     '<symbol id="hw-bat" viewBox="0 0 60 30"><path d="M30 8c-3 0-4 2-5 4C20 6 10 4 2 10c4 1 6 3 7 7 3-2 6-1 8 2 3-3 7-3 9 1 2-4 6-4 9-1 2-3 5-4 8-2 1-4 3-6 7-7C42 4 32 6 35 12c-1-2-2-4-5-4z" fill="#2b2233" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="27" cy="12" r="1.3" fill="#ffe169"/><circle cx="33" cy="12" r="1.3" fill="#ffe169"/></symbol>' +
     '<symbol id="hw-pk" viewBox="0 0 90 80"><path d="M42 12c0-6 4-10 8-10v6c-2 0-3 1-3 5z" fill="#4a9a5b" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M45 14C20 8 4 24 6 46s20 32 39 32 37-10 39-32S70 8 45 14z" fill="#ff9a3c" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M45 14c-14 10-14 54 0 64M45 14c14 10 14 54 0 64" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".4"/><path d="M26 38l8 8-14 2zM64 38l-8 8 14 2z" fill="#22252b"/><path d="M28 58c6 6 28 6 34 0l-5-3-4 4-4-4-4 4-4-4-4 4-4-4z" fill="#22252b"/></symbol>' +
     '<symbol id="hw-ghost" viewBox="0 0 34 40"><path d="M3 38V16C3 6 10 1 17 1s14 5 14 15v22l-5-4-4 4-5-4-5 4-4-4z" fill="#f4f4fb" stroke="#22252b" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="16" r="2.4" fill="#22252b"/><circle cx="22" cy="16" r="2.4" fill="#22252b"/><ellipse cx="17" cy="25" rx="3" ry="3.6" fill="#22252b"/></symbol>' +
     '</defs></svg>';
   const use = (id, vb, cls) => '<svg class="' + (cls || '') + '" viewBox="' + vb + '"><use href="#hw-' + id + '"/></svg>';
-  let el = null, mode = '', scr = '';
+  const small = () => matchMedia('(max-width: 600px)').matches;
+  let el = null, mode = '', scr = '', follow = null, mx = -100, my = -100, fx = -100, fy = -100, raf = 0;
+  function bunting() {
+    const cols = ['#ff9a3c', '#8a5cd6'];
+    let f = '';
+    for (let i = 0; i < 7; i++) { const x = 30 + i * 55, t = x / 400, y = 4 + 40 * t - 40 * t * t; f += '<g class="hw-fl" style="transform-origin:' + x + 'px ' + y.toFixed(1) + 'px;animation-delay:-' + i * .7 + 's"><path d="M' + (x - 8) + ' ' + y.toFixed(1) + 'h16l-8 13z" fill="' + cols[i % 2] + '"/></g>'; }
+    return '<svg class="hw-bunt" viewBox="0 0 400 24" preserveAspectRatio="none"><path d="M0 4Q200 24 400 4" fill="none" stroke="currentColor" stroke-width="1.4"/>' + f + '</svg>';
+  }
   function build() {
+    const sm = small(), r = (a, b) => Math.round(a + Math.random() * (b - a));
     el = document.createElement('div');
     el.id = 'hw-decor'; el.setAttribute('aria-hidden', 'true');
-    const r = (a, b) => Math.round(a + Math.random() * (b - a));
-    let h = SYM + '<div class="hw-web tl">' + use('web', '0 0 150 150') + '</div><div class="hw-web tr">' + use('web', '0 0 150 150') + '</div><div class="hw-calm">';
-    h += '<div class="hw-spider" style="left:' + r(14, 26) + '%">' + use('spider', '0 0 30 90') + '</div>';
-    h += '<div class="hw-bat" style="top:' + r(9, 16) + '%">' + use('bat', '0 0 60 30') + '</div><div class="hw-bat b2" style="top:' + r(24, 34) + '%;animation-delay:-6s">' + use('bat', '0 0 60 30') + '</div>';
+    let h = SYM + '<div class="hw-web tl">' + use('web', '0 0 150 150') + '</div><div class="hw-web tr">' + use('web', '0 0 150 150') + '</div><div class="hw-calm">' + bunting();
+    h += '<div class="hw-spider" style="left:' + r(14, 26) + '%">' + use('spider', '0 0 40 90') + '</div>';
+    if (!sm) h += '<div class="hw-crawl">' + use('spider', '0 0 40 90') + '</div>';
+    h += '<div class="hw-bat" style="top:' + r(9, 16) + '%">' + use('bat', '0 0 60 30') + '</div>';
+    h += '<div class="hw-bat sw" style="top:' + r(20, 34) + '%;animation-delay:-4s">' + use('bat', '0 0 60 30') + '</div>';
+    if (!sm) h += '<div class="hw-bat sw b2" style="top:' + r(36, 52) + '%;animation-delay:-9s">' + use('bat', '0 0 60 30') + '</div>';
     h += '<div class="hw-ghost" style="top:' + r(38, 58) + '%;animation-delay:-' + r(2, 12) + 's">' + use('ghost', '0 0 34 40') + '</div>';
-    h += '<div class="hw-moon"></div>';
-    h += '<div class="hw-eyes" style="left:12px;bottom:14%"><i></i><i></i></div><div class="hw-eyes" style="right:14px;bottom:30%;animation-delay:-4s"><i></i><i></i></div>';
-    for (let i = 0; i < 4; i++) h += '<span class="hw-leaf" style="left:' + (8 + i * 24 + r(0, 8)) + '%;animation-delay:-' + (i * 2.7) + 's;animation-duration:' + (9 + i * 1.5) + 's"></span>';
-    h += '<div class="hw-fog"></div><div class="hw-pk">' + use('pk', '0 0 90 80') + '</div>';
-    h += '<div class="hw-ban"></div></div>';
+    h += '<div class="hw-eyes" style="left:12px;bottom:14%"><i></i><i></i></div>';
+    if (!sm) h += '<div class="hw-eyes" style="right:14px;bottom:30%;animation-delay:-4s"><i></i><i></i></div>';
+    const nl = sm ? 3 : 7;
+    for (let i = 0; i < nl; i++) h += '<span class="hw-leaf" style="left:' + (6 + i * (88 / nl) + r(0, 6)) + '%;animation-delay:-' + (i * 2.1) + 's;animation-duration:' + (9 + i % 3 * 1.7) + 's"></span>';
+    h += '<svg class="hw-bolt" viewBox="0 0 40 70"><path d="M26 2L8 36h12L12 68 34 28H22z" fill="none" stroke="#8a5cd6" stroke-width="2.6" stroke-linejoin="round"/></svg><div class="hw-flash"></div>';
+    h += '<div class="hw-fog"></div><div class="hw-pk" role="presentation">' + use('pk', '0 0 90 80') + '</div><div class="hw-stamp"></div></div>';
     el.innerHTML = h;
     document.body.appendChild(el);
+    el.querySelector('.hw-pk').addEventListener('click', e => {
+      const q = e.currentTarget.getBoundingClientRect();
+      for (let i = 0; i < (sm ? 6 : 10); i++) {
+        const c = document.createElement('span'), a = Math.random() * 6.28, d = 40 + Math.random() * 60;
+        c.className = 'hw-candy'; c.style.left = (q.left + q.width / 2) + 'px'; c.style.top = (q.top + q.height / 2) + 'px';
+        c.style.setProperty('--dx', Math.cos(a) * d + 'px'); c.style.setProperty('--dy', Math.sin(a) * d - 20 + 'px'); c.style.setProperty('--r', (Math.random() * 360 | 0) + 'deg');
+        if (i % 2) c.style.background = '#8a5cd6';
+        el.appendChild(c); setTimeout(() => c.remove(), 950);
+      }
+    });
+    if (!sm && matchMedia('(pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      follow = document.createElement('div'); follow.className = 'hw-follow'; follow.innerHTML = use('bat', '0 0 60 30'); el.appendChild(follow);
+      document.addEventListener('pointermove', e => { mx = e.clientX + 14; my = e.clientY + 14; }, { passive: true });
+    }
+  }
+  function loop() {
+    raf = 0;
+    if (!follow || !el || el.hidden || el.dataset.mode === 'game') return;
+    fx += (mx - fx) * .12; fy += (my - fy) * .12;
+    follow.style.transform = 'translate(' + fx.toFixed(1) + 'px,' + fy.toFixed(1) + 'px)';
+    raf = requestAnimationFrame(loop);
   }
   function sync() {
     const on = inWin() && !isOff();
@@ -16420,8 +16450,9 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
     const m = GAME.includes(id) ? 'game' : 'calm';
     if (m !== mode) { mode = m; el.dataset.mode = m; }
     if (id !== scr) { scr = id; el.dataset.screen = id.replace('screen-', ''); }
-    const ban = el.querySelector('.hw-ban');
-    if (ban) { const tx = (window.t ? t().hwBanner : '') || ''; if (ban.textContent !== tx) ban.textContent = tx; }
+    const st = el.querySelector('.hw-stamp');
+    if (st) { const tx = (window.t ? t().hwBanner : '') || ''; if (st.textContent !== tx) st.textContent = tx; }
+    if (follow && !raf && m === 'calm') raf = requestAnimationFrame(loop);
   }
   window._hwSync = sync;
   setInterval(sync, 500);
