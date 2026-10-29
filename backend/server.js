@@ -2517,6 +2517,7 @@ const TRIVIA_CATEGORIES = {
   12: 'Musique',         14: 'Télévision',      19: 'Mathématiques',
   20: 'Informatique',    25: 'Arts',            27: 'Animaux',
   30: 'SVT',             31: 'Anglais',         32: 'Bénin',
+  33: 'Frissons',        34: 'Légendes et monstres', 35: 'Animaux de la nuit', 36: "Halloween, d'où ça vient ?",
 };
 const TRIVIA_COLORS = ['#2563eb','#dc2626','#16a34a','#9333ea','#ea580c','#0891b2'];
 const TRIVIA_MAX = 20; // joueurs par salon de quiz

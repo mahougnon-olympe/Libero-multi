@@ -98,7 +98,7 @@
     $('#mx-seg', home).innerHTML = ['fast', 'path'].map(k => `<button type="button" role="tab" aria-selected="${P.tab === k}" data-t="${k}">${d.tabs[k]}</button>`).join('');
     // Themes : meme presentation que Culture Generale, mais une selection a part.
     $('#mx-l-themes', home).textContent = d.themes;
-    $('#mx-themes', home).innerHTML = t().triviaCats.filter(c => c.id !== 33 || window._isHwDay()).map(c => `
+    $('#mx-themes', home).innerHTML = t().triviaCats.filter(c => window._hwThemeOk(c.id)).map(c => `
       <button class="theme-btn${P.cats.includes(c.id) ? ' active' : ''}" data-id="${c.id}">
         <span class="theme-photo"><img src="assets/quiz/${c.id}.webp?v=2" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('no-photo')"><span class="theme-art-wrap">${typeof _themeArt === 'function' ? _themeArt(c.id) : ''}</span></span>
         <span class="theme-name">${c.name}</span>

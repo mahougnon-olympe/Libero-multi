@@ -1402,6 +1402,9 @@ const DICT = {
       { id:30, name:'SVT',        icon:'🌱' }, { id:31, name:'Anglais',    icon:'🇬🇧' },
       { id:32, name:'Bénin',      icon:'🇧🇯' },
       { id:33, name:'Frissons',   icon:'' },
+      { id:34, name:'Légendes et monstres', icon:'' },
+      { id:35, name:'Animaux de la nuit', icon:'' },
+      { id:36, name:"Halloween, d'où ça vient ?", icon:'' },
     ],
     tutoSteps:{
       landing_news:"Ici, les <b>nouvelles</b> du site. Touche pour ouvrir.",
@@ -2217,6 +2220,9 @@ const DICT = {
       { id:30, name:'Biology',   icon:'🌱' }, { id:31, name:'English',   icon:'🇬🇧' },
       { id:32, name:'Benin',     icon:'🇧🇯' },
       { id:33, name:'Chills',    icon:'' },
+      { id:34, name:'Legends and monsters', icon:'' },
+      { id:35, name:'Animals of the night', icon:'' },
+      { id:36, name:'Halloween: where does it come from?', icon:'' },
     ],
     tutoSteps:{
       landing_news:"Site <b>news</b> live here. Tap to open.",
@@ -5315,8 +5321,12 @@ function goToTriviaHome() {
 // Illustrations des themes du quiz : dessins a l'encre (ou a la craie), style cahier.
 // Classes : f = aplat clair, k = aplat d'encre, r = rouge, y = jaune, g = vert, t = traits fins.
 // Jour d'Halloween (31 octobre, heure du Benin) : theme « Frissons » du quiz, costumes des Libs
+window._hwThemeOk = id => id === 33 ? window._isHwDay() : (id >= 34 && id <= 36) ? (Date.now() >= Date.parse('2026-10-28T00:00:00+01:00') && Date.now() < Date.parse('2026-11-02T00:00:00+01:00')) : true;
 window._isHwDay = () => new Date(Date.now() + 3600e3).toISOString().slice(0, 10) === '2026-10-31';
 const THEME_ART = {"9": "<path d=\"M32 8a12 12 0 0 0-7 21.7V34h14v-4.3A12 12 0 0 0 32 8z\" class=\"f\"/><path d=\"M27 38h10M28 42h8\"/><path d=\"M32 2v2M18 8l2 2M46 8l-2 2M13 20h3M48 20h3\"/><path d=\"M29 17a3.5 3.5 0 1 1 4.5 3.3c-1 .4-1.5 1.2-1.5 2.2M32 26h.01\"/>", "23": "<path d=\"M16 10h28a4 4 0 0 1 0 8H20v22a4 4 0 0 1-8 0V14a4 4 0 0 1 4-4z\" class=\"f\"/><path d=\"M44 18v18a4 4 0 0 1-4 4H16\"/><path d=\"M24 24h12M24 30h10M24 36h8\"/><path d=\"M50 4 40 26l-1 4 3-3 10-21z\"/>", "22": "<circle cx=\"28\" cy=\"26\" r=\"16\" class=\"f\"/><path d=\"M12 26h32M28 10c-6 5-6 27 0 32M28 10c6 5 6 27 0 32M15 18h26M15 34h26\"/><path d=\"M50 8a6 6 0 0 0-6 6c0 5 6 11 6 11s6-6 6-11a6 6 0 0 0-6-6z\" class=\"r\"/><circle cx=\"50\" cy=\"14\" r=\"2\"/>", "17": "<path d=\"M26 6h12M28 6v12L16 40a3 3 0 0 0 3 4h26a3 3 0 0 0 3-4L36 18V6\"/><path d=\"M20 32h24l4 8a3 3 0 0 1-3 4H19a3 3 0 0 1-3-4z\" class=\"f\"/><circle cx=\"28\" cy=\"36\" r=\"1.5\"/><circle cx=\"34\" cy=\"39\" r=\"1\"/><ellipse cx=\"50\" cy=\"12\" rx=\"8\" ry=\"3\" transform=\"rotate(30 50 12)\"/><ellipse cx=\"50\" cy=\"12\" rx=\"8\" ry=\"3\" transform=\"rotate(-30 50 12)\"/>", "21": "<circle cx=\"24\" cy=\"28\" r=\"14\" class=\"f\"/><path d=\"M24 19l6 4.4-2.3 7.1h-7.4L18 23.4z\" class=\"k\"/><path d=\"M24 14v5M30 23.4l7-2M27.7 30.5l4 6M20.3 30.5l-4 6M18 23.4l-7-2\"/><path d=\"M44 42V12h16M44 18h16M44 24h16M44 30h16M44 36h16M50 12v30M56 12v30\"/>", "11": "<rect x=\"8\" y=\"20\" width=\"44\" height=\"26\" rx=\"2\" class=\"f\"/><path d=\"M8 20l4-10 42-2-2 12\"/><path d=\"M15 9.5l-3 10M25 9l-3 10.5M35 8.6 32 19.5M45 8.3 42 19.5\"/><path d=\"M14 28h20M14 34h14\"/><circle cx=\"44\" cy=\"36\" r=\"4\" class=\"r\"/>", "12": "<path d=\"M4 38h56M4 32h56M4 26h56M4 20h56M4 14h56\" class=\"t\"/><path d=\"M22 36V12l20-4v24\"/><ellipse cx=\"18\" cy=\"37\" rx=\"5\" ry=\"4\" class=\"k\"/><ellipse cx=\"38\" cy=\"33\" rx=\"5\" ry=\"4\" class=\"k\"/><path d=\"M22 18l20-4\"/>", "14": "<rect x=\"10\" y=\"16\" width=\"44\" height=\"30\" rx=\"4\" class=\"f\"/><rect x=\"15\" y=\"21\" width=\"28\" height=\"20\" rx=\"2\"/><path d=\"M24 16 18 6M40 16l6-10\"/><circle cx=\"49\" cy=\"26\" r=\"2\"/><circle cx=\"49\" cy=\"34\" r=\"2\"/><path d=\"M20 36l5-6 4 4 3-3 5 5\" class=\"r\"/>", "19": "<path d=\"M6 42 30 6v36z\" class=\"f\"/><path d=\"M12 42v-4M18 42v-6M24 42v-4\"/><path d=\"M38 14h16M42 14v14M50 14v10c0 3 2 4 4 3\"/><path d=\"M38 38h12M44 32v12M54 34l6 6M60 34l-6 6\"/>", "20": "<rect x=\"10\" y=\"10\" width=\"40\" height=\"26\" rx=\"3\" class=\"f\"/><path d=\"M4 42h52l-4 4H8z\"/><path d=\"M24 18l-5 5 5 5M36 18l5 5-5 5M32 16l-4 14\" class=\"r\"/>", "25": "<path d=\"M30 6C16 6 6 15 6 26c0 8 6 12 12 10 4-1 6 2 5 5-1 5 3 8 9 8 15 0 26-10 26-22S45 6 30 6z\" class=\"f\"/><circle cx=\"18\" cy=\"20\" r=\"3\" class=\"r\"/><circle cx=\"30\" cy=\"14\" r=\"3\" class=\"k\"/><circle cx=\"42\" cy=\"18\" r=\"3\"/><circle cx=\"46\" cy=\"30\" r=\"3\" class=\"r\"/><path d=\"M52 44 60 30\" /><path d=\"M50 46l2-3 2 2-3 2z\" class=\"k\"/>", "27": "<ellipse cx=\"22\" cy=\"34\" rx=\"7\" ry=\"6\" class=\"f\"/><circle cx=\"13\" cy=\"24\" r=\"3\"/><circle cx=\"19\" cy=\"19\" r=\"3\"/><circle cx=\"26\" cy=\"19\" r=\"3\"/><circle cx=\"32\" cy=\"24\" r=\"3\"/><ellipse cx=\"46\" cy=\"18\" rx=\"5\" ry=\"4\" class=\"k\"/><circle cx=\"39\" cy=\"11\" r=\"2\"/><circle cx=\"44\" cy=\"7\" r=\"2\"/><circle cx=\"50\" cy=\"7\" r=\"2\"/><circle cx=\"54\" cy=\"12\" r=\"2\"/>", "30": "<path d=\"M18 44h20l3-14H15z\" class=\"f\"/><path d=\"M28 30V16\"/><path d=\"M28 22c-8 0-12-5-12-11 7 0 12 4 12 11zM28 18c0-7 5-12 13-12 0 7-5 12-13 12z\" class=\"g\"/><path d=\"M48 44V26M44 26h8M48 26l6-12M52 12l4 4\"/><circle cx=\"48\" cy=\"44\" r=\"0\"/>", "31": "<path d=\"M6 10h28a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4H18l-8 6v-6H6a4 4 0 0 1-4-4V14a4 4 0 0 1 4-4z\" class=\"f\"/><text x=\"20\" y=\"25\" text-anchor=\"middle\" font-size=\"10\" font-weight=\"800\" font-family=\"Archivo,sans-serif\" fill=\"currentColor\" stroke=\"none\">Hi!</text><path d=\"M30 34h24a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-2v4l-6-4H30a4 4 0 0 1-4-4v-4a4 4 0 0 1 4-4z\"/><path d=\"M34 41h16\" class=\"r\"/>", "32": "<path d=\"M12 6v40\"/><path d=\"M14 8h40v28H14z\"/><path d=\"M14 8h14v28H14z\" class=\"g\"/><path d=\"M28 8h26v14H28z\" class=\"y\"/><path d=\"M28 22h26v14H28z\" class=\"r\"/><path d=\"M8 46h10\"/>"};
+THEME_ART["34"] = '<path d="M5 26Q32 4 59 26Q32 48 5 26z" class="f"/><circle cx="32" cy="26" r="9" class="k"/><circle cx="29" cy="23" r="2.4" class="y"/><path d="M18 12l-4-8M46 12l4-8M10 42l-5 4M54 42l5 4" class="t"/>';
+THEME_ART["35"] = '<circle cx="48" cy="14" r="9" class="y"/><path d="M8 38c6-6 12-8 20-4l4-8 4 8c8-4 14-2 20 4-4 0-8 2-10 6-4-4-8-4-14 0-6-4-10-4-14 0-2-4-6-6-10-6z" class="k"/><path d="M26 33h2M36 33h2" class="y"/>';
+THEME_ART["36"] = '<rect x="12" y="8" width="40" height="38" rx="3" class="f"/><path d="M12 18h40M22 4v8M42 4v8" class="t"/><text x="32" y="40" text-anchor="middle" font-size="20" font-family="Archivo Black, sans-serif" fill="currentColor" stroke="none">31</text>';
 THEME_ART["33"] = '<path d="M32 12c0-4 2-7 5-8" class="g"/><path d="M32 12C16 6 4 18 6 31s14 17 26 17 24-4 26-17S48 6 32 12z" class="f"/><path d="M32 12c-8 6-8 30 0 36M32 12c8 6 8 30 0 36" class="t"/><path d="M20 24l5 7-9 1zM44 24l-5 7 9 1z" class="k"/><path d="M22 38c4 4 16 4 20 0l-3-2-3 3-3-3-3 3-3-3z" class="k"/>';
 function _themeArt(id) {
   const p = THEME_ART[id];
@@ -5324,7 +5334,7 @@ function _themeArt(id) {
 }
 function buildTriviaThemes() {
   const container = $('trivia-themes');
-  container.innerHTML = t().triviaCats.filter(c => c.id !== 33 || window._isHwDay()).map(c => `
+  container.innerHTML = t().triviaCats.filter(c => window._hwThemeOk(c.id)).map(c => `
     <button class="theme-btn${selectedTriviaCategories.includes(c.id) ? ' active' : ''}" data-id="${c.id}">
       <span class="theme-photo"><img src="assets/quiz/${c.id}.webp?v=2" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('no-photo')"><span class="theme-art-wrap">${_themeArt(c.id)}</span></span>
       <span class="theme-name">${c.name}</span>
