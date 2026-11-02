@@ -5,8 +5,8 @@
 const COLORS = ['R', 'Y', 'G', 'B'];
 const MAX_PLAYERS = 10, HAND = 7;
 // Regles reglables par l'hote (modeles : classique, chaos, rapide). `hand` = cartes au depart (5 a 10).
-const RULE_KEYS = ['stack', 'swap', 'jump', 'drawuntil', 'chal', 'pen4'];
-const DEFAULT_OPTS = { stack: false, swap: false, jump: false, drawuntil: false, chal: false, pen4: false, hand: 7 };
+const RULE_KEYS = ['stack', 'swap', 'jump', 'drawuntil', 'chal', 'pen4', 'five'];
+const DEFAULT_OPTS = { stack: false, swap: false, jump: false, drawuntil: false, chal: false, pen4: false, five: false, hand: 7 };
 function normOpts(o, players = MAX_PLAYERS) {
   const out = Object.assign({}, DEFAULT_OPTS);
   if (o && typeof o === 'object') for (const k of RULE_KEYS) if (o[k] != null) out[k] = !!o[k];
@@ -122,6 +122,9 @@ function play(s, id, cardId, color, uno, rnd = Math.random, target) {
     s.called = {}; ev.rotate = true;
   }
   s.turn = nextIdx(s, s.turn, steps);
+  // Regle de la communaute « Cinq cartes » (proposee par warren) : chaque carte posee fait piocher 5 cartes au joueur qui joue ensuite
+  // (sauf si une pioche +2/+4 l'attend deja : on n'empile pas).
+  if (O.five && !s.pend) { const who = s.seats[s.turn]; ev.five = { seat: s.turn, cards: drawCards(s, who, 5, rnd) }; delete s.called[who]; }
   return { ok: true, ev };
 }
 

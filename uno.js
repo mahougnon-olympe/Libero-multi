@@ -13,7 +13,7 @@
       leaveAsk: 'Quitter la partie ?', leaveText: 'Tu abandonnes la partie en cours : elle comptera comme une défaite.', leaveText2: 'Tu quittes le salon.', leaveOk: 'Quitter',
       cards: n => `${n} carte${n > 1 ? 's' : ''}`, err: { started: 'La partie a déjà commencé.', full: 'Le salon est complet (10 joueurs).', notfound: 'Salon introuvable. Vérifie le code.', need2: 'Il faut au moins 2 joueurs.', stake_short: 'Un joueur n’a pas assez de Libs (ou pas de pseudo) pour la mise.' },
       rulesTitle: 'Règle la partie', rulesHost: "Seul l'hôte règle les règles. Tu les vois ici.", presets: { classic: 'Classique', chaos: 'Chaos', fast: 'Rapide' },
-      rules: { stack: ['Cumul des +2 et +4', 'Un +2 peut être renvoyé sur un +2, un +4 sur un +4'], swap: ['7 et 0', '7 échange ta main avec quelqu’un, 0 fait tourner les mains'], jump: ['Jouer hors tour', 'Poser la même carte exacte avant son tour'], drawuntil: ['Piocher jusqu’à jouer', 'On pioche jusqu’à avoir une carte jouable'], chal: ['Défi du +4', 'On peut contester un +4'], pen4: ['Pénalité UNO de 4', '4 cartes au lieu de 2 si UNO oublié'] },
+      rules: { stack: ['Cumul des +2 et +4', 'Un +2 peut être renvoyé sur un +2, un +4 sur un +4'], swap: ['7 et 0', '7 échange ta main avec quelqu’un, 0 fait tourner les mains'], jump: ['Jouer hors tour', 'Poser la même carte exacte avant son tour'], drawuntil: ['Piocher jusqu’à jouer', 'On pioche jusqu’à avoir une carte jouable'], chal: ['Défi du +4', 'On peut contester un +4'], pen4: ['Pénalité UNO de 4', '4 cartes au lieu de 2 si UNO oublié'], five: ['Cinq cartes (règle de warren)', 'Chaque carte posée fait piocher 5 cartes au joueur suivant'] },
       handLbl: 'Cartes au départ', handSub: 'Chacun reçoit ce nombre de cartes', stakeLbl: 'Mise', stakeNone: 'Sans', stakeNote: 'Chaque joueur paie la mise, le gagnant prend le pot (remboursé si la partie est abandonnée par tous). Seuls les humains paient.',
       commTitle: 'Règles de la communauté', commBy: n => `par ${n}`, commNote: 'Ces règles sont jouées sur la parole des joueurs.', commLine: 'Règles maison : ',
       propTitle: 'Propose ta règle', propPh: 'Ex : si on pose un 5, tout le monde pioche une carte', propSend: 'Envoyer', propInfo: n => `${n}/140 · 2 propositions par jour`, propOk: "Merci ! Ta règle est en attente de validation par l'organisateur.",
@@ -33,7 +33,7 @@
       leaveAsk: 'Leave the game?', leaveText: 'You give up the game in progress: it will count as a loss.', leaveText2: 'You leave the room.', leaveOk: 'Leave',
       cards: n => `${n} card${n > 1 ? 's' : ''}`, err: { started: 'The game has already started.', full: 'The room is full (10 players).', notfound: 'Room not found. Check the code.', need2: 'You need at least 2 players.', stake_short: 'A player does not have enough Libs (or no nickname) for the stake.' },
       rulesTitle: 'Set the game', rulesHost: 'Only the host sets the rules. You can see them here.', presets: { classic: 'Classic', chaos: 'Chaos', fast: 'Fast' },
-      rules: { stack: ['Stack +2 and +4', 'A +2 can be sent back on a +2, a +4 on a +4'], swap: ['7 and 0', '7 swaps your hand with someone, 0 rotates all hands'], jump: ['Play out of turn', 'Play the exact same card before your turn'], drawuntil: ['Draw until you can play', 'You draw until you get a playable card'], chal: ['Challenge the +4', 'You can challenge a +4'], pen4: ['UNO penalty of 4', '4 cards instead of 2 if you forget UNO'] },
+      rules: { stack: ['Stack +2 and +4', 'A +2 can be sent back on a +2, a +4 on a +4'], swap: ['7 and 0', '7 swaps your hand with someone, 0 rotates all hands'], jump: ['Play out of turn', 'Play the exact same card before your turn'], drawuntil: ['Draw until you can play', 'You draw until you get a playable card'], chal: ['Challenge the +4', 'You can challenge a +4'], pen4: ['UNO penalty of 4', '4 cards instead of 2 if you forget UNO'], five: ['Five cards (warren\'s rule)', 'Every card played makes the next player draw 5 cards'] },
       handLbl: 'Starting cards', handSub: 'Everyone gets this many cards', stakeLbl: 'Stake', stakeNone: 'None', stakeNote: 'Every player pays the stake, the winner takes the pot (refunded if everyone abandons). Only humans pay.',
       commTitle: 'Community rules', commBy: n => `by ${n}`, commNote: 'These rules are played on the players’ honour.', commLine: 'House rules: ',
       propTitle: 'Suggest your rule', propPh: 'E.g. when someone plays a 5, everyone draws a card', propSend: 'Send', propInfo: n => `${n}/140 · 2 suggestions per day`, propOk: 'Thanks! Your rule is waiting for the organiser to approve it.',
@@ -215,8 +215,8 @@
     renderRules(v);
   }
   // ── Regles de la partie (salon) ─────────────────────────────────────────────
-  const RK = ['stack', 'swap', 'jump', 'drawuntil', 'chal', 'pen4'];
-  const PRE = { classic: { stack: 0, swap: 0, jump: 0, drawuntil: 0, chal: 0, pen4: 0, hand: 7 }, chaos: { stack: 1, swap: 1, jump: 1, drawuntil: 1, chal: 1, pen4: 1, hand: 7 }, fast: { stack: 1, swap: 0, jump: 0, drawuntil: 1, chal: 0, pen4: 0, hand: 5 } };
+  const RK = ['stack', 'swap', 'jump', 'drawuntil', 'chal', 'pen4', 'five'];
+  const PRE = { classic: { stack: 0, swap: 0, jump: 0, drawuntil: 0, chal: 0, pen4: 0, five: 0, hand: 7 }, chaos: { stack: 1, swap: 1, jump: 1, drawuntil: 1, chal: 1, pen4: 1, five: 0, hand: 7 }, fast: { stack: 1, swap: 0, jump: 0, drawuntil: 1, chal: 0, pen4: 0, five: 0, hand: 5 } };
   const STAKES = [0, 50, 100, 250, 500];
   const sameOpts = (o, p) => RK.every(k => !!o[k] === !!p[k]) && o.hand === p.hand;
   function renderRules(v) {
@@ -381,6 +381,7 @@
       if (ev.swap) { big(U().swapT(prev.players[ev.swap.from]?.name || '', prev.players[ev.swap.to]?.name || ''), 'var(--accent)', 30); await wait(800); }
       if (ev.rotate) { big(U().rotT, 'var(--accent)', 30); await wait(800); }
       if (ev.draw) { big(U().plus(prev.players[ev.draw.seat]?.name || '', ev.draw.n), 'var(--cR)', 30); await drawFlights(prev, ev.draw.seat, ev.draw.n); }
+      if (ev.five) { big(U().plus(prev.players[ev.five.seat]?.name || '', ev.five.n), 'var(--cR)', 30); await drawFlights(prev, ev.five.seat, ev.five.n); }
       if (ev.penalty) { big(U().pen(prev.players[ev.penalty.seat]?.name || '', ev.penalty.n), 'var(--cR)', 30); await drawFlights(prev, ev.penalty.seat, ev.penalty.n); }
       if (ev.win) { await winAnim(v); }
     } else if (ev.t === 'draw') {

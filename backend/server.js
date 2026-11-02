@@ -3109,6 +3109,8 @@ const UNO_TURN_MS = 40_000, UNO_RECONNECT_MS = 60_000, UNO_WAIT_MS = 5 * 60_000,
 const _unoSeatOf = (room, pid) => room.state ? room.state.seats.indexOf(pid) : -1;
 const _unoPlayer = (room, pid) => room.players.find(p => p.pid === pid);
 const UNO_STAKES = [0, 50, 100, 250, 500];
+// Regles de la communaute deja codees dans le moteur (option `five`) : on les retire des cases a cocher pour ne pas afficher un doublon sans effet.
+const _unoCoded = t => /pose une carte.*prend 5 cartes/i.test(String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
 const unoApproved = () => unoRules.filter(r => r.status === 'ok').map(r => ({ id: r.id, text: r.text, author: r.author }));
 const saveUnoRules = () => saveConfig('uno_rules', unoRules);
 function _unoHumans(room) { return room.players.filter(p => !p.bot); }
@@ -3147,7 +3149,7 @@ function unoEmit(room, ev) {
     // Les cartes piochees ne vont qu'a celui qui a pioche.
     if (e && e.mine) { e = Object.assign({}, e); if (seat === e.seat) e.mine = ev.mine.map(c => c.id); else delete e.mine; }
     const base = { code: room.code, status: room.status, players: _unoPublic(room), youHost: p.pid === room.host, seq: room.seq, ev: e, stake: room.stake || 0, cust: room.cust || [] };
-    if (!room.state) { base.opts = room.opts; base.rules = unoApproved(); }
+    if (!room.state) { base.opts = room.opts; base.rules = unoApproved().filter(r => !_unoCoded(r.text)); }
     else base.custText = unoApproved().filter(r => (room.cust || []).includes(r.id)).map(r => r.text);
     if (room.state) Object.assign(base, unoGame.view(room.state, p.pid), { mySeat: seat, turnEnd: room.turnEnd || 0, turnTotal: room.turnTotal || UNO_TURN_MS });
     io.to(p.sid).emit(room.state ? 'uno-state' : 'uno-lobby', base);
@@ -3196,6 +3198,7 @@ function unoAct(room, pid, act, a = {}) {
   if (ev.t === 'draw') { ev.n = ev.cards.length; ev.mine = ev.cards; delete ev.cards; }
   if (ev.draw) ev.draw = hide(ev.draw);
   if (ev.penalty) ev.penalty = hide(ev.penalty);
+  if (ev.five) ev.five = hide(ev.five);
   ev.name = _unoPlayer(room, pid)?.name;
   if (act === 'call') { unoEmit(room, ev); return true; }
   if (act !== 'call') { const pl = _unoPlayer(room, pid); if (pl && !pl.bot) { pl.afkN = 0; pl.afk = false; } }
