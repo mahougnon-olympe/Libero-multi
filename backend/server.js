@@ -3042,7 +3042,7 @@ function scheduleBotMove(code) {
         const res = chessGame.applyMove(room.state, move);
         if (!res) return;
         _chessRecord(room, 'Y', fenBeforeBot, move);
-        newState = { fen: res.fen, currentPlayer: res.currentPlayer, isCheck: res.isCheck };
+        newState = { fen: res.fen, currentPlayer: res.currentPlayer, isCheck: res.isCheck, hist: res.hist, drawReason: res.drawReason || null };
         status = res.status; winner = res.winner;
         break;
       }
@@ -3716,7 +3716,7 @@ io.on('connection', (socket) => {
         const result = chessGame.applyMove(room.state, move);
         if (!result) return;
         _chessRecord(room, myPlayer, fenBefore, move);
-        newState = { fen: result.fen, currentPlayer: result.currentPlayer, isCheck: result.isCheck };
+        newState = { fen: result.fen, currentPlayer: result.currentPlayer, isCheck: result.isCheck, hist: result.hist, drawReason: result.drawReason || null };
         status   = result.status;
         winner   = result.winner;
         break;

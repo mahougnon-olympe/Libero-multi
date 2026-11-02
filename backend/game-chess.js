@@ -1,9 +1,11 @@
 const { Chess } = require('chess.js');
 
 // R = Blancs (joue en premier), Y = Noirs
+// Cle de position pour la triple repetition : placement, trait, roques et prise en passant (sans les compteurs de coups).
+const posKey = fen => String(fen).split(' ').slice(0, 4).join(' ');
 function createState() {
   const chess = new Chess();
-  return { fen: chess.fen(), currentPlayer: 'R', isCheck: false };
+  return { fen: chess.fen(), currentPlayer: 'R', isCheck: false, hist: [posKey(chess.fen())] };
 }
 
 // move: { from, to, promotion? }
@@ -27,8 +29,17 @@ function applyMove(state, move) {
     status = 'won';
     // Le joueur dont c'est maintenant le tour est en échec et mat → l'autre a gagné
     winner = chess.turn() === 'b' ? 'R' : 'Y';
-  } else if (chess.isDraw()) {
-    status = 'draw';
+  }
+  // Historique des positions (la partie est recreee a chaque coup depuis la position seule, donc on le garde ici).
+  const key = posKey(chess.fen());
+  const hist = (Array.isArray(state.hist) && state.hist.length ? state.hist : [posKey(state.fen)]).concat(key).slice(-200);
+  let drawReason = null;
+  if (status === 'playing') {
+    if (chess.isStalemate()) drawReason = 'stalemate';
+    else if (chess.isInsufficientMaterial()) drawReason = 'material';
+    else if (hist.filter(k => k === key).length >= 3) drawReason = 'repetition';
+    else if (chess.isDrawByFiftyMoves()) drawReason = 'fifty';
+    if (drawReason) status = 'draw';
   }
 
   return {
@@ -37,6 +48,8 @@ function applyMove(state, move) {
     isCheck: chess.isCheck(),
     status,
     winner,
+    hist,
+    drawReason,
   };
 }
 
