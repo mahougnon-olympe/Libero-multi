@@ -4186,17 +4186,28 @@ io.on('connection', (socket) => {
     socket.emit('flags-solo-result', { mode, score: sc, record, best: fb[mode] || 0 });
     io.emit('flags-leaderboard-update');
   });
-  // Deux classements : serie (nombre de drapeaux d'affilee) et contre la montre (drapeaux trouves en temps limite).
-  function flagsLeaderboard(mode) {
-    const key = mode === 'chrono' ? 'chrono' : 'serie', rows = [];
+  // Deux classements : serie (drapeaux trouves avant de perdre ses 3 vies) et contre la montre (60 s). Chacun : top 10 + rang du joueur.
+  function _flagsSorted(key) {
+    const rows = [];
     for (const [id, e] of libs.entries()) {
       const b = e.flagsBest; if (!b || !e.name || e.name === 'Anonyme') continue;
-      if ((b[key] || 0) > 0) rows.push({ name: e.name, points: b[key] || 0, games: null });
+      if ((b[key] || 0) > 0) rows.push({ id, name: e.name, points: b[key] || 0, games: null });
     }
-    return rows.sort((a, c) => c.points - a.points || a.name.localeCompare(c.name)).slice(0, 10)
-      .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), pframe: getPFrameByName(e.name), honorTitle: getHonorTitleByName(e.name), avatar: getAvatarByName(e.name), portrait: getPortraitByName(e.name), cursorSnake: getCursorSnakeByName(e.name) }));
+    return rows.sort((a, c) => c.points - a.points || a.name.localeCompare(c.name));
   }
-  socket.on('get-flags-leaderboard', () => socket.emit('flags-leaderboard', { rows: flagsLeaderboard('serie'), chrono: flagsLeaderboard('chrono') }));
+  function flagsLeaderboard(mode) {
+    return _flagsSorted(mode === 'chrono' ? 'chrono' : 'serie').slice(0, 10)
+      .map(({ id, ...e }) => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), pframe: getPFrameByName(e.name), honorTitle: getHonorTitleByName(e.name), avatar: getAvatarByName(e.name), portrait: getPortraitByName(e.name), cursorSnake: getCursorSnakeByName(e.name) }));
+  }
+  function flagsMyRank(pid) {
+    const out = {};
+    for (const k of ['serie', 'chrono']) {
+      const list = _flagsSorted(k), i = pid ? list.findIndex(r => r.id === pid) : -1;
+      out[k] = i >= 0 ? { rank: i + 1, points: list[i].points } : null;
+    }
+    return out;
+  }
+  socket.on('get-flags-leaderboard', ({ playerId } = {}) => socket.emit('flags-leaderboard', { rows: flagsLeaderboard('serie'), chrono: flagsLeaderboard('chrono'), me: flagsMyRank(safePlayerId(playerId)) }));
 
   // ── Fin de partie solo (Snake / Luffy) : historique + défis ──────────────
   socket.on('solo-game-over', ({ playerId, game, score } = {}) => {

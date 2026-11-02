@@ -10,7 +10,7 @@
       modes: { serie: ['Série', "3 vies, jusqu'où iras-tu ?"], chrono: ['Contre la montre', '60 secondes, une erreur coûte 3 s'], salon: ['Salon entre amis', '2 à 20 joueurs, points selon la vitesse'], jour: ['Drapeau du jour', 'Un drapeau par jour, avec des indices'] },
       levels: { easy: 'Facile', medium: 'Moyen', hard: 'Difficile', extreme: 'Extrême' }, conts: { all: 'Tous', AF: 'Afrique', EU: 'Europe', AS: 'Asie', AM: 'Amériques', OC: 'Océanie' },
       note: { code: 'Demande le code à celui qui a créé le salon. Les réglages sont les siens.', serie: 'En solo. Difficile et Extrême passent en saisie du nom.', chrono: 'Dès que tu reconnais, réponds : chaque seconde compte.', salon: 'Un salon de quiz : même drapeau pour tous, classement en direct.', jour: 'Le même drapeau pour tout le monde, aujourd\'hui. 3 essais.' },
-      lb: 'Classement Drapeaux', lbSerieT: 'Classement Série', lbChronoT: 'Classement Contre la montre', lbEmpty: 'Aucun score pour l\'instant.', lbPts: 'drapeaux', lbChrono: 'contre la montre', play: 'Jouer', recSerie: 'Record série', recChrono: 'Record chrono', myRank: 'Mon rang', yourFlags: 'Tes drapeaux', foundLbl: 'drapeaux trouvés', question: 'Quel est ce pays ?', typeIt: 'Écris le nom du pays', send: 'Valider', skip: 'Passer', letters: n => `${n} lettres`,
+      lb: 'Classement Drapeaux', lbPts60: 'en 60 s', lbMe: 'Toi', lbEmpty: 'Aucun score pour l\'instant.', lbPts: 'drapeaux', lbChrono: 'contre la montre', play: 'Jouer', recSerie: 'Record série', recChrono: 'Record chrono', myRank: 'Mon rang', yourFlags: 'Tes drapeaux', foundLbl: 'drapeaux trouvés', question: 'Quel est ce pays ?', typeIt: 'Écris le nom du pays', send: 'Valider', skip: 'Passer', letters: n => `${n} lettres`,
       streak: n => `Série de ${n} !`, good: 'Bravo !', wasIt: n => `C'était : ${n}`, oops: 'Oups', go: "C'est parti !", sec: 's', lives: 'Vies', found: n => `${n} drapeau${n > 1 ? 'x' : ''}`,
       over: 'Partie terminée', record: 'Nouveau record', again: 'Rejouer', quit: 'Quitter', leaveAsk: 'Quitter la partie ?', leaveText: 'Ta partie en cours sera perdue.', leaveOk: 'Quitter',
       allFound: 'Tu les as tous trouvés !', timeUp: 'Temps écoulé', dayDone: n => `Tu as déjà joué aujourd'hui. Prochain drapeau dans ${n}.`, daySolved: 'Trouvé !', dayFail: n => `C'était : ${n}`,
@@ -21,7 +21,7 @@
       modes: { serie: ['Streak', 'How far can you go with 3 lives?'], chrono: ['Time attack', '60 seconds, a mistake costs 3 s'], salon: ['Room with friends', '2 to 20 players, points by speed'], jour: ['Flag of the day', 'One flag a day, with hints'] },
       levels: { easy: 'Easy', medium: 'Medium', hard: 'Hard', extreme: 'Extreme' }, conts: { all: 'All', AF: 'Africa', EU: 'Europe', AS: 'Asia', AM: 'Americas', OC: 'Oceania' },
       note: { code: 'Ask the room creator for the code. The settings are theirs.', serie: 'Solo. Hard and Extreme switch to typing the name.', chrono: 'Answer as soon as you recognise it: every second counts.', salon: 'A quiz room: same flag for everyone, live ranking.', jour: 'The same flag for everyone, today. 3 tries.' },
-      lb: 'Flags ranking', lbSerieT: 'Streak ranking', lbChronoT: 'Time attack ranking', lbEmpty: 'No score yet.', lbPts: 'flags', lbChrono: 'time attack', play: 'Play', recSerie: 'Streak record', recChrono: 'Time record', myRank: 'My rank', yourFlags: 'Your flags', foundLbl: 'flags found', question: 'Which country is this?', typeIt: 'Type the country name', send: 'Submit', skip: 'Skip', letters: n => `${n} letters`,
+      lb: 'Flags ranking', lbPts60: 'in 60 s', lbMe: 'You', lbEmpty: 'No score yet.', lbPts: 'flags', lbChrono: 'time attack', play: 'Play', recSerie: 'Streak record', recChrono: 'Time record', myRank: 'My rank', yourFlags: 'Your flags', foundLbl: 'flags found', question: 'Which country is this?', typeIt: 'Type the country name', send: 'Submit', skip: 'Skip', letters: n => `${n} letters`,
       streak: n => `Streak of ${n}!`, good: 'Well done!', wasIt: n => `It was: ${n}`, oops: 'Oops', go: "Let's go!", sec: 's', lives: 'Lives', found: n => `${n} flag${n > 1 ? 's' : ''}`,
       over: 'Game over', record: 'New record', again: 'Play again', quit: 'Leave', leaveAsk: 'Leave the game?', leaveText: 'Your current game will be lost.', leaveOk: 'Leave',
       allFound: 'You found them all!', timeUp: "Time's up", dayDone: n => `You already played today. Next flag in ${n}.`, daySolved: 'Found it!', dayFail: n => `It was: ${n}`,
@@ -83,8 +83,9 @@
           <p class="fh-err hidden" id="fh-err"></p>
         </div>
         <div class="fh-play" id="fh-go"></div>
-        <div class="lb-card fh-lb-card"><div class="lb-header"><span></span><span class="lb-title" id="fh-lb-t"></span></div><div class="lb-list" id="fh-lb"></div></div>
-        <div class="lb-card fh-lb-card"><div class="lb-header"><span></span><span class="lb-title" id="fh-lb2-t"></span></div><div class="lb-list" id="fh-lb2"></div></div>
+        <div class="lb-card fh-lb-card"><div class="lb-header"><span></span><span class="lb-title" id="fh-lb-t"></span></div>
+          <div class="fh-lb-tabs" role="tablist"><button type="button" role="tab" id="fh-tab-s" data-k="serie"></button><button type="button" role="tab" id="fh-tab-c" data-k="chrono"></button></div>
+          <div class="lb-list" id="fh-lb"></div></div>
       </div>
     </div>`);
     game = el(`<div id="screen-flag-game" class="screen"><div class="fg" id="fg"></div></div>`);
@@ -106,8 +107,8 @@
     const bn = ['FR', 'JP', 'BJ', 'CI', 'IT', 'NL', 'NG'];
     $('#fh-bunting', home).innerHTML = `<svg viewBox="0 0 400 90" preserveAspectRatio="none"><path d="M0 10 Q100 46 200 16 T400 10" fill="none" stroke="var(--text)" stroke-width="2.5"/></svg>` + bn.map((c, i) => `<span class="fb" style="left:${i * 14.2 + 1}%;top:${[16, 28, 34, 22, 14, 28, 34][i]}px;animation-delay:${i * .25}s"><img src="assets/flags/${c.toLowerCase()}.svg" alt="" draggable="false"></span>`).join('');
     const rk = (S_rows || []).findIndex(r => r.name === me);
-    const mine = rk >= 0 ? S_rows[rk] : null, rs = Math.max(bestOf('serie'), mine ? mine.points : 0), rc = Math.max(bestOf('chrono'), mine ? mine.games : 0);
-    $('#fh-stats', home).innerHTML = `<div><b>${rs}</b><small>${d.recSerie}</small></div><div><b>${rc}</b><small>${d.recChrono}</small></div><div><b>${rk >= 0 ? (L() === 'en' ? ordEn(rk + 1) : (rk === 0 ? '1er' : (rk + 1) + 'e')) : '-'}</b><small>${d.myRank}</small></div>`;
+    const meS = (S_lb.me || {}).serie, meC = (S_lb.me || {}).chrono, rs = Math.max(bestOf('serie'), meS ? meS.points : 0), rc = Math.max(bestOf('chrono'), meC ? meC.points : 0), mr = ((S_lb.me || {})[lbTab()] || {}).rank || 0;
+    $('#fh-stats', home).innerHTML = `<div><b>${rs}</b><small>${d.recSerie}</small></div><div><b>${rc}</b><small>${d.recChrono}</small></div><div><b>${mr ? (L() === 'en' ? ordEn(mr) : (mr === 1 ? '1er' : mr + 'e')) : '-'}</b><small>${d.myRank}</small></div>`;
     const who = getWho(); home.dataset.who = who;
     $('#fh-l-who', home).textContent = d.who;
     $('#fh-who', home).innerHTML = ['solo', 'friend', 'code'].map(k => `<button type="button" class="who-btn${who === k ? ' active' : ''}" data-w="${k}">${d.whoOpts[k]}</button>`).join('');
@@ -137,21 +138,33 @@
     home.querySelectorAll('#fh-levels .fh-chip').forEach(b => b.onclick = () => { P.level = b.dataset.v; wr(PK, P); renderHome(); });
     home.querySelectorAll('#fh-conts .fh-ct').forEach(b => b.onclick = () => { P.cont = b.dataset.v; wr(PK, P); renderHome(); });
     home.querySelectorAll('#fh-nbs .fh-chip').forEach(b => b.onclick = () => { P.nb = +b.dataset.v; wr(PK, P); renderHome(); });
-    $('#fh-lb-t', home).textContent = d.lbSerieT; $('#fh-lb2-t', home).textContent = d.lbChronoT;
+    $('#fh-lb-t', home).textContent = d.lb;
+    $('#fh-tab-s', home).textContent = d.modes.serie[0]; $('#fh-tab-c', home).textContent = d.modes.chrono[0];
+    home.querySelectorAll('.fh-lb-tabs button').forEach(b => { b.setAttribute('aria-selected', String(b.dataset.k === lbTab())); b.onclick = () => { try { localStorage.setItem('libero_flags_lbtab', b.dataset.k); } catch {} renderHome(); drawLb(); }; });
     if (!$('#fh-lb', home).dataset.ok) $('#fh-lb', home).innerHTML = `<p class="lb-empty">${d.lbEmpty}</p>`;
-    if (!$('#fh-lb2', home).dataset.ok) $('#fh-lb2', home).innerHTML = `<p class="lb-empty">${d.lbEmpty}</p>`;
   }
   function showHome(keepWho) {
     ensure(); if (keepWho !== true) setWho(''); renderHome(); showScreen('flag-home');
-    try { socket.emit('get-flags-leaderboard'); } catch {}
+    askLb();
   }
-  function renderLb(rows, chrono) {
-    S_rows = rows || [];
+  const lbTab = () => { try { return localStorage.getItem('libero_flags_lbtab') === 'chrono' ? 'chrono' : 'serie'; } catch { return 'serie'; } };
+  let S_lb = { rows: [], chrono: [], me: {} };
+  const myId = () => { try { return getPlayerId(); } catch { return null; } };
+  const askLb = () => { try { socket.emit('get-flags-leaderboard', { playerId: myId() }); } catch {} };
+  function drawLb() {
     if (!home) return;
-    const fill = (id, list, lbl) => { const lb = $(id, home); lb.dataset.ok = '1'; if (!list || !list.length) lb.innerHTML = `<p class="lb-empty">${U().lbEmpty}</p>`; else if (typeof _renderFlagsLb === 'function') _renderFlagsLb(lb, list, lbl, ''); };
-    fill('#fh-lb', rows, U().lbPts);
-    fill('#fh-lb2', chrono || [], U().lbPts);
-    renderHome();
+    const lb = $('#fh-lb', home), k = lbTab(), list = k === 'chrono' ? S_lb.chrono : S_lb.rows, d = U(), unit = k === 'chrono' ? d.lbPts60 : d.lbPts;
+    lb.dataset.ok = '1';
+    if (!list || !list.length) lb.innerHTML = `<p class="lb-empty">${d.lbEmpty}</p>`;
+    else if (typeof _renderFlagsLb === 'function') _renderFlagsLb(lb, list, unit, '');
+    // Hors du top 10 : mon vrai rang est epingle en bas.
+    const m = S_lb.me && S_lb.me[k];
+    if (m && m.rank > 10) lb.insertAdjacentHTML('beforeend', `<div class="lb-row lb-me fh-lb-pin"><span class="lb-rank">${m.rank}</span><span class="lb-name"><span class="lb-nm">${esc(d.lbMe)}</span></span><div class="lb-stats"><span class="lb-w">${m.points} ${unit}</span></div></div>`);
+  }
+  function renderLb(rows, chrono, me) {
+    S_rows = rows || []; S_lb = { rows: rows || [], chrono: chrono || [], me: me || {} };
+    if (!home) return;
+    drawLb(); renderHome();
   }
   function err(m) { if (!home) return; const e = $('#fh-err', home); e.textContent = m; e.classList.remove('hidden'); }
   function clearErr() { if (home) $('#fh-err', home).classList.add('hidden'); }
@@ -367,7 +380,7 @@
     const t0 = performance.now(); (function f() { const p = Math.min(1, (performance.now() - t0) / (reduce() ? 1 : 1200)); const c = $('#fg-cnt'); if (c) c.textContent = Math.round(score * p); if (p < 1) requestAnimationFrame(f); })();
     [0, 1, 2].forEach(i => { const st = el(STAR); if (i >= stars) st.style.opacity = '.25'; $('#fg-stars').appendChild(st); if (i < stars && !reduce()) A(st, [{ opacity: 0, transform: 'scale(0) rotate(-90deg)' }, { opacity: 1, transform: 'scale(1.3) rotate(10deg)', offset: .6 }, { opacity: 1, transform: 'scale(1) rotate(0)' }], { duration: 500, delay: 800 + i * 250 }); });
     $('#fg-again').onclick = () => startRun(mode); $('#fg-out').onclick = leaveToHome;
-    setTimeout(() => { try { socket.emit('get-flags-leaderboard'); } catch {} }, 600);
+    setTimeout(() => { askLb(); }, 600);
   }
 
   // ── Drapeau du jour ─────────────────────────────────────────────────────────
@@ -429,7 +442,7 @@
     showHome(true); return false;
   }
   function on(ev, d) {
-    if (ev === 'flags-leaderboard') renderLb(d.rows, d.chrono); else if (ev === 'flags-leaderboard-update') { if (home && home.classList.contains('active')) socket.emit('get-flags-leaderboard'); }
+    if (ev === 'flags-leaderboard') renderLb(d.rows, d.chrono, d.me); else if (ev === 'flags-leaderboard-update') { if (home && home.classList.contains('active')) askLb(); }
   }
   window.LiberoFlags = { showHome, restore, on, renderHome };
 })();

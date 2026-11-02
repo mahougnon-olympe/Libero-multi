@@ -111,3 +111,10 @@ body.screen-flag-game-active .btn-help-float, body.screen-flag-game-active .btn-
 .fh-who-box .who-row { width: 100%; }
 #fh-joinbox { display: flex; }
 #fh-joinbox { gap: 8px; } #fh-joinbox input { flex: 1 1 0; width: 0; min-width: 0; height: 46px; text-align: center; letter-spacing: .3em; font-size: 20px; } #fh-joinbox .btn { flex: none; width: auto; padding-inline: 18px; }
+
+/* Classement des drapeaux : deux onglets (Serie / Contre la montre) et mon rang epingle */
+.fh-lb-tabs { display: flex; gap: 6px; padding: 0 12px 6px; }
+.fh-lb-tabs button { flex: 1; font: inherit; font-weight: 700; font-size: .85rem; padding: 6px 4px; border: 2px solid var(--line, #22252b); border-bottom: 0; border-radius: 10px 10px 0 0; background: var(--card, #fffdf6); color: var(--muted, #5d616a); cursor: pointer; }
+.fh-lb-tabs button[aria-selected="true"] { background: var(--mark, #fff27a); color: var(--text, #22252b); }
+.fh-lb-tabs button:focus-visible { outline: 3px solid var(--margin, #e2485d); outline-offset: 2px; }
+.fh-lb-pin { border-top: 2px solid var(--line, #22252b); margin-top: 4px; }
