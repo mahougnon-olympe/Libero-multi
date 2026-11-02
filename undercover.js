@@ -272,7 +272,7 @@
   function sendClue() { const i = $('#ci'); if (!i) return; const t = i.value.trim(); if (!t) return; socket.emit('uc-clue', { text: t }); i.value = ''; }
 
   // ── Debat et vote ──
-  function chatHtml(v) { return v.chat.map(c => { const p = v.players[c.p] || {}; return `<div class="msg${c.p === v.me ? ' me' : ''}">${pfI(v, c.p, 30)}<div class="bub">${c.p === v.me ? '' : `<div class="who">${esc(p.name || '')}${botTag(p)}</div>`}<span class="t">${esc(c.t)}</span></div></div>`; }).join(''); }
+  function chatHtml(v) { return v.chat.map(c => { const p = v.players[c.p] || {}; return `<div class="msg${c.p === v.me ? ' me' : ''}">${pfI(v, c.p, 30)}<div class="mbody">${c.p === v.me ? '' : `<div class="who">${esc(p.name || '')}${botTag(p)}</div>`}<span class="t">${esc(c.t)}</span></div></div>`; }).join(''); }
   function chatBox(v, h) { return `<div class="chat" id="chat" style="max-height:${h}px;overflow-y:auto;width:100%">${chatHtml(v)}</div>${v.alive !== false ? `<div class="chatin"><input id="si" maxlength="100" placeholder="${esc(U().say)}" autocomplete="off"><button class="btn alt" data-act="say">&#10148;</button></div>` : `<div class="spect">${U().spect}</div>`}`; }
   function sendSay() { const i = $('#si'); if (!i || !i.value.trim()) return; socket.emit('uc-say', { text: i.value.trim() }); i.value = ''; i.focus(); }
   function bindSay() { const i = $('#si'); if (i) i.onkeydown = e => { if (e.key === 'Enter') sendSay(); }; }

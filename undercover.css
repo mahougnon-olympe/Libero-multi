@@ -244,6 +244,6 @@
 .bstamp{display:inline-block;font:700 .6rem Archivo,system-ui,sans-serif;font-style:normal;letter-spacing:.14em;line-height:1.5;color:#ff8a80;border:1.6px solid #ff8a80;background:rgba(255,138,128,.1);border-radius:4px;padding:0 5px;margin-left:6px;transform:rotate(-3deg);vertical-align:middle}
 .bstamp{--bs:#ff8a80}
 html.light .bstamp{color:#b3261e;border-color:#b3261e;background:rgba(179,38,30,.07)}
-.msg .bub{min-width:0;display:flex;flex-direction:column;align-items:flex-start}.msg.me .bub{align-items:flex-end}
+.msg .mbody{min-width:0;display:flex;flex-direction:column;align-items:flex-start}.msg.me .mbody{align-items:flex-end}
 .msg .who{font-weight:700;font-size:.72rem;margin-bottom:2px;opacity:.85}
 .vc .bstamp{display:block;margin:2px auto 0;width:max-content}
