@@ -475,7 +475,8 @@
     socket.emit('create-uno-room', { name, playerId: getPlayerId() });
     const bots = Math.max(0, Math.min(9, opts.bots | 0));
     if (bots) {
-      const once = ({ code }) => { socket.off('uno-created', once); for (let i = 0; i < bots; i++) socket.emit('uno-add-bot'); setTimeout(() => socket.emit('start-uno'), 350); };
+      // Les robots s'asseyent, mais la partie ne demarre plus toute seule : le joueur passe par le salon pour regler les regles, puis lance.
+      const once = ({ code }) => { socket.off('uno-created', once); for (let i = 0; i < bots; i++) socket.emit('uno-add-bot'); };
       socket.on('uno-created', once);
     }
   }

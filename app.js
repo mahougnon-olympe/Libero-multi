@@ -3602,7 +3602,7 @@ function _unoLoad() {
   if (window.LiberoUno) return Promise.resolve(window.LiberoUno);
   if (_unoP) return _unoP;
   _unoP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'uno.js?v=4';
+    const sc = document.createElement('script'); sc.src = 'uno.js?v=5';
     sc.onload = () => res(window.LiberoUno); sc.onerror = () => { _unoP = null; res(null); };
     document.head.appendChild(sc);
   });
