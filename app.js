@@ -3431,7 +3431,7 @@ function _flagsLoad() {
   if (window.LiberoFlags) return Promise.resolve(window.LiberoFlags);
   if (_flagsP) return _flagsP;
   _flagsP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'flags.js?v=6';
+    const sc = document.createElement('script'); sc.src = 'flags.js?v=7';
     sc.onload = () => res(window.LiberoFlags); sc.onerror = () => { _flagsP = null; res(null); };
     document.head.appendChild(sc);
   });
