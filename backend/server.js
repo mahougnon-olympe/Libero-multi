@@ -3160,9 +3160,9 @@ function unoSchedule(room) {
   const p = _unoPlayer(room, unoGame.current(room.state));
   if (!p) return;
   if (p.bot) {
-    // Un robot "reflechit" comme une personne : 3 a 7 s, un peu plus avec une grosse main ; la barre se vide pendant ce temps.
+    // Un robot "reflechit" comme une personne : 1,5 a 3,5 s (moitie moins qu'avant), un peu plus avec une grosse main ; la barre se vide pendant ce temps.
     const n = (room.state.hands[p.pid] || []).length;
-    const think = Math.min(9000, 3000 + Math.random() * 4000 + Math.max(0, n - 5) * 250);
+    const think = Math.min(4500, 1500 + Math.random() * 2000 + Math.max(0, n - 5) * 125);
     room.turnTotal = think; room.turnEnd = Date.now() + think;
     room.botTimer = setTimeout(() => unoAuto(room, p.pid), think);
   } else if (!p.connected || p.afk) {
