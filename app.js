@@ -3431,7 +3431,7 @@ function _flagsLoad() {
   if (window.LiberoFlags) return Promise.resolve(window.LiberoFlags);
   if (_flagsP) return _flagsP;
   _flagsP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'flags.js?v=4';
+    const sc = document.createElement('script'); sc.src = 'flags.js?v=5';
     sc.onload = () => res(window.LiberoFlags); sc.onerror = () => { _flagsP = null; res(null); };
     document.head.appendChild(sc);
   });
@@ -3589,7 +3589,7 @@ function _renderFlagsLb(list, data, lblW, lblD) {
       <span class="lb-name">${_lbPt(entry.portrait, entry.pframe)}<span class="lb-nm ${_cosmeticClass(entry.cosmetic)} ${_fontClass(entry.font)} ${_nameEffectClass(entry.nameEffect)}">${_escHtml(entry.name)}${_titleHtml(entry.title, entry.honorTitle)}</span></span>
       <div class="lb-stats">
         <span class="lb-w">${entry.points} ${lblW}</span>
-        <span class="lb-d">${entry.games} ${lblD}</span>
+        ${lblD ? `<span class="lb-d">${entry.games} ${lblD}</span>` : ''}
       </div>
     </div>`).join('');
   list.querySelectorAll('.lb-row-clickable').forEach(row => row.addEventListener('click', () => window._openPlayerCard?.(row.dataset.pname)));

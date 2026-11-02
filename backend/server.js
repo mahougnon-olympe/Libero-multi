@@ -4186,17 +4186,17 @@ io.on('connection', (socket) => {
     socket.emit('flags-solo-result', { mode, score: sc, record, best: fb[mode] || 0 });
     io.emit('flags-leaderboard-update');
   });
-  function flagsLeaderboard() {
-    const rows = [];
+  // Deux classements : serie (nombre de drapeaux d'affilee) et contre la montre (drapeaux trouves en temps limite).
+  function flagsLeaderboard(mode) {
+    const key = mode === 'chrono' ? 'chrono' : 'serie', rows = [];
     for (const [id, e] of libs.entries()) {
       const b = e.flagsBest; if (!b || !e.name || e.name === 'Anonyme') continue;
-      if ((b.serie || 0) > 0) rows.push({ name: e.name, points: b.serie || 0, games: b.chrono || 0 });
+      if ((b[key] || 0) > 0) rows.push({ name: e.name, points: b[key] || 0, games: null });
     }
-    // Meme presentation que les autres classements : cosmetiques, titre, portrait du joueur.
-    return rows.sort((a, c) => c.points - a.points || c.games - a.games || a.name.localeCompare(c.name)).slice(0, 10)
+    return rows.sort((a, c) => c.points - a.points || a.name.localeCompare(c.name)).slice(0, 10)
       .map(e => ({ ...e, cosmetic: getCosmeticByName(e.name), font: getFontByName(e.name), nameEffect: getNameEffectByName(e.name), title: getTitleByName(e.name), pframe: getPFrameByName(e.name), honorTitle: getHonorTitleByName(e.name), avatar: getAvatarByName(e.name), portrait: getPortraitByName(e.name), cursorSnake: getCursorSnakeByName(e.name) }));
   }
-  socket.on('get-flags-leaderboard', () => socket.emit('flags-leaderboard', { rows: flagsLeaderboard() }));
+  socket.on('get-flags-leaderboard', () => socket.emit('flags-leaderboard', { rows: flagsLeaderboard('serie'), chrono: flagsLeaderboard('chrono') }));
 
   // ── Fin de partie solo (Snake / Luffy) : historique + défis ──────────────
   socket.on('solo-game-over', ({ playerId, game, score } = {}) => {
