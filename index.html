@@ -357,6 +357,17 @@
       <details class="ck-diff"><summary id="ck-diff-sum">Voir les différences</summary><div id="ck-diff-body"></div></details>
     </div>
 
+    <!-- Echecs : pendule facultative (visible seulement quand Echecs est choisi) -->
+    <div id="ch-clock" class="ck-rules hidden">
+      <p class="step-label" id="step-ch-clock">Pendule</p>
+      <div class="ck-rules-row ch-clock-row" role="radiogroup" aria-labelledby="step-ch-clock">
+        <button type="button" class="ck-rule ch-ck" data-min="0" role="radio"><b>Sans</b></button>
+        <button type="button" class="ck-rule ch-ck" data-min="5" role="radio"><b>5 min</b></button>
+        <button type="button" class="ck-rule ch-ck" data-min="10" role="radio"><b>10 min</b></button>
+        <button type="button" class="ck-rule ch-ck" data-min="15" role="radio"><b>15 min</b></button>
+      </div>
+    </div>
+
     <div class="card who-card" id="home-who" data-who="">
       <input
         id="input-name"
@@ -479,6 +490,7 @@
       <div class="game-header-center">
         <div id="turn-indicator" class="turn-text"></div>
         <button id="btn-quit" class="btn-quit abandon-btn" title="Quitter la partie"><span class="ui-ic" data-ic="quit">🚪</span> Quitter</button>
+        <button id="btn-draw" class="btn-quit draw-btn hidden" type="button"></button>
       </div>
       <div class="player-badge" id="badge-y">
         <span id="label-y"></span>
@@ -489,9 +501,16 @@
     <!-- Plateau dynamique (injecté par JS selon le type de jeu) -->
     <div id="board-area"></div>
 
+    <!-- Echecs : l'adversaire propose le nul -->
+    <div id="draw-banner" class="draw-banner hidden" role="alertdialog" aria-labelledby="draw-banner-t">
+      <p id="draw-banner-t" class="draw-banner-t"></p>
+      <div class="draw-banner-btns"><button id="draw-yes" type="button" class="btn btn-primary"></button><button id="draw-no" type="button" class="btn btn-secondary"></button></div>
+    </div>
+
     <!-- Bannière fin de partie -->
     <div id="game-status" class="game-status hidden">
       <p id="status-text" class="status-text"></p>
+      <p id="status-reason" class="status-reason hidden"></p>
       <div class="status-actions">
         <button id="btn-restart" class="btn btn-primary hidden">Rejouer</button>
         <p id="restart-pending" class="hint hidden">En attente de l'adversaire…</p>

@@ -2997,6 +2997,72 @@ function _chessGameOver(room, status, winner) {
   } catch (e) {}
 }
 
+// ── Echecs : pendule serveur et nul par accord ───────────────────────────────
+// Le serveur tient le temps (jamais le navigateur). `room.clockMs` = temps de chaque joueur (0 = sans pendule).
+const { Chess } = require('chess.js');
+const chessHooks = {}; // rempli par la portee de connexion : fin de partie (mise, classements, historique)
+function chessGameBegin(room) { // a chaque (re)demarrage d'une partie d'echecs
+  if (room.gameType !== 'chess') return;
+  clearTimeout(room.clkTimer); clearTimeout(room.drawTimer);
+  room.chessMoves = 0; room.drawOffer = null; room.drawLast = {}; room.clk = null;
+  if (room.clockMs) { room.clk = { R: room.clockMs, Y: room.clockMs, turn: 'R', since: Date.now() }; chessClockArm(room); }
+  chessClockRefresh(room);
+}
+function chessClockSnap(room) {
+  if (!room.clk) return null;
+  const c = room.clk, run = room.status === 'playing' ? Date.now() - c.since : 0;
+  return { R: Math.max(0, c.R - (c.turn === 'R' ? run : 0)), Y: Math.max(0, c.Y - (c.turn === 'Y' ? run : 0)), turn: c.turn, total: room.clockMs };
+}
+function chessClockRefresh(room) { if (room.gameType === 'chess' && room.state) { const k = chessClockSnap(room); if (k) room.state.clock = k; } }
+function chessClockArm(room) {
+  clearTimeout(room.clkTimer); room.clkTimer = null;
+  if (!room.clk || room.status !== 'playing') return;
+  const rem = room.clk[room.clk.turn] - (Date.now() - room.clk.since);
+  room.clkTimer = setTimeout(() => chessTimeout(room.code), Math.max(0, rem) + 60);
+}
+function chessCancelOffer(room, why) {
+  clearTimeout(room.drawTimer); room.drawTimer = null;
+  if (!room.drawOffer) return;
+  room.drawOffer = null;
+  io.to(room.code).emit('chess-draw-cancel', { why });
+}
+// Appelee apres chaque coup accepte (humain ou robot), AVANT l'emission de l'etat.
+function chessAfterMove(room, mover) {
+  if (room.gameType !== 'chess') return;
+  room.chessMoves = (room.chessMoves || 0) + 1;
+  if (room.drawOffer) chessCancelOffer(room, 'move');
+  if (room.clk && room.status === 'playing') {
+    const now = Date.now();
+    room.clk[mover] = Math.max(0, room.clk[mover] - (now - room.clk.since));
+    room.clk.turn = mover === 'R' ? 'Y' : 'R'; room.clk.since = now;
+    chessClockArm(room);
+  } else { clearTimeout(room.clkTimer); room.clkTimer = null; }
+  chessClockRefresh(room);
+}
+function chessTimeout(code) {
+  const room = rooms.get(code);
+  if (!room || room.gameType !== 'chess' || room.status !== 'playing' || !room.clk) return;
+  const snap = chessClockSnap(room);
+  if (snap[snap.turn] > 0) { chessClockArm(room); return; }
+  const loser = snap.turn, win = loser === 'R' ? 'Y' : 'R';
+  // Nul si le gagnant ne peut pas mater : roi seul, ou roi et une seule piece mineure (approximation de la regle FIDE).
+  let draw = false;
+  try {
+    const col = win === 'R' ? 'w' : 'b', mine = [];
+    new Chess(room.state.fen).board().forEach(r => r.forEach(p => { if (p && p.color === col && p.type !== 'k') mine.push(p.type); }));
+    draw = mine.length === 0 || (mine.length === 1 && (mine[0] === 'n' || mine[0] === 'b'));
+  } catch {}
+  if (chessHooks.end) chessHooks.end(room, draw ? 'draw' : 'won', draw ? null : win, { endReason: 'time', drawReason: draw ? 'timeout' : null });
+}
+// Un robot accepte le nul seulement s'il est nettement en mauvaise posture (ou si la partie s'eternise a egalite).
+function chessBotAcceptsDraw(room) {
+  try {
+    const v = { p: 1, n: 3, b: 3, r: 5, q: 9 }; let w = 0, b = 0;
+    new Chess(room.state.fen).board().forEach(r => r.forEach(p => { if (p && v[p.type]) { if (p.color === 'w') w += v[p.type]; else b += v[p.type]; } }));
+    return (w - b >= 2) || ((room.chessMoves || 0) >= 80 && Math.abs(w - b) <= 1);
+  } catch { return false; }
+}
+
 // ── Bot : calcule et joue le coup du robot ─────────────────────────────────
 
 // Tour d'un robot : 'Y' contre un seul robot, ou l'un des sieges robots d'un Ludo a plusieurs robots.
@@ -3076,6 +3142,7 @@ function scheduleBotMove(code) {
     room.state  = newState;
     room.status = status;
     room.winner = winner;
+    chessAfterMove(room, 'Y');
     io.to(code).emit('game-update', { gameType: room.gameType, state: newState, status, winner });
 
     if (status !== 'playing') {
@@ -3271,7 +3338,7 @@ io.on('connection', (socket) => {
   socket.on('announcement-dismissed', () => {});
 
   // ── Créer une room ──────────────────────────────────────────────────────
-  socket.on('create-room', ({ gameType = 'connect4', name = '', vsBot = false, botDifficulty = 'medium', playerId, stake = 0, variant, ludoBots } = {}) => {
+  socket.on('create-room', ({ gameType = 'connect4', name = '', vsBot = false, botDifficulty = 'medium', playerId, stake = 0, variant, ludoBots, clock } = {}) => {
     // Dames : regles internationales (10x10) par defaut, anglaises (8x8) au choix.
     const ckVariant = gameType === 'checkers' ? (variant === 'en' ? 'en' : 'intl') : null;
     if (!VALID_GAMES.has(gameType)) return;
@@ -3305,6 +3372,7 @@ io.on('connection', (socket) => {
       potPaid: false,
       restartVotes: new Set(),
       reconnectTimers: { R: null, Y: null },
+      clockMs: gameType === 'chess' && [5, 10, 15].includes(Number(clock)) ? Number(clock) * 60_000 : 0,
     });
 
     // Ludo entre joueurs : un SALON de 2 a 4 sieges, lance par le createur.
@@ -3333,6 +3401,7 @@ io.on('connection', (socket) => {
     if (nBots > 1) {
       startLudoGame(rooms.get(code));
     } else if (vsBot) {
+      chessGameBegin(rooms.get(code));
       socket.emit('game-start', { gameType, state: rooms.get(code).state, yourPlayer: 'R', vsBot: true, botDifficulty: diff, code });
     } else {
       socket.emit('room-created', { code, gameType, stake: duelStake, variant: ckVariant });
@@ -3529,6 +3598,7 @@ io.on('connection', (socket) => {
     socket.join(key);
 
     if (room.stake > 0 && !_collectStake(room)) room.stake = 0; // filet de securite
+    chessGameBegin(room);
 
     for (const p of ['R', 'Y']) {
       io.to(room.players[p]).emit('game-start', {
@@ -3618,7 +3688,10 @@ io.on('connection', (socket) => {
     myPlayer = player;
     socket.join(key);
 
+    chessClockRefresh(room);
     socket.emit('reconnect-success', {
+      drawOffer:    room.drawOffer ? room.drawOffer.from : null,
+      drawWait:     room.gameType === 'chess' ? Math.max(0, 10 - ((room.chessMoves || 0) - (room.drawLast && room.drawLast[player] != null ? room.drawLast[player] : -99))) : 0,
       gameType:     room.gameType,
       state:        room.state,
       yourPlayer:   player,
@@ -3669,6 +3742,99 @@ io.on('connection', (socket) => {
   });
 
   // ── Jouer un coup ───────────────────────────────────────────────────────
+  // ── Echecs : fin de partie forcee (nul par accord, temps ecoule) et propositions de nul ──
+  function endChessRoom(room, status, winner, patch) {
+    if (!room || room.status !== 'playing') return;
+    const clock = chessClockSnap(room);
+    clearTimeout(room.clkTimer); room.clkTimer = null;
+    if (room.drawOffer) chessCancelOffer(room, 'end');
+    room.state = Object.assign({}, room.state, patch || {}, clock ? { clock } : {});
+    room.status = status; room.winner = winner;
+    io.to(room.code).emit('game-update', { gameType: 'chess', state: room.state, status, winner });
+    boardGameOver(room, status, winner);
+  }
+  chessHooks.end = endChessRoom;
+  socket.on('chess-draw-offer', () => {
+    const room = rooms.get(roomCode);
+    if (!room || room.gameType !== 'chess' || room.status !== 'playing' || (myPlayer !== 'R' && myPlayer !== 'Y')) return;
+    if (!allowAction('chessdraw', 6, 60_000)) return;
+    const last = room.drawLast ? room.drawLast[myPlayer] : null, moves = room.chessMoves || 0;
+    if (room.drawOffer || (last != null && moves - last < 10)) { socket.emit('chess-draw-wait', { wait: last != null ? Math.max(0, 10 - (moves - last)) : 0 }); return; }
+    room.drawLast = room.drawLast || {}; room.drawLast[myPlayer] = moves;
+    room.drawOffer = { from: myPlayer, at: Date.now() };
+    socket.emit('chess-draw-sent');
+    clearTimeout(room.drawTimer);
+    if (room.vsBot) {
+      room.drawTimer = setTimeout(() => {
+        if (!room.drawOffer || room.status !== 'playing') return;
+        if (chessBotAcceptsDraw(room)) endChessRoom(room, 'draw', null, { drawReason: 'agreement' });
+        else { chessCancelOffer(room, 'refused'); io.to(room.code).emit('chess-draw-refused', { by: 'Y', bot: true, joke: Math.floor(Math.random() * 4) }); }
+      }, 1300);
+    } else {
+      const other = myPlayer === 'R' ? 'Y' : 'R', sid = room.players[other];
+      if (sid) io.to(sid).emit('chess-draw-offered', { from: myPlayer });
+      room.drawTimer = setTimeout(() => { if (room.drawOffer) chessCancelOffer(room, 'expired'); }, 30_000);
+    }
+  });
+  socket.on('chess-draw-answer', ({ accept } = {}) => {
+    const room = rooms.get(roomCode);
+    if (!room || room.gameType !== 'chess' || room.status !== 'playing' || room.vsBot || !room.drawOffer || room.drawOffer.from === myPlayer) return;
+    const from = room.drawOffer.from;
+    if (accept) { endChessRoom(room, 'draw', null, { drawReason: 'agreement' }); return; }
+    chessCancelOffer(room, 'refused');
+    const sid = room.players[from]; if (sid) io.to(sid).emit('chess-draw-refused', { by: myPlayer });
+  });
+
+  // Fin d'une partie de plateau : mise, classements, historique, defis. (Dans la portee de connexion : _settleStake et _finishLudoLobby y vivent.)
+  function boardGameOver(room, status, winner) {
+    _chessGameOver(room, status, winner);
+    bumpDaily('games');
+    if (isLudoLobby(room)) {
+      _finishLudoLobby(room, status, winner);
+    } else if (!room.vsBot) {
+      _settleStake(room, status, winner);
+      if (status === 'won') {
+        const loserRole = winner === 'R' ? 'Y' : 'R';
+        updateLeaderboard(room.playerIds?.[winner]    || room.playerNames[winner],   room.playerNames[winner],   'win');
+        updateLeaderboard(room.playerIds?.[loserRole] || room.playerNames[loserRole], room.playerNames[loserRole], 'loss');
+        updateLastActive(room.playerIds?.[winner],    room.playerNames[winner]);
+        updateLastActive(room.playerIds?.[loserRole], room.playerNames[loserRole]);
+        pushHistory(room.playerIds?.[winner],    { game: room.gameType, result: 'win' });
+        pushHistory(room.playerIds?.[loserRole], { game: room.gameType, result: 'loss' });
+        bumpChallenge(room.playerIds?.[winner], 'gamesWon');
+        if (room.gameType === 'ludo') bumpChallenge(room.playerIds?.[winner], 'ludoWins');
+      } else {
+        updateLeaderboard(room.playerIds?.R || room.playerNames.R, room.playerNames.R, 'draw');
+        updateLeaderboard(room.playerIds?.Y || room.playerNames.Y, room.playerNames.Y, 'draw');
+        updateLastActive(room.playerIds?.R, room.playerNames.R);
+        updateLastActive(room.playerIds?.Y, room.playerNames.Y);
+        pushHistory(room.playerIds?.R, { game: room.gameType, result: 'draw' });
+        pushHistory(room.playerIds?.Y, { game: room.gameType, result: 'draw' });
+      }
+      io.emit('leaderboard-update', getLeaderboardData());
+      io.emit('global-leaderboard-update', getGlobalLeaderboardData());
+    } else {
+      // Solo vs bot (toutes difficultés) : enregistrer le joueur humain
+      const humanName = room.playerNames.R;
+      const humanId   = room.playerIds?.R || humanName;
+      if (humanName) {
+        if (status === 'won') {
+          const humanWon = winner === 'R';
+          updateLeaderboard(humanId, humanName, humanWon ? 'win' : 'loss');
+          pushHistory(room.playerIds?.R, { game: room.gameType, result: humanWon ? 'win' : 'loss', diff: room.botDifficulty });
+          if (humanWon) bumpChallenge(room.playerIds?.R, 'gamesWon');
+          if (humanWon && room.gameType === 'ludo') bumpChallenge(room.playerIds?.R, 'ludoWins');
+        } else {
+          updateLeaderboard(humanId, humanName, 'draw');
+          pushHistory(room.playerIds?.R, { game: room.gameType, result: 'draw' });
+        }
+        updateLastActive(humanId, humanName);
+        io.emit('leaderboard-update', getLeaderboardData());
+        io.emit('global-leaderboard-update', getGlobalLeaderboardData());
+      }
+    }
+  }
+
   socket.on('make-move', (move) => {
     const room = rooms.get(roomCode);
     // Avant : un coup refuse disparaissait sans un mot, et le joueur restait
@@ -3676,6 +3842,7 @@ io.on('connection', (socket) => {
     // l'etat reel (ou on lui dit que sa salle n'existe plus).
     if (!room) { socket.emit('move-rejected', { reason: 'no_room' }); return; }
     if (room.status !== 'playing' || room.state.currentPlayer !== myPlayer) {
+      chessClockRefresh(room);
       socket.emit('game-update', { gameType: room.gameType, state: room.state, status: room.status, winner: room.winner, resync: true });
       return;
     }
@@ -3746,56 +3913,12 @@ io.on('connection', (socket) => {
     room.state  = newState;
     room.status = status;
     room.winner = winner;
+    chessAfterMove(room, myPlayer);
 
     io.to(roomCode).emit('game-update', { gameType: room.gameType, state: newState, status, winner });
 
     if (status !== 'playing') {
-      _chessGameOver(room, status, winner);
-      bumpDaily('games');
-      if (isLudoLobby(room)) {
-        _finishLudoLobby(room, status, winner);
-      } else if (!room.vsBot) {
-        _settleStake(room, status, winner);
-        if (status === 'won') {
-          const loserRole = winner === 'R' ? 'Y' : 'R';
-          updateLeaderboard(room.playerIds?.[winner]    || room.playerNames[winner],   room.playerNames[winner],   'win');
-          updateLeaderboard(room.playerIds?.[loserRole] || room.playerNames[loserRole], room.playerNames[loserRole], 'loss');
-          updateLastActive(room.playerIds?.[winner],    room.playerNames[winner]);
-          updateLastActive(room.playerIds?.[loserRole], room.playerNames[loserRole]);
-          pushHistory(room.playerIds?.[winner],    { game: room.gameType, result: 'win' });
-          pushHistory(room.playerIds?.[loserRole], { game: room.gameType, result: 'loss' });
-          bumpChallenge(room.playerIds?.[winner], 'gamesWon');
-          if (room.gameType === 'ludo') bumpChallenge(room.playerIds?.[winner], 'ludoWins');
-        } else {
-          updateLeaderboard(room.playerIds?.R || room.playerNames.R, room.playerNames.R, 'draw');
-          updateLeaderboard(room.playerIds?.Y || room.playerNames.Y, room.playerNames.Y, 'draw');
-          updateLastActive(room.playerIds?.R, room.playerNames.R);
-          updateLastActive(room.playerIds?.Y, room.playerNames.Y);
-          pushHistory(room.playerIds?.R, { game: room.gameType, result: 'draw' });
-          pushHistory(room.playerIds?.Y, { game: room.gameType, result: 'draw' });
-        }
-        io.emit('leaderboard-update', getLeaderboardData());
-        io.emit('global-leaderboard-update', getGlobalLeaderboardData());
-      } else {
-        // Solo vs bot (toutes difficultés) : enregistrer le joueur humain
-        const humanName = room.playerNames.R;
-        const humanId   = room.playerIds?.R || humanName;
-        if (humanName) {
-          if (status === 'won') {
-            const humanWon = winner === 'R';
-            updateLeaderboard(humanId, humanName, humanWon ? 'win' : 'loss');
-            pushHistory(room.playerIds?.R, { game: room.gameType, result: humanWon ? 'win' : 'loss', diff: room.botDifficulty });
-            if (humanWon) bumpChallenge(room.playerIds?.R, 'gamesWon');
-            if (humanWon && room.gameType === 'ludo') bumpChallenge(room.playerIds?.R, 'ludoWins');
-          } else {
-            updateLeaderboard(humanId, humanName, 'draw');
-            pushHistory(room.playerIds?.R, { game: room.gameType, result: 'draw' });
-          }
-          updateLastActive(humanId, humanName);
-          io.emit('leaderboard-update', getLeaderboardData());
-          io.emit('global-leaderboard-update', getGlobalLeaderboardData());
-        }
-      }
+      boardGameOver(room, status, winner);
     } else if (room.vsBot || room.botSeats) {
       scheduleBotMove(roomCode);
     }
@@ -3842,6 +3965,7 @@ io.on('connection', (socket) => {
       room.state  = createInitialState(room.gameType, room.variant); room.chessLog = [];
       room.status = 'playing';
       room.winner = null;
+      chessGameBegin(room);
       socket.emit('game-start', { gameType: room.gameType, state: room.state, yourPlayer: 'R', vsBot: true, botDifficulty: room.botDifficulty });
       return;
     }
@@ -3853,6 +3977,7 @@ io.on('connection', (socket) => {
       room.status = 'playing';
       room.winner = null;
       room.restartVotes.clear();
+      chessGameBegin(room);
       // Revanche : on remet la meme mise si les deux peuvent payer, sinon 0.
       if (room.stake > 0 && !_collectStake(room)) {
         room.stake = 0;

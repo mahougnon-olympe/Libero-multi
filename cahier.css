@@ -3635,3 +3635,39 @@ html.fx-on .pf-hw-chandelle::before { animation: hwFlm .3s ease-in-out infinite 
 @keyframes hwBlkFast { 0%,88%,100% { opacity: 1; } 93% { opacity: .1; } }
 @keyframes hwSpkFast { 0%,60% { opacity: 0; } 65%,85% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .hw-flash, .hw-bolt, .hwg-flash { display: none !important; } html.fx-on .hw-eyes, html.fx-on .pf-hw-yeux::after, html.fx-on .pf-hw-frank::before, html.fx-on .pf-hw-chandelle::before { animation: none; } }
+
+/* ── Echecs : pendule, proposer le nul, raison du nul (app.js, fin) ── */
+.chess-clocks { display: flex; justify-content: space-between; gap: 10px; width: min(100%, 560px); margin: 2px auto 4px; padding: 0 6px; box-sizing: border-box; }
+.chess-clocks.hidden { display: none; }
+.chess-clock { font: 800 .95rem var(--font-body); font-variant-numeric: tabular-nums; border: 2px solid var(--line); border-radius: 8px; padding: 1px 8px; min-width: 3.9em; text-align: center; background: var(--card); color: var(--text); transition: background .6s, color .6s; }
+.chess-clock.on { background: var(--mark); }
+.chess-clock.low { color: var(--margin); animation: chLow 2.4s ease-in-out infinite; }
+.chess-clock.flag { background: var(--margin); color: #fff; animation: none; }
+@keyframes chLow { 0%,100% { background: var(--card); } 50% { background: color-mix(in srgb, var(--margin) 22%, var(--card)); } }
+:root:root .btn-quit.draw-btn { border: 1.5px solid var(--accent); color: var(--accent); font-weight: 800; font-size: .85rem; min-height: 40px; padding: 0 10px; border-radius: var(--r-sm); background: transparent; }
+:root:root .btn-quit.draw-btn:disabled { opacity: .55; cursor: not-allowed; }
+:root:root .btn-quit.draw-btn::before { content: none; }
+.draw-banner { position: sticky; top: 8px; z-index: 40; width: min(92%, 420px); margin: 6px auto; background: #fff3c4; color: #22252b; border: 2px solid #22252b; padding: 8px 12px; box-shadow: 2px 3px 0 rgba(23,58,138,.18); transform: rotate(-1deg); animation: chBanIn .5s cubic-bezier(.3,1.4,.5,1) both; }
+.draw-banner::before { content: ""; position: absolute; left: 14px; top: -9px; width: 34px; height: 13px; background: rgba(138,92,214,.45); border: 1px solid rgba(34,37,43,.3); transform: rotate(-3deg); }
+.draw-banner.out { animation: chBanOut .42s ease-in forwards; }
+.draw-banner.hidden { display: none; }
+.draw-banner-t { margin: 0; font: 700 1.15rem var(--font-hand); }
+.draw-banner-btns { display: flex; gap: 8px; margin-top: 6px; }
+.draw-banner-btns .btn { min-height: 40px; background: #fffdf6; color: #22252b; border: 2px solid #22252b; }
+.draw-banner-btns .btn-primary { background: #ffe169; }
+@keyframes chBanIn { from { transform: translateY(-80px) rotate(-1deg); opacity: 0; } }
+@keyframes chBanOut { to { transform: translateX(120%) rotate(8deg); opacity: 0; } }
+.status-reason { margin: 2px 0 6px; font: 700 .95rem var(--font-body); color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.status-reason.hidden { display: none; }
+.rs-dots { display: flex; gap: 6px; }
+.rs-dots i { width: 22px; height: 22px; border: 2px solid var(--line); border-radius: 50%; background: var(--card); animation: rsDot .5s both; }
+.rs-dots i:nth-child(1) { animation-delay: .3s; } .rs-dots i:nth-child(2) { animation-delay: .8s; } .rs-dots i:nth-child(3) { animation-delay: 1.3s; }
+@keyframes rsDot { to { background: var(--mark); } from { background: var(--card); } }
+.rs-ring { width: 44px; height: 44px; transform: rotate(-90deg); }
+.rs-ring circle { fill: none; stroke-width: 5; } .rs-ring .bg { stroke: var(--border); } .rs-ring .fg { stroke: var(--accent); stroke-dasharray: 138; stroke-dashoffset: 138; animation: rsRing 2.4s ease-out forwards; }
+@keyframes rsRing { to { stroke-dashoffset: 0; } }
+.game-status.draw-stamp .status-text { display: inline-block; border: 4px double var(--accent); color: var(--accent); padding: 4px 16px; border-radius: 8px; letter-spacing: .06em; transform: rotate(-4deg); animation: chSlam .6s cubic-bezier(.3,1.5,.5,1) both; }
+@keyframes chSlam { from { transform: rotate(-12deg) scale(2.2); opacity: 0; } to { transform: rotate(-4deg) scale(1); opacity: 1; } }
+#ch-clock .ch-clock-row { display: flex; gap: 8px; flex-wrap: wrap; }
+#ch-clock .ch-ck { flex: 1; min-width: 70px; justify-content: center; text-align: center; }
+@media (prefers-reduced-motion: reduce) { .chess-clock.low, .draw-banner, .draw-banner.out, .rs-dots i, .rs-ring .fg, .game-status.draw-stamp .status-text { animation: none !important; } .rs-dots i { background: var(--mark); } .rs-ring .fg { stroke-dashoffset: 0; } }

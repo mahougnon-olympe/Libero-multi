@@ -2715,6 +2715,7 @@ function applyLang() {
     [['step-ck-rules', d.ckRules.step], ['ck-intl-t', d.ckRules.intl], ['ck-intl-s', d.ckRules.intlSub], ['ck-en-t', d.ckRules.en], ['ck-en-s', d.ckRules.enSub], ['ck-diff-sum', d.ckRules.diff]].forEach(([id, v]) => { const el = $(id); if (el) el.textContent = v; });
     const cb = $('ck-diff-body'); if (cb) cb.innerHTML = d.ckRules.body;
   }
+  window._chClockSync?.();
   const gnld = $('gn-ludo');      if (gnld) gnld.textContent = d.games.ludo;
   const gnun = $('gn-uno');       if (gnun) gnun.textContent = d.games.uno;
   const gnuc = $('gn-undercover'); if (gnuc) gnuc.textContent = d.games.undercover;
@@ -3358,6 +3359,7 @@ document.querySelectorAll('.game-btn').forEach(btn => {
     selectedGameType = btn.dataset.game;
     try { const sel = btn.parentElement; if (sel && sel.scrollWidth > sel.clientWidth + 2) sel.scrollTo({ left: btn.offsetLeft - (sel.clientWidth - btn.offsetWidth) / 2, behavior: 'smooth' }); } catch {}
     window._ckRulesSync?.();
+    window._chClockSync?.();
     window._unoWhoSync?.();
     window._ucWhoSync?.();
     window._ludoWhoSync?.();
@@ -3393,7 +3395,7 @@ document.querySelectorAll('.bot-btn').forEach(btn => {
     clearError();
     if (selectedGameType === 'undercover') return;
     if (selectedGameType === 'uno') { window._unoStart({ bots: +btn.dataset.unobots || 1 }); return; }
-    socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), vsBot: true, botDifficulty: btn.dataset.diff, playerId: getPlayerId(), variant: _ckVariant(), ludoBots: selectedGameType === 'ludo' ? _ludoBotsN() : undefined });
+    socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), vsBot: true, botDifficulty: btn.dataset.diff, playerId: getPlayerId(), variant: _ckVariant(), clock: window._chClock?.() || 0, ludoBots: selectedGameType === 'ludo' ? _ludoBotsN() : undefined });
   });
 });
 
@@ -3404,7 +3406,7 @@ $('btn-create').addEventListener('click', () => {
   clearError();
   if (selectedGameType === 'uno') { window._unoStart({}); return; }
   if (selectedGameType === 'undercover') { window._ucStart(); return; }
-  socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), playerId: getPlayerId(), stake: window._selectedStake || 0, variant: _ckVariant() });
+  socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), playerId: getPlayerId(), stake: window._selectedStake || 0, variant: _ckVariant(), clock: window._chClock?.() || 0 });
 });
 
 $('btn-join').addEventListener('click', joinRoom);
@@ -3969,6 +3971,7 @@ function showGameOver(status, winner) {
   const isWinner = winner === myPlayer;
   const gs = $('game-status');
   gs.classList.remove(...VICTORY_BANNER_CLASSES);
+  window._chEndReason?.(status);
   gs.querySelector('.vb-show')?.remove();
 
   if (status === 'won') {
@@ -3998,6 +4001,7 @@ function showGameOver(status, winner) {
 
 // ── Appliquer l'état de jeu (game-start / reconnect-success) ─────────────────
 function applyGameState({ gameType, state, yourPlayer, status, winner }) {
+  window._lastGameState = state;
   currentGame = gameType;
   myPlayer    = yourPlayer;
   gameActive  = status === 'playing';
@@ -6814,6 +6818,7 @@ function _gameSfx(type, prevBox, st) {
   } catch {}
 }
 socket.on('game-update', ({ gameType, state, status, winner, resync }) => {
+  window._lastGameState = state;
   if (gameType === 'chess') lastMove = null; // sera mis à jour via onChessClick
   // Un etat recu prouve que la partie est vivante : si on avait coupe le jeu
   // (« adversaire se reconnecte ») sans recevoir le « il est revenu », on le reprend.
@@ -14950,7 +14955,7 @@ try {
     window._pendingFriendChallenge = { ref: b.dataset.ref, name: b.dataset.name };
     close();
     if (mode === 'classic') {
-      socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), playerId: getPlayerId(), stake: window._selectedStake || 0, variant: _ckVariant() });
+      socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), playerId: getPlayerId(), stake: window._selectedStake || 0, variant: _ckVariant(), clock: window._chClock?.() || 0 });
     } else {
       socket.emit('create-trivia-room', { categories: selectedTriviaCategories, name: getTriviaName(), lang: currentLang, difficulty: selectedTriviaDifficulty, amount: getTriviaQCount(), playerId: getPlayerId() });
     }
@@ -16619,4 +16624,138 @@ try { restoreSoloTrivia(); } catch (e) { clearTriviaSession(); }
   }
   window._hwGiftCheck = check;
   setInterval(check, 1000);
+})();
+
+// ── Echecs : pendule facultative, proposer le nul, raison du nul ────────────────────────────────
+// Le serveur tient le temps (state.clock) et les propositions ; ici on affiche et on relaie. Rien ne clignote : mouvements doux.
+(function () {
+  const LS = 'libero_chess_clock';
+  const TX = {
+    fr: { step: 'Pendule', off: 'Sans', draw: 'Proposer le nul', sent: 'Proposition envoyée...', wait: n => `Reproposer dans ${n} coup${n > 1 ? 's' : ''}`,
+      offered: 'Ton adversaire te propose le nul', yes: 'Accepter', no: 'Refuser', refused: 'Ton adversaire a refusé le nul.',
+      jokes: ['Le robot refuse : « Je n\'ai pas encore usé ma mine ! »', 'Le robot refuse : « Je suis bien trop en forme pour un nul. »', 'Le robot refuse : « Une gomme, ça ne s\'accepte pas comme ça. »', 'Le robot refuse : « Je veux d\'abord tailler mon avantage. »'],
+      expired: 'La proposition de nul a expiré.', agree: 'Nul par accord',
+      r: { stalemate: 'Pat : plus aucun coup légal', repetition: 'Triple répétition : même position trois fois', fifty: '50 coups sans prise ni pion', material: 'Matériel insuffisant pour mater', agreement: 'Nul par accord', timeout: 'Temps écoulé, mais l\'adversaire ne peut pas mater', time: 'Temps écoulé' } },
+    en: { step: 'Clock', off: 'None', draw: 'Offer a draw', sent: 'Offer sent...', wait: n => `Offer again in ${n} move${n > 1 ? 's' : ''}`,
+      offered: 'Your opponent offers a draw', yes: 'Accept', no: 'Decline', refused: 'Your opponent declined the draw.',
+      jokes: ['The robot declines: "I have not worn down my lead yet!"', 'The robot declines: "I am far too sharp for a draw."', 'The robot declines: "An eraser does not accept so easily."', 'The robot declines: "First I want to sharpen my advantage."'],
+      expired: 'The draw offer expired.', agree: 'Draw by agreement',
+      r: { stalemate: 'Stalemate: no legal move left', repetition: 'Threefold repetition: same position three times', fifty: '50 moves with no capture or pawn move', material: 'Not enough material to checkmate', agreement: 'Draw by agreement', timeout: 'Time is up, but the opponent cannot checkmate', time: 'Time is up' } },
+  };
+  const T = () => TX[currentLang === 'en' ? 'en' : 'fr'];
+  const fmt = ms => { const s = Math.ceil(Math.max(0, ms) / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+
+  // ── Choix de la pendule a l'accueil (retenu entre les visites) ──
+  window._chClock = () => { try { const v = localStorage.getItem(LS); return ['5', '10', '15'].includes(v) ? +v : 0; } catch { return 0; } };
+  function syncBox() {
+    const box = document.getElementById('ch-clock'); if (!box) return;
+    box.classList.toggle('hidden', selectedGameType !== 'chess');
+    const d = T(), cur = window._chClock();
+    const st = document.getElementById('step-ch-clock'); if (st) st.textContent = d.step;
+    box.querySelectorAll('.ch-ck').forEach(b => {
+      const on = +b.dataset.min === cur;
+      b.classList.toggle('active', on); b.setAttribute('aria-checked', on ? 'true' : 'false');
+      const bb = b.querySelector('b'); if (bb) bb.textContent = +b.dataset.min ? `${b.dataset.min} min` : d.off;
+    });
+  }
+  window._chClockSync = syncBox;
+  document.querySelectorAll('#ch-clock .ch-ck').forEach(b => b.addEventListener('click', () => { try { localStorage.setItem(LS, b.dataset.min); } catch {} syncBox(); }));
+  syncBox();
+
+  // ── Pendules en partie ──
+  let clk = null, pending = false, wait = 0;
+  // Barre des pendules entre l'en-tete et le plateau : Blancs a gauche, Noirs a droite, comme les badges.
+  function ensureClocks() {
+    if (document.getElementById('chess-clocks')) return;
+    const bar = document.createElement('div'); bar.id = 'chess-clocks'; bar.className = 'chess-clocks hidden';
+    bar.innerHTML = '<span class="chess-clock" id="clk-r" role="timer"></span><span class="chess-clock" id="clk-y" role="timer"></span>';
+    const area = document.getElementById('board-area'); if (area && area.parentNode) area.parentNode.insertBefore(bar, area);
+  }
+  function paint() {
+    ensureClocks();
+    const bar = document.getElementById('chess-clocks'); if (bar) bar.classList.toggle('hidden', !clk || currentGame !== 'chess');
+    for (const r of ['R', 'Y']) {
+      const el = document.getElementById('clk-' + r.toLowerCase()); if (!el) continue;
+      if (!clk || currentGame !== 'chess') continue;
+      const run = clk.running && clk.turn === r ? performance.now() - clk.rcv : 0;
+      const rem = clk[r] - run;
+      el.textContent = fmt(rem);
+      el.classList.toggle('on', clk.running && clk.turn === r);
+      el.classList.toggle('low', rem > 0 && rem <= 30000);
+      el.classList.toggle('flag', rem <= 0);
+    }
+  }
+  setInterval(paint, 250);
+
+  // ── Bouton « Proposer le nul » ──
+  function drawBtn() {
+    const b = document.getElementById('btn-draw'); if (!b) return;
+    const show = currentGame === 'chess' && gameActive;
+    b.classList.toggle('hidden', !show);
+    if (!show) return;
+    const d = T();
+    b.disabled = pending || wait > 0;
+    b.textContent = pending ? d.sent : (wait > 0 ? d.wait(wait) : d.draw);
+  }
+  function hideBanner() {
+    const bn = document.getElementById('draw-banner'); if (!bn || bn.classList.contains('hidden')) return;
+    bn.classList.add('out'); setTimeout(() => { bn.classList.add('hidden'); bn.classList.remove('out'); }, 420);
+  }
+  function showBanner() {
+    const bn = document.getElementById('draw-banner'), d = T(); if (!bn) return;
+    document.getElementById('draw-banner-t').textContent = d.offered;
+    document.getElementById('draw-yes').textContent = d.yes; document.getElementById('draw-no').textContent = d.no;
+    bn.classList.remove('out', 'hidden');
+  }
+  document.getElementById('btn-draw')?.addEventListener('click', () => { if (pending || wait > 0) return; socket.emit('chess-draw-offer'); });
+  document.getElementById('draw-yes')?.addEventListener('click', () => { socket.emit('chess-draw-answer', { accept: true }); hideBanner(); });
+  document.getElementById('draw-no')?.addEventListener('click', () => { socket.emit('chess-draw-answer', { accept: false }); hideBanner(); });
+
+  function onState(gameType, state, status, fresh) {
+    if (fresh) { pending = false; wait = 0; hideBanner(); const rs = document.getElementById('status-reason'); if (rs) { rs.classList.add('hidden'); rs.innerHTML = ''; } document.getElementById('game-status')?.classList.remove('draw-stamp'); }
+    if (gameType !== 'chess') { clk = null; paint(); drawBtn(); return; }
+    clk = state && state.clock ? { R: state.clock.R, Y: state.clock.Y, turn: state.clock.turn, running: status === 'playing', rcv: performance.now() } : null;
+    paint(); drawBtn();
+  }
+  socket.on('game-start', d => { setTimeout(() => onState(d.gameType, d.state, 'playing', true), 0); });
+  socket.on('game-update', d => {
+    if (d.gameType === 'chess' && d.status === 'playing' && !d.resync && wait > 0) wait--;
+    onState(d.gameType, d.state, d.status, false);
+    if (d.status !== 'playing') { pending = false; hideBanner(); drawBtn(); }
+  });
+  socket.on('reconnect-success', d => {
+    if (d.gameType !== 'chess') return;
+    setTimeout(() => {
+      wait = d.drawWait || 0; pending = !!d.drawOffer && d.drawOffer === d.yourPlayer;
+      onState(d.gameType, d.state, d.status, false);
+      if (d.drawOffer && d.drawOffer !== d.yourPlayer && d.status === 'playing') showBanner();
+      drawBtn();
+    }, 0);
+  });
+  socket.on('chess-draw-sent', () => { pending = true; wait = 10; drawBtn(); });
+  socket.on('chess-draw-wait', d => { wait = (d && d.wait) || wait; drawBtn(); });
+  socket.on('chess-draw-offered', () => { showBanner(); });
+  socket.on('chess-draw-refused', d => {
+    pending = false; drawBtn();
+    const m = d && d.bot ? T().jokes[(d.joke | 0) % T().jokes.length] : T().refused;
+    try { showCursorSnakeToast(m); } catch {}
+  });
+  socket.on('chess-draw-cancel', d => {
+    pending = false; hideBanner(); drawBtn();
+    if (d && d.why === 'expired') { try { showCursorSnakeToast(T().expired); } catch {} }
+  });
+
+  // ── Raison du nul / de la fin au temps (appelee par showGameOver) ──
+  window._chEndReason = function (status) {
+    const rs = document.getElementById('status-reason'), gs = document.getElementById('game-status'); if (!rs || !gs) return;
+    const st = window._lastGameState || {};
+    let key = null;
+    if (currentGame === 'chess') key = st.endReason === 'time' && status === 'won' ? 'time' : (status === 'draw' ? (st.drawReason || null) : null);
+    gs.classList.toggle('draw-stamp', status === 'draw');
+    if (!key) { rs.classList.add('hidden'); rs.innerHTML = ''; return; }
+    const extra = key === 'repetition' ? '<span class="rs-dots" aria-hidden="true"><i></i><i></i><i></i></span>'
+      : key === 'fifty' ? '<svg class="rs-ring" viewBox="0 0 50 50" aria-hidden="true"><circle class="bg" cx="25" cy="25" r="22"/><circle class="fg" cx="25" cy="25" r="22"/></svg>' : '';
+    rs.innerHTML = `<span class="rs-tx">${_escHtml(T().r[key] || '')}</span>${extra}`;
+    rs.classList.remove('hidden');
+  };
 })();
