@@ -645,7 +645,7 @@ const DICT = {
     ideaNewTitle:'Proposer une idée', ideaNewIntro:'Décris une fonctionnalité ou une amélioration que tu aimerais voir sur le site.',
     ideaNewTitrePh:'Titre de ta proposition', ideaNewDescPh:'Détaille ton idée (optionnel)', ideaNewSend:'Publier',
     ideaNeedName:'Choisis d\'abord un pseudo (dans Jouer) pour proposer une idée.', ideaTitleShort:'Titre trop court (4 caractères min).',
-    ideaPosted:'Merci ! Ton idée est publiée.', ideaByAuthor:(n)=>`par ${n}`, ideaDeleteConfirm:'Supprimer ta suggestion ?', ideaDelete:'Supprimer',
+    ideaPosted:'Merci ! Ton idée est publiée.', ideaByAuthor:(n)=>`par ${n}`, ideaDeleteConfirm:'Supprimer ta suggestion ?', ideaDeleteTitle:'Supprimer ?', ideaDeleteOk:'Supprimer', ideaDelete:'Supprimer',
     ideaStatusOpen:'Ouverte', ideaStatusPlanned:'Prévue', ideaStatusDone:'Faite', ideaStatusRejected:'Refusée', ideaPinned:'Épinglée',
     feedLoading:'Chargement des vidéos…', feedEmpty:'Aucune vidéo pour le moment.\nSois le premier à en proposer une !', feedError:'Impossible de charger les vidéos.\nVérifie ta connexion et réessaie.',
     feedSubmitBtn:'🎬 Proposer une vidéo', feedShareText:'Regarde cette vidéo sur Libero\'s Multi !', feedShareCopied:'Lien copié !',
@@ -685,7 +685,7 @@ const DICT = {
       restoreLabel:'Restaurer une progression', restore:'Restaurer',
       restoreHint:'Attention : restaurer remplace la progression actuelle de cet appareil.',
       invalid:'Ce code est invalide.',
-      confirm:'Restaurer cette progression ? La progression actuelle de cet appareil sera remplacée.',
+      confirm:'Restaurer cette progression ? La progression actuelle de cet appareil sera remplacée.', confirmTitle:'Restaurer ?', confirmOk:'Restaurer',
     },
     tournamentTitle:'🏆 Tournoi du samedi',
     tournamentDesc:"Chaque samedi : victoires classiques +10 pts, bonnes réponses de quiz +2 pts, pommes mangées au Snake +1 pt. Le meilleur gagne 2000 ⚡ et le titre « Champion de la semaine » !",
@@ -973,7 +973,7 @@ const DICT = {
     triviaLbPts:'pts', triviaLbGames:'quiz',
     triviaWaitTitle:'En attente de joueurs…', triviaWaitCode:'Code du salon :',
     btnTriviaCopy:'Copier le code', btnStartTrivia:'▶ Démarrer la partie',
-    btnLeaveTrivia:'Quitter le salon', quit:{ abandon:'Abandonner', abandonAsk:'Abandonner la partie ? Elle compte comme perdue.', menuAsk:'Retourner au menu ?', tear:'Déchirer le ticket (quitter)', changeGame:'changer de jeu', quitGame:'quitter la partie', backQuiz:'retour au quiz', close:'Fermer' },
+    btnLeaveTrivia:'Quitter le salon', quit:{ abandonTitle:'Abandonner ?', stay:'Continuer la partie', menuTitle:'Quitter la partie ?', menuLeave:'Retourner au menu', abandon:'Abandonner', abandonAsk:'Abandonner la partie ? Elle compte comme perdue.', menuAsk:'Retourner au menu ?', tear:'Déchirer le ticket (quitter)', changeGame:'changer de jeu', quitGame:'quitter la partie', backQuiz:'retour au quiz', close:'Fermer' },
     triviaWaitHint:'1 à 20 joueurs. Démarre dès que tu es prêt·e.',
     triviaCorrect:'✅ Bonne réponse !', triviaFastBonus:'⚡ Réponse éclair !', triviaWrong:'❌ La réponse était : ',
     triviaFinishedTitle:'Résultats finaux', btnLeaveGame:'Retour au menu', btnQuitTrivia:'🚪 Quitter',
@@ -1462,7 +1462,7 @@ const DICT = {
     ideaNewTitle:'Suggest an idea', ideaNewIntro:'Describe a feature or improvement you would like to see on the site.',
     ideaNewTitrePh:'Title of your suggestion', ideaNewDescPh:'Detail your idea (optional)', ideaNewSend:'Publish',
     ideaNeedName:'Pick a nickname first (in Play) to suggest an idea.', ideaTitleShort:'Title too short (4 characters min).',
-    ideaPosted:'Thanks! Your idea is published.', ideaByAuthor:(n)=>`by ${n}`, ideaDeleteConfirm:'Delete your suggestion?', ideaDelete:'Delete',
+    ideaPosted:'Thanks! Your idea is published.', ideaByAuthor:(n)=>`by ${n}`, ideaDeleteConfirm:'Delete your suggestion?', ideaDeleteTitle:'Delete?', ideaDeleteOk:'Delete', ideaDelete:'Delete',
     ideaStatusOpen:'Open', ideaStatusPlanned:'Planned', ideaStatusDone:'Done', ideaStatusRejected:'Declined', ideaPinned:'Pinned',
     feedLoading:'Loading videos…', feedEmpty:'No videos yet.\nBe the first to submit one!', feedError:'Could not load videos.\nCheck your connection and try again.',
     feedSubmitBtn:'🎬 Submit a video', feedShareText:'Check out this video on Libero\'s Multi!', feedShareCopied:'Link copied!',
@@ -1502,7 +1502,7 @@ const DICT = {
       restoreLabel:'Restore progress', restore:'Restore',
       restoreHint:'Warning: restoring replaces the current progress on this device.',
       invalid:'This code is invalid.',
-      confirm:'Restore this progress? The current progress on this device will be replaced.',
+      confirm:'Restore this progress? The current progress on this device will be replaced.', confirmTitle:'Restore?', confirmOk:'Restore',
     },
     tournamentTitle:'🏆 Saturday tournament',
     tournamentDesc:'Every Saturday: classic wins +10 pts, correct quiz answers +2 pts, apples eaten in Snake +1 pt. The best player wins 2000 ⚡ and the "Weekly Champion" title!',
@@ -1790,7 +1790,7 @@ const DICT = {
     triviaLbPts:'pts', triviaLbGames:'quiz',
     triviaWaitTitle:'Waiting for players…', triviaWaitCode:'Room code:',
     btnTriviaCopy:'Copy code', btnStartTrivia:'▶ Start game',
-    btnLeaveTrivia:'Leave room', quit:{ abandon:'Give up', abandonAsk:'Give up this game? It counts as a loss.', menuAsk:'Back to the menu?', tear:'Tear up the ticket (leave)', changeGame:'change game', quitGame:'quit the game', backQuiz:'back to the quiz', close:'Close' },
+    btnLeaveTrivia:'Leave room', quit:{ abandonTitle:'Give up?', stay:'Keep playing', menuTitle:'Leave the game?', menuLeave:'Back to the menu', abandon:'Give up', abandonAsk:'Give up this game? It counts as a loss.', menuAsk:'Back to the menu?', tear:'Tear up the ticket (leave)', changeGame:'change game', quitGame:'quit the game', backQuiz:'back to the quiz', close:'Close' },
     triviaWaitHint:'1 to 20 players. Start whenever you\'re ready.',
     triviaCorrect:'✅ Correct!', triviaFastBonus:'⚡ Lightning answer!', triviaWrong:'❌ The answer was: ',
     triviaFinishedTitle:'Final Results', btnLeaveGame:'Back to menu', btnQuitTrivia:'🚪 Quit',
@@ -5823,7 +5823,7 @@ function _playPodium(scores, myIdx) {
 }
 
 $('btn-leave-trivia-game').addEventListener('click', goToTriviaHome);
-$('btn-quit-trivia').addEventListener('click', () => { if (confirm(t().quit.abandonAsk)) goToTriviaHome(); });
+$('btn-quit-trivia').addEventListener('click', async () => { const q = t().quit; if (await _slateConfirm({ title: q.abandonTitle, text: q.abandonAsk, ok: q.abandon, cancel: q.stay })) goToTriviaHome(); });
 $('tg-skip')?.addEventListener('click', onTriviaSkip);
 
 // ── Trivia : pause (solo uniquement) ─────────────────────────────────────────
@@ -6379,9 +6379,12 @@ document.querySelectorAll('.help-tab').forEach(tab => {
 });
 $('btn-menu').addEventListener('click', goToHome);
 
-$('btn-quit').addEventListener('click', () => {
-  const msg = gameActive ? t().quit.abandonAsk : t().quit.menuAsk;
-  if (confirm(msg)) goToHome();
+$('btn-quit').addEventListener('click', async () => {
+  const q = t().quit, playing = gameActive;
+  const ok = await _slateConfirm(playing
+    ? { title: q.abandonTitle, text: q.abandonAsk, ok: q.abandon, cancel: q.stay }
+    : { title: q.menuTitle, text: q.menuAsk, ok: q.menuLeave });
+  if (ok) goToHome();
 });
 
 // ── Événements Socket.IO ──────────────────────────────────────────────────────
@@ -11787,7 +11790,7 @@ const IdeasBoard = (() => {
   }
 
   async function del(id) {
-    if (!confirm(t().ideaDeleteConfirm)) return;
+    if (!await _slateConfirm({ title: t().ideaDeleteTitle, text: t().ideaDeleteConfirm, ok: t().ideaDeleteOk })) return;
     try {
       const res = await api(`/api/suggestion/${id}`, {
         method: 'DELETE', headers: { 'Content-Type': 'application/json' },
@@ -13722,7 +13725,7 @@ window._profileSections = ProfileSections;
     }).catch(() => {});
   });
 
-  restoreBtn?.addEventListener('click', () => {
+  restoreBtn?.addEventListener('click', async () => {
     const raw  = (restoreInput.value || '').trim().replace(/[^a-zA-Z0-9_-]/g, '');
     const hint = document.getElementById('recovery-restore-hint');
     if (raw.length < 8) {
@@ -13730,7 +13733,7 @@ window._profileSections = ProfileSections;
       return;
     }
     if (raw === getPlayerId()) { closeModal(); return; } // c'est déjà ce compte
-    if (!confirm(t().recovery.confirm)) return;
+    if (!await _slateConfirm({ title: t().recovery.confirmTitle, text: t().recovery.confirm, ok: t().recovery.confirmOk })) return;
     window._tutoSkipAll?.(); // un joueur qui restaure connaît déjà le site
     localStorage.setItem('libero_player_id', raw);
     localStorage.removeItem('playerName'); // sera restauré depuis le serveur
