@@ -3228,6 +3228,23 @@ function unoSchedule(room) {
   if (room.status !== 'playing' || !room.state || room.state.winner) { room.turnEnd = 0; return; }
   const p = _unoPlayer(room, unoGame.current(room.state));
   if (!p) return;
+  // « Enchainer les cartes » : le joueur a pose une carte et peut en poser d'autres tant que la barre n'est pas vide.
+  const ch = room.state.chain;
+  if (ch && ch.by === p.pid) {
+    const secs = (room.state.opts && room.state.opts.chainSecs) || 6;
+    if (p.bot) {
+      const think = 900 + Math.random() * 700;
+      room.turnTotal = think; room.turnEnd = Date.now() + think;
+      room.botTimer = setTimeout(() => unoAuto(room, p.pid), think);
+    } else if (!p.connected || p.afk) {
+      room.turnEnd = 0;
+      room.botTimer = setTimeout(() => unoAct(room, p.pid, 'endchain'), 900);
+    } else {
+      room.turnTotal = secs * 1000; room.turnEnd = Date.now() + secs * 1000;
+      room.timer = setTimeout(() => unoAct(room, p.pid, 'endchain'), secs * 1000);
+    }
+    return;
+  }
   if (p.bot) {
     // Un robot "reflechit" comme une personne : 1,5 a 3,5 s (moitie moins qu'avant), un peu plus avec une grosse main ; la barre se vide pendant ce temps.
     const n = (room.state.hands[p.pid] || []).length;
@@ -3256,6 +3273,7 @@ function unoAct(room, pid, act, a = {}) {
   else if (act === 'draw') r = unoGame.draw(st, pid);
   else if (act === 'challenge') r = unoGame.challenge(st, pid);
   else if (act === 'pass') r = unoGame.pass(st, pid);
+  else if (act === 'endchain') r = unoGame.endChain(st, pid);
   else if (act === 'call') r = unoGame.call(st, pid);
   else return false;
   if (!r.ok) return false;
@@ -5622,6 +5640,7 @@ io.on('connection', (socket) => {
   socket.on('uno-draw', () => unoDo('draw'));
   socket.on('uno-pass', () => unoDo('pass'));
   socket.on('uno-call', () => unoDo('call'));
+  socket.on('uno-endchain', () => unoDo('endchain'));
   socket.on('uno-challenge', () => unoDo('challenge'));
   socket.on('leave-uno-room', () => {
     const room = unoMine(); if (!room) { unoCode = unoPid = null; return; }

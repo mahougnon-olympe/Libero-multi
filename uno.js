@@ -13,13 +13,13 @@
       leaveAsk: 'Quitter la partie ?', leaveText: 'Tu abandonnes la partie en cours : elle comptera comme une défaite.', leaveText2: 'Tu quittes le salon.', leaveOk: 'Quitter',
       cards: n => `${n} carte${n > 1 ? 's' : ''}`, err: { started: 'La partie a déjà commencé.', full: 'Le salon est complet (10 joueurs).', notfound: 'Salon introuvable. Vérifie le code.', need2: 'Il faut au moins 2 joueurs.', stake_short: 'Un joueur n’a pas assez de Libs (ou pas de pseudo) pour la mise.' },
       rulesTitle: 'Règle la partie', rulesHost: "Seul l'hôte règle les règles. Tu les vois ici.", presets: { classic: 'Classique', chaos: 'Chaos', fast: 'Rapide' },
-      rules: { stack: ['Cumul des +2 et +4', 'Un +2 peut être renvoyé sur un +2, un +4 sur un +4'], swap: ['7 et 0', '7 échange ta main avec quelqu’un, 0 fait tourner les mains'], jump: ['Jouer hors tour', 'Poser la même carte exacte avant son tour'], drawuntil: ['Piocher jusqu’à jouer', 'On pioche jusqu’à avoir une carte jouable'], chal: ['Défi du +4', 'On peut contester un +4'], pen4: ['Pénalité UNO de 4', '4 cartes au lieu de 2 si UNO oublié'], five: ['Cinq cartes (règle de warren)', 'Chaque carte posée fait piocher 5 cartes au joueur suivant'] },
+      rules: { stack: ['Cumul des +2 et +4', 'Un +2 peut être renvoyé sur un +2, un +4 sur un +4'], swap: ['7 et 0', '7 échange ta main avec quelqu’un, 0 fait tourner les mains'], jump: ['Jouer hors tour', 'Poser la même carte exacte avant son tour'], drawuntil: ['Piocher jusqu’à jouer', 'On pioche jusqu’à avoir une carte jouable'], chal: ['Défi du +4', 'On peut contester un +4'], pen4: ['Pénalité UNO de 4', '4 cartes au lieu de 2 si UNO oublié'], chain: ['Enchaîner les cartes', 'Après une carte, tu peux en poser d’autres tant que le temps n’est pas écoulé'], five: ['Cinq cartes (règle de warren)', 'Chaque carte posée fait piocher 5 cartes au joueur suivant'] },
       handLbl: 'Cartes au départ', handSub: 'Chacun reçoit ce nombre de cartes', stakeLbl: 'Mise', stakeNone: 'Sans', stakeNote: 'Chaque joueur paie la mise, le gagnant prend le pot (remboursé si la partie est abandonnée par tous). Seuls les humains paient.',
       commTitle: 'Règles de la communauté', commBy: n => `par ${n}`, commNote: 'Ces règles sont jouées sur la parole des joueurs.', commLine: 'Règles maison : ',
       propTitle: 'Propose ta règle', propPh: 'Ex : si on pose un 5, tout le monde pioche une carte', propSend: 'Envoyer', propInfo: n => `${n}/140 · 2 propositions par jour`, propOk: "Merci ! Ta règle est en attente de validation par l'organisateur.",
       propErr: { rate: 'Doucement, réessaie dans un instant.', name: 'Choisis un pseudo avant de proposer une règle.', short: 'Écris une règle un peu plus précise.', banned: 'Ce texte contient un mot interdit.', limit: "Tu as déjà proposé 2 règles aujourd'hui.", invalid: 'Impossible pour le moment.' },
       ruleOk: t => `Ta règle a été validée : « ${t} »`, ruleNo: t => `Ta règle n'a pas été retenue : « ${t} »`,
-      chal: 'Contester le +4', pendT: (n, k) => `${n} doit piocher ${k} cartes ou renvoyer`, pendCap: k => `Renvoie la même carte ou pioche ${k} cartes`, pickTarget: 'Échanger ta main avec qui ?',
+      endChain: 'Terminer mon tour', chainCap: n => `Enchaîne ou termine (${n}/4)`, chainN: n => `${n} cartes enchaînées !`, chainSecsLbl: 'Temps pour enchaîner', chal: 'Contester le +4', pendT: (n, k) => `${n} doit piocher ${k} cartes ou renvoyer`, pendCap: k => `Renvoie la même carte ou pioche ${k} cartes`, pickTarget: 'Échanger ta main avec qui ?',
       swapT: (a, b) => `${a} échange sa main avec ${b}`, rotT: 'Toutes les mains tournent', jumpT: n => `${n} joue hors tour`, chalWon: n => `Défi réussi : ${n} pioche`, chalLost: n => `Défi raté : ${n} pioche 2 de plus`,
       stakeWon: (n, p) => `${n} gagne le pot : ${p} Libs`, stakeRefund: 'Mises remboursées', pot: p => `Pot ${p} Libs`,
       skins: { classic: 'Classique brillant', felt: 'Papier cartonné', gold: 'Noir et or', metal: 'Métal brossé', neon: 'Néon' }, rank: 'Classement', cardsLeft: 'cartes restantes' },
@@ -33,13 +33,13 @@
       leaveAsk: 'Leave the game?', leaveText: 'You give up the game in progress: it will count as a loss.', leaveText2: 'You leave the room.', leaveOk: 'Leave',
       cards: n => `${n} card${n > 1 ? 's' : ''}`, err: { started: 'The game has already started.', full: 'The room is full (10 players).', notfound: 'Room not found. Check the code.', need2: 'You need at least 2 players.', stake_short: 'A player does not have enough Libs (or no nickname) for the stake.' },
       rulesTitle: 'Set the game', rulesHost: 'Only the host sets the rules. You can see them here.', presets: { classic: 'Classic', chaos: 'Chaos', fast: 'Fast' },
-      rules: { stack: ['Stack +2 and +4', 'A +2 can be sent back on a +2, a +4 on a +4'], swap: ['7 and 0', '7 swaps your hand with someone, 0 rotates all hands'], jump: ['Play out of turn', 'Play the exact same card before your turn'], drawuntil: ['Draw until you can play', 'You draw until you get a playable card'], chal: ['Challenge the +4', 'You can challenge a +4'], pen4: ['UNO penalty of 4', '4 cards instead of 2 if you forget UNO'], five: ['Five cards (warren\'s rule)', 'Every card played makes the next player draw 5 cards'] },
+      rules: { stack: ['Stack +2 and +4', 'A +2 can be sent back on a +2, a +4 on a +4'], swap: ['7 and 0', '7 swaps your hand with someone, 0 rotates all hands'], jump: ['Play out of turn', 'Play the exact same card before your turn'], drawuntil: ['Draw until you can play', 'You draw until you get a playable card'], chal: ['Challenge the +4', 'You can challenge a +4'], pen4: ['UNO penalty of 4', '4 cards instead of 2 if you forget UNO'], chain: ['Chain the cards', 'After a card, you can play more until the time runs out'], five: ['Five cards (warren\'s rule)', 'Every card played makes the next player draw 5 cards'] },
       handLbl: 'Starting cards', handSub: 'Everyone gets this many cards', stakeLbl: 'Stake', stakeNone: 'None', stakeNote: 'Every player pays the stake, the winner takes the pot (refunded if everyone abandons). Only humans pay.',
       commTitle: 'Community rules', commBy: n => `by ${n}`, commNote: 'These rules are played on the players’ honour.', commLine: 'House rules: ',
       propTitle: 'Suggest your rule', propPh: 'E.g. when someone plays a 5, everyone draws a card', propSend: 'Send', propInfo: n => `${n}/140 · 2 suggestions per day`, propOk: 'Thanks! Your rule is waiting for the organiser to approve it.',
       propErr: { rate: 'Easy, try again in a moment.', name: 'Pick a nickname before suggesting a rule.', short: 'Write a slightly more precise rule.', banned: 'This text contains a banned word.', limit: 'You already suggested 2 rules today.', invalid: 'Not possible right now.' },
       ruleOk: t => `Your rule was approved: "${t}"`, ruleNo: t => `Your rule was not kept: "${t}"`,
-      chal: 'Challenge the +4', pendT: (n, k) => `${n} must draw ${k} cards or send it back`, pendCap: k => `Send back the same card or draw ${k} cards`, pickTarget: 'Swap your hand with whom?',
+      endChain: 'End my turn', chainCap: n => `Chain on or end (${n}/4)`, chainN: n => `${n} cards chained!`, chainSecsLbl: 'Time to chain', chal: 'Challenge the +4', pendT: (n, k) => `${n} must draw ${k} cards or send it back`, pendCap: k => `Send back the same card or draw ${k} cards`, pickTarget: 'Swap your hand with whom?',
       swapT: (a, b) => `${a} swaps hands with ${b}`, rotT: 'All hands rotate', jumpT: n => `${n} plays out of turn`, chalWon: n => `Challenge won: ${n} draws`, chalLost: n => `Challenge lost: ${n} draws 2 more`,
       stakeWon: (n, p) => `${n} wins the pot: ${p} Libs`, stakeRefund: 'Stakes refunded', pot: p => `Pot ${p} Libs`,
       skins: { classic: 'Glossy classic', felt: 'Cardstock', gold: 'Black and gold', metal: 'Brushed metal', neon: 'Neon' }, rank: 'Ranking', cardsLeft: 'cards left' },
@@ -72,7 +72,7 @@
   }
   function loadCss() {
     if (document.getElementById('uno-css')) return;
-    const l = document.createElement('link'); l.id = 'uno-css'; l.rel = 'stylesheet'; l.href = 'uno.css?v=3'; document.head.appendChild(l);
+    const l = document.createElement('link'); l.id = 'uno-css'; l.rel = 'stylesheet'; l.href = 'uno.css?v=5'; document.head.appendChild(l);
   }
 
   // ── Etat ────────────────────────────────────────────────────────────────────
@@ -117,6 +117,7 @@
         <div class="un-cap" id="un-cap"></div>
         <button class="btn btn-primary un-btn-chal" id="un-chal"></button>
         <button class="btn btn-secondary un-btn-pass" id="un-pass"></button>
+        <button class="btn btn-primary un-btn-endc" id="un-endc"></button>
         <button class="un-btn-uno" id="un-uno"></button>
         <div class="un-hand" id="un-hand"></div>
         <div class="un-picker" id="un-picker"><div class="box"><b id="un-pk-t"></b><div class="cols">
@@ -143,7 +144,7 @@
     $('#un-menu', root).onclick = () => leave(true);
     $('#un-quit', root).onclick = () => leave(false, true);
     $('#un-again', root).onclick = () => socket.emit('uno-restart');
-    $('#un-deck', root).onclick = () => { if (canAct() && S.v.drawn == null) { snd('click'); socket.emit('uno-draw'); } };
+    $('#un-deck', root).onclick = () => { if (canAct() && S.v.drawn == null && !S.v.chain) { snd('click'); socket.emit('uno-draw'); } };
     $('#un-chal', root).onclick = () => { snd('click'); socket.emit('uno-challenge'); };
     $('#un-rules', root).onclick = rulesClick;
     const px = $('#un-prop-x', root);
@@ -156,6 +157,7 @@
       if (id != null) { snd('piece-place'); socket.emit('uno-play', { cardId: id, color: null, uno: false, target: +b.dataset.t }); }
     };
     $('#un-pass', root).onclick = () => { snd('click'); socket.emit('uno-pass'); };
+    $('#un-endc', root).onclick = () => { snd('click'); socket.emit('uno-endchain'); };
     $('#un-uno', root).onclick = () => { snd('click-ok'); socket.emit('uno-call'); };
     $('#un-hand', root).onclick = e => {
       const c = e.target.closest('.uc'); if (!c || !c.classList.contains('ok')) return;
@@ -215,8 +217,8 @@
     renderRules(v);
   }
   // ── Regles de la partie (salon) ─────────────────────────────────────────────
-  const RK = ['stack', 'swap', 'jump', 'drawuntil', 'chal', 'pen4', 'five'];
-  const PRE = { classic: { stack: 0, swap: 0, jump: 0, drawuntil: 0, chal: 0, pen4: 0, five: 0, hand: 7 }, chaos: { stack: 1, swap: 1, jump: 1, drawuntil: 1, chal: 1, pen4: 1, five: 0, hand: 7 }, fast: { stack: 1, swap: 0, jump: 0, drawuntil: 1, chal: 0, pen4: 0, five: 0, hand: 5 } };
+  const RK = ['stack', 'swap', 'jump', 'drawuntil', 'chal', 'pen4', 'five', 'chain'];
+  const PRE = { classic: { stack: 0, swap: 0, jump: 0, drawuntil: 0, chal: 0, pen4: 0, five: 0, chain: 0, hand: 7 }, chaos: { stack: 1, swap: 1, jump: 1, drawuntil: 1, chal: 1, pen4: 1, five: 0, chain: 0, hand: 7 }, fast: { stack: 1, swap: 0, jump: 0, drawuntil: 1, chal: 0, pen4: 0, five: 0, chain: 0, hand: 5 } };
   const STAKES = [0, 50, 100, 250, 500];
   const sameOpts = (o, p) => RK.every(k => !!o[k] === !!p[k]) && o.hand === p.hand;
   function renderRules(v) {
@@ -224,6 +226,7 @@
     const cur = Object.keys(PRE).find(k => sameOpts(o, PRE[k]));
     let h = `<h3>${u.rulesTitle}</h3>${host ? '' : `<p class="un-hint">${u.rulesHost}</p>`}<div class="chips">${Object.keys(PRE).map(k => `<button type="button" class="chip${cur === k ? ' on' : ''}" data-pre="${k}"${dis}>${u.presets[k]}</button>`).join('')}</div>`;
     h += RK.map(k => `<div class="rl"><span>${u.rules[k][0]}<small>${u.rules[k][1]}</small></span><button type="button" class="tg${o[k] ? ' on' : ''}" data-rk="${k}" aria-pressed="${!!o[k]}"${dis}></button></div>`).join('');
+    if (o.chain) h += `<div class="rl"><span>${u.chainSecsLbl}</span><span class="stp">${[4, 6, 8].map(x => `<button type="button" class="chip${(o.chainSecs || 6) === x ? ' on' : ''}" data-cs="${x}"${dis}>${x} s</button>`).join('')}</span></div>`;
     h += `<div class="rl"><span>${u.handLbl}<small>${u.handSub}</small></span><span class="stp"><button type="button" data-hand="-1"${dis}>-</button><b>${o.hand}</b><button type="button" data-hand="1"${dis}>+</button></span></div>`;
     const rules = v.rules || [];
     if (rules.length) h += `<h3 class="sub">${u.commTitle}</h3><p class="un-hint">${u.commNote}</p>` + rules.map(r => `<div class="rl"><span>${esc(r.text)}<small>${u.commBy(esc(r.author || ''))}</small></span><button type="button" class="tg${(v.cust || []).includes(r.id) ? ' on' : ''}" data-cust="${esc(r.id)}"${dis}></button></div>`).join('');
@@ -238,6 +241,7 @@
     const o = Object.assign({}, v.opts || PRE.classic); let cust = (v.cust || []).slice(), stake = v.stake || 0;
     if (b.dataset.pre) Object.assign(o, PRE[b.dataset.pre]);
     else if (b.dataset.rk) o[b.dataset.rk] = !o[b.dataset.rk];
+    else if (b.dataset.cs) o.chainSecs = +b.dataset.cs;
     else if (b.dataset.hand) o.hand = Math.max(5, Math.min(10, o.hand + (+b.dataset.hand)));
     else if (b.dataset.cust) { const id = b.dataset.cust; cust = cust.includes(id) ? cust.filter(x => x !== id) : cust.concat(id); }
     else if (b.dataset.stake != null) stake = +b.dataset.stake;
@@ -275,12 +279,14 @@
     $('#un-menu', root).textContent = U().menu;
     $('#un-pk-t', root).textContent = U().pickColor;
     const my = v.turn === v.mySeat && v.status === 'playing' && v.mySeat >= 0;
-    $('#un-deck', root).classList.toggle('can', my && v.drawn == null);
+    const inChain = !!(my && v.chain && v.chain.by === v.mySeat);
+    $('#un-deck', root).classList.toggle('can', my && v.drawn == null && !v.chain);
     $('#un-tpick', root).classList.remove('on');
     $('#un-pass', root).textContent = U().pass; $('#un-pass', root).classList.toggle('on', my && v.drawn != null);
+    $('#un-endc', root).textContent = U().endChain; $('#un-endc', root).classList.toggle('on', inChain);
     $('#un-uno', root).textContent = U().uno;
     $('#un-uno', root).classList.toggle('on', v.status === 'playing' && v.mySeat >= 0 && v.hand.length === 2 && !v.called[v.mySeat]);
-    $('#un-cap', root).textContent = v.status !== 'playing' ? '' : my ? (v.pend ? U().pendCap(v.pend.n) : v.drawn != null ? U().playDrawn : U().yourTurn) : U().turnOf(v.players[v.turn]?.name || '');
+    $('#un-cap', root).textContent = v.status !== 'playing' ? '' : my ? (inChain ? U().chainCap(v.chain.n) : v.pend ? U().pendCap(v.pend.n) : v.drawn != null ? U().playDrawn : U().yourTurn) : U().turnOf(v.players[v.turn]?.name || '');
     const ch = $('#un-chal', root); ch.textContent = U().chal; ch.classList.toggle('on', !!(my && v.pend && v.pend.ch));
     $('#un-cust', root).textContent = v.custText && v.custText.length ? U().commLine + v.custText.join(' · ') : '';
     $('#un-codeb', root).textContent = v.code + (v.stake ? ' · ' + U().pot(v.stake * (v.players.filter(p => !p.bot).length)) : '');
@@ -365,7 +371,8 @@
     const ev = v.ev; if (!ev || reduce()) { if (ev && ev.t === 'win') snd(v.winner === v.mySeat ? 'win' : 'lose'); return; }
     if (ev.t === 'deal') return dealAnim(v);
     if (!prev) return;
-    if (ev.t === 'play') {
+    if (ev.t === 'play' || ev.t === 'chainend') {
+      if (ev.t === 'play') {
       const mine = ev.seat === prev.mySeat;
       let from;
       if (mine) { const ce = root.querySelector(`#un-hand .uc[data-id="${ev.card.id}"]`); if (ce) { from = rect(ce); ce.style.visibility = 'hidden'; } }
@@ -374,6 +381,8 @@
       await fly(card(ev.card, ''), from, { x: dr.x, y: dr.y, w: 76, h: 112 }, { rot: 6, d: 460 });
       const cb = $('#un-cb', root); cb.style.setProperty('--curc', COL[ev.color] || 'transparent');
       if (ev.card.c === 'W') { A(cb, [{ opacity: .2 }, { opacity: 1 }, { opacity: 1 }], { duration: 500, fill: 'none' }); }
+      }
+      if (ev.chainEnd) { big(U().chainN(ev.chainEnd.n), 'var(--accent)', 22); await wait(450); }
       if (ev.reverse) { const d = $('#un-dir', root); A(d, [{ transform: 'translate(-50%,-108px) rotate(0) scale(1)' }, { transform: 'translate(-50%,-108px) rotate(-360deg) scale(1.9)', offset: .6 }, { transform: 'translate(-50%,-108px) rotate(-360deg) scale(1)' }], { duration: 900, fill: 'none' }); big(U().rev, 'var(--accent)', 30); await wait(500); }
       if (ev.skip != null) { const e = seatEl(ev.skip); if (e) { const r = rect(e); const b = el('<div class="un-big" style="color:var(--cR);font-size:46px">⊘</div>'); b.style.left = (r.x + r.w / 2 - 20) + 'px'; b.style.top = (r.y - 8) + 'px'; tbl().appendChild(b); A(b, [{ opacity: 0, transform: 'scale(2.6) rotate(-30deg)' }, { opacity: 1, transform: 'scale(1) rotate(0)', offset: .4 }, { opacity: 1, offset: .8 }, { opacity: 0 }], { duration: 1200 }); setTimeout(() => b.remove(), 1250); } big(U().skipT(prev.players[ev.skip]?.name || ''), 'var(--accent)', 30); await wait(600); }
       if (ev.jump) { big(U().jumpT(ev.name || ''), 'var(--accent)', 30); await wait(450); }

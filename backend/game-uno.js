@@ -5,11 +5,13 @@
 const COLORS = ['R', 'Y', 'G', 'B'];
 const MAX_PLAYERS = 10, HAND = 7;
 // Regles reglables par l'hote (modeles : classique, chaos, rapide). `hand` = cartes au depart (5 a 10).
-const RULE_KEYS = ['stack', 'swap', 'jump', 'drawuntil', 'chal', 'pen4', 'five'];
-const DEFAULT_OPTS = { stack: false, swap: false, jump: false, drawuntil: false, chal: false, pen4: false, five: false, hand: 7 };
+const RULE_KEYS = ['stack', 'swap', 'jump', 'drawuntil', 'chal', 'pen4', 'five', 'chain'];
+const DEFAULT_OPTS = { stack: false, swap: false, jump: false, drawuntil: false, chal: false, pen4: false, five: false, chain: false, chainSecs: 6, hand: 7 };
+const CHAIN_MAX = 4; // « Enchainer les cartes » : 4 cartes au maximum par tour
 function normOpts(o, players = MAX_PLAYERS) {
   const out = Object.assign({}, DEFAULT_OPTS);
   if (o && typeof o === 'object') for (const k of RULE_KEYS) if (o[k] != null) out[k] = !!o[k];
+  out.chainSecs = [4, 6, 8].includes(Math.floor(+(o && o.chainSecs))) ? Math.floor(+o.chainSecs) : 6;
   const h = Math.floor(+(o && o.hand)); out.hand = Number.isFinite(h) ? Math.max(5, Math.min(10, h)) : 7;
   while (out.hand > 5 && out.hand * players > 90) out.hand--;
   return out;
@@ -41,7 +43,7 @@ function createState(seats, rnd = Math.random, opts) {
   let first = draw.pop();
   while (!/^[0-9]$/.test(first.v)) { draw.unshift(first); first = draw.pop(); }
   const turn = Math.floor(rnd() * seats.length);
-  return { seats: seats.slice(), hands, draw, discard: [first], dir: 1, turn, color: first.c, drawn: null, called: {}, winner: null, seq: 0, opts: o, pend: null };
+  return { seats: seats.slice(), hands, draw, discard: [first], dir: 1, turn, color: first.c, drawn: null, called: {}, winner: null, seq: 0, opts: o, pend: null, chain: null };
 }
 
 const top = s => s.discard[s.discard.length - 1];
@@ -73,6 +75,9 @@ function play(s, id, cardId, color, uno, rnd = Math.random, target) {
   if (s.winner) return { ok: false, error: 'over' };
   const O = s.opts || DEFAULT_OPTS;
   const hand = s.hands[id]; if (!hand) return { ok: false, error: 'card' };
+  const chainPrev = s.chain && s.chain.by === id ? s.chain : null; // « Enchainer les cartes » : on continue sa chaine
+  if (s.chain && !chainPrev) s.chain = null;                          // chaine d'un autre (ne devrait pas arriver) : on l'oublie
+  if (chainPrev && chainPrev.n >= CHAIN_MAX) return { ok: false, error: 'rule' };
   const i = hand.findIndex(c => c.id === cardId);
   if (i < 0) return { ok: false, error: 'card' };
   const card = hand[i];
@@ -80,7 +85,7 @@ function play(s, id, cardId, color, uno, rnd = Math.random, target) {
   if (current(s) !== id) {
     // Jouer hors tour : la meme carte exacte que celle du dessus (ni joker, ni pioche en attente).
     const t = top(s);
-    if (!(O.jump && !s.pend && s.drawn == null && card.c !== 'W' && card.c === t.c && card.v === t.v && card.c === s.color)) return { ok: false, error: 'turn' };
+    if (!(O.jump && !s.pend && !s.chain && s.drawn == null && card.c !== 'W' && card.c === t.c && card.v === t.v && card.c === s.color)) return { ok: false, error: 'turn' };
     jumped = true; s.turn = seatOf(s, id);
   }
   if (s.drawn != null && s.drawn !== cardId) return { ok: false, error: 'drawn' };
@@ -93,11 +98,24 @@ function play(s, id, cardId, color, uno, rnd = Math.random, target) {
   const ev = { t: 'play', seat: seatOf(s, id), card, color: s.color };
   if (jumped) ev.jump = true;
   if (hand.length === 1 && uno) s.called[id] = true;      // UNO annonce avant de poser l'avant-derniere carte
-  if (hand.length === 0) { s.winner = id; ev.win = true; return { ok: true, ev }; }
+  if (hand.length === 0) { s.winner = id; s.chain = null; ev.win = true; return { ok: true, ev }; }
+  // Enchainer : une carte posee ne passe pas la main tant que le joueur peut et veut en poser une autre (effets cumules a la fin).
+  const cards = (chainPrev ? chainPrev.cards : []).concat(card);
+  const swapCard = O.swap && (card.v === '7' || card.v === '0');
+  const goOn = O.chain && !s.pend && !jumped && cards.length < CHAIN_MAX && !wild && !swapCard
+    && (hand.length >= 2 || s.called[id]) && hand.some(c => playable(s, c));
+  if (goOn) {
+    s.chain = { by: id, n: cards.length, cards };
+    ev.chain = { n: cards.length, max: CHAIN_MAX };
+    if (hand.length !== 1) delete s.called[id];
+    return { ok: true, ev };
+  }
+  s.chain = null;
   let steps = 1;
-  if (card.v === 'R') { if (s.seats.length === 2) steps = 2; else s.dir = -s.dir; ev.reverse = true; }
-  if (card.v === 'S') { steps = 2; ev.skip = nextIdx(s); }
-  if (card.v === 'D' || card.v === 'F') {
+  if (cards.length > 1) { ev.chainEnd = { n: cards.length }; steps = chainEffects(s, id, cards, ev, O, prevColor, rnd); }
+  else if (card.v === 'R') { if (s.seats.length === 2) steps = 2; else s.dir = -s.dir; ev.reverse = true; }
+  if (cards.length === 1 && card.v === 'S') { steps = 2; ev.skip = nextIdx(s); }
+  if (cards.length === 1 && (card.v === 'D' || card.v === 'F')) {
     const victim = s.seats[nextIdx(s)], n = card.v === 'D' ? 2 : 4;
     if (O.stack || (card.v === 'F' && O.chal)) {
       // La pioche attend la reponse de la victime : renvoyer la meme carte, relever le defi (+4), ou piocher.
@@ -128,10 +146,55 @@ function play(s, id, cardId, color, uno, rnd = Math.random, target) {
   return { ok: true, ev };
 }
 
+// Effets cumules d'une chaine de cartes, appliques une seule fois a la fin du tour. Renvoie le nombre de sieges dont on avance.
+// Sens : chaque « Sens inverse » le retourne (a deux joueurs il compte comme un « Passe »). « Passe » : un siege saute par carte.
+// Pioche : les +2 / +4 s'additionnent ; la victime est le joueur suivant et saute son tour (un « Passe » dans la chaine est alors absorbe).
+function chainEffects(s, id, cards, ev, O, prevColor, rnd = Math.random) {
+  const two = s.seats.length === 2;
+  let skips = 0, revs = 0, drawN = 0, lastV = null;
+  for (const c of cards) {
+    if (c.v === 'S') skips++;
+    else if (c.v === 'R') revs++;
+    else if (c.v === 'D') { drawN += 2; lastV = 'D'; }
+    else if (c.v === 'F') { drawN += 4; lastV = 'F'; }
+  }
+  if (revs) ev.reverse = true;
+  if (!two && revs % 2 === 1) s.dir = -s.dir;
+  const skipLike = skips + (two ? revs : 0);
+  let steps = 1 + skipLike;
+  if (skipLike) ev.skip = nextIdx(s);
+  if (drawN) {
+    const pending = O.stack || (lastV === 'F' && O.chal);
+    if (pending) {
+      const victim = s.seats[nextIdx(s, s.turn, 1 + skipLike)];
+      s.pend = { n: drawN, v: lastV };
+      if (lastV === 'F' && O.chal) s.pend.ch = { by: id, had: s.hands[id].some(c => c.c !== 'W' && c.c === prevColor), prevColor };
+      ev.pend = { n: drawN, v: lastV, seat: seatOf(s, victim), ch: !!s.pend.ch };
+    } else {
+      const victim = s.seats[nextIdx(s)];
+      ev.draw = { seat: seatOf(s, victim), cards: drawCards(s, victim, drawN, rnd) };
+      steps = 1 + Math.max(skipLike, 1);
+    }
+  }
+  return steps;
+}
+// Fin volontaire (ou par le temps) d'une chaine : on applique les effets cumules et la main passe.
+function endChain(s, id, rnd = Math.random) {
+  const ch = s.chain;
+  if (s.winner || !ch || ch.by !== id || current(s) !== id) return { ok: false, error: 'turn' };
+  s.chain = null;
+  const ev = { t: 'chainend', seat: seatOf(s, id), chainEnd: { n: ch.cards.length } };
+  const steps = chainEffects(s, id, ch.cards, ev, s.opts || DEFAULT_OPTS, s.color, rnd);
+  s.turn = nextIdx(s, s.turn, steps);
+  if (s.opts && s.opts.five && !s.pend) { const who = s.seats[s.turn]; ev.five = { seat: s.turn, cards: drawCards(s, who, 5, rnd) }; delete s.called[who]; }
+  return { ok: true, ev };
+}
+
 // Pioche une carte (jamais deux fois de suite). Si elle est jouable on peut la poser ou passer, sinon le tour passe.
 // Avec une pioche en attente (+2 / +4), on la prend en entier et le tour passe. « Piocher jusqu'a jouer » : on pioche jusqu'a une carte jouable.
 function draw(s, id, rnd = Math.random) {
   if (s.winner) return { ok: false, error: 'over' };
+  if (s.chain) return { ok: false, error: 'chain' };
   if (current(s) !== id) return { ok: false, error: 'turn' };
   if (s.drawn != null) return { ok: false, error: 'drawn' };
   const seat = seatOf(s, id);
@@ -166,7 +229,7 @@ function challenge(s, id, rnd = Math.random) {
   return { ok: true, ev: { t: 'challenge', seat: victim, won: false, by, draw: { seat: victim, cards } } };
 }
 function pass(s, id) {
-  if (s.winner || current(s) !== id || s.drawn == null) return { ok: false, error: 'turn' };
+  if (s.winner || s.chain || current(s) !== id || s.drawn == null) return { ok: false, error: 'turn' };
   s.drawn = null; s.turn = nextIdx(s);
   return { ok: true, ev: { t: 'pass', seat: s.seats.indexOf(id) } };
 }
@@ -181,6 +244,7 @@ function forfeit(s, id, rnd = Math.random) {
   const i = s.seats.indexOf(id);
   if (i < 0 || s.winner) return { ok: false };
   const wasTurn = i === s.turn;
+  if (s.chain && s.chain.by === id) s.chain = null;
   s.draw = shuffle(s.draw.concat(s.hands[id]), rnd);
   delete s.hands[id]; delete s.called[id];
   s.seats.splice(i, 1);
@@ -201,6 +265,10 @@ function botAct(s, id) {
     return list.slice().sort((a, b) => score(b) - score(a))[0];
   };
   const bestColor = h => { const n = {}; h.forEach(c => { if (c.c !== 'W') n[c.c] = (n[c.c] || 0) + 1; }); return Object.keys(n).sort((a, b) => n[b] - n[a])[0] || COLORS[Math.floor(Math.random() * 4)]; };
+  if (s.chain && s.chain.by === id) {            // en pleine chaine : il continue parfois (2 a 3 cartes), sinon il termine son tour
+    const more = hand.filter(c => playable(s, c));
+    if (!more.length || s.chain.n >= 3 || Math.random() > (s.opts && s.opts.chain ? .6 : 0)) return { act: 'endchain' };
+  }
   const cand = s.drawn != null ? hand.filter(c => c.id === s.drawn) : hand.filter(c => playable(s, c));
   if (cand.length) {
     const c = pick(cand), rest = hand.filter(x => x.id !== c.id);
@@ -219,8 +287,8 @@ function view(s, id) {
     counts: s.seats.map(p => s.hands[p].length),
     top: top(s), color: s.color, dir: s.dir, turn: s.turn, drawLeft: s.draw.length, drawn: s.drawn,
     winner: s.winner ? s.seats.indexOf(s.winner) : null, called: s.seats.map(p => !!s.called[p]),
-    opts: s.opts || DEFAULT_OPTS, pend: s.pend ? { n: s.pend.n, v: s.pend.v, ch: !!s.pend.ch } : null,
+    chain: s.chain ? { n: s.chain.n, by: seatOf(s, s.chain.by) } : null, opts: s.opts || DEFAULT_OPTS, pend: s.pend ? { n: s.pend.n, v: s.pend.v, ch: !!s.pend.ch } : null,
   };
 }
 
-module.exports = { COLORS, MAX_PLAYERS, RULE_KEYS, DEFAULT_OPTS, normOpts, buildDeck, shuffle, createState, playable, play, draw, challenge, pass, call, forfeit, botAct, view, current };
+module.exports = { CHAIN_MAX, endChain, COLORS, MAX_PLAYERS, RULE_KEYS, DEFAULT_OPTS, normOpts, buildDeck, shuffle, createState, playable, play, draw, challenge, pass, call, forfeit, botAct, view, current };

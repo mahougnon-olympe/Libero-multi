@@ -92,6 +92,8 @@ html.light .un-cap { color: var(--board, #173a8a); text-shadow: none; }
 .un-btn-uno.on { display: block; animation: unPulse 1s ease-in-out infinite; }
 .un-btn-pass { position: absolute; left: 12px; bottom: 150px; z-index: 6; display: none; }
 .un-btn-pass.on { display: block; }
+.un-btn-endc { position: absolute; left: 50%; transform: translateX(-50%); bottom: 196px; width: auto; min-width: 190px; padding: 0 22px; z-index: 6; display: none; }
+.un-btn-endc.on { display: block; }
 .un-top { position: absolute; left: 8px; right: 8px; top: 8px; display: flex; justify-content: space-between; z-index: 7; pointer-events: none; } .un-top > * { pointer-events: auto; }
 .un-top .un-menu { background: var(--card); border: 2px solid var(--text); border-radius: 10px; padding: 6px 10px; font-weight: 800; cursor: pointer; color: var(--text); }
 .un-top .un-codeb { font: 800 12px Archivo, system-ui, sans-serif; letter-spacing: .15em; color: var(--muted); align-self: center; }
@@ -112,7 +114,7 @@ html.light .un-cap { color: var(--board, #173a8a); text-shadow: none; }
 .uc-prev { display: flex; align-items: flex-end; justify-content: center; gap: 0; height: 100px; padding: 6px 0; }
 .uc-prev .uc { margin-left: -16px; } .uc-prev .uc:first-child { margin-left: 0; }
 @media (prefers-reduced-motion: reduce) { .un-deck.can, .un-btn-uno.on { animation: none; } }
-@media (min-width: 900px) { .un-hand { height: 140px; } .un-cap { bottom: 154px; } .un-btn-uno, .un-btn-pass { bottom: 160px; } .un-pl { width: 120px; } .un-pl .nm { max-width: 76px; } }
+@media (min-width: 900px) { .un-hand { height: 140px; } .un-cap { bottom: 154px; } .un-btn-uno, .un-btn-pass { bottom: 160px; } .un-btn-endc { bottom: 206px; } .un-pl { width: 120px; } .un-pl .nm { max-width: 76px; } }
 
 /* Beaucoup de joueurs (plus de 6 en tout) : pastilles compactes, sans nom ni petites cartes, en quinconce. */
 .un-pl.dense { width: 54px; }
