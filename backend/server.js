@@ -3332,6 +3332,17 @@ function unoRemove(room, pid) {
 }
 
 io.on('connection', (socket) => {
+  // Garde-fou global : un message vide ou mal forme ne doit pas faire lever une exception
+  // dans un handler (null/undefined deviennent {}), et une erreur de handler est journalisee
+  // sans jamais remonter (sync ou async) ni couper la connexion.
+  { const _on = socket.on.bind(socket);
+    socket.on = (ev, fn) => (typeof fn !== 'function' || ev === 'disconnect' || ev === 'disconnecting') ? _on(ev, fn)
+      : _on(ev, (...args) => {
+          if (args.length && (args[0] === null || args[0] === undefined)) args[0] = {};
+          else if (!args.length) args.push({});
+          try { const r = fn(...args); if (r && typeof r.catch === 'function') r.catch(e => logServerError('socket:' + ev, e)); }
+          catch (e) { logServerError('socket:' + ev, e); }
+        }); }
   liveQuiz.attach(socket);
   ucGame.attach(socket);
   let roomCode      = null;
@@ -3588,7 +3599,7 @@ io.on('connection', (socket) => {
   }
 
   function tryJoinClassic(code, name, playerId) {
-    const key  = (code || '').toUpperCase().trim();
+    const key  = String(code || '').toUpperCase().trim();
     const room = rooms.get(key);
     if (!room) return false;
     if (isLudoLobby(room)) return joinLudoLobby(room, key, name, playerId);
@@ -3631,7 +3642,7 @@ io.on('connection', (socket) => {
   }
 
   function tryJoinTrivia(code, name, playerId) {
-    const key  = (code || '').toUpperCase().trim();
+    const key  = String(code || '').toUpperCase().trim();
     const room = triviaRooms.get(key);
     if (!room) return false;
     if (room.status !== 'waiting') { socket.emit('trivia-error', { message: 'La partie a déjà commencé.' }); return true; }
@@ -3675,7 +3686,7 @@ io.on('connection', (socket) => {
   // d'appli, 4G qui bascule) était refusée tant que l'ancienne connexion
   // paraissait vivante côté serveur, et le joueur était éjecté de sa partie.
   socket.on('reconnect-room', ({ code, player, playerId } = {}) => {
-    const key  = (code || '').toUpperCase().trim();
+    const key  = String(code || '').toUpperCase().trim();
     const room = rooms.get(key);
 
     if (!room || !['R', 'G', 'Y', 'B'].includes(player) || !(player in room.players)
@@ -5523,7 +5534,7 @@ io.on('connection', (socket) => {
 
   // ── Uno ─────────────────────────────────────────────────────────────────────
   function tryJoinUno(code, name, playerId) {
-    const key = (code || '').toUpperCase().trim();
+    const key = String(code || '').toUpperCase().trim();
     const room = unoRooms.get(key);
     if (!room) return false;
     const pid = safePlayerId(playerId) || ('g' + socket.id);
@@ -5740,7 +5751,7 @@ io.on('connection', (socket) => {
 
   // ── Reconnexion salon trivia ──────────────────────────────────────────────
   socket.on('reconnect-trivia-room', ({ code, mySocketId } = {}) => {
-    const key   = (code || '').toUpperCase().trim();
+    const key   = String(code || '').toUpperCase().trim();
     const troom = triviaRooms.get(key);
     if (!troom) { socket.emit('trivia-reconnect-failed'); return; }
 
@@ -8181,6 +8192,11 @@ async function mergeDuplicateNames() {
   // Filet de securite Express : toute erreur non geree dans une route est
   // journalisee (dashboard) au lieu de passer inapercue.
   app.use((err, req, res, next) => {
+    // Corps illisible ou trop gros : faute du client, pas du serveur (400/413, rien a journaliser).
+    if (err && (err.type === 'entity.parse.failed' || err.type === 'entity.too.large' || err.type === 'encoding.unsupported')) {
+      if (res.headersSent) return next(err);
+      return res.status(err.status || 400).json({ error: 'Requete invalide.' });
+    }
     logServerError(`route ${req.method} ${req.path}`, err);
     if (res.headersSent) return next(err);
     res.status(500).json({ error: 'Erreur serveur.' });
