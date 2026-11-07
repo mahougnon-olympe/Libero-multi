@@ -2327,30 +2327,30 @@ const EV_CAL = [
   ['2026-10-31', [
     ['c3','coins','Chasse aux Libs dorés','Golden Libs hunt','Des Libs dorés apparaissent au hasard sur les pages du site. Touche-les pour les ramasser.','Golden Libs appear at random on the site pages. Tap them to collect them.','5 à 50 Libs chacun, 20 par jour','5 to 50 Libs each, 20 per day'],
     ['c4','handshake','Parrainage boosté','Boosted referrals','Un ami invité qui joue sa première partie rapporte plus, à toi et à lui.','An invited friend who plays their first game earns more, for you and for them.','300 Libs chacun au lieu de 100','300 Libs each instead of 100','Dimanche','Sunday']]],
-  ['2026-11-07', [
-    ['c3','bingo','Bingo Libero','Libero Bingo','Une grille de 9 objectifs rien qu\'à toi (gagner au Ludo, trouver Le Mot, offrir un cadeau…). Chaque objectif fait est tamponné.','A grid of 9 goals just for you (win at Ludo, find The Word, give a gift…). Each goal done gets stamped.','150 Libs par ligne, 1000 Libs la grille','150 Libs per line, 1000 Libs for the grid']]],
   ['2026-11-14', [
+    ['c3','bingo','Bingo Libero','Libero Bingo','Une grille de 9 objectifs rien qu\'à toi (gagner au Ludo, trouver Le Mot, offrir un cadeau…). Chaque objectif fait est tamponné.','A grid of 9 goals just for you (win at Ludo, find The Word, give a gift…). Each goal done gets stamped.','150 Libs par ligne, 1000 Libs la grille','150 Libs per line, 1000 Libs for the grid']]],
+  ['2026-11-21', [
     ['c2','dices','Coupe Ludo','Ludo Cup','Tournoi à élimination : salons de 4, le vainqueur passe au tour suivant.','Knockout tournament: rooms of 4, the winner goes to the next round.','2000 Libs et un plateau exclusif','2000 Libs and an exclusive board','Samedi après-midi','Saturday afternoon'],
     ['c3','crown','Problème d\'échecs','Chess puzzle','Une position à résoudre (mat en 2), une seule tentative.','A position to solve (mate in 2), one attempt only.','300 Libs et un tampon « Stratège »','300 Libs and a "Strategist" stamp','Dimanche','Sunday']]],
-  ['2026-11-21', [
+  ['2026-11-28', [
     ['c3','robot','Défi du robot difficile','Hard bot challenge','Bats le robot difficile aux échecs, aux dames ou au Puissance 4 : chaque victoire tamponne ta carte de 5 cases.','Beat the hard bot at chess, checkers or Connect 4: each win stamps your 5-box card.','300 Libs à la carte pleine','300 Libs for a full card'],
     ['c1','swords','Week-end des duels','Duel weekend','Les mises entre amis rapportent un bonus au vainqueur, payé par le site.','Stakes between friends give the winner a bonus, paid by the site.','+20 % sur chaque mise gagnée','+20% on every stake won','Dimanche','Sunday']]],
-  ['2026-11-28', [
-    ['c4','target','Objectif commun','Common goal','Tout le site joue ensemble pour atteindre 5000 victoires ce week-end.','The whole site plays together to reach 5000 wins this weekend.','250 Libs à tous les participants si c\'est réussi','250 Libs to every player if it works']]],
   ['2026-12-05', [
-    ['c4','sticker','Album d\'autocollants','Sticker album','Chaque partie donne un autocollant parmi 12. Les doubles s\'échangent entre amis.','Every game gives one of 12 stickers. Duplicates can be swapped with friends.','Album complet : un fond d\'écran exclusif','Full album: an exclusive background']]],
+    ['c4','target','Objectif commun','Common goal','Tout le site joue ensemble pour atteindre 5000 victoires ce week-end.','The whole site plays together to reach 5000 wins this weekend.','250 Libs à tous les participants si c\'est réussi','250 Libs to every player if it works']]],
   ['2026-12-12', [
+    ['c4','sticker','Album d\'autocollants','Sticker album','Chaque partie donne un autocollant parmi 12. Les doubles s\'échangent entre amis.','Every game gives one of 12 stickers. Duplicates can be swapped with friends.','Album complet : un fond d\'écran exclusif','Full album: an exclusive background']]],
+  ['2026-12-19', [
     ['c3','robot','Revanche du robot','The bot strikes back','Le robot difficile défie tout le monde : le classement compte qui lui résiste le plus longtemps.','The hard bot challenges everyone: the leaderboard counts who holds out the longest.','Titre « Briseur de robot »','"Bot breaker" title'],
     ['c2','book','Chasse au trésor des romans','Novel treasure hunt','Des indices cachés dans les chapitres gratuits mènent à un mot secret.','Clues hidden in the free chapters lead to a secret word.','Un chapitre payant offert et des Libs','A paid chapter for free and Libs','Dimanche','Sunday']]],
-  ['2026-12-19', [
-    ['c5','sun','Saison « Vacances »','"Holidays" season','Quatre week-ends reliés, un passe de saison avec des paliers de récompenses.','Four linked weekends, a season pass with reward tiers.','Cosmétiques de saison','Season cosmetics']]],
   ['2026-12-26', [
-    ['c5','worm','Snake à plusieurs','Multiplayer Snake','Lancement : plusieurs serpents dans la même arène, le dernier en vie gagne la manche.','Launch: several snakes in the same arena, the last one alive wins the round.','Bonus de survie en Libs','Survival bonus in Libs']]],
+    ['c5','sun','Saison « Vacances »','"Holidays" season','Quatre week-ends reliés, un passe de saison avec des paliers de récompenses.','Four linked weekends, a season pass with reward tiers.','Cosmétiques de saison','Season cosmetics']]],
   ['2027-01-02', [
-    ['c5','run','Libero Run en duel','Libero Run duel','Lancement : deux coureurs sur la même piste, le premier qui tombe perd.','Launch: two runners on the same track, the first to fall loses.','500 Libs au 1er du classement des duels','500 Libs for the top of the duel leaderboard']]],
+    ['c5','worm','Snake à plusieurs','Multiplayer Snake','Lancement : plusieurs serpents dans la même arène, le dernier en vie gagne la manche.','Launch: several snakes in the same arena, the last one alive wins the round.','Bonus de survie en Libs','Survival bonus in Libs']]],
   ['2027-01-09', [
-    ['c2','flag','Le Grand Quiz Bénin','The Great Benin Quiz','Pour la fête du 10 janvier : seul le thème Bénin rapporte des points d\'event.','For the 10 January holiday: only the Benin theme earns event points.','1000 Libs au 1er et le titre « Fierté du Bénin »','1000 Libs for 1st and the "Pride of Benin" title']]],
+    ['c5','run','Libero Run en duel','Libero Run duel','Lancement : deux coureurs sur la même piste, le premier qui tombe perd.','Launch: two runners on the same track, the first to fall loses.','500 Libs au 1er du classement des duels','500 Libs for the top of the duel leaderboard']]],
   ['2027-01-16', [
+    ['c2','flag','Le Grand Quiz Bénin','The Great Benin Quiz','Pour la fête du 10 janvier : seul le thème Bénin rapporte des points d\'event.','For the 10 January holiday: only the Benin theme earns event points.','1000 Libs au 1er et le titre « Fierté du Bénin »','1000 Libs for 1st and the "Pride of Benin" title']]],
+  ['2027-01-23', [
     ['c5','awale','Lancement de l\'Awalé','Awale launch','Le jeu de graines d\'Afrique de l\'Ouest arrive sur Libero, avec un tournoi d\'ouverture.','The West African seed game arrives on Libero, with an opening tournament.','1000 Libs au champion','1000 Libs for the champion']]],
 ];
 const _EV_DAY = 86_400_000;
