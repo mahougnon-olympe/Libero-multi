@@ -3123,7 +3123,7 @@ function scheduleBotMove(code) {
         }
         const res = checkers.applyMove(room.state, move);
         if (!res) return;
-        newState = { board: res.board, currentPlayer: res.currentPlayer, mustFrom: res.mustFrom, lastMove: res.lastMove };
+        newState = { board: res.board, currentPlayer: res.currentPlayer, mustFrom: res.mustFrom, lastMove: res.lastMove, variant: res.variant, seqs: res.seqs || null, pendingOver: res.pendingOver || [] };
         status = res.status; winner = res.winner;
         break;
       }
@@ -3910,7 +3910,7 @@ io.on('connection', (socket) => {
       case 'checkers': {
         const result = checkers.applyMove(room.state, move);
         if (!result) return;
-        newState = { board: result.board, currentPlayer: result.currentPlayer, mustFrom: result.mustFrom, lastMove: result.lastMove };
+        newState = { board: result.board, currentPlayer: result.currentPlayer, mustFrom: result.mustFrom, lastMove: result.lastMove, variant: result.variant, seqs: result.seqs || null, pendingOver: result.pendingOver || [] };
         status   = result.status;
         winner   = result.winner;
         break;
