@@ -2470,6 +2470,7 @@ window._arcade = (() => {
 })();
 
 function applyLang() {
+  try { window._hkApply?.(); } catch {}
   const d = t();
   document.documentElement.lang = currentLang;
   document.title = d.siteTitle;
@@ -3647,6 +3648,7 @@ const _HKT = {
 const _hkT = () => _HKT[currentLang === 'en' ? 'en' : 'fr'];
 function _hkOpen(tab, enig) { _hkLoad().then(h => h && h.open(tab, enig)); }
 window._hkOpen = _hkOpen;
+window._hkApply = () => _hkApply();
 function _hkApply() {
   const v = window._hk; if (!v) return;
   const x = _hkT(), m = v.mult > 1 ? v.mult : 1;
