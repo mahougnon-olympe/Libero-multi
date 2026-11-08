@@ -468,6 +468,7 @@ async function loadData() {
   unoLaunchSent = !!configDocs.find(d => d._id === 'uno_launch_push')?.value;
   liveQuiz.load(configDocs.find(d => d._id === 'live_cfg')?.value, configDocs.find(d => d._id === 'live_state')?.value);
   hk.load(configDocs.find(d => d._id === 'hk_state')?.value);
+  bingo.load(configDocs.find(d => d._id === 'bingo_state')?.value);
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
   const cbDoc = configDocs.find(d => d._id === 'chess_book');
@@ -1122,6 +1123,7 @@ function makeFriends(idA, idB) {
   dbUpsertLibs(idA, a); dbUpsertLibs(idB, b);
   _emitToPlayer(idA, 'friends-list', friendsPayload(a));
   _emitToPlayer(idB, 'friends-list', friendsPayload(b));
+  bingo.event(idA, { k: 'friend' }); bingo.event(idB, { k: 'friend' });
   return true;
 }
 
@@ -1774,6 +1776,32 @@ const hk = require('./hacker')({
   friendByRef: (entry, ref) => (entry.friends || []).find(p => _playerRef(p).slice(0, 8) === String(ref || '')) || null,
   deliverGift: (pid, g) => deliverGift(pid, g),
 });
+
+// ── Bingo Libero (week-end du 14 nov.) : moteur dans bingo.js ──
+const bingo = require('./bingo')({
+  io, saveConfig, safePlayerId,
+  getEntry: pid => getLibsEntry(pid),
+  emitTo: (pid, ev, d) => _emitToPlayer(pid, ev, d),
+  beninHour: () => _beninDate().getUTCHours(),
+  adminAlert: (t, b) => adminAlert(t, b),
+  logError: (w, e) => logServerError(w, e),
+  pushAll: (fr, en) => {
+    if (!webpush) return 0;
+    let n = 0;
+    for (const pid of pushSubs.keys()) {
+      const e = libs.get(pid); const m = e && e.lang === 'en' ? en : fr;
+      n += sendPush(pid, { title: m[0], body: m[1], url: 'https://libero-multi.vercel.app', tag: 'libero-bingo' });
+    }
+    return n;
+  },
+  credit: (pid, n) => {
+    const e = getLibsEntry(pid); if (!e) return;
+    e.balance = Math.min(MAX_BALANCE, e.balance + n);
+    libs.set(pid, e); dbUpsertLibs(pid, e);
+    _emitToPlayer(pid, 'libs-update', { balance: e.balance, pendingBoostHint: e.pendingBoostHint, delta: n, nextAt: nextDistributionAt });
+  },
+});
+const _areFriends = (a, b) => { const e = a && libs.get(a); return !!(e && Array.isArray(e.friends) && e.friends.includes(b)); };
 
 // ── Quiz en direct (tournoi) : moteur dans live-quiz.js ──
 const liveQuiz = require('./live-quiz')({
@@ -2972,6 +3000,7 @@ function finishTriviaGame(code) {
     if (!isFlags) updateTriviaLeaderboard(s.playerId || s.name, s.name, s.siteScore); // le quiz mixte compte comme un quiz ; les drapeaux seuls n'entrent pas au classement du quiz
     updateLastActive(s.playerId, s.name);
     pushHistory(s.playerId, { game: isFlags ? 'flags' : isMix ? 'mix' : 'trivia', result: null, score: s.siteScore, diff: room.difficulty || 'medium' });
+    if (isFlags) bingo.event(s.playerId, { k: 'played', game: 'flags' });
     bumpChallenge(s.playerId, 'triviaGames'); // défi « termine N quiz »
   }
   io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
@@ -3343,6 +3372,7 @@ function unoFinish(room) {
     const res = pid === winner ? 'win' : 'loss';
     updateLeaderboard(pid, p.name, res);
     pushHistory(pid, { game: 'uno', result: res }, { noXp: (room.left || []).some(x => x.pid === pid) });
+    bingo.event(pid, { k: 'played', game: 'uno', won: res === 'win', humans: all.filter(q => { const pl = _unoPlayer(room, q) || (room.left || []).find(x => x.pid === q); return pl && !pl.bot; }).length });
     updateLastActive(pid, p.name);
     if (res === 'win') bumpChallenge(pid, 'gamesWon');
   });
@@ -3383,6 +3413,7 @@ io.on('connection', (socket) => {
         }); }
   liveQuiz.attach(socket);
   hk.attach(socket, allowAction);
+  bingo.attach(socket, allowAction);
   ucGame.attach(socket);
   let roomCode      = null;
   let myPlayer      = null;
@@ -3521,6 +3552,7 @@ io.on('connection', (socket) => {
         const res = pl.role === winner ? 'win' : 'loss';
         updateLeaderboard(pid || nm, nm, res);
         pushHistory(pid, { game: 'ludo', result: res, diff: room.botSeats?.length ? room.botDifficulty : undefined }, { noXp: !!pl.gone });
+        if (pid && !pl.gone) bingo.event(pid, { k: 'played', game: 'ludo', won: res === 'win', humans: players.length, friend: players.some(o => o.id && o.id !== pid && _areFriends(pid, o.id)) });
       }
       updateLastActive(pid, nm);
     });
@@ -3869,6 +3901,9 @@ io.on('connection', (socket) => {
         updateLastActive(room.playerIds?.[loserRole], room.playerNames[loserRole]);
         pushHistory(room.playerIds?.[winner],    { game: room.gameType, result: 'win' });
         pushHistory(room.playerIds?.[loserRole], { game: room.gameType, result: 'loss' });
+        { const wp = room.playerIds?.[winner], lp = room.playerIds?.[loserRole], fr = _areFriends(wp, lp);
+          bingo.event(wp, { k: 'played', game: room.gameType, won: true, humans: 2, friend: fr });
+          bingo.event(lp, { k: 'played', game: room.gameType, won: false, humans: 2, friend: fr }); }
         bumpChallenge(room.playerIds?.[winner], 'gamesWon');
         if (room.gameType === 'ludo') bumpChallenge(room.playerIds?.[winner], 'ludoWins');
       } else {
@@ -3878,6 +3913,8 @@ io.on('connection', (socket) => {
         updateLastActive(room.playerIds?.Y, room.playerNames.Y);
         pushHistory(room.playerIds?.R, { game: room.gameType, result: 'draw' });
         pushHistory(room.playerIds?.Y, { game: room.gameType, result: 'draw' });
+        bingo.event(room.playerIds?.R, { k: 'played', game: room.gameType, won: false, humans: 2 });
+        bingo.event(room.playerIds?.Y, { k: 'played', game: room.gameType, won: false, humans: 2 });
       }
       io.emit('leaderboard-update', getLeaderboardData());
       io.emit('global-leaderboard-update', getGlobalLeaderboardData());
@@ -3890,11 +3927,13 @@ io.on('connection', (socket) => {
           const humanWon = winner === 'R';
           updateLeaderboard(humanId, humanName, humanWon ? 'win' : 'loss');
           pushHistory(room.playerIds?.R, { game: room.gameType, result: humanWon ? 'win' : 'loss', diff: room.botDifficulty });
+          bingo.event(room.playerIds?.R, { k: 'played', game: room.gameType, won: humanWon, humans: 1, diff: room.botDifficulty });
           if (humanWon) bumpChallenge(room.playerIds?.R, 'gamesWon');
           if (humanWon && room.gameType === 'ludo') bumpChallenge(room.playerIds?.R, 'ludoWins');
         } else {
           updateLeaderboard(humanId, humanName, 'draw');
           pushHistory(room.playerIds?.R, { game: room.gameType, result: 'draw' });
+          bingo.event(room.playerIds?.R, { k: 'played', game: room.gameType, won: false, humans: 1, diff: room.botDifficulty });
         }
         updateLastActive(humanId, humanName);
         io.emit('leaderboard-update', getLeaderboardData());
@@ -4355,6 +4394,7 @@ io.on('connection', (socket) => {
     const pid = safePlayerId(playerId);
     if (pid && typeof score === 'number') {
       pushHistory(pid, { game: 'trivia', result: null, score: Math.max(0, Math.floor(score)), diff: socket._soloTriviaDiff });
+      bingo.event(pid, { k: 'quiz', score: Math.max(0, Math.floor(score)) });
       bumpChallenge(pid, 'triviaCorrect', Math.max(0, Math.floor(score)));
       bumpChallenge(pid, 'triviaGames'); // défi « termine N quiz »
     }
@@ -4377,6 +4417,7 @@ io.on('connection', (socket) => {
     libs.set(id, entry); dbUpsertLibs(id, entry);
     bumpDaily('games');
     pushHistory(id, { game: 'flags', result: null, score: sc });
+    bingo.event(id, { k: 'played', game: 'flags' });
     if (sc > 0) bumpChallenge(id, 'triviaCorrect', sc);
     bumpChallenge(id, 'triviaGames');
     socket.emit('flags-solo-result', { mode, score: sc, record, best: fb[mode] || 0 });
@@ -4416,6 +4457,7 @@ io.on('connection', (socket) => {
     dbSaveGameCounters();
     bumpDaily('games');
     pushHistory(id, { game, result: null, score: sc });
+    bingo.event(id, { k: 'score', game, score: sc });
     // Défis Luffy Runner (hors week-end) : score cumulé + nombre de parties.
     if (game === 'luffy' && sc > 0) bumpChallenge(id, 'luffyRun', sc);
     if (game === 'luffy') bumpChallenge(id, 'luffyGames');
@@ -4864,6 +4906,7 @@ io.on('connection', (socket) => {
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
     bumpChallenge(id, 'giftsSent');
+    bingo.event(id, { k: 'giftFriend' });
     const target = getLibsEntry(pid);
     target.balance = Math.min(MAX_BALANCE, target.balance + amt);
     deliverGift(pid, { fromName: entry.name, libsAmount: amt });
@@ -4987,6 +5030,7 @@ io.on('connection', (socket) => {
     deliverGift(pid, { fromName: entry.name, vip: true });
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, nextAt: nextDistributionAt });
     socket.emit('gift-vip-result', { ok: true, name: target.name });
+    bingo.event(id, { k: 'giftFriend' });
   });
 
   // ── Tournoi du samedi ─────────────────────────────────────────────────────
@@ -5183,6 +5227,7 @@ io.on('connection', (socket) => {
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, nextAt: nextDistributionAt });
     socket.emit('gift-cosmetic-result', { ok: true, toFriend: target.name });
     bumpChallenge(id, 'giftsSent');
+    bingo.event(id, { k: 'giftFriend' });
   });
 
   // ── Recevoir un cadeau (cosmetique ou pack) ──────────────────────────────
@@ -7173,6 +7218,14 @@ app.post('/admin/maintenance-page', (req, res) => {
 
 // ── Quiz en direct : reglages organisateur ──
 // Evenement ZyX : suivi (status), interrupteur d'urgence (end : la boutique rouvre), prix (mult 1 a 3), reset.
+// Bingo Libero : suivi (status) et remise a zero. Avec BINGO_TEST=1 (tests locaux seulement) : 'event' injecte un evenement.
+app.post('/admin/bingo', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const { action, pid, ev } = req.body || {};
+  if (action === 'event' && process.env.BINGO_TEST === '1') { bingo.event(safePlayerId(pid), ev || {}); return res.json({ ok: true }); }
+  if (action && action !== 'status') adminAudit('bingo', { action: String(action) });
+  res.json(bingo.admin(String(action || 'status')));
+});
 app.post('/admin/hacker', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   const { action, value } = req.body || {};
@@ -8259,5 +8312,6 @@ async function mergeDuplicateNames() {
   const PORT = process.env.PORT || 3001;
   liveQuiz.start();
   hk.start();
+  bingo.start();
   server.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));
 })();

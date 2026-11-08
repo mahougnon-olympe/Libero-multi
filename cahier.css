@@ -3681,3 +3681,10 @@ html.fx-on .pf-hw-chandelle::before { animation: hwFlm .3s ease-in-out infinite 
 .hk-home-go{font:400 .85rem var(--font-display);border:2px solid var(--line);border-radius:8px;padding:6px 14px;background:var(--board);color:#fff;cursor:pointer;box-shadow:0 2px 0 var(--hard)}
 body.hk-locked #nav-tab-shop{position:relative}
 body.hk-locked #nav-tab-shop::after{content:"";position:absolute;right:calc(50% - 22px);top:2px;width:10px;height:10px;border-radius:50%;background:var(--red);border:2px solid var(--bg)}
+
+/* ── Bingo Libero : bandeau d'accueil et notification d'objectif ── */
+.bingo-home{background:var(--card2);color:var(--text)}
+.bingo-toast{position:fixed;left:50%;top:-120px;transform:translateX(-50%);z-index:3900;width:min(92vw,420px);display:grid;gap:2px;padding:12px 14px;border:2px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);box-shadow:0 5px 0 var(--hard);transition:top .55s cubic-bezier(.34,1.5,.64,1);cursor:pointer}
+.bingo-toast.on{top:12px}
+.bingo-toast b{font:400 .95rem var(--font-display)}
+.bingo-toast span{font-size:.82rem;color:var(--muted)}

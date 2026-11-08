@@ -2470,7 +2470,7 @@ window._arcade = (() => {
 })();
 
 function applyLang() {
-  try { window._hkApply?.(); } catch {}
+  try { window._hkApply?.(); window._bingoApply?.(); } catch {}
   const d = t();
   document.documentElement.lang = currentLang;
   document.title = d.siteTitle;
@@ -3681,6 +3681,53 @@ socket.on('hk-take-result', r => {
   if (r.ok && !r.gift) { const nm = window._allShopItemsById?.[r.cosmeticId]?.name || r.cosmeticId; window._notify?.add?.({ type: 'shop', icon: '🎁', text: _hkT().taken(nm) }); if (typeof enterShop === 'function' && document.getElementById('screen-shop')?.classList.contains('active')) enterShop(); }
   else if (!r.ok && !window.LiberoHk?.isOpen()) { window._notify?.add?.({ type: 'shop', icon: '⚠', text: _hkT().err[r.error] || _hkT().err.rate }); }
 });
+// ── Bingo Libero (week-end du 14 nov.) : bingo.js a la demande ; la grille et les Libs viennent du serveur ──
+let _bingoLoadP = null;
+window._bingo = null;
+function _bingoLoad() {
+  if (window.LiberoBingo) { window.LiberoBingo.init(socket); if (window._bingo) window.LiberoBingo.setState(window._bingo); return Promise.resolve(window.LiberoBingo); }
+  if (_bingoLoadP) return _bingoLoadP;
+  _bingoLoadP = new Promise(res => {
+    const sc = document.createElement('script'); sc.src = 'bingo.js?v=1';
+    sc.onload = () => { try { window.LiberoBingo.init(socket); if (window._bingo) window.LiberoBingo.setState(window._bingo); } catch {} res(window.LiberoBingo); };
+    sc.onerror = () => { _bingoLoadP = null; res(null); };
+    document.head.appendChild(sc);
+  });
+  return _bingoLoadP;
+}
+const _BGT = {
+  fr: { home: (n, l) => `Bingo Libero : ${n}/9 objectifs, ${l}/8 lignes. 150 Libs par ligne, 1000 Libs la grille.`, go: 'Ma grille', ended: n => `Le Bingo est terminé : tu as gagné ${n} Libs.`, goal: 'Objectif validé', line: n => `Ligne complète : +${n} Libs`, full: n => `Grille complète : +${n} Libs`, step: (n, m) => `${n} sur ${m}` },
+  en: { home: (n, l) => `Libero Bingo: ${n}/9 goals, ${l}/8 lines. 150 Libs per line, 1000 Libs for the card.`, go: 'My card', ended: n => `The Bingo is over: you won ${n} Libs.`, goal: 'Goal done', line: n => `Line complete: +${n} Libs`, full: n => `Full card: +${n} Libs`, step: (n, m) => `${n} of ${m}` },
+};
+const _bgT = () => _BGT[currentLang === 'en' ? 'en' : 'fr'];
+function _bingoOpen() { _bingoLoad().then(b => b && b.open()); }
+window._bingoOpen = _bingoOpen;
+function _bingoApply() {
+  const v = window._bingo, el = document.getElementById('bingo-home'); if (!el) return;
+  const x = _bgT();
+  if (!v || !v.grid || v.phase === 'before' || (v.phase === 'ended' && (v.now - v.end) > 36 * 3600_000)) { el.hidden = true; return; }
+  const n = v.grid.filter(g => g.done).length, l = (v.lines || []).length;
+  el.hidden = false;
+  el.innerHTML = `<span class="hk-home-t">${_escHtml(v.phase === 'ended' ? x.ended(v.libs || 0) : x.home(n, l))}</span><button type="button" class="hk-home-go">${_escHtml(x.go)}</button>`;
+  el.querySelector('.hk-home-go').addEventListener('click', _bingoOpen);
+}
+function _bingoToast(title, sub) {
+  let t = document.getElementById('bingo-toast');
+  if (!t) { t = document.createElement('div'); t.id = 'bingo-toast'; t.className = 'bingo-toast'; t.addEventListener('click', _bingoOpen); document.body.appendChild(t); }
+  t.innerHTML = `<b>${_escHtml(title)}</b><span>${_escHtml(sub || '')}</span>`;
+  t.classList.remove('on'); void t.offsetWidth; t.classList.add('on');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('on'), 4200);
+}
+socket.on('bingo-state', v => { window._bingo = v; _bingoApply(); window.LiberoBingo?.setState(v); if (v && v.phase !== 'before' && !window.LiberoBingo && sessionStorage.getItem('libero_bingo')) _bingoLoad().then(b => b && b.restore()); });
+socket.on('bingo-event', ev => {
+  if (!ev) return; const x = _bgT();
+  if (ev.state) { window._bingo = ev.state; _bingoApply(); }
+  if (window.LiberoBingo?.isOpen()) { window.LiberoBingo.onEvent(ev); return; }
+  if (ev.state) window.LiberoBingo?.setState(ev.state);
+  if (ev.type === 'goal') { const names = (window.LiberoBingo?.TX?.[currentLang === 'en' ? 'en' : 'fr']?.g) || null; const sub = ev.full ? x.full(ev.libs) : ev.lines && ev.lines.length ? x.line(ev.libs) : (names && ev.ids && names[ev.ids[0]]) || ''; _bingoToast(x.goal, sub); window._notify?.add?.({ type: 'event', icon: '🎯', text: x.goal + (sub ? ' : ' + sub : '') }); }
+  else if (ev.type === 'step') _bingoToast(x.goal, x.step(ev.p, ev.n));
+});
+socket.on('bingo-changed', () => socket.emit('bingo-get', { playerId: getPlayerId() }));
 // ── Undercover : undercover.js + undercover.css a la demande, puis relais des evenements du serveur ──
 let _ucP = null;
 function _ucLoad() {
@@ -6581,7 +6628,7 @@ window.addEventListener('pagehide', () => { try { socket.emit('app-visible', fal
 window.addEventListener('pageshow', _sendVisible);
 socket.on('connect', () => {
   triviaMySocketId = socket.id;
-  try { socket.emit('hk-get', { playerId: getPlayerId() }); } catch {}
+  try { socket.emit('hk-get', { playerId: getPlayerId() }); socket.emit('bingo-get', { playerId: getPlayerId() }); } catch {}
   window._unoResume?.();
   window._ucResume?.();
   try { socket.emit('live-get', { playerId: getPlayerId() }); window.LiberoLive?.resume?.(); } catch {}
@@ -12061,6 +12108,7 @@ const Wordle = (() => {
     window._sound?.play('word-letter-ok');
     if (guess === ans) {
       done = 'win'; _updateStreak(true);
+      try { socket.emit('bingo-word', { playerId: getPlayerId(), tries: guesses.length }); } catch {}
       setTimeout(() => window._sound?.play('word-found'), 450);
       setTimeout(() => { const row = board()?.querySelectorAll('.wordle-row')[guesses.length - 1];
         row?.querySelectorAll(':scope > *').forEach((c, i) => { c.style.setProperty('--i', i); c.classList.remove('wordle-wave'); void c.offsetWidth; c.classList.add('wordle-wave'); }); }, 120);
