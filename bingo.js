@@ -115,7 +115,7 @@
     if (host) return;
     host = document.createElement('div'); host.id = 'bingo-root'; document.body.appendChild(host);
     sh = host.attachShadow({ mode: 'open' });
-    sh.innerHTML = '<link rel="stylesheet" href="bingo.css?v=1"><div class="bg-wrap"><div class="bar"><button class="cl" data-a="close" type="button"></button><div class="tt"></div><span class="bal" id="bal"><span class="coin">L</span><b id="balv">0</b></span></div><div class="main" id="main"></div><div class="toast" id="toast"><div class="ti"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.500 4.500L19 7"/></svg></div><div><b id="toastT"></b><small id="toastS"></small></div></div></div>';
+    sh.innerHTML = '<link rel="stylesheet" href="bingo.css?v=2"><div class="bg-wrap"><div class="bar"><button class="cl" data-a="close" type="button"></button><div class="tt"></div><span class="bal" id="bal"><span class="coin">L</span><b id="balv">0</b></span></div><div class="main" id="main"></div><div class="toast" id="toast"><div class="ti"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.500 4.500L19 7"/></svg></div><div><b id="toastT"></b><small id="toastS"></small></div></div></div>';
     sh.addEventListener('click', e => { const a = e.target.closest('[data-a]'); if (a && a.dataset.a === 'close') close(); });
     const sync = () => { host.dataset.theme = document.documentElement.classList.contains('light') ? 'light' : 'dark'; };
     sync(); new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });

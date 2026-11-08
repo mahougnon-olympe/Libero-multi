@@ -206,7 +206,7 @@
     if (host) return;
     host = document.createElement('div'); host.id = 'hk-root'; document.body.appendChild(host);
     sh = host.attachShadow({ mode: 'open' });
-    sh.innerHTML = `<link rel="stylesheet" href="hacker.css?v=2"><div class="hk-wrap"><div class="bar"><button class="hk-close" data-a="close" type="button"></button><div class="hk-tit"></div><span class="hk-who"></span></div><div class="hk-main" id="main"></div><div class="ptab" id="tabs"></div><div class="push" id="push"><div class="ic">L</div><div><b id="pushT"></b><small id="pushB"></small></div></div></div>`;
+    sh.innerHTML = `<link rel="stylesheet" href="hacker.css?v=3"><div class="hk-wrap"><div class="bar"><button class="hk-close" data-a="close" type="button"></button><div class="hk-tit"></div><span class="hk-who"></span></div><div class="hk-main" id="main"></div><div class="ptab" id="tabs"></div><div class="push" id="push"><div class="ic">L</div><div><b id="pushT"></b><small id="pushB"></small></div></div></div>`;
     sh.addEventListener('click', onClick);
     sh.addEventListener('pointermove', e => { const m = q('.hk-main'); if (!m) return; const r = m.getBoundingClientRect(); look(e.clientX - r.left, e.clientY - r.top); });
     const syncTheme = () => { host.dataset.theme = document.documentElement.classList.contains('light') ? 'light' : 'dark'; };
@@ -215,12 +215,12 @@
   function isOpen() { return host && host.hasAttribute('data-open'); }
   function open(tab, enig) {
     build(); host.setAttribute('data-open', ''); document.body.style.overflow = 'hidden';
-    UI.tab = tab || (V && V.phase === 'locked' ? (localStorage.getItem('libero_hk_seen') ? 'door' : 'shop') : 'door'); UI.enig = enig == null ? null : enig; render();
+    UI.tab = tab || (V && V.phase === 'locked' ? 'door' : 'door'); UI.enig = enig == null ? null : enig; render();
   }
   function close() { clearT(); if (host) host.removeAttribute('data-open'); document.body.style.overflow = ''; try { sessionStorage.removeItem('libero_hk'); } catch (_) {} }
   function tabsFor() {
     const ph = V && V.phase, mine = V && V.owner && V.owner.mine && V.owner.active;
-    if (ph === 'locked') return ['door', 'book', 'shop'];
+    if (ph === 'locked') return ['door', 'book'];
     return mine ? ['ticket', 'door'] : ['door'];
   }
   function setTab(tab, enig) { clearT(); UI.tab = tab; UI.enig = enig == null ? null : enig; render(); }
@@ -443,5 +443,39 @@
     sock.on('hk-answer-result', onAnswerResult); sock.on('hk-code-result', onCodeResult); sock.on('hk-take-result', onTakeResult);
   }
   function restore() { try { const s = JSON.parse(sessionStorage.getItem('libero_hk') || 'null'); if (s && V) open(s.tab, s.enig); } catch (_) {} }
-  window.LiberoHk = { init, setState, onEvent, open, close, restore, isOpen, TX };
+
+  /* ───────── La vraie boutique pendant le piratage : ZyX l'occupe, farces visuelles seulement ───────── */
+  let rsRun = 0;
+  function realShop() {
+    if (!V || V.phase !== 'locked' || !pranksOn()) return;
+    const scr = document.getElementById('screen-shop'); if (!scr || !scr.classList.contains('active') || rsRun) return;
+    rsRun = 1; const x = X(), undo = [], tm = [];
+    const alive = () => scr.classList.contains('active') && V && V.phase === 'locked';
+    const w = (fn, ms) => { tm.push(setTimeout(() => { if (alive()) fn(); }, ms)); };
+    let st = document.getElementById('hk-rs-css');
+    if (!st) { st = document.createElement('style'); st.id = 'hk-rs-css'; st.textContent = '.hk-say{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:3500;max-width:min(92vw,420px);background:#fff;color:#22252b;border:3px solid #22252b;border-radius:16px;padding:8px 14px;font:700 1.05rem/1.2 var(--font-hand,Caveat,cursive);box-shadow:0 4px 0 rgba(0,0,0,.25);pointer-events:none}.hk-say b{display:block;font:400 .7rem var(--font-display,Archivo Black,sans-serif);color:#d23a4f;margin-bottom:2px}.hk-fake{position:relative;cursor:pointer;transition:transform .35s cubic-bezier(.3,1.4,.5,1)}.hk-fake .hk-pc{position:absolute;right:6px;top:6px;background:#d23a4f;color:#fff;font:400 .7rem var(--font-display,sans-serif);border-radius:6px;padding:2px 6px;z-index:2}.hk-dark{position:fixed;inset:0;z-index:3400;pointer-events:none;background:radial-gradient(circle 110px at var(--x,50%) var(--y,50%),transparent 0,rgba(0,0,0,.93) 100%);transition:opacity .4s}'; document.head.appendChild(st); }
+    const say = (t, ms) => { document.querySelectorAll('.hk-say').forEach(e => e.remove()); const s = document.createElement('div'); s.className = 'hk-say'; s.innerHTML = '<b>~ZyX_22~</b>' + esc(t); document.body.appendChild(s); snd('tick'); tm.push(setTimeout(() => s.remove(), ms || 3600)); undo.push(() => s.remove()); };
+    const tiles = () => Array.from(scr.querySelectorAll('.shop-tile')).filter(t => !t.classList.contains('hk-fake') && t.offsetParent);
+    const T = {
+      fake(done) { const b = tiles()[0]; if (!b) return done(); const f = b.cloneNode(true); f.classList.add('hk-fake'); f.removeAttribute('data-id'); f.dataset.hk = '1';
+        const nm = f.querySelector('.shop-tile-name'), pr = f.querySelector('.shop-tile-price'); if (nm) nm.textContent = x.zx.fakeName; if (pr) pr.textContent = hkP(20) + ' Libs'; f.insertAdjacentHTML('afterbegin', '<div class="hk-pc">-90 %</div>');
+        b.parentNode.insertBefore(f, b); undo.push(() => f.remove()); say(x.zx.fake); let h = 0;
+        f.addEventListener('click', e => { e.stopPropagation(); e.preventDefault(); h++; if (h < 3) { f.style.transform = `translate(${h % 2 ? 40 : -40}px,-14px) rotate(${h % 2 ? 6 : -6}deg)`; say(h === 1 ? x.zx.slow : x.zx.almost, 1800); } else { say(x.zx.fakeStamp + ' ' + x.zx.fakeTxt, 4200); f.remove(); w(done, 4500); } }, true);
+        w(() => { f.remove(); done(); }, 15000); },
+      labels(done) { const ts = tiles().slice(0, 6), names = ts.map(t => t.querySelector('.shop-tile-name')).filter(Boolean), orig = names.map(n => n.textContent);
+        say(x.zx.labels); names.forEach((n, i) => { n.textContent = orig[(i + 2) % orig.length]; }); const back = () => names.forEach((n, i) => { n.textContent = orig[i]; }); undo.push(back); w(() => { back(); done(); }, 7000); },
+      thief(done) { const ts = tiles(), t = ts[Math.floor(Math.random() * ts.length)]; if (!t) return done(); say(x.zx.thief); t.style.visibility = 'hidden'; undo.push(() => { t.style.visibility = ''; }); w(() => { t.style.visibility = ''; say(x.zx.giveBack, 2600); w(done, 2800); }, 5000); },
+      dark(done) { const d = document.createElement('div'); d.className = 'hk-dark'; document.body.appendChild(d); say(x.zx.dark, 4000); const mv = e => { const p = e.touches ? e.touches[0] : e; d.style.setProperty('--x', p.clientX + 'px'); d.style.setProperty('--y', p.clientY + 'px'); };
+        addEventListener('pointermove', mv); addEventListener('touchmove', mv, { passive: true }); const end = () => { d.remove(); removeEventListener('pointermove', mv); removeEventListener('touchmove', mv); }; undo.push(end); w(() => { end(); done(); }, 4500); }
+    };
+    const order = ['fake', 'labels', 'thief', 'dark'], s0 = (visit++) % 4, qn = [0, 1, 2].map(i => order[(s0 + i) % 4]);
+    const stop = () => { rsRun = 0; tm.forEach(clearTimeout); undo.forEach(f => { try { f(); } catch (_) {} }); };
+    const nxt = i => { if (i >= qn.length || !alive()) return; T[qn[i]](() => w(() => nxt(i + 1), 3500)); };
+    const first = !localStorage.getItem('libero_hk_seen');
+    if (first) { try { localStorage.setItem('libero_hk_seen', '1'); } catch (_) {} const ls = x.zx.intro; ls.forEach((l, k) => w(() => say(l, 3200), 600 + k * 3600)); w(() => nxt(0), 600 + ls.length * 3600 + 800); }
+    else w(() => { say(x.zx.welcome, 3000); w(() => nxt(0), 3600); }, 1200);
+    const wd = setInterval(() => { if (!alive()) { clearInterval(wd); stop(); } }, 700);
+  }
+
+  window.LiberoHk = { realShop, init, setState, onEvent, open, close, restore, isOpen, TX };
 })();

@@ -2981,7 +2981,6 @@ function _isShopOpen() {
 }
 let _wasShopScreen = false;
 function showScreen(name) {
-  if (name === 'shop' && window._hk && window._hk.phase === 'locked') { _hkOpen(); return; }
   const wasRestoring = document.documentElement.classList.contains('restoring');
   const el = document.getElementById('screen-' + name);
   // Marquer avant de retirer restoring : supprime l'animation quand JS active l'écran
@@ -3087,7 +3086,7 @@ function showScreen(name) {
   if (window._ideasBoard && name === 'ideas') window._ideasBoard.load();
   if (window._wordle && name === 'wordle') window._wordle.enter();
   if (window._readFeed && name === 'read') window._readFeed.load();
-  if (name === 'shop') { if (typeof enterShop === 'function') enterShop(); }
+  if (name === 'shop') { if (typeof enterShop === 'function') enterShop(); if (window._hk && window._hk.phase === 'locked') _hkLoad().then(h => h && h.realShop && setTimeout(() => h.realShop(), 900)); }
   else if (_wasShopScreen && typeof _resetShopPanels === 'function') _resetShopPanels();
   _wasShopScreen = (name === 'shop');
 
@@ -3630,7 +3629,7 @@ function _hkLoad() {
   if (window.LiberoHk) { window.LiberoHk.init(socket); if (window._hk) window.LiberoHk.setState(window._hk); return Promise.resolve(window.LiberoHk); }
   if (_hkLoadP) return _hkLoadP;
   _hkLoadP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'hacker.js?v=1';
+    const sc = document.createElement('script'); sc.src = 'hacker.js?v=2';
     sc.onload = () => { try { window.LiberoHk.init(socket); if (window._hk) window.LiberoHk.setState(window._hk); } catch {} res(window.LiberoHk); };
     sc.onerror = () => { _hkLoadP = null; res(null); };
     document.head.appendChild(sc);
@@ -3663,11 +3662,17 @@ function _hkApply() {
     if (html) { home.innerHTML = `<span class="hk-home-t">${_escHtml(html)}</span>${btn ? `<button type="button" class="hk-home-go">${_escHtml(btn)}</button>` : ''}`; if (go) home.querySelector('.hk-home-go').addEventListener('click', go); home.classList.toggle('is-locked', v.phase === 'locked'); }
   }
   const sb = document.getElementById('hk-shop-banner');
-  if (sb) { const on = v.phase === 'open' && own && own.active; sb.hidden = !on; if (on) sb.innerHTML = `<span class="hk-home-t">${_escHtml(x.owner(own.name, own.used))}</span>`; }
+  if (sb) {
+    const on = v.phase === 'open' && own && own.active, lk = v.phase === 'locked';
+    sb.hidden = !(on || lk);
+    if (on) sb.innerHTML = `<span class="hk-home-t">${_escHtml(x.owner(own.name, own.used))}</span>`;
+    else if (lk) { sb.innerHTML = `<span class="hk-home-t">${_escHtml(x.locked)}</span><button type="button" class="hk-home-go">${_escHtml(x.enter)}</button>`; sb.querySelector('.hk-home-go').addEventListener('click', () => _hkOpen()); }
+    sb.classList.toggle('is-locked', lk);
+  }
+  if (v.phase === 'locked' && document.getElementById('screen-shop')?.classList.contains('active')) _hkLoad().then(h => h && h.realShop && h.realShop());
   document.body.classList.toggle('hk-locked', v.phase === 'locked');
   const pb = document.getElementById('sp-hk-btn'); if (pb) { pb.classList.toggle('hidden', !(v.phase === 'locked')); _spCk(pb, localStorage.getItem('libero_hk_pranks') !== '0', x.pranks); }
   // Si la boutique est fermee, on ne reste pas dessus.
-  if (v.phase === 'locked' && document.getElementById('screen-shop')?.classList.contains('active')) { showScreen('landing'); _hkOpen(); }
   window.LiberoHk?.setState(v);
 }
 socket.on('hk-state', v => { window._hk = v; _hkApply(); if (v && v.phase !== 'before' && !window.LiberoHk && sessionStorage.getItem('libero_hk')) _hkLoad().then(h => h && h.restore()); });
@@ -3688,7 +3693,7 @@ function _bingoLoad() {
   if (window.LiberoBingo) { window.LiberoBingo.init(socket); if (window._bingo) window.LiberoBingo.setState(window._bingo); return Promise.resolve(window.LiberoBingo); }
   if (_bingoLoadP) return _bingoLoadP;
   _bingoLoadP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'bingo.js?v=1';
+    const sc = document.createElement('script'); sc.src = 'bingo.js?v=2';
     sc.onload = () => { try { window.LiberoBingo.init(socket); if (window._bingo) window.LiberoBingo.setState(window._bingo); } catch {} res(window.LiberoBingo); };
     sc.onerror = () => { _bingoLoadP = null; res(null); };
     document.head.appendChild(sc);
