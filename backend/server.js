@@ -467,6 +467,7 @@ async function loadData() {
   readerDocs.forEach(d => bookReaders.set(d._id, new Set(Array.isArray(d.readers) ? d.readers : [])));
   unoLaunchSent = !!configDocs.find(d => d._id === 'uno_launch_push')?.value;
   liveQuiz.load(configDocs.find(d => d._id === 'live_cfg')?.value, configDocs.find(d => d._id === 'live_state')?.value);
+  hk.load(configDocs.find(d => d._id === 'hk_state')?.value);
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
   const cbDoc = configDocs.find(d => d._id === 'chess_book');
@@ -1735,6 +1736,43 @@ const ucGame = require('./undercover')({
   xp: (pid, amount) => { const e = libs.get(pid); if (e) awardXp(pid, e, amount); },
   containsBanned: w => containsBanned(w),
   refreshBoards: () => { io.emit('leaderboard-update', getLeaderboardData()); io.emit('global-leaderboard-update', getGlobalLeaderboardData()); },
+});
+
+// ── Evenement ZyX (boutique piratee) : moteur dans hacker.js ──
+function _stripCosmetic(entry, cosmeticId) {
+  entry.ownedCosmetics = entry.ownedCosmetics.filter(c => c !== cosmeticId);
+  for (const k of ['equippedCosmetic','equippedFont','equippedBubble','equippedBackground','equippedNameEffect','equippedTitle','equippedCursorSnake','equippedAvatar','equippedP4Token','equippedTtt','equippedChess','equippedSnakeSkin','equippedClickFx','equippedEmojiPack','equippedVictoryBan','equippedSoundPack','equippedUnoSkin','equippedFlagFrame','equippedPFrame']) if (entry[k] === cosmeticId) entry[k] = null;
+  entry.equippedEmotes = (entry.equippedEmotes || []).filter(e => e !== cosmeticId);
+}
+const hk = require('./hacker')({
+  io, saveConfig, safePlayerId,
+  getEntry: pid => getLibsEntry(pid),
+  emitToPlayer: (pid, ev, d) => _emitToPlayer(pid, ev, d),
+  beninHour: () => _beninDate().getUTCHours(),
+  adminAlert: (t, b) => adminAlert(t, b),
+  cosmetic: id => COSMETICS.find(c => c.id === id),
+  canTake: c => !HW_ITEMS.includes(c.id) && c.id !== HW_FRAME && (c.type !== 'emote' || emoteAvailable(c.id)),
+  pushAll: (fr, en) => {
+    if (!webpush) return 0;
+    let n = 0;
+    for (const pid of pushSubs.keys()) {
+      const e = libs.get(pid); const m = e && e.lang === 'en' ? en : fr;
+      n += sendPush(pid, { title: m[0], body: m[1], url: 'https://libero-multi.vercel.app', tag: 'libero-hk' });
+    }
+    return n;
+  },
+  grant: (pid, entry, cosmeticId) => {
+    if (!entry.ownedCosmetics.includes(cosmeticId)) entry.ownedCosmetics.push(cosmeticId);
+    libs.set(pid, entry); dbUpsertLibs(pid, entry);
+    _emitToPlayer(pid, 'libs-update', { ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
+  },
+  revoke: (pid, entry, cosmeticId) => {
+    _stripCosmetic(entry, cosmeticId);
+    libs.set(pid, entry); dbUpsertLibs(pid, entry);
+    _emitToPlayer(pid, 'libs-update', { ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
+  },
+  friendByRef: (entry, ref) => (entry.friends || []).find(p => _playerRef(p).slice(0, 8) === String(ref || '')) || null,
+  deliverGift: (pid, g) => deliverGift(pid, g),
 });
 
 // ── Quiz en direct (tournoi) : moteur dans live-quiz.js ──
@@ -3344,6 +3382,7 @@ io.on('connection', (socket) => {
           catch (e) { logServerError('socket:' + ev, e); }
         }); }
   liveQuiz.attach(socket);
+  hk.attach(socket, allowAction);
   ucGame.attach(socket);
   let roomCode      = null;
   let myPlayer      = null;
@@ -4991,6 +5030,7 @@ io.on('connection', (socket) => {
     if (!entry.name || entry.name === 'Anonyme') { socket.emit('buy-bundle-result', { ok: false, error: 'anonymous' }); return; }
     const bundle = BUNDLES.find(b => b.id === bundleId);
     if (!bundle) { socket.emit('buy-bundle-result', { ok: false, error: 'invalid' }); return; }
+    if (hk.shopLocked()) { socket.emit('buy-bundle-result', { ok: false, error: 'hk_locked' }); return; }
     const bundleCosmetics = bundle.items.filter(itemId => COSMETICS.some(c => c.id === itemId));
     const bundleBoosts    = bundle.items.filter(itemId => SHOP_ITEMS.some(s => s.id === itemId));
     const unownedCosmetics = bundleCosmetics.filter(itemId => !entry.ownedCosmetics.includes(itemId));
@@ -5005,7 +5045,7 @@ io.on('connection', (socket) => {
     };
     const unownedValue = unownedCosmetics.reduce((s, id) => s + getItemPrice(id), 0)
                        + bundleBoosts.reduce((s, id) => s + getItemPrice(id), 0);
-    const adjustedPrice = Math.max(1, Math.round(bundle.bundlePrice * unownedValue / bundle.totalPrice));
+    const adjustedPrice = hk.priceOf(Math.max(1, Math.round(bundle.bundlePrice * unownedValue / bundle.totalPrice)));
     if (entry.balance < adjustedPrice) { socket.emit('buy-bundle-result', { ok: false, error: 'insufficient' }); return; }
     entry.balance -= adjustedPrice;
     unownedCosmetics.forEach(itemId => { if (!entry.ownedCosmetics.includes(itemId)) entry.ownedCosmetics.push(itemId); });
@@ -5024,6 +5064,7 @@ io.on('connection', (socket) => {
     const id   = safePlayerId(playerId);
     const item = SHOP_ITEMS.find(s => s.id === itemId);
     if (!id || !item) { socket.emit('buy-boost-result', { ok: false, error: 'invalid' }); return; }
+    if (hk.shopLocked()) { socket.emit('buy-boost-result', { ok: false, error: 'hk_locked' }); return; }
     const entry = getLibsEntry(id);
     if (entry.balance < item.price) {
       socket.emit('buy-boost-result', { ok: false, error: 'insufficient', balance: entry.balance });
@@ -5076,16 +5117,17 @@ io.on('connection', (socket) => {
     if (!id) { socket.emit('gift-cosmetic-result', { ok: false, error: 'invalid' }); return; }
     const entry = getLibsEntry(id);
     if (!entry.name || entry.name === 'Anonyme') { socket.emit('gift-cosmetic-result', { ok: false, error: 'anonymous' }); return; }
+    if (hk.shopLocked()) { socket.emit('gift-cosmetic-result', { ok: false, error: 'hk_locked' }); return; }
     let price, rec;
     if (bundleId) {
       const bundle = BUNDLES.find(b => b.id === bundleId);
       if (!bundle) { socket.emit('gift-cosmetic-result', { ok: false, error: 'invalid' }); return; }
-      price = bundle.bundlePrice; // pack complet : le destinataire recoit tout
+      price = hk.priceOf(bundle.bundlePrice); // pack complet : le destinataire recoit tout
       rec = { bundleId, fromName: entry.name, createdAt: Date.now(), redeemedBy: null, redeemedAt: null };
     } else {
       const cosmetic = COSMETICS.find(c => c.id === cosmeticId);
       if (!cosmetic || cosmetic.honorary || cosmetic.price <= 0) { socket.emit('gift-cosmetic-result', { ok: false, error: 'invalid' }); return; }
-      price = cosmetic.price;
+      price = hk.priceOf(cosmetic.price);
       rec = { cosmeticId, fromName: entry.name, createdAt: Date.now(), redeemedBy: null, redeemedAt: null };
     }
     if (entry.balance < price) { socket.emit('gift-cosmetic-result', { ok: false, error: 'insufficient' }); return; }
@@ -5111,11 +5153,12 @@ io.on('connection', (socket) => {
     const pid = entry.friends.find(p => _playerRef(p).slice(0, 8) === String(ref || ''));
     if (!pid) { socket.emit('gift-cosmetic-result', { ok: false, error: 'notfriend' }); return; }
     const target = getLibsEntry(pid);
+    if (hk.shopLocked()) { socket.emit('gift-cosmetic-result', { ok: false, error: 'hk_locked' }); return; }
     let price, granted = [], boostAdded = 0;
     if (bundleId) {
       const bundle = BUNDLES.find(b => b.id === bundleId);
       if (!bundle) { socket.emit('gift-cosmetic-result', { ok: false, error: 'invalid' }); return; }
-      price = bundle.bundlePrice;
+      price = hk.priceOf(bundle.bundlePrice);
       const bundleCosmetics = bundle.items.filter(itemId => COSMETICS.some(c => c.id === itemId));
       const bundleBoosts    = bundle.items.filter(itemId => SHOP_ITEMS.some(s => s.id === itemId));
       granted = bundleCosmetics.filter(itemId => !target.ownedCosmetics.includes(itemId));
@@ -5126,7 +5169,7 @@ io.on('connection', (socket) => {
     } else {
       const cosmetic = COSMETICS.find(c => c.id === cosmeticId);
       if (!cosmetic || cosmetic.honorary || cosmetic.price <= 0) { socket.emit('gift-cosmetic-result', { ok: false, error: 'invalid' }); return; }
-      price = cosmetic.price;
+      price = hk.priceOf(cosmetic.price);
       if (target.ownedCosmetics.includes(cosmeticId)) { socket.emit('gift-cosmetic-result', { ok: false, error: 'target_owns' }); return; }
       if (entry.balance < price) { socket.emit('gift-cosmetic-result', { ok: false, error: 'insufficient' }); return; }
       target.ownedCosmetics.push(cosmeticId);
@@ -5250,15 +5293,17 @@ io.on('connection', (socket) => {
     const cosmetic = COSMETICS.find(c => c.id === cosmeticId);
     if (!cosmetic) { socket.emit('buy-cosmetic-result', { ok: false, error: 'invalid' }); return; }
     if (cosmetic.honorary) { socket.emit('buy-cosmetic-result', { ok: false, error: 'honorary' }); return; }
+    if (hk.shopLocked()) { socket.emit('buy-cosmetic-result', { ok: false, error: 'hk_locked' }); return; }
     if (entry.ownedCosmetics.includes(cosmeticId)) { socket.emit('buy-cosmetic-result', { ok: false, error: 'already_owned' }); return; }
     // Une emote retiree par l'admin de la section Emotes ne peut plus etre achetee.
     if (HW_ITEMS.includes(cosmeticId) && !_inWin(HW_ITEM_WIN[0], HW_ITEM_WIN[1])) { socket.emit('buy-cosmetic-result', { ok: false, error: 'unavailable' }); return; }
     if (cosmeticId === HW_FRAME && !_inWin(HW_SHOP_WIN[0], HW_SHOP_WIN[1])) { socket.emit('buy-cosmetic-result', { ok: false, error: 'unavailable' }); return; }
     if (cosmetic.type === 'emote' && !emoteAvailable(cosmeticId)) { socket.emit('buy-cosmetic-result', { ok: false, error: 'unavailable' }); return; }
-    const price = flashPriceFor(cosmeticId, cosmetic.price);
+    const price = flashPriceFor(cosmeticId, hk.priceOf(cosmetic.price));
     if (entry.balance < price) { socket.emit('buy-cosmetic-result', { ok: false, error: 'insufficient' }); return; }
     entry.balance -= price;
     entry.ownedCosmetics.push(cosmeticId);
+    hk.paid(id, cosmeticId, price);
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt });
@@ -5469,6 +5514,8 @@ io.on('connection', (socket) => {
     }
     const cosmetic = COSMETICS.find(c => c.id === cosmeticId);
     if (!cosmetic || cosmetic.honorary) { socket.emit('refund-cosmetic-result', { ok: false, error: 'invalid' }); return; }
+    if (hk.isFree(id, cosmeticId)) { socket.emit('refund-cosmetic-result', { ok: false, error: 'hk_free' }); return; }
+    const refundValue = hk.refundAmount(id, cosmeticId, cosmetic.price);
     entry.ownedCosmetics     = entry.ownedCosmetics.filter(c => c !== cosmeticId);
     if (entry.equippedCosmetic    === cosmeticId) entry.equippedCosmetic    = null;
     if (entry.equippedFont        === cosmeticId) entry.equippedFont        = null;
@@ -5490,13 +5537,13 @@ io.on('connection', (socket) => {
     if (entry.equippedFlagFrame   === cosmeticId) entry.equippedFlagFrame   = null;
     if (entry.equippedPFrame      === cosmeticId) entry.equippedPFrame      = null;
     entry.equippedEmotes = (entry.equippedEmotes || []).filter(e => e !== cosmeticId);
-    entry.balance = Math.min(MAX_BALANCE, entry.balance + cosmetic.price);
+    entry.balance = Math.min(MAX_BALANCE, entry.balance + refundValue);
     entry.refundCardsUsedAt.push(Date.now());
     libs.set(id, entry);
     dbUpsertLibs(id, entry);
     const { available: refundCards, nextRefill: refundCardsNextRefill } = getRefundCardsInfo(entry);
     socket.emit('libs-update', { balance: entry.balance, pendingBoostHint: entry.pendingBoostHint, ownedCosmetics: entry.ownedCosmetics, ..._equippedPayload(entry), nextAt: nextDistributionAt, refundCards, refundCardsNextRefill });
-    socket.emit('refund-cosmetic-result', { ok: true, cosmeticId, refundCards, delta: cosmetic.price });
+    socket.emit('refund-cosmetic-result', { ok: true, cosmeticId, refundCards, delta: refundValue });
     io.emit('leaderboard-update', getLeaderboardData());
     io.emit('trivia-leaderboard-update', getTriviaLeaderboardData());
     io.emit('snake-leaderboard-update', getSnakeLeaderboardData());
@@ -8204,5 +8251,6 @@ async function mergeDuplicateNames() {
 
   const PORT = process.env.PORT || 3001;
   liveQuiz.start();
+  hk.start();
   server.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));
 })();
