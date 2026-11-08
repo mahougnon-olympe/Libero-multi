@@ -319,3 +319,13 @@ table.lg{width:100%;border-collapse:collapse;font-size:.74rem}
 .dst{position:absolute;width:26px;height:20px;border-radius:50%;background:#cbbfa8;opacity:0;pointer-events:none;z-index:8}
 .lkui{position:absolute;left:0;right:0;bottom:14px;z-index:9;display:grid;justify-items:center;gap:8px}
 .lkui .tries,.lkui .tries span{color:#e9d9b4}
+/* Format PC : une fenetre centree aux proportions d'une porte, cadenas agrandi, tout visible sans defiler */
+@media(min-width:800px){
+  .hk-wrap{max-width:760px;inset:3vh auto;left:50%;transform:translateX(-50%);width:760px;border-radius:14px;box-shadow:0 0 0 3px var(--line),0 24px 80px rgba(0,0,0,.55)}
+  .doorsc{min-height:0}
+  .plkw{zoom:1.5;top:18%}
+  .lkui{bottom:22px;zoom:1.15}
+  .lkd{zoom:1.2}
+  .doors .dl,.doors .dr{background-size:auto,auto}
+}
+@media(min-width:800px){.hk-main>.pbody{overflow:hidden}.doorsc{height:100%}}
