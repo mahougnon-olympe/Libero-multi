@@ -2962,6 +2962,9 @@ const $ = id => document.getElementById(id);
 
 // ── Socket ───────────────────────────────────────────────────────────────────
 const socket = io(window.BACKEND_URL, { transports: ['websocket', 'polling'] });
+// Boutique piratee : aucun achat ni cadeau cosmetique tant que le cadenas est ferme (le serveur refuse aussi).
+(() => { const _emit = socket.emit.bind(socket), BLK = ['buy-cosmetic', 'buy-bundle', 'buy-boost', 'gift-cosmetic', 'gift-cosmetic-friend'];
+  socket.emit = function (ev, ...r) { if (BLK.includes(ev) && window._hk && window._hk.phase === 'locked') { try { window._notify?.add?.({ type: 'shop', icon: '🔒', text: _hkT().err.locked || 'Boutique bloquée par ZyX.' }); } catch (_) {} return socket; } return _emit(ev, ...r); }; })();
 
 // ── Navigation ───────────────────────────────────────────────────────────────
 let _newsTimer = null;
@@ -3629,7 +3632,7 @@ function _hkLoad() {
   if (window.LiberoHk) { window.LiberoHk.init(socket); if (window._hk) window.LiberoHk.setState(window._hk); return Promise.resolve(window.LiberoHk); }
   if (_hkLoadP) return _hkLoadP;
   _hkLoadP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'hacker.js?v=2';
+    const sc = document.createElement('script'); sc.src = 'hacker.js?v=3';
     sc.onload = () => { try { window.LiberoHk.init(socket); if (window._hk) window.LiberoHk.setState(window._hk); } catch {} res(window.LiberoHk); };
     sc.onerror = () => { _hkLoadP = null; res(null); };
     document.head.appendChild(sc);
@@ -3639,10 +3642,10 @@ function _hkLoad() {
 const _HKT = {
   fr: { locked: 'ZyX a piraté la boutique ! Résous ses énigmes et ouvre le cadenas avant vendredi.', enter: 'Entrer', owner: (n, u) => `La boutique appartient à ${n}. ${u}/6 articles gratuits utilisés.`, ticket: 'Mon ticket', over: 'Personne n\'a ouvert le cadenas. ZyX a quitté la boutique, les prix restent plus élevés.', done: 'ZyX a quitté la boutique. Les prix restent plus élevés.',
         take: 'Prendre avec mon ticket (gratuit)', takeAsk: 'Prendre cet article avec ton ticket ?', takeTxt: 'Il sera gratuit, mais non remboursable.', takeOk: 'Prendre', takeNo: 'Annuler', taken: n => `${n} pris avec ton ticket.`, locked2: 'La boutique est fermée : le cadenas de ZyX bloque la porte.', pranks: 'Farces du hacker (pendant l\'événement)',
-        popT: n => `${n} a ouvert le cadenas !`, popS: 'La boutique rouvre, aux nouveaux prix.', err: { ineligible: 'Cet article ne peut pas être pris avec le ticket.', owned: 'Tu possèdes déjà cet article.', full: 'Ton ticket est utilisé en entier.', noticket: 'Tu n\'as pas de ticket.', rate: 'Doucement, réessaie dans un instant.' } },
+        popT: n => `${n} a ouvert le cadenas !`, popS: 'La boutique rouvre, aux nouveaux prix.', err: { locked: 'Boutique bloquée par ZyX : ouvre le cadenas.', ineligible: 'Cet article ne peut pas être pris avec le ticket.', owned: 'Tu possèdes déjà cet article.', full: 'Ton ticket est utilisé en entier.', noticket: 'Tu n\'as pas de ticket.', rate: 'Doucement, réessaie dans un instant.' } },
   en: { locked: 'ZyX hacked the shop! Solve his riddles and crack the padlock before Friday.', enter: 'Enter', owner: (n, u) => `The shop belongs to ${n}. ${u}/6 free items used.`, ticket: 'My ticket', over: 'Nobody opened the padlock. ZyX left the shop, prices stay higher.', done: 'ZyX left the shop. Prices stay higher.',
         take: 'Take with my ticket (free)', takeAsk: 'Take this item with your ticket?', takeTxt: 'It will be free, but cannot be refunded.', takeOk: 'Take', takeNo: 'Cancel', taken: n => `${n} taken with your ticket.`, locked2: 'The shop is closed: ZyX\'s padlock blocks the door.', pranks: 'Hacker pranks (during the event)',
-        popT: n => `${n} opened the padlock!`, popS: 'The shop reopens, at the new prices.', err: { ineligible: 'This item cannot be taken with the ticket.', owned: 'You already own this item.', full: 'Your ticket is fully used.', noticket: 'You have no ticket.', rate: 'Easy, try again in a moment.' } },
+        popT: n => `${n} opened the padlock!`, popS: 'The shop reopens, at the new prices.', err: { locked: 'Shop blocked by ZyX: open the padlock.', ineligible: 'This item cannot be taken with the ticket.', owned: 'You already own this item.', full: 'Your ticket is fully used.', noticket: 'You have no ticket.', rate: 'Easy, try again in a moment.' } },
 };
 const _hkT = () => _HKT[currentLang === 'en' ? 'en' : 'fr'];
 function _hkOpen(tab, enig) { _hkLoad().then(h => h && h.open(tab, enig)); }

@@ -206,7 +206,7 @@
     if (host) return;
     host = document.createElement('div'); host.id = 'hk-root'; document.body.appendChild(host);
     sh = host.attachShadow({ mode: 'open' });
-    sh.innerHTML = `<link rel="stylesheet" href="hacker.css?v=3"><div class="hk-wrap"><div class="bar"><button class="hk-close" data-a="close" type="button"></button><div class="hk-tit"></div><span class="hk-who"></span></div><div class="hk-main" id="main"></div><div class="ptab" id="tabs"></div><div class="push" id="push"><div class="ic">L</div><div><b id="pushT"></b><small id="pushB"></small></div></div></div>`;
+    sh.innerHTML = `<link rel="stylesheet" href="hacker.css?v=4"><div class="hk-wrap"><div class="bar"><button class="hk-close" data-a="close" type="button"></button><div class="hk-tit"></div><span class="hk-who"></span></div><div class="hk-main" id="main"></div><div class="ptab" id="tabs"></div><div class="push" id="push"><div class="ic">L</div><div><b id="pushT"></b><small id="pushB"></small></div></div></div>`;
     sh.addEventListener('click', onClick);
     sh.addEventListener('pointermove', e => { const m = q('.hk-main'); if (!m) return; const r = m.getBoundingClientRect(); look(e.clientX - r.left, e.clientY - r.top); });
     const syncTheme = () => { host.dataset.theme = document.documentElement.classList.contains('light') ? 'light' : 'dark'; };
@@ -238,7 +238,7 @@
   const foundDigits = () => `<div class="digits" id="dgs">${V.enigmas.map((e, i) => `<div class="dg${e.solved ? ' on' : ''}" id="d${i}">${e.solved ? e.digit : '?'}</div>`).join('')}</div>`;
 
   /* ───────── Onglet : la porte et son cadenas ───────── */
-  function interior(lit) { const x = X(); return `<div class="awn"></div><h3 class="shopname" style="margin-top:6px"><span class="a">${esc(x.shopReal)}</span></h3>${shelf('new')}${hkEl('', 'left:41%;top:98px;width:78px;height:94px;z-index:4', '')}${sayHTML('b1', 'left:10px;top:200px;--tx:140px;--ox:60%;max-width:250px;z-index:14', '')}`; }
+  function interior(lit) { const x = X(); return `<div class="awn"></div><h3 class="shopname" style="margin-top:6px"><span class="a">${esc(x.shopReal)}</span></h3>${hkEl('', 'left:41%;top:98px;width:78px;height:94px;z-index:4', '')}${sayHTML('b1', 'left:10px;top:200px;--tx:140px;--ox:60%;max-width:250px;z-index:14', '')}`; }
   function shelf(mode) { const lg = L(); return `<div class="shelf" id="sh">${DECO.map((it, k) => `<div class="it" data-k="${k}">${svgI(it.k)}<div class="nm">${esc(it[lg])}</div><div class="pr"><span class="n on" style="opacity:1;transform:none;color:var(--text)">${hkP(it.p)} Libs</span></div></div>${k % 2 === 1 ? '<div class="plank"></div>' : ''}`).join('')}</div>`; }
   function tabDoor() {
     const x = X(), main = q('#main'), ph = V.phase;
