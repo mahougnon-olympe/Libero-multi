@@ -2980,6 +2980,7 @@ function _isShopOpen() {
 }
 let _wasShopScreen = false;
 function showScreen(name) {
+  if (name === 'shop' && window._hk && window._hk.phase === 'locked') { _hkOpen(); return; }
   const wasRestoring = document.documentElement.classList.contains('restoring');
   const el = document.getElementById('screen-' + name);
   // Marquer avant de retirer restoring : supprime l'animation quand JS active l'écran
@@ -3621,6 +3622,64 @@ window._unoResume = function () {
     if (raw) _unoLoad().then(u => u && u.reconnect());
   } catch {}
 };
+// ── Evenement ZyX : la boutique piratee (hacker.js a la demande ; l'etat vient du serveur) ──
+let _hkLoadP = null;
+window._hk = null;
+function _hkLoad() {
+  if (window.LiberoHk) { window.LiberoHk.init(socket); if (window._hk) window.LiberoHk.setState(window._hk); return Promise.resolve(window.LiberoHk); }
+  if (_hkLoadP) return _hkLoadP;
+  _hkLoadP = new Promise(res => {
+    const sc = document.createElement('script'); sc.src = 'hacker.js?v=1';
+    sc.onload = () => { try { window.LiberoHk.init(socket); if (window._hk) window.LiberoHk.setState(window._hk); } catch {} res(window.LiberoHk); };
+    sc.onerror = () => { _hkLoadP = null; res(null); };
+    document.head.appendChild(sc);
+  });
+  return _hkLoadP;
+}
+const _HKT = {
+  fr: { locked: 'ZyX a piraté la boutique ! Résous ses énigmes et ouvre le cadenas avant vendredi.', enter: 'Entrer', owner: (n, u) => `La boutique appartient à ${n}. ${u}/6 articles gratuits utilisés.`, ticket: 'Mon ticket', over: 'Personne n\'a ouvert le cadenas. ZyX a quitté la boutique, les prix restent plus élevés.', done: 'ZyX a quitté la boutique. Les prix restent plus élevés.',
+        take: 'Prendre avec mon ticket (gratuit)', takeAsk: 'Prendre cet article avec ton ticket ?', takeTxt: 'Il sera gratuit, mais non remboursable.', takeOk: 'Prendre', takeNo: 'Annuler', taken: n => `${n} pris avec ton ticket.`, locked2: 'La boutique est fermée : le cadenas de ZyX bloque la porte.', pranks: 'Farces du hacker (pendant l\'événement)',
+        popT: n => `${n} a ouvert le cadenas !`, popS: 'La boutique rouvre, aux nouveaux prix.', err: { ineligible: 'Cet article ne peut pas être pris avec le ticket.', owned: 'Tu possèdes déjà cet article.', full: 'Ton ticket est utilisé en entier.', noticket: 'Tu n\'as pas de ticket.', rate: 'Doucement, réessaie dans un instant.' } },
+  en: { locked: 'ZyX hacked the shop! Solve his riddles and crack the padlock before Friday.', enter: 'Enter', owner: (n, u) => `The shop belongs to ${n}. ${u}/6 free items used.`, ticket: 'My ticket', over: 'Nobody opened the padlock. ZyX left the shop, prices stay higher.', done: 'ZyX left the shop. Prices stay higher.',
+        take: 'Take with my ticket (free)', takeAsk: 'Take this item with your ticket?', takeTxt: 'It will be free, but cannot be refunded.', takeOk: 'Take', takeNo: 'Cancel', taken: n => `${n} taken with your ticket.`, locked2: 'The shop is closed: ZyX\'s padlock blocks the door.', pranks: 'Hacker pranks (during the event)',
+        popT: n => `${n} opened the padlock!`, popS: 'The shop reopens, at the new prices.', err: { ineligible: 'This item cannot be taken with the ticket.', owned: 'You already own this item.', full: 'Your ticket is fully used.', noticket: 'You have no ticket.', rate: 'Easy, try again in a moment.' } },
+};
+const _hkT = () => _HKT[currentLang === 'en' ? 'en' : 'fr'];
+function _hkOpen(tab, enig) { _hkLoad().then(h => h && h.open(tab, enig)); }
+window._hkOpen = _hkOpen;
+function _hkApply() {
+  const v = window._hk; if (!v) return;
+  const x = _hkT(), m = v.mult > 1 ? v.mult : 1;
+  if (window._hkMult !== m) { window._hkMult = m; if (document.getElementById('screen-shop')?.classList.contains('active') && typeof enterShop === 'function') enterShop(); }
+  const own = v.owner, recentEnd = v.ended && (v.now - v.ended.at) < 36 * 3600_000;
+  const home = document.getElementById('hk-home');
+  if (home) {
+    let html = '', btn = '', go = null;
+    if (v.phase === 'locked') { html = x.locked; btn = x.enter; go = () => _hkOpen(); }
+    else if (v.phase === 'open' && own && own.active) { html = x.owner(own.name, own.used); if (own.mine) { btn = x.ticket; go = () => _hkOpen('ticket'); } }
+    else if (v.phase === 'ended' && recentEnd) html = own ? x.done : x.over;
+    home.hidden = !html;
+    if (html) { home.innerHTML = `<span class="hk-home-t">${_escHtml(html)}</span>${btn ? `<button type="button" class="hk-home-go">${_escHtml(btn)}</button>` : ''}`; if (go) home.querySelector('.hk-home-go').addEventListener('click', go); home.classList.toggle('is-locked', v.phase === 'locked'); }
+  }
+  const sb = document.getElementById('hk-shop-banner');
+  if (sb) { const on = v.phase === 'open' && own && own.active; sb.hidden = !on; if (on) sb.innerHTML = `<span class="hk-home-t">${_escHtml(x.owner(own.name, own.used))}</span>`; }
+  document.body.classList.toggle('hk-locked', v.phase === 'locked');
+  const pb = document.getElementById('sp-hk-btn'); if (pb) { pb.classList.toggle('hidden', !(v.phase === 'locked')); _spCk(pb, localStorage.getItem('libero_hk_pranks') !== '0', x.pranks); }
+  // Si la boutique est fermee, on ne reste pas dessus.
+  if (v.phase === 'locked' && document.getElementById('screen-shop')?.classList.contains('active')) { showScreen('landing'); _hkOpen(); }
+  window.LiberoHk?.setState(v);
+}
+socket.on('hk-state', v => { window._hk = v; _hkApply(); if (v && v.phase !== 'before' && !window.LiberoHk && sessionStorage.getItem('libero_hk')) _hkLoad().then(h => h && h.restore()); });
+socket.on('hk-event', ev => {
+  window.LiberoHk?.onEvent(ev);
+  if (ev && ev.type === 'unlocked' && !(window._hk?.owner?.mine)) { const x = _hkT(); window._notify?.add?.({ type: 'shop', icon: '🔓', text: x.popT(ev.owner) + ' ' + x.popS }); }
+});
+socket.on('hk-state-changed', () => socket.emit('hk-get', { playerId: getPlayerId() }));
+socket.on('hk-take-result', r => {
+  if (!r) return;
+  if (r.ok && !r.gift) { const nm = window._allShopItemsById?.[r.cosmeticId]?.name || r.cosmeticId; window._notify?.add?.({ type: 'shop', icon: '🎁', text: _hkT().taken(nm) }); if (typeof enterShop === 'function' && document.getElementById('screen-shop')?.classList.contains('active')) enterShop(); }
+  else if (!r.ok && !window.LiberoHk?.isOpen()) { window._notify?.add?.({ type: 'shop', icon: '⚠', text: _hkT().err[r.error] || _hkT().err.rate }); }
+});
 // ── Undercover : undercover.js + undercover.css a la demande, puis relais des evenements du serveur ──
 let _ucP = null;
 function _ucLoad() {
@@ -6521,6 +6580,7 @@ window.addEventListener('pagehide', () => { try { socket.emit('app-visible', fal
 window.addEventListener('pageshow', _sendVisible);
 socket.on('connect', () => {
   triviaMySocketId = socket.id;
+  try { socket.emit('hk-get', { playerId: getPlayerId() }); } catch {}
   window._unoResume?.();
   window._ucResume?.();
   try { socket.emit('live-get', { playerId: getPlayerId() }); window.LiberoLive?.resume?.(); } catch {}
@@ -7616,6 +7676,9 @@ const _FEATURED_IDS = [
   'nameeffect-rainbow', 'title-champion', 'diamond',
 ];
 
+// Hausse des prix decidee par ZyX (evenement) : meme arrondi que le serveur (multiples de 5 Libs).
+window._hkMult = window._hkMult || 1;
+const _hkP = p => { p = Math.round(Number(p) || 0); const m = window._hkMult || 1; return (m <= 1 || p <= 0) ? p : Math.max(5, Math.round(p * m / 5) * 5); };
 const ALL_BUNDLES = [
   { id:'bundle-debutant',    items:['silver','bubble-ardoise','bg-nuit','boost_hint_10'], totalPrice:335, bundlePrice:322 },
   { id:'bundle-retro',       items:['font-vt323','font-pressstart','bg-cyber','bubble-ocean'], totalPrice:100, bundlePrice:75 },
@@ -7784,7 +7847,7 @@ function _renderShopItems() {
    ...nameEffectItems, ...titleItems, ...cursorSnakeItems, ...snakeSkinItems, ...avatarItems,
    ...p4TokenItems, ...tttItems, ...chessItems,
    ...clickFxItems, ...emojiPackItems, ...victoryBanItems, ...unoSkinItems, ...flagFrameItems, ...pframeItems, ...soundPackItems, ...emoteItems,
-  ].forEach(it => { allItemsById[it.id] = it; });
+  ].forEach(it => { it.basePrice = it.price; if (it.price > 0) it.price = _hkP(it.price); allItemsById[it.id] = it; });
   allItemsById['boost_hint_10'] = { id:'boost_hint_10', type:'boost', price:300, name:d.shopBoostHintName };
   allItemsById['boost_hint_20'] = { id:'boost_hint_20', type:'boost', price:500, name:d.shopBoostHintName };
   window._allShopItemsById = allItemsById;
@@ -7904,8 +7967,8 @@ function _renderShopItems() {
       <div class="shop-tile-footer">
         <span class="shop-tile-name">${name}</span>
         <div class="shop-bundle-prices">
-          <span class="shop-price-crossed">${bundle.totalPrice} <i class="bolt" aria-label="Libs"></i></span>
-          <span class="shop-tile-price">${bundle.bundlePrice} <i class="bolt" aria-label="Libs"></i></span>
+          <span class="shop-price-crossed">${_hkP(bundle.totalPrice)} <i class="bolt" aria-label="Libs"></i></span>
+          <span class="shop-tile-price">${_hkP(bundle.bundlePrice)} <i class="bolt" aria-label="Libs"></i></span>
         </div>
       </div>
       <div class="shop-tile-badge rarity-${rarity}">${rarityLabel[rarity]}</div>
@@ -8303,10 +8366,10 @@ function _openBundleDetail(bundle, allItemsById) {
   const allOwned         = unownedCosmetics.length === 0 && boostIds.length === 0;
   const ownedCount       = cosmeticIds.filter(id => ownedCosmetics.includes(id)).length;
 
-  const getPrice  = id => allItemsById[id]?.price || 0;
+  const getPrice  = id => (allItemsById[id]?.basePrice ?? allItemsById[id]?.price) || 0;
   const uVal      = unownedCosmetics.reduce((s, id) => s + getPrice(id), 0)
                   + boostIds.reduce((s, id) => s + getPrice(id), 0);
-  const adjPrice  = Math.max(1, Math.round(bundle.bundlePrice * uVal / bundle.totalPrice));
+  const adjPrice  = _hkP(Math.max(1, Math.round(bundle.bundlePrice * uVal / bundle.totalPrice)));
 
   const itemsHtml = bundle.items.map(id => {
     const item  = allItemsById[id];
@@ -8330,7 +8393,7 @@ function _openBundleDetail(bundle, allItemsById) {
     ? ''
     : `<div class="shop-fn-detail-price">
         ${adjPrice} <i class="bolt" aria-label="Libs"></i>
-        <span class="shop-price-crossed">${ownedCount > 0 ? bundle.bundlePrice : bundle.totalPrice} <i class="bolt" aria-label="Libs"></i></span>
+        <span class="shop-price-crossed">${_hkP(ownedCount > 0 ? bundle.bundlePrice : bundle.totalPrice)} <i class="bolt" aria-label="Libs"></i></span>
         <span class="shop-bundle-saving-inline">${d.shopBundleSave(savings)}</span>
       </div>`;
 
@@ -8339,7 +8402,7 @@ function _openBundleDetail(bundle, allItemsById) {
   const actionHtml = (allOwned
     ? `<button class="btn btn-secondary" disabled>${d.shopBundleAlreadyOwned}</button>`
     : `<button class="btn btn-primary shop-detail-action-btn" data-bundle-id="${bundle.id}" data-action="buy-bundle">${d.shopBundleBuy(adjPrice)}</button>`)
-    + `<button class="btn btn-secondary shop-detail-action-btn shop-gift-offer-btn" data-bundle-id="${bundle.id}" data-price="${bundle.bundlePrice}" data-name="${_escHtml(d.shopBundleNames[bundle.id] || bundle.id)}" data-action="gift-bundle">${d.shopGiftBtn(bundle.bundlePrice)}</button>`;
+    + `<button class="btn btn-secondary shop-detail-action-btn shop-gift-offer-btn" data-bundle-id="${bundle.id}" data-price="${_hkP(bundle.bundlePrice)}" data-name="${_escHtml(d.shopBundleNames[bundle.id] || bundle.id)}" data-action="gift-bundle">${d.shopGiftBtn(bundle.bundlePrice)}</button>`;
 
   panel.innerHTML = `
     <button class="shop-fn-detail-back" id="shop-detail-back">${fr ? 'Retour' : 'Back'}</button>
@@ -8471,6 +8534,10 @@ function _openShopDetail(item) {
 
   // Offrir : disponible pour tout cosmétique payant non honorifique (même si on
   // ne le possède pas). L'acheteur paie et reçoit un code cadeau à partager.
+  const _hv = window._hk, hkOwn = _hv && _hv.phase === 'open' && _hv.owner && _hv.owner.mine && _hv.owner.active && _hv.owner.used < _hv.owner.slots;
+  const hkBtn = (hkOwn && !owned && !honorary && price > 0 && type !== 'boost')
+    ? `<button class="btn btn-primary shop-detail-action-btn shop-hk-take-btn" data-id="${id}" data-action="hk-take">${_hkT().take}</button>`
+    : '';
   const giftBtn = (!honorary && price > 0)
     ? `<button class="btn btn-secondary shop-detail-action-btn shop-gift-offer-btn" data-id="${id}" data-price="${price}" data-giftname="${_escHtml(name || id)}" data-action="gift">${d.shopGiftBtn(price)}</button>`
     : '';
@@ -8484,7 +8551,7 @@ function _openShopDetail(item) {
         : `<span class="shop-fn-rarity-badge ${rarity}">${rarityLabel[rarity]}</span>`}
       <h3 class="shop-fn-detail-name">${name || id}</h3>
       ${honorary ? '' : `<div class="shop-fn-detail-price">${priceStr}</div>`}
-      <div class="shop-fn-detail-action">${actionHtml}${giftBtn}</div>
+      <div class="shop-fn-detail-action">${hkBtn}${actionHtml}${giftBtn}</div>
     </div>
   `;
   panel.classList.remove('hidden');
@@ -8503,6 +8570,7 @@ function _openShopDetail(item) {
       else if (action === 'equip')   socket.emit('equip-cosmetic',  { cosmeticId: bId,  type: bType, playerId: getPlayerId() });
       else if (action === 'unequip') socket.emit('equip-cosmetic',  { cosmeticId: bType === 'emote' ? bId : null, type: bType, playerId: getPlayerId(), remove: bType === 'emote' });
       else if (action === 'refund')  socket.emit('refund-cosmetic', { cosmeticId: bId,  playerId: getPlayerId() });
+      else if (action === 'hk-take') { const hx = _hkT(); _slateConfirm({ title: hx.takeAsk, text: hx.takeTxt, ok: hx.takeOk, cancel: hx.takeNo }).then(ok => { if (ok) socket.emit('hk-take', { cosmeticId: bId, playerId: getPlayerId() }); }); }
       else if (action === 'gift')    window._openGiftChoice?.({ cosmeticId: bId }, Number(btn.dataset.price) || 0, btn.dataset.giftname || bId);
     });
   });
@@ -8578,6 +8646,7 @@ function _updateSettingsPanel() {
   _spCk('sp-libeai-btn', !!window._libeAiOn?.(), d.libeAi.sp);
   { const gb = document.getElementById('sp-gold-btn'); if (gb) { gb.classList.toggle('hidden', !window._goldenOn?.()); _spCk(gb, !!window._goldenHidden?.(), d.spCkGold); } }
   _spCk('sp-fx-btn', fxOn(), d.fxLabel);
+  { const kb = document.getElementById('sp-hk-btn'); if (kb) { const on = !!(window._hk && window._hk.phase === 'locked'); kb.classList.toggle('hidden', !on); _spCk(kb, localStorage.getItem('libero_hk_pranks') !== '0', _hkT().pranks); } }
   { const hb = document.getElementById('sp-hw-btn'); if (hb) { hb.classList.toggle('hidden', !window._hwOn?.()); _spCk(hb, !!window._hwHidden?.(), d.spCkHw); } }
   { const n = document.getElementById('sp-libeai-note'); if (n) { n.textContent = d.libeAi.spNote; n.classList.toggle('hidden', !window._libeAiOn?.()); } }
   document.getElementById('sp-vol-slider')?.closest('.sp-vol-row')?.classList.toggle('hidden', !sfxEnabled);
@@ -8755,6 +8824,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window._fxSet(!fxOn());
     _updateSettingsPanel();
   });
+  document.getElementById('sp-hk-btn')?.addEventListener('click', () => { const on = localStorage.getItem('libero_hk_pranks') !== '0'; try { localStorage.setItem('libero_hk_pranks', on ? '0' : '1'); } catch {} _spCk('sp-hk-btn', !on, _hkT().pranks); });
   document.getElementById('sp-hw-btn')?.addEventListener('click', () => {
     window._hwSetHidden?.(!window._hwHidden?.());
     _updateSettingsPanel();

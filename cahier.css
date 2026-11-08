@@ -3671,3 +3671,13 @@ html.fx-on .pf-hw-chandelle::before { animation: hwFlm .3s ease-in-out infinite 
 #ch-clock .ch-clock-row { display: flex; gap: 8px; flex-wrap: wrap; }
 #ch-clock .ch-ck { flex: 1; min-width: 70px; justify-content: center; text-align: center; }
 @media (prefers-reduced-motion: reduce) { .chess-clock.low, .draw-banner, .draw-banner.out, .rs-dots i, .rs-ring .fg, .game-status.draw-stamp .status-text { animation: none !important; } .rs-dots i { background: var(--mark); } .rs-ring .fg { stroke-dashoffset: 0; } }
+
+/* ── Evenement ZyX : bandeau d'accueil et de boutique, boutique fermee ── */
+.hk-home{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0;padding:10px 12px;border:2px solid var(--line);border-radius:8px;background:var(--mark);color:#22252b;box-shadow:0 3px 0 var(--hard);font-size:.9rem;font-weight:600}
+.hk-home[hidden]{display:none}
+.hk-home.is-locked{background:repeating-linear-gradient(-45deg,#ffe169 0 14px,#2a2d33 14px 28px);color:#fff;border-color:#2a2d33}
+.hk-home.is-locked .hk-home-t{background:#2a2d33;padding:3px 8px;border-radius:4px}
+.hk-home-t{flex:1;min-width:0}
+.hk-home-go{font:400 .85rem var(--font-display);border:2px solid var(--line);border-radius:8px;padding:6px 14px;background:var(--board);color:#fff;cursor:pointer;box-shadow:0 2px 0 var(--hard)}
+body.hk-locked #nav-tab-shop{position:relative}
+body.hk-locked #nav-tab-shop::after{content:"";position:absolute;right:calc(50% - 22px);top:2px;width:10px;height:10px;border-radius:50%;background:var(--red);border:2px solid var(--bg)}

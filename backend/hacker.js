@@ -19,12 +19,12 @@ const DEFAULT_CFG = {
   codeTries: 3, codeWindowMs: 60 * 60_000,       // 3 essais de code par heure
   hint1Ms: 15 * 60_000, hint2Ms: 30 * 60_000,    // les indices de Libe se debloquent apres l'ouverture
   enigmas: [
-    { id: 'anagram', digit: 4, answers: ['CRAIE'],   release: '2026-11-09T00:00:00+01:00' },
-    { id: 'mirror',  digit: 2, answers: ['TROUSSE'], release: '2026-11-09T00:00:00+01:00' },
-    { id: 'initials',digit: 3, answers: ['CLEF'],    release: '2026-11-09T00:00:00+01:00' },
-    { id: 'path',    digit: 9, answers: ['PORTE'],   release: '2026-11-10T18:00:00+01:00' },
-    { id: 'liars',   digit: 1, answers: ['REGLE'],   release: '2026-11-11T18:00:00+01:00' },
-    { id: 'caesar',  digit: 6, answers: ['CADENAS'], release: '2026-11-12T18:00:00+01:00' },
+    { id: 'anagram', digit: 4, answers: ['CRAIE', 'CHALK'],   release: '2026-11-09T00:00:00+01:00' },
+    { id: 'mirror',  digit: 2, answers: ['TROUSSE', 'ERASER'], release: '2026-11-09T00:00:00+01:00' },
+    { id: 'initials',digit: 3, answers: ['CLEF', 'KEY'],    release: '2026-11-09T00:00:00+01:00' },
+    { id: 'path',    digit: 9, answers: ['PORTE', 'DOOR'],   release: '2026-11-10T18:00:00+01:00' },
+    { id: 'liars',   digit: 1, answers: ['REGLE', 'RULER'],   release: '2026-11-11T18:00:00+01:00' },
+    { id: 'caesar',  digit: 6, answers: ['CADENAS', 'PADLOCK'], release: '2026-11-12T18:00:00+01:00' },
   ],
 };
 // Articles qui ne peuvent PAS etre pris avec le ticket : exclusifs, honorifiques, calendrier Halloween.
@@ -65,10 +65,11 @@ module.exports = function createHacker(ctx) {
   function recent(arr, win) { const t = now(); return (arr || []).filter(x => t - x < win); }
 
   // ── Prix : hausse de 50 % (arrondie a 5 Libs) des cosmetiques et packs, des le debut ──
+  const mult = () => (typeof st.mult === 'number' ? st.mult : cfg.mult);
   function priceOf(base) {
     base = Math.round(Number(base) || 0);
     if (!active() || base <= 0) return base;
-    return Math.max(5, Math.round(base * cfg.mult / 5) * 5);
+    return Math.max(5, Math.round(base * mult() / 5) * 5);
   }
   // La boutique est fermee tant que le cadenas n'est pas ouvert (dépenses de Libs seulement).
   function shopLocked() { return phase() === 'locked'; }
@@ -88,7 +89,7 @@ module.exports = function createHacker(ctx) {
     const ph = phase(), p = pid ? player(pid) : { sol: [], tr: {}, ct: [], open: {} }, t = now();
     const tk = st.ticket;
     const out = {
-      phase: ph, now: t, start: T0(), end: T1(), mult: active() ? cfg.mult : 1,
+      phase: ph, now: t, start: T0(), end: T1(), mult: active() ? mult() : 1,
       enigmas: cfg.enigmas.map((e, i) => {
         const solved = !!p.sol[i], rel = Date.parse(e.release);
         const used = recent((p.tr || {})[i], cfg.answerWindowMs);
@@ -138,8 +139,13 @@ module.exports = function createHacker(ctx) {
     io.emit('hk-state-changed');
     announce(reason === 'over' ? 'over' : 'end');
   }
+  let sig = null;
   function tick() {
     const t = now(), ph = phase();
+    // Les clients ouverts se mettent a jour tout seuls au debut, a chaque nouvelle enigme et a la fin.
+    const cur = ph + ':' + cfg.enigmas.map((_, i) => (released(i) ? 1 : 0)).join('');
+    if (sig !== null && sig !== cur) io.emit('hk-state-changed');
+    sig = cur;
     if (ph === 'before') return;
     if (ph === 'locked' || ph === 'open') {
       if (t >= T0()) announce('start');
@@ -256,8 +262,16 @@ module.exports = function createHacker(ctx) {
     if (saved && typeof saved === 'object' && saved.edition === cfg.edition) st = Object.assign(st, saved);
   }
   function start() { setInterval(tick, 20_000); setTimeout(tick, 4000); }
+  // Interrupteur d'urgence et suivi pour le proprietaire (route /admin/hacker).
+  function admin(action, val) {
+    if (action === 'end') { if (phase() === 'locked' || phase() === 'open') finish('over'); return { ok: true, phase: phase() }; }
+    if (action === 'mult') { const m = Number(val); if (!(m >= 1 && m <= 3)) return { ok: false, error: 'mult 1 a 3' }; st.mult = m; save(); io.emit('hk-state-changed'); return { ok: true, mult: m }; }
+    if (action === 'reset') { reset(); io.emit('hk-state-changed'); return { ok: true }; }
+    const solved = cfg.enigmas.map((_, i) => Object.values(st.players).filter(p => p.sol && p.sol[i]).length);
+    return { ok: true, phase: phase(), mult: mult(), players: Object.keys(st.players).length, solved, unlocked: st.unlocked, ticket: st.ticket ? { name: st.ticket.name, used: st.ticket.items.length, expiresAt: st.ticket.expiresAt } : null, ended: st.ended };
+  }
   // Reinitialisation (pour les tests locaux ou une nouvelle edition decidee par le proprietaire).
   function reset() { st = { edition: cfg.edition, players: {}, unlocked: null, ticket: null, ended: null, ann: {}, free: {}, paid: {} }; save(); }
-  return { load, attach, start, view, phase, priceOf, shopLocked, isFree, paid, refundAmount, eligible, active, reset, tick, _st: () => st, _cfg: () => cfg, _code: code };
+  return { load, attach, start, admin, view, phase, priceOf, shopLocked, isFree, paid, refundAmount, eligible, active, reset, tick, _st: () => st, _cfg: () => cfg, _code: code };
 };
 module.exports.norm = norm;

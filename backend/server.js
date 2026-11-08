@@ -1200,8 +1200,8 @@ function flashPayload() {
   const cosm = COSMETICS.find(c => c.id === flashOffer.cosmeticId);
   if (!cosm) return { offer: null };
   return { offer: {
-    cosmeticId: cosm.id, type: cosm.type, price: cosm.price,
-    flashPrice: flashPriceFor(cosm.id, cosm.price),
+    cosmeticId: cosm.id, type: cosm.type, price: hk.priceOf(cosm.price),
+    flashPrice: flashPriceFor(cosm.id, hk.priceOf(cosm.price)),
     discount: flashOffer.discount, endsAt: flashOffer.endsAt,
   } };
 }
@@ -7172,6 +7172,13 @@ app.post('/admin/maintenance-page', (req, res) => {
 });
 
 // ── Quiz en direct : reglages organisateur ──
+// Evenement ZyX : suivi (status), interrupteur d'urgence (end : la boutique rouvre), prix (mult 1 a 3), reset.
+app.post('/admin/hacker', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const { action, value } = req.body || {};
+  if (action && action !== 'status') adminAudit('hacker', { action: String(action), value: value == null ? null : String(value).slice(0, 10) });
+  res.json(hk.admin(String(action || 'status'), value));
+});
 app.get('/admin/live', (req, res) => { if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' }); res.json(liveQuiz.admin({})); });
 app.post('/admin/live', (req, res) => { if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' }); adminAudit('live', { action: req.body?.action || 'cfg' }); res.json(liveQuiz.admin(req.body)); });
 
