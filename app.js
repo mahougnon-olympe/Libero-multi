@@ -2964,7 +2964,7 @@ const $ = id => document.getElementById(id);
 const socket = io(window.BACKEND_URL, { transports: ['websocket', 'polling'] });
 // Boutique piratee : aucun achat ni cadeau cosmetique tant que le cadenas est ferme (le serveur refuse aussi).
 (() => { const _emit = socket.emit.bind(socket), BLK = ['buy-cosmetic', 'buy-bundle', 'buy-boost', 'gift-cosmetic', 'gift-cosmetic-friend'];
-  socket.emit = function (ev, ...r) { if (BLK.includes(ev) && window._hk && window._hk.phase === 'locked') { try { window._notify?.add?.({ type: 'shop', icon: '🔒', text: _hkT().err.locked || 'Boutique bloquée par ZyX.' }); } catch (_) {} return socket; } return _emit(ev, ...r); }; })();
+  socket.emit = function (ev, ...r) { if (BLK.includes(ev) && window._hk && window._hk.phase === 'locked') { try { _hkLoad().then(h => h && h.blocked && h.blocked()); } catch (_) {} return socket; } return _emit(ev, ...r); }; })();
 
 // ── Navigation ───────────────────────────────────────────────────────────────
 let _newsTimer = null;
@@ -3089,7 +3089,7 @@ function showScreen(name) {
   if (window._ideasBoard && name === 'ideas') window._ideasBoard.load();
   if (window._wordle && name === 'wordle') window._wordle.enter();
   if (window._readFeed && name === 'read') window._readFeed.load();
-  if (name === 'shop') { if (typeof enterShop === 'function') enterShop(); if (window._hk && window._hk.phase === 'locked') _hkLoad().then(h => h && h.realShop && setTimeout(() => h.realShop(), 900)); }
+  if (name === 'shop') { if (typeof enterShop === 'function') enterShop(); if (window._hk && window._hk.phase === 'locked') _hkLoad().then(h => { if (!h) return; if (sessionStorage.getItem('libero_hk_cine')) setTimeout(() => h.realShop && h.realShop(), 900); else h.cinematic(() => setTimeout(() => h.realShop && h.realShop(), 400)); }); }
   else if (_wasShopScreen && typeof _resetShopPanels === 'function') _resetShopPanels();
   _wasShopScreen = (name === 'shop');
 
@@ -3632,7 +3632,7 @@ function _hkLoad() {
   if (window.LiberoHk) { window.LiberoHk.init(socket); if (window._hk) window.LiberoHk.setState(window._hk); return Promise.resolve(window.LiberoHk); }
   if (_hkLoadP) return _hkLoadP;
   _hkLoadP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'hacker.js?v=3';
+    const sc = document.createElement('script'); sc.src = 'hacker.js?v=5';
     sc.onload = () => { try { window.LiberoHk.init(socket); if (window._hk) window.LiberoHk.setState(window._hk); } catch {} res(window.LiberoHk); };
     sc.onerror = () => { _hkLoadP = null; res(null); };
     document.head.appendChild(sc);
@@ -3672,7 +3672,7 @@ function _hkApply() {
     else if (lk) { sb.innerHTML = `<span class="hk-home-t">${_escHtml(x.locked)}</span><button type="button" class="hk-home-go">${_escHtml(x.enter)}</button>`; sb.querySelector('.hk-home-go').addEventListener('click', () => _hkOpen()); }
     sb.classList.toggle('is-locked', lk);
   }
-  if (v.phase === 'locked' && document.getElementById('screen-shop')?.classList.contains('active')) _hkLoad().then(h => h && h.realShop && h.realShop());
+  if (v.phase === 'locked' && document.getElementById('screen-shop')?.classList.contains('active') && sessionStorage.getItem('libero_hk_cine')) _hkLoad().then(h => h && h.realShop && h.realShop());
   document.body.classList.toggle('hk-locked', v.phase === 'locked');
   const pb = document.getElementById('sp-hk-btn'); if (pb) { pb.classList.toggle('hidden', !(v.phase === 'locked')); _spCk(pb, localStorage.getItem('libero_hk_pranks') !== '0', x.pranks); }
   // Si la boutique est fermee, on ne reste pas dessus.

@@ -206,7 +206,7 @@
     if (host) return;
     host = document.createElement('div'); host.id = 'hk-root'; document.body.appendChild(host);
     sh = host.attachShadow({ mode: 'open' });
-    sh.innerHTML = `<link rel="stylesheet" href="hacker.css?v=6"><div class="hk-wrap"><div class="bar"><button class="hk-close" data-a="close" type="button"></button><div class="hk-tit"></div><span class="hk-who"></span></div><div class="hk-main" id="main"></div><div class="ptab" id="tabs"></div><div class="push" id="push"><div class="ic">L</div><div><b id="pushT"></b><small id="pushB"></small></div></div></div>`;
+    sh.innerHTML = `<link rel="stylesheet" href="hacker.css?v=8"><div class="hk-wrap"><div class="bar"><button class="hk-close" data-a="close" type="button"></button><div class="hk-tit"></div><span class="hk-who"></span></div><div class="hk-main" id="main"></div><div class="ptab" id="tabs"></div><div class="push" id="push"><div class="ic">L</div><div><b id="pushT"></b><small id="pushB"></small></div></div></div>`;
     sh.addEventListener('click', onClick);
     sh.addEventListener('pointermove', e => { const m = q('.hk-main'); if (!m) return; const r = m.getBoundingClientRect(); look(e.clientX - r.left, e.clientY - r.top); });
     const syncTheme = () => { host.dataset.theme = document.documentElement.classList.contains('light') ? 'light' : 'dark'; };
@@ -220,6 +220,7 @@
   function close() { clearT(); if (host) host.removeAttribute('data-open'); document.body.style.overflow = ''; try { sessionStorage.removeItem('libero_hk'); } catch (_) {} }
   function tabsFor() {
     const ph = V && V.phase, mine = V && V.owner && V.owner.mine && V.owner.active;
+    if (UI.tab === 'cine') return ['cine'];
     if (ph === 'locked') return ['door', 'book'];
     return mine ? ['ticket', 'door'] : ['door'];
   }
@@ -232,7 +233,7 @@
     q('#tabs').innerHTML = tabs.map(t => `<button data-a="tab:${t}"${UI.tab === t ? ' class="on"' : ''} type="button">${t === 'book' ? `${x.book} ${V.enigmas.filter(e => e.solved).length}/6` : x[t]}</button>`).join('');
     q('#tabs').style.display = tabs.length > 1 ? '' : 'none';
     const main = q('#main'); main.innerHTML = '';
-    if (UI.tab === 'door') tabDoor(); else if (UI.tab === 'book') (UI.enig == null ? tabBook() : tabEnig(UI.enig)); else if (UI.tab === 'shop') tabShop(); else if (UI.tab === 'ticket') tabTicket();
+    if (UI.tab === 'door') tabDoor(); else if (UI.tab === 'book') (UI.enig == null ? tabBook() : tabEnig(UI.enig)); else if (UI.tab === 'cine') tabCine(); else if (UI.tab === 'shop') tabShop(); else if (UI.tab === 'ticket') tabTicket();
     save();
   }
   const foundDigits = () => `<div class="digits" id="dgs">${V.enigmas.map((e, i) => `<div class="dg${e.solved ? ' on' : ''}" id="d${i}">${e.solved ? e.digit : '?'}</div>`).join('')}</div>`;
@@ -399,6 +400,7 @@
     if (!el) return; const a = el.dataset.a.split(':'), act = a[0], x = X();
     if (act === 'close') return close();
     if (act === 'tab') return setTab(a[1]);
+    if (act === 'cine') { endCine(); return; }
     if (act === 'shop') { close(); if (typeof showScreen === 'function') showScreen('shop'); return; }
     if (act === 'pick') { close(); if (typeof showScreen === 'function') showScreen('shop'); return; }
     if (act === 'try') return tryCode();
@@ -444,10 +446,35 @@
   }
   function restore() { try { const s = JSON.parse(sessionStorage.getItem('libero_hk') || 'null'); if (s && V) open(s.tab, s.enig); } catch (_) {} }
 
+  /* ───────── Cinematique : ZyX accueille le joueur quand il ouvre la boutique piratee ───────── */
+  let cineDone = null;
+  function tabCine() {
+    const x = X(), main = q('#main'), first = !localStorage.getItem('libero_hk_seen');
+    q('.hk-close').style.display = 'none'; q('.hk-tit').textContent = '';
+    main.innerHTML = `<div class="pbody cine"><div class="cine-fl"></div><div class="cine-sc"><div class="awn hacked"></div><div class="tape"></div><h3 class="shopname hacked"><span class="a">${esc(x.shopReal)}</span><span class="b">${esc(x.shopName)}</span></h3></div>${hkEl('cine-hk', 'left:50%;bottom:90px;width:170px;height:210px;margin-left:-85px', '')}${sayHTML('cb', 'left:50%;top:38%;margin-left:-130px;--tx:0px;--ox:50%;max-width:260px;z-index:14;font-size:1.25rem', '')}<button class="btn cine-skip" data-a="cine" type="button">${esc(x.skip || (L() === 'en' ? 'Skip' : 'Passer'))}</button></div>`;
+    const ls = first ? x.zx.intro : [x.zx.welcome]; let t = 900; snd('whoosh');
+    ls.forEach(line => { talk('cb', line, t, 34); t += line.length * 34 + 2000; later(() => { const b = q('#cb'); if (b) b.classList.remove('on'); }, t - 500); });
+    later(endCine, t + 300);
+  }
+  function endCine() { if (UI.tab !== 'cine') return; try { localStorage.setItem('libero_hk_seen', '1'); sessionStorage.setItem('libero_hk_cine', '1'); } catch (_) {} const cb = cineDone; cineDone = null; q('.hk-close').style.display = ''; close(); if (cb) cb(); }
+  function cinematic(cb) { if (!V || V.phase !== 'locked') { if (cb) cb(); return; } cineDone = cb || null; open('cine'); }
+  function blocked() {
+    if (!V || document.getElementById('hk-blk')) return; const x = X(), lines = x.zx.locked, ln = lines[Math.floor(Math.random() * lines.length)];
+    realCss(); const m = document.createElement('div'); m.id = 'hk-blk'; m.className = 'hk-blk';
+    m.innerHTML = `<div class="hk-blk-c"><b>~ZyX_22~</b><p>${esc(ln)}</p><small>${esc(L() === 'en' ? 'The shop is blocked until someone opens the padlock. Solve the riddles to get the code.' : 'La boutique est bloquée tant que personne n\'a ouvert le cadenas. Résous les énigmes pour avoir le code.')}</small><div><button type="button" data-k="go">${esc(x.enter)}</button><button type="button" data-k="ok" class="sec">OK</button></div></div>`;
+    m.addEventListener('click', e => { const k = e.target.dataset && e.target.dataset.k; if (k === 'go') { m.remove(); open('door'); } else if (k === 'ok' || e.target === m) m.remove(); });
+    document.body.appendChild(m); snd('laugh');
+  }
+  function realCss() {
+    if (document.getElementById('hk-blk-css')) return; const s = document.createElement('style'); s.id = 'hk-blk-css';
+    s.textContent = '.hk-blk{position:fixed;inset:0;z-index:3600;background:rgba(0,0,0,.6);display:grid;place-items:center;padding:16px}.hk-blk-c{background:#1a1410;color:#f6ecd2;border:3px solid #d19a3d;border-radius:14px;padding:18px 20px;max-width:380px;width:100%;display:grid;gap:10px;text-align:center;box-shadow:0 10px 0 rgba(0,0,0,.4)}.hk-blk-c b{font:400 .9rem var(--font-display,Archivo Black,sans-serif);color:#ff8e8e}.hk-blk-c p{margin:0;font:700 1.35rem/1.15 var(--font-hand,Caveat,cursive)}.hk-blk-c small{opacity:.8}.hk-blk-c div{display:flex;gap:8px;justify-content:center}.hk-blk-c button{font:400 .9rem var(--font-display,Archivo Black,sans-serif);border:2px solid #d19a3d;border-radius:8px;padding:8px 14px;background:#d19a3d;color:#1a1410;cursor:pointer}.hk-blk-c button.sec{background:transparent;color:#f6ecd2}';
+    document.head.appendChild(s);
+  }
+
   /* ───────── La vraie boutique pendant le piratage : ZyX l'occupe, farces visuelles seulement ───────── */
   let rsRun = 0;
   function realShop() {
-    if (!V || V.phase !== 'locked' || !pranksOn()) return;
+    if (!V || V.phase !== 'locked' || !pranksOn() || isOpen()) return;
     const scr = document.getElementById('screen-shop'); if (!scr || !scr.classList.contains('active') || rsRun) return;
     rsRun = 1; const x = X(), undo = [], tm = [];
     const alive = () => scr.classList.contains('active') && V && V.phase === 'locked';
@@ -477,5 +504,5 @@
     const wd = setInterval(() => { if (!alive()) { clearInterval(wd); stop(); } }, 700);
   }
 
-  window.LiberoHk = { realShop, init, setState, onEvent, open, close, restore, isOpen, TX };
+  window.LiberoHk = { cinematic, blocked, realShop, init, setState, onEvent, open, close, restore, isOpen, TX };
 })();
