@@ -3688,3 +3688,4 @@ body.hk-locked #nav-tab-shop::after{content:"";position:absolute;right:calc(50% 
 .bingo-toast.on{top:12px}
 .bingo-toast b{font:400 .95rem var(--font-display)}
 .bingo-toast span{font-size:.82rem;color:var(--muted)}
+#confirm-text{white-space:pre-line}

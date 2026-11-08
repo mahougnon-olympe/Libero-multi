@@ -458,12 +458,13 @@
   }
   function endCine() { if (UI.tab !== 'cine') return; try { localStorage.setItem('libero_hk_seen', '1'); sessionStorage.setItem('libero_hk_cine', '1'); } catch (_) {} const cb = cineDone; cineDone = null; q('.hk-close').style.display = ''; close(); if (cb) cb(); }
   function cinematic(cb) { if (!V || V.phase !== 'locked') { if (cb) cb(); return; } cineDone = cb || null; open('cine'); }
+  let blkOn = false;
   function blocked() {
-    if (!V || document.getElementById('hk-blk')) return; const x = X(), lines = x.zx.locked, ln = lines[Math.floor(Math.random() * lines.length)];
-    realCss(); const m = document.createElement('div'); m.id = 'hk-blk'; m.className = 'hk-blk';
-    m.innerHTML = `<div class="hk-blk-c"><b>~ZyX_22~</b><p>${esc(ln)}</p><small>${esc(L() === 'en' ? 'The shop is blocked until someone opens the padlock. Solve the riddles to get the code.' : 'La boutique est bloquée tant que personne n\'a ouvert le cadenas. Résous les énigmes pour avoir le code.')}</small><div><button type="button" data-k="go">${esc(x.enter)}</button><button type="button" data-k="ok" class="sec">OK</button></div></div>`;
-    m.addEventListener('click', e => { const k = e.target.dataset && e.target.dataset.k; if (k === 'go') { m.remove(); open('door'); } else if (k === 'ok' || e.target === m) m.remove(); });
-    document.body.appendChild(m); snd('laugh');
+    if (!V || blkOn) return; const x = X(), lines = x.zx.locked, ln = lines[Math.floor(Math.random() * lines.length)], en = L() === 'en';
+    blkOn = true; snd('laugh');
+    const txt = ln + '\n\n' + (en ? 'The shop is blocked until someone opens the padlock. Solve the riddles to get the code.' : 'La boutique est bloquée tant que personne n\'a ouvert le cadenas. Résous les énigmes pour avoir le code.');
+    const p = typeof _slateConfirm === 'function' ? _slateConfirm({ title: '~ZyX_22~', text: txt, ok: x.enter, cancel: 'OK' }) : Promise.resolve(false);
+    p.then(go => { blkOn = false; if (go) open('door'); });
   }
   function realCss() {
     if (document.getElementById('hk-blk-css')) return; const s = document.createElement('style'); s.id = 'hk-blk-css';
