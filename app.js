@@ -2470,7 +2470,7 @@ window._arcade = (() => {
 })();
 
 function applyLang() {
-  try { window._hkApply?.(); window._bingoApply?.(); } catch {}
+  try { window._hkApply?.(); window._bingoApply?.(); window._qrApply?.(); } catch {}
   const d = t();
   document.documentElement.lang = currentLang;
   document.title = d.siteTitle;
@@ -3689,6 +3689,34 @@ socket.on('hk-take-result', r => {
   if (r.ok && !r.gift) { const nm = window._allShopItemsById?.[r.cosmeticId]?.name || r.cosmeticId; window._notify?.add?.({ type: 'shop', icon: '🎁', text: _hkT().taken(nm) }); if (typeof enterShop === 'function' && document.getElementById('screen-shop')?.classList.contains('active')) enterShop(); }
   else if (!r.ok && !window.LiberoHk?.isOpen()) { window._notify?.add?.({ type: 'shop', icon: '⚠', text: _hkT().err[r.error] || _hkT().err.rate }); }
 });
+
+// ── QR des salons : carte QR dans les salles d'attente + bouton « Scanner un QR » (qr.js a la demande) ──
+let _qrP = null;
+function _qrLoad() {
+  if (window.LiberoQR) return Promise.resolve(window.LiberoQR);
+  if (_qrP) return _qrP;
+  _qrP = new Promise(res => {
+    if (!document.querySelector('link[href^="qr.css"]')) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'qr.css?v=1'; document.head.appendChild(l); }
+    const s1 = document.createElement('script'); s1.src = 'vendor/qrcode.min.js';
+    s1.onload = () => { const s2 = document.createElement('script'); s2.src = 'qr.js?v=1'; s2.onload = () => res(window.LiberoQR); s2.onerror = () => { _qrP = null; res(null); }; document.head.appendChild(s2); };
+    s1.onerror = () => { _qrP = null; res(null); }; document.head.appendChild(s1);
+  });
+  return _qrP;
+}
+(function _qrInit() {
+  const render = id => { const el = document.getElementById(id); if (!el) return; const code = (el.textContent || '').trim(); if (code.length === 4) _qrLoad().then(q => q && q.card(el, code)); };
+  ['room-code', 'trivia-room-code'].forEach(id => { const el = document.getElementById(id); if (el) { new MutationObserver(() => render(id)).observe(el, { childList: true, characterData: true, subtree: true }); render(id); } });
+  // Bouton « Scanner un QR » sous les champs de code, seulement si le navigateur sait ouvrir une camera.
+  if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) return;
+  const place = () => ['input-code', 'input-trivia-code'].forEach(id => {
+    const inp = document.getElementById(id), grp = inp && inp.closest('.join-group'); if (!grp || grp.parentNode.querySelector('.qr-scan-btn')) return;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-secondary qr-scan-btn'; b.dataset.qr = '1'; b.innerHTML = '<span></span>';
+    b.addEventListener('click', () => _qrLoad().then(q => q && q.scan())); grp.insertAdjacentElement('afterend', b); _qrLabel(b);
+  });
+  place();
+})();
+function _qrLabel(b) { const fr = !(typeof currentLang !== 'undefined' && currentLang === 'en'); b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 12h8"/></svg><span>' + (fr ? 'Scanner un QR' : 'Scan a QR') + '</span>'; }
+window._qrApply = () => { document.querySelectorAll('.qr-scan-btn[data-qr]').forEach(_qrLabel); document.querySelectorAll('#room-code,#trivia-room-code').forEach(el => { const c = (el.textContent || '').trim(); if (c.length === 4 && window.LiberoQR) window.LiberoQR.card(el, c); }); };
 // ── Bingo Libero (week-end du 14 nov.) : bingo.js a la demande ; la grille et les Libs viennent du serveur ──
 let _bingoLoadP = null;
 window._bingo = null;
