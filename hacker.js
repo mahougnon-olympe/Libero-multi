@@ -206,7 +206,7 @@
     if (host) return;
     host = document.createElement('div'); host.id = 'hk-root'; document.body.appendChild(host);
     sh = host.attachShadow({ mode: 'open' });
-    sh.innerHTML = `<link rel="stylesheet" href="hacker.css?v=9"><div class="hk-wrap"><div class="bar"><button class="hk-close" data-a="close" type="button"></button><div class="hk-tit"></div><span class="hk-who"></span></div><div class="hk-main" id="main"></div><div class="ptab" id="tabs"></div><div class="push" id="push"><div class="ic">L</div><div><b id="pushT"></b><small id="pushB"></small></div></div></div>`;
+    sh.innerHTML = `<link rel="stylesheet" href="hacker.css?v=10"><div class="hk-wrap"><div class="bar"><button class="hk-close" data-a="close" type="button"></button><div class="hk-tit"></div><span class="hk-who"></span></div><div class="hk-main" id="main"></div><div class="ptab" id="tabs"></div><div class="push" id="push"><div class="ic">L</div><div><b id="pushT"></b><small id="pushB"></small></div></div></div>`;
     sh.addEventListener('click', onClick);
     sh.addEventListener('pointermove', e => { const m = q('.hk-main'); if (!m) return; const r = m.getBoundingClientRect(); look(e.clientX - r.left, e.clientY - r.top); });
     const syncTheme = () => { host.dataset.theme = document.documentElement.classList.contains('light') ? 'light' : 'dark'; };
