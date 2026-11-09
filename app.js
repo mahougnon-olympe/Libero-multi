@@ -3632,7 +3632,7 @@ function _hkLoad() {
   if (window.LiberoHk) { window.LiberoHk.init(socket); if (window._hk) window.LiberoHk.setState(window._hk); return Promise.resolve(window.LiberoHk); }
   if (_hkLoadP) return _hkLoadP;
   _hkLoadP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'hacker.js?v=6';
+    const sc = document.createElement('script'); sc.src = 'hacker.js?v=7';
     sc.onload = () => { try { window.LiberoHk.init(socket); if (window._hk) window.LiberoHk.setState(window._hk); } catch {} res(window.LiberoHk); };
     sc.onerror = () => { _hkLoadP = null; res(null); };
     document.head.appendChild(sc);

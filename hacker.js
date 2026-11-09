@@ -13,9 +13,9 @@
   /* ───────── Textes (FR / EN) ───────── */
   const TX = {
     fr: {
-      title: 'Boutique piratée', close: 'Fermer', door: 'La porte', book: 'Carnet', shop: 'Boutique', ticket: 'Ticket',
-      tabDoorOpen: 'La porte', owner: n => `La boutique appartient à ${n}`,
-      shopName: 'La papeterie de ZyX le grand', shopReal: 'La Papeterie Libero', closedNote: 'Boutique fermée : un cadenas bloque la porte.',
+      title: 'Boutique piratée', close: 'Fermer', door: 'La caisse', book: 'Carnet', shop: 'Boutique', ticket: 'Ticket',
+      tabDoorOpen: 'La caisse', owner: n => `La boutique appartient à ${n}`,
+      shopName: 'La papeterie de ZyX le grand', shopReal: 'La Papeterie Libero', closedNote: 'Caisse enchaînée : un cadenas bloque tout achat.',
       try: 'Essayer le code', tries: n => `${n} essai${n > 1 ? 's' : ''} cette heure`, noTries: 'Plus d\'essais cette heure', touch: 'Touche le haut ou le bas d\'une molette',
       wait: m => `Prochain essai dans ${m} min`, late: (n, s) => `${n} a ouvert le cadenas ${s} s avant toi. La boutique est ouverte pour tout le monde, aux nouveaux prix.`,
       lateT: 'Trop tard !', seeShop: 'Voir la boutique', anon: 'Choisis un pseudo pour jouer.', closedEv: 'Le cadenas ne se rouvre plus.',
@@ -36,7 +36,7 @@
       libe: 'Libé',
       // ZyX
       zx: {
-        intro: ['Oh petit curieux, qu\'est ce qui t\'amène ?', 'Cette boutique m\'appartient désormais...', 'J\'ai gardé les crayons, augmenté les prix, et fermé la porte à clé.', 'Six chiffres. Six énigmes. Six chances de vous planter. Ha !'],
+        intro: ['Oh petit curieux, qu\'est ce qui t\'amène ?', 'Cette boutique m\'appartient désormais...', 'J\'ai gardé les crayons, augmenté les prix, et enchaîné la caisse.', 'Six chiffres. Six énigmes. Six chances de vous planter. Ha !'],
         welcome: 'Bienvenue chez moi. Faites comme chez vous. Enfin non.', pricey: 'Trop cher ? Pleurez, ça fait monter les prix.', plus50: 'Plus 50 pour cent. Pas pour l\'argent. Pour le plaisir.',
         locked: ['Fermé. Cherche le code, petit curieux.', 'Pas touche. Tout est à moi.', 'Tu veux acheter ? Ouvre d\'abord mon cadenas.'],
         fake: 'Psst. Un solde à moins 90 pour cent. Courez.', slow: 'Trop lent ! Hahaha !', almost: 'Presque ! Non.', caught: 'Hahaha ! Tu as cru à ma magie ?', fakeName: 'Skin Mystère', fakeStamp: 'PIÉGÉ !', fakeTxt: 'Cet article n\'existe pas, je t\'ai eu petit con... Ha Ha', fakePill: 'Aucun Libs débité, aucun achat possible',
@@ -61,9 +61,9 @@
       pranksLabel: 'Farces du hacker (pendant l\'événement)', anonErr: 'Choisis un pseudo pour jouer.', sellRecap: 'Récapitulatif',
     },
     en: {
-      title: 'Hacked shop', close: 'Close', door: 'The door', book: 'Notebook', shop: 'Shop', ticket: 'Ticket',
-      tabDoorOpen: 'The door', owner: n => `The shop belongs to ${n}`,
-      shopName: 'ZyX the Great\'s stationery', shopReal: 'Libero Stationery', closedNote: 'Shop closed: a padlock blocks the door.',
+      title: 'Hacked shop', close: 'Close', door: 'The register', book: 'Notebook', shop: 'Shop', ticket: 'Ticket',
+      tabDoorOpen: 'The register', owner: n => `The shop belongs to ${n}`,
+      shopName: 'ZyX the Great\'s stationery', shopReal: 'Libero Stationery', closedNote: 'Register chained: a padlock blocks every purchase.',
       try: 'Try the code', tries: n => `${n} ${n > 1 ? 'tries' : 'try'} this hour`, noTries: 'No tries left this hour', touch: 'Tap the top or bottom of a wheel',
       wait: m => `Next try in ${m} min`, late: (n, s) => `${n} opened the padlock ${s} s before you. The shop is open to everyone, at the new prices.`,
       lateT: 'Too late!', seeShop: 'See the shop', anon: 'Choose a nickname to play.', closedEv: 'The padlock will not open again.',
@@ -83,7 +83,7 @@
       hints: [['The jumbled letters make a classroom object used on the board.', 'The word starts with the letter C.'], ['Read the word from right to left, or flip the mirror.', 'It is what you keep your pens in.'], ['Look at the first letter of each toy, from top to bottom.', 'Tap the toys in order: the word opens a lock.'], ['Start at the yellow letter and move to neighbouring tiles, no diagonals.', 'The word is what ZyX has kept shut from the start.'], ['Only one of the three messages tells the truth. For each box, count how many messages would be true.', 'The right box is the one where only one message is true. It is a tool for drawing straight lines.'], ['My name is the key: how many letters in "ZyX"?', 'Move each letter back 3 places in the alphabet. The word is what keeps the door shut.']],
       libe: 'Libé',
       zx: {
-        intro: ['Oh little curious one, what brings you here?', 'This shop belongs to me now...', 'I kept the pencils, raised the prices, and locked the door.', 'Six digits. Six riddles. Six chances to fail. Ha!'],
+        intro: ['Oh little curious one, what brings you here?', 'This shop belongs to me now...', 'I kept the pencils, raised the prices, and chained the register.', 'Six digits. Six riddles. Six chances to fail. Ha!'],
         welcome: 'Welcome to my place. Make yourself at home. Well, no.', pricey: 'Too expensive? Cry, it raises the prices.', plus50: 'Plus 50 percent. Not for the money. For fun.',
         locked: ['Closed. Find the code, little curious one.', 'Hands off. Everything is mine.', 'Want to buy? Open my padlock first.'],
         fake: 'Psst. A 90 percent sale. Run.', slow: 'Too slow! Hahaha!', almost: 'Almost! No.', caught: 'Hahaha! You believed in my magic?', fakeName: 'Mystery Skin', fakeStamp: 'GOTCHA!', fakeTxt: 'This item does not exist, I got you, you little twerp... Ha Ha', fakePill: 'No Libs charged, nothing can be bought',
@@ -185,9 +185,9 @@
   function plkRattle(big) { const pl = q('#pw .plk'); if (!pl) return; const k = big ? 9 : 6; pl.animate([{ transform: 'rotate(0)' }, { transform: `rotate(${-k}deg)` }, { transform: `rotate(${k}deg)` }, { transform: `rotate(${-k * .7}deg)` }, { transform: `rotate(${k * .5}deg)` }, { transform: `rotate(${-k * .25}deg)` }, { transform: 'rotate(0)' }], { duration: D(700), easing: 'ease-out' }); snd('rattle'); }
   function plkOpen() { const root = q('#pw'), g = root.querySelector('.shkg'); g.style.transformOrigin = '30px 110px'; g.animate([{ transform: 'translateY(0) rotate(0)' }, { transform: 'translateY(-4px) rotate(0)', offset: .15 }, { transform: 'translateY(-30px) rotate(0)', offset: .5 }, { transform: 'translateY(-28px) rotate(-8deg)', offset: .7 }, { transform: 'translateY(-30px) rotate(-38deg)' }], { duration: D(900), easing: 'cubic-bezier(.25,1.5,.5,1)', fill: 'forwards' }); root.querySelector('.pbody3').animate([{ transform: 'translateY(0)' }, { transform: 'translateY(6px)', offset: .3 }, { transform: 'translateY(0)' }], { duration: D(500), delay: D(120) }); snd('spring'); }
   function chainOn(hostEl, x0, y0, cx, cy, x1, y1, n) { const out = []; for (let i = 0; i <= n; i++) { const t = i / n, x = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * cx + t * t * x1, y = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * y1, tx = 2 * (1 - t) * (cx - x0) + 2 * t * (x1 - cx), ty = 2 * (1 - t) * (cy - y0) + 2 * t * (y1 - cy), ang = Math.atan2(ty, tx) * 180 / Math.PI, l = document.createElement('i'); l.className = 'lk' + (i % 2 ? ' v' : ''); l.dataset.rot = ang; l.style.cssText = `left:${x - (i % 2 ? 6 : 15)}px;top:${y - 8}px;transform:rotate(${ang}deg)`; hostEl.appendChild(l); out.push(l); } return out; }
-  const doorHTML = interior => `<div class="doorsc" id="dsc">${interior || ''}<div class="idim" id="idm"></div><div class="doors" id="drs"><div class="dl"><b></b></div><div class="dr"><b></b></div></div><div class="chh" id="chh"></div><div class="plkw" id="pw">${plkHTML()}</div></div>`;
+  const doorHTML = interior => `<div class="doorsc" id="dsc">${interior || ''}<div class="idim" id="idm"></div><div class="chh" id="chh"></div><div class="plkw" id="pw">${plkHTML()}</div></div>`;
   let links = null;
-  function doorSetup(vals) { const ds = q('#dsc'), ch = q('#chh'), W = ds.clientWidth, H = ds.clientHeight, cx = W / 2, sy = H * .24; ch.innerHTML = ''; links = { L: chainOn(ch, -10, H * .20, cx * .5, sy + 60, cx - 52, sy + 14, 7), R: chainOn(ch, W + 10, H * .20, cx * 1.5, sy + 60, cx + 52, sy + 14, 7) }; initWheels(vals || [0, 0, 0, 0, 0, 0]); }
+  function doorSetup(vals) { const ds = q('#dsc'), ch = q('#chh'), W = ds.clientWidth, H = ds.clientHeight, cx = W / 2, sy = H * (W > 800 ? .36 : .3); ch.innerHTML = ''; links = { L: chainOn(ch, -10, H * .30, cx * .5, sy + 60, cx - 52, sy + 14, 7), R: chainOn(ch, W + 10, H * .30, cx * 1.5, sy + 60, cx + 52, sy + 14, 7) }; initWheels(vals || [0, 0, 0, 0, 0, 0]); }
   function dust(hostEl, x, y, n) { if (reduce) return; for (let k = 0; k < n; k++) { const d = document.createElement('i'); d.className = 'dst'; d.style.cssText = `left:${x + (k - n / 2) * 10}px;top:${y}px`; hostEl.appendChild(d); d.animate([{ opacity: .55, transform: 'translate(0,0) scale(.4)' }, { opacity: 0, transform: `translate(${(k - n / 2) * 16}px,-${26 + Math.random() * 26}px) scale(1.7)` }], { duration: D(1100), delay: D(k * 40) }).onfinish = () => d.remove(); } }
   function chainsFall() { const ds = q('#dsc'), H = ds.clientHeight, all = links.L.slice().reverse().concat(links.R.slice().reverse()); snd('chain');
     all.forEach((l, i) => { const rot = +l.dataset.rot, gy = H - 40 - Math.random() * 30, dy = gy - parseFloat(l.style.top), rr = rot + (Math.random() * 160 - 80), dx = (Math.random() * 50 - 25);
@@ -196,17 +196,18 @@
   function padlockDrop() { const pw = q('#pw'), ds = q('#dsc'), H = ds.clientHeight, gy = H - pw.offsetHeight - pw.offsetTop - 10;
     pw.animate([{ transform: 'translateX(-50%) translateY(0) rotate(0)' }, { transform: `translateX(-50%) translateY(${gy}px) rotate(14deg)`, offset: .52, easing: 'ease-in' }, { transform: `translateX(-50%) translateY(${gy - 70}px) rotate(6deg)`, offset: .7 }, { transform: `translateX(-50%) translateY(${gy}px) rotate(18deg)`, offset: .86, easing: 'ease-in' }, { transform: `translateX(-50%) translateY(${gy - 14}px) rotate(12deg)`, offset: .94 }, { transform: `translateX(-50%) translateY(${gy}px) rotate(20deg)` }], { duration: D(1500), fill: 'forwards' });
     later(() => { snd('clunk'); dust(ds, ds.clientWidth / 2, H - 30, 8); q('.hk-wrap').animate([{ transform: 'translate(0,0)' }, { transform: 'translate(0,4px)' }, { transform: 'translate(0,0)' }], { duration: D(200) }); }, D(780)); later(() => snd('clunk'), D(1300)); }
-  function doorsOpen() { const d = q('#drs'), l = d.querySelector('.dl'), r = d.querySelector('.dr'), dim = q('#idm'); snd('creak');
-    l.animate([{ transform: 'rotateY(0)' }, { transform: 'rotateY(-8deg)', offset: .12 }, { transform: 'rotateY(-104deg)' }], { duration: D(2200), fill: 'forwards', easing: 'cubic-bezier(.4,0,.3,1)' });
-    r.animate([{ transform: 'rotateY(0)' }, { transform: 'rotateY(8deg)', offset: .12 }, { transform: 'rotateY(104deg)' }], { duration: D(2200), fill: 'forwards', easing: 'cubic-bezier(.4,0,.3,1)', delay: D(120) });
-    dim.style.transition = 'opacity 2.2s ease'; dim.style.opacity = 0; q('#chh').style.opacity = 0; }
+  function doorsOpen() { const rg = q('#reg'), dim = q('#idm'); snd('creak');
+    const dr = rg && rg.querySelector('.drw'); if (dr) dr.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-6px)', offset: .2 }, { transform: 'translateY(34px)' }], { duration: D(900), fill: 'forwards', easing: 'cubic-bezier(.3,1.5,.5,1)' });
+    if (rg) rg.animate([{ transform: 'translateX(-50%) scale(1)' }, { transform: 'translateX(-50%) scale(1.06)', offset: .3 }, { transform: 'translateX(-50%) scale(1)' }], { duration: D(700) });
+    const cn = q('#coins'); if (cn && !reduce) for (let k = 0; k < 14; k++) { const c = document.createElement('i'); c.style.cssText = `left:${40 + Math.random() * 20}%`; cn.appendChild(c); c.animate([{ transform: 'translateY(0) scale(.5)', opacity: 1 }, { transform: `translate(${(Math.random() - .5) * 220}px,${-60 - Math.random() * 90}px) scale(1)`, opacity: 1, offset: .55 }, { transform: `translate(${(Math.random() - .5) * 260}px,40px) scale(.9)`, opacity: 0 }], { duration: D(1400), delay: D(k * 60), fill: 'forwards' }); }
+    snd('ding'); dim.style.transition = 'opacity 2.2s ease'; dim.style.opacity = 0; q('#chh').style.opacity = 0; }
 
   /* ───────── Cadre de l'ecran ───────── */
   function build() {
     if (host) return;
     host = document.createElement('div'); host.id = 'hk-root'; document.body.appendChild(host);
     sh = host.attachShadow({ mode: 'open' });
-    sh.innerHTML = `<link rel="stylesheet" href="hacker.css?v=10"><div class="hk-wrap"><div class="bar"><button class="hk-close" data-a="close" type="button"></button><div class="hk-tit"></div><span class="hk-who"></span></div><div class="hk-main" id="main"></div><div class="ptab" id="tabs"></div><div class="push" id="push"><div class="ic">L</div><div><b id="pushT"></b><small id="pushB"></small></div></div></div>`;
+    sh.innerHTML = `<link rel="stylesheet" href="hacker.css?v=12"><div class="hk-wrap"><div class="bar"><button class="hk-close" data-a="close" type="button"></button><div class="hk-tit"></div><span class="hk-who"></span></div><div class="hk-main" id="main"></div><div class="ptab" id="tabs"></div><div class="push" id="push"><div class="ic">L</div><div><b id="pushT"></b><small id="pushB"></small></div></div></div>`;
     sh.addEventListener('click', onClick);
     sh.addEventListener('pointermove', e => { const m = q('.hk-main'); if (!m) return; const r = m.getBoundingClientRect(); look(e.clientX - r.left, e.clientY - r.top); });
     const syncTheme = () => { host.dataset.theme = document.documentElement.classList.contains('light') ? 'light' : 'dark'; };
@@ -239,17 +240,18 @@
   const foundDigits = () => `<div class="digits" id="dgs">${V.enigmas.map((e, i) => `<div class="dg${e.solved ? ' on' : ''}" id="d${i}">${e.solved ? e.digit : '?'}</div>`).join('')}</div>`;
 
   /* ───────── Onglet : la porte et son cadenas ───────── */
-  function interior(lit) { const x = X(); return `<div class="awn"></div><h3 class="shopname" style="margin-top:6px"><span class="a">${esc(x.shopReal)}</span></h3>${hkEl('', 'left:41%;top:98px;width:78px;height:94px;z-index:4', '')}${sayHTML('b1', 'left:10px;top:200px;--tx:140px;--ox:60%;max-width:250px;z-index:14', '')}`; }
+  function regSVG() { return `<svg viewBox="0 0 300 230" class="regsvg"><rect x="20" y="104" width="260" height="112" rx="10" fill="#6b4a2b" stroke="#3c2508" stroke-width="4"/><rect x="30" y="112" width="240" height="30" rx="4" fill="#b98a56" stroke="#3c2508" stroke-width="2"/><rect x="40" y="148" width="220" height="58" rx="6" fill="#8f6a3c" stroke="#3c2508" stroke-width="3" class="drw"/><rect x="132" y="170" width="36" height="9" rx="4" fill="#3c2508"/><path d="M44 104 L66 30 H234 L256 104 Z" fill="#c9a064" stroke="#3c2508" stroke-width="4"/><rect x="92" y="42" width="116" height="40" rx="5" fill="#1b2a25" stroke="#3c2508" stroke-width="3"/><text x="150" y="72" text-anchor="middle" font-family="Archivo Black,sans-serif" font-size="26" fill="#fff27a">0 0 0</text></svg>`; }
+  function interior(lit) { const x = X(); return `<div class="awn"></div><h3 class="shopname" style="margin-top:6px"><span class="a">${esc(x.shopReal)}</span></h3><div class="wallsh"></div><div class="cnt"></div>${hkEl('', 'left:9%;top:30%;width:96px;height:118px;z-index:4', '')}<div class="reg" id="reg"><div class="coins" id="coins"></div>${regSVG()}</div>${sayHTML('b1', 'left:10px;top:58%;--tx:140px;--ox:60%;max-width:250px;z-index:14', '')}`; }
   function shelf(mode) { const lg = L(); return `<div class="shelf" id="sh">${DECO.map((it, k) => `<div class="it" data-k="${k}">${svgI(it.k)}<div class="nm">${esc(it[lg])}</div><div class="pr"><span class="n on" style="opacity:1;transform:none;color:var(--text)">${hkP(it.p)} Libs</span></div></div>${k % 2 === 1 ? '<div class="plank"></div>' : ''}`).join('')}</div>`; }
   function tabDoor() {
     const x = X(), main = q('#main'), ph = V.phase;
     if (ph === 'locked') {
       main.innerHTML = `<div class="pbody">${doorHTML(interior())}<div class="lkd" style="position:absolute;top:8px;left:0;right:0;z-index:9">${foundDigits()}</div><div class="lkui"><button class="btn sm" data-a="try" type="button">${esc(x.try)}</button><div class="tries"><span id="trt"></span></div><div class="sub" style="color:#e9d9b4;font-size:.76rem">${esc(x.touch)}</div></div>${chead()}<div class="sheetm" id="sm"></div><div class="dim" id="dm"></div></div>`;
-      doorSetup(UI.code); tries(); return;
+      doorSetup(UI.code); requestAnimationFrame(() => { if (q('#dsc')) doorSetup(UI.code); }); tries(); return;
     }
     // Cadenas ouvert : on montre la porte ouverte et ce qui s'est passe.
     const own = V.owner, msg = ph === 'ended' && !own ? x.endedOver : own && own.active ? x.owner(own.name) : x.endedDone;
-    main.innerHTML = `<div class="pbody"><div class="doorsc" id="dsc" style="min-height:420px">${interior(true).replace('class="awn"', 'class="awn"')}<div class="doors" id="drs" style="pointer-events:none"><div class="dl" style="transform:rotateY(-104deg)"><b></b></div><div class="dr" style="transform:rotateY(104deg)"><b></b></div></div></div><div class="card" style="margin:0 14px;display:grid;gap:6px"><b class="title" style="font-size:1.05rem">${esc(msg)}</b>${own ? `<span class="sub">${esc(x.bannerOwner(own.name, own.used))}</span>` : ''}<button class="btn" data-a="shop" type="button">${esc(x.seeShop)}</button></div></div>`;
+    main.innerHTML = `<div class="pbody"><div class="doorsc" id="dsc" style="min-height:420px">${interior(true).replace('class="awn"', 'class="awn"')}</div><div class="card" style="margin:0 14px;display:grid;gap:6px"><b class="title" style="font-size:1.05rem">${esc(msg)}</b>${own ? `<span class="sub">${esc(x.bannerOwner(own.name, own.used))}</span>` : ''}<button class="btn" data-a="shop" type="button">${esc(x.seeShop)}</button></div></div>`;
   }
   function tries() { const t = q('#trt'); if (!t) return; const x = X(); if (V.codeLeft > 0) t.textContent = x.tries(V.codeLeft); else { const m = Math.max(1, Math.ceil((V.codeRetryAt - sn()) / 60000)); t.textContent = x.wait(m); } }
   function tryCode() {
