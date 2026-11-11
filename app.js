@@ -3456,7 +3456,7 @@ function _mixLoad() {
   if (window.LiberoMix) return Promise.resolve(window.LiberoMix);
   if (_mixP) return _mixP;
   _mixP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'mix.js?v=3';
+    const sc = document.createElement('script'); sc.src = 'mix.js?v=4';
     sc.onload = () => res(window.LiberoMix); sc.onerror = () => { _mixP = null; res(null); };
     document.head.appendChild(sc);
   });

@@ -100,7 +100,7 @@
     $('#mx-l-themes', home).textContent = d.themes;
     $('#mx-themes', home).innerHTML = t().triviaCats.filter(c => window._hwThemeOk(c.id)).map(c => `
       <button class="theme-btn${P.cats.includes(c.id) ? ' active' : ''}" data-id="${c.id}">
-        <span class="theme-photo"><img src="assets/quiz/${c.id}.webp?v=2" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('no-photo')"><span class="theme-art-wrap">${typeof _themeArt === 'function' ? _themeArt(c.id) : ''}</span></span>
+        <span class="theme-photo"><img src="assets/quiz/${c.id}.webp?v=3" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('no-photo')"><span class="theme-art-wrap">${typeof _themeArt === 'function' ? _themeArt(c.id) : ''}</span></span>
         <span class="theme-name">${c.name}</span>
       </button>`).join('');
     $('#mx-l-diff', home).textContent = d.diff;
