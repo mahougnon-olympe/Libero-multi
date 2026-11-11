@@ -1405,6 +1405,9 @@ const DICT = {
       { id:34, name:'Légendes et monstres', icon:'' },
       { id:35, name:'Animaux de la nuit', icon:'' },
       { id:36, name:"Halloween, d'où ça vient ?", icon:'' },
+      { id:37, name:'Hacker', icon:'' },
+      { id:38, name:'Gaming moderne et rétro', icon:'' },
+      { id:39, name:'IA', icon:'' },
     ],
     tutoSteps:{
       landing_news:"Ici, les <b>nouvelles</b> du site. Touche pour ouvrir.",
@@ -2223,6 +2226,9 @@ const DICT = {
       { id:34, name:'Legends and monsters', icon:'' },
       { id:35, name:'Animals of the night', icon:'' },
       { id:36, name:'Halloween: where does it come from?', icon:'' },
+      { id:37, name:'Hacker', icon:'' },
+      { id:38, name:'Modern and retro gaming', icon:'' },
+      { id:39, name:'AI', icon:'' },
     ],
     tutoSteps:{
       landing_news:"Site <b>news</b> live here. Tap to open.",
@@ -5476,6 +5482,9 @@ THEME_ART["34"] = '<path d="M5 26Q32 4 59 26Q32 48 5 26z" class="f"/><circle cx=
 THEME_ART["35"] = '<circle cx="48" cy="14" r="9" class="y"/><path d="M8 38c6-6 12-8 20-4l4-8 4 8c8-4 14-2 20 4-4 0-8 2-10 6-4-4-8-4-14 0-6-4-10-4-14 0-2-4-6-6-10-6z" class="k"/><path d="M26 33h2M36 33h2" class="y"/>';
 THEME_ART["36"] = '<rect x="12" y="8" width="40" height="38" rx="3" class="f"/><path d="M12 18h40M22 4v8M42 4v8" class="t"/><text x="32" y="40" text-anchor="middle" font-size="20" font-family="Archivo Black, sans-serif" fill="currentColor" stroke="none">31</text>';
 THEME_ART["33"] = '<path d="M32 12c0-4 2-7 5-8" class="g"/><path d="M32 12C16 6 4 18 6 31s14 17 26 17 24-4 26-17S48 6 32 12z" class="f"/><path d="M32 12c-8 6-8 30 0 36M32 12c8 6 8 30 0 36" class="t"/><path d="M20 24l5 7-9 1zM44 24l-5 7 9 1z" class="k"/><path d="M22 38c4 4 16 4 20 0l-3-2-3 3-3-3-3 3-3-3z" class="k"/>';
+THEME_ART["37"] = '<rect x="6" y="6" width="52" height="38" rx="3" class="f"/><path d="M6 14h52" class="t"/><path d="M14 24l7 5-7 5" /><path d="M26 35h12"/><circle cx="12" cy="10" r="1.4" class="r"/><circle cx="17" cy="10" r="1.4" class="y"/><circle cx="22" cy="10" r="1.4" class="g"/><path d="M44 24h8M44 30h5" class="t"/>';
+THEME_ART["38"] = '<path d="M14 18h36c6 0 9 6 10 14l1 9c.4 3-3 5-5 3l-7-7H15l-7 7c-2 2-5 0-5-3l1-9c1-8 4-14 10-14z" class="f"/><path d="M17 24v8M13 28h8"/><circle cx="43" cy="25" r="2.4" class="y"/><circle cx="49" cy="30" r="2.4" class="g"/><path d="M26 27h6" class="t"/><path d="M24 12h16" class="t"/>';
+THEME_ART["39"] = '<rect x="18" y="14" width="28" height="24" rx="3" class="f"/><rect x="25" y="21" width="14" height="10" rx="1.5" class="k"/><path d="M24 14V8M32 14V8M40 14V8M24 38v6M32 38v6M40 38v6M18 22h-8M18 30h-8M46 22h8M46 30h8"/><circle cx="8" cy="22" r="2" class="y"/><circle cx="8" cy="30" r="2" class="g"/><circle cx="56" cy="22" r="2" class="g"/><circle cx="56" cy="30" r="2" class="y"/>';
 function _themeArt(id) {
   const p = THEME_ART[id];
   return p ? `<svg class="theme-art" viewBox="0 0 64 50" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>` : '';
