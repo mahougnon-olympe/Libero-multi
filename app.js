@@ -974,7 +974,7 @@ const DICT = {
     triviaWaitTitle:'En attente de joueurs…', triviaWaitCode:'Code du salon :',
     btnTriviaCopy:'Copier le code', btnStartTrivia:'▶ Démarrer la partie',
     btnLeaveTrivia:'Quitter le salon', quit:{ abandonTitle:'Abandonner ?', stay:'Continuer la partie', menuTitle:'Quitter la partie ?', menuLeave:'Retourner au menu', abandon:'Abandonner', abandonAsk:'Abandonner la partie ? Elle compte comme perdue.', menuAsk:'Retourner au menu ?', tear:'Déchirer le ticket (quitter)', changeGame:'changer de jeu', quitGame:'quitter la partie', backQuiz:'retour au quiz', close:'Fermer' },
-    triviaWaitHint:'1 à 20 joueurs. Démarre dès que tu es prêt·e.',
+    triviaWaitHint:'1 à 100 joueurs. Démarre dès que tu es prêt·e.',
     triviaCorrect:'✅ Bonne réponse !', triviaFastBonus:'⚡ Réponse éclair !', triviaWrong:'❌ La réponse était : ',
     triviaFinishedTitle:'Résultats finaux', btnLeaveGame:'Retour au menu', btnQuitTrivia:'🚪 Quitter',
     triviaPodiumWin:'🏆 Champion du quiz !', triviaPodiumTop3:'🎉 Sur le podium !', triviaPodiumOut: r => `Tu finis ${r}e, le podium t'attend la prochaine fois !`,
@@ -1791,7 +1791,7 @@ const DICT = {
     triviaWaitTitle:'Waiting for players…', triviaWaitCode:'Room code:',
     btnTriviaCopy:'Copy code', btnStartTrivia:'▶ Start game',
     btnLeaveTrivia:'Leave room', quit:{ abandonTitle:'Give up?', stay:'Keep playing', menuTitle:'Leave the game?', menuLeave:'Back to the menu', abandon:'Give up', abandonAsk:'Give up this game? It counts as a loss.', menuAsk:'Back to the menu?', tear:'Tear up the ticket (leave)', changeGame:'change game', quitGame:'quit the game', backQuiz:'back to the quiz', close:'Close' },
-    triviaWaitHint:'1 to 20 players. Start whenever you\'re ready.',
+    triviaWaitHint:'1 to 100 players. Start whenever you\'re ready.',
     triviaCorrect:'✅ Correct!', triviaFastBonus:'⚡ Lightning answer!', triviaWrong:'❌ The answer was: ',
     triviaFinishedTitle:'Final Results', btnLeaveGame:'Back to menu', btnQuitTrivia:'🚪 Quit',
     triviaPodiumWin:'🏆 Quiz champion!', triviaPodiumTop3:'🎉 On the podium!', triviaPodiumOut: r => `You finished ${r}th, the podium awaits you next time!`,
@@ -3215,6 +3215,7 @@ window.addEventListener('popstate', () => {
 
 // ── Trivia : constantes ───────────────────────────────────────────────────────
 // Couleurs des joueurs du quiz : la palette du site (encre, rouge, vert, or, violet, sarcelle), en aplats.
+const _tcol = i => TRIVIA_COLORS[Math.abs(+i || 0) % TRIVIA_COLORS.length];
 const TRIVIA_COLORS = ['#3d64b8','#d23a4f','#2f8a55','#b8860b','#7a4fb0','#2a8a8a','#c2410c','#be185d','#4d7c0f','#1d4ed8','#9d174d','#0f766e','#a16207','#6d28d9','#b91c1c','#15803d','#0369a1','#86198f','#854d0e','#334155'];
 
 // ── Trivia : état ─────────────────────────────────────────────────────────────
@@ -5602,12 +5603,16 @@ $('btn-start-trivia').addEventListener('click', () => { socket.emit('start-trivi
 $('btn-leave-trivia-wait').addEventListener('click', goToTriviaHome);
 
 function renderTriviaWaitPlayers(players, hostId) {
-  $('trivia-wait-players').innerHTML = players.map(p => `
-    <div class="tw-chip" style="background:${TRIVIA_COLORS[p.colorIndex] || '#64748b'}">
+  const wp = $('trivia-wait-players');
+  wp.innerHTML = players.map(p => `
+    <div class="tw-chip" style="background:${_tcol(p.colorIndex)}">
       <div class="tw-chip-dot"></div>
-      <span>${p.name}${p.socketId === hostId ? ' 👑' : ''}</span>
+      <span>${_escHtml(p.name)}${p.socketId === hostId ? ' 👑' : ''}</span>
     </div>
   `).join('');
+  let cnt = document.getElementById('tw-count');
+  if (!cnt) { cnt = document.createElement('p'); cnt.id = 'tw-count'; cnt.className = 'hint'; cnt.style.textAlign = 'center'; wp.parentNode.insertBefore(cnt, wp); }
+  cnt.textContent = players.length + ' / 100' + (currentLang === 'en' ? ' players' : ' joueurs');
   const isHost = players.some(p => p.socketId === triviaMySocketId && p.socketId === hostId);
   $('btn-start-trivia').classList.toggle('hidden', !isHost);
 }
@@ -5791,11 +5796,22 @@ function _triviaBurst(emoji) {
 }
 
 function renderTriviaScores(scores, gains) {
+  // Grand salon : on garde le haut du classement + la place du joueur, sinon 100 pastilles remplissent l'ecran.
+  if (scores.length > 12) {
+    const me = scores.findIndex(s => s.socketId === triviaMySocketId);
+    const top = scores.slice(0, 5), extra = me >= 5 ? [scores[me]] : [];
+    const en = currentLang === 'en';
+    $('tg-scores').innerHTML = extra.concat(top).map(s => {
+      const g = gains && s.socketId ? gains[s.socketId] : null, rank = scores.indexOf(s) + 1;
+      return `<div class="tg-score-chip${g ? ' tg-chip-bump' : ''}${s.socketId === triviaMySocketId ? ' me' : ''}" style="background:${_tcol(s.colorIndex)}"><span>${rank}. ${_escHtml(s.name)}</span><span class="tg-score-check">${s.score}pt${g ? ` <b class="tg-chip-gain">+${g.pts}</b>` : ''}</span></div>`;
+    }).join('') + `<div class="hint" style="white-space:nowrap;align-self:center">${scores.length} ${en ? 'players' : 'joueurs'}${me >= 0 ? ' · ' + (en ? 'you are ' : 'tu es ') + (me + 1) + (en ? 'th' : 'e') : ''}</div>`;
+    return;
+  }
   $('tg-scores').innerHTML = scores.map(s => {
     const g = gains && s.socketId ? gains[s.socketId] : null;
     return `
-    <div class="tg-score-chip${g ? ' tg-chip-bump' : ''}" style="background:${TRIVIA_COLORS[s.colorIndex] || '#64748b'}">
-      <span>${s.name}</span>
+    <div class="tg-score-chip${g ? ' tg-chip-bump' : ''}" style="background:${_tcol(s.colorIndex)}">
+      <span>${_escHtml(s.name)}</span>
       <span class="tg-score-check">${s.score}pt${g ? ` <b class="tg-chip-gain">+${g.pts}</b>` : ''}</span>
     </div>`;
   }).join('');
@@ -5918,7 +5934,7 @@ function showTriviaFinished(scores) {
   const myIdx = triviaIsSolo ? 0 : scores.findIndex(s => s.socketId === triviaMySocketId);
   // Liste des resultats (le podium anime, lui, est la scene de podium.js jouee avant).
   let html = scores.map((s, i) => `
-      <div class="tg-final-row" style="background:${TRIVIA_COLORS[s.colorIndex] || '#64748b'}">
+      <div class="tg-final-row" style="background:${_tcol(s.colorIndex)}">
         <span class="tg-final-rank">${medals[i] || (i+1)+'.'}</span>
         <span class="tg-final-name">${_escHtml(s.name)}</span>
         <span class="tg-final-score">${s.score} pts</span>

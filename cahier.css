@@ -3689,3 +3689,6 @@ body.hk-locked #nav-tab-shop::after{content:"";position:absolute;right:calc(50% 
 .bingo-toast b{font:400 .95rem var(--font-display)}
 .bingo-toast span{font-size:.82rem;color:var(--muted)}
 #confirm-text{white-space:pre-line}
+
+#trivia-wait-players{max-height:42vh;overflow-y:auto;overscroll-behavior:contain}
+.tg-score-chip.me{outline:3px solid var(--mark,#fff27a);outline-offset:1px}

@@ -2586,7 +2586,13 @@ const TRIVIA_CATEGORIES = {
   33: 'Frissons',        34: 'Légendes et monstres', 35: 'Animaux de la nuit', 36: "Halloween, d'où ça vient ?",
 };
 const TRIVIA_COLORS = ['#2563eb','#dc2626','#16a34a','#9333ea','#ea580c','#0891b2'];
-const TRIVIA_MAX = 20; // joueurs par salon de quiz
+const TRIVIA_MAX = 100; // joueurs par salon de quiz
+const TRIVIA_PORTRAITS_MAX = 10; // portraits envoyes en fin de partie (podium) : pas pour les 100 joueurs, trop lourd
+// Mise a jour de la salle d'attente : regroupee (un envoi toutes les 300 ms au plus) pour ne pas envoyer 100 x 100 messages quand un groupe entre d'un coup.
+function triviaRoomUpdated(code) {
+  const room = triviaRooms.get(code); if (!room || room._updT) return;
+  room._updT = setTimeout(() => { room._updT = null; if (triviaRooms.get(code) === room) io.to(code).emit('trivia-room-updated', getTriviaRoomState(room)); }, 300);
+}
 const TRIVIA_Q_COUNT = 10;
 const TRIVIA_TIME_MS = 30_000;
 
@@ -3007,7 +3013,7 @@ function finishTriviaGame(code) {
   io.emit('global-leaderboard-update', getGlobalLeaderboardData());
 
   // Portrait dessine de chacun : affiche sur le podium de fin de partie.
-  io.to(code).emit('trivia-finished', { scores: scores.map(({ playerId, siteScore, ...rest }) => ({ ...rest, portrait: (playerId && libs.get(playerId)?.portrait) || getPortraitByName(rest.name) || null })) });
+  io.to(code).emit('trivia-finished', { scores: scores.map(({ playerId, siteScore, ...rest }, i) => ({ ...rest, portrait: i < TRIVIA_PORTRAITS_MAX ? ((playerId && libs.get(playerId)?.portrait) || getPortraitByName(rest.name) || null) : null })) });
   setTimeout(() => triviaRooms.delete(code), 60_000);
 }
 
@@ -3719,13 +3725,16 @@ io.on('connection', (socket) => {
     if (room.status !== 'waiting') { socket.emit('trivia-error', { message: 'La partie a déjà commencé.' }); return true; }
     if (room.players.size >= TRIVIA_MAX) { socket.emit('trivia-error', { message: `Le salon est complet (${TRIVIA_MAX} joueurs max).` }); return true; }
 
+    if (room.players.has(socket.id)) { triviaRoomCode = key; socket.emit('trivia-room-joined', { code: key, categoryName: room.categoryName, kind: room.kind || 'quiz' }); triviaRoomUpdated(key); return true; } // deja dedans : pas de doublon
+    // Un joueur qui change de salon quitte d'abord l'ancien.
+    if (triviaRoomCode && triviaRoomCode !== key) leaveTriviaRoom();
     const playerName = sanitizeName(name, 'Anonyme');
-    const colorIndex = room.players.size;
+    const colorIndex = (room.nextColor = (room.nextColor || 0) + 1) - 1;
     room.players.set(socket.id, { name: playerName, playerId: safePlayerId(playerId) || playerName, colorIndex, score: 0 });
     triviaRoomCode = key;
     socket.join(key);
     socket.emit('trivia-room-joined', { code: key, categoryName: room.categoryName, kind: room.kind || 'quiz' });
-    io.to(key).emit('trivia-room-updated', getTriviaRoomState(room));
+    triviaRoomUpdated(key);
     return true;
   }
 
@@ -4295,6 +4304,7 @@ io.on('connection', (socket) => {
     const code = generateCode();
     const players = new Map();
     players.set(socket.id, { name: playerName, playerId: safePlayerId(playerId) || playerName, colorIndex: 0, score: 0 });
+    if (triviaRoomCode) leaveTriviaRoom(); // un joueur ne garde pas l'ancien salon en creant le nouveau
     const catNames = cats.map(c => TRIVIA_CATEGORIES[c]);
     const categoryName = isFlags ? 'flags' : isMix ? 'mix' : (cats.length <= 2 ? catNames.join(' · ') : `Mix (${cats.length})`);
     triviaRooms.set(code, {
@@ -4304,7 +4314,7 @@ io.on('connection', (socket) => {
       timeMs: roomDiff === 'extreme' ? 15_000 : TRIVIA_TIME_MS,
       players, questions: null, currentQ: -1,
       status: 'waiting', answersThisRound: new Map(),
-      timer: null, revealTimer: null, totalQ,
+      timer: null, revealTimer: null, totalQ, nextColor: 1,
     });
     triviaRoomCode = code;
     socket.join(code);
@@ -4345,23 +4355,28 @@ io.on('connection', (socket) => {
   });
 
   // ── Trivia : quitter ─────────────────────────────────────────────────────
-  socket.on('leave-trivia-room', () => {
+  function leaveTriviaRoom() {
     if (!triviaRoomCode) return;
-    const room = triviaRooms.get(triviaRoomCode);
-    if (room) {
-      room.players.delete(socket.id);
-      clearTimeout(room.timer);
-      clearTimeout(room.revealTimer);
-      if (room.players.size === 0) {
-        triviaRooms.delete(triviaRoomCode);
-      } else {
-        if (room.hostId === socket.id) room.hostId = [...room.players.keys()][0];
-        socket.leave(triviaRoomCode);
-        io.to(triviaRoomCode).emit('trivia-room-updated', getTriviaRoomState(room));
-      }
-    }
+    const code = triviaRoomCode, room = triviaRooms.get(code);
     triviaRoomCode = null;
-  });
+    if (!room) { try { socket.leave(code); } catch (_) {} return; }
+    room.players.delete(socket.id);
+    if (room.reconnectTimers && room.reconnectTimers.has(socket.id)) { clearTimeout(room.reconnectTimers.get(socket.id)); room.reconnectTimers.delete(socket.id); }
+    try { socket.leave(code); } catch (_) {}
+    if ([...room.players.values()].filter(p => !p.disconnected).length === 0) {
+      clearTimeout(room.timer); clearTimeout(room.revealTimer); clearTimeout(room._updT);
+      triviaRooms.delete(code);
+      return;
+    }
+    if (room.hostId === socket.id) room.hostId = [...room.players.entries()].find(([, p]) => !p.disconnected)?.[0] || [...room.players.keys()][0];
+    // La partie continue pour les autres : on ne coupe jamais le chrono, on regarde seulement si tout le monde a deja repondu.
+    if (room.status === 'question') {
+      const ids = [...room.players.keys()].filter(sid => { const p = room.players.get(sid); return !p.disconnected && io.sockets.sockets.get(sid)?.connected; });
+      if (ids.length && ids.every(sid => room.answersThisRound.has(sid))) triviaShortenCountdown(code, room);
+    }
+    triviaRoomUpdated(code);
+  }
+  socket.on('leave-trivia-room', () => { leaveTriviaRoom(); });
 
   // ── Trivia : fetch questions solo (proxy pour éviter le CORS côté client) ────
   socket.on('fetch-trivia-solo', ({ categories = [], amount = 10, lang = 'fr', difficulty = '', playerId } = {}) => {
@@ -5806,7 +5821,7 @@ io.on('connection', (socket) => {
 
     // Salon trivia : fenêtre de grâce avant suppression
     if (triviaRoomCode) {
-      const troom = triviaRooms.get(triviaRoomCode);
+      const tcode = triviaRoomCode, troom = triviaRooms.get(tcode);
       if (troom) {
         const player = troom.players.get(socket.id);
         if (player) {
@@ -5818,21 +5833,21 @@ io.on('connection', (socket) => {
             const activePlayers = [...troom.players.values()].filter(p => !p.disconnected);
             if (activePlayers.length === 0) {
               clearTimeout(troom.timer);
-              clearTimeout(troom.revealTimer);
-              triviaRooms.delete(triviaRoomCode);
+              clearTimeout(troom.revealTimer); clearTimeout(troom._updT);
+              triviaRooms.delete(tcode);
             } else {
               if (troom.hostId === socket.id) {
                 const nextSid = [...troom.players.entries()].find(([, p]) => !p.disconnected)?.[0];
                 if (nextSid) troom.hostId = nextSid;
               }
               if (troom.status === 'waiting') {
-                io.to(triviaRoomCode).emit('trivia-room-updated', getTriviaRoomState(troom));
+                triviaRoomUpdated(troom.code);
               } else if (troom.status === 'question') {
                 const connectedIds = [...troom.players.keys()].filter(sid => {
                   const p = troom.players.get(sid);
                   return !p.disconnected && io.sockets.sockets.get(sid)?.connected;
                 });
-                if (connectedIds.length > 0 && connectedIds.every(sid => troom.answersThisRound.has(sid))) triviaShortenCountdown(triviaRoomCode, troom);
+                if (connectedIds.length > 0 && connectedIds.every(sid => troom.answersThisRound.has(sid))) triviaShortenCountdown(tcode, troom);
               }
             }
           }, TRIVIA_RECONNECT_MS));
@@ -6021,7 +6036,7 @@ FAITS SUR LE SITE (vérifiés ; pour une question sur le site, réponds UNIQUEME
 - Jeux multijoueur en temps réel : Puissance 4, Tic Tac Toe, Échecs, Dames (à 2), Ludo (salon de 2 à 4). Contre un ami (code à 4 lettres, lien ou « Défier un ami ») ou contre le robot (facile, moyen, difficile ; toutes comptent au classement ; pas de mise contre le robot). Pour lancer : choisir le jeu, puis « Avec qui ? » (seul contre le robot, avec un ami, ou « J'ai un code »). On peut miser 25, 50 ou 100 Libs : le vainqueur rafle tout.
 - Dames : deux règles au choix à la création. Internationales (par défaut) : damier 10×10, 20 pions, les pions prennent aussi en arrière, la dame vole sur toute la diagonale, il faut prendre le plus grand nombre de pièces, promotion seulement si le pion finit son coup sur la dernière rangée. Anglaises : 8×8, 12 pions, prise vers l'avant seulement, dame d'une case, prise obligatoire au choix.
 - Robot difficile : au Tic Tac Toe il ne perd jamais et apprend les habitudes des joueurs ; aux échecs il réfléchit moins d'une seconde par coup.
-- Culture générale : quiz de 15 thèmes (dont Bénin), en solo ou en salon jusqu'à 20 joueurs, 10 à 40 questions, difficulté mixte à extrême.
+- Culture générale : quiz de 15 thèmes (dont Bénin), en solo ou en salon jusqu'à 100 joueurs, 10 à 40 questions, difficulté mixte à extrême.
 - Le Mot : un mot mystère de 5 lettres à trouver en 6 essais, un nouveau chaque jour.
 - Arcade (tuile de l'accueil) : Libero Run, un jeu de course, et Snake (le serpent mange des pommes, ou la nourriture du skin équipé ; il ne rapporte PAS de Libs, mais compte pour les défis et le tournoi), jouables tous les jours. Évents : le calendrier des week-ends (Double XP, quiz en direct, Le Mot Marathon, coupes, défis…), on touche un évent pour ses règles ; tournoi le samedi (heure du Bénin) : victoire +10 pts, bonne réponse au quiz +2, Lib mangé au Snake +1 ; le meilleur gagne 2000 Libs et le titre « Champion de la semaine ».
 - Libs : la monnaie du site, maximum 19 999. On en gagne : en gagnant des parties et des mises, roue de la fortune une fois par jour (5 à 250 Libs), défis du jour, série de jours (bonus de 5 Libs le 1er jour jusqu'à 35 Libs à partir du 7e), « Premiers pas », parrainage (100 Libs), distribution toutes les 5 heures selon le classement général (1er 10, 2e 5, 3e 3, 4e à 10e 2, les autres 1), tournoi, ventes de ton modèle de portrait. Inactif plus de 48 heures : on perd 10 Libs par jour. La recharge de Libs avec de l'argent est FERMÉE pour l'instant : on ne peut pas acheter de Libs. Pass VIP : +20 % de Libs pendant 30 jours.
