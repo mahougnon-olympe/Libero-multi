@@ -2574,7 +2574,7 @@ function distributeLibs() {
 const CODE_CHARS   = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const RECONNECT_MS        = 60_000; // le temps de rouvrir l appli sur telephone
 const WAITING_GRACE_MS    = 5 * 60_000; // salon d'attente : le createur peut quitter l'onglet pour partager le code
-const TRIVIA_RECONNECT_MS = 20_000;
+const TRIVIA_RECONNECT_MS = 60_000; // fenetre de reprise apres coupure (reseau mobile, changement d'appli) ; les absents ne retardent pas la partie
 const VALID_GAMES  = new Set(['connect4', 'tictactoe', 'chess', 'checkers', 'ludo']);
 
 const TRIVIA_CATEGORIES = {
@@ -3013,7 +3013,8 @@ function finishTriviaGame(code) {
   io.emit('global-leaderboard-update', getGlobalLeaderboardData());
 
   // Portrait dessine de chacun : affiche sur le podium de fin de partie.
-  io.to(code).emit('trivia-finished', { scores: scores.map(({ playerId, siteScore, ...rest }, i) => ({ ...rest, portrait: i < TRIVIA_PORTRAITS_MAX ? ((playerId && libs.get(playerId)?.portrait) || getPortraitByName(rest.name) || null) : null })) });
+  room.finalPayload = { scores: scores.map(({ playerId, siteScore, ...rest }, i) => ({ ...rest, portrait: i < TRIVIA_PORTRAITS_MAX ? ((playerId && libs.get(playerId)?.portrait) || getPortraitByName(rest.name) || null) : null })) };
+  io.to(code).emit('trivia-finished', room.finalPayload); // gardee 60 s : un joueur coupe au mauvais moment la recoit quand il revient
   setTimeout(() => triviaRooms.delete(code), 60_000);
 }
 
@@ -3723,6 +3724,20 @@ io.on('connection', (socket) => {
     const room = triviaRooms.get(key);
     if (!room) return false;
     if (room.status !== 'waiting') { socket.emit('trivia-error', { message: 'La partie a déjà commencé.' }); return true; }
+    // Reprise : le joueur etait deja entre mais sa connexion est tombee avant qu'il recoive la confirmation. Il reprend sa place au lieu de
+    // se voir refuser (salon complet) ou d'etre compte deux fois.
+    const spid = safePlayerId(playerId);
+    if (spid) for (const [osid, op] of room.players) {
+      if (op.playerId !== spid || !op.disconnected) continue;
+      if (room.reconnectTimers && room.reconnectTimers.has(osid)) { clearTimeout(room.reconnectTimers.get(osid)); room.reconnectTimers.delete(osid); }
+      room.players.delete(osid); op.disconnected = false; room.players.set(socket.id, op);
+      if (room.hostId === osid) room.hostId = socket.id;
+      if (triviaRoomCode && triviaRoomCode !== key) leaveTriviaRoom();
+      triviaRoomCode = key; socket.join(key);
+      socket.emit('trivia-room-joined', { code: key, categoryName: room.categoryName, kind: room.kind || 'quiz' });
+      triviaRoomUpdated(key);
+      return true;
+    }
     if (room.players.size >= TRIVIA_MAX) { socket.emit('trivia-error', { message: `Le salon est complet (${TRIVIA_MAX} joueurs max).` }); return true; }
 
     if (room.players.has(socket.id)) { triviaRoomCode = key; socket.emit('trivia-room-joined', { code: key, categoryName: room.categoryName, kind: room.kind || 'quiz' }); triviaRoomUpdated(key); return true; } // deja dedans : pas de doublon
@@ -5908,8 +5923,10 @@ io.on('connection', (socket) => {
       };
     }
 
+    reconnectData.players = getTriviaRoomState(troom).players; // pour rendre la salle d'attente si la coupure a eu lieu avant le depart
     socket.emit('trivia-reconnect-success', reconnectData);
-    io.to(key).emit('trivia-room-updated', getTriviaRoomState(troom));
+    if (troom.status === 'finished' && troom.finalPayload) socket.emit('trivia-finished', troom.finalPayload);
+    triviaRoomUpdated(key);
   });
 });
 

@@ -6752,11 +6752,19 @@ socket.on('connect', () => {
 
 });
 
-socket.on('trivia-reconnect-success', ({ code, status, scores, question, hostId }) => {
+socket.on('trivia-reconnect-success', ({ code, status, scores, question, hostId, players }) => {
   triviaRoomCode = code;
   triviaIsSolo   = false;
   triviaIsHost   = (socket.id === hostId);
   saveTriviaSession({ isSolo: false, code, mySocketId: socket.id });
+  // Coupure avant le depart : on revient dans la salle d'attente, pas sur l'ecran de jeu.
+  if (status === 'waiting') {
+    $('trivia-room-code').textContent = code;
+    if (players) renderTriviaWaitPlayers(players, hostId);
+    showScreen('trivia-waiting');
+    return;
+  }
+  if (status === 'finished') { showScreen('trivia-game'); return; } // le serveur renvoie aussitot trivia-finished : l'ecran de fin s'affiche
   if (scores) renderTriviaScores(scores);
   $('tg-finished').classList.add('hidden');
   $('btn-trivia-pause').classList.add('hidden');
