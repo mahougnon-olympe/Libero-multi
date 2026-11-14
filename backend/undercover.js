@@ -10,7 +10,7 @@ const _halloween = () => process.env.UC_HALLOWEEN === '1' || new Date(Date.now()
 const BOT = require('./undercover-bots');
 
 const MIN = 4, MAX = 10, DEF_MAX = 8;
-const T = { reveal: 25000, revealMin: 5000, clue: 30000, debate: 25000, vote: 30000, revote: 20000, verdict: 8500, guess: 25000, guessRes: 5000, grace: 60000, wait: 5 * 60000 };
+const T = { reveal: 25000, revealMin: 5000, clue: 60000, debate: 25000, vote: 30000, revote: 20000, verdict: 8500, guess: 25000, guessRes: 5000, grace: 60000, wait: 5 * 60000 };
 if (process.env.UC_TIME_SCALE) for (const k of Object.keys(T)) T[k] = Math.max(200, Math.round(T[k] * +process.env.UC_TIME_SCALE)); // essais automatiques seulement
 const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -37,7 +37,7 @@ module.exports = function createUndercover(ctx) {
   const hasHuman = room => room.players.some(p => !p.bot && p.connected);
   // Le robot joue apres un petit delai, seulement si la partie en est toujours a la meme etape.
   const later = (room, ms, fn) => {
-    const g = room.g, ph = g.phase, rd = g.round, sc = Math.max(30, Math.round(ms * (T.clue / 30000)));
+    const g = room.g, ph = g.phase, rd = g.round, sc = Math.max(30, Math.round(ms * (T.clue / 60000)));
     setTimeout(() => { if (rooms.get(room.code) === room && room.g === g && g.phase === ph && g.round === rd && room.status === 'playing') fn(); }, sc);
   };
   const allClues = g => g.clues.filter(c => c.text).map(c => c.text);

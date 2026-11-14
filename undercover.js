@@ -6,7 +6,7 @@
   const D = {
     fr: {
       title: 'Undercover', lobby: 'Salon Undercover', code: 'Code du salon', register: 'Registre de la classe', copy: 'Copier le code', share: 'Partager le lien', copied: 'Code copié',
-      start: 'Lancer la partie', leave: 'Quitter', need4: 'Il faut au moins 4 joueurs.', waitHost: "En attente de l'hôte pour lancer la partie.", hint: '4 à 10 joueurs, chacun sur son téléphone. Indices écrits, 30 secondes chacun.',
+      start: 'Lancer la partie', leave: 'Quitter', need4: 'Il faut au moins 4 joueurs.', waitHost: "En attente de l'hôte pour lancer la partie.", hint: '4 à 10 joueurs, chacun sur son téléphone. Indices écrits, 60 secondes chacun.',
       maxLbl: 'Joueurs maximum', rolesTxt: (c, u, w) => `${c} civils, ${u} Undercover${w ? ', 1 Mr. White' : ''}`, host: 'Hôte', away: 'Reconnexion',
       shuffle: 'On mélange les rôles...', dealt: 'Les cartes sont distribuées', yourWord: 'Ton mot secret', hold: 'Maintiens la carte\npour voir ton mot', yourWordIs: 'Ton mot', same: 'Tu ne sais pas si les autres ont le même mot.',
       whiteTitle: 'Tu es Mr. White', whiteTxt: "Tu n'as aucun mot. Écoute les indices et bluffe !", ready: 'Je suis prêt', readyDone: 'Prêt, on attend les autres', hush: 'Chut : les autres regardent aussi leur carte',
@@ -20,7 +20,7 @@
       err: { started: 'La partie a déjà commencé.', full: 'Le salon est complet.', notfound: 'Salon introuvable. Vérifie le code.', need4: 'Il faut au moins 4 joueurs.', oneword: 'Un seul mot, sans espace.', sameword: 'Tu ne peux pas dire ton propre mot.', banned: 'Ce mot est interdit.', aborted: 'Partie arrêtée : pas assez de joueurs.' } },
     en: {
       title: 'Undercover', lobby: 'Undercover room', code: 'Room code', register: 'Class register', copy: 'Copy the code', share: 'Share the link', copied: 'Code copied',
-      start: 'Start the game', leave: 'Leave', need4: 'You need at least 4 players.', waitHost: 'Waiting for the host to start the game.', hint: '4 to 10 players, each on their own phone. Written clues, 30 seconds each.',
+      start: 'Start the game', leave: 'Leave', need4: 'You need at least 4 players.', waitHost: 'Waiting for the host to start the game.', hint: '4 to 10 players, each on their own phone. Written clues, 60 seconds each.',
       maxLbl: 'Max players', rolesTxt: (c, u, w) => `${c} civilians, ${u} Undercover${w ? ', 1 Mr. White' : ''}`, host: 'Host', away: 'Reconnecting',
       shuffle: 'Shuffling the roles...', dealt: 'The cards are dealt', yourWord: 'Your secret word', hold: 'Hold the card\nto see your word', yourWordIs: 'Your word', same: "You don't know if the others have the same word.",
       whiteTitle: 'You are Mr. White', whiteTxt: 'You have no word. Listen to the clues and bluff!', ready: "I'm ready", readyDone: 'Ready, waiting for the others', hush: 'Shh: the others are looking at their card too',
