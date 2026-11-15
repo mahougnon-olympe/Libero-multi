@@ -55,9 +55,11 @@ module.exports = function createUndercover(ctx) {
     const g = room.g, me = idxOf(room, pid), p = player(room, pid), l = lang(p);
     const base = { code: room.code, status: room.status, host: room.host === pid, max: room.max, min: MIN, seq: room.seq, me };
     if (!room.g) { const n = effN(room), r = resolveRoles(room, n); base.rl = { n, und: r.und, white: r.white, auto: !room.cfg, undMax0: maxUnd(n, 0), undMax1: maxUnd(n, 1), whiteOk: n >= 5, reset: !!room.rolesReset }; }
+    if (!room.g) base.rematch = !!(room.played && room.played.length);
     base.players = room.players.map(q => {
       const i = idxOf(room, q.pid), o = { name: q.name, connected: q.connected, host: q.pid === room.host, portrait: q.bot ? (q.persona && q.persona.portrait) || null : (ctx.portraitOf(q.pid, q.name) || null) };
       if (q.bot) o.bot = true;
+      if (!g && room.played && room.played.length && !room.played.includes(q.pid)) o.fresh = true;
       if (g) {
         o.alive = g.alive.includes(q.pid);
         const out = g.out.find(x => x.pid === q.pid);
@@ -80,6 +82,7 @@ module.exports = function createUndercover(ctx) {
     if (g.last) base.last = { p: idxOf(room, g.last.pid), role: g.last.role, civ: g.pair.civ[l], und: g.pair.und[l], how: g.last.how };
     if (g.guess) base.guess = { p: idxOf(room, g.guess.pid), ok: g.guess.ok == null ? null : g.guess.ok, text: g.guess.text || '' };
     base.winner = g.winner;
+    base.split = { civil: 0, undercover: 0, white: 0 }; for (const r of Object.values(g.roles)) base.split[r] = (base.split[r] || 0) + 1; // repartition connue de tous (comme dans l'app) : les roles individuels restent secrets
     if (room.status === 'finished') { base.civWord = g.pair.civ[l]; base.undWord = g.pair.und[l]; base.reveal = room.players.map(q => ({ p: idxOf(room, q.pid), role: g.roles[q.pid] })).filter(x => x.role); }
     return base;
   }
@@ -384,7 +387,8 @@ module.exports = function createUndercover(ctx) {
       const m = mine(socket); if (!m || m.room.status !== 'finished' || m.room.host !== m.pid) return;
       const room = m.room; clearT(room);
       room.players = room.players.filter(p => p.connected); room.g = null; room.status = 'waiting'; room.left = [];
-      if (room.players.length >= MIN) start(room); else emit(room, null);
+      // Partie contre robots : on relance tout de suite. Entre humains : salon de revanche ouvert (d'autres joueurs peuvent rejoindre avec le code, l'hote relance).
+      if (room.solo && room.players.length >= MIN) start(room); else emit(room, null);
     });
     socket.on('uc-ready', () => {
       const m = mine(socket); if (!m || limited(socket.id)) return;

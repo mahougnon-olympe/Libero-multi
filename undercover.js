@@ -5,7 +5,7 @@
   const L = () => (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en' : 'fr';
   const D = {
     fr: {
-      title: 'Undercover', lobby: 'Salon Undercover', code: 'Code du salon', register: 'Registre de la classe', copy: 'Copier le code', share: 'Partager le lien', copied: 'Code copié',
+      cntC: 'Civils', cntU: 'Undercover', cntW: 'Mr. White', sC: 'Civils', sU: 'Under.', sW: 'White', startsT: n => `${n} commence`, orderT: 'Ordre de parole', tabP: 'Joueurs', tabS: 'Réglages', rematch: 'Revanche', newB: 'Nouveau', freeSeat: 'Libre', civW: 'Mot des civils', undW: "Mot de l'Undercover", scanHint: 'Scanne pour rejoindre', remTxt: "Revanche ouverte : d'autres joueurs peuvent rejoindre avec le code ou le QR.", noClue: 'pas encore', title: 'Undercover', lobby: 'Salon Undercover', code: 'Code du salon', register: 'Registre de la classe', copy: 'Copier le code', share: 'Partager le lien', copied: 'Code copié',
       start: 'Lancer la partie', leave: 'Quitter', need4: 'Il faut au moins 4 joueurs.', waitHost: "En attente de l'hôte pour lancer la partie.", hint: '4 à 10 joueurs, chacun sur son téléphone. Indices écrits, 60 secondes chacun.',
       maxLbl: 'Joueurs maximum', rolesTxt: (c, u, w) => `${c} civils, ${u} Undercover${w ? ', 1 Mr. White' : ''}`, host: 'Hôte', away: 'Reconnexion',
       shuffle: 'On mélange les rôles...', dealt: 'Les cartes sont distribuées', yourWord: 'Ton mot secret', hold: 'Maintiens la carte\npour voir ton mot', yourWordIs: 'Ton mot', same: 'Tu ne sais pas si les autres ont le même mot.',
@@ -15,11 +15,11 @@
       tie: 'Égalité ! Second vote entre les ex aequo', voteCount: (a, b) => `${a} / ${b} ont voté`, verdict: 'Le verdict est tombé...', wasX: n => `${n} était`, hisWord: 'Son mot', civHad: w => `Les civils avaient « ${w} »`, hisWordNone: 'Aucun mot',
       roles: { civil: 'Civil', undercover: 'Undercover', white: 'Mr. White' }, byLot: 'Égalité : le sort a désigné ce joueur.', left: 'a quitté la partie',
       guessT: 'Dernière chance : devine le mot des civils', guessing: n => `${n} réfléchit...`, guessPh: 'Ton mot', guessGo: 'Valider', miss: 'RATÉ', hit: 'BIEN VU !', wasWhite: n => `${n} est éliminé : c'était Mr. White !`,
-      win: { civils: 'LES CIVILS GAGNENT', infiltrators: 'LES INFILTRÉS GAGNENT', white: 'MR. WHITE GAGNE' }, youWin: 'Tu as gagné', youLose: 'Tu as perdu', again: 'Rejouer', waitAgain: "L'hôte peut relancer une partie.", xp: n => `+${n} XP`,
+      win: { civils: 'LES CIVILS GAGNENT', infiltrators: 'LES INFILTRÉS GAGNENT', white: 'MR. WHITE GAGNE' }, youWin: 'Tu as gagné', youLose: 'Tu as perdu', again: 'Revanche', waitAgain: "L'hôte peut ouvrir la revanche.", xp: n => `+${n} XP`,
       spect: 'Tu es éliminé : tu regardes la suite.', round: n => `Manche ${n}`, leaveAsk: 'Quitter la partie ?', leaveText: 'Tu abandonnes la partie en cours : elle comptera comme une défaite.', leaveText2: 'Tu quittes le salon.', leaveOk: 'Quitter',
       err: { started: 'La partie a déjà commencé.', full: 'Le salon est complet.', notfound: 'Salon introuvable. Vérifie le code.', need4: 'Il faut au moins 4 joueurs.', oneword: 'Un seul mot, sans espace.', sameword: 'Tu ne peux pas dire ton propre mot.', banned: 'Ce mot est interdit.', aborted: 'Partie arrêtée : pas assez de joueurs.' } },
     en: {
-      title: 'Undercover', lobby: 'Undercover room', code: 'Room code', register: 'Class register', copy: 'Copy the code', share: 'Share the link', copied: 'Code copied',
+      cntC: 'Civilians', cntU: 'Undercover', cntW: 'Mr. White', sC: 'Civil.', sU: 'Under.', sW: 'White', startsT: n => `${n} starts`, orderT: 'Speaking order', tabP: 'Players', tabS: 'Settings', rematch: 'Rematch', newB: 'New', freeSeat: 'Free', civW: 'Civilians word', undW: 'Undercover word', scanHint: 'Scan to join', remTxt: 'Rematch open: more players can join with the code or the QR.', noClue: 'not yet', title: 'Undercover', lobby: 'Undercover room', code: 'Room code', register: 'Class register', copy: 'Copy the code', share: 'Share the link', copied: 'Code copied',
       start: 'Start the game', leave: 'Leave', need4: 'You need at least 4 players.', waitHost: 'Waiting for the host to start the game.', hint: '4 to 10 players, each on their own phone. Written clues, 60 seconds each.',
       maxLbl: 'Max players', rolesTxt: (c, u, w) => `${c} civilians, ${u} Undercover${w ? ', 1 Mr. White' : ''}`, host: 'Host', away: 'Reconnecting',
       shuffle: 'Shuffling the roles...', dealt: 'The cards are dealt', yourWord: 'Your secret word', hold: 'Hold the card\nto see your word', yourWordIs: 'Your word', same: "You don't know if the others have the same word.",
@@ -29,7 +29,7 @@
       tie: 'Tie! Second vote between the tied players', voteCount: (a, b) => `${a} / ${b} voted`, verdict: 'The verdict is in...', wasX: n => `${n} was`, hisWord: 'Their word', civHad: w => `The civilians had "${w}"`, hisWordNone: 'No word',
       roles: { civil: 'Civilian', undercover: 'Undercover', white: 'Mr. White' }, byLot: 'Tie: luck picked this player.', left: 'left the game',
       guessT: "Last chance: guess the civilians' word", guessing: n => `${n} is thinking...`, guessPh: 'Your word', guessGo: 'Confirm', miss: 'MISSED', hit: 'WELL SPOTTED!', wasWhite: n => `${n} is out: it was Mr. White!`,
-      win: { civils: 'THE CIVILIANS WIN', infiltrators: 'THE IMPOSTORS WIN', white: 'MR. WHITE WINS' }, youWin: 'You won', youLose: 'You lost', again: 'Play again', waitAgain: 'The host can start another game.', xp: n => `+${n} XP`,
+      win: { civils: 'THE CIVILIANS WIN', infiltrators: 'THE IMPOSTORS WIN', white: 'MR. WHITE WINS' }, youWin: 'You won', youLose: 'You lost', again: 'Rematch', waitAgain: 'The host can open the rematch.', xp: n => `+${n} XP`,
       spect: "You're out: you're watching the rest.", round: n => `Round ${n}`, leaveAsk: 'Leave the game?', leaveText: 'You give up the game in progress: it will count as a loss.', leaveText2: 'You leave the room.', leaveOk: 'Leave',
       err: { started: 'The game has already started.', full: 'The room is full.', notfound: 'Room not found. Check the code.', need4: 'You need at least 4 players.', oneword: 'One word only, no spaces.', sameword: "You can't say your own word.", banned: 'This word is not allowed.', aborted: 'Game stopped: not enough players.' } },
   };
@@ -72,7 +72,7 @@
     host = document.createElement('div'); host.id = 'screen-undercover'; host.className = 'screen';
     host.style.cssText = 'padding:0;gap:0;justify-content:flex-start;align-items:stretch';
     root = host.attachShadow({ mode: 'open' });
-    const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'undercover.css?v=9'; root.appendChild(link);
+    const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'undercover.css?v=13'; root.appendChild(link);
     const wrap = document.createElement('div'); wrap.className = 'root'; wrap.innerHTML = '<div class="ph" id="ph"></div><canvas id="fx"></canvas>';
     root.appendChild(wrap);
     (document.getElementById('screen-home')?.parentNode || document.body).appendChild(host);
@@ -99,6 +99,46 @@
     return p && p.bot ? `<span class="pfw" style="--s:${z}px">${h}<span class="bchip" aria-hidden="true">${CHIP}</span></span>` : h;
   }
   const pfI = (v, i, s) => pf(v.players[i], s);
+
+  // Personnages fixes des trois roles (meme dessin partout : salon, compteurs, devoilement).
+  const ROLE_ICO = {
+    civil: '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#3d64b8" stroke="#22252b" stroke-width="2.5"/><circle cx="17" cy="21" r="2.6" fill="#fff"/><circle cx="31" cy="21" r="2.6" fill="#fff"/><path d="M15 30q9 8 18 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></svg>',
+    undercover: '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#e2485d" stroke="#22252b" stroke-width="2.5"/><path d="M9 19h30v6q-3 5-9 4t-6-5q0 0-6 5t-9-4z" fill="#22252b"/><path d="M16 35q8-4 16 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></svg>',
+    white: '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#f4f1e6" stroke="#22252b" stroke-width="2.5"/><text x="24" y="33" text-anchor="middle" font-family="Archivo Black,sans-serif" font-size="26" fill="#22252b">?</text></svg>'
+  };
+  const roleIco = (r, s) => `<span class="ri" style="--s:${s || 28}px">${ROLE_ICO[r] || ''}</span>`;
+  // Compteurs de roles : la repartition de depart est publique, on retire les roles deja reveles.
+  function cntHtml(v) {
+    const sp = v.split; if (!sp) return '';
+    const left = { civil: sp.civil || 0, undercover: sp.undercover || 0, white: sp.white || 0 };
+    v.players.forEach(p => { if (p.out && p.role && left[p.role] > 0) left[p.role]--; });
+    const d = U(), row = (r, t) => (sp[r] ? `<div class="cn${left[r] === 0 ? ' gone' : ''}">${roleIco(r, 24)}<span>${esc(t)}</span><b>${left[r]}</b></div>` : '');
+    return `<div class="cnts" id="cnts">${row('civil', d.sC)}${row('undercover', d.sU)}${row('white', d.sW)}</div>`;
+  }
+  // Ordre de parole : numero, portrait, nom ; le joueur qui parle est surligne.
+  function ordHtml(v) {
+    const ord = (v.order || []).filter(i => v.players[i]); if (!ord.length) return '';
+    const mine = v.clues.filter(c => c.r === v.round);
+    return `<div class="ordw"><div class="sm" style="text-align:left"><b>${esc(U().orderT)}</b> · ${esc(U().startsT(v.players[ord[0]].name))}</div><div class="ordl">${ord.map((i, k) => {
+      const c = mine.find(x => x.p === i), now = v.turn === i;
+      return `<span class="op${now ? ' now' : ''}${c ? ' done' : ''}"><i>${k + 1}</i>${pf(v.players[i], 22)}<em>${esc(v.players[i].name)}</em>${c ? `<u>${esc(c.t || U().skipped)}</u>` : ''}</span>`;
+    }).join('')}</div></div>`;
+  }
+  function lastClue(v, i) { const l = v.clues.filter(c => c.p === i && c.t).pop(); return l ? esc(l.t) : ''; }
+  function qrDraw() {
+    const c = $('#ucqr'); if (!c || !S.code) return; const code = S.code;
+    _qrLoad().then(q => {
+      const cv = $('#ucqr'); if (!q || !cv || !window.qrcode || S.code !== code) return;
+      try {
+        const url = typeof buildShareUrl === 'function' ? buildShareUrl(code) : `${location.origin}${location.pathname}?join=${code}`;
+        const qq = window.qrcode(0, 'M'); qq.addData(url); qq.make();
+        const n = qq.getModuleCount(), size = 168, m = size / (n + 4); cv.width = cv.height = size; const g = cv.getContext('2d');
+        g.fillStyle = '#fff'; g.fillRect(0, 0, size, size); g.fillStyle = '#22252b';
+        for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (qq.isDark(r, k)) g.fillRect(Math.round((k + 2) * m), Math.round((r + 2) * m), Math.ceil(m), Math.ceil(m));
+        cv.style.display = 'block'; cv.onclick = () => q.big && q.big(code);
+      } catch { cv.style.display = 'none'; }
+    });
+  }
   function hdr(t, rd) { return `<div class="top"><button class="back" data-act="back" aria-label="${esc(U().leave)}">&#8592; ${esc(U().back)}</button><h2 class="ttl">${esc(t)}</h2><div class="sub">${esc(rd || '')}</div></div>`; }
   function rolesCounts(n) { const u = n <= 7 ? 1 : 2, w = n <= 4 ? 0 : 1; return [n - u - w, u, w]; }
   function posOf(v, i, n) { const rel = (i - v.me + n) % n, a = Math.PI / 2 + rel * 2 * Math.PI / n; return [160 + Math.cos(a) * 128, 155 + Math.sin(a) * 120]; }
@@ -139,6 +179,7 @@
     if (a === 'back') return leave(true);
     if (a === 'copy') { try { navigator.clipboard.writeText(S.code); } catch {} return toast(U().copied); }
     if (a === 'share') { const url = `${location.origin}${location.pathname}?join=${S.code}`; try { if (navigator.share) { navigator.share({ title: "Libero's Multi", text: `Undercover : ${S.code}`, url }); return; } } catch { return; } try { navigator.clipboard.writeText(url); } catch {} return toast(U().copied); }
+    if (a === 'tab-p' || a === 'tab-s') { S.tab = a === 'tab-s' ? 's' : 'p'; if (S.v && S.cur === 'lobby') renderLobby(S.v); return; }
     if (a === 'start') return socket.emit('uc-start');
     if (a === 'max-') return socket.emit('uc-set-max', { max: (v.max || 8) - 1 });
     if (a === 'max+') return socket.emit('uc-set-max', { max: (v.max || 8) + 1 });
@@ -172,7 +213,7 @@
   // ── Salon ──
   function rolesBlock(v) {
     const r = v.rl || { n: 4, und: 1, white: 0, auto: true, undMax0: 1, undMax1: 0, whiteOk: false }, civ = r.n - r.und - r.white, d = U();
-    const tags = `<div class="tags"><span class="tag">${d.tagC(civ)}</span><span class="tag">${d.tagU(r.und)}</span>${r.white ? `<span class="tag">${d.tagW}</span>` : ''}</div>`;
+    const tags = `<div class="rcs"><div class="rcd c">${roleIco('civil', 44)}<span>${d.cntC}</span><b>${civ}</b></div><div class="rcd u">${roleIco('undercover', 44)}<span>${d.cntU}</span><b>${r.und}</b></div><div class="rcd w">${roleIco('white', 44)}<span>${d.cntW}</span><b>${r.white}</b></div></div>`;
     let h = `<div><div class="sm" style="margin-bottom:4px;text-align:left">${d.roleSplit} · ${d.rolesFor(r.n)}</div>${tags}</div>`;
     if (r.reset && v.host) h += `<div class="sm" style="text-align:left;color:var(--red)">${d.rolesReset}</div>`;
     if (v.host) {
@@ -185,19 +226,23 @@
     return h;
   }
   function lobbyHtml(v) {
-    const n = v.players.length, c = rolesCounts(Math.max(4, n)), ok = n >= v.min;
-    const free = Math.min(2, Math.max(0, v.max - n));
-    return hdr(U().lobby, U().sub1(n)) + `<div class="lobby"><div class="lcol"><div class="step">1) <b>${U().step1}</b></div>
-      <div class="card lc"><div class="sm">${U().code}</div><div class="code">${(S.code || '').split('').map((ch, i) => `<b style="animation-delay:${.1 + i * .3}s">${esc(ch)}</b>`).join('')}</div>
-      <div class="row2"><button class="btn alt" data-act="copy">${U().copy}</button><button class="btn alt" data-act="share">${U().share}</button></div></div>
-      <div class="reg"><span class="tape"></span><div class="sm" style="text-align:left;margin-bottom:2px">${U().register} (${n}/${v.max})</div><div id="rows">${v.players.map(p => `<div class="rw${p.connected ? '' : ' off'}">${pf(p, 32)}<span>${esc(p.name)}${botTag(p)}${p.host ? ' <small class="sm">' + U().host + '</small>' : ''}</span><svg class="tk" viewBox="0 0 22 22"><path d="M3 12l5 5 11-12"/></svg></div>`).join('')}${('<div class="rw free"><span class="phd"></span><span>' + U().waitP + '</span></div>').repeat(free)}</div></div></div>
-      <div class="lcol"><div class="step">2) <b>${U().step2}</b></div><div class="card lc lc2">
-      ${v.host ? `<div class="mx"><span>${U().maxLbl}</span><span class="mxn"><button class="sq" data-act="max-" ${v.max <= Math.max(v.min, n) ? 'disabled' : ''}>-</button><b>${v.max}</b><button class="sq" data-act="max+" ${v.max >= 10 ? 'disabled' : ''}>+</button></span></div>` : ''}
+    const n = v.players.length, ok = n >= v.min, free = Math.min(4, Math.max(0, v.max - n)), d = U(), tab = S.tab === 's' ? 's' : 'p';
+    const cells = v.players.map((p, i) => `<div class="plc${p.connected ? '' : ' off'}${i === v.me ? ' me' : ''}">${pf(p, 44)}<b>${esc(p.name)}${botTag(p)}</b>${p.host ? `<small>${esc(d.host)}</small>` : ''}${v.rematch && p.fresh ? `<em class="nw">${esc(d.newB)}</em>` : ''}</div>`).join('')
+      + Array.from({ length: free }, () => `<div class="plc free"><span class="phd">+</span><b>${esc(d.freeSeat)}</b></div>`).join('');
+    return hdr(v.rematch ? d.rematch : d.lobby, `${n} / ${v.max}`) + `<div class="tabs"><button data-act="tab-p" class="${tab === 'p' ? 'on' : ''}">${esc(d.tabP)}</button><button data-act="tab-s" class="${tab === 's' ? 'on' : ''}">${esc(d.tabS)}</button></div>
+      <div class="lobby" data-tab="${tab}"><div class="lcol lp"><div class="step">1) <b>${d.step1}</b></div>
+      <div class="card lc inv"><canvas id="ucqr" class="ucqr" width="168" height="168" style="display:none" role="button" aria-label="${esc(d.scanHint)}"></canvas>
+      <div class="icol"><div class="sm">${d.code}</div><div class="code">${(S.code || '').split('').map((ch, i) => `<b style="animation-delay:${.1 + i * .3}s">${esc(ch)}</b>`).join('')}</div>
+      <div class="row2"><button class="btn alt" data-act="copy">${d.copy}</button><button class="btn alt" data-act="share">${d.share}</button></div></div></div>
+      ${v.rematch ? `<div class="sm remt">${esc(d.remTxt)}</div>` : ''}
+      <div class="sm" style="text-align:left">${d.register} (${n}/${v.max})</div><div class="pgd" id="rows">${cells}</div></div>
+      <div class="lcol ls"><div class="step">2) <b>${d.step2}</b></div><div class="card lc lc2">
+      ${v.host ? `<div class="mx"><span>${d.maxLbl}</span><span class="mxn"><button class="sq" data-act="max-" ${v.max <= Math.max(v.min, n) ? 'disabled' : ''}>-</button><b>${v.max}</b><button class="sq" data-act="max+" ${v.max >= 10 ? 'disabled' : ''}>+</button></span></div>` : ''}
       ${rolesBlock(v)}
-      <div class="sm" style="text-align:left">${v.host ? U().hint : U().waitHost}</div>
-      ${v.host ? `<button class="btn wide${ok ? ' pulse' : ''}" data-act="start" ${ok ? '' : 'disabled'}>${ok ? U().start : U().need4}</button>` : ''}</div></div></div>`;
+      <div class="sm" style="text-align:left">${v.host ? d.hint : d.waitHost}</div></div></div></div>
+      <div class="foot lobfoot">${v.host ? `<button class="btn wide${ok ? ' pulse' : ''}" data-act="start" ${ok ? '' : 'disabled'}>${ok ? d.start : d.need4}</button>` : `<span class="sm">${d.waitHost}</span>`}</div>`;
   }
-  function renderLobby(v) { S.v = v; S.cur = 'lobby'; setScene(lobbyHtml(v), 'lobby'); }
+  function renderLobby(v) { S.v = v; S.cur = 'lobby'; setScene(lobbyHtml(v), 'lobby'); qrDraw(); }
 
   // ── Distribution : melange, puis les cartes volent jusqu'aux joueurs ──
   function dealAnim(v, then) {
@@ -243,8 +288,8 @@
 
   // ── Indices ──
   function cluesHtml(v) {
-    return hdr(U().title, U().round(v.round)) + `<div class="body"><div class="colL">${myCard(v)}</div><div class="colA">${table(v, `<span>${nl(U().center)}</span>`)}</div>
-      <div class="colB"><div class="box" style="padding:4px 8px"><div class="sm" style="text-align:left">${U().said}</div><div class="said" id="said"></div></div>
+    return hdr(U().title, U().round(v.round)) + `<div class="body"><div class="colL">${cntHtml(v)}${myCard(v)}</div><div class="colA">${table(v, `<span>${nl(U().center)}</span>`)}</div>
+      <div class="colB"><div id="ordw">${ordHtml(v)}</div><div class="box" style="padding:4px 8px"><div class="sm" style="text-align:left">${U().said}</div><div class="said" id="said"></div></div>
       <div id="mine" style="width:100%"></div></div></div>`;
   }
   function renderClues(v) { setScene(cluesHtml(v), 'clues:' + v.round); S.said = 0; S.typedN = v.clues.length; refreshClues(v, true); }
@@ -260,7 +305,7 @@
       if (c && !b.dataset.t) { b.dataset.t = '1'; const txt = c.t || U().skipped; b.classList.add('show'); if (!first && v.ev && v.ev.t === 'clue' && v.ev.p === i) { SX.pop(); typeInto(b, txt, 80); } else b.textContent = txt; }
       if (!c) { b.classList.remove('show'); delete b.dataset.t; b.textContent = ''; }
     });
-    $('#said').innerHTML = v.clues.map(c => chipHtml(v, c)).join('');
+    $('#said').innerHTML = v.clues.map(c => chipHtml(v, c)).join(''); const ow = $('#ordw'); if (ow) ow.innerHTML = ordHtml(v);
     if (v.ev && v.ev.t === 'turn' && v.ev.p !== v.me) SX.scr();
     const m = $('#mine'), myTurn = v.turn === v.me && v.alive !== false;
     if (!myTurn && v.alive === false) { if (!m.firstChild) m.innerHTML = `<div class="spect">${U().spect}</div>`; }
@@ -277,7 +322,7 @@
   function sendSay() { const i = $('#si'); if (!i || !i.value.trim()) return; socket.emit('uc-say', { text: i.value.trim() }); i.value = ''; i.focus(); }
   function bindSay() { const i = $('#si'); if (i) i.onkeydown = e => { if (e.key === 'Enter') sendSay(); }; }
   function renderDebate(v) {
-    setScene(hdr(U().title, U().round(v.round)) + `<div class="body"><div class="colL">${myCard(v)}</div><div class="colA"><div class="cap">${U().debate}</div><div class="sm">${U().debateSub}</div>
+    setScene(hdr(U().title, U().round(v.round)) + `<div class="body"><div class="colL">${cntHtml(v)}${myCard(v)}</div><div class="colA"><div class="cap">${U().debate}</div><div class="sm">${U().debateSub}</div>
       <div id="dbp" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center"></div><div id="dbt" style="width:100%">${timerBar(v)}</div></div><div class="colB">${chatBox(v, 250)}</div></div>
       <div class="foot">${v.alive !== false ? `<button class="btn" data-act="tovote" id="tvb">${U().toVote}</button>` : ''}</div>`, 'debate:' + v.round);
     S.chatN = v.chat.length; bindSay(); refreshDebate(v, true);
@@ -295,9 +340,9 @@
     const cards = v.players.map((p, i) => {
       if (i === v.me || p.alive === false) return '';
       if (v.cands && v.cands.length && !v.cands.includes(i)) return '';
-      return `<div class="vc${S.sel === i ? ' sel' : ''}" data-act="pick" data-i="${i}">${pf(p, 50)}${esc(p.name)}${botTag(p)}<svg class="circ" viewBox="0 0 80 66"><ellipse cx="40" cy="31" rx="34" ry="28"/></svg><span class="tally" id="ty${i}"></span></div>`;
+      return `<div class="vc${S.sel === i ? ' sel' : ''}" data-act="pick" data-i="${i}">${pf(p, 50)}${esc(p.name)}${botTag(p)}<small class="lcl">${lastClue(v, i)}</small><svg class="circ" viewBox="0 0 80 66"><ellipse cx="40" cy="31" rx="34" ry="28"/></svg><span class="tally" id="ty${i}"></span></div>`;
     }).join('');
-    return hdr(U().title, U().round(v.round)) + `<div class="body"><div class="colL">${myCard(v)}</div><div class="colA"><div class="cap">${U().whoIs}</div>${tie}<div class="vg" id="vg">${cards}</div>
+    return hdr(U().title, U().round(v.round)) + `<div class="body"><div class="colL">${cntHtml(v)}${myCard(v)}</div><div class="colA"><div class="cap">${U().whoIs}</div>${tie}<div class="vg" id="vg">${cards}</div>
       <div style="display:flex;align-items:center;gap:12px;width:100%;justify-content:center"><div class="urn" id="urn"><div class="slot"></div><div class="jar"></div></div><div class="sm" style="text-align:left" id="vs">${v.__static ? '' : U().pick}</div></div></div>
       <div class="colB">${v.__static ? '' : chatBox(v, 110)}</div></div><div class="foot">${v.alive !== false ? `<button class="btn" data-act="vote" id="vb" disabled>${U().voteBtn}</button>` : ''}</div>`;
   }
@@ -334,7 +379,7 @@
     const dark = () => {
       const w = $('.root'); w.classList.add('dark');
       const cap = U().verdict;
-      ph.insertAdjacentHTML('beforeend', `<div class="vig"></div><div class="verd" id="vd"><div class="cap" id="vt" style="opacity:0">${esc(cap)}</div><div id="vw" style="position:relative;width:150px;height:150px;opacity:0;transform:scale(.2)"><span class="pin"></span><div class="big pf" id="bg" style="animation:none;transform:none;opacity:1">${portrait(who.portrait)}</div><svg class="xs" id="xs" viewBox="0 0 170 170" style="width:150px;height:150px;left:0;top:0;margin:0"><path d="M30 30L140 140"/><path d="M140 30L30 140"/></svg></div><div class="rc" id="rc" style="display:none"><div class="sm">${esc(U().wasX(who.name))}</div><span class="stamp" style="margin:4px 0">${esc(U().roles[role].toUpperCase())}</span>${role === 'white' ? `<div class="sm">${U().hisWordNone}</div>` : `<div class="sm">${U().hisWord}</div><div style="font-family:'Archivo Black',sans-serif;font-size:2rem">${esc(role === 'civil' ? L2.civ : L2.und)}</div>`}<div class="sm" style="font-size:.78rem">${esc(U().civHad(L2.civ))}</div>${L2.how === 'random' ? `<div class="sm" style="font-size:.75rem">${U().byLot}</div>` : ''}</div></div>`);
+      ph.insertAdjacentHTML('beforeend', `<div class="vig"></div><div class="verd" id="vd"><div class="cap" id="vt" style="opacity:0">${esc(cap)}</div><div id="vw" style="position:relative;width:150px;height:150px;opacity:0;transform:scale(.2)"><span class="pin"></span><div class="big pf" id="bg" style="animation:none;transform:none;opacity:1">${portrait(who.portrait)}</div><svg class="xs" id="xs" viewBox="0 0 170 170" style="width:150px;height:150px;left:0;top:0;margin:0"><path d="M30 30L140 140"/><path d="M140 30L30 140"/></svg></div><div class="rc" id="rc" style="display:none"><div class="sm">${esc(U().wasX(who.name))}</div>${roleIco(role, 64)}<span class="stamp" style="margin:4px 0">${esc(U().roles[role].toUpperCase())}</span>${role === 'white' ? `<div class="sm">${U().hisWordNone}</div>` : `<div class="sm">${U().hisWord}</div><div style="font-family:'Archivo Black',sans-serif;font-size:2rem">${esc(role === 'civil' ? L2.civ : L2.und)}</div>`}<div class="sm" style="font-size:.78rem">${esc(U().civHad(L2.civ))}</div>${L2.how === 'random' ? `<div class="sm" style="font-size:.75rem">${U().byLot}</div>` : ''}${cntHtml(v)}</div></div>`);
       const bd = $('.body', ph); if (bd) { bd.style.transition = 'opacity .8s'; bd.style.opacity = .12; }
       const t0 = skipTally ? 0 : 2600, base = Math.max(0, el - t0);
       const at = (ms, f) => { const d = ms - base; if (d < -200 && skipTally) { f(true); } else T(Math.max(0, d), () => f(false)); };
@@ -376,7 +421,7 @@
     const win = v.winner, mine = (v.reveal.find(r => r.p === v.me) || {}).role;
     const iWon = win === 'civils' ? mine === 'civil' : win === 'white' ? mine === 'white' : mine && mine !== 'civil';
     const roleLine = r => r === 'white' ? [U().roles.white, U().hisWordNone] : r === 'undercover' ? [U().roles.undercover, v.undWord] : [U().roles.civil, v.civWord];
-    setScene(hdr(U().title, '') + `<div class="body" style="padding-top:22px"><span class="stamp ok" style="font-size:1.1rem">${esc(U().win[win] || '')}</span><div class="sm">${iWon ? U().youWin : U().youLose} · ${U().xp(iWon ? 25 : 10)}</div>
+    setScene(hdr(U().title, '') + `<div class="body" style="padding-top:22px"><span class="stamp ok" style="font-size:1.1rem">${esc(U().win[win] || '')}</span><div class="sm">${iWon ? U().youWin : U().youLose} · ${U().xp(iWon ? 25 : 10)}</div><div class="pair"><div class="pw c">${roleIco('civil', 24)}<span>${esc(U().civW)}</span><b>${esc(v.civWord || '')}</b></div><div class="pw u">${roleIco('undercover', 24)}<span>${esc(U().undW)}</span><b>${esc(v.undWord || '')}</b></div></div>
       <div class="rr" id="rr">${v.players.map((p, i) => { const r = (v.reveal.find(x => x.p === i) || {}).role, l = r ? roleLine(r) : ['', '']; return `<div class="rolec" data-i="${i}">${pf(p, 46)}<b>${esc(p.name)}</b><div class="in"><div class="fa">?</div><div class="fb"><span style="color:${r === 'civil' ? 'var(--ok)' : 'var(--red)'}">${esc(l[0])}</span>${esc(l[1])}</div></div></div>`; }).join('')}</div></div>
       <div class="foot">${v.host ? `<button class="btn" data-act="again">${U().again}</button>` : `<span class="sm">${U().waitAgain}</span>`}<button class="btn alt" data-act="quit">${U().leave}</button></div>`, 'end');
     $$('.rolec').forEach((e, j) => T(600 + j * 450, () => { e.classList.add('on'); SX.flip(); }));

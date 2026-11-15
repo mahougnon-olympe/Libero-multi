@@ -3692,3 +3692,24 @@ body.hk-locked #nav-tab-shop::after{content:"";position:absolute;right:calc(50% 
 
 #trivia-wait-players{max-height:42vh;overflow-y:auto;overscroll-behavior:contain}
 .tg-score-chip.me{outline:3px solid var(--mark,#fff27a);outline-offset:1px}
+
+/* Inscription sur telephone (v216) : carnet compact, une seule colonne, cibles confortables. Aucun effet au-dessus de 600 px (version PC inchangee). */
+.onb-pf-rand { display: none; }
+@media (max-width: 600px) {
+  #overlay-onboard .onb-book { width: calc(100vw - 16px); max-height: 100dvh; overflow-y: auto; }
+  .onb-page { padding: 10px 12px 14px 40px; min-height: 0; background-image: linear-gradient(90deg, transparent 30px, #e2485d 30px 31.5px, transparent 31.5px), repeating-linear-gradient(0deg, transparent 0 23px, rgba(80,130,205,.4) 23px 24px); }
+  .onb-p { gap: 8px; }
+  .onb-tab { min-height: 32px; font-size: .74rem; padding: 4px 9px; }
+  .onb-steps i { width: 20px; height: 5px; }
+  .onb-h { font-size: 1.5rem; }
+  .onb-q { font-size: 1.1rem; }
+  .onb-n { font-size: .95rem; }
+  :root:root .onb-ln { padding: 8px 2px; font-size: 1.3rem; }
+  .onb-cta { min-height: 40px; padding: 8px 12px; font-size: .88rem; }
+  .onb-lnk { min-height: 36px; display: inline-flex; align-items: center; padding: 0 4px; font-size: .82rem; }
+  .onb-pf-av { width: 96px; height: 96px; margin: 2px auto; }
+  .onb-pf-rand { display: block; background: #fff; box-shadow: 0 2px 0 #22252b; }
+  #overlay-onboard .onboard-theme-btn { padding: 6px; font-size: .8rem; min-height: 40px; }
+  #overlay-onboard .onboard-theme-btn::before { height: 28px; }
+  .onb-have { font-size: 1rem; }
+}

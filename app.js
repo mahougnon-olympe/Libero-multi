@@ -610,7 +610,7 @@ const TRIVIA_API_CAT_MAP = {
 
 const DICT = {
   fr: {
-    readShelfExcl:'Romans exclusifs', readShelfSoon:'À venir', readShelfSoonTxt:'Bientôt d\'autres livres…', onb:{ pfTitle:'Dessine ton visage', pfNote:'C\'est ce que verront les autres joueurs. 50 Libs offerts pour ton premier portrait.', pfDraw:'Dessiner mon portrait', pfRedo:'Modifier mon portrait', pfNeed:'Dessine ton portrait pour continuer.', tabNew:'Nouveau', tabOld:'J\'ai déjà un carnet', phrase:'Ici, tout commence par un nom.', askName:'Comment veux-tu t\'appeler ?', pseudoPh:'Ton pseudo', next:'Page suivante', prev:'Page précédente', have:'Déjà un carnet ? Ouvre-le ici', page:n => `page ${n}/4`,
+    readShelfExcl:'Romans exclusifs', readShelfSoon:'À venir', readShelfSoonTxt:'Bientôt d\'autres livres…', onb:{ pfRand:'Au hasard', pfTitle:'Dessine ton visage', pfNote:'C\'est ce que verront les autres joueurs. 50 Libs offerts pour ton premier portrait.', pfDraw:'Dessiner mon portrait', pfRedo:'Modifier mon portrait', pfNeed:'Dessine ton portrait pour continuer.', tabNew:'Nouveau', tabOld:'J\'ai déjà un carnet', phrase:'Ici, tout commence par un nom.', askName:'Comment veux-tu t\'appeler ?', pseudoPh:'Ton pseudo', next:'Page suivante', prev:'Page précédente', have:'Déjà un carnet ? Ouvre-le ici', page:n => `page ${n}/4`,
       p2Title:'Cahier ou ardoise ?', p2Note:'Tu pourras changer quand tu veux dans les Réglages.', themeDay:'Cahier', themeNight:'Ardoise',
       p3Title:'Protège ton carnet', p3Note:'Un mot de passe te permet de retrouver ta progression sur un autre téléphone.', pwPh:'Choisis un mot de passe', protect:'Protéger et commencer', later:'Plus tard, je veux jouer',
       loginTitle:'Content de te revoir !', loginPw:'Ton mot de passe', loginBtn:'Ouvrir mon carnet', useCode:'J\'ai plutôt un code de récupération', forgot:'Mot de passe oublié ? Écris au créateur depuis « Donner mon avis ».',
@@ -1430,7 +1430,7 @@ const DICT = {
     },
   },
   en: {
-    readShelfExcl:'Exclusive novels', readShelfSoon:'Coming soon', readShelfSoonTxt:'More books soon…', onb:{ pfTitle:'Draw your face', pfNote:'This is what other players will see. 50 Libs for your first portrait.', pfDraw:'Draw my portrait', pfRedo:'Edit my portrait', pfNeed:'Draw your portrait to continue.', tabNew:'New', tabOld:'I already have a notebook', phrase:'Here, everything starts with a name.', askName:'What should we call you?', pseudoPh:'Your nickname', next:'Next page', prev:'Previous page', have:'Already have a notebook? Open it here', page:n => `page ${n}/4`,
+    readShelfExcl:'Exclusive novels', readShelfSoon:'Coming soon', readShelfSoonTxt:'More books soon…', onb:{ pfRand:'Random', pfTitle:'Draw your face', pfNote:'This is what other players will see. 50 Libs for your first portrait.', pfDraw:'Draw my portrait', pfRedo:'Edit my portrait', pfNeed:'Draw your portrait to continue.', tabNew:'New', tabOld:'I already have a notebook', phrase:'Here, everything starts with a name.', askName:'What should we call you?', pseudoPh:'Your nickname', next:'Next page', prev:'Previous page', have:'Already have a notebook? Open it here', page:n => `page ${n}/4`,
       p2Title:'Notebook or slate?', p2Note:'You can change it any time in Settings.', themeDay:'Notebook', themeNight:'Slate',
       p3Title:'Protect your notebook', p3Note:'A password lets you get your progress back on another phone.', pwPh:'Choose a password', protect:'Protect and start', later:'Later, I want to play',
       loginTitle:'Good to see you again!', loginPw:'Your password', loginBtn:'Open my notebook', useCode:'I have a recovery code instead', forgot:'Forgot your password? Write to the creator via « Give feedback ».',
@@ -2648,7 +2648,7 @@ function applyLang() {
   { const o = d.onb;
     setTxt('onb-tab-new', o.tabNew); setTxt('onb-tab-old', o.tabOld); setTxt('onb-phrase', o.phrase); setTxt('onboard-pseudo-label', o.askName);
     setTxt('onb-pg1', o.page(1)); setTxt('onb-pgf', o.page(2)); setTxt('onb-pg2', o.page(3)); setTxt('onb-pg3', o.page(4));
-    setTxt('onb-pf-title', o.pfTitle); setTxt('onb-pf-note', o.pfNote); setTxt('onb-nextf', o.next); setTxt('onb-backf', o.prev); window._pfRefresh?.();
+    setTxt('onb-pf-rand', o.pfRand); setTxt('onb-pf-title', o.pfTitle); setTxt('onb-pf-note', o.pfNote); setTxt('onb-nextf', o.next); setTxt('onb-backf', o.prev); window._pfRefresh?.();
     setTxt('onb-next1', o.next); setTxt('onb-next2', o.next); setTxt('onb-back2', o.prev); setTxt('onb-have-txt', o.have);
     setTxt('onb-fx-q', t().fxQ); setTxt('onb-fx-note', t().fxNote); setTxt('onb-fx-on', t().fxOnT); setTxt('onb-fx-off', t().fxOffT); setTxt('onb-p2-title', o.p2Title); setTxt('onb-p2-note', o.p2Note); setTxt('onboard-theme-day', o.themeDay); setTxt('onboard-theme-night', o.themeNight);
     setTxt('onb-p3-title', o.p3Title); setTxt('onb-p3-note', o.p3Note); setTxt('onb-protect', o.protect); setTxt('btn-onboard-new', o.later);
@@ -3777,7 +3777,7 @@ function _ucLoad() {
   if (window.LiberoUC) return Promise.resolve(window.LiberoUC);
   if (_ucP) return _ucP;
   _ucP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'undercover.js?v=10';
+    const sc = document.createElement('script'); sc.src = 'undercover.js?v=12';
     sc.onload = () => res(window.LiberoUC); sc.onerror = () => { _ucP = null; res(null); };
     document.head.appendChild(sc);
   });
@@ -15766,6 +15766,16 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
     const nx = document.getElementById('onb-nextf'); if (nx) nx.disabled = !has;
   };
   document.getElementById('onb-pf-draw')?.addEventListener('click', () => window._openPortraitEditor?.());
+  // « Au hasard » (telephone) : un visage tire parmi les options gratuites, enregistre tout de suite.
+  document.getElementById('onb-pf-rand')?.addEventListener('click', () => {
+    const P = window.LiberoPortrait; if (!P || typeof socket === 'undefined') return;
+    const d = P.normalize(myPortrait || P.DEF);
+    for (const o of P.OPTS) { const n = (o.v || o.sw).length, lock = o.lock || [], ok = []; for (let i = 0; i < n; i++) if (!lock.includes(i)) ok.push(i); if (ok.length) d[o.k] = ok[Math.floor(Math.random() * ok.length)]; }
+    const av = document.getElementById('onb-pf-av'); if (av) av.innerHTML = P.svg(d);
+    socket.emit('set-portrait', { playerId: getPlayerId(), portrait: d });
+  });
+  // Telephone : le champ qu'on remplit reste visible au-dessus du clavier.
+  document.querySelectorAll('#overlay-onboard .onb-ln').forEach(i => i.addEventListener('focus', () => { if (window.innerWidth <= 600) setTimeout(() => { try { i.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch {} }, 280); }));
   document.getElementById('onb-nextf')?.addEventListener('click', () => { if (!myPortrait) { err(t().onb.pfNeed); return; } go('2'); });
 
   // Le pseudo tape survit lui aussi au F5.
