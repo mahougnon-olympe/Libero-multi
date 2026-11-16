@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>Aperçu de l'inscription</title>
+<link rel="stylesheet" href="cahier.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;800&family=Caveat:wght@600;700&display=swap">
+<style>body{margin:0;background:#1f2a26}.apc{position:fixed;left:8px;right:8px;bottom:6px;z-index:999;font:700 .72rem Archivo,sans-serif;color:#eef1ea;text-align:center;pointer-events:none}</style>
+</head><body>
+<div id="overlay-onboard" class="overlay">
+    <!-- Premiere visite = carnet a intercalaires : « Nouveau » (3 pages : pseudo, theme,
+         mot de passe ou plus tard) et « J'ai deja un carnet » (mot de passe ou code).
+         La page et l'onglet ouverts survivent a un F5 (sessionStorage libero_onboard_page). -->
+    <div class="onb-book">
+      <div class="onb-tabs" role="tablist">
+        <button type="button" class="onb-tab on" id="onb-tab-new" data-tab="new" role="tab">Nouveau</button>
+        <button type="button" class="onb-tab" id="onb-tab-old" data-tab="old" role="tab">J'ai déjà un carnet</button>
+      </div>
+      <div class="onb-page" id="onb-page">
+        <!-- Nouveau : page 1 -->
+        <div class="onb-p" data-p="1">
+          <div class="onb-steps"><i class="on"></i><i></i><i></i><i></i><span id="onb-pg1">page 1/4</span></div>
+          <button type="button" class="onb-have" id="onb-have"><span id="onb-have-txt">Déjà un carnet ? Ouvre-le ici</span></button>
+          <h2 class="onb-h" id="onb-phrase">Ici, tout commence par un nom.</h2>
+          <label class="onb-q" id="onboard-pseudo-label" for="onboard-pseudo">Comment veux-tu t'appeler ?</label>
+          <input id="onboard-pseudo" class="onb-ln" type="text" maxlength="20" placeholder="Ton pseudo" autocomplete="off" spellcheck="false" />
+          <button type="button" class="onb-cta" id="onb-next1">Page suivante</button>
+        </div>
+        <!-- Nouveau : page portrait (obligatoire) -->
+        <div class="onb-p hidden" data-p="pf">
+          <div class="onb-steps"><i class="on"></i><i class="on"></i><i></i><i></i><span id="onb-pgf">page 2/4</span></div>
+          <h2 class="onb-h" id="onb-pf-title">Dessine ton visage</h2>
+          <p class="onb-n" id="onb-pf-note">C'est ce que verront les autres joueurs dans les classements et les parties.</p>
+          <div class="onb-pf-av" id="onb-pf-av"></div>
+          <button type="button" class="onb-cta onb-pf-rand" id="onb-pf-rand">Au hasard</button>
+          <button type="button" class="onb-lnk onb-pf-draw" id="onb-pf-draw">Dessiner mon portrait</button>
+          <button type="button" class="onb-cta" id="onb-nextf" disabled>Page suivante</button>
+          <button type="button" class="onb-lnk" id="onb-backf">Page précédente</button>
+        </div>
+        <!-- Nouveau : page 2 -->
+        <div class="onb-p hidden" data-p="2">
+          <div class="onb-steps"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><span id="onb-pg2">page 3/4</span></div>
+          <h2 class="onb-h" id="onb-p2-title">Cahier ou ardoise ?</h2>
+          <p class="onb-n" id="onb-p2-note">Tu pourras changer quand tu veux dans les Réglages.</p>
+          <div class="onboard-theme-row">
+            <button type="button" id="onboard-theme-day" class="onboard-theme-btn">Cahier</button>
+            <button type="button" id="onboard-theme-night" class="onboard-theme-btn">Ardoise</button>
+          </div>
+          <h3 class="onb-h" id="onb-fx-q" style="font-size:1.1rem;margin-top:14px">Effets lumineux ?</h3>
+          <p class="onb-n" id="onb-fx-note">Éclairs, flashs et clignotements. À éviter si tu es sensible aux lumières vives. Tu peux changer dans les Réglages.</p>
+          <div class="onboard-theme-row">
+            <button type="button" id="onb-fx-on" class="onboard-theme-btn" aria-pressed="false">Activés</button>
+            <button type="button" id="onb-fx-off" class="onboard-theme-btn onboard-theme-active" aria-pressed="true">Désactivés</button>
+          </div>
+          <button type="button" class="onb-cta" id="onb-next2">Page suivante</button>
+          <button type="button" class="onb-lnk" id="onb-back2">Page précédente</button>
+        </div>
+        <!-- Nouveau : page 3 -->
+        <div class="onb-p hidden" data-p="3">
+          <div class="onb-steps"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><span id="onb-pg3">page 4/4</span></div>
+          <h2 class="onb-h" id="onb-p3-title">Protège ton carnet</h2>
+          <p class="onb-n" id="onb-p3-note">Un mot de passe te permet de retrouver ta progression sur un autre téléphone.</p>
+          <input id="onb-pw" class="onb-ln" type="password" maxlength="64" placeholder="Choisis un mot de passe" autocomplete="new-password" />
+          <button type="button" class="onb-cta" id="onb-protect">Protéger et commencer</button>
+          <button type="button" class="onb-lnk" id="btn-onboard-new">Plus tard, je veux jouer</button>
+        </div>
+        <!-- J'ai deja un carnet : mot de passe -->
+        <div class="onb-p hidden" data-p="login">
+          <h2 class="onb-h" id="onb-login-title">Content de te revoir !</h2>
+          <input id="onb-login-pseudo" class="onb-ln" type="text" maxlength="20" placeholder="Ton pseudo" autocomplete="username" spellcheck="false" />
+          <input id="onb-login-pw" class="onb-ln" type="password" maxlength="64" placeholder="Ton mot de passe" autocomplete="current-password" />
+          <button type="button" class="onb-cta" id="onb-login-btn">Ouvrir mon carnet</button>
+          <button type="button" class="onb-lnk" id="onb-use-code">J'ai plutôt un code de récupération</button>
+          <p class="onb-n" id="onb-forgot">Mot de passe oublié ? Écris au créateur depuis « Donner mon avis ».</p>
+        </div>
+        <!-- J'ai deja un carnet : code de recuperation -->
+        <div class="onb-p hidden" data-p="code">
+          <h2 class="onb-h" id="onb-code-title">Tu as un code ?</h2>
+          <p class="onb-n" id="onboard-intro">C'est le code de récupération noté sur ton ancien appareil (Profil, « Sauvegarder ma progression »).</p>
+          <input id="onboard-input" class="onb-ln" type="text" placeholder="Colle ton code ici" autocomplete="off" spellcheck="false" />
+          <button type="button" class="onb-cta" id="btn-onboard-restore">Récupérer ma progression</button>
+          <button type="button" class="onb-lnk" id="onb-use-pw">J'ai plutôt un mot de passe</button>
+        </div>
+        <p id="onboard-hint" class="onb-hint"></p>
+      </div>
+    </div>
+  </div>
+<div class="apc">Aperçu : rien n'est enregistré. Ouvre ce lien sur ton téléphone.</div>
+<script src="portrait.js"></script>
+<script>
+(function(){
+  var P=window.LiberoPortrait, ov=document.getElementById('overlay-onboard'), pages=[].slice.call(ov.querySelectorAll('.onb-p'));
+  var has=false, $=function(id){return document.getElementById(id)};
+  function go(p){ pages.forEach(function(e){e.classList.toggle('hidden',e.dataset.p!==p)}); var old=p==='login'||p==='code'; $('onb-tab-new').classList.toggle('on',!old); $('onb-tab-old').classList.toggle('on',old); var pg=$('onb-page'); pg.classList.remove('turn'); void pg.offsetWidth; pg.classList.add('turn'); }
+  function setAv(d){ $('onb-pf-av').innerHTML=P.svg(d); has=true; $('onb-nextf').disabled=false; }
+  $('onb-pf-av').innerHTML=P.blank(); $('onb-nextf').disabled=true;
+  $('onb-tab-new').onclick=function(){go('1')}; $('onb-tab-old').onclick=function(){go('login')}; $('onb-have').onclick=function(){go('login')};
+  $('onb-next1').onclick=function(){go('pf')}; $('onb-backf').onclick=function(){go('1')};
+  $('onb-nextf').onclick=function(){if(has)go('2')}; $('onb-next2').onclick=function(){go('3')}; $('onb-back2').onclick=function(){go('pf')};
+  $('onb-use-code').onclick=function(){go('code')};
+  $('onb-pf-draw').onclick=function(){ setAv(P.DEF); };
+  $('onb-pf-rand').onclick=function(){ var d=P.normalize(P.DEF); P.OPTS.forEach(function(o){ var n=(o.v||o.sw).length, lock=o.lock||[], ok=[]; for(var i=0;i<n;i++) if(lock.indexOf(i)<0) ok.push(i); if(ok.length) d[o.k]=ok[Math.floor(Math.random()*ok.length)]; }); setAv(d); };
+  [].slice.call(ov.querySelectorAll('.onb-ln')).forEach(function(i){ i.addEventListener('focus',function(){ if(window.innerWidth<=600) setTimeout(function(){ try{i.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){} },280); }); });
+  [].slice.call(ov.querySelectorAll('.onboard-theme-btn')).forEach(function(b){ b.onclick=function(){ var row=b.parentNode; [].slice.call(row.children).forEach(function(x){x.classList.toggle('onboard-theme-active',x===b)}); }; });
+  go('1');
+})();
+</script></body></html>
