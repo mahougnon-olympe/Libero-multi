@@ -3694,7 +3694,7 @@ body.hk-locked #nav-tab-shop::after{content:"";position:absolute;right:calc(50% 
 .tg-score-chip.me{outline:3px solid var(--mark,#fff27a);outline-offset:1px}
 
 /* Inscription sur telephone (v216) : carnet compact, une seule colonne, cibles confortables. Aucun effet au-dessus de 600 px (version PC inchangee). */
-.onb-pf-rand { display: none; }
+.onb-pf-rand, .onb-quick { display: none; }
 @media (max-width: 600px) {
   #overlay-onboard .onb-book { width: calc(100vw - 16px); max-height: 100dvh; overflow-y: auto; }
   .onb-page { padding: 10px 12px 14px 40px; min-height: 0; background-image: linear-gradient(90deg, transparent 30px, #e2485d 30px 31.5px, transparent 31.5px), repeating-linear-gradient(0deg, transparent 0 23px, rgba(80,130,205,.4) 23px 24px); }
@@ -3712,4 +3712,24 @@ body.hk-locked #nav-tab-shop::after{content:"";position:absolute;right:calc(50% 
   #overlay-onboard .onboard-theme-btn { padding: 6px; font-size: .8rem; min-height: 40px; }
   #overlay-onboard .onboard-theme-btn::before { height: 28px; }
   .onb-have { font-size: 1rem; }
+}
+
+/* Inscription sur telephone, 2e passe : carnet plein ecran, bouton principal toujours visible, choix rapides du portrait. */
+@media (max-width: 600px) {
+  #overlay-onboard { align-items: stretch; justify-content: center; padding: 0; }
+  #overlay-onboard .onb-book { width: 100vw; max-width: none; height: 100dvh; max-height: none; display: flex; flex-direction: column; overflow-y: auto; padding-top: env(safe-area-inset-top, 0px); }
+  .onb-tabs { margin-left: 36px; flex: none; }
+  .onb-page { flex: 1; border-radius: 0; border-left: 0; border-right: 0; box-shadow: none; padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+  .onb-p > .onb-cta { position: sticky; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); z-index: 3; }
+  .onb-p { grid-template-columns: minmax(0, 1fr); }
+  .onb-pf-av { width: 84px; height: 84px; }
+  .onb-quick { display: grid; gap: 4px; min-width: 0; }
+  .oq-r { min-width: 0; }
+  .oq-l { font: 800 .58rem var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: #5e6470; }
+  .oq-s { display: flex; gap: 6px; overflow-x: auto; padding: 3px 3px 6px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .oq-s::-webkit-scrollbar { display: none; }
+  .oq-sw { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 2px solid #22252b; padding: 0; cursor: pointer; }
+  .oq-th { flex: none; width: 46px; height: 46px; border: 2px solid #22252b; border-radius: 9px; padding: 0; overflow: hidden; background: #fff; cursor: pointer; }
+  .oq-th svg { width: 100%; height: 100%; display: block; }
+  .oq-sw.sel, .oq-th.sel { outline: 3px solid #e2485d; outline-offset: 1px; }
 }

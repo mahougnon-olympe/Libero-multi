@@ -15764,6 +15764,7 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
     const av = document.getElementById('onb-pf-av'); if (av && P) av.innerHTML = has ? P.svg(myPortrait) : P.blank();
     const dr = document.getElementById('onb-pf-draw'); if (dr) dr.textContent = has ? o.pfRedo : o.pfDraw;
     const nx = document.getElementById('onb-nextf'); if (nx) nx.disabled = !has;
+    window.LiberoOnbQuick?.sync();
   };
   document.getElementById('onb-pf-draw')?.addEventListener('click', () => window._openPortraitEditor?.());
   // « Au hasard » (telephone) : un visage tire parmi les options gratuites, enregistre tout de suite.
@@ -15772,8 +15773,15 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
     const d = P.normalize(myPortrait || P.DEF);
     for (const o of P.OPTS) { const n = (o.v || o.sw).length, lock = o.lock || [], ok = []; for (let i = 0; i < n; i++) if (!lock.includes(i)) ok.push(i); if (ok.length) d[o.k] = ok[Math.floor(Math.random() * ok.length)]; }
     const av = document.getElementById('onb-pf-av'); if (av) av.innerHTML = P.svg(d);
+    window.LiberoOnbQuick?.render(d);
     socket.emit('set-portrait', { playerId: getPlayerId(), portrait: d });
   });
+  // Choix rapides (teint, coiffure, couleur) : l'apercu suit, l'enregistrement part apres une courte pause.
+  let _oqT = 0;
+  window.LiberoOnbQuick?.mount({ root: document.getElementById('onb-pf-quick'), get: () => myPortrait, change: d => {
+    const av = document.getElementById('onb-pf-av'); if (av && window.LiberoPortrait) av.innerHTML = window.LiberoPortrait.svg(d);
+    clearTimeout(_oqT); _oqT = setTimeout(() => socket.emit('set-portrait', { playerId: getPlayerId(), portrait: d }), 500);
+  } });
   // Telephone : le champ qu'on remplit reste visible au-dessus du clavier.
   document.querySelectorAll('#overlay-onboard .onb-ln').forEach(i => i.addEventListener('focus', () => { if (window.innerWidth <= 600) setTimeout(() => { try { i.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch {} }, 280); }));
   document.getElementById('onb-nextf')?.addEventListener('click', () => { if (!myPortrait) { err(t().onb.pfNeed); return; } go('2'); });

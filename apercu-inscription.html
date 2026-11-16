@@ -31,6 +31,7 @@
           <p class="onb-n" id="onb-pf-note">C'est ce que verront les autres joueurs dans les classements et les parties.</p>
           <div class="onb-pf-av" id="onb-pf-av"></div>
           <button type="button" class="onb-cta onb-pf-rand" id="onb-pf-rand">Au hasard</button>
+          <div class="onb-quick" id="onb-pf-quick"></div>
           <button type="button" class="onb-lnk onb-pf-draw" id="onb-pf-draw">Dessiner mon portrait</button>
           <button type="button" class="onb-cta" id="onb-nextf" disabled>Page suivante</button>
           <button type="button" class="onb-lnk" id="onb-backf">Page précédente</button>
@@ -85,12 +86,14 @@
   </div>
 <div class="apc">Aperçu : rien n'est enregistré. Ouvre ce lien sur ton téléphone.</div>
 <script src="portrait.js"></script>
+<script src="onb-quick.js"></script>
 <script>
 (function(){
   var P=window.LiberoPortrait, ov=document.getElementById('overlay-onboard'), pages=[].slice.call(ov.querySelectorAll('.onb-p'));
   var has=false, $=function(id){return document.getElementById(id)};
   function go(p){ pages.forEach(function(e){e.classList.toggle('hidden',e.dataset.p!==p)}); var old=p==='login'||p==='code'; $('onb-tab-new').classList.toggle('on',!old); $('onb-tab-old').classList.toggle('on',old); var pg=$('onb-page'); pg.classList.remove('turn'); void pg.offsetWidth; pg.classList.add('turn'); }
-  function setAv(d){ $('onb-pf-av').innerHTML=P.svg(d); has=true; $('onb-nextf').disabled=false; }
+  function setAv(d){ $('onb-pf-av').innerHTML=P.svg(d); has=true; $('onb-nextf').disabled=false; window.LiberoOnbQuick.render(d); }
+  window.LiberoOnbQuick.mount({ root:$('onb-pf-quick'), get:function(){return null}, change:function(d){ $('onb-pf-av').innerHTML=P.svg(d); has=true; $('onb-nextf').disabled=false; } });
   $('onb-pf-av').innerHTML=P.blank(); $('onb-nextf').disabled=true;
   $('onb-tab-new').onclick=function(){go('1')}; $('onb-tab-old').onclick=function(){go('login')}; $('onb-have').onclick=function(){go('login')};
   $('onb-next1').onclick=function(){go('pf')}; $('onb-backf').onclick=function(){go('1')};
