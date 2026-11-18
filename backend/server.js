@@ -2585,7 +2585,10 @@ const TRIVIA_CATEGORIES = {
   30: 'SVT',             31: 'Anglais',         32: 'Bénin',
   33: 'Frissons',        34: 'Légendes et monstres', 35: 'Animaux de la nuit', 36: "Halloween, d'où ça vient ?",
   37: 'Hacker',          38: 'Gaming moderne et rétro', 39: 'IA',
+  40: 'The Vampire Diaries', 41: 'The Originals', 42: 'Game of Thrones', 43: 'Stranger Things', 44: 'Wednesday', 45: 'Squid Game',
 };
+// Theme d'une question (id `cat:diff:index`) : sert a afficher la serie au-dessus de la question.
+const qCat = q => { const n = parseInt(String((q && q.id) || '').split(':')[0]); return Number.isFinite(n) ? n : null; };
 const TRIVIA_COLORS = ['#2563eb','#dc2626','#16a34a','#9333ea','#ea580c','#0891b2'];
 const TRIVIA_MAX = 100; // joueurs par salon de quiz
 const TRIVIA_PORTRAITS_MAX = 10; // portraits envoyes en fin de partie (podium) : pas pour les 100 joueurs, trop lourd
@@ -2837,7 +2840,7 @@ function buildMixQuestions(room, seen) {
   const usedFlags = new Set();
   const themeQ = n => {
     if (n <= 0 || !cats.length) return [];
-    const qs = triviaGame.pickQuestions({ cats, amount: n, lang, diff, seen });
+    const qs = triviaGame.pickQuestions({ cats, amount: n, lang, diff, seen, noSpoil: !!room.noSpoil });
     qs.forEach(q => { if (q.id) seen.add(q.id); });
     return qs.map(q => ({ ...q, rk: 't' }));
   };
@@ -2896,7 +2899,7 @@ function startTriviaGame(code) {
     const seen = new Set();
     const pids = [...room.players.values()].map(p => p.playerId).filter(Boolean);
     for (const pid of pids) for (const id of (triviaSeen.get(pid)?.set || [])) seen.add(id);
-    room.questions = triviaGame.pickQuestions({ cats, amount: room.totalQ, lang, diff, seen });
+    room.questions = triviaGame.pickQuestions({ cats, amount: room.totalQ, lang, diff, seen, noSpoil: !!room.noSpoil });
     room.totalQ = room.questions.length; // au cas où le pool serait plus court que demandé
     markTriviaSeen(pids, room.questions);
   } catch (e) {
@@ -2925,6 +2928,7 @@ function sendTriviaQuestion(code) {
     totalQuestions: room.totalQ,
     question:       q.question,
     flag:           q.flag || null,
+    cat:            qCat(q),
     round:          q.roundInfo || null,
     choices:        q.choices,
     timeLimit:      (room.timeMs || TRIVIA_TIME_MS) / 1000,
@@ -4304,7 +4308,7 @@ io.on('connection', (socket) => {
   });
 
   // ── Trivia : créer un salon ──────────────────────────────────────────────
-  socket.on('create-trivia-room', ({ categories, name = '', lang = 'fr', difficulty = '', amount, playerId, kind, continent, mix } = {}) => {
+  socket.on('create-trivia-room', ({ categories, name = '', lang = 'fr', difficulty = '', amount, playerId, kind, continent, mix, noSpoil } = {}) => {
     const isFlags = kind === 'flags', isMix = kind === 'mix';
     const cats = isFlags ? [] : [].concat(categories || []).map(c => parseInt(c)).filter(c => TRIVIA_CATEGORIES[c]);
     const mixCfg = isMix ? normalizeMix(mix) : null;
@@ -4326,7 +4330,7 @@ io.on('connection', (socket) => {
     triviaRooms.set(code, {
       code, hostId: socket.id, categories: cats,
       categoryName, kind: isFlags ? 'flags' : isMix ? 'mix' : 'quiz', mix: mixCfg, continent: flagsGame.CONTINENTS.includes(continent) ? continent : '',
-      lang: roomLang, difficulty: roomDiff,
+      lang: roomLang, difficulty: roomDiff, noSpoil: !!noSpoil,
       timeMs: roomDiff === 'extreme' ? 15_000 : TRIVIA_TIME_MS,
       players, questions: null, currentQ: -1,
       status: 'waiting', answersThisRound: new Map(),
@@ -4395,7 +4399,7 @@ io.on('connection', (socket) => {
   socket.on('leave-trivia-room', () => { leaveTriviaRoom(); });
 
   // ── Trivia : fetch questions solo (proxy pour éviter le CORS côté client) ────
-  socket.on('fetch-trivia-solo', ({ categories = [], amount = 10, lang = 'fr', difficulty = '', playerId } = {}) => {
+  socket.on('fetch-trivia-solo', ({ categories = [], amount = 10, lang = 'fr', difficulty = '', playerId, noSpoil } = {}) => {
     const cats = [].concat(categories).map(c => parseInt(c)).filter(c => TRIVIA_CATEGORIES[c]);
     if (!cats.length) { socket.emit('trivia-solo-error'); return; }
     const l = ['fr', 'en'].includes(lang) ? lang : 'fr';
@@ -4405,7 +4409,7 @@ io.on('connection', (socket) => {
     socket._soloTriviaDiff = d || 'medium'; // retenue cote serveur pour l'XP de fin de partie
     const pid = safePlayerId(playerId);
     try {
-      const qs = triviaGame.pickQuestions({ cats, amount: n, lang: l, diff: d, seen: triviaSeen.get(pid)?.set });
+      const qs = triviaGame.pickQuestions({ cats, amount: n, lang: l, diff: d, seen: triviaSeen.get(pid)?.set, noSpoil: !!noSpoil });
       if (pid) markTriviaSeen([pid], qs);
       socket.emit('trivia-solo-questions', qs);
     } catch { socket.emit('trivia-solo-error'); }
@@ -5917,6 +5921,7 @@ io.on('connection', (socket) => {
         totalQuestions: troom.totalQ,
         question:       q.question,
         flag:           q.flag || null,
+        cat:            qCat(q),
         round:          q.roundInfo || null,
         choices:        q.choices,
         timeLimit:      (troom.timeMs || TRIVIA_TIME_MS) / 1000,

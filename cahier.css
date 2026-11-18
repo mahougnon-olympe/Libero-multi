@@ -3733,3 +3733,31 @@ body.hk-locked #nav-tab-shop::after{content:"";position:absolute;right:calc(50% 
   .oq-th svg { width: 100%; height: 100%; display: block; }
   .oq-sw.sel, .oq-th.sel { outline: 3px solid #e2485d; outline-offset: 1px; }
 }
+
+/* ══ QUIZ : GROUPE SERIES (v218) ═══════════════════════════════════════════
+   Tuiles sans photo (pas d'affiches officielles) : embleme dessine a la craie sur la couleur de la serie. */
+.series-head { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1.5px dashed var(--line); }
+.series-ttl { font: 400 1rem var(--font-display); color: var(--text); }
+.series-new { font: 800 .62rem var(--font-body); font-style: normal; letter-spacing: .06em; text-transform: uppercase; background: var(--margin, #e2485d); color: #fff; border-radius: 99px; padding: 1px 7px; transform: rotate(-3deg); }
+.series-all { margin-left: auto; font: 800 .74rem var(--font-body); border: 1.5px solid var(--line); border-radius: 99px; padding: 4px 11px; background: var(--card); color: var(--text); box-shadow: 0 2px 0 var(--hard); cursor: pointer; min-height: 32px; }
+.series-all[aria-pressed="true"] { background: var(--mark, #fff27a); color: #22252b; }
+.theme-photo.series-photo { background: var(--sc); border-color: var(--line); }
+.theme-photo.series-photo .theme-art-wrap { color: #fff; }
+.theme-photo.series-photo .theme-art { width: 62%; height: auto; }
+.theme-photo.series-photo .theme-art .f { fill: currentColor; fill-opacity: .9; }
+:root:root .theme-btn.is-series:not(.active) .theme-photo { filter: saturate(.8); }
+.series-spoil { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; text-align: left; border: 1.5px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); padding: 7px 10px; box-shadow: 0 2px 0 var(--hard); cursor: pointer; min-height: 44px; }
+.series-spoil span { flex: 1; min-width: 0; line-height: 1.2; }
+.series-spoil b { font: 800 .85rem var(--font-body); display: block; }
+.series-spoil small { display: block; font: 600 .74rem var(--font-body); color: var(--muted); }
+.series-tg { flex: none; width: 42px; height: 24px; border-radius: 99px; border: 2px solid var(--line); background: var(--card2); position: relative; transition: background .2s; }
+.series-tg::after { content: ""; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; border-radius: 99px; background: #fff; border: 2px solid var(--line); transition: left .2s; }
+.series-spoil[aria-pressed="true"] .series-tg { background: #2f8a55; }
+.series-spoil[aria-pressed="true"] .series-tg::after { left: 20px; }
+/* En partie : bandeau de la serie au-dessus de la question */
+.tg-series { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 6px; padding: 2px 10px 2px 4px; border-radius: 99px; background: var(--sc); color: #fff; font: 800 .72rem var(--font-body); letter-spacing: .06em; text-transform: uppercase; box-shadow: 0 2px 0 var(--hard); }
+.tg-series[hidden] { display: none; }
+.tg-series-em { width: 28px; height: 22px; display: grid; place-items: center; }
+.tg-series-em .theme-art { width: 100%; height: 100%; }
+.tg-series-em .theme-art .f { fill: currentColor; fill-opacity: .9; }
+@media (prefers-reduced-motion: reduce) { .series-tg, .series-tg::after { transition: none; } }

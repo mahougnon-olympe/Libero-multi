@@ -18,7 +18,7 @@ const DIFFS = ['easy', 'medium', 'hard'];
 
 // Toutes les questions d'un thème pour une difficulté donnée ('' = toutes),
 // chacune munie d'un id stable `cat:diff:index` (sert à l'anti-répétition).
-function poolFor(cat, diff) {
+function poolFor(cat, diff, noSpoil) {
   const catBank = BANK[cat];
   if (!catBank) return [];
   // 'extreme' : questions du pool `extreme` du thème si présent, sinon repli
@@ -31,7 +31,7 @@ function poolFor(cat, diff) {
   else diffs = ['medium', 'hard', 'extreme'];
   const out = [];
   for (const d of diffs) {
-    (catBank[d] || []).forEach((q, i) => out.push({ id: `${cat}:${d}:${i}`, q }));
+    (catBank[d] || []).forEach((q, i) => { if (!(noSpoil && q.sp)) out.push({ id: `${cat}:${d}:${i}`, q }); }); // « Sans spoilers » : questions marquees sp ecartees (l'index reste stable)
   }
   return out;
 }
@@ -50,14 +50,15 @@ function present(entry, lang) {
 //   que le pool le permet ; on n'y repioche que si tout a déjà été vu.
 // - Multi-thèmes : chaque thème fournit sa part, puis tout est mélangé,
 //   pour un vrai mix au lieu d'un seul thème.
-function pickQuestions({ cats, amount = 10, lang = 'fr', diff = '', seen = null } = {}) {
+function pickQuestions({ cats, amount = 10, lang = 'fr', diff = '', seen = null, noSpoil = false } = {}) {
   const wanted  = Math.max(1, amount);
   const perCat  = Math.ceil(wanted / cats.length);
   const chosen  = [];
   const leftovers = [];
 
   for (const cat of cats) {
-    const pool    = shuffle(poolFor(cat, diff));
+    let pool      = shuffle(poolFor(cat, diff, noSpoil));
+    if (!pool.length && noSpoil) pool = shuffle(poolFor(cat, diff, false)); // jamais de theme vide
     const unseen  = pool.filter(e => !seen || !seen.has(e.id));
     const already = pool.filter(e => seen && seen.has(e.id));
     const take    = unseen.slice(0, perCat);

@@ -98,11 +98,7 @@
     $('#mx-seg', home).innerHTML = ['fast', 'path'].map(k => `<button type="button" role="tab" aria-selected="${P.tab === k}" data-t="${k}">${d.tabs[k]}</button>`).join('');
     // Themes : meme presentation que Culture Generale, mais une selection a part.
     $('#mx-l-themes', home).textContent = d.themes;
-    $('#mx-themes', home).innerHTML = t().triviaCats.filter(c => window._hwThemeOk(c.id)).map(c => `
-      <button class="theme-btn${P.cats.includes(c.id) ? ' active' : ''}" data-id="${c.id}">
-        <span class="theme-photo"><img src="assets/quiz/${c.id}.webp?v=3" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('no-photo')"><span class="theme-art-wrap">${typeof _themeArt === 'function' ? _themeArt(c.id) : ''}</span></span>
-        <span class="theme-name">${c.name}</span>
-      </button>`).join('');
+    $('#mx-themes', home).innerHTML = t().triviaCats.filter(c => window._hwThemeOk(c.id)).map(c => window._themeTile(c, P.cats.includes(c.id))).join('');
     $('#mx-l-diff', home).textContent = d.diff;
     $('#mx-diff', home).innerHTML = Object.keys(d.diffs).map(k => `<button type="button" class="diff-btn${P.diff === k ? ' active' : ''}" data-d="${k}">${d.diffs[k]}</button>`).join('');
     const chips = (list, cur, attr) => '<div class="mx-chips">' + list.map(x => `<button type="button" class="mx-chip" aria-pressed="${String(x[0]) === String(cur)}" data-${attr}="${x[0]}">${x[1]}</button>`).join('') + '</div>';
@@ -174,7 +170,7 @@
     clearErr();
     const mix = P.tab === 'path' ? { mode: 'path', rounds: P.rounds.map(r => ({ k: r.k, n: r.n, c: r.k === 'fc' ? (r.c || 'AF') : '' })) } : { mode: 'fast', flagPct: P.pct, order: P.ord, continent: P.cont === 'all' ? '' : P.cont };
     window._mixAutoStart = !!solo;
-    socket.emit('create-trivia-room', { kind: 'mix', mix, categories: P.cats, name, lang: L(), difficulty: P.diff, amount: P.nb, playerId: getPlayerId() });
+    socket.emit('create-trivia-room', { kind: 'mix', mix, categories: P.cats, name, lang: L(), difficulty: P.diff, amount: P.nb, playerId: getPlayerId(), noSpoil: window._noSpoil ? window._noSpoil() : true });
   }
   function join() {
     const d = U(), name = (localStorage.getItem('playerName') || '').trim(), code = ($('#mx-code', home).value || '').trim().toUpperCase();

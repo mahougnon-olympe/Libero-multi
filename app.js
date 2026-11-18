@@ -1392,6 +1392,7 @@ const DICT = {
         { icon:'📜', title:'Règles avancées', desc:"Le <strong>roque</strong> (petit et grand), la <strong>prise en passant</strong> et le <strong>pat</strong> (match nul) sont gérés automatiquement." },
       ],
     },
+    series:{ title:'Séries', isNew:'Nouveau', all:'Tout choisir', none:'Tout retirer', spoil:'Sans spoilers', spoilTxt:'Retire les questions qui dévoilent la suite après la saison 1' },
     triviaCats:[
       { id:9,  name:'Culture G.', icon:'🧠' }, { id:23, name:'Histoire',   icon:'📜' },
       { id:22, name:'Géographie', icon:'🌍' }, { id:17, name:'Sciences',   icon:'🔬' },
@@ -1408,6 +1409,9 @@ const DICT = {
       { id:37, name:'Hacker', icon:'' },
       { id:38, name:'Gaming moderne et rétro', icon:'' },
       { id:39, name:'IA', icon:'' },
+      { id:40, name:'The Vampire Diaries', icon:'', g:'series' }, { id:41, name:'The Originals', icon:'', g:'series' },
+      { id:42, name:'Game of Thrones', icon:'', g:'series' }, { id:43, name:'Stranger Things', icon:'', g:'series' },
+      { id:44, name:'Wednesday', icon:'', g:'series' }, { id:45, name:'Squid Game', icon:'', g:'series' },
     ],
     tutoSteps:{
       landing_news:"Ici, les <b>nouvelles</b> du site. Touche pour ouvrir.",
@@ -2213,6 +2217,7 @@ const DICT = {
         { icon:'📜', title:'Advanced rules', desc:"<strong>Castling</strong> (kingside and queenside), <strong>en passant</strong> and <strong>stalemate</strong> (draw) are handled automatically." },
       ],
     },
+    series:{ title:'TV series', isNew:'New', all:'Select all', none:'Remove all', spoil:'No spoilers', spoilTxt:'Leaves out questions that reveal what happens after season 1' },
     triviaCats:[
       { id:9,  name:'General',   icon:'🧠' }, { id:23, name:'History',   icon:'📜' },
       { id:22, name:'Geography', icon:'🌍' }, { id:17, name:'Science',   icon:'🔬' },
@@ -2229,6 +2234,9 @@ const DICT = {
       { id:37, name:'Hacker', icon:'' },
       { id:38, name:'Modern and retro gaming', icon:'' },
       { id:39, name:'AI', icon:'' },
+      { id:40, name:'The Vampire Diaries', icon:'', g:'series' }, { id:41, name:'The Originals', icon:'', g:'series' },
+      { id:42, name:'Game of Thrones', icon:'', g:'series' }, { id:43, name:'Stranger Things', icon:'', g:'series' },
+      { id:44, name:'Wednesday', icon:'', g:'series' }, { id:45, name:'Squid Game', icon:'', g:'series' },
     ],
     tutoSteps:{
       landing_news:"Site <b>news</b> live here. Tap to open.",
@@ -3456,7 +3464,7 @@ function _mixLoad() {
   if (window.LiberoMix) return Promise.resolve(window.LiberoMix);
   if (_mixP) return _mixP;
   _mixP = new Promise(res => {
-    const sc = document.createElement('script'); sc.src = 'mix.js?v=4';
+    const sc = document.createElement('script'); sc.src = 'mix.js?v=5';
     sc.onload = () => res(window.LiberoMix); sc.onerror = () => { _mixP = null; res(null); };
     document.head.appendChild(sc);
   });
@@ -5485,18 +5493,35 @@ THEME_ART["33"] = '<path d="M32 12c0-4 2-7 5-8" class="g"/><path d="M32 12C16 6 
 THEME_ART["37"] = '<rect x="6" y="6" width="52" height="38" rx="3" class="f"/><path d="M6 14h52" class="t"/><path d="M14 24l7 5-7 5" /><path d="M26 35h12"/><circle cx="12" cy="10" r="1.4" class="r"/><circle cx="17" cy="10" r="1.4" class="y"/><circle cx="22" cy="10" r="1.4" class="g"/><path d="M44 24h8M44 30h5" class="t"/>';
 THEME_ART["38"] = '<path d="M14 18h36c6 0 9 6 10 14l1 9c.4 3-3 5-5 3l-7-7H15l-7 7c-2 2-5 0-5-3l1-9c1-8 4-14 10-14z" class="f"/><path d="M17 24v8M13 28h8"/><circle cx="43" cy="25" r="2.4" class="y"/><circle cx="49" cy="30" r="2.4" class="g"/><path d="M26 27h6" class="t"/><path d="M24 12h16" class="t"/>';
 THEME_ART["39"] = '<rect x="18" y="14" width="28" height="24" rx="3" class="f"/><rect x="25" y="21" width="14" height="10" rx="1.5" class="k"/><path d="M24 14V8M32 14V8M40 14V8M24 38v6M32 38v6M40 38v6M18 22h-8M18 30h-8M46 22h8M46 30h8"/><circle cx="8" cy="22" r="2" class="y"/><circle cx="8" cy="30" r="2" class="g"/><circle cx="56" cy="22" r="2" class="g"/><circle cx="56" cy="30" r="2" class="y"/>';
+
+// ── Series (v218) : emblemes dessines (pas d'affiches officielles), couleur propre a chaque serie ──
+THEME_ART["40"] = '<path d="M40 8a18 18 0 1 0 0 34a14 14 0 1 1 0-34z" class="f"/><path d="M12 30l3 10 3-10"/>';
+THEME_ART["41"] = '<circle cx="32" cy="30" r="13"/><path d="M16 18l5 6 6-10 5 8 5-8 6 10 5-6v12H16z" class="f"/>';
+THEME_ART["42"] = '<path d="M32 6v36M28 11l4-5 4 5" /><path d="M20 10l24 30M44 10L20 40"/><path d="M14 44h36"/>';
+THEME_ART["43"] = '<path d="M6 14q13 12 26 0t26 0"/><path d="M14 22l-3 10a4 4 0 1 0 8 0z" class="f"/><path d="M32 22l-3 10a4 4 0 1 0 8 0z" class="f"/><path d="M50 22l-3 10a4 4 0 1 0 8 0z" class="f"/>';
+THEME_ART["44"] = '<circle cx="32" cy="20" r="10" class="f"/><path d="M22 22q-6 8-3 20M42 22q6 8 3 20"/>';
+THEME_ART["45"] = '<circle cx="14" cy="25" r="9"/><path d="M32 15l10 20H22z"/><rect x="46" y="16" width="14" height="18" rx="1"/>';
+const SERIES_COLOR = { 40: '#8a1c2b', 41: '#6b3f24', 42: '#3a4a5c', 43: '#b3262f', 44: '#4b2d73', 45: '#d1366f' };
+window._isSeries = id => !!SERIES_COLOR[id];
+window._seriesColor = id => SERIES_COLOR[id] || '';
+// Tuile de theme commune (Culture et quiz mixte) : une serie n'a pas de photo, son embleme sur sa couleur.
+window._themeTile = (c, active) => SERIES_COLOR[c.id]
+  ? `<button class="theme-btn is-series${active ? ' active' : ''}" data-id="${c.id}"><span class="theme-photo no-photo series-photo" style="--sc:${SERIES_COLOR[c.id]}"><span class="theme-art-wrap">${_themeArt(c.id)}</span></span><span class="theme-name">${c.name}</span></button>`
+  : `<button class="theme-btn${active ? ' active' : ''}" data-id="${c.id}"><span class="theme-photo"><img src="assets/quiz/${c.id}.webp?v=3" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('no-photo')"><span class="theme-art-wrap">${_themeArt(c.id)}</span></span><span class="theme-name">${c.name}</span></button>`;
+// « Sans spoilers » : retenu par appareil, active par defaut.
+window._noSpoil = () => { try { return localStorage.getItem('libero_nospoil') !== '0'; } catch { return true; } };
 function _themeArt(id) {
   const p = THEME_ART[id];
   return p ? `<svg class="theme-art" viewBox="0 0 64 50" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>` : '';
 }
 function buildTriviaThemes() {
   const container = $('trivia-themes');
-  container.innerHTML = t().triviaCats.filter(c => window._hwThemeOk(c.id)).map(c => `
-    <button class="theme-btn${selectedTriviaCategories.includes(c.id) ? ' active' : ''}" data-id="${c.id}">
-      <span class="theme-photo"><img src="assets/quiz/${c.id}.webp?v=3" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('no-photo')"><span class="theme-art-wrap">${_themeArt(c.id)}</span></span>
-      <span class="theme-name">${c.name}</span>
-    </button>
-  `).join('');
+  const all = t().triviaCats.filter(c => window._hwThemeOk(c.id)), base = all.filter(c => c.g !== 'series'), ser = all.filter(c => c.g === 'series');
+  const d = t().series || {}, allOn = ser.length && ser.every(c => selectedTriviaCategories.includes(c.id)), ns = window._noSpoil();
+  container.innerHTML = base.map(c => window._themeTile(c, selectedTriviaCategories.includes(c.id))).join('')
+    + (ser.length ? `<div class="series-head"><span class="series-ttl">${d.title || 'Séries'}</span><i class="series-new">${d.isNew || 'Nouveau'}</i><button type="button" class="series-all" data-all="1" aria-pressed="${allOn}">${allOn ? (d.none || 'Tout retirer') : (d.all || 'Tout choisir')}</button></div>`
+      + ser.map(c => window._themeTile(c, selectedTriviaCategories.includes(c.id))).join('')
+      + `<button type="button" class="series-spoil" aria-pressed="${ns}"><span><b>${d.spoil || 'Sans spoilers'}</b><small>${d.spoilTxt || ''}</small></span><i class="series-tg"></i></button>` : '');
   container.querySelectorAll('.theme-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       btn.classList.toggle('active');
@@ -5507,7 +5532,18 @@ function buildTriviaThemes() {
         selectedTriviaCategories = selectedTriviaCategories.filter(c => c !== id);
       }
       clearTriviaError();
+      if (window._isSeries(id)) { const on = ser.every(c => selectedTriviaCategories.includes(c.id)), b = container.querySelector('.series-all'); if (b) { b.setAttribute('aria-pressed', on); b.textContent = on ? (d.none || 'Tout retirer') : (d.all || 'Tout choisir'); } }
     });
+  });
+  container.querySelector('.series-all')?.addEventListener('click', () => {
+    const on = ser.every(c => selectedTriviaCategories.includes(c.id));
+    selectedTriviaCategories = on ? selectedTriviaCategories.filter(id => !window._isSeries(id)) : [...new Set([...selectedTriviaCategories, ...ser.map(c => c.id)])];
+    clearTriviaError(); buildTriviaThemes();
+  });
+  container.querySelector('.series-spoil')?.addEventListener('click', e => {
+    const b = e.currentTarget, v = b.getAttribute('aria-pressed') !== 'true';
+    try { localStorage.setItem('libero_nospoil', v ? '1' : '0'); } catch {}
+    b.setAttribute('aria-pressed', v);
   });
 }
 
@@ -5575,7 +5611,7 @@ $('btn-solo-trivia').addEventListener('click', () => {
   clearTriviaError();
   $('btn-solo-trivia').disabled = true;
   $('btn-solo-trivia').textContent = t().soloLoading;
-  socket.emit('fetch-trivia-solo', { categories: selectedTriviaCategories, amount: getTriviaQCount(), lang: currentLang, difficulty: selectedTriviaDifficulty, playerId: getPlayerId() });
+  socket.emit('fetch-trivia-solo', { categories: selectedTriviaCategories, amount: getTriviaQCount(), lang: currentLang, difficulty: selectedTriviaDifficulty, playerId: getPlayerId(), noSpoil: window._noSpoil() });
 });
 
 $('btn-create-trivia').addEventListener('click', () => {
@@ -5584,7 +5620,7 @@ $('btn-create-trivia').addEventListener('click', () => {
   if (!selectedTriviaCategories.length)  { showTriviaError(t().errNoTheme);  return; }
   if (selectedTriviaDifficulty == null)  { showTriviaError(t().errNoDifficulty); return; }
   clearTriviaError();
-  socket.emit('create-trivia-room', { categories: selectedTriviaCategories, name: getTriviaName(), lang: currentLang, difficulty: selectedTriviaDifficulty, amount: getTriviaQCount(), playerId: getPlayerId() });
+  socket.emit('create-trivia-room', { categories: selectedTriviaCategories, name: getTriviaName(), lang: currentLang, difficulty: selectedTriviaDifficulty, amount: getTriviaQCount(), playerId: getPlayerId(), noSpoil: window._noSpoil() });
 });
 
 $('btn-join-trivia').addEventListener('click',  joinTriviaRoom);
@@ -5651,10 +5687,21 @@ function stopTriviaTimer() {
   if (triviaTimerInterval) { clearInterval(triviaTimerInterval); triviaTimerInterval = null; }
 }
 
+// Bandeau de la serie au-dessus de la question (couleur, embleme, nom) : seulement pour les themes Series.
+function _seriesStrip(cat) {
+  const box = document.querySelector('#screen-trivia-game .tg-question-box'); if (!box) return;
+  let s = document.getElementById('tg-series');
+  if (!window._isSeries(cat)) { if (s) s.hidden = true; return; }
+  if (!s) { s = document.createElement('div'); s.id = 'tg-series'; s.className = 'tg-series'; box.prepend(s); }
+  const c = t().triviaCats.find(x => x.id === cat);
+  s.hidden = false; s.style.setProperty('--sc', window._seriesColor(cat));
+  s.innerHTML = `<span class="tg-series-em">${_themeArt(cat)}</span><span class="tg-series-nm">${c ? c.name : ''}</span>`;
+}
 // ── Trivia : affichage question ───────────────────────────────────────────────
 const LETTERS = ['A','B','C','D'];
 
-function showTriviaQuestion({ questionNum, totalQuestions, question, choices, timeLimit, scores, flag, round }) {
+function showTriviaQuestion({ questionNum, totalQuestions, question, choices, timeLimit, scores, flag, round, cat }) {
+  _seriesStrip(cat);
   triviaAnsweredThis = false; triviaChoiceSelected = null;
   window._triviaQStartAt = Date.now();
   window._triviaQLimitMs = (timeLimit || 30) * 1000;
@@ -6048,7 +6095,7 @@ function soloNextQuestion() {
     return;
   }
   const q = triviaQuestions[triviaCurrentQ];
-  showTriviaQuestion({ questionNum: triviaCurrentQ + 1, totalQuestions: triviaQuestions.length, question: q.question, choices: q.choices, timeLimit: selectedTriviaDifficulty === 'extreme' ? 15 : 30, scores: null });
+  showTriviaQuestion({ questionNum: triviaCurrentQ + 1, totalQuestions: triviaQuestions.length, question: q.question, choices: q.choices, timeLimit: selectedTriviaDifficulty === 'extreme' ? 15 : 30, scores: null, cat: parseInt(String(q.id || '').split(':')[0]) || null });
 }
 
 function soloReveal(myChoice) {
@@ -15148,7 +15195,7 @@ try {
     if (mode === 'classic') {
       socket.emit('create-room', { gameType: selectedGameType, name: getPlayerName(), playerId: getPlayerId(), stake: window._selectedStake || 0, variant: _ckVariant(), clock: window._chClock?.() || 0 });
     } else {
-      socket.emit('create-trivia-room', { categories: selectedTriviaCategories, name: getTriviaName(), lang: currentLang, difficulty: selectedTriviaDifficulty, amount: getTriviaQCount(), playerId: getPlayerId() });
+      socket.emit('create-trivia-room', { categories: selectedTriviaCategories, name: getTriviaName(), lang: currentLang, difficulty: selectedTriviaDifficulty, amount: getTriviaQCount(), playerId: getPlayerId(), noSpoil: window._noSpoil() });
     }
   });
   document.getElementById('btn-challenge-friend')?.addEventListener('click', () => {
