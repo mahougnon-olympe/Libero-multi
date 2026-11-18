@@ -3764,3 +3764,19 @@ body.hk-locked #nav-tab-shop::after{content:"";position:absolute;right:calc(50% 
 
 .series-grid { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 @media (min-width: 700px) { .series-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+
+/* v220 : fondu des photos des cartes d'accueil, progressif (plusieurs paliers : courbe douce, sans cassure visible)
+   + un leger fondu en bas des grandes cartes pour garder les puces lisibles. */
+:root:root .landing-card--hero::before {
+  background-image: linear-gradient(0deg, color-mix(in srgb, var(--card) 78%, transparent) 0%, color-mix(in srgb, var(--card) 60%, transparent) 10%, color-mix(in srgb, var(--card) 34%, transparent) 22%, color-mix(in srgb, var(--card) 12%, transparent) 34%, color-mix(in srgb, var(--card) 0%, transparent) 46%), linear-gradient(90deg, color-mix(in srgb, var(--card) 100%, transparent) 32%, color-mix(in srgb, var(--card) 98%, transparent) 38%, color-mix(in srgb, var(--card) 94%, transparent) 44%, color-mix(in srgb, var(--card) 87%, transparent) 50%, color-mix(in srgb, var(--card) 78%, transparent) 56%, color-mix(in srgb, var(--card) 67%, transparent) 62%, color-mix(in srgb, var(--card) 56%, transparent) 68%, color-mix(in srgb, var(--card) 46%, transparent) 74%, color-mix(in srgb, var(--card) 38%, transparent) 80%, color-mix(in srgb, var(--card) 31%, transparent) 87%, color-mix(in srgb, var(--card) 26%, transparent) 94%, color-mix(in srgb, var(--card) 22%, transparent) 100%), var(--photo, none);
+  background-size: 100% 100%, 100% 100%, cover; background-position: center, center, right center; background-repeat: no-repeat;
+}
+:root:root .landing-card--tile::before {
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--card) 16%, transparent) 0%, color-mix(in srgb, var(--card) 20%, transparent) 14%, color-mix(in srgb, var(--card) 32%, transparent) 26%, color-mix(in srgb, var(--card) 52%, transparent) 38%, color-mix(in srgb, var(--card) 70%, transparent) 48%, color-mix(in srgb, var(--card) 86%, transparent) 58%, color-mix(in srgb, var(--card) 96%, transparent) 68%, color-mix(in srgb, var(--card) 100%, transparent) 76%), var(--photo, none);
+  background-size: 100% 100%, cover; background-position: center, center top; background-repeat: no-repeat;
+}
+@media (max-width: 600px) {
+  :root:root .landing-card--hero::before {
+    background-image: linear-gradient(0deg, color-mix(in srgb, var(--card) 78%, transparent) 0%, color-mix(in srgb, var(--card) 60%, transparent) 10%, color-mix(in srgb, var(--card) 34%, transparent) 22%, color-mix(in srgb, var(--card) 12%, transparent) 34%, color-mix(in srgb, var(--card) 0%, transparent) 46%), linear-gradient(90deg, color-mix(in srgb, var(--card) 100%, transparent) 40%, color-mix(in srgb, var(--card) 98%, transparent) 46%, color-mix(in srgb, var(--card) 94%, transparent) 52%, color-mix(in srgb, var(--card) 87%, transparent) 58%, color-mix(in srgb, var(--card) 78%, transparent) 64%, color-mix(in srgb, var(--card) 67%, transparent) 70%, color-mix(in srgb, var(--card) 56%, transparent) 76%, color-mix(in srgb, var(--card) 46%, transparent) 82%, color-mix(in srgb, var(--card) 38%, transparent) 88%, color-mix(in srgb, var(--card) 31%, transparent) 94%, color-mix(in srgb, var(--card) 26%, transparent) 100%), var(--photo, none);
+  }
+}
