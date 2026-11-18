@@ -3765,21 +3765,35 @@ body.hk-locked #nav-tab-shop::after{content:"";position:absolute;right:calc(50% 
 .series-grid { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 @media (min-width: 700px) { .series-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
 
-/* v222 : plus de fondu. La photo est un panneau net (bord droit, sans degrade) : a droite des grandes cartes,
-   en haut des tuiles. Le texte reste sur le fond uni de la carte. L'effet definitif sera choisi apres maquette. */
-:root:root .landing-card--hero::before {
-  inset: 0 0 0 auto; width: 38%; background-image: var(--photo, none); background-size: cover; background-position: center; background-repeat: no-repeat;
-  border-left: 1.5px solid var(--line);
+/* v223 : photos des cartes d'accueil = feuille de cahier. Grandes cartes : bord gauche DECHIRE (marge blanche) et coin
+   bas-droit REPLIE ; tuiles : bord bas dechire et coin haut-droit replie. Aucun degrade. Un vrai element `.lc-pic`
+   (index.html) porte l'ombre ; ::before = feuille blanche dechiree, ::after = photo (+ rabat du pli en fond). */
+:root { --lc-sheet: #ece6d3; --lc-f1: #f6f1de; --lc-f2: #9a937a; --lc-sh: rgba(0,0,0,.5); }
+html.light { --lc-sheet: #fffefb; --lc-f1: #fffdf0; --lc-f2: #cfc7aa; --lc-sh: rgba(0,0,0,.28); }
+:root:root .landing-card::before, :root:root .landing-card--hero::before, :root:root .landing-card--tile::before { content: none; display: none; }
+:root:root .landing-card > .lc-pic { position: absolute; z-index: 0; display: block; pointer-events: none; filter: drop-shadow(-2px 1px 1.5px var(--lc-sh)); }
+:root:root .landing-card--hero > .lc-pic { top: 0; bottom: 0; right: 0; width: 42%; }
+:root:root .landing-card--tile > .lc-pic { top: 0; left: 0; right: 0; height: 44%; filter: drop-shadow(0 2px 1.5px var(--lc-sh)); }
+.lc-pic::before, .lc-pic::after { content: ""; position: absolute; display: block; }
+.lc-pic::before { inset: 0; background: var(--lc-sheet); }
+.lc-pic::after { inset: 0; background-size: cover; background-position: center; background-repeat: no-repeat; }
+:root:root .landing-card--hero > .lc-pic::before { clip-path: polygon(100% 0,100% calc(100% - 26px),calc(100% - 26px) 100%,4.1% 100%,5.0% 93%,8.3% 86%,4.2% 79%,4.6% 71%,5.3% 64%,1.7% 57%,4.6% 50%,5.7% 43%,7.1% 36%,0.8% 29%,2.7% 21%,0.8% 14%,7.3% 7%,6.2% 0%); }
+:root:root .landing-card--hero > .lc-pic::after {
+  left: 7px; clip-path: polygon(100% 0,100% calc(100% - 26px),calc(100% - 26px) 100%,0.4% 100%,8.8% 93%,8.7% 86%,5.9% 79%,5.5% 71%,1.4% 64%,0.1% 57%,4.8% 50%,0.5% 43%,1.7% 36%,2.2% 29%,0.3% 21%,4.2% 14%,4.0% 7%,7.6% 0%);
+  background-image: linear-gradient(135deg, var(--lc-f1) 0%, var(--lc-f2) 49%, transparent 50%), var(--photo, none);
+  background-size: 26px 26px, cover; background-position: right bottom, center; background-repeat: no-repeat;
 }
-:root:root .landing-card--hero { padding-right: calc(38% + 12px); }
-:root:root .landing-card--hero .landing-hero-top { position: static; }
-:root:root .landing-card--hero .landing-icon { position: absolute; top: 12px; right: 12px; background: var(--card); border-radius: var(--r-sm); padding: 3px; box-shadow: 0 0 0 1.5px var(--line); }
+:root:root .landing-card--tile > .lc-pic::before { clip-path: polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 92.7%,94% 91.0%,88% 93.0%,81% 90.7%,75% 93.6%,69% 96.1%,62% 86.0%,56% 86.1%,50% 88.2%,44% 90.1%,38% 95.6%,31% 96.8%,25% 96.0%,19% 99.0%,12% 89.3%,6% 94.4%,0% 88.1%); }
+:root:root .landing-card--tile > .lc-pic::after {
+  bottom: 7px; clip-path: polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 94.6%,94% 86.6%,88% 88.1%,81% 100.0%,75% 97.1%,69% 87.3%,62% 93.4%,56% 86.3%,50% 94.4%,44% 99.0%,38% 91.2%,31% 89.1%,25% 96.2%,19% 98.8%,12% 95.3%,6% 86.5%,0% 89.4%);
+  background-image: linear-gradient(45deg, var(--lc-f1) 0%, var(--lc-f2) 49%, transparent 50%), var(--photo, none);
+  background-size: 20px 20px, cover; background-position: right top, center; background-repeat: no-repeat;
+}
+:root:root .landing-card--hero { padding-right: calc(42% + 10px); }
+:root:root .landing-card--hero .landing-icon { position: absolute; top: 12px; right: 12px; z-index: 2; background: var(--card); border-radius: var(--r-sm); padding: 3px; box-shadow: 0 0 0 1.5px var(--line); }
 :root:root .landing-card--hero .landing-chips { text-align: left; }
-:root:root .landing-card--tile::before {
-  inset: 0 0 auto 0; height: 42%; background-image: var(--photo, none); background-size: cover; background-position: center; background-repeat: no-repeat;
-  border-bottom: 1.5px solid var(--line);
-}
 @media (max-width: 600px) {
-  :root:root .landing-card--hero::before { width: 30%; }
-  :root:root .landing-card--hero { padding-right: calc(30% + 10px); }
+  :root:root .landing-card--hero > .lc-pic { width: 40%; }
+  :root:root .landing-card--hero { padding-right: calc(40% + 8px); }
 }
+:root:root .landing-card--hero .landing-hero-top { position: static; }
