@@ -354,7 +354,7 @@ html.light .ic3d-face { filter: none; }
   background-position: center, center top;
 }
 #btn-go-classic { --photo: url(assets/landing/classic.webp); }
-#btn-go-trivia { --photo: url(assets/landing/trivia.webp?v=3); }
+#btn-go-trivia { --photo: url(assets/landing/trivia.webp?v=4); }
 #btn-go-events { --photo: url(assets/landing/events.webp); }
 #btn-go-community { --photo: url(assets/landing/arcade.webp); }
 #btn-go-wordle { --photo: url(assets/landing/wordle.webp); }
@@ -3765,22 +3765,21 @@ body.hk-locked #nav-tab-shop::after{content:"";position:absolute;right:calc(50% 
 .series-grid { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 @media (min-width: 700px) { .series-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
 
-/* v221 : fondu des photos des cartes d'accueil, court et fin : la photo reste bien visible,
-   la transition ne dure que quelques paliers (courbe douce). Un leger halo de la couleur de la
-   carte derriere les textes garde la lecture sur la partie photo. */
+/* v222 : plus de fondu. La photo est un panneau net (bord droit, sans degrade) : a droite des grandes cartes,
+   en haut des tuiles. Le texte reste sur le fond uni de la carte. L'effet definitif sera choisi apres maquette. */
 :root:root .landing-card--hero::before {
-  background-image: linear-gradient(0deg, color-mix(in srgb, var(--card) 62%, transparent) 0%, color-mix(in srgb, var(--card) 44%, transparent) 8%, color-mix(in srgb, var(--card) 24%, transparent) 16%, color-mix(in srgb, var(--card) 8%, transparent) 26%, color-mix(in srgb, var(--card) 0%, transparent) 34%), linear-gradient(90deg, color-mix(in srgb, var(--card) 100%, transparent) 0%, color-mix(in srgb, var(--card) 100%, transparent) 44%, color-mix(in srgb, var(--card) 97%, transparent) 47%, color-mix(in srgb, var(--card) 90%, transparent) 49%, color-mix(in srgb, var(--card) 80%, transparent) 52%, color-mix(in srgb, var(--card) 67%, transparent) 54%, color-mix(in srgb, var(--card) 53%, transparent) 57%, color-mix(in srgb, var(--card) 39%, transparent) 60%, color-mix(in srgb, var(--card) 26%, transparent) 62%, color-mix(in srgb, var(--card) 16%, transparent) 65%, color-mix(in srgb, var(--card) 9%, transparent) 67%, color-mix(in srgb, var(--card) 6%, transparent) 70%), var(--photo, none);
-  background-size: 100% 100%, 100% 100%, cover; background-position: center, center, right center; background-repeat: no-repeat;
+  inset: 0 0 0 auto; width: 38%; background-image: var(--photo, none); background-size: cover; background-position: center; background-repeat: no-repeat;
+  border-left: 1.5px solid var(--line);
 }
+:root:root .landing-card--hero { padding-right: calc(38% + 12px); }
+:root:root .landing-card--hero .landing-hero-top { position: static; }
+:root:root .landing-card--hero .landing-icon { position: absolute; top: 12px; right: 12px; background: var(--card); border-radius: var(--r-sm); padding: 3px; box-shadow: 0 0 0 1.5px var(--line); }
+:root:root .landing-card--hero .landing-chips { text-align: left; }
 :root:root .landing-card--tile::before {
-  background-image: linear-gradient(180deg, color-mix(in srgb, var(--card) 0%, transparent) 0%, color-mix(in srgb, var(--card) 0%, transparent) 22%, color-mix(in srgb, var(--card) 4%, transparent) 26%, color-mix(in srgb, var(--card) 16%, transparent) 31%, color-mix(in srgb, var(--card) 32%, transparent) 36%, color-mix(in srgb, var(--card) 50%, transparent) 40%, color-mix(in srgb, var(--card) 68%, transparent) 44%, color-mix(in srgb, var(--card) 84%, transparent) 49%, color-mix(in srgb, var(--card) 96%, transparent) 54%, color-mix(in srgb, var(--card) 100%, transparent) 58%), var(--photo, none);
-  background-size: 100% 100%, cover; background-position: center, center top; background-repeat: no-repeat;
+  inset: 0 0 auto 0; height: 42%; background-image: var(--photo, none); background-size: cover; background-position: center; background-repeat: no-repeat;
+  border-bottom: 1.5px solid var(--line);
 }
-:root:root .landing-card--hero h2, :root:root .landing-card--hero p,
-:root:root .landing-card--tile h2, :root:root .landing-card--tile p { text-shadow: 0 0 8px var(--card), 0 0 3px var(--card), 0 0 14px var(--card); }
-:root:root .landing-card--hero .landing-chip { text-shadow: 0 0 8px var(--card), 0 0 3px var(--card); }
 @media (max-width: 600px) {
-  :root:root .landing-card--hero::before {
-    background-image: linear-gradient(0deg, color-mix(in srgb, var(--card) 62%, transparent) 0%, color-mix(in srgb, var(--card) 44%, transparent) 8%, color-mix(in srgb, var(--card) 24%, transparent) 16%, color-mix(in srgb, var(--card) 8%, transparent) 26%, color-mix(in srgb, var(--card) 0%, transparent) 34%), linear-gradient(90deg, color-mix(in srgb, var(--card) 100%, transparent) 0%, color-mix(in srgb, var(--card) 100%, transparent) 52%, color-mix(in srgb, var(--card) 98%, transparent) 55%, color-mix(in srgb, var(--card) 91%, transparent) 59%, color-mix(in srgb, var(--card) 82%, transparent) 62%, color-mix(in srgb, var(--card) 70%, transparent) 66%, color-mix(in srgb, var(--card) 58%, transparent) 69%, color-mix(in srgb, var(--card) 46%, transparent) 72%, color-mix(in srgb, var(--card) 34%, transparent) 76%, color-mix(in srgb, var(--card) 25%, transparent) 79%, color-mix(in srgb, var(--card) 18%, transparent) 83%, color-mix(in srgb, var(--card) 16%, transparent) 86%), var(--photo, none);
-  }
+  :root:root .landing-card--hero::before { width: 30%; }
+  :root:root .landing-card--hero { padding-right: calc(30% + 10px); }
 }
