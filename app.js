@@ -900,7 +900,7 @@ const DICT = {
     chatbotCardTitle:'Assistant Libero', chatbotCardSub:'Pose ta question, il répond tout de suite',
     commentCardTitle:'Donner mon avis', commentCardSub:"Une idée, une remarque ? Écris-nous",
     landingChipDuel:'Duel en ligne', landingChipBot:'Contre le bot',
-    landingChipThemes:'15 thèmes', landingChipSpeed:'Bonus de vitesse',
+    landingChipThemes:'24 thèmes', landingChipSeries:'Séries', landingChipSpeed:'Bonus de vitesse',
     triviaTitle:'Culture Générale', triviaDesc:'Quiz par thèmes · Solo & Multi',
     homeSubtitle:'2 joueurs • Temps réel',
     botLabel:'🤖 Jouer seul contre le robot :',
@@ -960,7 +960,7 @@ const DICT = {
     btnCancel:'Annuler', btnAccept:'Accepter', btnRefuse:'Refuser',
     diffLabels:{ easy:'Facile', medium:'Moyen', hard:'Difficile', extreme:'Extrême' },
     diffHints:{ '':'🎲 Mixte : moyen, difficile et extrême mélangés (sans les questions faciles).', easy:'😊 Facile : les grands classiques, parfait pour débuter.', medium:'🎯 Moyen : culture générale de bon niveau.', hard:'💀 Difficile : questions pointues pour connaisseurs.', extreme:'🔥 Extrême : questions très pointues ET 15 secondes chrono par question !' },
-    quizHubTitle:'Quiz', quizHubSub:'À quoi veux-tu jouer ?', qhMixTitle:'Quiz mixte', qhMixSub:'Thèmes et drapeaux dans la même partie', mixTitle:'Quiz mixte', mixRound:(i,n)=>`Manche ${i}/${n}`, mixKinds:{ t:'Thèmes', f:'Drapeaux' }, mixFlagsOf:c=>`Drapeaux : ${c}`, mixConts:{ AF:'Afrique', EU:'Europe', AS:'Asie', AM:'Amériques', OC:'Océanie' }, mixBannerRound:(label,n)=>`${label} (${n} questions)`, qhQuizTitle:'Culture Générale', qhQuizSub:'15 thèmes, de 10 à 40 questions', qhFlagsTitle:'Devine le drapeau', qhFlagsSub:'Série, contre la montre, salon, drapeau du jour', qhNew:'Nouveau', flagsTitle:'Drapeaux',
+    quizHubTitle:'Quiz', quizHubSub:'À quoi veux-tu jouer ?', qhMixTitle:'Quiz mixte', qhMixSub:'Thèmes et drapeaux dans la même partie', mixTitle:'Quiz mixte', mixRound:(i,n)=>`Manche ${i}/${n}`, mixKinds:{ t:'Thèmes', f:'Drapeaux' }, mixFlagsOf:c=>`Drapeaux : ${c}`, mixConts:{ AF:'Afrique', EU:'Europe', AS:'Asie', AM:'Amériques', OC:'Océanie' }, mixBannerRound:(label,n)=>`${label} (${n} questions)`, qhQuizTitle:'Culture Générale', qhQuizSub:'24 thèmes dont 6 séries, de 10 à 40 questions', qhFlagsTitle:'Devine le drapeau', qhFlagsSub:'Série, contre la montre, salon, drapeau du jour', qhNew:'Nouveau', flagsTitle:'Drapeaux',
     triviaHomeTitle:'🧠 Culture Générale',
     triviaHomeSubtitle:'Choisis un ou plusieurs thèmes et joue !',
     triviaNamePh:'Ton pseudo (obligatoire)',
@@ -1297,7 +1297,7 @@ const DICT = {
     snakeOverScore:(score, hs) => `Score : ${score} · Meilleur : ${hs}`,
     helpContent:{
       general:[
-        { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Tic Tac Toe, Échecs, Dames, Ludo), <em>Culture Générale</em> (quiz de 15 thèmes), <em>Évents</em> (le calendrier des week-ends), <strong>Arcade</strong> (Libero Run et Snake, tous les jours) et <strong>Le Mot</strong> (un mot mystère par jour). Chaque jeu a son propre classement." },
+        { icon:'🏠', title:"Sections d'accueil", desc:"L'accueil propose <em>Jeux Classiques</em> (Puissance 4, Tic Tac Toe, Échecs, Dames, Ludo), <em>Culture Générale</em> (quiz de 24 thèmes, dont des séries), <em>Évents</em> (le calendrier des week-ends), <strong>Arcade</strong> (Libero Run et Snake, tous les jours) et <strong>Le Mot</strong> (un mot mystère par jour). Chaque jeu a son propre classement." },
         { icon:'', title:'Le look du site', desc:"Le site a deux habits : l'<strong>ardoise</strong> (la craie sur le tableau noir) et le <strong>cahier</strong> (la page à grands carreaux et la marge rouge, le thème par défaut). Change de thème dans <strong>Profil</strong> → <strong>Réglages</strong> → <strong>Thème</strong> ; sans choix, c'est le cahier. Tes <strong>fonds d'écran</strong> se posent sur l'ardoise ou le cahier : leurs motifs et leurs animations deviennent de la craie ou de l'encre. Change de fond quand tu veux dans ton <strong>casier</strong>." },
         { icon:'🎯', title:'Mon profil', desc:"L'onglet <strong>Profil</strong> (dans la barre de navigation : en bas sur téléphone et tablette, à gauche sur ordinateur) regroupe quatre choses : ton <strong>casier</strong> (voir ci-dessous), tes <strong>défis du jour</strong> (3 objectifs qui <strong>changent chaque jour</strong> : jamais le même défi deux jours de suite, avec le Snake le week-end et Libero Run en semaine ; réclame les 3 pour un <strong>bonus « journée parfaite » +30 ⚡</strong>), ta <strong>série de connexion</strong> (un bonus de ⚡ croissant chaque jour consécutif où tu reviens, jusqu'à +35) et l'<strong>historique</strong> de tes 20 dernières parties. On y trouve aussi les cartes <strong>Sauvegarder ma progression</strong> (ton code de récupération) et <strong>Réinitialiser le compte</strong>. Il faut un pseudo pour en profiter." },
         { icon:'🎒', title:'Mon casier', desc:"Dans l'onglet <strong>Profil</strong>, le <strong>casier</strong> range tout ce que tu possèdes, <strong>classé par catégorie</strong>. Chaque catégorie est une <strong>carte</strong> : clique dessus pour voir les articles de ce type avec leur <strong>aperçu visuel</strong>, puis <strong>équipe</strong> ou <strong>déséquipe</strong> directement, sans passer par la boutique. Bonus : <strong>3 fonds d'écran gratuits</strong> (Nuit Calme, Ardoise Profonde, Brume Violette) sont offerts à tous les joueurs et t'attendent déjà dedans. Les articles retirés de la vente que tu avais achetés restent disponibles ici." },
@@ -1724,7 +1724,7 @@ const DICT = {
     chatbotCardTitle:'Libero assistant', chatbotCardSub:'Ask your question, it answers right away',
     commentCardTitle:'Send feedback', commentCardSub:'An idea, a remark? Write to us',
     landingChipDuel:'Online duel', landingChipBot:'Versus the bot',
-    landingChipThemes:'15 themes', landingChipSpeed:'Speed bonus',
+    landingChipThemes:'24 themes', landingChipSeries:'TV series', landingChipSpeed:'Speed bonus',
     triviaTitle:'General Knowledge', triviaDesc:'Themed quizzes · Solo & Multi',
     homeSubtitle:'2 players • Real time',
     botLabel:'🤖 Play solo against the bot:',
@@ -1784,7 +1784,7 @@ const DICT = {
     btnCancel:'Cancel', btnAccept:'Accept', btnRefuse:'Decline',
     diffLabels:{ easy:'Easy', medium:'Medium', hard:'Hard', extreme:'Extreme' },
     diffHints:{ '':'🎲 Mixed: medium, hard and extreme shuffled (no easy questions).', easy:'😊 Easy: the great classics, perfect to start.', medium:'🎯 Medium: solid general knowledge.', hard:'💀 Hard: sharp questions for connoisseurs.', extreme:'🔥 Extreme: very sharp questions AND a 15-second timer per question!' },
-    quizHubTitle:'Quiz', quizHubSub:'What do you want to play?', qhMixTitle:'Mixed quiz', qhMixSub:'Themes and flags in the same game', mixTitle:'Mixed quiz', mixRound:(i,n)=>`Round ${i}/${n}`, mixKinds:{ t:'Themes', f:'Flags' }, mixFlagsOf:c=>`Flags: ${c}`, mixConts:{ AF:'Africa', EU:'Europe', AS:'Asia', AM:'Americas', OC:'Oceania' }, mixBannerRound:(label,n)=>`${label} (${n} questions)`, qhQuizTitle:'General Knowledge', qhQuizSub:'15 themes, 10 to 40 questions', qhFlagsTitle:'Guess the flag', qhFlagsSub:'Streak, time attack, room, flag of the day', qhNew:'New', flagsTitle:'Flags',
+    quizHubTitle:'Quiz', quizHubSub:'What do you want to play?', qhMixTitle:'Mixed quiz', qhMixSub:'Themes and flags in the same game', mixTitle:'Mixed quiz', mixRound:(i,n)=>`Round ${i}/${n}`, mixKinds:{ t:'Themes', f:'Flags' }, mixFlagsOf:c=>`Flags: ${c}`, mixConts:{ AF:'Africa', EU:'Europe', AS:'Asia', AM:'Americas', OC:'Oceania' }, mixBannerRound:(label,n)=>`${label} (${n} questions)`, qhQuizTitle:'General Knowledge', qhQuizSub:'24 themes including 6 TV series, 10 to 40 questions', qhFlagsTitle:'Guess the flag', qhFlagsSub:'Streak, time attack, room, flag of the day', qhNew:'New', flagsTitle:'Flags',
     triviaHomeTitle:'🧠 General Knowledge',
     triviaHomeSubtitle:'Choose one or more themes and play!',
     triviaNamePh:'Your username (required)',
@@ -2121,7 +2121,7 @@ const DICT = {
     snakeOverScore:(score, hs) => `Score: ${score} · Best: ${hs}`,
     helpContent:{
       general:[
-        { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess, Checkers, Ludo), <em>General Knowledge</em> (quiz with 15 themes), <em>Events</em> (the weekend calendar), <strong>Arcade</strong> (Libero Run and Snake, every day) and <strong>The Word</strong> (a mystery word every day). Each game has its own leaderboard." },
+        { icon:'🏠', title:'Home sections', desc:"The home page offers <em>Classic Games</em> (Connect 4, Tic Tac Toe, Chess, Checkers, Ludo), <em>General Knowledge</em> (quiz with 24 themes, including TV series), <em>Events</em> (the weekend calendar), <strong>Arcade</strong> (Libero Run and Snake, every day) and <strong>The Word</strong> (a mystery word every day). Each game has its own leaderboard." },
         { icon:'', title:'The look of the site', desc:"The site has two outfits: the <strong>slate</strong> (chalk on a blackboard) and the <strong>notebook</strong> (ruled paper with its red margin, the default theme). Switch theme in <strong>Profile</strong> → <strong>Settings</strong> → <strong>Theme</strong>; with no choice, it is the notebook. Your <strong>backgrounds</strong> sit on the slate or the notebook: their patterns and animations turn into chalk or ink. Change background whenever you like in your <strong>locker</strong>." },
         { icon:'🎯', title:'My profile', desc:"The <strong>Profile</strong> tab (in the navigation bar: at the bottom on phones and tablets, on the left on computers) gathers four things: your <strong>locker</strong> (see below), your <strong>daily challenges</strong> (3 goals that <strong>change every day</strong>: never the same challenge two days in a row, with Snake on weekends and Libero Run on weekdays; claim all 3 for a <strong>'perfect day' +30 ⚡ bonus</strong>), your <strong>login streak</strong> (a growing ⚡ bonus for each consecutive day you come back, up to +35) and the <strong>history</strong> of your last 20 games. You'll also find the <strong>Save my progress</strong> card (your recovery code) and the <strong>Reset account</strong> card. A nickname is required." },
         { icon:'🎒', title:'My locker', desc:"In the <strong>Profile</strong> tab, the <strong>locker</strong> holds everything you own, <strong>sorted by category</strong>. Each category is a <strong>card</strong>: tap it to see the items of that type with their <strong>visual preview</strong>, then <strong>equip</strong> or <strong>unequip</strong> directly, without opening the shop. Bonus: <strong>3 free backgrounds</strong> (Calm Night, Deep Slate, Violet Mist) are gifted to every player and are already waiting inside. Items you had bought that were later removed from sale are still available here." },
@@ -2716,6 +2716,7 @@ function applyLang() {
   _setTxt('landing-chip-duel',    d.landingChipDuel);
   _setTxt('landing-chip-bot',     d.landingChipBot);
   _setTxt('landing-chip-themes',  d.landingChipThemes);
+  _setTxt('landing-chip-series',  d.landingChipSeries);
   _setTxt('landing-chip-speed',   d.landingChipSpeed);
 
   // Home classic
@@ -5505,9 +5506,7 @@ const SERIES_COLOR = { 40: '#8a1c2b', 41: '#6b3f24', 42: '#3a4a5c', 43: '#b3262f
 window._isSeries = id => !!SERIES_COLOR[id];
 window._seriesColor = id => SERIES_COLOR[id] || '';
 // Tuile de theme commune (Culture et quiz mixte) : une serie n'a pas de photo, son embleme sur sa couleur.
-window._themeTile = (c, active) => SERIES_COLOR[c.id]
-  ? `<button class="theme-btn is-series${active ? ' active' : ''}" data-id="${c.id}"><span class="theme-photo no-photo series-photo" style="--sc:${SERIES_COLOR[c.id]}"><span class="theme-art-wrap">${_themeArt(c.id)}</span></span><span class="theme-name">${c.name}</span></button>`
-  : `<button class="theme-btn${active ? ' active' : ''}" data-id="${c.id}"><span class="theme-photo"><img src="assets/quiz/${c.id}.webp?v=3" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('no-photo')"><span class="theme-art-wrap">${_themeArt(c.id)}</span></span><span class="theme-name">${c.name}</span></button>`;
+window._themeTile = (c, active) => `<button class="theme-btn${SERIES_COLOR[c.id] ? ' is-series' : ''}${active ? ' active' : ''}" data-id="${c.id}"><span class="theme-photo${SERIES_COLOR[c.id] ? ' series-photo' : ''}"${SERIES_COLOR[c.id] ? ` style="--sc:${SERIES_COLOR[c.id]}"` : ''}><img src="assets/quiz/${c.id}.webp?v=4" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.parentNode.classList.add('no-photo')"><span class="theme-art-wrap">${_themeArt(c.id)}</span></span><span class="theme-name">${c.name}</span></button>`;
 // « Sans spoilers » : retenu par appareil, active par defaut.
 window._noSpoil = () => { try { return localStorage.getItem('libero_nospoil') !== '0'; } catch { return true; } };
 function _themeArt(id) {
@@ -5520,7 +5519,7 @@ function buildTriviaThemes() {
   const d = t().series || {}, allOn = ser.length && ser.every(c => selectedTriviaCategories.includes(c.id)), ns = window._noSpoil();
   container.innerHTML = base.map(c => window._themeTile(c, selectedTriviaCategories.includes(c.id))).join('')
     + (ser.length ? `<div class="series-head"><span class="series-ttl">${d.title || 'Séries'}</span><i class="series-new">${d.isNew || 'Nouveau'}</i><button type="button" class="series-all" data-all="1" aria-pressed="${allOn}">${allOn ? (d.none || 'Tout retirer') : (d.all || 'Tout choisir')}</button></div>`
-      + ser.map(c => window._themeTile(c, selectedTriviaCategories.includes(c.id))).join('')
+      + `<div class="series-grid">${ser.map(c => window._themeTile(c, selectedTriviaCategories.includes(c.id))).join('')}</div>`
       + `<button type="button" class="series-spoil" aria-pressed="${ns}"><span><b>${d.spoil || 'Sans spoilers'}</b><small>${d.spoilTxt || ''}</small></span><i class="series-tg"></i></button>` : '');
   container.querySelectorAll('.theme-btn').forEach(btn => {
     btn.addEventListener('click', () => {
