@@ -3951,3 +3951,9 @@ body.overlay-open .main-nav { z-index: 90; }
 
 /* v234 La pastille « Live quiz » ne recouvre plus les reponses pendant une partie */
 body:has(.screen.game-screen.active) .live-pill { display: none !important; }
+
+/* v236 Classements : stats de la 1re place lisibles sur le fond dore du mode sombre */
+:root:root:not(.light) .lb-top1 .lb-w { color: #e4ffec; }
+:root:root:not(.light) .lb-top1 .lb-l { color: #ffe0e0; }
+:root:root:not(.light) .lb-top1 .lb-d { color: #f3f6ef; }
+:root:root:not(.light) .lb-top1 .lb-name .lb-nm { text-shadow: 0 1px 0 rgba(0,0,0,.35); }
