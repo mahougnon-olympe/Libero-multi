@@ -3797,3 +3797,16 @@ html.light { --lc-sheet: #fffefb; --lc-f1: #fffdf0; --lc-f2: #cfc7aa; --lc-sh: r
   :root:root .landing-card--hero { padding-right: calc(40% + 8px); }
 }
 :root:root .landing-card--hero .landing-hero-top { position: static; }
+
+/* v224 Responsive, etape 1 : paliers communs et cibles tactiles de 44 px.
+   Paliers : XS <360, S 360-599, M 600-1023, L 1024-1439, XL >=1440. */
+:root { --bp-s: 360px; --bp-m: 600px; --bp-l: 1024px; --bp-xl: 1440px; --touch: 44px; --gut: 12px; }
+@media (min-width: 600px)  { :root { --gut: 20px; } }
+@media (min-width: 1024px) { :root { --gut: 28px; } }
+@media (min-width: 1440px) { :root { --gut: 40px; } }
+@media (max-width: 1023px) {
+  :root:root .btn-back { min-height: var(--touch); }
+  :root:root #screen-shop .shop-fn-nav-btn { min-height: var(--touch); }
+  :root:root #screen-ideas .ideas-sort-btn { min-height: var(--touch); padding-inline: 14px; }
+  :root:root .luffy-suggest-link { min-height: var(--touch); display: inline-flex; align-items: center; }
+}
