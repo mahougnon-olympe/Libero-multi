@@ -3861,3 +3861,27 @@ html.light { --lc-sheet: #fffefb; --lc-f1: #fffdf0; --lc-f2: #cfc7aa; --lc-sh: r
   :root:root #screen-wordle .wordle-keyboard { max-width: 520px; }
   :root:root #screen-wordle .wordle-key { height: 56px; }
 }
+
+/* v227 Responsive, etape 4 : telephone en paysage (peu de hauteur) */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root:root #screen-wordle { --wc: clamp(24px, calc((100dvh - 105px) / 6), 44px); }
+  :root:root #screen-wordle .wordle-wrap {
+    max-width: 760px; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 24px; row-gap: 4px;
+    align-items: start; justify-items: center; padding: 8px 12px 8px;
+  }
+  :root:root #screen-wordle .wordle-wrap > * { grid-column: 1 / -1; }
+  :root:root #screen-wordle .wordle-wrap > .wordle-board { grid-column: 1; grid-row: 2 / span 5; margin: 0; }
+  :root:root #screen-wordle .wordle-wrap > .wordle-hint-btn, :root:root #screen-wordle .wordle-wrap > .wordle-hint { grid-column: 2; }
+  :root:root #screen-wordle .wordle-wrap > .wordle-hint-btn { grid-row: 2; }
+  :root:root #screen-wordle .wordle-wrap > .wordle-hint { grid-row: 3; }
+  :root:root #screen-wordle .wordle-wrap > .wordle-msg { grid-row: 4; }
+  :root:root #screen-wordle .wordle-wrap > .wordle-keyboard { grid-row: 5; }
+  :root:root #screen-wordle .wordle-wrap > .wordle-share { grid-row: 6; }
+  :root:root #screen-wordle .wordle-wrap > .wordle-msg,
+  :root:root #screen-wordle .wordle-wrap > .wordle-keyboard,
+  :root:root #screen-wordle .wordle-wrap > .wordle-share { grid-column: 2; }
+  :root:root #screen-wordle .wordle-sub { display: none; }
+  :root:root #screen-wordle .wordle-key { height: 40px; }
+  :root:root #screen-wordle .wordle-cell::before { display: none; }
+  .main-nav { transform: none; }
+}
