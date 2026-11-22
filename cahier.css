@@ -3948,3 +3948,6 @@ body.overlay-open .main-nav { z-index: 90; }
 .overlay > :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal, .overlay-content) {
   max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain;
 }
+
+/* v234 La pastille « Live quiz » ne recouvre plus les reponses pendant une partie */
+body:has(.screen.game-screen.active) .live-pill { display: none !important; }
