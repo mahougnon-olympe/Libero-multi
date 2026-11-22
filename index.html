@@ -123,6 +123,7 @@
   <link rel="stylesheet" href="cahier.css" media="print"
         onload="this.media='all'; if (window.__cssPret) window.__cssPret();" />
   <noscript><link rel="stylesheet" href="cahier.css" /></noscript>
+  <link rel="stylesheet" href="weekend.css?v=4" />
   <script>(function(){try{var n=Date.now();if(n>=Date.parse('2026-10-28T00:00:00+01:00')&&n<Date.parse('2026-11-02T00:00:00+01:00')&&localStorage.getItem('libero_hw_off')!=='1'){var r=document.documentElement;r.classList.add('hw-boot');if(sessionStorage.getItem('libero_hw_boot'))r.classList.add('hw-seen');else sessionStorage.setItem('libero_hw_boot','1');}}catch(e){}})();</script>
   <script>(function(){var s=sessionStorage.getItem('libero_screen');if(s&&s!=='landing'){document.documentElement.classList.add('restoring');document.documentElement.setAttribute('data-restore',s);}
     // Une partie multijoueur (ou un quiz en salon) est en cours : le serveur doit repondre avant qu'il y ait quoi que ce soit a afficher.
@@ -246,6 +247,7 @@
 
     <div id="hk-home" class="hk-home" hidden></div>
     <div id="bingo-home" class="hk-home bingo-home" hidden></div>
+    <div id="wk-home" class="hk-home bingo-home" hidden></div>
 
     <div class="landing-grid">
       <!-- Les deux jeux phares tiennent toute la largeur : c'est la hierarchie
@@ -750,6 +752,7 @@
       <h1><span class="ui-ic ttl" data-ic="calweek"></span> <span id="events-screen-title">Évents</span></h1>
       <p class="subtitle" id="events-screen-sub">Le calendrier des week-ends</p>
     </div>
+    <section id="wk-box" hidden aria-label="Week-end"></section>
     <div class="evcal" id="evcal"></div>
   </div>
 
@@ -2118,6 +2121,7 @@
   <script src="onb-quick.js"></script>
   <script src="flags-data.js"></script>
   <script src="app.js"></script>
+  <script src="weekend.js?v=1"></script>
   <!-- Icones en relief : vrai paquet lucide-react en module ES, charge apres
        le reste. Si le CDN ne repond pas, le jeu a trait de UI_ICONS reste. -->
   <script type="module" src="icons3d.js"></script>

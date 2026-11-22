@@ -2484,7 +2484,7 @@ window._arcade = (() => {
 })();
 
 function applyLang() {
-  try { window._hkApply?.(); window._bingoApply?.(); window._qrApply?.(); } catch {}
+  try { window._hkApply?.(); window._bingoApply?.(); window._qrApply?.(); window._wkApply?.(); } catch {}
   const d = t();
   document.documentElement.lang = currentLang;
   document.title = d.siteTitle;

@@ -469,6 +469,7 @@ async function loadData() {
   liveQuiz.load(configDocs.find(d => d._id === 'live_cfg')?.value, configDocs.find(d => d._id === 'live_state')?.value);
   hk.load(configDocs.find(d => d._id === 'hk_state')?.value);
   bingo.load(configDocs.find(d => d._id === 'bingo_state')?.value);
+  weekend.load(configDocs.find(d => d._id === 'wk_state')?.value);
   const nextDistDoc = configDocs.find(d => d._id === 'nextDistributionAt');
   if (nextDistDoc) nextDistributionAt = nextDistDoc.value;
   const cbDoc = configDocs.find(d => d._id === 'chess_book');
@@ -1802,6 +1803,31 @@ const bingo = require('./bingo')({
   },
 });
 const _areFriends = (a, b) => { const e = a && libs.get(a); return !!(e && Array.isArray(e.friends) && e.friends.includes(b)); };
+
+// ── Week-end du 28 nov. : Defi du robot difficile + Week-end des duels (moteur dans weekend.js) ──
+const weekend = require('./weekend')({
+  io, saveConfig, safePlayerId,
+  getEntry: pid => getLibsEntry(pid),
+  emitTo: (pid, ev, d) => _emitToPlayer(pid, ev, d),
+  beninHour: () => _beninDate().getUTCHours(),
+  adminAlert: (t, b) => adminAlert(t, b),
+  logError: (w, e) => logServerError(w, e),
+  pushAll: (fr, en) => {
+    if (!webpush) return 0;
+    let n = 0;
+    for (const pid of pushSubs.keys()) {
+      const e = libs.get(pid); const m = e && e.lang === 'en' ? en : fr;
+      n += sendPush(pid, { title: m[0], body: m[1], url: 'https://libero-multi.vercel.app', tag: 'libero-weekend' });
+    }
+    return n;
+  },
+  credit: (pid, n) => {
+    const e = getLibsEntry(pid); if (!e) return;
+    e.balance = Math.min(MAX_BALANCE, e.balance + n);
+    libs.set(pid, e); dbUpsertLibs(pid, e);
+    _emitToPlayer(pid, 'libs-update', { balance: e.balance, pendingBoostHint: e.pendingBoostHint, delta: n, nextAt: nextDistributionAt });
+  },
+});
 
 // ── Quiz en direct (tournoi) : moteur dans live-quiz.js ──
 const liveQuiz = require('./live-quiz')({
@@ -3426,6 +3452,7 @@ io.on('connection', (socket) => {
   liveQuiz.attach(socket);
   hk.attach(socket, allowAction);
   bingo.attach(socket, allowAction);
+  weekend.attach(socket);
   ucGame.attach(socket);
   let roomCode      = null;
   let myPlayer      = null;
@@ -3634,6 +3661,9 @@ io.on('connection', (socket) => {
         libs.set(pid, e);
         dbUpsertLibs(pid, e);
         _emitToPlayer(pid, 'libs-update', { balance: e.balance, delta: pot, nextAt: nextDistributionAt });
+        // Week-end des duels (dimanche) : bonus du site si le gagnant a battu un ami.
+        const others = paid.filter(r => r !== winnerRole).map(paidId).filter(Boolean);
+        if (others.some(o => _areFriends(pid, o))) weekend.duelWin(pid, room.stake * others.length);
       }
       io.to(room.code).emit('stake-result', { outcome: 'won', winnerRole, pot });
     } else { // nul ou partie annulee : chacun recupere sa mise
@@ -3957,6 +3987,7 @@ io.on('connection', (socket) => {
           updateLeaderboard(humanId, humanName, humanWon ? 'win' : 'loss');
           pushHistory(room.playerIds?.R, { game: room.gameType, result: humanWon ? 'win' : 'loss', diff: room.botDifficulty });
           bingo.event(room.playerIds?.R, { k: 'played', game: room.gameType, won: humanWon, humans: 1, diff: room.botDifficulty });
+          weekend.event(room.playerIds?.R, { k: 'played', game: room.gameType, won: humanWon, humans: 1, diff: room.botDifficulty });
           if (humanWon) bumpChallenge(room.playerIds?.R, 'gamesWon');
           if (humanWon && room.gameType === 'ludo') bumpChallenge(room.playerIds?.R, 'ludoWins');
         } else {
@@ -7264,6 +7295,17 @@ app.post('/admin/bingo', (req, res) => {
   if (action && action !== 'status') adminAudit('bingo', { action: String(action) });
   res.json(bingo.admin(String(action || 'status')));
 });
+// Week-end du 28 nov. : suivi (status) et remise a zero. Avec WK_TEST=1 (tests locaux seulement) : 'event' / 'duel'.
+app.post('/admin/weekend', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
+  const { action, pid, ev, stake } = req.body || {};
+  if (process.env.WK_TEST === '1') {
+    if (action === 'event') { weekend.event(safePlayerId(pid), ev || {}); return res.json({ ok: true }); }
+    if (action === 'duel') return res.json({ ok: true, bonus: weekend.duelWin(safePlayerId(pid), Number(stake) || 0) });
+  }
+  if (action && action !== 'status') adminAudit('weekend', { action: String(action) });
+  res.json(weekend.admin(String(action || 'status')));
+});
 app.post('/admin/hacker', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Clé invalide.' });
   const { action, value } = req.body || {};
@@ -8351,5 +8393,6 @@ async function mergeDuplicateNames() {
   liveQuiz.start();
   hk.start();
   bingo.start();
+  weekend.start();
   server.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));
 })();
