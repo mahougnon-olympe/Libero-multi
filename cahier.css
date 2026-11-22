@@ -3923,3 +3923,21 @@ html, body { overscroll-behavior-y: contain; }
   .ldo-wrap > * { grid-column: 2; }
   .ldo-wrap > .ldo-board { grid-column: 1; grid-row: 1 / span 8; width: 100%; }
 }
+
+/* v231 Telephone en paysage : barre de navigation en colonne a gauche, boutique sur une ligne */
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023px) {
+  .main-nav {
+    top: 0; bottom: 0; right: auto; width: 64px; grid-template-columns: 1fr; grid-auto-rows: min-content; align-content: center; gap: 2px;
+    padding: 4px 4px; padding-left: calc(4px + env(safe-area-inset-left, 0px));
+    border-top: none; border-right: 1.5px solid var(--line); box-shadow: 2px 0 0 var(--hard);
+  }
+  .nav-tab { min-height: 48px; padding: 3px 2px; font-size: .62rem; }
+  .nav-tab-icon { font-size: 1.1rem; }
+  body.nav-bottom-visible { padding-left: 64px; }
+  body.nav-bottom-visible .screen { padding-bottom: 16px; }
+  body.nav-bottom-visible .btn-help-float { left: 76px; bottom: 12px; }
+  body.nav-bottom-visible .btn-chatbot-float { bottom: 12px; }
+  html.light body.nav-bottom-visible::before { left: 104px; }
+  :root:root #screen-shop .shop-fn-nav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 6px; }
+  :root:root #screen-shop .shop-fn-nav-btn { min-height: 36px; padding-block: 2px; }
+}
