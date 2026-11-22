@@ -3843,3 +3843,21 @@ html.light { --lc-sheet: #fffefb; --lc-f1: #fffdf0; --lc-f2: #cfc7aa; --lc-sh: r
   :root:root #screen-trivia-home > * { grid-column: 1; }
   :root:root #screen-trivia-home > .lb-card { grid-row: auto; }
 }
+
+/* v226 Responsive, etape 3 : Le Mot cale sur la hauteur de l'ecran, deux colonnes sur PC */
+:root:root .wordle-cell { width: var(--wc, 54px); height: var(--wc, 54px); max-width: none; max-height: none; }
+:root:root #screen-wordle { --wc: clamp(40px, min(15vw, calc((100dvh - 400px) / 6)), 64px); }
+@media (min-width: 1024px) {
+  :root:root #screen-wordle { --wc: clamp(56px, calc((100dvh - 330px) / 6), 84px); }
+  :root:root #screen-wordle .wordle-wrap {
+    max-width: 980px; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 48px; row-gap: 10px;
+    align-items: start; justify-items: center; padding-top: 60px;
+  }
+  :root:root #screen-wordle .wordle-wrap > * { grid-column: 1 / -1; }
+  :root:root #screen-wordle .wordle-wrap > .wordle-board { grid-column: 1; grid-row: 4 / span 4; margin: 0; }
+  :root:root #screen-wordle .wordle-wrap > .wordle-msg,
+  :root:root #screen-wordle .wordle-wrap > .wordle-keyboard,
+  :root:root #screen-wordle .wordle-wrap > .wordle-share { grid-column: 2; }
+  :root:root #screen-wordle .wordle-keyboard { max-width: 520px; }
+  :root:root #screen-wordle .wordle-key { height: 56px; }
+}
