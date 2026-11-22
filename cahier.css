@@ -3912,3 +3912,14 @@ html.light { --lc-sheet: #fffefb; --lc-f1: #fffdf0; --lc-f2: #cfc7aa; --lc-sh: r
 
 /* v229 Pas de rafraichissement involontaire : tirer la page vers le bas ne recharge plus (telephone et tablette) */
 html, body { overscroll-behavior-y: contain; }
+
+/* v230 Ludo en paysage telephone : plateau a gauche (cale sur la hauteur), joueurs et de a droite */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root:root #screen-game.ludo-game > #board-area { grid-column: 1 / -1; grid-row: 2; width: 100%; }
+  .ldo-wrap {
+    width: 100%; max-width: 820px; display: grid; grid-template-columns: min(calc(100dvh - 72px), 56vw) minmax(0, 1fr);
+    column-gap: 14px; row-gap: 6px; align-content: start; align-items: start; padding: 0 6px 8px;
+  }
+  .ldo-wrap > * { grid-column: 2; }
+  .ldo-wrap > .ldo-board { grid-column: 1; grid-row: 1 / span 8; width: 100%; }
+}
