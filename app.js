@@ -18,7 +18,7 @@ function _escHtml(s) {
 // Vrai UNIQUEMENT si aucun identifiant n'existait au chargement : sert à ne
 // montrer l'animation de bienvenue qu'aux joueurs qui découvrent le site.
 // Nouveau visiteur, ou F5 au milieu du carnet de premiere visite (il n'a pas encore fini).
-window.__liberoNewVisitor = !localStorage.getItem('libero_player_id') || (!!sessionStorage.getItem('libero_onboard_page') && !localStorage.getItem('libero_onboarded'));
+window.__liberoNewVisitor = !localStorage.getItem('libero_player_id') || (!!sessionStorage.getItem('libero_onboard_page') && !localStorage.getItem('libero_onboarded')) || (!!localStorage.getItem('libero_guest_pending') && !localStorage.getItem('libero_onboarded'));
 function getPlayerId() {
   let id = localStorage.getItem('libero_player_id');
   if (!id) {
@@ -3006,6 +3006,11 @@ function showScreen(name) {
   document.documentElement.classList.remove('restoring');
   document.documentElement.removeAttribute('data-restore');
   sessionStorage.setItem('libero_screen', name);
+  // Invite qui a joue la partie du lien : le carnet d'inscription s'ouvre quand il revient a l'accueil.
+  if (window._runWelcome) {
+    if (name !== 'landing' && name !== 'home') window._guestPlayed = true;
+    else if (name === 'landing' && window._guestPlayed && !sessionStorage.getItem('p4session') && !sessionStorage.getItem('triviaSession')) setTimeout(() => { try { window._runWelcome && window._runWelcome(); } catch {} }, 600);
+  }
   const TOP = { landing: 0, ideas: 1, read: 2, shop: 3, profile: 4 };
   // Capture l'onglet de premier niveau actuellement actif AVANT de le retirer,
   // pour connaitre la direction du glissement (robuste des le 1er clic).
@@ -15931,17 +15936,29 @@ socket.on('redeem-gift-result', ({ ok, cosmeticId, bundleId, granted, fromName, 
 
   if (_resumePage) { showOnboard(); return; }
   // Animation machine à écrire, puis cascade d'icônes et bouton Commencer.
-  welcome.classList.remove('hidden');
-  const msg = d.welcomeType;
-  let i = 0;
-  (function step() {
-    if (i <= msg.length) { typeText.textContent = msg.slice(0, i); i++; setTimeout(step, 55); }
-    else {
-      iconsEl.innerHTML = ICONS.map((ic, k) => `<span class="welcome-icon" style="animation-delay:${k * 140}ms"><span data-ic="${ic}"></span></span>`).join('');
-      startBtn.textContent = d.start;
-      startBtn.classList.remove('hidden');
-    }
-  })();
+  function runWelcome() {
+    try { localStorage.removeItem('libero_guest_pending'); } catch {}
+    window._runWelcome = null;
+    welcome.classList.remove('hidden');
+    const msg = d.welcomeType;
+    let i = 0;
+    (function step() {
+      if (i <= msg.length) { typeText.textContent = msg.slice(0, i); i++; setTimeout(step, 55); }
+      else {
+        iconsEl.innerHTML = ICONS.map((ic, k) => `<span class="welcome-icon" style="animation-delay:${k * 140}ms"><span data-ic="${ic}"></span></span>`).join('');
+        startBtn.textContent = d.start;
+        startBtn.classList.remove('hidden');
+      }
+    })();
+  }
+  // Invite par un lien (?join=) : il joue d'abord la partie, le carnet d'inscription vient apres.
+  const _inGame = !!(sessionStorage.getItem('p4session') || sessionStorage.getItem('triviaSession'));
+  if (pendingJoinCode || (localStorage.getItem('libero_guest_pending') && _inGame)) {
+    try { localStorage.setItem('libero_guest_pending', '1'); } catch {}
+    window._runWelcome = runWelcome;
+    return;
+  }
+  runWelcome();
 })();
 
 // ── Tournoi du samedi ────────────────────────────────────────────────────────
