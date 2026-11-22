@@ -3957,3 +3957,4 @@ body:has(.screen.game-screen.active) .live-pill { display: none !important; }
 :root:root:not(.light) .lb-top1 .lb-l { color: #ffe0e0; }
 :root:root:not(.light) .lb-top1 .lb-d { color: #f3f6ef; }
 :root:root:not(.light) .lb-top1 .lb-name .lb-nm { text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+:root:root:not(.light) .fh-lb-pin .lb-w { color: #e4ffec; }
