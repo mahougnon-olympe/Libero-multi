@@ -3810,3 +3810,36 @@ html.light { --lc-sheet: #fffefb; --lc-f1: #fffdf0; --lc-f2: #cfc7aa; --lc-sh: r
   :root:root #screen-ideas .ideas-sort-btn { min-height: var(--touch); padding-inline: 14px; }
   :root:root .luffy-suggest-link { min-height: var(--touch); display: inline-flex; align-items: center; }
 }
+
+/* v225 Responsive, etape 2 : ecrans d'entree */
+/* Boutique (L et plus) : categories en colonne a gauche, collee */
+@media (min-width: 1024px) {
+  :root:root #screen-shop .shop-fn-body { flex-direction: row; align-items: flex-start; gap: 8px; }
+  :root:root #screen-shop .shop-fn-nav {
+    flex-direction: column; flex-wrap: nowrap; width: 210px; min-width: 210px; padding: 14px 10px;
+    position: sticky; top: 12px; max-height: calc(100vh - 40px); overflow-y: auto; gap: 6px;
+  }
+  :root:root #screen-shop .shop-fn-nav-btn { width: 100%; justify-content: flex-start; border-radius: var(--r-sm); padding: 6px 12px; }
+  :root:root #screen-shop .shop-fn-content { flex: 1; min-width: 0; }
+}
+/* Choix des themes (L et plus) : themes a gauche, colonne « Ta partie » a droite */
+@media (min-width: 1024px) {
+  :root:root #screen-trivia-home .who-card {
+    display: grid; grid-template-columns: minmax(0, 1fr) 340px; column-gap: 28px; row-gap: 0;
+    align-content: start; align-items: start; max-width: 1180px; width: 100%;
+  }
+  :root:root #screen-trivia-home .who-card > * { grid-column: 2; }
+  :root:root #screen-trivia-home .who-card > .tq-setup { grid-column: 1; grid-row: 1 / span 12; }
+  :root:root #screen-trivia-home .who-card > .trivia-action-row, 
+  :root:root #screen-trivia-home .who-card > .who-row { margin-top: 8px; }
+  :root:root #screen-trivia-home #trivia-themes { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+/* Accueil : plus d'air sur grand ecran */
+@media (min-width: 1440px) {
+  #screen-landing.active { max-width: 1360px; column-gap: 40px; grid-template-columns: minmax(0, 1.6fr) minmax(320px, 1fr); }
+}
+@media (min-width: 1024px) {
+  :root:root #screen-trivia-home.active { grid-template-columns: minmax(0, 1180px); }
+  :root:root #screen-trivia-home > * { grid-column: 1; }
+  :root:root #screen-trivia-home > .lb-card { grid-row: auto; }
+}
