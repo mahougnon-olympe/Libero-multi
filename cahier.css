@@ -3909,3 +3909,6 @@ html.light { --lc-sheet: #fffefb; --lc-f1: #fffdf0; --lc-f2: #cfc7aa; --lc-sh: r
   :root:root #screen-game .chat { max-height: 34dvh; }
   :root:root #screen-landing { padding-top: 16px; }
 }
+
+/* v229 Pas de rafraichissement involontaire : tirer la page vers le bas ne recharge plus (telephone et tablette) */
+html, body { overscroll-behavior-y: contain; }
