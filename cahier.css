@@ -3941,3 +3941,10 @@ html, body { overscroll-behavior-y: contain; }
   :root:root #screen-shop .shop-fn-nav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 6px; }
   :root:root #screen-shop .shop-fn-nav-btn { min-height: 36px; padding-block: 2px; }
 }
+
+/* v232 Les fenetres (overlays) passent au-dessus de la barre de navigation et ne depassent jamais l'ecran */
+body.overlay-open .main-nav { z-index: 90; }
+.overlay { padding: max(16px, env(safe-area-inset-top, 0px)) 16px max(16px, env(safe-area-inset-bottom, 0px)); box-sizing: border-box; }
+.overlay > :is(.overlay-box, .recovery-modal, .help-modal, .comment-modal, .community-modal, .snake-vote-modal, .overlay-content) {
+  max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain;
+}
